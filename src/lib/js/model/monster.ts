@@ -1,3 +1,5 @@
+import {Position} from "./sprites";
+
 export class Monster {
 
     public id: string;
@@ -13,14 +15,10 @@ export class Monster {
     public currentAbility: string;
     public moves: string[];
 
-    public sprites: {
-        front: any,
-        back: any,
-        shiny: any
-    }
-    public front: any;
-    public back: any;
-    public shiny: any;
+    public sprites: MonsterSprite;
+
+    public position: Position;
+    public currentImage?: HTMLImageElement;
 
     constructor(id: string, name: string, types: string[], abilities: string[], baseStats: BaseStats, evolution: Evolution,
                 sprites: MonsterSprite, ability?: string, moves?: string[]) {
@@ -38,8 +36,26 @@ export class Monster {
         this.moves = moves || [];
 
         this.sprites = sprites;
+        this.position = new Position(0, 0);
     }
 
+    draw(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) {
+        if (!this.currentImage) {
+            this.currentImage = new Image();
+            this.currentImage.src = this.sprites.back;
+        }
+        if (this.currentImage.complete) {
+            ctx.drawImage(this.currentImage,
+                0,
+                0,
+                this.sprites.width,
+                this.sprites.height,
+                this.position.x,
+                this.position.y,
+                this.sprites.width * 5,
+                this.sprites.height * 5);
+        }
+    }
 }
 
 export class BaseStats {
@@ -71,9 +87,11 @@ export class Evolution {
 }
 
 export class MonsterSprite {
-    public front: any;
-    public back: any;
-    public shiny: any;
+    public front: string;
+    public back: string;
+    public shiny: string;
+    public width: number = 80;
+    public height: number = 80;
 
     constructor(front: any, back: any, shiny: any) {
         this.front = front;

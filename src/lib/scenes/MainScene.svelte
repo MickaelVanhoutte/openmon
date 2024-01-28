@@ -2,26 +2,26 @@
 
 
 <BattleScene bind:opened={opened} bind:battleStart={battleStart} bind:opponent={currentMap.currentMonster}
-             bind:player={player}/>
+             bind:player={character}/>
 
-<Menu bind:menuOpened={menuOpened} bind:player={player}/>
+<Menu bind:menuOpened={menuOpened} bind:player={character}/>
 
 <script lang="ts">
-    import {Player} from "../js/model/player";
-    import {map1} from "../js/maps/map1";
+    import {Character} from "../js/model/player";
     import {keydownListener, keys, keyupListener, lastKey} from "../js/commands/keyboard";
     import {Boundary, rectangularCollision} from "../js/model/collisions";
     import {MonsterSprite, Position} from "../js/model/sprites";
     import {battleSprite} from "../js/model/battle";
     import BattleScene from "./BattleScene.svelte";
     import Menu from "./main/Menu.svelte";
+    import {testMap} from "../js/maps/test-map";
 
 
     export let opened = false;
     export let menuOpened = false;
     export let battleStart = false;
 
-    export let currentMap = map1;
+    export let currentMap = testMap;
 
     export let canvas: HTMLCanvasElement;
 
@@ -30,12 +30,13 @@
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
+    export let character: Character;
+    character.position = new Position(
+        testMap.playerPosition.x * 48,
+        testMap.playerPosition.y * 48
+    );
 
-    export let player = new Player('Player 1', canvas);
-
-    const forwardBy = 12;
-
-    const movables = [currentMap.background, currentMap.foreground, ...currentMap.boundaries, ...currentMap.battleZones];
+    const movedOffset = new Position(0, 0);
 
     const battle = {
         initiated: false
@@ -44,140 +45,104 @@
     function animate() {
         const mainLoopId = window.requestAnimationFrame(animate);
 
-        ctx.fillStyle = 'black';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        let now = Date.now();
+        let elapsed = now - then;
 
-        currentMap.background.draw(ctx, canvas);
-        player.sprite.draw(ctx, canvas);
+        if (elapsed > fpsInterval) {
+            then = now - (elapsed % fpsInterval);
 
-        if (currentMap.foreground) {
-            currentMap.foreground.draw(ctx, canvas);
-        }
+            ctx.fillStyle = 'black';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        let allowedMove = true;
-        player.sprite.moving = false;
+            currentMap.drawBackground(ctx, movedOffset);
+            character.draw(ctx);
+            //currentMap.drawForeground(ctx, movedOffset); // FIXME non transparent tiles
 
-        if (battle.initiated) {
-            return;
-        }
+            let allowedMove = true;
+            character.moving = false;
 
+            // Stop battle if initiated
+            if (battle.initiated) {
+                return;
+            }
 
-        if (!menuOpened) {
+            if (!menuOpened) {
+                // Check for battle
+                if (keys.down.pressed || keys.up.pressed || keys.left.pressed || keys.right.pressed) {
 
-            if (keys.down.pressed || keys.up.pressed || keys.left.pressed || keys.right.pressed) {
-
-                for (let i = 0; i < currentMap.battleZones.length; i++) {
-                    const battleZone = currentMap.battleZones[i];
-
-                    // calculate overlapping area between player and the battleZone
-                    const overlappingArea = Math.max(0, Math.min(player.sprite.position.x + player.sprite.width, battleZone.position.x + battleZone.width) - Math.max(player.sprite.position.x, battleZone.position.x)) *
-                        Math.max(0, Math.min(player.sprite.position.y + player.sprite.height, battleZone.position.y + battleZone.height) - Math.max(player.sprite.position.y, battleZone.position.y)) / (player.sprite.width * player.sprite.height);
-
-                    if (rectangularCollision(
-                        player.sprite,
-                        battleZone
-                    ) && overlappingArea >= 0.5 && Math.random() < 0.01) {
+                    if (currentMap.hasBattleZoneAt(currentMap.playerPosition) && Math.random() < 0.1) {
                         let monster = currentMap.randomMonster(canvas);
                         battle.initiated = true;
                         window.cancelAnimationFrame(mainLoopId);
                         initiateBattle(monster);
-                        break;
                     }
                 }
-            }
 
-            if (keys.down.pressed && lastKey === 'ArrowDown') {
+                // Move player
+                if (keys.down.pressed && lastKey === 'ArrowDown') {
 
-                for (let i = 0; i < currentMap.boundaries.length; i++) {
-                    let boundary = currentMap.boundaries[i];
-                    if (rectangularCollision(
-                        player.sprite,
-                        new Boundary(new Position(boundary.position.x, boundary.position.y - forwardBy))
-                    )) {
+                    if (currentMap.hasBoundaryAt(new Position(currentMap.playerPosition.x, currentMap.playerPosition.y + 1))) {
                         allowedMove = false;
-                        break;
+                    }
+
+                    character.moving = true;
+                    character.direction = 'down';
+                    if (allowedMove) {
+                        movedOffset.y++;
                     }
                 }
+                if (keys.up.pressed && lastKey === 'ArrowUp') {
 
-                player.sprite.moving = true;
-                player.sprite.image = player.sprite?.sprites?.front || player.sprite.image;
-                if (allowedMove) {
-                    movables.forEach(movable => {
-                        movable.position.y -= forwardBy;
-                    });
-                }
-            }
-            if (keys.up.pressed && lastKey === 'ArrowUp') {
-
-                for (let i = 0; i < currentMap.boundaries.length; i++) {
-                    let boundary = currentMap.boundaries[i];
-                    if (rectangularCollision(
-                        player.sprite,
-                        new Boundary(new Position(boundary.position.x, boundary.position.y + forwardBy))
-                    )) {
+                    if (currentMap.hasBoundaryAt(new Position(currentMap.playerPosition.x, currentMap.playerPosition.y - 1))) {
                         allowedMove = false;
-                        break;
+                    }
+                    character.moving = true
+                    character.direction = 'up';
+                    if (allowedMove) {
+                        movedOffset.y--;
                     }
                 }
-                player.sprite.moving = true
-                player.sprite.image = player.sprite?.sprites?.back || player.sprite.image;
-                if (allowedMove) {
-                    movables.forEach(movable => {
-                        movable.position.y += forwardBy;
-                    });
-                }
-            }
-            if (keys.left.pressed && lastKey === 'ArrowLeft') {
+                if (keys.left.pressed && lastKey === 'ArrowLeft') {
 
-                for (let i = 0; i < currentMap.boundaries.length; i++) {
-                    let boundary = currentMap.boundaries[i];
-                    if (rectangularCollision(
-                        player.sprite,
-                        new Boundary(new Position(boundary.position.x + forwardBy, boundary.position.y))
-                    )) {
+                    if (currentMap.hasBoundaryAt(new Position(currentMap.playerPosition.x - 1, currentMap.playerPosition.y))) {
                         allowedMove = false;
-                        break;
+                    }
+
+                    character.moving = true;
+                    character.direction = 'left';
+                    if (allowedMove) {
+                        movedOffset.x--;
                     }
                 }
+                if (keys.right.pressed && lastKey === 'ArrowRight') {
 
-                player.sprite.moving = true;
-                player.sprite.image = player.sprite?.sprites?.left || player.sprite.image;
-                if (allowedMove) {
-                    movables.forEach(movable => {
-                        movable.position.x += forwardBy;
-                    });
-                }
-            }
-            if (keys.right.pressed && lastKey === 'ArrowRight') {
-
-                for (let i = 0; i < currentMap.boundaries.length; i++) {
-                    let boundary = currentMap.boundaries[i];
-                    if (rectangularCollision(
-                        player.sprite,
-                        new Boundary(new Position(boundary.position.x - forwardBy, boundary.position.y))
-                    )) {
+                    if (currentMap.hasBoundaryAt(new Position(currentMap.playerPosition.x + 1, currentMap.playerPosition.y))) {
                         allowedMove = false;
-                        break;
+                    }
+                    character.moving = true;
+                    character.direction = 'right';
+                    if (allowedMove) {
+                        movedOffset.x++;
                     }
                 }
-                player.sprite.moving = true;
-                player.sprite.image = player.sprite?.sprites?.right || player.sprite.image;
-                if (allowedMove) {
-                    movables.forEach(movable => {
-                        movable.position.x -= forwardBy;
-                    });
-                }
+                currentMap.updatePlayerPosition(movedOffset);
             }
         }
+
     }
 
 
-
     function initiateBattle(opponent: MonsterSprite) {
-
+console.log(character.monsters.at(0));
         initialOpponentPosition = {...opponent.position} || initialOpponentPosition;
-        initialAllyPosition = {...player.monsters.at(0).position} || initialAllyPosition;
+        initialAllyPosition = new Position(
+            canvas.width * 0.20,
+            (canvas.height * 0.75) - (character.monsters.at(0).sprites.height * 5) + (20 * 5)
+        );
+        console.log(character.monsters.at(0), initialAllyPosition);
+        character.monsters.at(0).position = {...initialAllyPosition};
 
+        //initialAllyPosition = {...character.position} || initialAllyPosition; // FIXME
         battleStart = true;
         setTimeout(() => {
             battleStart = false;
@@ -191,7 +156,7 @@
     let initialAllyPosition = new Position(0, 0);
     let monsterPositionOffset = 0;
 
-    let fps = 20;
+    let fps = 24;
     let then = Date.now();
     let fpsInterval = 1000 / fps;
 
@@ -218,17 +183,17 @@
 
             battleSprite.draw(ctx, canvas);
             currentMap.currentMonster?.draw(ctx);
-            player.monsters.at(0)?.draw(ctx);
+            character.monsters.at(0)?.draw(ctx, canvas);
 
             if (!!currentMap.currentMonster?.position) {
                 if (monsterPositionOffset < 10) {
                     monsterPositionOffset++;
                     currentMap.currentMonster.position.y = initialOpponentPosition.y - monsterPositionOffset
-                    player.monsters.at(0).position.y = initialAllyPosition.y + monsterPositionOffset;
+                    character.monsters.at(0).position.y = initialAllyPosition.y + monsterPositionOffset;
                 } else {
                     monsterPositionOffset = 0;
                     currentMap.currentMonster.position.y = initialOpponentPosition.y;
-                    player.monsters.at(0).position.y = initialAllyPosition.y;
+                    character.monsters.at(0).position.y = initialAllyPosition.y;
                 }
             }
         }

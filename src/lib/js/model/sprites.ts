@@ -12,7 +12,7 @@ export class Sprite {
     public height: number = 0;
     public moving: boolean;
 
-    constructor(position: Position, image: HTMLImageElement, frames: Frames = {max: 1}, sprites?: {
+    constructor(position: Position, image: HTMLImageElement, frames: Frames = {max: 1, val: 0, elapsed: 0}, sprites?: {
         front: HTMLImageElement,
         back: HTMLImageElement,
         right: HTMLImageElement,
@@ -111,11 +111,11 @@ export class Position {
 }
 
 export class Frames {
-    val?: number;
-    elapsed?: number;
+    val: number;
+    elapsed: number;
     max: number;
 
-    constructor(max: number, val: number = 0, elapsed?: number) {
+    constructor(max: number, val: number = 0, elapsed = 0) {
         this.val = val;
         this.elapsed = elapsed;
         this.max = max;

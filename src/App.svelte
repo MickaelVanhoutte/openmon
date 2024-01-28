@@ -1,16 +1,18 @@
-<svelte:options customElement="open-mon" accessors={true}/>
+<svelte:options customElement="open-mon"/>
 
 
-{#if letsgo}
-    <MainScene bind:canvas={canvas}/>
+{#if ready && letsgo}
+    <MainScene bind:canvas={canvas} bind:character={player}/>
 
 {:else}
-    {#if !ready}
-        <div class="loading">
-            <div class="o-pokeball c-loader u-swing"></div>
-            <div>Gotta catch em all... {current}</div>
+    <div class="loading" class:ready={ready}>
+        <div class="o-pokeball c-loader u-swing"></div>
+        <span>Gotta catch em all... {current}</span>
+
+        <div bind:this={preview} id="preview">
         </div>
-    {:else}
+    </div>
+    {#if ready}
         <div class="buttons">
             {#if save}
                 <div class="letsgo">
@@ -31,63 +33,105 @@
 <script lang="ts">
     import MainScene from "./lib/scenes/MainScene.svelte";
     import {Monster} from "./lib/js/model/monster.ts";
-    import {Player} from "./lib/js/model/player.js";
+    import {Character} from "./lib/js/model/player.js";
+    import {Position} from "./lib/js/model/sprites";
 
     export let canvas;
+    let player: Character;
 
-    let ready = false;
+    let pokedexReady = false;
+    export let ready = false;
+
     let pokedex = [];
     let images = [];
     let letsgo = false;
-    let current = '';
+
     let save;
-    let player: Player;
-
-    localStorage.getItem('pokedex') && (pokedex = JSON.parse(localStorage.getItem('pokedex')));
-    localStorage.getItem('save') && (save = JSON.parse(localStorage.getItem('save')));
+    let current: string;
+    let preview: HTMLDivElement;
 
 
-    if (pokedex.length > 0) {
+    //localStorage.getItem('pokedex') && (pokedex = JSON.parse(localStorage.getItem('pokedex')));
+    //localStorage.getItem('player') && (player = JSON.parse(localStorage.getItem('player')));
+    //localStorage.getItem('save') && (save = JSON.parse(localStorage.getItem('save')));
+
+    if (pokedex.length > 0 && player) {
+        pokedex.forEach(pokemon => {
+            setTimeout(() => {
+                const front = new Image();
+                front.src = `/src/assets/monsters/heartgold-soulsilver/${pokemon.id}.png`;
+                preview.appendChild(front);
+            }, 100);
+        })
+        pokedexReady = true;
         ready = true;
-
     } else {
-
         // read pokedex file to load images
         fetch('/src/assets/data/pokedex-gen1.json')
             .then(response => response.json())
             .then(data => {
                 data.forEach((pokemon) => {
+                    current = pokemon.name.english;
 
-                    const front = new Image();
-                    front.src = `/src/assets/monsters/heartgold-soulsilver/${pokemon.id}.png`;
+                    let front = `/src/assets/monsters/heartgold-soulsilver/${pokemon.id}.png`;
 
-                    const back = new Image();
-                    back.src = `/src/assets/monsters/heartgold-soulsilver/back/${pokemon.id}.png`;
+                    let back = `/src/assets/monsters/heartgold-soulsilver/back/${pokemon.id}.png`;
 
-                    const shiny = new Image();
-                    shiny.src = `/src/assets/monsters/heartgold-soulsilver/shiny/${pokemon.id}.png`;
+                    let shiny = `/src/assets/monsters/heartgold-soulsilver/shiny/${pokemon.id}.png`;
 
-                    Promise.all(Array.from([front, back, shiny]).map(img => new Promise(resolve => {
-                        img.onload = img.onerror = resolve;
-                    }))).then(() => {
-                        current = pokemon.name.english;
+                    setTimeout(() => {
                         const monster = new Monster(pokemon.id, pokemon.name.english, pokemon.type, pokemon.profile.ability, pokemon.base, pokemon.evolution, {
                             front: front,
                             back: back,
-                            shiny: shiny
-                        }, null, ['Tackle']);
+                            shiny: shiny,
+                            height: 80,
+                            width: 80,
+                        }, undefined, ['Tackle']);
                         pokedex.push(monster);
 
                         if (pokedex.length === data.length) {
-                            localStorage.setItem('pokedex', JSON.stringify(pokedex));
-                            ready = true;
+                            current = 'Ready!';
+                            pokedexReady = true;
+                            //localStorage.setItem('pokedex', JSON.stringify(pokedex));
+                            initCharacter();
                         }
+                    }, 100);
 
-                    })
                 });
-
             });
     }
+
+    function initCharacter() {
+        let front = new Image();
+        front.src = '/src/assets/sprites/hero_male_front.png';
+        let back = new Image();
+        back.src = '/src/assets/sprites/hero_male_back.png';
+        let left = new Image();
+        left.src = '/src/assets/sprites/hero_male_left.png';
+        let right = new Image();
+        right.src = '/src/assets/sprites/hero_male_right.png';
+        let battle = new Image();
+        battle.src = '/src/assets/sprites/hero_male_back.png';
+
+        Promise.all(Array.from([front, back, left, right, battle].filter(img => !img.complete)).map(img => new Promise(resolve => {
+            img.onload = img.onerror = resolve;
+        }))).then(() => {
+            player = new Character("Kaiser", "MALE", {
+                down: front,
+                up: back,
+                left: left,
+                right: right,
+                battle: battle,
+            }, [pokedex.at(0)]);
+
+            //localStorage.setItem('player', JSON.stringify(player));
+            console.log(player);
+            ready = true;
+        });
+
+
+    }
+
 
 </script>
 
@@ -99,6 +143,10 @@
     align-items: center;
     flex-direction: column;
     height: 100dvh;
+
+    &.ready {
+      opacity: .2;
+    }
   }
 
   .u-swing {
@@ -185,10 +233,10 @@
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    height: 100dvh;
-    width: 20dvw;
-    margin: auto;
     gap: 120px;
+    position: absolute;
+    left: calc(50dvw - 100px);
+    top: calc(50dvh - 40px);
 
     .letsgo {
       position: relative;
@@ -267,6 +315,12 @@
       }
 
     }
+  }
+
+  #preview {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
   }
 
 
