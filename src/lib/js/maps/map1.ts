@@ -1,3 +1,4 @@
+/*
 import {Position, Sprite} from "../model/sprites";
 import {MapObject} from "../model/maps";
 
@@ -89,3 +90,4 @@ const monsters = [
 ]
 
 export const map1 = new MapObject(backgroundSprite, foregroundSprite, map1_width, map1_height, map1_collisions, map1_battles, monsters);
+*/

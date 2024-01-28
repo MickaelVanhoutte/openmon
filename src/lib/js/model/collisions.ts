@@ -1,19 +1,23 @@
 import {Position} from "./sprites";
-import {tile_size} from "./maps";
 
 export class Boundary implements Rectangular {
     public position: Position;
     public width: number;
     public height: number;
-    constructor(position: Position){
+    constructor(position: Position, width: number = 16*3, height: number = 16*3){
         this.position = position;
-        this.width = tile_size;
-        this.height = tile_size;
+        this.width = width;
+        this.height = height;
     }
 
-    debug(ctx: CanvasRenderingContext2D) {
-        ctx.fillStyle = 'red';
-        ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
+    debug(ctx: CanvasRenderingContext2D, movedOffset: Position, color: string = 'red') {
+        ctx.fillStyle = color;
+        ctx.fillRect(
+            (this.position.x + movedOffset.x) *this.width,
+            (this.position.y + movedOffset.y) *this.height,
+            this.width,
+            this.height
+        );
     }
 }
 

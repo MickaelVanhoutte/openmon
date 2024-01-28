@@ -1,60 +1,74 @@
-import {BackMonsterSprite, Sprite} from "./sprites";
+import {BackMonsterSprite, Frames, Sprite} from "./sprites";
 import {Position} from "./sprites";
+import type {Monster} from "./monster";
 
-export class Player {
+
+export class Character {
     public name: string;
-    public sprite: Sprite;
-    public monsters: BackMonsterSprite[];
+    public gender: 'MALE' | 'FEMALE';
+    public sprites: PlayerSprites;
+    public monsters: Monster[];
+    public bag: any[] = [];
+    public lvl: number = 1;
+    public moving: boolean = false;
+    public direction: 'up' | 'down' | 'left' | 'right' = 'down';
+    public position: Position;
+    public frames: Frames;
 
-    constructor(name: string, canvas: HTMLCanvasElement) {
+    constructor(name: string, gender: 'MALE' | 'FEMALE', sprites: PlayerSprites, monsters: Monster[] = []) {
         this.name = name;
-
-        // Init images
-
-        const playerImg = new Image();
-        playerImg.src = 'src/assets/sprites/char_front-bicubic.png';
-
-        const playerBackImg = new Image();
-        playerBackImg.src = 'src/assets/sprites/char_back-bicubic.png';
-
-        const playerLeftImg = new Image();
-        playerLeftImg.src = 'src/assets/sprites/char_left-bicubic.png';
-
-        const playerRightImg = new Image();
-        playerRightImg.src = 'src/assets/sprites/char_right-bicubic.png';
-
-        this.sprite = new Sprite(
-            new Position(canvas.width / 2 - (playerImg.width / 3) / 2,
-                canvas.height / 2 - (playerImg.height / 3) / 2
-            ),
-            playerImg,
-            {max: 3},
-            {
-                front: playerImg,
-                back: playerBackImg,
-                right: playerRightImg,
-                left: playerLeftImg
-            }
-        );
-
-        this.monsters = [];
-
-        // debug, initial monster
-        const image = new Image();
-        image.src = 'src/assets/monsters/heartgold-soulsilver/back/104.png';
-        image.onload = () => {
-            this.monsters.push(new BackMonsterSprite(
-                image,
-                new Position(
-                    canvas.width * 0.20,
-                    (canvas.height * 0.75) - (image.height * 5) + (20 * 3)
-                )));
-        }
+        this.gender = gender;
+        this.sprites = sprites;
+        this.monsters = monsters;
+        this.frames = {max: 3, val: 0, elapsed: 0};
+        this.position = new Position(0, 0);
     }
 
-    updatePosition(canvas: HTMLCanvasElement) {
-        this.sprite.position.x = canvas.width / 2 - (this.sprite.image.width / 3) / 2;
-        this.sprite.position.y = canvas.height / 2 - (this.sprite.image.height / 3) / 2;
+    get sprite(): HTMLImageElement {
+        return this.sprites[this.direction];
+    }
+
+    public draw(ctx: CanvasRenderingContext2D) {
+        let image = this.sprite || this.sprites.down;
+        ctx.drawImage(
+            image,
+            this.frames.val * (image.width / this.frames.max),
+            0,
+            image.width / this.frames.max,
+            image.height,
+            this.position.x,
+            this.position.y,
+            (image.width / this.frames.max) * 3,
+            image.height * 3,
+        );
+
+        if (this.moving) {
+            if (this.frames.max > 1) {
+                this.frames.elapsed += 1;
+            }
+            if (this.frames.elapsed % 2 === 0) {
+                this.frames.val += 1
+                if (this.frames.val > this.frames.max - 1) {
+                    this.frames.val = 0;
+                }
+            }
+        }
+    }
+}
+
+export class PlayerSprites {
+    public down: HTMLImageElement;
+    public up: HTMLImageElement;
+    public left: HTMLImageElement;
+    public right: HTMLImageElement;
+    public battle: HTMLImageElement;
+
+    constructor(front: HTMLImageElement, back: HTMLImageElement, left: HTMLImageElement, right: HTMLImageElement, battle: HTMLImageElement) {
+        this.down = front;
+        this.up = back;
+        this.left = left;
+        this.right = right;
+        this.battle = battle;
     }
 }
 

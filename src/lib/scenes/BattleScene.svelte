@@ -10,14 +10,14 @@
     import ActionBar from "./battle/ActionBar.svelte";
     import EnemyInfo from "./battle/EnemyInfo.svelte";
     import type {MonsterSprite} from "../js/model/sprites";
-    import type {Player} from "../js/model/player";
+    import {Character} from "../js/model/player";
 
     export let opened;
     export let battleStart;
 
     export let opponent: MonsterSprite;
 
-    export let player: Player;
+    export let player: Character;
 
     export let currentMonster = player?.monsters?.at(0);
 </script>

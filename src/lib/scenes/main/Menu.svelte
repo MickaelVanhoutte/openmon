@@ -27,6 +27,7 @@
 
 <script lang="ts">
     export let menuOpened;
+    export let player;
 </script>
 
 <style lang="scss">
