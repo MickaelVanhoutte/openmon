@@ -3,20 +3,28 @@
     <div class="info">
         <div class="_inner">
             {#if !moveOpened}
-                {battleState?.currentMessage}
+                {battleState?.currentMessage.toUpperCase()}
             {:else}
-
+                <div class="move-desc">
+                    <p>{battleState?.playerCurrentMonster.moves[selectedMoveIdx].description}</p>
+                    <p>{battleState?.playerCurrentMonster.moves[selectedMoveIdx].currentPp}
+                        / {battleState?.playerCurrentMonster.moves[selectedMoveIdx].pp}</p>
+                    <p>{battleState?.playerCurrentMonster.moves[selectedMoveIdx].category}</p>
+                    <p>{battleState?.playerCurrentMonster.moves[selectedMoveIdx].power}
+                        | {battleState?.playerCurrentMonster.moves[selectedMoveIdx].accuracy} %</p>
+                </div>
             {/if}
         </div>
     </div>
 
-    {#if moveOpened}
 
+    {#if moveOpened}
         <div class="moves">
-            {#each battleState.playerPokemon.moves as move}
-                <button class="action-btn" style="--color:#dc5959" disabled="{!battleState?.isPlayerTurn}"
-                        on:click={() => battleState.selectAction(move)}>
-                    {move.name}
+            {#each battleState.playerCurrentMonster.moves as move, index}
+                <button class="action-btn" style="--color:#dc5959" {disabled}
+                        class:selected={selectedMoveIdx === index}
+                        on:click={() =>selectMove(move)}>
+                    {move.name.toUpperCase()}
                 </button>
             {/each}
         </div>
@@ -24,20 +32,20 @@
     {:else}
         <div class="actions">
 
-            <button class="action-btn" style="--color:#dc5959" disabled="{!battleState?.isPlayerTurn}"
-                    on:click={toggleMoveSelection}>
+            <button class="action-btn" style="--color:#dc5959" {disabled}
+                    on:click={toggleMoveSelection} class:selected={ selectedOptionIdx === 0}>
                 FIGHT
             </button>
 
-            <button class="action-btn" style="--color:#eca859" disabled="{!battleState?.isPlayerTurn}">
+            <button class="action-btn" style="--color:#eca859" {disabled} class:selected={ selectedOptionIdx === 1}>
                 BAG
             </button>
 
-            <button class="action-btn" style="--color:#7EAF53" disabled="{!battleState?.isPlayerTurn}">
+            <button class="action-btn" style="--color:#7EAF53" {disabled} class:selected={ selectedOptionIdx === 2}>
                 POKEMONS
             </button>
 
-            <button class="action-btn" style="--color:#599bdc" disabled="{!battleState?.isPlayerTurn}"
+            <button class="action-btn" style="--color:#599bdc" {disabled} class:selected={ selectedOptionIdx === 2}
                     on:click={escape}>
                 RUN
             </button>
@@ -48,15 +56,17 @@
 </div>
 
 <script lang="ts">
-    import {BattleState} from "../../js/model/battle";
+    import {Attack, BattleState} from "../../js/model/battle";
     import {RunAway} from "../../js/model/battle";
 
     export let opened;
+    export let battleState: BattleState;
     let moveOpened = false;
 
-    export let battleState: BattleState;
+    $:disabled = (battleState && !battleState.isPlayerTurn) || false;
 
-    console.log(battleState);
+    let selectedMoveIdx = 0;
+    let selectedOptionIdx = 0;
 
     function toggleMoveSelection() {
         moveOpened = !moveOpened;
@@ -64,8 +74,40 @@
 
     function escape() {
         console.log(battleState)
-        battleState.selectAction(new RunAway());
+        battleState.selectAction(new RunAway(battleState.playerCurrentMonster));
     }
+
+    function selectMove(move) {
+        battleState.selectAction(new Attack(move, 'opponent', battleState.playerCurrentMonster));
+        moveOpened = false;
+    }
+
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowUp') {
+            if (moveOpened) {
+                selectedMoveIdx = selectedMoveIdx === 0 ? battleState.playerCurrentMonster.moves.length - 1 : selectedMoveIdx - 1;
+            } else {
+                selectedOptionIdx = selectedOptionIdx === 0 ? 3 : selectedOptionIdx - 1;
+            }
+        } else if (e.key === 'ArrowDown') {
+            if (moveOpened) {
+                selectedMoveIdx = selectedMoveIdx === battleState.playerCurrentMonster.moves.length - 1 ? 0 : selectedMoveIdx + 1;
+            } else {
+                selectedOptionIdx = selectedOptionIdx === 3 ? 0 : selectedOptionIdx + 1;
+            }
+        } else if (e.key === 'Enter') {
+            if (moveOpened) {
+                selectMove(battleState.playerCurrentMonster.moves[selectedMoveIdx]);
+            } else {
+                if (selectedOptionIdx === 0) {
+                    toggleMoveSelection();
+                } else if (selectedOptionIdx === 3) {
+                    escape();
+                }
+            }
+        }
+        console.log(selectedOptionIdx, selectedMoveIdx);
+    })
 </script>
 
 <style lang="scss">
@@ -124,10 +166,24 @@
         justify-content: center;
         width: 100%;
         text-transform: capitalize;
+
+        .move-desc {
+          text-transform: initial;
+          font-size: 46px;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 16px;
+
+          p {
+            flex: 45%;
+            margin: 0;
+          }
+
+        }
       }
     }
 
-    .actions {
+    .actions, .moves {
       width: 50%;
       height: 100%;
       display: flex;
@@ -155,12 +211,18 @@
 
     transition: color 0.3s ease-in-out, opacity 0.3s ease-in-out;
     flex: 49%;
-  }
 
-  .action-btn:hover {
-    cursor: pointer;
-    opacity: .96;
-    color: #262626;
+    &:hover, &.selected {
+      cursor: pointer;
+      opacity: .96;
+      color: #262626;
+    }
+
+    &[disabled] {
+      opacity: .5;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
   }
 
   @media (max-width: 1280px) {

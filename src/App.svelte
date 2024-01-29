@@ -139,24 +139,21 @@
                 ...pokedex.at(70),
                 ivs: new Stats(31, 31, 31, 31, 31, 31),
                 evs: new Stats(120, 0, 0, 255, 0, 135),
+                moves: [
+                    new Move('Tackle', 'Normal', 'Physical', 40, 100, 35, 0, '', 0, 'Basic hit'),
+                    new Move('Growl', 'Normal', 'Status', 0, 100, 40, 0, '', 0, 'Lowers the target\'s Attack by one stage.'),
+                    new Move('Tail Whip', 'Normal', 'Status', 0, 100, 30, 0, '', 0, 'Lowers the target\'s Defense by one stage.'),
+                    new Move('Vine whip', 'Grass', 'Physical', 40, 100, 30, 0, '', 0, 'Strong hit with vines.'),
+                ]
             };
             Object.setPrototypeOf(firstPoke, Monster.prototype);
-            firstPoke.levelUp();
-            firstPoke.levelUp();
-            firstPoke.levelUp();
-            firstPoke.levelUp();
-            firstPoke.levelUp();
-            firstPoke.levelUp();
-            firstPoke.levelUp();
-            firstPoke.levelUp();
 
             firstPoke.updateCurrentStats();
-            console.log('mine : ', firstPoke);
+            firstPoke.currentHp = firstPoke.currentStats.HP;
+
             player = new Character("Kaiser", "MALE",
                 new PlayerSprites(front, back, left, right, battle), [firstPoke]);
 
-            //localStorage.setItem('player', JSON.stringify(player));
-            console.log(player);
             ready = true;
         });
 
@@ -217,7 +214,7 @@
     width: $size;
     height: $size;
     border-radius: $size;
-    border: solid ($size/25) black;
+    border: solid calc($size / 25) black;
     position: relative;
     background: linear-gradient(to bottom, #EEEEEE 0%, #FFFFFF 100%);;
     margin: 10px auto;
@@ -236,26 +233,26 @@
 
     &:before {
       width: $size;
-      height: ($size/2) -($size/25/2);
-      border-bottom: solid ($size/25) black;
-      border-radius: ($size/2) ($size/2) 0 0;
+      height: calc($size / 2) - calc($size / 25 / 2);
+      border-bottom: solid calc($size / 25) black;
+      border-radius: calc($size / 2) calc($size / 2) 0 0;
       background: linear-gradient(to bottom, #d10000 0%, #ff0000 50%);
     }
 
     &:after {
       content: "";
-      width: $size/5;
-      height: $size/5;
+      width: calc($size / 5);
+      height: calc($size / 5);
       background: linear-gradient(to bottom, #fff 0%, #ccc 100%);
       position: absolute;
       left: 50%;
       top: 50%;
       transform: translate(-50%, -50%);
       border-radius: 50%;
-      box-shadow: 0 0 0 ($size/50) black,
-      0 0 0 ($size/25) #ddd,
-      0 0 0 ($size/14) black,
-      0 0 ($size/10) ($size/17) rgba(0, 0, 0, 0.4);
+      box-shadow: 0 0 0 calc($size / 50) black,
+      0 0 0 calc($size / 25) #ddd,
+      0 0 0 calc($size / 14) black,
+      0 0 calc($size / 10) calc($size / 17) rgba(0, 0, 0, 0.4);
     }
   }
 

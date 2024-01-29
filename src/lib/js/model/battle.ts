@@ -10,11 +10,13 @@ export class BattleState {
     public opponent: Character | Monster;
     public opponentCurrentMonster: Monster;
 
-    public isPlayerTurn: boolean = false;
+    public isPlayerTurn: boolean;
 
     public turnStack: Action[];
     private initialOpponentPosition: Position;
     private initialAllyPosition: Position;
+
+    private escapeAttempts: number = 0;
 
     public onClose: () => void = () => {
     };
@@ -32,7 +34,6 @@ export class BattleState {
         this.opponentCurrentMonster = this.wild ? opponent as Monster : (opponent as Character).monsters[0];
 
         this.turnStack = [];
-        this.isPlayerTurn = this.playerCurrentMonster.currentStats.speed >= this.opponentCurrentMonster.currentStats.speed;
 
         this.initialOpponentPosition = new Position(
             (canvas.width / 4) * 3 - (opponent?.sprites.width * 2.5 * opponent?.spriteScale / 2),
@@ -46,84 +47,96 @@ export class BattleState {
 
         this.playerCurrentMonster.position = this.initialAllyPosition;
         this.opponentCurrentMonster.position = this.initialOpponentPosition;
+
+        this.isPlayerTurn = true;
     }
 
     public selectAction(action: Action) {
-        this.turnStack.push(action);
-        this.isPlayerTurn = !this.isPlayerTurn;
+        this.isPlayerTurn = false;
+        if (action instanceof Attack && this.playerCurrentMonster.currentStats.speed > this.opponentCurrentMonster.currentStats.speed
+            || action instanceof RunAway
+            || action instanceof ChangePokemon
+            || action instanceof BagObject) {
+            this.turnStack.push(action);
+            this.selectOpponentAction();
+        } else {
+            this.selectOpponentAction();
+            this.turnStack.push(action);
+        }
 
-        this.selectOpponentAction();
-    }
-
-    public resolveStack() {
-        console.log("resolving stack");
-        this.turnStack.forEach((action) => {
-            if (action instanceof Attack) {
-                this.attack(action);
-            } else if (action instanceof ChangePokemon) {
-                //this.changePokemon(action);
-            } else if (action instanceof RunAway) {
-                this.runAway();
-            } else if (action instanceof BagObject) {
-                //this.useItem(action);
-            }
-        });
-        this.turnStack = [];
-        this.isPlayerTurn = !this.isPlayerTurn;
+        this.executeAction(this.turnStack.shift());
     }
 
     private runAway() {
-        console.log("executing runaway");
         if (this.wild) {
-
             // randomized based on opponent speed
+            this.escapeAttempts++;
             const random = Math.random() * 255;
-            const f = Math.floor((this.opponentCurrentMonster.currentStats.speed * 128) / this.playerCurrentMonster.currentStats.speed) + 30 * random;
+            const f = Math.floor((this.opponentCurrentMonster.currentStats.speed * 128) / this.playerCurrentMonster.currentStats.speed) + 30 * this.escapeAttempts * random;
+
             if (f > 255) {
-                this.currentMessage = 'Got away safely!';
-                setTimeout(() => {
-                    this.onClose();
-                }, 1000);
+                this.turnStack = [];
+                this.turnStack.push(new EndBattle(this.playerCurrentMonster));
+                this.turnStack.unshift(new Message('You ran away safely!', this.playerCurrentMonster));
             } else {
-                this.currentMessage = 'Failed to run away!';
+                this.turnStack.unshift(new Message('Failed to run away!', this.playerCurrentMonster));
             }
         } else {
-            this.currentMessage = 'You can\'t run away from a trainer battle!';
+            this.turnStack.unshift(new Message('You can\'t run away from a trainer battle!', this.playerCurrentMonster));
         }
 
     }
 
     private attack(action: Attack) {
-        const attacker = action.target === 'opponent' ? this.playerCurrentMonster : this.opponentCurrentMonster;
+        const attacker = action.initiator;
         const defender = action.target === 'opponent' ? this.opponentCurrentMonster : this.playerCurrentMonster;
 
-        const damage = this.calculateDamage(attacker, defender, action.move);
-        console.log(damage);
-        defender.currentStats.HP -= damage;
-        if (defender.currentStats.HP <= 0) {
-            defender.currentStats.HP = 0;
-            defender.fainted = true;
+        const result = this.calculateDamage(attacker, defender, action.move);
+        const actionsToPush: Action[] = [];
+
+
+        actionsToPush.push(new Message(attacker.name + ' used ' + action.move.name + '!', action.initiator));
+
+        if (result.immune) {
+            actionsToPush.push(new Message('It doesn\'t affect ' + defender.name + '...', action.initiator));
+        } else if (result.notVeryEffective) {
+            actionsToPush.push(new Message('It\'s not very effective...', action.initiator));
+        } else if (result.superEffective) {
+            actionsToPush.push(new Message('It\'s super effective!', action.initiator));
         }
+        if (result.critical) {
+            actionsToPush.push(new Message('A critical hit!', action.initiator));
+        }
+
+        actionsToPush.push(new RemoveHP(result.damages, action.target, action.initiator));
+        actionsToPush.reverse().forEach((action: Action) => this.turnStack.unshift(action));
     }
 
-    private calculateDamage(attacker: Monster, defender: Monster, move: Move) {
-        debugger
+    private calculateDamage(attacker: Monster, defender: Monster, move: Move): DamageResults {
+        let result = new DamageResults();
         if (move.category !== 'Status') {
             const attack = move.category === 'Physical' ? attacker.currentStats.attack : attacker.currentStats.specialAttack;
             const defense = move.category === 'Physical' ? defender.currentStats.defense : defender.currentStats.specialDefense;
-            const modifier = this.calculateModifier(attacker, defender, move);
-            return Math.floor((((2 * attacker.level / 5 + 2) * move.power * attack / defense) / 50 + 2) * modifier);
-        }
-        return 0;
-    }
 
-    private calculateModifier(attacker: Monster, defender: Monster, move: Move) {
-        const typeEffectiveness = this.calculateTypeEffectiveness(move.type, defender.types);
-        const critical = this.calculateCritical();
-        const random = Math.random() * (1 - 0.85) + 0.85;
-        const stab = this.calculateStab(attacker, move);
-        const other = 1;
-        return typeEffectiveness * critical * random * stab * other;
+            const typeEffectiveness = this.calculateTypeEffectiveness(move.type, defender.types);
+            result.superEffective = typeEffectiveness > 1;
+            result.notVeryEffective = typeEffectiveness < 1;
+            result.immune = typeEffectiveness === 0;
+
+            const critical = result.immune ? 0 : this.calculateCritical();
+            result.critical = critical > 1;
+
+            const random = Math.random() * (1 - 0.85) + 0.85;
+            const stab = this.calculateStab(attacker, move);
+            const other = 1; // burn, weather, badges  ...
+            const modifiers = typeEffectiveness * critical * random * stab * other;
+            result.damages = Math.floor((((2 * attacker.level / 5 + 2) * move.power * attack / defense) / 50 + 2) * modifiers);
+
+        } else {
+            result.damages = 0;
+        }
+
+        return result;
     }
 
     private calculateTypeEffectiveness(type: string, types: string[]) {
@@ -143,23 +156,130 @@ export class BattleState {
 
     private selectOpponentAction() {
         const move = this.opponentCurrentMonster.selectMove('Easy');
-        this.turnStack.push(new Attack('Attack', 'Attack', move, 'ally'));
-        this.resolveStack();
+        this.turnStack.push(new Attack(move, 'ally', this.opponentCurrentMonster));
+    }
+
+    sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
+
+    private executeAction(action?: Action) {
+
+        if (action) {
+            if (action instanceof Attack && !action.initiator.fainted) {
+                this.attack(action);
+            } else if (action instanceof RunAway) {
+                this.runAway();
+            } else if (action instanceof ChangePokemon) {
+                // this.changePokemon(action);
+            } else if (action instanceof BagObject) {
+                // this.useBagObject(action);
+            } else if (action instanceof Message) {
+                this.currentMessage = action.description;
+            } else if (action instanceof RemoveHP) {
+                this.removeHP(action);
+            } else if(action instanceof EndBattle) {
+                this.onClose();
+            }
+        }
+
+        if (this.turnStack?.length || 0 > 0) {
+            this.sleep(1000).then(
+                () => this.executeAction(this.turnStack?.shift())
+            );
+            //this.executeAction(stack?.shift(), stack)
+        } else {
+            this.isPlayerTurn = true;
+        }
+    }
+
+    private removeHP(action: RemoveHP) {
+        const target = action.target === 'opponent' ? this.opponentCurrentMonster : this.playerCurrentMonster;
+        target.currentHp -= action.damages;
+        if (target.currentHp <= 0) {
+            target.currentHp = 0;
+            target.fainted = true;
+
+            this.turnStack = [];
+            this.turnStack.push(new Message(target.name + ' fainted!', action.initiator));
+
+            if (this.wild || (this.opponent instanceof Character && this.opponent.monsters.every((monster: Monster) => monster.fainted))) {
+                this.turnStack.unshift(new EndBattle(action.initiator));
+                this.turnStack.unshift(new Message('You won the battle!', action.initiator));
+                setTimeout(() => {
+                    this.onClose();
+                }, 1000);
+            }
+        }
+    }
+}
+
+export class DamageResults {
+    superEffective: boolean = false;
+    notVeryEffective: boolean = false;
+    immune: boolean = false;
+    critical: boolean = false;
+    effectSuccess: boolean = false;
+    effectApplied: string = "";
+    damages: number = 0;
+
+    constructor() {
     }
 }
 
 export interface Action {
     name: string;
     description: string;
+    initiator: Monster;
+}
+
+export class EndBattle implements Action {
+    public name: string;
+    public description: string;
+    public initiator: Monster;
+
+    constructor(initiator: Monster) {
+        this.name = 'End Battle';
+        this.description = 'End Battle';
+        this.initiator = initiator;
+    }
+}
+
+export class RemoveHP implements Action {
+    public name: string;
+    public description: string;
+    public damages: number;
+    public target: 'opponent' | 'ally';
+    public initiator: Monster;
+
+    constructor(damages: number, target: 'opponent' | 'ally', initiator: Monster) {
+        this.name = 'Remove HP';
+        this.description = 'Remove HP';
+        this.damages = damages;
+        this.target = target;
+        this.initiator = initiator;
+    }
+}
+
+export class Message implements Action {
+    public name: string;
+    public description: string;
+    public initiator: Monster;
+
+    constructor(message: string, initiator: Monster) {
+        this.name = 'Message';
+        this.description = message;
+        this.initiator = initiator;
+    }
 }
 
 export class RunAway implements Action {
     public description: string;
     public name: string;
+    public initiator: Monster;
 
-    constructor() {
+    constructor(initiator: Monster) {
         this.name = 'Run Away';
         this.description = 'Run away from the battle';
+        this.initiator = initiator;
     }
 }
 
@@ -167,11 +287,13 @@ export class ChangePokemon implements Action {
     public description: string;
     public name: string;
     public targetIdx: number;
+    public initiator: Monster;
 
-    constructor(targetIdx: number) {
+    constructor(targetIdx: number, initiator: Monster) {
         this.name = 'Change Pokemon';
         this.description = 'Change the current pokemon';
         this.targetIdx = targetIdx;
+        this.initiator = initiator;
     }
 }
 
@@ -180,12 +302,14 @@ export class Attack implements Action {
     public description: string;
     public move: Move;
     public target: 'opponent' | 'ally';
+    public initiator: Monster;
 
-    constructor(name: string, description: string, move: Move, target: 'opponent' | 'ally') {
-        this.name = name;
-        this.description = description;
+    constructor(move: Move, target: 'opponent' | 'ally', initiator: Monster) {
+        this.name = move.name;
+        this.description = move.description;
         this.move = move;
         this.target = target;
+        this.initiator = initiator;
     }
 }
 
@@ -195,13 +319,15 @@ export class BagObject implements Action {
     public itemId: string;
     public targetType: 'opponent' | 'ally';
     public targetIdx: number;
+    public initiator: Monster;
 
-    constructor(name: string, description: string, itemId: string, targetType: 'opponent' | 'ally', targetIdx = 0) {
+    constructor(name: string, description: string, itemId: string, targetType: 'opponent' | 'ally', initiator: Monster, targetIdx = 0) {
         this.name = name;
         this.description = description;
         this.itemId = itemId;
         this.targetType = targetType;
         this.targetIdx = targetIdx;
+        this.initiator = initiator;
     }
 }
 
@@ -242,97 +368,333 @@ export const battleBackground = new BattleSprite(
 );
 
 
-function fromTypeChart(type1: string, type2: string) {
-    const type = typeChart.find((type) => type.name === type1);
-    if (!!type) {
-        if (type.immunes.includes(type2)) return 0;
-        else if (type.weaknesses.includes(type2)) return 2;
-        else if (type.strengths.includes(type2)) return 0.5;
-        else return 1;
-    }
-    return 0;
+function fromTypeChart(type1: string, type2: string): number {
+    // @ts-ignore
+    return typeChart[type1.toLowerCase()][type2.toLowerCase()] as number;
 }
 
-export const typeChart = [{"name": "Normal", "immunes": ["Ghost"], "weaknesses": ["Rock", "Steel"], "strengths": []},
-    {
-        "name": "Fire",
-        "immunes": [],
-        "weaknesses": ["Fire", "Water", "Rock", "Dragon"],
-        "strengths": ["Grass", "Ice", "Bug", "Steel"]
+export const typeChart = {
+    "normal": {
+        "normal": 1,
+        "fire": 1,
+        "water": 1,
+        "electric": 1,
+        "grass": 1,
+        "ice": 1,
+        "fighting": 1,
+        "poison": 1,
+        "ground": 1,
+        "flying": 1,
+        "psychic": 1,
+        "bug": 1,
+        "rock": 0.5,
+        "ghost": 0,
+        "dragon": 1,
+        "dark": 1,
+        "steel": 0.5
     },
-    {
-        "name": "Water",
-        "immunes": [],
-        "weaknesses": ["Water", "Grass", "Dragon"],
-        "strengths": ["Fire", "Ground", "Rock"]
+    "fire": {
+        "normal": 1,
+        "fire": 0.5,
+        "water": 0.5,
+        "electric": 1,
+        "grass": 2,
+        "ice": 2,
+        "fighting": 1,
+        "poison": 1,
+        "ground": 1,
+        "flying": 1,
+        "psychic": 1,
+        "bug": 2,
+        "rock": 0.5,
+        "ghost": 1,
+        "dragon": 0.5,
+        "dark": 1,
+        "steel": 2
     },
-    {
-        "name": "Electric",
-        "immunes": ["Ground"],
-        "weaknesses": ["Electric", "Grass", "Dragon"],
-        "strengths": ["Water", "Flying"]
+    "water": {
+        "normal": 1,
+        "fire": 2,
+        "water": 0.5,
+        "electric": 1,
+        "grass": 0.5,
+        "ice": 1,
+        "fighting": 1,
+        "poison": 1,
+        "ground": 2,
+        "flying": 1,
+        "psychic": 1,
+        "bug": 1,
+        "rock": 2,
+        "ghost": 1,
+        "dragon": 0.5,
+        "dark": 1,
+        "steel": 1
     },
-    {
-        "name": "Grass",
-        "immunes": [],
-        "weaknesses": ["Fire", "Grass", "Poison", "Flying", "Bug", "Dragon", "Steel"],
-        "strengths": ["Water", "Ground", "Rock"]
+    "electric": {
+        "normal": 1,
+        "fire": 1,
+        "water": 2,
+        "electric": 0.5,
+        "grass": 0.5,
+        "ice": 1,
+        "fighting": 1,
+        "poison": 1,
+        "ground": 0,
+        "flying": 2,
+        "psychic": 1,
+        "bug": 1,
+        "rock": 1,
+        "ghost": 1,
+        "dragon": 0.5,
+        "dark": 1,
+        "steel": 1
     },
-    {
-        "name": "Ice",
-        "immunes": [],
-        "weaknesses": ["Fire", "Water", "Ice", "Steel"],
-        "strengths": ["Grass", "Ground", "Flying", "Dragon"]
+    "grass": {
+        "normal": 1,
+        "fire": 0.5,
+        "water": 2,
+        "electric": 1,
+        "grass": 0.5,
+        "ice": 1,
+        "fighting": 1,
+        "poison": 0.5,
+        "ground": 2,
+        "flying": 0.5,
+        "psychic": 1,
+        "bug": 0.5,
+        "rock": 2,
+        "ghost": 1,
+        "dragon": 0.5,
+        "dark": 1,
+        "steel": 0.5
     },
-    {
-        "name": "Fighting",
-        "immunes": ["Ghost"],
-        "weaknesses": ["Poison", "Flying", "Psychic", "Bug", "Fairy"],
-        "strengths": ["Normal", "Ice", "Rock", "Dark", "Steel"]
+    "ice": {
+        "normal": 1,
+        "fire": 0.5,
+        "water": 0.5,
+        "electric": 1,
+        "grass": 2,
+        "ice": 0.5,
+        "fighting": 1,
+        "poison": 1,
+        "ground": 2,
+        "flying": 2,
+        "psychic": 1,
+        "bug": 1,
+        "rock": 1,
+        "ghost": 1,
+        "dragon": 2,
+        "dark": 1,
+        "steel": 0.5
     },
-    {
-        "name": "Poison",
-        "immunes": ["Steel"],
-        "weaknesses": ["Poison", "Ground", "Rock", "Ghost"],
-        "strengths": ["Grass", "Fairy"]
+    "fighting": {
+        "normal": 2,
+        "fire": 1,
+        "water": 1,
+        "electric": 1,
+        "grass": 1,
+        "ice": 2,
+        "fighting": 1,
+        "poison": 0.5,
+        "ground": 1,
+        "flying": 0.5,
+        "psychic": 0.5,
+        "bug": 0.5,
+        "rock": 2,
+        "ghost": 0,
+        "dragon": 1,
+        "dark": 2,
+        "steel": 2
     },
-    {
-        "name": "Ground",
-        "immunes": ["Flying"],
-        "weaknesses": ["Grass", "Bug"],
-        "strengths": ["Fire", "Electric", "Poison", "Rock", "Steel"]
+    "poison": {
+        "normal": 1,
+        "fire": 1,
+        "water": 1,
+        "electric": 1,
+        "grass": 2,
+        "ice": 1,
+        "fighting": 1,
+        "poison": 0.5,
+        "ground": 0.5,
+        "flying": 1,
+        "psychic": 1,
+        "bug": 1,
+        "rock": 0.5,
+        "ghost": 0.5,
+        "dragon": 1,
+        "dark": 1,
+        "steel": 0
     },
-    {
-        "name": "Flying",
-        "immunes": [],
-        "weaknesses": ["Electric", "Rock", "Steel"],
-        "strengths": ["Grass", "Fighting", "Bug"]
+    "ground": {
+        "normal": 1,
+        "fire": 2,
+        "water": 1,
+        "electric": 2,
+        "grass": 0.5,
+        "ice": 1,
+        "fighting": 1,
+        "poison": 2,
+        "ground": 1,
+        "flying": 0,
+        "psychic": 1,
+        "bug": 0.5,
+        "rock": 2,
+        "ghost": 1,
+        "dragon": 1,
+        "dark": 1,
+        "steel": 2
     },
-    {"name": "Psychic", "immunes": ["Dark"], "weaknesses": ["Psychic", "Steel"], "strengths": ["Fighting", "Poison"]},
-    {
-        "name": "Bug",
-        "immunes": [],
-        "weaknesses": ["Fire", "Fighting", "Poison", "Flying", "Ghost", "Steel", "Fairy"],
-        "strengths": ["Grass", "Psychic", "Dark"]
+    "flying": {
+        "normal": 1,
+        "fire": 1,
+        "water": 1,
+        "electric": 0.5,
+        "grass": 2,
+        "ice": 1,
+        "fighting": 2,
+        "poison": 1,
+        "ground": 1,
+        "flying": 1,
+        "psychic": 1,
+        "bug": 2,
+        "rock": 0.5,
+        "ghost": 1,
+        "dragon": 1,
+        "dark": 1,
+        "steel": 0.5
     },
-    {
-        "name": "Rock",
-        "immunes": [],
-        "weaknesses": ["Fighting", "Ground", "Steel"],
-        "strengths": ["Fire", "Ice", "Flying", "Bug"]
+    "psychic": {
+        "normal": 1,
+        "fire": 1,
+        "water": 1,
+        "electric": 1,
+        "grass": 1,
+        "ice": 1,
+        "fighting": 2,
+        "poison": 2,
+        "ground": 1,
+        "flying": 1,
+        "psychic": 0.5,
+        "bug": 1,
+        "rock": 1,
+        "ghost": 1,
+        "dragon": 1,
+        "dark": 0,
+        "steel": 0.5
     },
-    {"name": "Ghost", "immunes": ["Normal"], "weaknesses": ["Dark"], "strengths": ["Psychic", "Ghost"]},
-    {"name": "Dragon", "immunes": ["Fairy"], "weaknesses": ["Steel"], "strengths": ["Dragon"]},
-    {"name": "Dark", "immunes": [], "weaknesses": ["Fighting", "Dark", "Fairy"], "strengths": ["Psychic", "Ghost"]},
-    {
-        "name": "Steel",
-        "immunes": [],
-        "weaknesses": ["Fire", "Water", "Electric", "Steel"],
-        "strengths": ["Ice", "Rock", "Fairy"]
+    "bug": {
+        "normal": 1,
+        "fire": 0.5,
+        "water": 1,
+        "electric": 1,
+        "grass": 2,
+        "ice": 1,
+        "fighting": 0.5,
+        "poison": 0.5,
+        "ground": 1,
+        "flying": 0.5,
+        "psychic": 2,
+        "bug": 1,
+        "rock": 1,
+        "ghost": 0.5,
+        "dragon": 1,
+        "dark": 2,
+        "steel": 0.5
     },
-    {
-        "name": "Fairy",
-        "immunes": [],
-        "weaknesses": ["Fire", "Poison", "Steel"],
-        "strengths": ["Fighting", "Dragon", "Dark"]
-    }];
+    "rock": {
+        "normal": 1,
+        "fire": 2,
+        "water": 1,
+        "electric": 1,
+        "grass": 1,
+        "ice": 2,
+        "fighting": 0.5,
+        "poison": 1,
+        "ground": 0.5,
+        "flying": 2,
+        "psychic": 1,
+        "bug": 2,
+        "rock": 1,
+        "ghost": 1,
+        "dragon": 1,
+        "dark": 1,
+        "steel": 0.5
+    },
+    "ghost": {
+        "normal": 0,
+        "fire": 1,
+        "water": 1,
+        "electric": 1,
+        "grass": 1,
+        "ice": 1,
+        "fighting": 1,
+        "poison": 1,
+        "ground": 1,
+        "flying": 1,
+        "psychic": 2,
+        "bug": 1,
+        "rock": 1,
+        "ghost": 2,
+        "dragon": 1,
+        "dark": 0.5,
+        "steel": 0.5
+    },
+    "dragon": {
+        "normal": 1,
+        "fire": 1,
+        "water": 1,
+        "electric": 1,
+        "grass": 1,
+        "ice": 1,
+        "fighting": 1,
+        "poison": 1,
+        "ground": 1,
+        "flying": 1,
+        "psychic": 1,
+        "bug": 1,
+        "rock": 1,
+        "ghost": 1,
+        "dragon": 2,
+        "dark": 1,
+        "steel": 0.5
+    },
+    "dark": {
+        "normal": 1,
+        "fire": 1,
+        "water": 1,
+        "electric": 1,
+        "grass": 1,
+        "ice": 1,
+        "fighting": 0.5,
+        "poison": 1,
+        "ground": 1,
+        "flying": 1,
+        "psychic": 2,
+        "bug": 1,
+        "rock": 1,
+        "ghost": 2,
+        "dragon": 1,
+        "dark": 0.5,
+        "steel": 0.5
+    },
+    "steel": {
+        "normal": 1,
+        "fire": 0.5,
+        "water": 0.5,
+        "electric": 0.5,
+        "grass": 1,
+        "ice": 2,
+        "fighting": 1,
+        "poison": 1,
+        "ground": 1,
+        "flying": 1,
+        "psychic": 1,
+        "bug": 1,
+        "rock": 2,
+        "ghost": 1,
+        "dragon": 1,
+        "dark": 1,
+        "steel": 0.5
+    }
+}

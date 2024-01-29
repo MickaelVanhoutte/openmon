@@ -16,7 +16,6 @@
     import {testMap} from "../js/maps/test-map";
     import type {Monster} from "../js/model/monster";
 
-
     export let opened = false;
     export let menuOpened = false;
     export let battleStart = false;
@@ -24,16 +23,6 @@
     export let currentMap = testMap;
 
     export let canvas: HTMLCanvasElement;
-
-    export let battle: {
-        initiated: boolean,
-        battleState?: BattleState,
-        frameElapsed?: number,
-        startDate?: Date,
-    } = {
-        initiated: false,
-        frameElapsed: 0,
-    }
 
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
@@ -45,16 +34,45 @@
         testMap.playerPosition.y * 48
     );
 
+    export let battle: {
+        initiated: boolean,
+        battleState?: BattleState,
+        frameElapsed?: number,
+        startDate?: Date,
+    } = {
+        initiated: false,
+        frameElapsed: 0,
+    }
+
+    let monsterPositionOffset = 0;
+    let initialOpponentPosition = new Position(0, 0);
+    let initialAllyPosition = new Position(0, 0);
+
+    let mainLoopContext = {
+        fps: 12,
+        then: Date.now(),
+        fpsInterval: 1000 / 12,
+        id: 0,
+    }
+
+    let battleLoopContext = {
+        fps: 12,
+        then: Date.now(),
+        fpsInterval: 1000 / 12,
+        goDown: true,
+        id: 0,
+    }
+
     const movedOffset = new Position(0, 0);
 
     function mainLoop() {
-        const mainLoopId = window.requestAnimationFrame(mainLoop);
+        mainLoopContext.id = window.requestAnimationFrame(mainLoop);
 
         let now = Date.now();
-        let elapsed = now - then;
+        let elapsed = now - mainLoopContext.then;
 
-        if (elapsed > fpsInterval) {
-            then = now - (elapsed % fpsInterval);
+        if (elapsed > mainLoopContext.fpsInterval) {
+            mainLoopContext.then = now - (elapsed % mainLoopContext.fpsInterval);
 
             ctx.fillStyle = 'black';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -77,7 +95,7 @@
 
                     if (currentMap.hasBattleZoneAt(currentMap.playerPosition) && Math.random() < 0.1) {
                         let monster = currentMap.randomMonster();
-                        window.cancelAnimationFrame(mainLoopId);
+                        window.cancelAnimationFrame(mainLoopContext.id);
                         initiateBattle(monster);
                     }
                 }
@@ -135,56 +153,19 @@
 
     }
 
-
-    function initiateBattle(opponent: Monster | Character) {
-        battle.initiated = true;
-        battle.startDate = new Date();
-        battle.battleState = new BattleState(character, opponent, canvas);
-        initialOpponentPosition = {...battle.battleState.opponentCurrentMonster.position};
-        initialAllyPosition = {...battle.battleState.playerCurrentMonster.position};
-        unbindKeyboard();
-
-        battle.battleState.onClose = () => {
-            stopBattle(battleLoopId);
-        }
-        battleStart = true;
-        setTimeout(() => {
-            battleStart = false;
-            opened = true;
-            battleLoop();
-        }, 2000);
-    }
-
-    function stopBattle(loopId: number) {
-        window.cancelAnimationFrame(battleLoopId);
-        battle.battleState = undefined;
-        battle.initiated = false;
-        battle.startDate = undefined;
-        battleStart = false;
-        opened = false;
-        menuOpened = false;
-        mainLoop();
-        bindKeyboard();
-    }
-
-    let monsterPositionOffset = 0;
-    let initialOpponentPosition = new Position(0, 0);
-    let initialAllyPosition = new Position(0, 0);
-
-    let fps = 12;
-    let then = Date.now();
-    let fpsInterval = 1000 / fps;
-    let goDown = true;
-    let battleLoopId;
-
     function battleLoop() {
-        battleLoopId = window.requestAnimationFrame(battleLoop);
-
+        battleLoopContext.id = window.requestAnimationFrame(battleLoop);
+        console.log('start battle loop');
         let now = Date.now();
-        let elapsed = now - then;
+        let elapsed = now - battleLoopContext.then;
 
-        if (elapsed > fpsInterval) {
-            then = now - (elapsed % fpsInterval);
+        if (elapsed > battleLoopContext.fpsInterval) {
+
+            if (!battle.initiated) {
+                return;
+            }
+
+            battleLoopContext.then = now - (elapsed % battleLoopContext.fpsInterval);
             battle.frameElapsed++;
 
             ctx.fillStyle = 'black';
@@ -197,8 +178,8 @@
 
             // animate monsters
             if (!!battle.battleState?.opponentCurrentMonster?.position) {
-                goDown = battle.frameElapsed <= 10;
-                if (goDown) {
+                battleLoopContext.goDown = battle.frameElapsed <= 10;
+                if (battleLoopContext.goDown) {
                     monsterPositionOffset++;
                 } else {
                     monsterPositionOffset--;
@@ -213,10 +194,37 @@
 
     }
 
+    function initiateBattle(opponent: Monster | Character) {
+        battle.frameElapsed = 0;
+        battle.initiated = true;
+        battle.startDate = new Date();
+        battle.battleState = new BattleState(character, opponent, canvas);
+        initialOpponentPosition = {...battle.battleState.opponentCurrentMonster.position};
+        initialAllyPosition = {...battle.battleState.playerCurrentMonster.position};
+        unbindKeyboard();
 
-    bindKeyboard();
-    mainLoop();
+        battle.battleState.onClose = () => {
+            stopBattle(battleLoopContext.id);
+        }
+        battleStart = true;
+        setTimeout(() => {
+            battleStart = false;
+            opened = true;
+            battleLoop();
+        }, 2000);
+    }
 
+    function stopBattle(loopId: number) {
+        window.cancelAnimationFrame(battleLoopContext.id);
+        battle.battleState = undefined;
+        battle.initiated = false;
+        battle.startDate = undefined;
+        battleStart = false;
+        opened = false;
+        menuOpened = false;
+        mainLoop();
+        bindKeyboard();
+    }
 
     function bindKeyboard() {
         window.addEventListener('keydown', keydownListener());
@@ -235,5 +243,8 @@
             menuOpened = !menuOpened;
         }
     }
+
+    bindKeyboard();
+    mainLoop();
 
 </script>
