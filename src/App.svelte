@@ -32,9 +32,8 @@
 
 <script lang="ts">
     import MainScene from "./lib/scenes/MainScene.svelte";
-    import {Monster} from "./lib/js/model/monster.ts";
+    import {Monster, MonsterSprite} from "./lib/js/model/monster.ts";
     import {Character} from "./lib/js/model/player.js";
-    import {Position} from "./lib/js/model/sprites";
 
     export let canvas;
     let player: Character;
@@ -49,6 +48,7 @@
     let save;
     let current: string;
     let preview: HTMLDivElement;
+    let maxHeight = 0;
 
 
     //localStorage.getItem('pokedex') && (pokedex = JSON.parse(localStorage.getItem('pokedex')));
@@ -74,25 +74,29 @@
                     current = pokemon.name.english;
 
                     let front = `/src/assets/monsters/heartgold-soulsilver/${pokemon.id}.png`;
-
+                    let front2 = `/src/assets/monsters/heartgold-soulsilver/frame2/${pokemon.id}.png`;
                     let back = `/src/assets/monsters/heartgold-soulsilver/back/${pokemon.id}.png`;
-
                     let shiny = `/src/assets/monsters/heartgold-soulsilver/shiny/${pokemon.id}.png`;
 
                     setTimeout(() => {
-                        const monster = new Monster(pokemon.id, pokemon.name.english, pokemon.type, pokemon.profile.ability, pokemon.base, pokemon.evolution, {
-                            front: front,
-                            back: back,
-                            shiny: shiny,
-                            height: 80,
-                            width: 80,
-                        }, undefined, ['Tackle']);
+                        const monster = new Monster(pokemon.id, pokemon.name.english, pokemon.type, pokemon.profile.ability, pokemon.base, pokemon.evolution,
+                            new MonsterSprite(front, front2, back, shiny), undefined, ['Tackle']);
+
+                        monster.height = Number.parseFloat(pokemon.profile.height.replace(' m', '')) * 100;
+                        monster.spriteScale = Math.max(1.2, Math.min(monster.height / 100, 2));
+                        //monster.spriteScale = Math.max(.5, Math.min(monster.height / 10, 1.8));
+                        console.log(monster.name, monster.height, monster.spriteScale);
+
                         pokedex.push(monster);
 
                         if (pokedex.length === data.length) {
+  console.log(pokedex);
+                            //console.log(maxHeight);
+                            //let scale = 80 / maxHeight;
+
                             current = 'Ready!';
                             pokedexReady = true;
-                            //localStorage.setItem('pokedex', JSON.stringify(pokedex));
+                            localStorage.setItem('pokedex', JSON.stringify(pokedex));
                             initCharacter();
                         }
                     }, 100);
@@ -122,7 +126,7 @@
                 left: left,
                 right: right,
                 battle: battle,
-            }, [pokedex.at(0)]);
+            }, [pokedex.at(70)]);
 
             //localStorage.setItem('player', JSON.stringify(player));
             console.log(player);

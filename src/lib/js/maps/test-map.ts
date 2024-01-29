@@ -6,7 +6,7 @@ const foreground = new Image();
 foreground.src = 'src/assets/maps/test-map-foreground.png';
 
 const monsters = [
-    "1", "4", "7"
+    95
 ];
 
 const collisions = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,

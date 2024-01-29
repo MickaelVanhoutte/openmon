@@ -9,12 +9,12 @@
 <script lang="ts">
     import {Character} from "../js/model/player";
     import {keydownListener, keys, keyupListener, lastKey} from "../js/commands/keyboard";
-    import {Boundary, rectangularCollision} from "../js/model/collisions";
-    import {MonsterSprite, Position} from "../js/model/sprites";
-    import {battleSprite} from "../js/model/battle";
+    import {Position} from "../js/model/sprites";
+    import {battleBackground, BattleState} from "../js/model/battle";
     import BattleScene from "./BattleScene.svelte";
     import Menu from "./main/Menu.svelte";
     import {testMap} from "../js/maps/test-map";
+    import type {Monster} from "../js/model/monster";
 
 
     export let opened = false;
@@ -38,12 +38,18 @@
 
     const movedOffset = new Position(0, 0);
 
-    const battle = {
-        initiated: false
+    let battle: {
+        initiated: boolean,
+        battleState?: BattleState,
+        frameElapsed?: number,
+        startDate?: Date,
+    } = {
+        initiated: false,
+        frameElapsed: 0,
     }
 
-    function animate() {
-        const mainLoopId = window.requestAnimationFrame(animate);
+    function mainLoop() {
+        const mainLoopId = window.requestAnimationFrame(mainLoop);
 
         let now = Date.now();
         let elapsed = now - then;
@@ -71,8 +77,7 @@
                 if (keys.down.pressed || keys.up.pressed || keys.left.pressed || keys.right.pressed) {
 
                     if (currentMap.hasBattleZoneAt(currentMap.playerPosition) && Math.random() < 0.1) {
-                        let monster = currentMap.randomMonster(canvas);
-                        battle.initiated = true;
+                        let monster = currentMap.randomMonster();
                         window.cancelAnimationFrame(mainLoopId);
                         initiateBattle(monster);
                     }
@@ -132,43 +137,47 @@
     }
 
 
-    function initiateBattle(opponent: MonsterSprite) {
-console.log(character.monsters.at(0));
-        initialOpponentPosition = {...opponent.position} || initialOpponentPosition;
-        initialAllyPosition = new Position(
-            canvas.width * 0.20,
-            (canvas.height * 0.75) - (character.monsters.at(0).sprites.height * 5) + (20 * 5)
-        );
-        console.log(character.monsters.at(0), initialAllyPosition);
-        character.monsters.at(0).position = {...initialAllyPosition};
+    function initiateBattle(opponent: Monster | Character) {
+        battle.initiated = true;
+        battle.startDate = new Date();
+        battle.battleState = new BattleState(character, opponent, canvas);
+        initialOpponentPosition = {...battle.battleState.opponentCurrentMonster.position};
+        initialAllyPosition = {...battle.battleState.playerCurrentMonster.position};
 
-        //initialAllyPosition = {...character.position} || initialAllyPosition; // FIXME
         battleStart = true;
         setTimeout(() => {
             battleStart = false;
             opened = true;
-            battleAnimation();
+            battleLoop();
         }, 2000);
     }
 
+    function stopBattle(loopId: number) {
+        window.cancelAnimationFrame(battleLoopId);
+        battle.battleState = undefined;
+        battle.initiated = false;
+        battle.startDate = undefined;
+        battleStart = false;
+        opened = false;
+        menuOpened = false;
+        mainLoop();
+    }
 
+    let monsterPositionOffset = 0;
     let initialOpponentPosition = new Position(0, 0);
     let initialAllyPosition = new Position(0, 0);
-    let monsterPositionOffset = 0;
 
-    let fps = 24;
+    let fps = 12;
     let then = Date.now();
     let fpsInterval = 1000 / fps;
-
+    let goDown = true;
     let battleLoopId;
 
-    function battleAnimation() {
-        battleLoopId = window.requestAnimationFrame(battleAnimation);
+    function battleLoop() {
+        battleLoopId = window.requestAnimationFrame(battleLoop);
 
         if (!opened) {
-            window.cancelAnimationFrame(battleLoopId);
-            battle.initiated = false;
-            animate();
+            stopBattle(battleLoopId);
             return;
         }
 
@@ -177,23 +186,28 @@ console.log(character.monsters.at(0));
 
         if (elapsed > fpsInterval) {
             then = now - (elapsed % fpsInterval);
+            battle.frameElapsed++;
 
             ctx.fillStyle = 'black';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            battleSprite.draw(ctx, canvas);
-            currentMap.currentMonster?.draw(ctx);
-            character.monsters.at(0)?.draw(ctx, canvas);
+            battleBackground.draw(ctx, canvas);
 
-            if (!!currentMap.currentMonster?.position) {
-                if (monsterPositionOffset < 10) {
+            battle.battleState?.opponentCurrentMonster?.draw(ctx, 'front');
+            battle.battleState?.playerCurrentMonster?.draw(ctx, 'back');
+
+            // animate monsters
+            if (!!battle.battleState?.opponentCurrentMonster?.position) {
+                goDown = battle.frameElapsed <= 10;
+                if (goDown) {
                     monsterPositionOffset++;
-                    currentMap.currentMonster.position.y = initialOpponentPosition.y - monsterPositionOffset
-                    character.monsters.at(0).position.y = initialAllyPosition.y + monsterPositionOffset;
                 } else {
-                    monsterPositionOffset = 0;
-                    currentMap.currentMonster.position.y = initialOpponentPosition.y;
-                    character.monsters.at(0).position.y = initialAllyPosition.y;
+                    monsterPositionOffset--;
+                }
+                battle.battleState.opponentCurrentMonster.position.y = initialOpponentPosition.y - monsterPositionOffset;
+                battle.battleState.playerCurrentMonster.position.y = initialAllyPosition.y + monsterPositionOffset;
+                if (battle.frameElapsed > 20) {
+                    battle.frameElapsed = 0;
                 }
             }
         }
@@ -202,12 +216,7 @@ console.log(character.monsters.at(0));
 
 
     bindKeyboard();
-    animate();
-    // debug
-    /*let monster = currentMap.randomMonster(canvas);
-    monster.image.onload = () => {
-        initiateBattle(monster);
-    }*/
+    mainLoop();
 
 
     function bindKeyboard() {

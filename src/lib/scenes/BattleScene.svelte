@@ -9,13 +9,13 @@
     import AllyInfo from "./battle/AllyInfo.svelte";
     import ActionBar from "./battle/ActionBar.svelte";
     import EnemyInfo from "./battle/EnemyInfo.svelte";
-    import type {MonsterSprite} from "../js/model/sprites";
     import {Character} from "../js/model/player";
+    import type {Monster} from "../js/model/monster";
 
     export let opened;
     export let battleStart;
 
-    export let opponent: MonsterSprite;
+    export let opponent: Monster;
 
     export let player: Character;
 
