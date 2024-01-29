@@ -137,7 +137,7 @@ export class Monster {
             (type !== 'front' && this.currentImage.complete)
 
         let imageToDisplay =
-            type !== 'front' ? this.currentImage : this.frames.elapsed < 50 ? this.currentImage : this.currentImage2;
+            type !== 'front' ? this.currentImage : this.frames.elapsed < 100 ? this.currentImage : this.currentImage2;
 
         if (ready) {
             this.frames.elapsed++;
@@ -263,6 +263,7 @@ export class Move {
     public power: number;
     public accuracy: number;
     public pp: number;
+    public currentPp: number;
     public priority: number;
     /*public target: string;*/
     public effect: string;
@@ -276,6 +277,7 @@ export class Move {
         this.power = power;
         this.accuracy = accuracy;
         this.pp = pp;
+        this.currentPp = pp;
         this.priority = priority;
         /*this.target = target;*/
         this.effect = effect;

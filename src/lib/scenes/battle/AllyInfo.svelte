@@ -9,7 +9,7 @@
         <div class="hp">
             <span>HP</span>
             <div class="progressbar-wrapper">
-                <div class="progressbar" style="--width:{percent + '%'}"></div>
+                <div class="progressbar" class:warning={percent <= 50} class:danger={percent < 15 } style="--width:{percent + '%'}"></div>
             </div>
         </div>
         {monster.currentHp} / {monster.currentStats.HP}
@@ -23,7 +23,7 @@
     export let opened: boolean;
     export let monster: Monster;
 
-    $: percent = (monster.currentHp * 100 / monster.currentStats.HP);
+    $: percent = Math.floor(monster.currentHp * 100 / monster.currentStats.HP);
 
 </script>
 
@@ -105,6 +105,17 @@
           background: linear-gradient(0deg, rgba(184,244,166,1) 0%, rgba(86,170,58,1) 30%, rgba(86,170,58,1) 50%, rgba(86,170,58,1) 70%, rgba(184,244,166,1) 100%);
           text-align: center;
           border-radius: 2px;
+
+          transition: width 1s ease-in-out;
+
+          &.warning {
+            background: rgb(255,241,164);
+            background: linear-gradient(0deg, rgba(255,241,164,1) 0%, rgba(255,194,16,1) 30%, rgba(255,194,16,1) 50%, rgba(255,194,16,1) 70%, rgba(255,241,164,1) 100%);
+          }
+          &.danger {
+            background: rgb(244,177,159);
+            background: linear-gradient(0deg, rgba(244,177,159,1) 0%, rgba(223,85,48,1) 30%, rgba(223,85,48,1) 50%, rgba(223,85,48,1) 70%, rgba(244,177,159,1) 100%);
+          }
         }
       }
     }

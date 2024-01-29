@@ -1,0 +1,86 @@
+Trainer classes
+
+Bug catcher
+- lvl 1 : catch rate + 10%
+- lvl 2 : base IV +5
+- lvl 3 : shiny rate + 5%
+
+Sailor:
+- water type pokemon + 5%
+- rain duration + 1 turn
+- 5% chances to freeze
+
+Hiker
+- rock type pokemon + 5%
+- sandstorm duration + 1 turn
+- 5% chances to flinch
+
+Biker
+- 5% speed stat
+-
+-
+
+Guitarist
+- electric type pokemon + 5%
+-
+- 5% chances to paralyze
+
+Bird keeper
+- flying type pokemon + 5%
+-
+-
+
+Black belt
+- fighting type pokemon + 5%
+-
+- 5% chances to confuse
+
+Ruin maniac
+- ground type pokemon + 5%
+- sandstorm duration + 1 turn
+- 5% chances to flinch
+
+Psychic
+-
+-
+-
+
+Gentleman
+- 10% more money on win & sell
+-
+-
+
+Sage
+- grass type pokemon + 5%
+-
+-
+
+Juggler
+- poison type pokemon + 5%
+-
+- 5% chances to poison
+
+Tamer
+- dragon type pokemon + 5%
+-
+-
+
+Swimmer
+-
+-
+-
+
+School kid
+-
+-
+-
+
+Beauty
+- fairy type pokemon + 5%
+- ??
+- 5% chances to fall in love
+
+Pokefan
+-
+-
+-
