@@ -1,5 +1,6 @@
-import {MonsterSprite, Position} from "./sprites";
+import {Position} from "./sprites";
 import {Boundary} from "./collisions";
+import {Monster} from "./monster";
 
 
 export const tileSize = 16;
@@ -14,13 +15,12 @@ export class OpenMap {
     public collisions: Boundary[];
     public battleZones: Boundary[];
 
-    public monsters: string[];
-    public currentMonster?: MonsterSprite;
+    public monsters: number[];
 
     public playerInitialPosition: Position = new Position(11, 11);
     public playerPosition: Position = new Position(11, 11);
 
-    constructor(background: HTMLImageElement, foreground: HTMLImageElement, width: number, height: number, collisions: number[], battles: number[], monsters: string[]) {
+    constructor(background: HTMLImageElement, foreground: HTMLImageElement, width: number, height: number, collisions: number[], battles: number[], monsters: number[]) {
         this.background = background;
         this.foreground = foreground;
         this.width = width;
@@ -31,12 +31,12 @@ export class OpenMap {
         this.monsters = monsters;
     }
 
-    randomMonster(canvas: HTMLCanvasElement) {
+    randomMonster(): Monster {
         const monsterId = this.monsters[Math.floor(Math.random() * this.monsters.length)];
-        const monsterImage = new Image();
-        monsterImage.src = `src/assets/monsters/heartgold-soulsilver/${monsterId}.png`;
-        this.currentMonster = new MonsterSprite(monsterImage, canvas);
-        return this.currentMonster;
+        const pokedex: Monster[] = localStorage.getItem('pokedex') && JSON.parse(localStorage.getItem('pokedex') || '[]') || [];
+        const monster = pokedex.find((monster: Monster) => monster.id === monsterId);
+        Object.setPrototypeOf(monster, Monster.prototype)
+        return monster as Monster;
     }
 
     initBattlesZones(battles: number []) {
@@ -128,7 +128,7 @@ export class OpenMap {
     hasBoundaryAt(position: Position) {
         return this.collisions.some((boundary) => {
             return boundary.position.x === position.x && boundary.position.y === position.y;
-        }) || position.x < 0 || position.y < 0 || position.x > this.width - 1  || position.y > this.height - 1
+        }) || position.x < 0 || position.y < 0 || position.x > this.width - 1 || position.y > this.height - 1
     }
 
     updatePlayerPosition(movedOffset: Position) {

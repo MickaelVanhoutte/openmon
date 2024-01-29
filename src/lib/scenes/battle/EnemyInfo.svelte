@@ -17,11 +17,11 @@
 </div>
 
 <script lang="ts">
-    import {MonsterSprite} from "../../js/model/sprites";
+    import {Monster} from "../../js/model/monster";
 
     export let opened;
 
-    export let monster: MonsterSprite;
+    export let monster: Monster;
 
     let maxHp = 20;
     let currentHp = 20;

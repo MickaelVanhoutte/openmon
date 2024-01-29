@@ -1,5 +1,4 @@
-import {BackMonsterSprite, Frames, Sprite} from "./sprites";
-import {Position} from "./sprites";
+import {Frames, Position} from "./sprites";
 import type {Monster} from "./monster";
 
 
@@ -14,6 +13,7 @@ export class Character {
     public direction: 'up' | 'down' | 'left' | 'right' = 'down';
     public position: Position;
     public frames: Frames;
+    public spriteScale: number = 1;
 
     constructor(name: string, gender: 'MALE' | 'FEMALE', sprites: PlayerSprites, monsters: Monster[] = []) {
         this.name = name;
@@ -62,6 +62,9 @@ export class PlayerSprites {
     public left: HTMLImageElement;
     public right: HTMLImageElement;
     public battle: HTMLImageElement;
+
+    public width: number = 80;
+    public height: number = 80;
 
     constructor(front: HTMLImageElement, back: HTMLImageElement, left: HTMLImageElement, right: HTMLImageElement, battle: HTMLImageElement) {
         this.down = front;

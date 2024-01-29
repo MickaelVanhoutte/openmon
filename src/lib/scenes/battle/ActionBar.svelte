@@ -149,4 +149,11 @@
     color: #262626;
   }
 
+  @media (max-width: 1280px) {
+    .action-btn {
+      font-size: 48px;
+      flex: 30%;
+    }
+  }
+
 </style>
