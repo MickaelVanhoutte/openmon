@@ -1,8 +1,8 @@
 <div class="enemy-info" class:opened={opened}>
 
     <div class="name-lvl">
-        <span>MONSTER 2</span>
-        <span>Lv 5</span>
+        <span>{monster.name}</span>
+        <span>Lv {monster.level}</span>
     </div>
 
     <div class="status">
@@ -23,9 +23,7 @@
 
     export let monster: Monster;
 
-    let maxHp = 20;
-    let currentHp = 20;
-    $: percent = (currentHp * 100 / maxHp);
+    $: percent = (monster.currentHp * 100 / monster.currentStats.HP);
 
 </script>
 

@@ -32,8 +32,8 @@
 
 <script lang="ts">
     import MainScene from "./lib/scenes/MainScene.svelte";
-    import {Monster, MonsterSprite} from "./lib/js/model/monster.ts";
-    import {Character} from "./lib/js/model/player.js";
+    import {Monster, MonsterSprite, Move, Stats} from "./lib/js/model/monster.ts";
+    import {Character, PlayerSprites} from "./lib/js/model/player.js";
 
     export let canvas;
     let player: Character;
@@ -79,21 +79,35 @@
                     let shiny = `/src/assets/monsters/heartgold-soulsilver/shiny/${pokemon.id}.png`;
 
                     setTimeout(() => {
-                        const monster = new Monster(pokemon.id, pokemon.name.english, pokemon.type, pokemon.profile.ability, pokemon.base, pokemon.evolution,
-                            new MonsterSprite(front, front2, back, shiny), undefined, ['Tackle']);
+
+                        const monster = new Monster(
+                            pokemon.id,
+                            pokemon.name.english,
+                            pokemon.type,
+                            pokemon.profile.ability,
+                            new Stats(
+                                pokemon.base['HP'],
+                                pokemon.base['Attack'],
+                                pokemon.base['Defense'],
+                                pokemon.base['Sp. Attack'],
+                                pokemon.base['Sp. Defense'],
+                                pokemon.base['Speed']
+                            ),
+                            pokemon.evolution,
+                            new MonsterSprite(front, front2, back, shiny),
+                            undefined, [
+                                new Move('Tackle', 'Normal', 'Physical', 40, 100, 35, 0, '', 0, 'Basic hit'),
+                            ],
+                            new Stats(10, 10, 10, 10, 10, 10),
+                            new Stats(0, 0, 0, 10, 0, 0)
+                        );
 
                         monster.height = Number.parseFloat(pokemon.profile.height.replace(' m', '')) * 100;
                         monster.spriteScale = Math.max(1.2, Math.min(monster.height / 100, 2));
-                        //monster.spriteScale = Math.max(.5, Math.min(monster.height / 10, 1.8));
-                        console.log(monster.name, monster.height, monster.spriteScale);
 
                         pokedex.push(monster);
 
                         if (pokedex.length === data.length) {
-  console.log(pokedex);
-                            //console.log(maxHeight);
-                            //let scale = 80 / maxHeight;
-
                             current = 'Ready!';
                             pokedexReady = true;
                             localStorage.setItem('pokedex', JSON.stringify(pokedex));
@@ -120,13 +134,26 @@
         Promise.all(Array.from([front, back, left, right, battle].filter(img => !img.complete)).map(img => new Promise(resolve => {
             img.onload = img.onerror = resolve;
         }))).then(() => {
-            player = new Character("Kaiser", "MALE", {
-                down: front,
-                up: back,
-                left: left,
-                right: right,
-                battle: battle,
-            }, [pokedex.at(70)]);
+
+            let firstPoke =  {
+                ...pokedex.at(70),
+                ivs: new Stats(31, 31, 31, 31, 31, 31),
+                evs: new Stats(120, 0, 0, 255, 0, 135),
+            };
+            Object.setPrototypeOf(firstPoke, Monster.prototype);
+            firstPoke.levelUp();
+            firstPoke.levelUp();
+            firstPoke.levelUp();
+            firstPoke.levelUp();
+            firstPoke.levelUp();
+            firstPoke.levelUp();
+            firstPoke.levelUp();
+            firstPoke.levelUp();
+
+            firstPoke.updateCurrentStats();
+            console.log('mine : ', firstPoke);
+            player = new Character("Kaiser", "MALE",
+                new PlayerSprites(front, back, left, right, battle), [firstPoke]);
 
             //localStorage.setItem('player', JSON.stringify(player));
             console.log(player);

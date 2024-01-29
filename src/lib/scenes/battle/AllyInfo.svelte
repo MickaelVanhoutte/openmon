@@ -1,8 +1,8 @@
 <div class="ally-info" class:opened={opened}>
 
     <div class="name-lvl">
-        <span>MONSTER 1</span>
-        <span>Lv 5</span>
+        <span>{monster.name}</span>
+        <span>Lv {monster.level}</span>
     </div>
 
     <div class="status">
@@ -12,7 +12,7 @@
                 <div class="progressbar" style="--width:{percent + '%'}"></div>
             </div>
         </div>
-        {currentHp} / {maxHp}
+        {monster.currentHp} / {monster.currentStats.HP}
     </div>
 
 </div>
@@ -23,9 +23,7 @@
     export let opened: boolean;
     export let monster: Monster;
 
-    let maxHp = 20;
-    let currentHp = 15;
-    $: percent= (currentHp * 100 / maxHp);
+    $: percent = (monster.currentHp * 100 / monster.currentStats.HP);
 
 </script>
 
