@@ -1,6 +1,8 @@
-<ActionBar bind:opened={opened}/>
-<AllyInfo bind:opened={opened} bind:monster={currentMonster}/>
-<EnemyInfo bind:opened={opened} bind:monster={opponent}/>
+{#if battleState}
+    <ActionBar bind:opened={opened} bind:battleState={battleState}/>
+    <AllyInfo bind:opened={opened} bind:monster={battleState.playerCurrentMonster}/>
+    <EnemyInfo bind:opened={opened} bind:monster={battleState.opponentCurrentMonster}/>
+{/if}
 
 <div class="battleStart" class:hide={opened} class:animate={battleStart}>
 </div>
@@ -9,17 +11,12 @@
     import AllyInfo from "./battle/AllyInfo.svelte";
     import ActionBar from "./battle/ActionBar.svelte";
     import EnemyInfo from "./battle/EnemyInfo.svelte";
-    import {Character} from "../js/model/player";
-    import type {Monster} from "../js/model/monster";
+    import type {BattleState} from "../js/model/battle";
 
     export let opened;
     export let battleStart;
 
-    export let opponent: Monster;
-
-    export let player: Character;
-
-    export let currentMonster = player?.monsters?.at(0);
+    export let battleState: BattleState;
 </script>
 
 <style lang="scss">

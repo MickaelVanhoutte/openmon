@@ -1,8 +1,8 @@
-<svelte:options accessors={true}/>
-
-
-<BattleScene bind:opened={opened} bind:battleStart={battleStart} bind:opponent={currentMap.currentMonster}
-             bind:player={character}/>
+{#if battle.initiated}
+    <BattleScene bind:opened={opened}
+                 bind:battleState={battle.battleState}
+                 bind:battleStart={battleStart}/>
+{/if}
 
 <Menu bind:menuOpened={menuOpened} bind:player={character}/>
 
@@ -25,6 +25,15 @@
 
     export let canvas: HTMLCanvasElement;
 
+    export let battle: {
+        initiated: boolean,
+        battleState?: BattleState,
+        frameElapsed?: number,
+        startDate?: Date,
+    } = {
+        initiated: false,
+        frameElapsed: 0,
+    }
 
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
@@ -37,16 +46,6 @@
     );
 
     const movedOffset = new Position(0, 0);
-
-    let battle: {
-        initiated: boolean,
-        battleState?: BattleState,
-        frameElapsed?: number,
-        startDate?: Date,
-    } = {
-        initiated: false,
-        frameElapsed: 0,
-    }
 
     function mainLoop() {
         const mainLoopId = window.requestAnimationFrame(mainLoop);
@@ -143,7 +142,11 @@
         battle.battleState = new BattleState(character, opponent, canvas);
         initialOpponentPosition = {...battle.battleState.opponentCurrentMonster.position};
         initialAllyPosition = {...battle.battleState.playerCurrentMonster.position};
+        unbindKeyboard();
 
+        battle.battleState.onClose = () => {
+            stopBattle(battleLoopId);
+        }
         battleStart = true;
         setTimeout(() => {
             battleStart = false;
@@ -161,6 +164,7 @@
         opened = false;
         menuOpened = false;
         mainLoop();
+        bindKeyboard();
     }
 
     let monsterPositionOffset = 0;
@@ -175,11 +179,6 @@
 
     function battleLoop() {
         battleLoopId = window.requestAnimationFrame(battleLoop);
-
-        if (!opened) {
-            stopBattle(battleLoopId);
-            return;
-        }
 
         let now = Date.now();
         let elapsed = now - then;

@@ -2,56 +2,69 @@
 
     <div class="info">
         <div class="_inner">
-            {msg}
+            {#if !moveOpened}
+                {battleState?.currentMessage}
+            {:else}
+
+            {/if}
         </div>
     </div>
 
-    <div class="actions">
+    {#if moveOpened}
 
-            <button class="action-btn" style="--color:#dc5959">
+        <div class="moves">
+            {#each battleState.playerPokemon.moves as move}
+                <button class="action-btn" style="--color:#dc5959" disabled="{!battleState?.isPlayerTurn}"
+                        on:click={() => battleState.selectAction(move)}>
+                    {move.name}
+                </button>
+            {/each}
+        </div>
+
+    {:else}
+        <div class="actions">
+
+            <button class="action-btn" style="--color:#dc5959" disabled="{!battleState?.isPlayerTurn}"
+                    on:click={toggleMoveSelection}>
                 FIGHT
             </button>
 
-            <button class="action-btn" style="--color:#eca859">
+            <button class="action-btn" style="--color:#eca859" disabled="{!battleState?.isPlayerTurn}">
                 BAG
             </button>
 
-            <button class="action-btn" style="--color:#7EAF53">
+            <button class="action-btn" style="--color:#7EAF53" disabled="{!battleState?.isPlayerTurn}">
                 POKEMONS
             </button>
 
-            <button class="action-btn" style="--color:#599bdc" on:click={exit}>
+            <button class="action-btn" style="--color:#599bdc" disabled="{!battleState?.isPlayerTurn}"
+                    on:click={escape}>
                 RUN
             </button>
 
-    </div>
+        </div>
+    {/if}
 
 </div>
 
 <script lang="ts">
+    import {BattleState} from "../../js/model/battle";
+    import {RunAway} from "../../js/model/battle";
+
     export let opened;
+    let moveOpened = false;
 
-    export let canRun = true;
+    export let battleState: BattleState;
 
-    const defaultMsg = "WHAT WILL YOU DO ?";
-    let msg = defaultMsg;
+    console.log(battleState);
 
-    function exit() {
-        if (canRun) {
-            if(Math.random() > 0.7){
-                msg = "YOU RAN AWAY SAFELY !";
-                setTimeout(() => {
-                    opened = false;
-                }, 1000);
-            }
+    function toggleMoveSelection() {
+        moveOpened = !moveOpened;
+    }
 
-        }else {
-            msg = "YOU CAN'T RUN FROM A TRAINER BATTLE !";
-            setTimeout(() => {
-                msg = defaultMsg;
-            }, 3000);
-        }
-
+    function escape() {
+        console.log(battleState)
+        battleState.selectAction(new RunAway());
     }
 </script>
 
@@ -110,6 +123,7 @@
         align-items: center;
         justify-content: center;
         width: 100%;
+        text-transform: capitalize;
       }
     }
 
