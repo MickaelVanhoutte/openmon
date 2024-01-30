@@ -32,6 +32,7 @@
   .ally-info {
     opacity: 0;
     visibility: hidden;
+    z-index: 9;
 
     background-color: antiquewhite;
 
@@ -53,6 +54,8 @@
     gap: 10%;
     justify-content: space-evenly;
 
+    font-size: 46px;
+
     &.opened {
       opacity: 1;
       visibility: visible;
@@ -63,7 +66,6 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 46px;
     }
 
     .status{
@@ -117,6 +119,19 @@
             background: linear-gradient(0deg, rgba(244,177,159,1) 0%, rgba(223,85,48,1) 30%, rgba(223,85,48,1) 50%, rgba(223,85,48,1) 70%, rgba(244,177,159,1) 100%);
           }
         }
+      }
+    }
+  }
+
+  @media screen and (max-width: 767px) and (orientation: portrait) {
+    .ally-info{
+      bottom: 30dvh;
+      height: 18dvw;
+      width: 30dvh;
+      font-size: 36px;
+
+      .hp {
+        width: 100%;
       }
     }
   }

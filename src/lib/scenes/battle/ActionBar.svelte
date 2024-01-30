@@ -112,6 +112,7 @@
 </script>
 
 <style lang="scss">
+
   .action-bar {
     opacity: 0;
     visibility: hidden;
@@ -138,6 +139,8 @@
 
     display: flex;
 
+    font-size: 64px;
+
     &.opened {
       opacity: 1;
       visibility: visible;
@@ -148,7 +151,7 @@
 
       width: 50%;
       height: 100%;
-      font-size: 64px;
+
       display: flex;
       align-items: center;
       align-content: center;
@@ -174,6 +177,9 @@
           display: flex;
           flex-wrap: wrap;
           gap: 16px;
+          word-break: break-word;
+          box-sizing: border-box;
+          padding: 0 20px;
 
           p {
             flex: 45%;
@@ -200,6 +206,27 @@
 
     }
   }
+
+  @media screen and (max-width: 767px) and (orientation: portrait) {
+    .action-bar  {
+      bottom: 0;
+      right: 0;
+      width: 100dvh;
+      height: 33dvw;
+      font-size: 38px;
+
+      .action-btn {
+        font-size: 32px;
+        flex: 30%;
+      }
+
+      .info ._inner .move-desc {
+        font-size: 32px;
+        gap: 0;
+      }
+    }
+  }
+
 
   .action-btn {
     background-color: var(--color);
@@ -232,5 +259,4 @@
       flex: 30%;
     }
   }
-
 </style>
