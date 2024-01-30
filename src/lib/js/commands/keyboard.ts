@@ -13,7 +13,11 @@ export const keys = {
     },
 }
 
-export let lastKey: string = '';
+//export let lastKey: string = '';
+
+export let lastKey ={
+    key: ''
+};
 
 
 export function keyupListener() {
@@ -40,19 +44,19 @@ export function keydownListener() {
     return (e: KeyboardEvent) => {
         switch (e.key) {
             case 'ArrowDown' :
-                lastKey = 'ArrowDown';
+                lastKey.key = 'ArrowDown';
                 keys.down.pressed = true;
                 break;
             case 'ArrowUp' :
-                lastKey = 'ArrowUp';
+                lastKey.key = 'ArrowUp';
                 keys.up.pressed = true;
                 break;
             case 'ArrowRight' :
-                lastKey = 'ArrowRight';
+                lastKey.key = 'ArrowRight';
                 keys.right.pressed = true;
                 break;
             case 'ArrowLeft' :
-                lastKey = 'ArrowLeft';
+                lastKey.key = 'ArrowLeft';
                 keys.left.pressed = true;
                 break;
         }
