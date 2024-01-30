@@ -23,6 +23,7 @@
             {#each battleState.playerCurrentMonster.moves as move, index}
                 <button class="action-btn" style="--color:#dc5959" {disabled}
                         class:selected={selectedMoveIdx === index}
+                        on:mouseover={() => selectedMoveIdx = index}
                         on:click={() =>selectMove(move)}>
                     {move.name.toUpperCase()}
                 </button>
@@ -33,7 +34,7 @@
         <div class="actions">
 
             <button class="action-btn" style="--color:#dc5959" {disabled}
-                    on:click={toggleMoveSelection} class:selected={ selectedOptionIdx === 0}>
+                    on:click={toggleMoveSelection} class:selected={ selectedOptionIdx === 0} >
                 FIGHT
             </button>
 
