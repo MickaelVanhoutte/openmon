@@ -124,16 +124,32 @@
     }
   }
 
-  @media screen and (max-width: 1100px) and (orientation: portrait) {
+  @media screen and (max-width: 1100px){
+    .enemy-info{
+      font-size: 36px;
+      border: 8px solid #595b59;
+
+      .hp {
+        width: 80%;
+        height: 18px;
+
+        .progressbar-wrapper {
+          height: 14px;
+        }
+      }
+    }
+  }
+
+  /*@media screen and (max-width: 1100px) and (orientation: portrait) {
     .enemy-info{
       bottom: 30dvh;
       height: 15dvw;
       width: 30dvh;
-      /*font-size: 36px;*/
+      !*font-size: 36px;*!
 
       .hp {
         width: 80%;
       }
     }
-  }
+  }*/
 </style>

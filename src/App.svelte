@@ -107,7 +107,13 @@
                         );
 
                         monster.height = Number.parseFloat(pokemon.profile.height.replace(' m', '')) * 100;
-                        monster.spriteScale = Math.max(1.2, Math.min(monster.height / 100, 2));
+
+                        if (window.innerWidth < 1100) {
+                            monster.spriteScale = Math.max(0.8, Math.min(monster.height / 100, 1.3));
+                        } else {
+                            monster.spriteScale = Math.max(1.2, Math.min(monster.height / 100, 2));
+                        }
+
 
                         pokedex.push(monster);
 
@@ -213,7 +219,7 @@
     }
   }
 
-  @media (max-width: 1100px) and (orientation: portrait) {
+  /*@media (max-width: 1100px) and (orientation: portrait) {
     #canvas-wrapper {
       -webkit-transform: rotate(89.99deg);
       -moz-transform: rotate(89.99deg);
@@ -247,7 +253,7 @@
         height: 100vw;
       }
     }
-  }
+  }*/
 
   .loading {
     display: flex;

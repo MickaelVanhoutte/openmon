@@ -113,6 +113,74 @@ export class Monster {
         }
     }
 
+    draw2(ctx: CanvasRenderingContext2D, type: 'front' | 'back' | 'shiny' = 'front') {
+        if (!this.currentImage) {
+            this.currentImage = new Image();
+            this.currentImage.src = this.sprites[type];
+        }
+
+        if (!this.currentImage2) {
+            this.currentImage2 = new Image();
+            this.currentImage2.src = this.sprites.front2;
+        }
+
+        if (this.frames.elapsed >= 100) {
+            this.frames.elapsed = 0;
+        }
+
+
+        let ready = (type === 'front' && this.currentImage.complete && this.currentImage2?.complete) ||
+            (type !== 'front' && this.currentImage.complete)
+
+        let imageToDisplay =
+            type !== 'front' ? this.currentImage : this.frames.elapsed < 100 ? this.currentImage : this.currentImage2;
+
+        if (ready) {
+            this.frames.elapsed++;
+
+            let position;
+
+
+            if (window.innerWidth < 1100) {
+                if (type === 'front') {
+                    position = new Position(
+                        (ctx.canvas.width / 4) * 3 - (this.sprites.width * 2 * this?.spriteScale / 2),
+                        (ctx.canvas.height / 3.5 * 2) - ((this?.sprites.height * 2 * this?.spriteScale)) - (16 * 2)
+                    );
+                } else {
+                    position = new Position(
+                        (ctx.canvas.width / 4) - ((this.sprites.width * 2 * this.spriteScale) / 2),
+                        (ctx.canvas.height * 0.75) - (this.sprites.height * 2 * this.spriteScale) + (16 * 2)
+                    );
+                }
+
+            } else {
+                if (type === 'front') {
+                    position = new Position(
+                        (ctx.canvas.width / 4) * 3 - (this?.sprites.width * 2.5 * this?.spriteScale / 2),
+                        (ctx.canvas.height / 2) - ((this?.sprites.height * 2.5 * this?.spriteScale)) - (12 * 2.5)
+                    );
+                } else {
+                    position = new Position(
+                        (ctx.canvas.width / 4) - ((this.sprites.width * 2.5 * this.spriteScale) / 2),
+                        (ctx.canvas.height * 0.75) - (this.sprites.height * 2.5 * this.spriteScale) + (15 * 2.5)
+                    );
+                }
+            }
+
+            ctx.drawImage(imageToDisplay,
+                0,
+                0,
+                this.sprites.width,
+                this.sprites.height,
+                position.x,
+                position.y,
+                this.sprites.width * this.spriteScale * 2.5,
+                this.sprites.height * this.spriteScale * 2.5);
+
+        }
+    }
+
     draw(ctx: CanvasRenderingContext2D, type: 'front' | 'back' | 'shiny' = 'front') {
         if (this.isShiny) {
             type = 'shiny';
