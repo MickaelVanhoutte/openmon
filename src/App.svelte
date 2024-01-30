@@ -185,7 +185,7 @@
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    height: 100dvh;
+    height: 100vh;
 
     &.ready {
       opacity: .2;
