@@ -203,7 +203,7 @@
 
     function battleLoop() {
         battleLoopContext.id = window.requestAnimationFrame(battleLoop);
-        console.log('start battle loop');
+
         let now = Date.now();
         let elapsed = now - battleLoopContext.then;
 
@@ -338,6 +338,7 @@
         keys.up.pressed = false;
         keys.right.pressed = false;
         keys.left.pressed = false;
+        character.moving = false;
     }
 
     bindKeyboard();
@@ -348,20 +349,15 @@
 <style lang="scss">
   .set {
     overflow: hidden;
-    padding: 30px;
     text-align: center;
 
     position: absolute;
     bottom: 5dvh;
     left: 5dvw;
-
-    .d-pad {
-      margin-right: 40px;
-    }
+    z-index: 10;
 
     .d-pad, .o-pad {
       display: inline-block;
-      // transform: scale(.7);
     }
   }
 

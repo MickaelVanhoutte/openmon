@@ -1,3 +1,5 @@
+import type {Character} from "../model/player";
+
 export const keys = {
     up: {
         pressed: false
@@ -20,7 +22,7 @@ export let lastKey ={
 };
 
 
-export function keyupListener() {
+export function keyupListener(character: Character) {
     return (e: KeyboardEvent) => {
         switch (e.key) {
             case 'ArrowDown' :
@@ -36,6 +38,7 @@ export function keyupListener() {
                 keys.left.pressed = false;
                 break;
         }
+        character.moving = false;
     };
 }
 
