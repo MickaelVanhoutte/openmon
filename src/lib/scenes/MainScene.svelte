@@ -35,16 +35,15 @@
 
     export let canvas: HTMLCanvasElement;
 
-    const ctx = canvas.getContext('2d');
-    if(window.innerWidth > 1100) {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-    }else{
-        canvas.height = window.innerWidth;
-        canvas.width = window.innerHeight;
-    }
+    //let imageScale = Math.min(4, Math.max(2, window.innerWidth / currentMap.background.width));
+    let imageScale = 3;
+    let landscape = false;
 
-    let imageScale = Math.min(4, Math.max(2, window.innerWidth / currentMap.background.width))
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+
     //let imageScale = Math.min(4, Math.max(2, Math.min(canvas.width / currentMap.background.width, canvas.height / currentMap.background.height)));
     let tileSizeInPx = 16 * imageScale;
 
@@ -59,18 +58,18 @@
     );
 
     function resize() {
-        if(window.innerWidth > 1100) {
+        //imageScale = Math.min(4, Math.max(2, window.innerWidth / currentMap.background.width))
+        /*if(window.innerWidth > window.innerHeight) {
+            landscape = true;
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
+            //imageScale = 3;
         }else{
             canvas.height = window.innerWidth;
             canvas.width = window.innerHeight;
-        }
 
-        //image scale based on screen size, image do not have to fit the screen
-
-        imageScale = Math.min(4, Math.max(2, window.innerWidth / currentMap.background.width))// Math.min(4, Math.max(2, Math.min(canvas.width / currentMap.background.width, canvas.height / currentMap.background.height)));
-        console.log(imageScale);
+            //imageScale = Math.min(4, Math.max(2, window.innerWidth / currentMap.background.width))
+        }*/
 
         tileSizeInPx = 16 * imageScale;
 
@@ -79,6 +78,7 @@
             testMap.playerInitialPosition.y * tileSizeInPx
         );
     }
+
 
     window.addEventListener('resize', () => {
         resize();
@@ -287,13 +287,13 @@
 
     function bindKeyboard() {
         window.addEventListener('keydown', keydownListener());
-        window.addEventListener('keyup', keyupListener());
+        window.addEventListener('keyup', keyupListener(character));
         window.addEventListener('keydown', openMenuListener);
     }
 
     function unbindKeyboard() {
         window.removeEventListener('keydown', keydownListener());
-        window.removeEventListener('keyup', keyupListener());
+        window.removeEventListener('keyup', keyupListener(character));
         window.removeEventListener('keydown', openMenuListener);
     }
 
@@ -357,13 +357,21 @@
 </script>
 
 <style lang="scss">
+
+  @media (max-width: 1100px) {
+    .set .d-pad{
+        width: 20dvw;
+        height: 20dvw;
+    }
+  }
+
   .set {
     overflow: hidden;
     text-align: center;
 
     position: absolute;
-    bottom: 5dvh;
-    left: 5dvw;
+    bottom: 8dvh;
+    left: 8dvh;
     z-index: 10;
 
     .d-pad, .o-pad {
@@ -394,10 +402,11 @@
   $dpad-arrow-move: 35%;
   .d-pad {
     position: relative;
-    width: 15dvw;
-    height: 15dvw;
+    width: 12dvw;
+    height: 12dvw;
     border-radius: 48%;
     overflow: hidden;
+    z-index: 9;
 
     &:before {
       content: '';
