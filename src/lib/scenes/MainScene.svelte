@@ -39,11 +39,36 @@
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
+    let imageScale = Math.min(3, Math.max(1, Math.min(canvas.width / currentMap.background.width, canvas.height / currentMap.background.height)));
+    let tileSizeInPx = 16 * imageScale;
+    console.log(tileSizeInPx);
+
     export let character: Character;
-    character.position = new Position(
-        testMap.playerPosition.x * 48,
-        testMap.playerPosition.y * 48
+    character.positionOnMap = new Position(
+        testMap.playerInitialPosition.x,
+        testMap.playerInitialPosition.y
     );
+    character.positionOnScreen = new Position(
+        testMap.playerInitialPosition.x * tileSizeInPx,
+        testMap.playerInitialPosition.y * tileSizeInPx
+    );
+
+    console.log(character.positionOnScreen);
+
+    window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // base scale is 3, should reduce if screen is too small with a min of 1 and a max of 3
+        tileSizeInPx = 16 * imageScale;
+        imageScale = Math.min(3, Math.max(1, Math.min(canvas.width / currentMap.background.width, canvas.height / currentMap.background.height)));
+
+        character.positionOnScreen = new Position(
+            testMap.playerInitialPosition.x * tileSizeInPx,
+            testMap.playerInitialPosition.y * tileSizeInPx
+        );
+        console.log(character.positionOnScreen);
+    });
 
     export let battle: {
         initiated: boolean,
@@ -78,7 +103,7 @@
 
     function mainLoop() {
         mainLoopContext.id = window.requestAnimationFrame(mainLoop);
-
+        //ctx.scale(imageScale, imageScale);
         let now = Date.now();
         let elapsed = now - mainLoopContext.then;
 
@@ -88,8 +113,11 @@
             ctx.fillStyle = 'black';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            currentMap.drawBackground(ctx, movedOffset);
-            character.draw(ctx);
+            currentMap.drawBackground(ctx, movedOffset, imageScale);
+            //currentMap.drawBoundaries(ctx, movedOffset, imageScale);
+            //currentMap.drawBattleZones(ctx, movedOffset, imageScale);
+
+            character.draw(ctx,movedOffset, imageScale, currentMap.background.width, currentMap.background.height);
             //currentMap.drawForeground(ctx, movedOffset); // FIXME non transparent tiles
 
             let allowedMove = true;
@@ -104,7 +132,8 @@
                 // Check for battle
                 if (keys.down.pressed || keys.up.pressed || keys.left.pressed || keys.right.pressed) {
 
-                    if (currentMap.hasBattleZoneAt(currentMap.playerPosition) && Math.random() < 0.1) {
+                    if (currentMap.hasBattleZoneAt(character.positionOnMap) && Math.random() < 0.1) {
+                        character.frames.val = 0;
                         let monster = currentMap.randomMonster();
                         window.cancelAnimationFrame(mainLoopContext.id);
                         initiateBattle(monster);
@@ -114,7 +143,7 @@
                 // Move player
                 if (keys.down.pressed && lastKey.key === 'ArrowDown') {
 
-                    if (currentMap.hasBoundaryAt(new Position(currentMap.playerPosition.x, currentMap.playerPosition.y + 1))) {
+                    if (currentMap.hasBoundaryAt(new Position(character.positionOnMap.x, character.positionOnMap.y + 1))) {
                         allowedMove = false;
                     }
 
@@ -126,7 +155,7 @@
                 }
                 if (keys.up.pressed && lastKey.key === 'ArrowUp') {
 
-                    if (currentMap.hasBoundaryAt(new Position(currentMap.playerPosition.x, currentMap.playerPosition.y - 1))) {
+                    if (currentMap.hasBoundaryAt(new Position(character.positionOnMap.x, character.positionOnMap.y - 1))) {
                         allowedMove = false;
                     }
                     character.moving = true
@@ -137,7 +166,7 @@
                 }
                 if (keys.left.pressed && lastKey.key === 'ArrowLeft') {
 
-                    if (currentMap.hasBoundaryAt(new Position(currentMap.playerPosition.x - 1, currentMap.playerPosition.y))) {
+                    if (currentMap.hasBoundaryAt(new Position(character.positionOnMap.x - 1, character.positionOnMap.y))) {
                         allowedMove = false;
                     }
 
@@ -149,7 +178,7 @@
                 }
                 if (keys.right.pressed && lastKey.key === 'ArrowRight') {
 
-                    if (currentMap.hasBoundaryAt(new Position(currentMap.playerPosition.x + 1, currentMap.playerPosition.y))) {
+                    if (currentMap.hasBoundaryAt(new Position(character.positionOnMap.x + 1, character.positionOnMap.y))) {
                         allowedMove = false;
                     }
                     character.moving = true;
@@ -158,7 +187,7 @@
                         movedOffset.x++;
                     }
                 }
-                currentMap.updatePlayerPosition(movedOffset);
+                character.updatePosition(currentMap.playerInitialPosition, movedOffset);
             }
         }
 

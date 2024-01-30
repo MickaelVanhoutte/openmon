@@ -18,7 +18,9 @@ export class OpenMap {
     public monsters: number[];
 
     public playerInitialPosition: Position = new Position(11, 11);
-    public playerPosition: Position = new Position(11, 11);
+
+    public startingX: number = 0;
+    public startingY: number = 0;
 
     constructor(background: HTMLImageElement, foreground: HTMLImageElement, width: number, height: number, collisions: number[], battles: number[], monsters: number[]) {
         this.background = background;
@@ -26,7 +28,6 @@ export class OpenMap {
         this.width = width;
         this.height = height;
         this.collisions = this.initBoundaries(collisions);
-        console.log(this.collisions);
         this.battleZones = this.initBattlesZones(battles);
         this.monsters = monsters;
     }
@@ -77,16 +78,25 @@ export class OpenMap {
         return boundariesTmp;
     }
 
-    drawBackground(ctx: CanvasRenderingContext2D, movedOffset: Position) {
+    drawBackground(ctx: CanvasRenderingContext2D, movedOffset: Position, scale: number) {
+        let bgWidth = this.background.width * scale;
+        let bgHeight = this.background.height * scale;
+        // center
+        let x = ctx.canvas.width / 2 - bgWidth / 2;
+        let y = ctx.canvas.height / 2 - bgHeight / 2;
+
+        this.startingX = x + (0 - movedOffset.x) * (16 * scale);
+        this.startingY = y + (0 - movedOffset.y) * (16 * scale);
+
         ctx.drawImage(this.background,
-            movedOffset.x * 16,
-            movedOffset.y * 16,
+            0,
+            0,
             this.background.width,
             this.background.height,
-            0,
-            0,
-            this.background.width * 3,
-            this.background.height * 3,
+            this.startingX,
+            this.startingY,
+            this.background.width * scale,
+            this.background.height * scale,
         )
     }
 
@@ -107,15 +117,15 @@ export class OpenMap {
     }
 
 
-    drawBoundaries(ctx: CanvasRenderingContext2D, movedOffset: Position) {
+    drawBoundaries(ctx: CanvasRenderingContext2D, movedOffset: Position, scale: number) {
         this.collisions.forEach((boundary) => {
-            boundary.debug(ctx, movedOffset);
+            boundary.debug(ctx, movedOffset, scale, this.startingX, this.startingY, 'rgba(255, 0, 0, 0.5)',);
         })
     }
 
-    drawBattleZones(ctx: CanvasRenderingContext2D, movedOffset: Position) {
+    drawBattleZones(ctx: CanvasRenderingContext2D, movedOffset: Position, scale: number) {
         this.battleZones.forEach((boundary) => {
-            boundary.debug(ctx, movedOffset, 'blue');
+            boundary.debug(ctx, movedOffset, scale, this.startingX, this.startingY, 'rgba(0, 0, 255, 0.5)');
         })
     }
 
@@ -130,80 +140,4 @@ export class OpenMap {
             return boundary.position.x === position.x && boundary.position.y === position.y;
         }) || position.x < 0 || position.y < 0 || position.x > this.width - 1 || position.y > this.height - 1
     }
-
-    updatePlayerPosition(movedOffset: Position) {
-        this.playerPosition.x = this.playerInitialPosition.x + movedOffset.x;
-        this.playerPosition.y = this.playerInitialPosition.y + movedOffset.y;
-    }
 }
-
-/*
-export const tile_size = 56;
-
-export class MapObject {
-    public background: Sprite;
-    public foreground: Sprite;
-    public width: number;
-    public height: number;
-    public boundaries: Boundary[];
-    public battleZones: Boundary[];
-    public monsters: string[];
-    public currentMonster?: MonsterSprite;
-
-    constructor(background: Sprite, foreground: Sprite, width: number, height: number, collisions: number[], battles: number[], monsters: string[]) {
-        this.background = background;
-        this.foreground = foreground;
-        this.width = width;
-        this.height = height;
-        this.boundaries = this.initBoundaries(collisions);
-        this.battleZones = this.initBattlesZones(battles);
-        this.monsters = monsters;
-    }
-
-    randomMonster(canvas: HTMLCanvasElement) {
-        const monsterId = this.monsters[Math.floor(Math.random() * this.monsters.length)];
-        const monsterImage = new Image();
-        monsterImage.src = `src/assets/monsters/heartgold-soulsilver/${monsterId}.png`;
-        this.currentMonster = new MonsterSprite(monsterImage, canvas);
-        return this.currentMonster;
-    }
-
-    initBattlesZones(battles: number []) {
-        const battle_map = [];
-        for (let i = 0; i < battles.length; i += map1_width) {
-            battle_map.push(battles.slice(i, map1_width + i));
-        }
-
-        const boundariesTmp: Boundary[] = [];
-        battle_map.forEach((row, y) => {
-            row.forEach((col, x) => {
-                if (col === battle_tile) {
-                    const boundary = new Boundary(
-                        new Position(x * tile_size, y * tile_size - 220)
-                    );
-                    boundariesTmp.push(boundary);
-                }
-            })
-        });
-        return boundariesTmp;
-    }
-
-    initBoundaries(collisions: number[]) {
-        const collision_map = [];
-        for (let i = 0; i < collisions.length; i += map1_width) {
-            collision_map.push(collisions.slice(i, map1_width + i));
-        }
-
-        const boundariesTmp: Boundary[] = [];
-        collision_map.forEach((row, y) => {
-            row.forEach((col, x) => {
-                if (col === collision_tile) {
-                    const boundary = new Boundary(new Position(x * tile_size, y * tile_size - 220));
-                    boundariesTmp.push(boundary);
-                }
-            })
-        });
-        return boundariesTmp;
-    }
-}
-*/

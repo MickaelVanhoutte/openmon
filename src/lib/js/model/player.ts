@@ -11,7 +11,8 @@ export class Character {
     public lvl: number = 1;
     public moving: boolean = false;
     public direction: 'up' | 'down' | 'left' | 'right' = 'down';
-    public position: Position;
+    public positionOnScreen: Position;
+    public positionOnMap: Position;
     public frames: Frames;
     public spriteScale: number = 1;
 
@@ -21,25 +22,33 @@ export class Character {
         this.sprites = sprites;
         this.monsters = monsters;
         this.frames = {max: 3, val: 0, elapsed: 0};
-        this.position = new Position(0, 0);
+        this.positionOnMap = new Position(0, 0);
+        this.positionOnScreen = new Position(0, 0);
     }
 
     get sprite(): HTMLImageElement {
         return this.sprites[this.direction];
     }
 
-    public draw(ctx: CanvasRenderingContext2D) {
+    public draw(ctx: CanvasRenderingContext2D, movedOffset: Position, scale: number, bgWidth: number, bgHeight: number) {
         let image = this.sprite || this.sprites.down;
+
+        let scaledBgWidth = bgWidth * scale;
+        let scaledBgHeight = bgHeight * scale;
+        // center
+        let x = ctx.canvas.width / 2 - scaledBgWidth / 2;
+        let y = ctx.canvas.height / 2 - scaledBgHeight / 2;
+
         ctx.drawImage(
             image,
             this.frames.val * (image.width / this.frames.max),
             0,
             image.width / this.frames.max,
             image.height,
-            this.position.x,
-            this.position.y,
-            (image.width / this.frames.max) * 3,
-            image.height * 3,
+            x + (this.positionOnScreen.x),
+            y + (this.positionOnScreen.y),
+            (image.width / this.frames.max) * scale,
+            image.height * scale
         );
 
         if (this.moving) {
@@ -53,6 +62,11 @@ export class Character {
                 }
             }
         }
+    }
+
+    updatePosition(initial: Position, movedOffset: Position) {
+        this.positionOnMap.x = initial.x + movedOffset.x;
+        this.positionOnMap.y = initial.y + movedOffset.y;
     }
 }
 
