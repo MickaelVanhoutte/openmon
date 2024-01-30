@@ -180,6 +180,37 @@
 
 <style lang="scss">
 
+  #canvas-wrapper {
+      width: 100dvw;
+      height: 100dvh;
+      overflow: hidden;
+      position: absolute;
+      top: 0;
+      left: 0;
+      -webkit-transform: rotate(0deg);
+      -moz-transform: rotate(0deg);
+      -o-transform: rotate(0deg);
+      -ms-transform: rotate(0deg);
+      transform: rotate(0deg);
+  }
+
+  @media screen and (max-width: 767px) and (orientation: portrait) {
+    #canvas-wrapper  {
+      -webkit-transform: rotate(-89.99deg);
+      -moz-transform: rotate(-89.99deg);
+      -o-transform: rotate(-89.99deg);
+      -ms-transform: rotate(-89.99deg);
+      transform: rotate(-89.99deg);
+      transform-origin: left top;
+      width: 100dvh;
+      height: 100dvw;
+      overflow: hidden;
+      position: absolute;
+      top: 100%;
+      left: 0;
+    }
+  }
+
   .loading {
     display: flex;
     justify-content: center;
