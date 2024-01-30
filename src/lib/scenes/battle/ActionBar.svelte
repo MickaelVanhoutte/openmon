@@ -206,25 +206,25 @@
 
     }
   }
-
+/*
   @media screen and (max-width: 1100px) and (orientation: portrait) {
     .action-bar  {
       bottom: 0;
       right: 0;
       width: 100dvh;
       height: 33dvw;
-      /*font-size: 38px;*/
+      !*font-size: 38px;*!
 
       .action-btn {
-        /*font-size: 32px;*/
+        !*font-size: 32px;*!
       }
 
       .info ._inner .move-desc {
-        /*font-size: 32px;
-        gap: 0;*/
+        !*font-size: 32px;
+        gap: 0;*!
       }
     }
-  }
+  }*/
 
 
   .action-btn {
@@ -237,7 +237,7 @@
     font-family: pokemon, serif;
 
     transition: color 0.3s ease-in-out, opacity 0.3s ease-in-out;
-    flex: 49%;
+    flex: 48%;
 
     &:hover, &.selected {
       cursor: pointer;
@@ -252,10 +252,25 @@
     }
   }
 
-  @media (max-width: 1280px) {
-    .action-btn {
-      font-size: 48px;
-      flex: 30%;
+  @media screen and (max-width: 1100px){
+    .action-bar {
+      font-size: 32px;
+
+      .actions {
+        padding : 2px;
+        gap: 4px;
+        border: 8px solid #595b59;
+
+        .action-btn {
+          font-size: 32px;
+        }
+      }
+
+
+
+      .info ._inner .move-desc {
+        font-size: 32px;
+      }
     }
   }
 </style>

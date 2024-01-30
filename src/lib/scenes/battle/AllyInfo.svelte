@@ -123,16 +123,33 @@
     }
   }
 
-  @media screen and (max-width: 1100px) and (orientation: portrait) {
+  @media screen and (max-width: 1100px){
+    .ally-info{
+      font-size: 36px;
+      border: 8px solid #595b59;
+      height: 16dvh;
+
+      .hp {
+        width: 80%;
+        height: 18px;
+
+        .progressbar-wrapper {
+          height: 14px;
+        }
+      }
+    }
+  }
+
+ /* @media screen and (max-width: 1100px) and (orientation: portrait) {
     .ally-info{
       bottom: 16dvh;
       height: 18dvw;
       width: 30dvh;
-      /*font-size: 36px;*/
+      !*font-size: 36px;*!
 
       .hp {
         width: 80%;
       }
     }
-  }
+  }*/
 </style>

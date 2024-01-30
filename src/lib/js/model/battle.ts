@@ -35,15 +35,27 @@ export class BattleState {
 
         this.turnStack = [];
 
-        this.initialOpponentPosition = new Position(
-            (canvas.width / 4) * 3 - (opponent?.sprites.width * 2.5 * opponent?.spriteScale / 2),
-            (canvas.height / 2) - ((opponent?.sprites.height * 2.5 * opponent?.spriteScale)) - (12 * 2.5)
-        );
+        if(window.innerWidth < 1100){
+            this.initialOpponentPosition = new Position(
+                (canvas.width / 4) * 3 - (opponent?.sprites.width * 2 * opponent?.spriteScale / 2),
+                (canvas.height / 3.5 * 2) - ((opponent?.sprites.height * 2 * opponent?.spriteScale)) - (16 * 2)
+            );
 
-        this.initialAllyPosition = new Position(
-            (canvas.width / 4) - ((this.playerCurrentMonster?.sprites.width * 2.5 * this.playerCurrentMonster.spriteScale) / 2),
-            (canvas.height * 0.75) - (this.playerCurrentMonster?.sprites.height * 2.5 * this.playerCurrentMonster.spriteScale) + (15 * 2.5)
-        );
+            this.initialAllyPosition = new Position(
+                (canvas.width / 4) - ((this.playerCurrentMonster?.sprites.width * 2 * this.playerCurrentMonster.spriteScale) / 2),
+                (canvas.height * 0.75) - (this.playerCurrentMonster?.sprites.height * 2 * this.playerCurrentMonster.spriteScale) + (16 * 2)
+            );
+        }else {
+            this.initialOpponentPosition = new Position(
+                (canvas.width / 4) * 3 - (opponent?.sprites.width * 2.5 * opponent?.spriteScale / 2),
+                (canvas.height / 2) - ((opponent?.sprites.height * 2.5 * opponent?.spriteScale)) - (12 * 2.5)
+            );
+
+            this.initialAllyPosition = new Position(
+                (canvas.width / 4) - ((this.playerCurrentMonster?.sprites.width * 2.5 * this.playerCurrentMonster.spriteScale) / 2),
+                (canvas.height * 0.75) - (this.playerCurrentMonster?.sprites.height * 2.5 * this.playerCurrentMonster.spriteScale) + (15 * 2.5)
+            );
+        }
 
         this.playerCurrentMonster.position = this.initialAllyPosition;
         this.opponentCurrentMonster.position = this.initialOpponentPosition;

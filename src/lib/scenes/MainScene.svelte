@@ -40,8 +40,16 @@
     let landscape = false;
 
     const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+
+    if(window.innerHeight > window.innerWidth){
+        console.log('portrait')
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerWidth;
+    }else {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+
 
 
     //let imageScale = Math.min(4, Math.max(2, Math.min(canvas.width / currentMap.background.width, canvas.height / currentMap.background.height)));
@@ -58,18 +66,14 @@
     );
 
     function resize() {
-        //imageScale = Math.min(4, Math.max(2, window.innerWidth / currentMap.background.width))
-        /*if(window.innerWidth > window.innerHeight) {
-            landscape = true;
+        if(window.innerHeight > window.innerWidth){
+            console.log('portrait')
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerWidth;
+        }else {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            //imageScale = 3;
-        }else{
-            canvas.height = window.innerWidth;
-            canvas.width = window.innerHeight;
-
-            //imageScale = Math.min(4, Math.max(2, window.innerWidth / currentMap.background.width))
-        }*/
+        }
 
         tileSizeInPx = 16 * imageScale;
 
@@ -231,8 +235,8 @@
 
             battleBackground.draw(ctx, canvas);
 
-            battle.battleState?.opponentCurrentMonster?.draw(ctx, 'front');
-            battle.battleState?.playerCurrentMonster?.draw(ctx, 'back');
+            battle.battleState?.opponentCurrentMonster?.draw2(ctx, 'front');
+            battle.battleState?.playerCurrentMonster?.draw2(ctx, 'back');
 
             // animate monsters
             if (!!battle.battleState?.opponentCurrentMonster?.position) {
