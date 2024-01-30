@@ -53,9 +53,14 @@
         testMap.playerInitialPosition.y * tileSizeInPx
     );
 
-    function resize(){
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+    function resize(reverse: boolean = false) {
+        if(reverse){
+            canvas.width = window.innerHeight;
+            canvas.height = window.innerWidth;
+        } else {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
 
         imageScale = Math.min(3, Math.max(1, Math.min(canvas.width / currentMap.background.width, canvas.height / currentMap.background.height)));
         tileSizeInPx = 16 * imageScale;
@@ -71,7 +76,7 @@
     });
 
     window.addEventListener('orientationchange', () => {
-       resize();
+       resize(true);
     });
 
     export let battle: {
