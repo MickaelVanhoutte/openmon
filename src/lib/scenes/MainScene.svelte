@@ -55,7 +55,7 @@
 
     console.log(character.positionOnScreen);
 
-    window.addEventListener('resize', () => {
+    function resize(){
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
@@ -67,7 +67,14 @@
             testMap.playerInitialPosition.x * tileSizeInPx,
             testMap.playerInitialPosition.y * tileSizeInPx
         );
-        console.log(character.positionOnScreen);
+    }
+
+    window.addEventListener('resize', () => {
+        resize();
+    });
+
+    window.addEventListener('orientationchange', () => {
+       resize();
     });
 
     export let battle: {
@@ -681,52 +688,6 @@
         border-right-color: $c-t-a;
       }
     }
-
-    .o-pad {
-      $c: #fff;
-      background: none;
-      border: 1px solid $c-t;
-
-      span {
-        border-color: $c-t;
-      }
-
-      &:before, span {
-        background: none;
-      }
-
-      span.up:after {
-        border-bottom-color: $c-t;
-      }
-
-      span.right:after {
-        border-left-color: $c-t;
-      }
-
-      span.down:after {
-        border-top-color: $c-t;
-      }
-
-      span.left:after {
-        border-right-color: $c-t;
-      }
-
-      span.up:active:after {
-        border-bottom-color: $c-t-a;
-      }
-
-      span.right:active:after {
-        border-left-color: $c-t-a;
-      }
-
-      span.down:active:after {
-        border-top-color: $c-t-a;
-      }
-
-      span.left:active:after {
-        border-right-color: $c-t-a;
-      }
-    }
   }
 
   .outline {
@@ -782,35 +743,6 @@
       }
     }
 
-    .o-pad {
-      $c: #fff;
-      background: $c;
-      border: 1px solid $c-t;
-
-      span {
-        border-color: $c-t;
-      }
-
-      &:after, &:before, span {
-        background: $c;
-      }
-
-      span.up:after {
-        border-bottom-color: $c-t;
-      }
-
-      span.right:after {
-        border-left-color: $c-t;
-      }
-
-      span.down:after {
-        border-top-color: $c-t;
-      }
-
-      span.left:after {
-        border-right-color: $c-t;
-      }
-    }
   }
 
 
@@ -900,22 +832,6 @@
   }
 
   .d-pad.right span.right:before {
-    border-left-color: #333;
-  }
-
-  .o-pad.up span.up:after {
-    border-bottom-color: #333;
-  }
-
-  .o-pad.down span.down:after {
-    border-top-color: #333;
-  }
-
-  .o-pad.left span.left:after {
-    border-right-color: #333;
-  }
-
-  .o-pad.right span.right:after {
     border-left-color: #333;
   }
 </style>
