@@ -1,41 +1,42 @@
 <svelte:options customElement="open-mon"/>
 
+<div id="canvas-wrapper" bind:this={wrapper}>
+    {#if ready && letsgo}
+        <MainScene bind:canvas={canvas} bind:character={player}/>
 
-{#if ready && letsgo}
-    <MainScene bind:canvas={canvas} bind:character={player}/>
+    {:else}
+        <div class="loading" class:ready={ready}>
+            <div class="o-pokeball c-loader u-swing"></div>
+            <span>Gotta catch em all... {current}</span>
 
-{:else}
-    <div class="loading" class:ready={ready}>
-        <div class="o-pokeball c-loader u-swing"></div>
-        <span>Gotta catch em all... {current}</span>
-
-        <div bind:this={preview} id="preview">
-        </div>
-    </div>
-    {#if ready}
-        <div class="buttons">
-            {#if save}
-                <div class="letsgo">
-                    <button class="start-btn" on:click={() => letsgo = true}>Continue!</button>
-                    <img class="pika" alt="Evoli" src="src/assets/monsters/heartgold-soulsilver/133.png"/>
-                </div>
-            {/if}
-            <div class="letsgo">
-                <button class="start-btn" on:click={() => letsgo = true}>New game!</button>
-                <img class="pika" alt="pikachu" src="src/assets/monsters/heartgold-soulsilver/25.png"/>
+            <div bind:this={preview} id="preview">
             </div>
         </div>
+        {#if ready}
+            <div class="buttons">
+                {#if save}
+                    <div class="letsgo">
+                        <button class="start-btn" on:click={() => go()}>Continue!</button>
+                        <img class="pika" alt="Evoli" src="src/assets/monsters/heartgold-soulsilver/133.png"/>
+                    </div>
+                {/if}
+                <div class="letsgo">
+                    <button class="start-btn" on:click={() => go()}>New game!</button>
+                    <img class="pika" alt="pikachu" src="src/assets/monsters/heartgold-soulsilver/25.png"/>
+                </div>
+            </div>
+        {/if}
     {/if}
-{/if}
 
-<canvas bind:this={canvas}></canvas>
-
+    <canvas bind:this={canvas}></canvas>
+</div>
 <script lang="ts">
     import MainScene from "./lib/scenes/MainScene.svelte";
     import {Monster, MonsterSprite, Move, Stats} from "./lib/js/model/monster.ts";
     import {Character, PlayerSprites} from "./lib/js/model/player.js";
 
     export let canvas;
+    let wrapper;
     let player: Character;
 
     let pokedexReady = false;
@@ -135,7 +136,7 @@
             img.onload = img.onerror = resolve;
         }))).then(() => {
 
-            let firstPoke =  {
+            let firstPoke = {
                 ...pokedex.at(70),
                 ivs: new Stats(31, 31, 31, 31, 31, 31),
                 evs: new Stats(120, 0, 0, 255, 0, 135),
@@ -160,6 +161,20 @@
 
     }
 
+    function go() {
+        openFullscreen();
+        letsgo = true;
+    }
+
+    function openFullscreen() {
+        if (wrapper.requestFullscreen) {
+            wrapper.requestFullscreen();
+        } else if (wrapper.webkitRequestFullscreen) { /* Safari */
+            wrapper.webkitRequestFullscreen();
+        } else if (wrapper.msRequestFullscreen) { /* IE11 */
+            wrapper.msRequestFullscreen();
+        }
+    }
 
 </script>
 
