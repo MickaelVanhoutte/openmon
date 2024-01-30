@@ -200,6 +200,14 @@
     -ms-user-select:none;
     user-select:none;
     -webkit-tap-highlight-color:rgba(0,0,0,0);
+
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100dvw;
+      height: 100dvh;
+    }
   }
 
   @media screen and (max-width: 767px) and (orientation: portrait) {
@@ -215,7 +223,15 @@
       overflow: hidden;
       position: absolute;
       top: 100%;
-      left: 0;
+      right: 0;
+
+      canvas {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 100dvh;
+        height: 100dvw;
+      }
     }
   }
 
