@@ -123,15 +123,15 @@
     }
   }
 
-  @media screen and (max-width: 767px) and (orientation: portrait) {
+  @media screen and (max-width: 1100px) and (orientation: portrait) {
     .ally-info{
-      bottom: 30dvh;
+      bottom: 16dvh;
       height: 18dvw;
       width: 30dvh;
-      font-size: 36px;
+      /*font-size: 36px;*/
 
       .hp {
-        width: 100%;
+        width: 80%;
       }
     }
   }

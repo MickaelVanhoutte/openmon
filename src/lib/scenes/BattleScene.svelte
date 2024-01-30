@@ -44,6 +44,13 @@
     }
   }
 
+  @media screen and (max-width: 1100px) and (orientation: portrait) {
+    .battleStart {
+      height: 100dvw;
+      width: 100dvh;
+    }
+  }
+
   @keyframes animate {
     0% {
       opacity: 1;

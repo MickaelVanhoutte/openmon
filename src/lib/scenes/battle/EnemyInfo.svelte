@@ -12,7 +12,7 @@
                 <div class="progressbar" class:warning={percent <= 50} class:danger={percent < 15 }  style="--width:{percent + '%'}"></div>
             </div>
         </div>
-        {monster.currentHp} / {monster.currentStats.HP}
+        <!--{monster.currentHp} / {monster.currentStats.HP}-->
     </div>
 
 </div>
@@ -124,15 +124,15 @@
     }
   }
 
-  @media screen and (max-width: 767px) and (orientation: portrait) {
+  @media screen and (max-width: 1100px) and (orientation: portrait) {
     .enemy-info{
       bottom: 30dvh;
       height: 15dvw;
       width: 30dvh;
-      font-size: 36px;
+      /*font-size: 36px;*/
 
       .hp {
-        width: 100%;
+        width: 80%;
       }
     }
   }

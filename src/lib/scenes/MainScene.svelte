@@ -36,8 +36,13 @@
     export let canvas: HTMLCanvasElement;
 
     const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    if(window.innerWidth > 1100) {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }else{
+        canvas.height = window.innerWidth;
+        canvas.width = window.innerHeight;
+    }
 
     let imageScale = Math.min(4, Math.max(2, window.innerWidth / currentMap.background.width))
     //let imageScale = Math.min(4, Math.max(2, Math.min(canvas.width / currentMap.background.width, canvas.height / currentMap.background.height)));
@@ -54,8 +59,13 @@
     );
 
     function resize() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        if(window.innerWidth > 1100) {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }else{
+            canvas.height = window.innerWidth;
+            canvas.width = window.innerHeight;
+        }
 
         //image scale based on screen size, image do not have to fit the screen
 
@@ -385,7 +395,7 @@
   .d-pad {
     position: relative;
     width: 15dvw;
-    height: 15dvh;
+    height: 15dvw;
     border-radius: 48%;
     overflow: hidden;
 
