@@ -215,17 +215,18 @@
 
   @media (max-width: 1100px) and (orientation: portrait) {
     #canvas-wrapper {
-      -webkit-transform: rotate(-89.99deg);
-      -moz-transform: rotate(-89.99deg);
-      -o-transform: rotate(-89.99deg);
-      -ms-transform: rotate(-89.99deg);
-      transform: rotate(-89.99deg);
-      transform-origin: left top;
+      -webkit-transform: rotate(89.99deg);
+      -moz-transform: rotate(89.99deg);
+      -o-transform: rotate(89.99deg);
+      -ms-transform: rotate(89.99deg);
+      transform: rotate(89.99deg);
+      transform-origin: right top;
       width: 100dvh;
       height: 100dvw;
       overflow: hidden;
       position: absolute;
       top: 100%;
+      left: unset;
       right: 0;
 
       canvas {
