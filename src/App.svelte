@@ -6,11 +6,14 @@
 
     {:else}
         <div class="loading" class:ready={ready}>
-            <div class="o-pokeball c-loader u-swing"></div>
-            <span>Gotta catch em all... {current}</span>
+            {#if !ready}
+                <div class="o-pokeball c-loader u-swing"></div>
 
-            <div bind:this={preview} id="preview">
-            </div>
+                <span>Gotta catch em all... {current}</span>
+
+                <div bind:this={preview} id="preview">
+                </div>
+            {/if}
         </div>
         {#if ready}
             <div class="buttons">
@@ -181,25 +184,25 @@
 <style lang="scss">
 
   #canvas-wrapper {
-      width: 100dvw;
-      height: 100dvh;
-      overflow: hidden;
-      position: absolute;
-      top: 0;
-      left: 0;
-      -webkit-transform: rotate(0deg);
-      -moz-transform: rotate(0deg);
-      -o-transform: rotate(0deg);
-      -ms-transform: rotate(0deg);
-      transform: rotate(0deg);
+    width: 100dvw;
+    height: 100dvh;
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    left: 0;
+    -webkit-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    -ms-transform: rotate(0deg);
+    transform: rotate(0deg);
 
-    -webkit-touch-callout:none;
-    -webkit-user-select:none;
-    -khtml-user-select:none;
-    -moz-user-select:none;
-    -ms-user-select:none;
-    user-select:none;
-    -webkit-tap-highlight-color:rgba(0,0,0,0);
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 
     canvas {
       position: absolute;
@@ -210,8 +213,8 @@
     }
   }
 
-  @media screen and (max-width: 767px) and (orientation: portrait) {
-    #canvas-wrapper  {
+  @media (max-width: 1100px) and (orientation: portrait) {
+    #canvas-wrapper {
       -webkit-transform: rotate(-89.99deg);
       -moz-transform: rotate(-89.99deg);
       -o-transform: rotate(-89.99deg);
@@ -231,6 +234,16 @@
         right: 0;
         width: 100dvh;
         height: 100dvw;
+      }
+
+      .buttons {
+        position: absolute;
+        left: calc(50dvh - 100px);
+        top: calc(50dvw - 40px);
+      }
+
+      .loading {
+        height: 100vw;
       }
     }
   }
