@@ -39,9 +39,9 @@
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    let imageScale = Math.min(3, Math.max(1, Math.min(canvas.width / currentMap.background.width, canvas.height / currentMap.background.height)));
+    let imageScale = Math.min(4, Math.max(2, window.innerWidth / currentMap.background.width))
+    //let imageScale = Math.min(4, Math.max(2, Math.min(canvas.width / currentMap.background.width, canvas.height / currentMap.background.height)));
     let tileSizeInPx = 16 * imageScale;
-    console.log(tileSizeInPx);
 
     export let character: Character;
     character.positionOnMap = new Position(
@@ -53,16 +53,15 @@
         testMap.playerInitialPosition.y * tileSizeInPx
     );
 
-    function resize(reverse: boolean = false) {
-        if(reverse){
-            canvas.width = window.innerHeight;
-            canvas.height = window.innerWidth;
-        } else {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
 
-        imageScale = Math.min(3, Math.max(1, Math.min(canvas.width / currentMap.background.width, canvas.height / currentMap.background.height)));
+        //image scale based on screen size, image do not have to fit the screen
+
+        imageScale = Math.min(4, Math.max(2, window.innerWidth / currentMap.background.width))// Math.min(4, Math.max(2, Math.min(canvas.width / currentMap.background.width, canvas.height / currentMap.background.height)));
+        console.log(imageScale);
+
         tileSizeInPx = 16 * imageScale;
 
         character.positionOnScreen = new Position(
@@ -76,7 +75,7 @@
     });
 
     window.addEventListener('orientationchange', () => {
-       resize(true);
+        resize();
     });
 
     export let battle: {
@@ -126,7 +125,7 @@
             //currentMap.drawBoundaries(ctx, movedOffset, imageScale);
             //currentMap.drawBattleZones(ctx, movedOffset, imageScale);
 
-            character.draw(ctx,movedOffset, imageScale, currentMap.background.width, currentMap.background.height);
+            character.draw(ctx, movedOffset, imageScale, currentMap.background.width, currentMap.background.height);
             //currentMap.drawForeground(ctx, movedOffset); // FIXME non transparent tiles
 
             let allowedMove = true;
@@ -315,7 +314,7 @@
         }
     }
 
-    function stop(direction: 'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight'){
+    function stop(direction: 'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight') {
         return (event: MouseEvent) => {
             switch (direction) {
                 case 'ArrowDown' :
@@ -334,7 +333,7 @@
         }
     }
 
-    function stopCommands(){
+    function stopCommands() {
         keys.down.pressed = false;
         keys.up.pressed = false;
         keys.right.pressed = false;
@@ -347,22 +346,32 @@
 </script>
 
 <style lang="scss">
-    .set {
-      overflow: hidden;
-      padding: 30px;
-      text-align: center;
+  .set {
+    overflow: hidden;
+    padding: 30px;
+    text-align: center;
 
-      position: absolute;
-      bottom: 5dvh;
-      left: 5dvw;
-      .d-pad { margin-right: 40px; }
-      .d-pad, .o-pad {
-        display: inline-block;
-        // transform: scale(.7);
-      }
+    position: absolute;
+    bottom: 5dvh;
+    left: 5dvw;
+
+    .d-pad {
+      margin-right: 40px;
     }
-    .set.setbg { background: #222; }
-    .set.setbg2 { background: #5f9837; }
+
+    .d-pad, .o-pad {
+      display: inline-block;
+      // transform: scale(.7);
+    }
+  }
+
+  .set.setbg {
+    background: #222;
+  }
+
+  .set.setbg2 {
+    background: #5f9837;
+  }
 
 
   $dpad-radius: 17%;
@@ -393,7 +402,7 @@
       transform: translate(-50%, -50%);
       width: 66.6%;
       height: 66.6%;
-     // background: $dpad-fg;
+      // background: $dpad-fg;
     }
 
     &:after {
