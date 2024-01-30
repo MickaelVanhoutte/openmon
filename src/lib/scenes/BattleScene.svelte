@@ -25,8 +25,8 @@
     opacity: 0;
     visibility: hidden;
     background: #000000;
-    height: 100vh;
-    width: 100vw;
+    height: 100dvh;
+    width: 100dvw;
     position: absolute;
     top: 0;
     left: 0;
