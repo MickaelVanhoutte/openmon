@@ -6,10 +6,10 @@
 {:else}
     <div class="set outline">
         <nav class="d-pad">
-            <a class="up" href="#" on:pointerdown={move('ArrowUp')} on:pointerup={stop('ArrowUp')}></a>
-            <a class="right" href="#" on:pointerdown={move('ArrowRight')} on:pointerup={stop('ArrowRight')}></a>
-            <a class="down" href="#" on:pointerdown={move('ArrowDown')} on:pointerup={stop('ArrowDown')}></a>
-            <a class="left" href="#" on:pointerdown={move('ArrowLeft')} on:pointerup={stop('ArrowLeft')}></a>
+            <span class="up" on:pointerdown={move('ArrowUp')} on:pointerup={stop('ArrowUp')}></span>
+            <span class="right" on:pointerdown={move('ArrowRight')} on:pointerup={stop('ArrowRight')}></span>
+            <span class="down" on:pointerdown={move('ArrowDown')} on:pointerup={stop('ArrowDown')}></span>
+            <span class="left" on:pointerdown={move('ArrowLeft')} on:pointerup={stop('ArrowLeft')}></span>
         </nav>
     </div>
 {/if}
@@ -206,6 +206,7 @@
     }
 
     function initiateBattle(opponent: Monster | Character) {
+        stopCommands();
         battle.frameElapsed = 0;
         battle.initiated = true;
         battle.startDate = new Date();
@@ -295,6 +296,13 @@
         }
     }
 
+    function stopCommands(){
+        keys.down.pressed = false;
+        keys.up.pressed = false;
+        keys.right.pressed = false;
+        keys.left.pressed = false;
+    }
+
     bindKeyboard();
     mainLoop();
 
@@ -371,7 +379,7 @@
       height: 30%;
     }
 
-    a {
+    span {
       display: block;
       position: absolute;
       -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
@@ -406,7 +414,7 @@
       }
     }
 
-    a.left, a.right {
+    span.left, span.right {
       width: 43%;
       height: 33%;
 
@@ -416,7 +424,7 @@
       }
     }
 
-    a.up {
+    span.up {
       top: 0;
       left: 50%;
       transform: translate(-50%, 0);
@@ -447,11 +455,11 @@
       }
     }
 
-    a.up:hover:before {
+    span.up:hover:before {
       top: $dpad-arrow-move;
     }
 
-    a.down {
+    span.down {
       bottom: 0;
       left: 50%;
       transform: translate(-50%, 0);
@@ -482,11 +490,11 @@
       }
     }
 
-    a.down:hover:before {
+    span.down:hover:before {
       bottom: $dpad-arrow-move;
     }
 
-    a.left {
+    span.left {
       top: 50%;
       left: 0;
       transform: translate(0, -50%);
@@ -517,11 +525,11 @@
       }
     }
 
-    a.left:hover:before {
+    span.left:hover:before {
       left: $dpad-arrow-move;
     }
 
-    a.right {
+    span.right {
       top: 50%;
       right: 0;
       transform: translate(0, -50%);
@@ -552,24 +560,24 @@
       }
     }
 
-    a.right:hover:before {
+    span.right:hover:before {
       right: $dpad-arrow-move;
     }
   }
 
-  .d-pad.up a.up:before {
+  .d-pad.up span.up:before {
     border-bottom-color: #333;
   }
 
-  .d-pad.down a.down:before {
+  .d-pad.down span.down:before {
     border-top-color: #333;
   }
 
-  .d-pad.left a.left:before {
+  .d-pad.left span.left:before {
     border-right-color: #333;
   }
 
-  .d-pad.right a.right:before {
+  .d-pad.right span.right:before {
     border-left-color: #333;
   }
 
@@ -584,63 +592,63 @@
     .d-pad {
       border-radius: 0;
 
-      a {
+      span {
         border: 1px solid $c;
       }
 
-      &:before, a {
+      &:before, span {
         background: none;
       }
 
-      a:after {
+      span:after {
         display: none;
       }
 
-      a.up:hover {
+      span.up:hover {
         background: linear-gradient(0deg, $c-bg 0%, $c-h 50%);
       }
 
-      a.right:hover {
+      span.right:hover {
         background: linear-gradient(90deg, $c-bg 0%, $c-h 50%);
       }
 
-      a.down:hover {
+      span.down:hover {
         background: linear-gradient(180deg, $c-bg 0%, $c-h 50%);
       }
 
-      a.left:hover {
+      span.left:hover {
         background: linear-gradient(-90deg, $c-bg 0%, $c-h 50%);
       }
 
-      a.up:before {
+      span.up:before {
         border-bottom-color: $c-t;
       }
 
-      a.right:before {
+      span.right:before {
         border-left-color: $c-t;
       }
 
-      a.down:before {
+      span.down:before {
         border-top-color: $c-t;
       }
 
-      a.left:before {
+      span.left:before {
         border-right-color: $c-t;
       }
 
-      a.up:active:before {
+      span.up:active:before {
         border-bottom-color: $c-t-a;
       }
 
-      a.right:active:before {
+      span.right:active:before {
         border-left-color: $c-t-a;
       }
 
-      a.down:active:before {
+      span.down:active:before {
         border-top-color: $c-t-a;
       }
 
-      a.left:active:before {
+      span.left:active:before {
         border-right-color: $c-t-a;
       }
     }
@@ -650,43 +658,43 @@
       background: none;
       border: 1px solid $c-t;
 
-      a {
+      span {
         border-color: $c-t;
       }
 
-      &:before, a {
+      &:before, span {
         background: none;
       }
 
-      a.up:after {
+      span.up:after {
         border-bottom-color: $c-t;
       }
 
-      a.right:after {
+      span.right:after {
         border-left-color: $c-t;
       }
 
-      a.down:after {
+      span.down:after {
         border-top-color: $c-t;
       }
 
-      a.left:after {
+      span.left:after {
         border-right-color: $c-t;
       }
 
-      a.up:active:after {
+      span.up:active:after {
         border-bottom-color: $c-t-a;
       }
 
-      a.right:active:after {
+      span.right:active:after {
         border-left-color: $c-t-a;
       }
 
-      a.down:active:after {
+      span.down:active:after {
         border-top-color: $c-t-a;
       }
 
-      a.left:active:after {
+      span.left:active:after {
         border-right-color: $c-t-a;
       }
     }
@@ -700,47 +708,47 @@
     .d-pad {
       border-radius: 0;
 
-      a {
+      span {
         border: 1px solid $c-t;
       }
 
-      &:after, &:before, a {
+      &:after, &:before, span {
         //background: $c;
       }
 
-      a:after {
+      span:after {
         display: none;
       }
 
-      a.up:hover {
+      span.up:hover {
         background: linear-gradient(0deg, $c 0%, $c-h 50%);
       }
 
-      a.right:hover {
+      span.right:hover {
         background: linear-gradient(90deg, $c 0%, $c-h 50%);
       }
 
-      a.down:hover {
+      span.down:hover {
         background: linear-gradient(180deg, $c 0%, $c-h 50%);
       }
 
-      a.left:hover {
+      span.left:hover {
         background: linear-gradient(-90deg, $c 0%, $c-h 50%);
       }
 
-      a.up:before {
+      span.up:before {
         border-bottom-color: $c-t;
       }
 
-      a.right:before {
+      span.right:before {
         border-left-color: $c-t;
       }
 
-      a.down:before {
+      span.down:before {
         border-top-color: $c-t;
       }
 
-      a.left:before {
+      span.left:before {
         border-right-color: $c-t;
       }
     }
@@ -750,151 +758,32 @@
       background: $c;
       border: 1px solid $c-t;
 
-      a {
+      span {
         border-color: $c-t;
       }
 
-      &:after, &:before, a {
+      &:after, &:before, span {
         background: $c;
       }
 
-      a.up:after {
+      span.up:after {
         border-bottom-color: $c-t;
       }
 
-      a.right:after {
+      span.right:after {
         border-left-color: $c-t;
       }
 
-      a.down:after {
+      span.down:after {
         border-top-color: $c-t;
       }
 
-      a.left:after {
+      span.left:after {
         border-right-color: $c-t;
       }
     }
   }
 
-
-  .blue {
-    $c: #1843ca;
-    $c-h: #143cb9;
-    $c-t: #ccc;
-    $c-t-a: rgba(255, 255, 255, 1);
-
-    .d-pad {
-      &:before, a {
-        background: $c;
-      }
-
-      &:after {
-        display: block;
-        background: $c-t;
-      }
-
-      a:after {
-        border-radius: 10%;
-      }
-
-      a.up:hover {
-        background: linear-gradient(0deg, $c 0%, $c-h 50%);
-      }
-
-      a.right:hover {
-        background: linear-gradient(90deg, $c 0%, $c-h 50%);
-      }
-
-      a.down:hover {
-        background: linear-gradient(180deg, $c 0%, $c-h 50%);
-      }
-
-      a.left:hover {
-        background: linear-gradient(-90deg, $c 0%, $c-h 50%);
-      }
-
-      a.up:before {
-        border-bottom-color: $c-t;
-      }
-
-      a.right:before {
-        border-left-color: $c-t;
-      }
-
-      a.down:before {
-        border-top-color: $c-t;
-      }
-
-      a.left:before {
-        border-right-color: $c-t;
-      }
-
-      a.up:active:before {
-        border-bottom-color: $c-t-a;
-      }
-
-      a.right:active:before {
-        border-left-color: $c-t-a;
-      }
-
-      a.down:active:before {
-        border-top-color: $c-t-a;
-      }
-
-      a.left:active:before {
-        border-right-color: $c-t-a;
-      }
-    }
-
-    .o-pad {
-      background: $c;
-
-      a {
-        border-color: rgba(255, 255, 255, .6);
-      }
-
-      &:before, a {
-        background: $c;
-      }
-
-      &:after {
-        display: block;
-        background: #ccc;
-      }
-
-      a.up:after {
-        border-bottom-color: $c-t;
-      }
-
-      a.right:after {
-        border-left-color: $c-t;
-      }
-
-      a.down:after {
-        border-top-color: $c-t;
-      }
-
-      a.left:after {
-        border-right-color: $c-t;
-      }
-
-      a.up:active:after {
-        border-bottom-color: $c-t-a;
-      }
-
-      a.right:active:after {
-        border-left-color: $c-t-a;
-      }
-
-      a.down:active:after {
-        border-top-color: $c-t-a;
-      }
-
-      a.left:active:after {
-        border-right-color: $c-t-a;
-      }
-    }
-  }
 
   .setbg.white {
     $c: #fff;
@@ -903,7 +792,7 @@
     $c-h: #143cb9;
 
     .d-pad {
-      &:before, a {
+      &:before, span {
         background: $c;
       }
 
@@ -912,218 +801,92 @@
         background: $c-t;
       }
 
-      a:after {
+      span:after {
         border-radius: 40%;
         background: #222;
       }
 
-      a.up:hover {
+      span.up:hover {
         background: $c;
       }
 
-      a.right:hover {
+      span.right:hover {
         background: $c;
       }
 
-      a.down:hover {
+      span.down:hover {
         background: $c;
       }
 
-      a.left:hover {
+      span.left:hover {
         background: $c;
       }
 
-      a.up:before {
+      span.up:before {
         border-bottom-color: #0074D9;
       }
 
-      a.right:before {
+      span.right:before {
         border-left-color: #FF851B;
       }
 
-      a.down:before {
+      span.down:before {
         border-top-color: #3D9970;
       }
 
-      a.left:before {
+      span.left:before {
         border-right-color: #FFDC00;
       }
 
-      a.up:active:before {
+      span.up:active:before {
         border-bottom-color: $c-t-a;
       }
 
-      a.right:active:before {
+      span.right:active:before {
         border-left-color: $c-t-a;
       }
 
-      a.down:active:before {
+      span.down:active:before {
         border-top-color: $c-t-a;
       }
 
-      a.left:active:before {
+      span.left:active:before {
         border-right-color: $c-t-a;
-      }
-    }
-
-    .o-pad {
-      background: $c;
-
-      a {
-        border-color: rgba(255, 255, 255, .6);
-      }
-
-      &:before, a {
-        background: $c;
-      }
-
-      &:after {
-        display: block;
-        background: #ccc;
-      }
-
-      a.up:after {
-        border-bottom-color: #2ECC40;
-      }
-
-      a.right:after {
-        border-left-color: #85144b;
-      }
-
-      a.down:after {
-        border-top-color: #7FDBFF;
-      }
-
-      a.left:after {
-        border-right-color: #B10DC9;
-      }
-
-      a.up:active:after {
-        border-bottom-color: $c-t-a;
-      }
-
-      a.right:active:after {
-        border-left-color: $c-t-a;
-      }
-
-      a.down:active:after {
-        border-top-color: $c-t-a;
-      }
-
-      a.left:active:after {
-        border-right-color: $c-t-a;
-      }
-    }
-  }
-
-  .wire {
-    $c: #93b4ff;
-
-    .d-pad {
-      overflow: initial;
-      border: 1px dashed $c;
-
-      &:after {
-        display: block;
-      }
-
-      &:after, &:before, a, a:after {
-        background: none;
-        border: 1px solid $c;
-      }
-
-      a:after {
-        border: 1px dashed $c;
-      }
-
-      a.up:before {
-        border-bottom-color: $c;
-      }
-
-      a.right:before {
-        border-left-color: $c;
-      }
-
-      a.down:before {
-        border-top-color: $c;
-      }
-
-      a.left:before {
-        border-right-color: $c;
-      }
-
-      a:hover {
-        background: none;
-      }
-    }
-
-    .o-pad {
-      border: 1px dashed $c;
-      background: none;
-      overflow: initial;
-
-      &:after, a:before {
-        display: block;
-      }
-
-      &:after, &:before, a, a:before {
-        background: none;
-        border: 1px solid $c;
-      }
-
-      a.up:after {
-        border-bottom-color: $c;
-      }
-
-      a.right:after {
-        border-left-color: $c;
-      }
-
-      a.down:after {
-        border-top-color: $c;
-      }
-
-      a.left:after {
-        border-right-color: $c;
-      }
-
-      a:hover {
-        background: none;
       }
     }
   }
 
   // set direction active state
 
-  .d-pad.up a.up:before {
+  .d-pad.up span.up:before {
     border-bottom-color: #333;
   }
 
-  .d-pad.down a.down:before {
+  .d-pad.down span.down:before {
     border-top-color: #333;
   }
 
-  .d-pad.left a.left:before {
+  .d-pad.left span.left:before {
     border-right-color: #333;
   }
 
-  .d-pad.right a.right:before {
+  .d-pad.right span.right:before {
     border-left-color: #333;
   }
 
-  .o-pad.up a.up:after {
+  .o-pad.up span.up:after {
     border-bottom-color: #333;
   }
 
-  .o-pad.down a.down:after {
+  .o-pad.down span.down:after {
     border-top-color: #333;
   }
 
-  .o-pad.left a.left:after {
+  .o-pad.left span.left:after {
     border-right-color: #333;
   }
 
-  .o-pad.right a.right:after {
+  .o-pad.right span.right:after {
     border-left-color: #333;
   }
 </style>
