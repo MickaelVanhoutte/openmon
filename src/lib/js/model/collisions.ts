@@ -1,22 +1,25 @@
 import {Position} from "./sprites";
+import {scale} from "svelte/transition";
 
 export class Boundary implements Rectangular {
     public position: Position;
     public width: number;
     public height: number;
-    constructor(position: Position, width: number = 16*3, height: number = 16*3){
+
+    constructor(position: Position, width: number = 16, height: number = 16) {
         this.position = position;
         this.width = width;
         this.height = height;
     }
 
-    debug(ctx: CanvasRenderingContext2D, movedOffset: Position, color: string = 'red') {
+    debug(ctx: CanvasRenderingContext2D, movedOffset: Position, scale: number, bgStartX: number, bgStartY: number, color: string = 'red') {
+
         ctx.fillStyle = color;
         ctx.fillRect(
-            (this.position.x + movedOffset.x) *this.width,
-            (this.position.y + movedOffset.y) *this.height,
-            this.width,
-            this.height
+            bgStartX + (this.position.x * 16 * scale),
+            bgStartY + (this.position.y * 16 * scale),
+            this.width * scale,
+            this.height * scale
         );
     }
 }

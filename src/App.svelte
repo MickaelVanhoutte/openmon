@@ -162,7 +162,7 @@
     }
 
     function go() {
-        openFullscreen();
+        //openFullscreen();
         letsgo = true;
     }
 
