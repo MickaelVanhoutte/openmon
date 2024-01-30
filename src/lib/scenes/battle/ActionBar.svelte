@@ -115,7 +115,7 @@
   .action-bar {
     opacity: 0;
     visibility: hidden;
-
+    z-index: 9;
     background-color: white;
 
     height: 25dvh;

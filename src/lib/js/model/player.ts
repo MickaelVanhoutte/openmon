@@ -39,6 +39,20 @@ export class Character {
         let x = ctx.canvas.width / 2 - scaledBgWidth / 2;
         let y = ctx.canvas.height / 2 - scaledBgHeight / 2;
 
+        if (this.moving) {
+            if (this.frames.max > 1) {
+                this.frames.elapsed += 1;
+            }
+            if (this.frames.elapsed % 2 === 0) {
+                this.frames.val += 1
+                if (this.frames.val > this.frames.max - 1) {
+                    this.frames.val = 0;
+                }
+            }
+        } else {
+            this.frames.val = 1;
+        }
+
         ctx.drawImage(
             image,
             this.frames.val * (image.width / this.frames.max),
@@ -51,17 +65,7 @@ export class Character {
             image.height * scale
         );
 
-        if (this.moving) {
-            if (this.frames.max > 1) {
-                this.frames.elapsed += 1;
-            }
-            if (this.frames.elapsed % 2 === 0) {
-                this.frames.val += 1
-                if (this.frames.val > this.frames.max - 1) {
-                    this.frames.val = 0;
-                }
-            }
-        }
+
     }
 
     updatePosition(initial: Position, movedOffset: Position) {
