@@ -59,7 +59,7 @@
         pokedex.forEach(pokemon => {
             setTimeout(() => {
                 const front = new Image();
-                front.src = `/src/assets/monsters/heartgold-soulsilver/${pokemon.id}.png`;
+                front.src = `./src/assets/monsters/heartgold-soulsilver/${pokemon.id}.png`;
                 preview.appendChild(front);
             }, 100);
         })
