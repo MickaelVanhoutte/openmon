@@ -22,6 +22,19 @@
         body * {
             box-sizing: border-box;
         }
+
+        @media screen and (min-width: 320px) and (max-width: 767px) and (orientation: portrait) {
+            html {
+                transform: rotate(-90deg);
+                transform-origin: left top;
+                width: 100dvh;
+                height: 100dvw;
+                overflow-x: hidden;
+                position: absolute;
+                top: 100%;
+                left: 0;
+            }
+        }
     </style>
 </head>
 <body>
