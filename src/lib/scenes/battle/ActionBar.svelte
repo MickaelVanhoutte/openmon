@@ -34,7 +34,7 @@
         <div class="actions">
 
             <button class="action-btn" style="--color:#dc5959" {disabled}
-                    on:click={toggleMoveSelection} class:selected={ selectedOptionIdx === 0} >
+                    on:click={toggleMoveSelection} class:selected={ selectedOptionIdx === 0}>
                 FIGHT
             </button>
 
@@ -206,25 +206,26 @@
 
     }
   }
-/*
-  @media screen and (max-width: 1100px) and (orientation: portrait) {
-    .action-bar  {
-      bottom: 0;
-      right: 0;
-      width: 100dvh;
-      height: 33dvw;
-      !*font-size: 38px;*!
 
-      .action-btn {
-        !*font-size: 32px;*!
-      }
+  /*
+    @media screen and (max-width: 1100px) and (orientation: portrait) {
+      .action-bar  {
+        bottom: 0;
+        right: 0;
+        width: 100dvh;
+        height: 33dvw;
+        !*font-size: 38px;*!
 
-      .info ._inner .move-desc {
-        !*font-size: 32px;
-        gap: 0;*!
+        .action-btn {
+          !*font-size: 32px;*!
+        }
+
+        .info ._inner .move-desc {
+          !*font-size: 32px;
+          gap: 0;*!
+        }
       }
-    }
-  }*/
+    }*/
 
 
   .action-btn {
@@ -252,12 +253,12 @@
     }
   }
 
-  @media screen and (max-width: 1100px){
+  @media screen and (max-width: 1100px) {
     .action-bar {
       font-size: 32px;
 
-      .actions {
-        padding : 2px;
+      .actions, .moves {
+        padding: 2px;
         gap: 4px;
         border: 8px solid #595b59;
 
@@ -266,10 +267,14 @@
         }
       }
 
+      .info ._inner {
+        left: 10px;
+        height: calc(100% - 37px);
+        border: 8px solid black;
 
-
-      .info ._inner .move-desc {
-        font-size: 32px;
+        .move-desc {
+          font-size: 32px;
+        }
       }
     }
   }
