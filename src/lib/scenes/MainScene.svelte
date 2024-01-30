@@ -53,15 +53,12 @@
         testMap.playerInitialPosition.y * tileSizeInPx
     );
 
-    console.log(character.positionOnScreen);
-
     function resize(){
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
-        // base scale is 3, should reduce if screen is too small with a min of 1 and a max of 3
-        tileSizeInPx = 16 * imageScale;
         imageScale = Math.min(3, Math.max(1, Math.min(canvas.width / currentMap.background.width, canvas.height / currentMap.background.height)));
+        tileSizeInPx = 16 * imageScale;
 
         character.positionOnScreen = new Position(
             testMap.playerInitialPosition.x * tileSizeInPx,
