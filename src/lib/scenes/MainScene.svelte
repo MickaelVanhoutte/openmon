@@ -384,8 +384,8 @@
   $dpad-arrow-move: 35%;
   .d-pad {
     position: relative;
-    width: 200px;
-    height: 200px;
+    width: 15dvw;
+    height: 15dvh;
     border-radius: 48%;
     overflow: hidden;
 
