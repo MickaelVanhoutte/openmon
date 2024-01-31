@@ -321,8 +321,6 @@ export class BagObject implements Action {
     }
 }
 
-
-
 function fromTypeChart(type1: string, type2: string): number {
     // @ts-ignore
     return typeChart[type1.toLowerCase()][type2.toLowerCase()] as number;

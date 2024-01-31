@@ -1,7 +1,7 @@
-
-import {PlayerSprites, Position} from "../sprites/sprites";
-import {Frames} from "../sprites/sprites";
+import {PlayerSpriteDrawer, PlayerSprites, Position} from "../sprites/sprites";
 import type {PokemonInstance} from "../pokemons/pokemon";
+import "@abraham/reflection";
+import {container} from "tsyringe";
 
 export class Character {
     public name: string;
@@ -14,60 +14,25 @@ export class Character {
     public direction: 'up' | 'down' | 'left' | 'right' = 'down';
     public positionOnScreen: Position;
     public positionOnMap: Position;
-    public frames: Frames;
-    public spriteScale: number = 1;
+
+    private drawer: PlayerSpriteDrawer;
 
     constructor(name: string, gender: 'MALE' | 'FEMALE', sprites: PlayerSprites, monsters: PokemonInstance[] = []) {
         this.name = name;
         this.gender = gender;
         this.sprites = sprites;
         this.monsters = monsters;
-        this.frames = {max: 3, val: 0, elapsed: 0};
         this.positionOnMap = new Position(0, 0);
         this.positionOnScreen = new Position(0, 0);
+        this.drawer = container.resolve(PlayerSpriteDrawer);
     }
 
-    get sprite(): HTMLImageElement {
+    get sprite(): string {
         return this.sprites[this.direction];
     }
 
-    // TODO PlayerDrawer refactor
-    public draw(ctx: CanvasRenderingContext2D, movedOffset: Position, scale: number, bgWidth: number, bgHeight: number) {
-        let image = this.sprite || this.sprites.down;
-
-        let scaledBgWidth = bgWidth * scale;
-        let scaledBgHeight = bgHeight * scale;
-        // center
-        let x = ctx.canvas.width / 2 - scaledBgWidth / 2;
-        let y = ctx.canvas.height / 2 - scaledBgHeight / 2;
-
-        if (this.moving) {
-            if (this.frames.max > 1) {
-                this.frames.elapsed += 1;
-            }
-            if (this.frames.elapsed % 2 === 0) {
-                this.frames.val += 1
-                if (this.frames.val > this.frames.max - 1) {
-                    this.frames.val = 0;
-                }
-            }
-        } else {
-            this.frames.val = 1;
-        }
-
-        ctx.drawImage(
-            image,
-            this.frames.val * (image.width / this.frames.max),
-            0,
-            image.width / this.frames.max,
-            image.height,
-            x + (this.positionOnScreen.x),
-            y + (this.positionOnScreen.y) - 10,
-            (image.width / this.frames.max) * scale,
-            image.height * scale
-        );
-
-
+    public draw(ctx: CanvasRenderingContext2D, movedOffset: Position, scale: number, bgWidth: number, bgHeight: number){
+        this.drawer.draw(ctx, this.positionOnScreen, movedOffset, scale, bgWidth, bgHeight, this.sprite, this.moving);
     }
 
     updatePosition(initial: Position, movedOffset: Position) {
