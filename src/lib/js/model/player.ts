@@ -60,7 +60,7 @@ export class Character {
             image.width / this.frames.max,
             image.height,
             x + (this.positionOnScreen.x),
-            y + (this.positionOnScreen.y),
+            y + (this.positionOnScreen.y) - 10,
             (image.width / this.frames.max) * scale,
             image.height * scale
         );
