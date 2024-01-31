@@ -2,8 +2,6 @@ import {PokedexEntry, PokedexSearchResult, Stats} from "./pokedex";
 import {EXPERIENCE_CHART} from "./experience";
 import {Move, MoveInstance} from "./moves";
 import {PokemonSpriteDrawer} from "../sprites/drawers";
-import "@abraham/reflection";
-import {container} from "tsyringe";
 
 
 export class PokemonInstance extends PokedexEntry {
@@ -78,7 +76,7 @@ export class PokemonInstance extends PokedexEntry {
             this.gender = this.percentageMale ? (Math.random() * this.percentageMale <= this.percentageMale ? 'male' : 'female') : 'unknown';
         }
 
-        this.spriteDrawer = container.resolve(PokemonSpriteDrawer);
+        this.spriteDrawer = new PokemonSpriteDrawer();
     }
 
     public draw(ctx: CanvasRenderingContext2D, type: 'front' | 'back', frameOffset: number = 0, xOffset: number = 0, yOffset: number = 0) {

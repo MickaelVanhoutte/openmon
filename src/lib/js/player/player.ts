@@ -1,7 +1,5 @@
 import {PlayerSpriteDrawer, Position} from "../sprites/drawers";
 import type {PokemonInstance} from "../pokemons/pokemon";
-import "@abraham/reflection";
-import {container} from "tsyringe";
 
 export class Character {
     public name: string;
@@ -24,7 +22,7 @@ export class Character {
         this.monsters = monsters;
         this.positionOnMap = new Position(0, 0);
         this.positionOnScreen = new Position(0, 0);
-        this.drawer = container.resolve(PlayerSpriteDrawer);
+        this.drawer = new PlayerSpriteDrawer();
     }
 
     get sprite(): string {

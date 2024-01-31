@@ -1,7 +1,5 @@
-import type {PokemonInstance} from "./pokemon";
-import "@abraham/reflection";
-import {container, injectable, injectAll, registry, singleton} from "tsyringe";
-import type {MoveEffect} from "./moves";
+/*
+
 
 interface Effect {
     move_effect_id: number;
@@ -67,3 +65,4 @@ export class MoveEffectApplier {
 }
 
 export const MOVE_EFFECT_APPLIER = container.resolve(MoveEffectApplier);
+*/

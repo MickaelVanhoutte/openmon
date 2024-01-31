@@ -1,9 +1,12 @@
+<svelte:options accessors={true}/>
+
 {#if battle.initiated}
     <BattleScene bind:opened={opened}
                  bind:battleState={battleState}
                  bind:battleStart={battleStart}/>
 
 {:else}
+
     <!-- TODO move to another component -->
     <div class="set outline">
         <nav class="d-pad">
@@ -42,8 +45,6 @@
     import {BattleState} from "../js/battle/battle";
     import {keydownListener, keys, keyupListener, lastKey} from "../js/commands/keyboard";
     import type {PokemonInstance} from "../js/pokemons/pokemon";
-    import "@abraham/reflection";
-    import {container} from "tsyringe";
 
     // TODO getting bigger and bigger, refactor
 
@@ -56,7 +57,7 @@
     let battleStart = false;
     let battleState: BattleState;
     let currentMap = testMap;
-    let battlefieldsDrawer = container.resolve(BattlefieldsDrawer);
+    let battlefieldsDrawer = new BattlefieldsDrawer();
     let imageScale = 3;
 
     const ctx = canvas.getContext('2d');

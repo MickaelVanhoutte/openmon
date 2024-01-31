@@ -20,7 +20,6 @@
   },
   "type": "module",
   "dependencies": {
-    "@abraham/reflection": "^0.12.0",
-    "tsyringe": "^4.8.0"
+
   }
 }

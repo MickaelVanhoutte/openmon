@@ -1,3 +1,5 @@
+<svelte:options accessors={true}/>
+
 <div class="action-bar" class:opened={opened}>
 
     <div class="info">

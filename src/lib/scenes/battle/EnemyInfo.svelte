@@ -1,3 +1,5 @@
+<svelte:options accessors={true}/>
+
 <div class="enemy-info" class:opened={opened}>
 
     <div class="name-lvl">
