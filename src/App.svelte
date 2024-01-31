@@ -2,7 +2,7 @@
 
 <div id="canvas-wrapper" bind:this={wrapper}>
     {#if ready && letsgo}
-        <MainScene bind:canvas={canvas} bind:character={player}/>
+        <MainScene bind:pokedex={pokedex} bind:canvas={canvas} bind:character={player}/>
 
     {:else}
         <div class="loading" class:ready={ready}>
@@ -35,8 +35,9 @@
 </div>
 <script lang="ts">
     import MainScene from "./lib/scenes/MainScene.svelte";
-    import {Monster, MonsterSprite, Move, Stats} from "./lib/js/model/monster.ts";
     import {Character, PlayerSprites} from "./lib/js/model/player.js";
+    import {Pokedex} from "./lib/js/model/pokemons/pokedex";
+
 
     export let canvas;
     let wrapper;
@@ -45,21 +46,74 @@
     let pokedexReady = false;
     export let ready = false;
 
-    let pokedex = [];
     let images = [];
     let letsgo = false;
 
     let save;
     let current: string;
     let preview: HTMLDivElement;
-    let maxHeight = 0;
+
+
+    export let pokedex = new Pokedex();
+    fetch('src/assets/data/final/pokedex.json')
+        .then(response => response.json())
+        .then(data => {
+            pokedex.importFromJson(data);
+
+
+            let maxSec = 5;
+            let now = Date.now();
+
+            while (!pokedex.ready && Date.now() - now < maxSec * 1000) {
+                console.log('loading dex...');
+            }
+
+            if (!pokedex.ready) {
+                console.error('Pokedex not ready after ' + maxSec + ' seconds');
+                window.location.reload();
+            }
+
+            pokedexReady = true;
+
+            initCharacter();
+
+        });
+
+    function initCharacter() {
+        let front = new Image();
+        front.src = 'src/assets/sprites/hero_male_front.png';
+        let back = new Image();
+        back.src = 'src/assets/sprites/hero_male_back.png';
+        let left = new Image();
+        left.src = 'src/assets/sprites/hero_male_left.png';
+        let right = new Image();
+        right.src = 'src/assets/sprites/hero_male_right.png';
+        let battle = new Image();
+        battle.src = 'src/assets/sprites/hero_male_back.png';
+
+        Promise.all(Array.from([front, back, left, right, battle].filter(img => !img.complete)).map(img => new Promise(resolve => {
+            img.onload = img.onerror = resolve;
+        }))).then(() => {
+
+            let firstPoke = pokedex.findById(251)?.result?.instanciate(5);
+
+            if (!firstPoke) throw new Error('Could not find pokemon with id 251');
+
+            firstPoke.isShiny = true;
+
+            player = new Character("Kaiser", "MALE",
+                new PlayerSprites(front, back, left, right, battle), [firstPoke]);
+
+            ready = true;
+        });
+    }
 
 
     //localStorage.getItem('pokedex') && (pokedex = JSON.parse(localStorage.getItem('pokedex')));
     //localStorage.getItem('player') && (player = JSON.parse(localStorage.getItem('player')));
     //localStorage.getItem('save') && (save = JSON.parse(localStorage.getItem('save')));
 
-    if (pokedex.length > 0 && player) {
+    /*if (pokedex.length > 0 && player) {
         pokedex.forEach(pokemon => {
             setTimeout(() => {
                 const front = new Image();
@@ -129,46 +183,9 @@
             });
     }
 
-    function initCharacter() {
-        let front = new Image();
-        front.src = 'src/assets/sprites/hero_male_front.png';
-        let back = new Image();
-        back.src = 'src/assets/sprites/hero_male_back.png';
-        let left = new Image();
-        left.src = 'src/assets/sprites/hero_male_left.png';
-        let right = new Image();
-        right.src = 'src/assets/sprites/hero_male_right.png';
-        let battle = new Image();
-        battle.src = 'src/assets/sprites/hero_male_back.png';
 
-        Promise.all(Array.from([front, back, left, right, battle].filter(img => !img.complete)).map(img => new Promise(resolve => {
-            img.onload = img.onerror = resolve;
-        }))).then(() => {
+*/
 
-            let firstPoke = {
-                ...pokedex.at(70),
-                ivs: new Stats(31, 31, 31, 31, 31, 31),
-                evs: new Stats(120, 0, 0, 255, 0, 135),
-                moves: [
-                    new Move('Tackle', 'Normal', 'Physical', 40, 100, 35, 0, '', 0, 'Basic hit'),
-                    new Move('Growl', 'Normal', 'Status', 0, 100, 40, 0, '', 0, 'Lowers the target\'s Attack by one stage.'),
-                    new Move('Tail Whip', 'Normal', 'Status', 0, 100, 30, 0, '', 0, 'Lowers the target\'s Defense by one stage.'),
-                    new Move('Vine whip', 'Grass', 'Physical', 40, 100, 30, 0, '', 0, 'Strong hit with vines.'),
-                ]
-            };
-            Object.setPrototypeOf(firstPoke, Monster.prototype);
-
-            firstPoke.updateCurrentStats();
-            firstPoke.currentHp = firstPoke.currentStats.HP;
-
-            player = new Character("Kaiser", "MALE",
-                new PlayerSprites(front, back, left, right, battle), [firstPoke]);
-
-            ready = true;
-        });
-
-
-    }
 
     function go() {
         //openFullscreen();
@@ -218,42 +235,6 @@
       height: 100dvh;
     }
   }
-
-  /*@media (max-width: 1100px) and (orientation: portrait) {
-    #canvas-wrapper {
-      -webkit-transform: rotate(89.99deg);
-      -moz-transform: rotate(89.99deg);
-      -o-transform: rotate(89.99deg);
-      -ms-transform: rotate(89.99deg);
-      transform: rotate(89.99deg);
-      transform-origin: right top;
-      width: 100dvh;
-      height: 100dvw;
-      overflow: hidden;
-      position: absolute;
-      top: 100%;
-      left: unset;
-      right: 0;
-
-      canvas {
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 100dvh;
-        height: 100dvw;
-      }
-
-      .buttons {
-        position: absolute;
-        left: calc(50dvh - 100px);
-        top: calc(50dvw - 40px);
-      }
-
-      .loading {
-        height: 100vw;
-      }
-    }
-  }*/
 
   .loading {
     display: flex;

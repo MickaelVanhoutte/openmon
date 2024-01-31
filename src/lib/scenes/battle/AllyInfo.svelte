@@ -12,18 +12,19 @@
                 <div class="progressbar" class:warning={percent <= 50} class:danger={percent < 15 } style="--width:{percent + '%'}"></div>
             </div>
         </div>
-        {monster.currentHp} / {monster.currentStats.HP}
+        {monster.currentHp} / {monster.currentStats.hp}
     </div>
 
 </div>
 
 <script lang="ts">
-    import {Monster} from "../../js/model/monster";
+
+    import type {PokemonInstance} from "../../js/model/pokemons/pokemon";
 
     export let opened: boolean;
-    export let monster: Monster;
+    export let monster: PokemonInstance;
 
-    $: percent = Math.floor(monster.currentHp * 100 / monster.currentStats.HP);
+    $: percent = Math.floor(monster.currentHp * 100 / monster.currentStats.hp);
 
 </script>
 

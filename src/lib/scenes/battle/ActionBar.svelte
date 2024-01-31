@@ -69,12 +69,13 @@
     let selectedMoveIdx = 0;
     let selectedOptionIdx = 0;
 
+    console.log(battleState);
+
     function toggleMoveSelection() {
         moveOpened = !moveOpened;
     }
 
     function escape() {
-        console.log(battleState)
         battleState.selectAction(new RunAway(battleState.playerCurrentMonster));
     }
 
@@ -107,7 +108,6 @@
                 }
             }
         }
-        console.log(selectedOptionIdx, selectedMoveIdx);
     })
 </script>
 

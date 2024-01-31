@@ -52,4 +52,4 @@ const battles = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
-export const testMap= new OpenMap(background, foreground, 20, 20, collisions, battles, monsters);
+export const testMap= new OpenMap(background, foreground, 20, 20, collisions, battles, monsters, [3, 6]);
