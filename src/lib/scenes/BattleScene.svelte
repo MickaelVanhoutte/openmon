@@ -11,7 +11,7 @@
     import AllyInfo from "./battle/AllyInfo.svelte";
     import ActionBar from "./battle/ActionBar.svelte";
     import EnemyInfo from "./battle/EnemyInfo.svelte";
-    import type {BattleState} from "../js/model/battle";
+
 
     export let opened;
     export let battleStart;

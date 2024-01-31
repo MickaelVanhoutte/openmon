@@ -1,15 +1,8 @@
-import {Move, MoveEffect, PokedexEntry, PokedexSearchResult, SpriteGroup, Stats} from "./pokedex";
+import { PokedexEntry, PokedexSearchResult, SpriteGroup, Stats} from "./pokedex";
 import {EXPERIENCE_CHART} from "./experience";
-import {Position} from "../sprites";
+import {Move, MoveInstance} from "./moves";
+import {Position, SpriteDrawer} from "../sprites/sprites";
 
-export class MoveInstance extends Move {
-    public currentPp: number;
-
-    constructor(name: string, type: string, category: 'physical' | 'special' | 'status', power: number, accuracy: number, pp: number, priority: number, /*target: string,*/ effect: MoveEffect, effectChance: number, description: string, level: number) {
-        super(name, type, category, power, accuracy, pp, priority, /*target,*/ effect, effectChance, description, level);
-        this.currentPp = pp;
-    }
-}
 
 export class PokemonInstance extends PokedexEntry {
 
@@ -199,102 +192,5 @@ export class PokemonInstance extends PokedexEntry {
     private selectLatestMoves(pokedexEntry: PokedexEntry) {
         // get 4 last moves based on current level
         return pokedexEntry.moves.filter((move) => move.level <= this.level).slice(-4).map((move) => new MoveInstance(move.name, move.type, move.category, move.power, move.accuracy, move.pp, move.priority, move.effect, move.effectChance, move.description, move.level));
-    }
-}
-
-export class SpriteDrawer {
-
-    private currentImage?: HTMLImageElement;
-
-    public frameElapsed: number = 0;
-
-    public spriteSize = 80;
-
-    public spriteScale = 1.5;
-
-    constructor() {
-    }
-
-    draw(ctx: CanvasRenderingContext2D, pokemon: PokemonInstance, type: "front" | "back", frameOffset: number = 0, xOffset: number = 0, yOffset: number = 0) {
-        if (pokemon.sprites) {
-
-            let spriteGroup = pokemon.gender !== 'unknown' ? pokemon.sprites[pokemon.gender][type] : pokemon.sprites['male'][type];
-            let entry = 'frame'
-            if (pokemon.isShiny) {
-                entry = 'shiny';
-            }
-
-            if (this.frameElapsed + frameOffset < 100) {
-                entry += '1';
-            } else {
-                entry += '2';
-            }
-
-            console.log(pokemon.sprites, pokemon.gender, entry, spriteGroup[entry]);
-
-            if (this.frameElapsed + frameOffset >= 200) {
-                this.frameElapsed = 0;
-            }
-
-
-            let imageSrc = spriteGroup[entry] as string;
-
-
-            if (!this.currentImage || this.currentImage.src !== imageSrc) {
-                let futureImage = new Image();
-                futureImage.src = imageSrc;
-                futureImage.onload = () => {
-                    this.currentImage = futureImage;
-                }
-            }
-
-            if (this.currentImage?.complete) {
-                let position = this.getPosition(ctx, type, xOffset, yOffset);
-
-                ctx.drawImage(this.currentImage,
-                    0,
-                    0,
-                    this.spriteSize,
-                    this.spriteSize,
-                    position.x,
-                    position.y,
-                    this.spriteSize * this.spriteScale * 2.5,
-                    this.spriteSize * this.spriteScale * 2.5);
-
-                this.frameElapsed++;
-            }
-
-        }
-    }
-
-    private getPosition(ctx: CanvasRenderingContext2D, type: "front" | "back", xOffset: number = 0, yOffset: number = 0) {
-        let position = new Position();
-        if (ctx.canvas.width < 1100) {
-            if (type === 'front') {
-                position = new Position(
-                    (ctx.canvas.width / 4) * 3 - (this.spriteSize * 2 * this?.spriteScale / 2) + xOffset,
-                    (ctx.canvas.height / 3.5 * 2) - ((this.spriteSize * 2 * this?.spriteScale)) - (16 * 2) + yOffset
-                );
-            } else {
-                position = new Position(
-                    (ctx.canvas.width / 4) - ((this.spriteSize * 2 * this.spriteScale) / 2) + xOffset,
-                    (ctx.canvas.height * 0.75) - (this.spriteSize * 2 * this.spriteScale) + (16 * 2) + yOffset
-                );
-            }
-
-        } else {
-            if (type === 'front') {
-                position = new Position(
-                    (ctx.canvas.width / 4) * 3 - (this.spriteSize * 2.5 * this?.spriteScale / 2) + xOffset,
-                    (ctx.canvas.height / 2) - ((this.spriteSize * 2.5 * this?.spriteScale)) - (12 * 2.5) + yOffset
-                );
-            } else {
-                position = new Position(
-                    (ctx.canvas.width / 4) - ((this.spriteSize * 2.5 * this.spriteScale) / 2) + xOffset,
-                    (ctx.canvas.height * 0.75) - (this.spriteSize * 2.5 * this.spriteScale) + (15 * 2.5) + yOffset
-                );
-            }
-        }
-        return position;
     }
 }

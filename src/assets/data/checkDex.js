@@ -2,9 +2,9 @@ import pokedex from './final/pokedex.json' assert {type: "json"};
 
 console.log(pokedex.length);
 
-let idx = 36;
+let idx = 0;
 
-console.log(pokedex[250]);
-pokedex[250].moves.forEach((move) => {
-    console.log(pokedex[250].name, move.name, move.accuracy, move.effectChance);
+console.log(pokedex[idx]);
+pokedex[2].moves.forEach((move) => {
+    console.log(move.name, move.level );
 });

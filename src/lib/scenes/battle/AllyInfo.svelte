@@ -19,7 +19,9 @@
 
 <script lang="ts">
 
-    import type {PokemonInstance} from "../../js/model/pokemons/pokemon";
+
+
+    import type {PokemonInstance} from "../../js/pokemons/pokemon";
 
     export let opened: boolean;
     export let monster: PokemonInstance;
