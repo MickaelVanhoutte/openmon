@@ -25,11 +25,14 @@
     import BattleScene from "./BattleScene.svelte";
     import Menu from "./main/Menu.svelte";
     import {testMap} from "../js/maps/test-map";
-    import type {Monster} from "../js/model/monster";
+    import {Pokedex} from "../js/model/pokemons/pokedex";
+    import {PokemonInstance} from "../js/model/pokemons/pokemon";
 
     export let opened = false;
     export let menuOpened = false;
     export let battleStart = false;
+
+    export let pokedex: Pokedex;
 
     export let currentMap = testMap;
 
@@ -41,15 +44,13 @@
 
     const ctx = canvas.getContext('2d');
 
-    if(window.innerHeight > window.innerWidth){
-        console.log('portrait')
+    if (window.innerHeight > window.innerWidth) {
         canvas.width = window.innerWidth;
         canvas.height = window.innerWidth;
-    }else {
+    } else {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
     }
-
 
 
     //let imageScale = Math.min(4, Math.max(2, Math.min(canvas.width / currentMap.background.width, canvas.height / currentMap.background.height)));
@@ -66,11 +67,10 @@
     );
 
     function resize() {
-        if(window.innerHeight > window.innerWidth){
-            console.log('portrait')
+        if (window.innerHeight > window.innerWidth) {
             canvas.width = window.innerWidth;
             canvas.height = window.innerWidth;
-        }else {
+        } else {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
         }
@@ -156,7 +156,7 @@
 
                     if (currentMap.hasBattleZoneAt(character.positionOnMap) && Math.random() < 0.1) {
                         character.frames.val = 0;
-                        let monster = currentMap.randomMonster();
+                        let monster = currentMap.randomMonster(pokedex);
                         window.cancelAnimationFrame(mainLoopContext.id);
                         initiateBattle(monster);
                     }
@@ -235,8 +235,8 @@
 
             battleBackground.draw(ctx, canvas);
 
-            battle.battleState?.opponentCurrentMonster?.draw2(ctx, 'front');
-            battle.battleState?.playerCurrentMonster?.draw2(ctx, 'back');
+            battle.battleState?.opponentCurrentMonster?.draw(ctx, 'front', 50, 0, monsterPositionOffset);
+            battle.battleState?.playerCurrentMonster?.draw(ctx, 'back', 0, 0, monsterPositionOffset);
 
             // animate monsters
             if (!!battle.battleState?.opponentCurrentMonster?.position) {
@@ -256,7 +256,7 @@
 
     }
 
-    function initiateBattle(opponent: Monster | Character) {
+    function initiateBattle(opponent: PokemonInstance | Character) {
         stopCommands();
         battle.frameElapsed = 0;
         battle.initiated = true;
@@ -363,9 +363,9 @@
 <style lang="scss">
 
   @media (max-width: 1100px) {
-    .set .d-pad{
-        width: 20dvw;
-        height: 20dvw;
+    .set .d-pad {
+      width: 20dvw;
+      height: 20dvw;
     }
   }
 

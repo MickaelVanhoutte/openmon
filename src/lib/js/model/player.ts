@@ -1,12 +1,12 @@
 import {Frames, Position} from "./sprites";
-import type {Monster} from "./monster";
+import type {PokemonInstance} from "./pokemons/pokemon";
 
 
 export class Character {
     public name: string;
     public gender: 'MALE' | 'FEMALE';
     public sprites: PlayerSprites;
-    public monsters: Monster[];
+    public monsters: PokemonInstance[];
     public bag: any[] = [];
     public lvl: number = 1;
     public moving: boolean = false;
@@ -16,7 +16,7 @@ export class Character {
     public frames: Frames;
     public spriteScale: number = 1;
 
-    constructor(name: string, gender: 'MALE' | 'FEMALE', sprites: PlayerSprites, monsters: Monster[] = []) {
+    constructor(name: string, gender: 'MALE' | 'FEMALE', sprites: PlayerSprites, monsters: PokemonInstance[] = []) {
         this.name = name;
         this.gender = gender;
         this.sprites = sprites;

@@ -1,14 +1,15 @@
 import {Position} from "./sprites";
 import {Character} from "./player";
-import {Monster, Move} from "./monster";
+import {PokemonInstance} from "./pokemons/pokemon";
+import {Move} from "./pokemons/pokedex";
 
 export class BattleState {
 
     public player: Character;
-    public playerCurrentMonster: Monster;
+    public playerCurrentMonster: PokemonInstance;
 
-    public opponent: Character | Monster;
-    public opponentCurrentMonster: Monster;
+    public opponent: Character | PokemonInstance;
+    public opponentCurrentMonster: PokemonInstance;
 
     public isPlayerTurn: boolean;
 
@@ -24,36 +25,36 @@ export class BattleState {
     public currentMessage: string = 'What will you do ?';
 
     get wild(): boolean {
-        return this.opponent instanceof Monster;
+        return this.opponent instanceof PokemonInstance;
     }
 
-    constructor(player: Character, opponent: Character | Monster, canvas: HTMLCanvasElement) {
+    constructor(player: Character, opponent: Character | PokemonInstance, canvas: HTMLCanvasElement) {
         this.player = player;
         this.opponent = opponent;
         this.playerCurrentMonster = player.monsters[0];
-        this.opponentCurrentMonster = this.wild ? opponent as Monster : (opponent as Character).monsters[0];
+        this.opponentCurrentMonster = this.wild ? opponent as PokemonInstance : (opponent as Character).monsters[0];
 
         this.turnStack = [];
 
         if(window.innerWidth < 1100){
             this.initialOpponentPosition = new Position(
-                (canvas.width / 4) * 3 - (opponent?.sprites.width * 2 * opponent?.spriteScale / 2),
-                (canvas.height / 3.5 * 2) - ((opponent?.sprites.height * 2 * opponent?.spriteScale)) - (16 * 2)
+                (canvas.width / 4) * 3 - (80 * 2 * opponent?.spriteScale / 2),
+                (canvas.height / 3.5 * 2) - ((80 * 2 * opponent?.spriteScale)) - (16 * 2)
             );
 
             this.initialAllyPosition = new Position(
-                (canvas.width / 4) - ((this.playerCurrentMonster?.sprites.width * 2 * this.playerCurrentMonster.spriteScale) / 2),
-                (canvas.height * 0.75) - (this.playerCurrentMonster?.sprites.height * 2 * this.playerCurrentMonster.spriteScale) + (16 * 2)
+                (canvas.width / 4) - ((80 * 2 * this.playerCurrentMonster.spriteScale) / 2),
+                (canvas.height * 0.75) - (80 * 2 * this.playerCurrentMonster.spriteScale) + (16 * 2)
             );
         }else {
             this.initialOpponentPosition = new Position(
-                (canvas.width / 4) * 3 - (opponent?.sprites.width * 2.5 * opponent?.spriteScale / 2),
-                (canvas.height / 2) - ((opponent?.sprites.height * 2.5 * opponent?.spriteScale)) - (12 * 2.5)
+                (canvas.width / 4) * 3 - (80 * 2.5 * opponent?.spriteScale / 2),
+                (canvas.height / 2) - ((80 * 2.5 * opponent?.spriteScale)) - (12 * 2.5)
             );
 
             this.initialAllyPosition = new Position(
-                (canvas.width / 4) - ((this.playerCurrentMonster?.sprites.width * 2.5 * this.playerCurrentMonster.spriteScale) / 2),
-                (canvas.height * 0.75) - (this.playerCurrentMonster?.sprites.height * 2.5 * this.playerCurrentMonster.spriteScale) + (15 * 2.5)
+                (canvas.width / 4) - ((80 * 2.5 * this.playerCurrentMonster.spriteScale) / 2),
+                (canvas.height * 0.75) - (80 * 2.5 * this.playerCurrentMonster.spriteScale) + (15 * 2.5)
             );
         }
 
@@ -124,11 +125,11 @@ export class BattleState {
         actionsToPush.reverse().forEach((action: Action) => this.turnStack.unshift(action));
     }
 
-    private calculateDamage(attacker: Monster, defender: Monster, move: Move): DamageResults {
+    private calculateDamage(attacker: PokemonInstance, defender: PokemonInstance, move: Move): DamageResults {
         let result = new DamageResults();
-        if (move.category !== 'Status') {
-            const attack = move.category === 'Physical' ? attacker.currentStats.attack : attacker.currentStats.specialAttack;
-            const defense = move.category === 'Physical' ? defender.currentStats.defense : defender.currentStats.specialDefense;
+        if (move.category !== 'status') {
+            const attack = move.category === 'physical' ? attacker.currentStats.attack : attacker.currentStats.specialAttack;
+            const defense = move.category === 'physical' ? defender.currentStats.defense : defender.currentStats.specialDefense;
 
             const typeEffectiveness = this.calculateTypeEffectiveness(move.type, defender.types);
             result.superEffective = typeEffectiveness > 1;
@@ -162,7 +163,7 @@ export class BattleState {
         return Math.random() < 0.0625 ? 1.5 : 1;
     }
 
-    private calculateStab(attacker: Monster, move: Move) {
+    private calculateStab(attacker: PokemonInstance, move: Move) {
         return attacker.types.includes(move.type) ? 1.5 : 1;
     }
 
@@ -213,7 +214,7 @@ export class BattleState {
             this.turnStack = [];
             this.turnStack.push(new Message(target.name + ' fainted!', action.initiator));
 
-            if (this.wild || (this.opponent instanceof Character && this.opponent.monsters.every((monster: Monster) => monster.fainted))) {
+            if (this.wild || (this.opponent instanceof Character && this.opponent.monsters.every((monster: PokemonInstance) => monster.fainted))) {
                 this.turnStack.unshift(new EndBattle(action.initiator));
                 this.turnStack.unshift(new Message('You won the battle!', action.initiator));
                 setTimeout(() => {
@@ -240,15 +241,15 @@ export class DamageResults {
 export interface Action {
     name: string;
     description: string;
-    initiator: Monster;
+    initiator: PokemonInstance;
 }
 
 export class EndBattle implements Action {
     public name: string;
     public description: string;
-    public initiator: Monster;
+    public initiator: PokemonInstance;
 
-    constructor(initiator: Monster) {
+    constructor(initiator: PokemonInstance) {
         this.name = 'End Battle';
         this.description = 'End Battle';
         this.initiator = initiator;
@@ -260,9 +261,9 @@ export class RemoveHP implements Action {
     public description: string;
     public damages: number;
     public target: 'opponent' | 'ally';
-    public initiator: Monster;
+    public initiator: PokemonInstance;
 
-    constructor(damages: number, target: 'opponent' | 'ally', initiator: Monster) {
+    constructor(damages: number, target: 'opponent' | 'ally', initiator: PokemonInstance) {
         this.name = 'Remove HP';
         this.description = 'Remove HP';
         this.damages = damages;
@@ -274,9 +275,9 @@ export class RemoveHP implements Action {
 export class Message implements Action {
     public name: string;
     public description: string;
-    public initiator: Monster;
+    public initiator: PokemonInstance;
 
-    constructor(message: string, initiator: Monster) {
+    constructor(message: string, initiator: PokemonInstance) {
         this.name = 'Message';
         this.description = message;
         this.initiator = initiator;
@@ -286,9 +287,9 @@ export class Message implements Action {
 export class RunAway implements Action {
     public description: string;
     public name: string;
-    public initiator: Monster;
+    public initiator: PokemonInstance;
 
-    constructor(initiator: Monster) {
+    constructor(initiator: PokemonInstance) {
         this.name = 'Run Away';
         this.description = 'Run away from the battle';
         this.initiator = initiator;
@@ -299,9 +300,9 @@ export class ChangePokemon implements Action {
     public description: string;
     public name: string;
     public targetIdx: number;
-    public initiator: Monster;
+    public initiator: PokemonInstance;
 
-    constructor(targetIdx: number, initiator: Monster) {
+    constructor(targetIdx: number, initiator: PokemonInstance) {
         this.name = 'Change Pokemon';
         this.description = 'Change the current pokemon';
         this.targetIdx = targetIdx;
@@ -314,9 +315,9 @@ export class Attack implements Action {
     public description: string;
     public move: Move;
     public target: 'opponent' | 'ally';
-    public initiator: Monster;
+    public initiator: PokemonInstance;
 
-    constructor(move: Move, target: 'opponent' | 'ally', initiator: Monster) {
+    constructor(move: Move, target: 'opponent' | 'ally', initiator: PokemonInstance) {
         this.name = move.name;
         this.description = move.description;
         this.move = move;
@@ -331,9 +332,9 @@ export class BagObject implements Action {
     public itemId: string;
     public targetType: 'opponent' | 'ally';
     public targetIdx: number;
-    public initiator: Monster;
+    public initiator: PokemonInstance;
 
-    constructor(name: string, description: string, itemId: string, targetType: 'opponent' | 'ally', initiator: Monster, targetIdx = 0) {
+    constructor(name: string, description: string, itemId: string, targetType: 'opponent' | 'ally', initiator: PokemonInstance, targetIdx = 0) {
         this.name = name;
         this.description = description;
         this.itemId = itemId;

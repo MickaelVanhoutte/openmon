@@ -1,6 +1,7 @@
 import {Position} from "./sprites";
 import {Boundary} from "./collisions";
-import {Monster} from "./monster";
+import type {PokemonInstance} from "./pokemons/pokemon";
+import type {Pokedex} from "./pokemons/pokedex";
 
 
 export const tileSize = 16;
@@ -16,13 +17,14 @@ export class OpenMap {
     public battleZones: Boundary[];
 
     public monsters: number[];
+    public levelRange: number[] = [1, 100];
 
     public playerInitialPosition: Position = new Position(11, 11);
 
     public startingX: number = 0;
     public startingY: number = 0;
 
-    constructor(background: HTMLImageElement, foreground: HTMLImageElement, width: number, height: number, collisions: number[], battles: number[], monsters: number[]) {
+    constructor(background: HTMLImageElement, foreground: HTMLImageElement, width: number, height: number, collisions: number[], battles: number[], monsters: number[], levelRange: number[] = [1, 100]) {
         this.background = background;
         this.foreground = foreground;
         this.width = width;
@@ -30,14 +32,15 @@ export class OpenMap {
         this.collisions = this.initBoundaries(collisions);
         this.battleZones = this.initBattlesZones(battles);
         this.monsters = monsters;
+        this.levelRange = levelRange;
     }
 
-    randomMonster(): Monster {
+    randomMonster(dex: Pokedex): PokemonInstance {
         const monsterId = this.monsters[Math.floor(Math.random() * this.monsters.length)];
-        const pokedex: Monster[] = localStorage.getItem('pokedex') && JSON.parse(localStorage.getItem('pokedex') || '[]') || [];
-        const monster = pokedex.find((monster: Monster) => monster.id === monsterId);
-        Object.setPrototypeOf(monster, Monster.prototype)
-        return monster as Monster;
+        const level = Math.floor(Math.random() * (this.levelRange[1] - this.levelRange[0] + 1)) + this.levelRange[0];
+        //const pokedex: PokemonInstance[] = localStorage.getItem('pokedex') && JSON.parse(localStorage.getItem('pokedex') || '[]') || [];
+        //const monster = pokedex.find((monster: PokemonInstance) => monster.id === monsterId);
+        return dex.findById(monsterId).result.instanciate(level);
     }
 
     initBattlesZones(battles: number []) {
