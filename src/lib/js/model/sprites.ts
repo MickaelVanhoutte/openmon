@@ -13,7 +13,7 @@ export class Frames {
     elapsed: number;
     max: number;
 
-    constructor(max: number, val: number = 0, elapsed = 0) {
+    constructor(max: number, val: number = 0, elapsed = 1) {
         this.val = val;
         this.elapsed = elapsed;
         this.max = max;

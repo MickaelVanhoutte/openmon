@@ -4,6 +4,7 @@
                  bind:battleStart={battleStart}/>
 
 {:else}
+    <!-- TODO move to another component -->
     <div class="set outline">
         <nav class="d-pad">
             <span class="up" on:pointerdown={move('ArrowUp')} on:pointerup={stop('ArrowUp')}></span>
@@ -12,6 +13,19 @@
             <span class="left" on:pointerdown={move('ArrowLeft')} on:pointerup={stop('ArrowLeft')}></span>
         </nav>
     </div>
+
+    <div class="buttons-a-b">
+        <button class="button-b">B</button>
+
+        <button class="button-a">A</button>
+    </div>
+
+    <div class="buttons-start-select">
+        <button class="button-start">start</button>
+
+        <button class="button-select">select</button>
+    </div>
+
 {/if}
 
 <Menu bind:menuOpened={menuOpened} bind:player={character}/>
@@ -392,6 +406,8 @@
   }
 
 
+
+
   $dpad-radius: 17%;
   $dpad-radius-in: 20%;
   $dpad-fg: rgba(221, 221, 221, .5);
@@ -648,78 +664,6 @@
   }
 
 
-  .clear {
-    $c: #fff;
-    $c-h: #6ea248;
-    $c-bg: #5f9837;
-    $c-t: #fff;
-    $c-t-a: rgba(0, 0, 0, .6);
-
-    .d-pad {
-      border-radius: 0;
-
-      span {
-        border: 1px solid $c;
-      }
-
-      &:before, span {
-        background: none;
-      }
-
-      span:after {
-        display: none;
-      }
-
-      span.up:hover {
-        background: linear-gradient(0deg, $c-bg 0%, $c-h 50%);
-      }
-
-      span.right:hover {
-        background: linear-gradient(90deg, $c-bg 0%, $c-h 50%);
-      }
-
-      span.down:hover {
-        background: linear-gradient(180deg, $c-bg 0%, $c-h 50%);
-      }
-
-      span.left:hover {
-        background: linear-gradient(-90deg, $c-bg 0%, $c-h 50%);
-      }
-
-      span.up:before {
-        border-bottom-color: $c-t;
-      }
-
-      span.right:before {
-        border-left-color: $c-t;
-      }
-
-      span.down:before {
-        border-top-color: $c-t;
-      }
-
-      span.left:before {
-        border-right-color: $c-t;
-      }
-
-      span.up:active:before {
-        border-bottom-color: $c-t-a;
-      }
-
-      span.right:active:before {
-        border-left-color: $c-t-a;
-      }
-
-      span.down:active:before {
-        border-top-color: $c-t-a;
-      }
-
-      span.left:active:before {
-        border-right-color: $c-t-a;
-      }
-    }
-  }
-
   .outline {
     $c: #fff;
     $c-h: #efefef;
@@ -776,77 +720,6 @@
   }
 
 
-  .setbg.white {
-    $c: #fff;
-    $c-t: rgba(0, 0, 0, .1);
-    $c-t-a: rgba(0, 0, 0, .6);
-    $c-h: #143cb9;
-
-    .d-pad {
-      &:before, span {
-        background: $c;
-      }
-
-      &:after {
-        display: block;
-        background: $c-t;
-      }
-
-      span:after {
-        border-radius: 40%;
-        background: #222;
-      }
-
-      span.up:hover {
-        background: $c;
-      }
-
-      span.right:hover {
-        background: $c;
-      }
-
-      span.down:hover {
-        background: $c;
-      }
-
-      span.left:hover {
-        background: $c;
-      }
-
-      span.up:before {
-        border-bottom-color: #0074D9;
-      }
-
-      span.right:before {
-        border-left-color: #FF851B;
-      }
-
-      span.down:before {
-        border-top-color: #3D9970;
-      }
-
-      span.left:before {
-        border-right-color: #FFDC00;
-      }
-
-      span.up:active:before {
-        border-bottom-color: $c-t-a;
-      }
-
-      span.right:active:before {
-        border-left-color: $c-t-a;
-      }
-
-      span.down:active:before {
-        border-top-color: $c-t-a;
-      }
-
-      span.left:active:before {
-        border-right-color: $c-t-a;
-      }
-    }
-  }
-
   // set direction active state
 
   .d-pad.up span.up:before {
@@ -864,4 +737,46 @@
   .d-pad.right span.right:before {
     border-left-color: #333;
   }
+
+  .buttons-a-b {
+    position: absolute;
+    bottom: 8dvh;
+    right: 8dvh;
+    z-index: 10;
+
+    display: flex;
+    flex-direction: column;
+    align-content: space-between;
+    align-items: center;
+
+    button {
+      width: 7dvw;
+      height: 7dvw;
+      border-radius: 50%;
+      border: 1px solid #fff;
+      background: $dpad-fg;
+      color: $arrowcolor;
+      font-size: 3.5rem;
+      font-weight: bold;
+      text-align: center;
+      line-height: 10dvw;
+      cursor: pointer;
+      transition: all .25s;
+
+      display: flex;
+      align-content: center;
+      justify-content: center;
+      align-items: center;
+
+      &:hover {
+        background: $dpad-fg-hover;
+      }
+    }
+
+    .button-a {
+      position: relative;
+      right: 6dvw;
+    }
+  }
+
 </style>
