@@ -1,4 +1,4 @@
-import {PlayerSpriteDrawer, PlayerSprites, Position} from "../sprites/sprites";
+import {PlayerSpriteDrawer, Position} from "../sprites/drawers";
 import type {PokemonInstance} from "../pokemons/pokemon";
 import "@abraham/reflection";
 import {container} from "tsyringe";
@@ -41,4 +41,22 @@ export class Character {
     }
 }
 
+export class PlayerSprites {
+    public down: string;
+    public up: string;
+    public left: string;
+    public right: string;
+    public battle: string;
+
+    public width: number = 80;
+    public height: number = 80;
+
+    constructor(front: string, back: string, left: string, right: string, battle: string) {
+        this.down = front;
+        this.up = back;
+        this.left = left;
+        this.right = right;
+        this.battle = battle;
+    }
+}
 

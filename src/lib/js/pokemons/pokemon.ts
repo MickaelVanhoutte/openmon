@@ -1,7 +1,7 @@
 import {PokedexEntry, PokedexSearchResult, Stats} from "./pokedex";
 import {EXPERIENCE_CHART} from "./experience";
 import {Move, MoveInstance} from "./moves";
-import {PokemonSpriteDrawer} from "../sprites/sprites";
+import {PokemonSpriteDrawer} from "../sprites/drawers";
 import "@abraham/reflection";
 import {container} from "tsyringe";
 

@@ -1,8 +1,8 @@
 <div class="ally-info" class:opened={opened}>
 
     <div class="name-lvl">
-        <span>{monster.name}</span>
-        <span>Lv {monster.level}</span>
+        <span>{pokemon.name}</span>
+        <span>Lv {pokemon.level}</span>
     </div>
 
     <div class="status">
@@ -12,21 +12,22 @@
                 <div class="progressbar" class:warning={percent <= 50} class:danger={percent < 15 } style="--width:{percent + '%'}"></div>
             </div>
         </div>
-        {monster.currentHp} / {monster.currentStats.hp}
+        {pokemon.currentHp} / {pokemon.currentStats.hp}
     </div>
 
 </div>
 
 <script lang="ts">
 
-
-
     import type {PokemonInstance} from "../../js/pokemons/pokemon";
 
     export let opened: boolean;
-    export let monster: PokemonInstance;
 
-    $: percent = Math.floor(monster.currentHp * 100 / monster.currentStats.hp);
+    export let pokemon: PokemonInstance;
+
+    console.log(pokemon);
+
+    $: percent = Math.floor(pokemon.currentHp * 100 / pokemon.currentStats.hp);
 
 </script>
 
@@ -143,16 +144,4 @@
     }
   }
 
- /* @media screen and (max-width: 1100px) and (orientation: portrait) {
-    .ally-info{
-      bottom: 16dvh;
-      height: 18dvw;
-      width: 30dvh;
-      !*font-size: 36px;*!
-
-      .hp {
-        width: 80%;
-      }
-    }
-  }*/
 </style>

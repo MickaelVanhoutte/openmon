@@ -51,7 +51,50 @@ export class BattleState {
             this.turnStack.push(action);
         }
 
-        this.executeAction(this.turnStack.shift());
+        /*while(this.turnStack.length > 0) {
+            this.executeAction(this.turnStack?.shift());
+        }*/
+
+        this.executeAction(this.turnStack?.shift());
+        //this.endTurn();
+    }
+
+    sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
+
+    private executeAction(action?: Action) {
+        console.log(this.turnStack);
+        console.log('executing action', {action});
+        if (action) {
+            if (action instanceof Attack && !action.initiator.fainted) {
+                this.attack(action);
+            } else if (action instanceof RunAway) {
+                this.runAway();
+            } else if (action instanceof ChangePokemon) {
+                // this.changePokemon(action);
+            } else if (action instanceof BagObject) {
+                // this.useBagObject(action);
+            } else if (action instanceof Message) {
+                this.currentMessage = action.description;
+            } else if (action instanceof RemoveHP) {
+                this.removeHP(action);
+            } else if (action instanceof ApplyEffect) {
+                MOVE_EFFECT_APPLIER.apply(action.move.effect, action.target === 'opponent' ? [this.opponentCurrentMonster] : [action.initiator], action.initiator);
+            } else if (action instanceof EndBattle) {
+                this.onClose();
+            }
+        } else {
+            // end turn
+            this.endTurn();
+        }
+
+        if (this.turnStack?.length || 0 > 0) {
+            this.sleep(1000).then(
+                () => this.executeAction(this.turnStack?.shift())
+            );
+            //this.executeAction(stack?.shift(), stack)
+        } else {
+            this.endTurn();
+        }
     }
 
     private runAway() {
@@ -72,34 +115,68 @@ export class BattleState {
             this.turnStack.unshift(new Message('You can\'t run away from a trainer battle!', this.playerCurrentMonster));
         }
 
+        //this.executeAction(this.turnStack.shift());
     }
 
     private attack(action: Attack) {
         const attacker = action.initiator;
-        const defender = action.target === 'opponent' ? this.opponentCurrentMonster : this.playerCurrentMonster;
-
-        const result = this.calculateDamage(attacker, defender, action.move);
-
-        MOVE_EFFECT_APPLIER.apply(action.move.effect, [defender], attacker);
-
+        const target = action.target === 'opponent' ? this.opponentCurrentMonster : this.playerCurrentMonster;
         const actionsToPush: Action[] = [];
+        const success = this.accuracyApplies(action.move);
 
+        console.log('attack', {attacker}, {target}, {success});
 
-        actionsToPush.push(new Message(attacker.name + ' used ' + action.move.name + '!', action.initiator));
+        if (success) {
 
-        if (result.immune) {
-            actionsToPush.push(new Message('It doesn\'t affect ' + defender.name + '...', action.initiator));
-        } else if (result.notVeryEffective) {
-            actionsToPush.push(new Message('It\'s not very effective...', action.initiator));
-        } else if (result.superEffective) {
-            actionsToPush.push(new Message('It\'s super effective!', action.initiator));
+            const result = this.calculateDamage(attacker, target, action.move);
+
+            console.log({result})
+
+            actionsToPush.push(new Message(attacker.name + ' used ' + action.move.name + '!', action.initiator));
+
+            if (result.immune) {
+                actionsToPush.push(new Message('It doesn\'t affect ' + target.name + '...', action.initiator));
+            } else if (result.notVeryEffective) {
+                actionsToPush.push(new Message('It\'s not very effective...', action.initiator));
+            } else if (result.superEffective) {
+                actionsToPush.push(new Message('It\'s super effective!', action.initiator));
+            }
+            if (result.critical) {
+                actionsToPush.push(new Message('A critical hit!', action.initiator));
+            }
+
+            actionsToPush.push(new RemoveHP(result.damages, action.target, action.initiator));
+
+            if (!result.immune && this.effectApplies(action.move)) {
+                actionsToPush.push(new ApplyEffect(action.move, action.target, action.initiator))
+            }
+        } else {
+            actionsToPush.push(new Message('But it failed!', action.initiator));
         }
-        if (result.critical) {
-            actionsToPush.push(new Message('A critical hit!', action.initiator));
+
+        if (actionsToPush) {
+            actionsToPush.reverse().forEach((action: Action) => this.turnStack.unshift(action));
+        }
+        // this.executeAction(this.turnStack.shift());
+    }
+
+    private removeHP(action: RemoveHP) {
+        const target = action.target === 'opponent' ? this.opponentCurrentMonster : this.playerCurrentMonster;
+        target.currentHp -= action.damages;
+        if (target.currentHp <= 0) {
+            target.currentHp = 0;
+            target.fainted = true;
+
+            this.turnStack = [];
+            this.turnStack.push(new Message(target.name + ' fainted!', action.initiator));
+
+            if (this.wild || (this.opponent instanceof Character && this.opponent.monsters.every((monster: PokemonInstance) => monster.fainted))) {
+                this.turnStack.unshift(new EndBattle(action.initiator));
+                this.turnStack.unshift(new Message('You won the battle!', action.initiator));
+            }
         }
 
-        actionsToPush.push(new RemoveHP(result.damages, action.target, action.initiator));
-        actionsToPush.reverse().forEach((action: Action) => this.turnStack.unshift(action));
+        //this.executeAction(this.turnStack.shift());
     }
 
     private calculateDamage(attacker: PokemonInstance, defender: PokemonInstance, move: Move): DamageResults {
@@ -149,56 +226,17 @@ export class BattleState {
         this.turnStack.push(new Attack(move, 'ally', this.opponentCurrentMonster));
     }
 
-    sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
-
-    private executeAction(action?: Action) {
-
-        if (action) {
-            if (action instanceof Attack && !action.initiator.fainted) {
-                this.attack(action);
-            } else if (action instanceof RunAway) {
-                this.runAway();
-            } else if (action instanceof ChangePokemon) {
-                // this.changePokemon(action);
-            } else if (action instanceof BagObject) {
-                // this.useBagObject(action);
-            } else if (action instanceof Message) {
-                this.currentMessage = action.description;
-            } else if (action instanceof RemoveHP) {
-                this.removeHP(action);
-            } else if(action instanceof EndBattle) {
-                this.onClose();
-            }
-        }
-
-        if (this.turnStack?.length || 0 > 0) {
-            this.sleep(1000).then(
-                () => this.executeAction(this.turnStack?.shift())
-            );
-            //this.executeAction(stack?.shift(), stack)
-        } else {
-            this.isPlayerTurn = true;
-        }
+    private accuracyApplies(move: Move) {
+        return move.accuracy === 100 || move.accuracy === 0 || !Number.isInteger(move.effectChance) || Math.random() * 100 < move.accuracy;
     }
 
-    private removeHP(action: RemoveHP) {
-        const target = action.target === 'opponent' ? this.opponentCurrentMonster : this.playerCurrentMonster;
-        target.currentHp -= action.damages;
-        if (target.currentHp <= 0) {
-            target.currentHp = 0;
-            target.fainted = true;
+    private effectApplies(move: Move) {
+        return move.effect && Number.isInteger(move.effectChance) && Math.random() * 100 < move.effectChance;
+    }
 
-            this.turnStack = [];
-            this.turnStack.push(new Message(target.name + ' fainted!', action.initiator));
-
-            if (this.wild || (this.opponent instanceof Character && this.opponent.monsters.every((monster: PokemonInstance) => monster.fainted))) {
-                this.turnStack.unshift(new EndBattle(action.initiator));
-                this.turnStack.unshift(new Message('You won the battle!', action.initiator));
-                setTimeout(() => {
-                    this.onClose();
-                }, 1000);
-            }
-        }
+    private endTurn() {
+        this.isPlayerTurn = true;
+        this.currentMessage = `What should ${this.playerCurrentMonster.name} do ?`;
     }
 }
 
@@ -244,6 +282,22 @@ export class RemoveHP implements Action {
         this.name = 'Remove HP';
         this.description = 'Remove HP';
         this.damages = damages;
+        this.target = target;
+        this.initiator = initiator;
+    }
+}
+
+export class ApplyEffect implements Action {
+    public name: string;
+    public description: string;
+    public move: Move;
+    public target: 'opponent' | 'ally';
+    public initiator: PokemonInstance;
+
+    constructor(move: Move, target: 'opponent' | 'ally', initiator: PokemonInstance) {
+        this.name = 'Apply Effect';
+        this.description = 'Apply Effect';
+        this.move = move;
         this.target = target;
         this.initiator = initiator;
     }

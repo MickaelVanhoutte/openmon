@@ -1,4 +1,4 @@
-import type {Position} from "../sprites/sprites";
+import type {Position} from "../sprites/drawers";
 
 
 export class Boundary implements Rectangular {

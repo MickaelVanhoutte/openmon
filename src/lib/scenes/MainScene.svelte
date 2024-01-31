@@ -1,6 +1,6 @@
 {#if battle.initiated}
     <BattleScene bind:opened={opened}
-                 bind:battleState={battle.battleState}
+                 bind:battleState={battleState}
                  bind:battleStart={battleStart}/>
 
 {:else}
@@ -38,7 +38,7 @@
     import type {Pokedex} from "../js/pokemons/pokedex";
     import {testMap} from "../js/mapping/maps/test-map";
     import type {Character} from "../js/player/player";
-    import {BattlefieldsDrawer, Position} from "../js/sprites/sprites";
+    import {BattlefieldsDrawer, Position} from "../js/sprites/drawers";
     import {BattleState} from "../js/battle/battle";
     import {keydownListener, keys, keyupListener, lastKey} from "../js/commands/keyboard";
     import type {PokemonInstance} from "../js/pokemons/pokemon";
@@ -47,21 +47,17 @@
 
     // TODO getting bigger and bigger, refactor
 
-    export let opened = false;
-    export let menuOpened = false;
-    export let battleStart = false;
-
-    export let pokedex: Pokedex;
-
-    export let currentMap = testMap;
-
     export let canvas: HTMLCanvasElement;
+    export let pokedex: Pokedex;
+    export let character: Character;
 
+    let opened = false;
+    let menuOpened = false;
+    let battleStart = false;
+    let battleState: BattleState;
+    let currentMap = testMap;
     let battlefieldsDrawer = container.resolve(BattlefieldsDrawer);
-
-    //let imageScale = Math.min(4, Math.max(2, window.innerWidth / currentMap.background.width));
     let imageScale = 3;
-    let landscape = false;
 
     const ctx = canvas.getContext('2d');
 
@@ -73,11 +69,9 @@
         canvas.height = window.innerHeight;
     }
 
-
-    //let imageScale = Math.min(4, Math.max(2, Math.min(canvas.width / currentMap.background.width, canvas.height / currentMap.background.height)));
     let tileSizeInPx = 16 * imageScale;
 
-    export let character: Character;
+
     character.positionOnMap = new Position(
         testMap.playerInitialPosition.x,
         testMap.playerInitialPosition.y
@@ -113,9 +107,8 @@
         resize();
     });
 
-    export let battle: {
+    let battle: {
         initiated: boolean,
-        battleState?: BattleState,
         startDate?: Date,
     } = {
         initiated: false,
@@ -252,8 +245,8 @@
 
             battlefieldsDrawer.draw(ctx, 'default');
 
-            battle.battleState?.opponentCurrentMonster?.draw(ctx, 'front', 50, 0, monsterPositionOffset);
-            battle.battleState?.playerCurrentMonster?.draw(ctx, 'back', 0, 0, monsterPositionOffset);
+            battleState?.opponentCurrentMonster?.draw(ctx, 'front', 50, 0, monsterPositionOffset);
+            battleState?.playerCurrentMonster?.draw(ctx, 'back', 0, 0, monsterPositionOffset);
         }
 
     }
@@ -262,13 +255,14 @@
         stopCommands();
         battle.initiated = true;
         battle.startDate = new Date();
-        battle.battleState = new BattleState(character, opponent, canvas);
+        battleState = new BattleState(character, opponent, canvas);
         unbindKeyboard();
 
-        battle.battleState.onClose = () => {
+        battleState.onClose = () => {
             stopBattle(battleLoopContext.id);
         }
         battleStart = true;
+
         setTimeout(() => {
             battleStart = false;
             opened = true;
@@ -277,8 +271,7 @@
     }
 
     function stopBattle(loopId: number) {
-        window.cancelAnimationFrame(battleLoopContext.id);
-        battle.battleState = undefined;
+        window.cancelAnimationFrame(loopId);
         battle.initiated = false;
         battle.startDate = undefined;
         battleStart = false;
