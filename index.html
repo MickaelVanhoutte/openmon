@@ -2,12 +2,25 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
     <title>OpenMon</title>
 
     <style>
         @font-face {
             font-family: pokemon;
             src: url('src/assets/fonts/pokemon-ds-font.ttf');
+        }
+
+        html {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+
+            touch-action: pan-x pan-y;
         }
 
         body {
@@ -17,14 +30,6 @@
             font-family: pokemon, serif;
             font-size: 32px;
             overflow: hidden;
-
-            -webkit-touch-callout:none;
-            -webkit-user-select:none;
-            -khtml-user-select:none;
-            -moz-user-select:none;
-            -ms-user-select:none;
-            user-select:none;
-            -webkit-tap-highlight-color:rgba(0,0,0,0);
         }
 
         body * {
