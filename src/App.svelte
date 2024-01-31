@@ -109,86 +109,10 @@
     }
 
 
-    //localStorage.getItem('pokedex') && (pokedex = JSON.parse(localStorage.getItem('pokedex')));
-    //localStorage.getItem('player') && (player = JSON.parse(localStorage.getItem('player')));
-    //localStorage.getItem('save') && (save = JSON.parse(localStorage.getItem('save')));
-
-    /*if (pokedex.length > 0 && player) {
-        pokedex.forEach(pokemon => {
-            setTimeout(() => {
-                const front = new Image();
-                front.src = `src/assets/monsters/heartgold-soulsilver/${pokemon.id}.png`;
-                preview.appendChild(front);
-            }, 100);
-        })
-        pokedexReady = true;
-        ready = true;
-    } else {
-        // read pokedex file to load images
-        fetch('src/assets/data/pokedex-gen1.json')
-            .then(response => response.json())
-            .then(data => {
-                data.forEach((pokemon) => {
-                    current = pokemon.name.english;
-
-                    let front = `src/assets/monsters/heartgold-soulsilver/${pokemon.id}.png`;
-                    let front2 = `src/assets/monsters/heartgold-soulsilver/frame2/${pokemon.id}.png`;
-                    let back = `src/assets/monsters/heartgold-soulsilver/back/${pokemon.id}.png`;
-                    let shiny = `src/assets/monsters/heartgold-soulsilver/shiny/${pokemon.id}.png`;
-
-                    setTimeout(() => {
-
-                        const monster = new Monster(
-                            pokemon.id,
-                            pokemon.name.english,
-                            pokemon.type,
-                            pokemon.profile.ability,
-                            new Stats(
-                                pokemon.base['HP'],
-                                pokemon.base['Attack'],
-                                pokemon.base['Defense'],
-                                pokemon.base['Sp. Attack'],
-                                pokemon.base['Sp. Defense'],
-                                pokemon.base['Speed']
-                            ),
-                            pokemon.evolution,
-                            new MonsterSprite(front, front2, back, shiny),
-                            undefined, [
-                                new Move('Tackle', 'Normal', 'Physical', 40, 100, 35, 0, '', 0, 'Basic hit'),
-                            ],
-                            new Stats(10, 10, 10, 10, 10, 10),
-                            new Stats(0, 0, 0, 10, 0, 0)
-                        );
-
-                        monster.height = Number.parseFloat(pokemon.profile.height.replace(' m', '')) * 100;
-
-                        if (window.innerWidth < 1100) {
-                            monster.spriteScale = Math.max(0.8, Math.min(monster.height / 100, 1.3));
-                        } else {
-                            monster.spriteScale = Math.max(1.2, Math.min(monster.height / 100, 2));
-                        }
-
-
-                        pokedex.push(monster);
-
-                        if (pokedex.length === data.length) {
-                            current = 'Ready!';
-                            pokedexReady = true;
-                            localStorage.setItem('pokedex', JSON.stringify(pokedex));
-                            initCharacter();
-                        }
-                    }, 100);
-
-                });
-            });
-    }
-
-
-*/
-
 
     function go() {
         //openFullscreen();
+        toggleFullScreen();
         letsgo = true;
     }
 
@@ -199,6 +123,33 @@
             wrapper.webkitRequestFullscreen();
         } else if (wrapper.msRequestFullscreen) { /* IE11 */
             wrapper.msRequestFullscreen();
+        }
+    }
+
+    function toggleFullScreen() {
+        let doc = window.document;
+        let docEl = doc.documentElement;
+
+        let requestFullScreen =
+            docEl.requestFullscreen ||
+            docEl.mozRequestFullScreen ||
+            docEl.webkitRequestFullScreen ||
+            docEl.msRequestFullscreen;
+        let cancelFullScreen =
+            doc.exitFullscreen ||
+            doc.mozCancelFullScreen ||
+            doc.webkitExitFullscreen ||
+            doc.msExitFullscreen;
+
+        if (
+            !doc.fullscreenElement &&
+            !doc.mozFullScreenElement &&
+            !doc.webkitFullscreenElement &&
+            !doc.msFullscreenElement
+        ) {
+            requestFullScreen.call(docEl);
+        } else {
+            cancelFullScreen.call(doc);
         }
     }
 
