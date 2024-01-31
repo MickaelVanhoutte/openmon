@@ -1,5 +1,5 @@
-import {Position} from "./sprites";
-import {scale} from "svelte/transition";
+import type {Position} from "../sprites/sprites";
+
 
 export class Boundary implements Rectangular {
     public position: Position;

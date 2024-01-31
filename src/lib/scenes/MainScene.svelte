@@ -32,15 +32,18 @@
 
 
 <script lang="ts">
-    import {Character} from "../js/model/player";
-    import {keydownListener, keys, keyupListener, lastKey} from "../js/commands/keyboard";
-    import {Position} from "../js/model/sprites";
-    import {battleBackground, BattleState} from "../js/model/battle";
-    import BattleScene from "./BattleScene.svelte";
+
     import Menu from "./main/Menu.svelte";
-    import {testMap} from "../js/maps/test-map";
-    import {Pokedex} from "../js/model/pokemons/pokedex";
-    import {PokemonInstance} from "../js/model/pokemons/pokemon";
+    import BattleScene from "./BattleScene.svelte";
+    import type {Pokedex} from "../js/pokemons/pokedex";
+    import {testMap} from "../js/mapping/maps/test-map";
+    import type {Character} from "../js/player/player";
+    import {battleBackground, Position} from "../js/sprites/sprites";
+    import {BattleState} from "../js/battle/battle";
+    import {keydownListener, keys, keyupListener, lastKey} from "../js/commands/keyboard";
+    import type {PokemonInstance} from "../js/pokemons/pokemon";
+
+    // TODO getting bigger and bigger, refactor
 
     export let opened = false;
     export let menuOpened = false;

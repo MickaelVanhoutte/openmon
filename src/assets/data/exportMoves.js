@@ -71,14 +71,12 @@ function exportMoves() {
 
     let movesAssociationArray = [];
 
-    movesAssociation.forEach((move) => {
-
-        // TODO : only lvl,  CTs next ?
-        // version_group_id === 7 : fire red
-        if (Number.parseInt(move.pokemon_move_method_id) <= 3 && move.version_group_id === '7' && Number.parseInt(move.pokemon_id) <= 251) {
+    movesAssociation
+        //pokemon_move_method_id === 1 : by lvl up,  version_group_id === 7 : fire red
+        .filter((move) => Number.parseInt(move.pokemon_move_method_id) === 1 && move.version_group_id === '7' && move.pokemon_id <= 251)
+        .forEach((move) => {
 
             let moveFound = movesFromJson.find((m) => m.id === Number.parseInt(move.move_id));
-
             let moveEffectFound = moveEffectsFromJson.find((m) => m.move_effect_id === moveFound.effect_id);
 
             if (moveFound && typeById[moveFound.type_id] && moveEffectFound) {
@@ -100,8 +98,8 @@ function exportMoves() {
                     level: move.level
                 });
             }
-        }
-    });
+        });
+
     console.log(movesAssociationArray.length);
 
     fs.writeFile("./move-associations_all-togen2.json", JSON.stringify(movesAssociationArray), (error) => {

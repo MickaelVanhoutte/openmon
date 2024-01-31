@@ -1,7 +1,8 @@
-import {Position} from "./sprites";
-import {Character} from "./player";
-import {PokemonInstance} from "./pokemons/pokemon";
-import {Move} from "./pokemons/pokedex";
+import {Character} from "../player/player";
+import {PokemonInstance} from "../pokemons/pokemon";
+import {MOVE_EFFECT_APPLIER} from "../pokemons/move-effects";
+import type {Move} from "../pokemons/moves";
+
 
 export class BattleState {
 
@@ -14,8 +15,6 @@ export class BattleState {
     public isPlayerTurn: boolean;
 
     public turnStack: Action[];
-    private initialOpponentPosition: Position;
-    private initialAllyPosition: Position;
 
     private escapeAttempts: number = 0;
 
@@ -35,31 +34,6 @@ export class BattleState {
         this.opponentCurrentMonster = this.wild ? opponent as PokemonInstance : (opponent as Character).monsters[0];
 
         this.turnStack = [];
-
-        if(window.innerWidth < 1100){
-            this.initialOpponentPosition = new Position(
-                (canvas.width / 4) * 3 - (80 * 2 * opponent?.spriteScale / 2),
-                (canvas.height / 3.5 * 2) - ((80 * 2 * opponent?.spriteScale)) - (16 * 2)
-            );
-
-            this.initialAllyPosition = new Position(
-                (canvas.width / 4) - ((80 * 2 * this.playerCurrentMonster.spriteScale) / 2),
-                (canvas.height * 0.75) - (80 * 2 * this.playerCurrentMonster.spriteScale) + (16 * 2)
-            );
-        }else {
-            this.initialOpponentPosition = new Position(
-                (canvas.width / 4) * 3 - (80 * 2.5 * opponent?.spriteScale / 2),
-                (canvas.height / 2) - ((80 * 2.5 * opponent?.spriteScale)) - (12 * 2.5)
-            );
-
-            this.initialAllyPosition = new Position(
-                (canvas.width / 4) - ((80 * 2.5 * this.playerCurrentMonster.spriteScale) / 2),
-                (canvas.height * 0.75) - (80 * 2.5 * this.playerCurrentMonster.spriteScale) + (15 * 2.5)
-            );
-        }
-
-        this.playerCurrentMonster.position = this.initialAllyPosition;
-        this.opponentCurrentMonster.position = this.initialOpponentPosition;
 
         this.isPlayerTurn = true;
     }
@@ -105,6 +79,9 @@ export class BattleState {
         const defender = action.target === 'opponent' ? this.opponentCurrentMonster : this.playerCurrentMonster;
 
         const result = this.calculateDamage(attacker, defender, action.move);
+
+        MOVE_EFFECT_APPLIER.apply(action.move.effect, [defender], attacker);
+
         const actionsToPush: Action[] = [];
 
 
@@ -344,41 +321,6 @@ export class BagObject implements Action {
     }
 }
 
-class BattleSprite {
-    private position: Position;
-    private image: HTMLImageElement;
-    private width: number = 0;
-    private height: number = 0;
-
-    constructor(position: Position, image: HTMLImageElement) {
-        this.position = position;
-        this.image = image;
-        this.image.onload = () => {
-            this.width = this.image.width;
-            this.height = this.image.height;
-        }
-    }
-
-    draw(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) {
-        ctx.drawImage(this.image,
-            0,
-            0,
-            this.image.width,
-            this.image.height,
-            0,
-            0,
-            canvas.width,
-            canvas.height * 0.75);
-    }
-}
-
-const battleImg = new Image();
-battleImg.src = 'src/assets/battle/battle-grass.png';
-
-export const battleBackground = new BattleSprite(
-    new Position(0, 0),
-    battleImg,
-);
 
 
 function fromTypeChart(type1: string, type2: string): number {

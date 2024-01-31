@@ -1,7 +1,7 @@
-import {Position} from "./sprites";
 import {Boundary} from "./collisions";
-import type {PokemonInstance} from "./pokemons/pokemon";
-import type {Pokedex} from "./pokemons/pokedex";
+import {Position} from "../sprites/sprites";
+import type {Pokedex} from "../pokemons/pokedex";
+import type {PokemonInstance} from "../pokemons/pokemon";
 
 
 export const tileSize = 16;

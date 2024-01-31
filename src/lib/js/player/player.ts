@@ -1,6 +1,7 @@
-import {Frames, Position} from "./sprites";
-import type {PokemonInstance} from "./pokemons/pokemon";
 
+import {PlayerSprites, Position} from "../sprites/sprites";
+import {Frames} from "../sprites/sprites";
+import type {PokemonInstance} from "../pokemons/pokemon";
 
 export class Character {
     public name: string;
@@ -30,6 +31,7 @@ export class Character {
         return this.sprites[this.direction];
     }
 
+    // TODO PlayerDrawer refactor
     public draw(ctx: CanvasRenderingContext2D, movedOffset: Position, scale: number, bgWidth: number, bgHeight: number) {
         let image = this.sprite || this.sprites.down;
 
@@ -74,22 +76,4 @@ export class Character {
     }
 }
 
-export class PlayerSprites {
-    public down: HTMLImageElement;
-    public up: HTMLImageElement;
-    public left: HTMLImageElement;
-    public right: HTMLImageElement;
-    public battle: HTMLImageElement;
-
-    public width: number = 80;
-    public height: number = 80;
-
-    constructor(front: HTMLImageElement, back: HTMLImageElement, left: HTMLImageElement, right: HTMLImageElement, battle: HTMLImageElement) {
-        this.down = front;
-        this.up = back;
-        this.left = left;
-        this.right = right;
-        this.battle = battle;
-    }
-}
 

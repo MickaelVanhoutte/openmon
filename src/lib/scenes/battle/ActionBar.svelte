@@ -57,8 +57,10 @@
 </div>
 
 <script lang="ts">
-    import {Attack, BattleState} from "../../js/model/battle";
-    import {RunAway} from "../../js/model/battle";
+
+
+    import type {BattleState} from "../../js/battle/battle";
+    import {Attack, RunAway} from "../../js/battle/battle";
 
     export let opened;
     export let battleState: BattleState;
@@ -68,8 +70,6 @@
 
     let selectedMoveIdx = 0;
     let selectedOptionIdx = 0;
-
-    console.log(battleState);
 
     function toggleMoveSelection() {
         moveOpened = !moveOpened;

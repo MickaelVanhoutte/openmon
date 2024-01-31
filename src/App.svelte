@@ -34,10 +34,12 @@
     <canvas bind:this={canvas}></canvas>
 </div>
 <script lang="ts">
-    import MainScene from "./lib/scenes/MainScene.svelte";
-    import {Character, PlayerSprites} from "./lib/js/model/player.js";
-    import {Pokedex} from "./lib/js/model/pokemons/pokedex";
 
+
+    import {Character} from "./lib/js/player/player";
+    import {Pokedex} from "./lib/js/pokemons/pokedex";
+    import {PlayerSprites} from "./lib/js/sprites/sprites";
+    import MainScene from "./lib/scenes/MainScene.svelte";
 
     export let canvas;
     let wrapper;
@@ -95,7 +97,7 @@
             img.onload = img.onerror = resolve;
         }))).then(() => {
 
-            let firstPoke = pokedex.findById(251)?.result?.instanciate(5);
+            let firstPoke = pokedex.findById(1)?.result?.instanciate(5);
 
             if (!firstPoke) throw new Error('Could not find pokemon with id 251');
 

@@ -1,4 +1,4 @@
-import {OpenMap} from "../model/maps";
+import {OpenMap} from "../maps";
 
 const background = new Image();
 background.src = 'src/assets/maps/test-map.png';
@@ -52,4 +52,4 @@ const battles = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
-export const testMap= new OpenMap(background, foreground, 20, 20, collisions, battles, monsters, [3, 6]);
+export const testMap = new OpenMap(background, foreground, 20, 20, collisions, battles, monsters, [3, 6]);
