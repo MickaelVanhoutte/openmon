@@ -1,7 +1,7 @@
-{#if battleState}
+{#if battleState?.playerCurrentMonster && battleState?.opponentCurrentMonster}
     <ActionBar bind:opened={opened} bind:battleState={battleState}/>
-    <AllyInfo bind:opened={opened} bind:monster={battleState.playerCurrentMonster}/>
-    <EnemyInfo bind:opened={opened} bind:monster={battleState.opponentCurrentMonster}/>
+    <AllyInfo bind:opened={opened} bind:pokemon={battleState.playerCurrentMonster}/>
+    <EnemyInfo bind:opened={opened} bind:battleState={battleState}/>
 {/if}
 
 <div class="battleStart" class:hide={opened} class:animate={battleStart}>
@@ -11,13 +11,15 @@
     import AllyInfo from "./battle/AllyInfo.svelte";
     import ActionBar from "./battle/ActionBar.svelte";
     import EnemyInfo from "./battle/EnemyInfo.svelte";
-    import type {BattleState} from "../js/battle/battle";
+    import {BattleState} from "../js/battle/battle";
 
 
     export let opened;
     export let battleStart;
 
     export let battleState: BattleState;
+
+    console.log('battle scene', {battleState});
 </script>
 
 <style lang="scss">
@@ -45,12 +47,6 @@
     }
   }
 
-/*  @media screen and (max-width: 1100px) and (orientation: portrait) {
-    .battleStart {
-      height: 100dvw;
-      width: 100dvh;
-    }
-  }*/
 
   @keyframes animate {
     0% {

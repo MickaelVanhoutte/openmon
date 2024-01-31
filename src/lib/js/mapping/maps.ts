@@ -1,5 +1,5 @@
 import {Boundary} from "./collisions";
-import {Position} from "../sprites/sprites";
+import {Position} from "../sprites/drawers";
 import type {Pokedex} from "../pokemons/pokedex";
 import type {PokemonInstance} from "../pokemons/pokemon";
 

@@ -3,15 +3,15 @@
     <div class="info">
         <div class="_inner">
             {#if !moveOpened}
-                {battleState?.currentMessage.toUpperCase()}
+                {battleState?.currentMessage?.toUpperCase()}
             {:else}
                 <div class="move-desc">
-                    <p>{battleState?.playerCurrentMonster.moves[selectedMoveIdx].description}</p>
-                    <p>{battleState?.playerCurrentMonster.moves[selectedMoveIdx].currentPp}
-                        / {battleState?.playerCurrentMonster.moves[selectedMoveIdx].pp}</p>
-                    <p>{battleState?.playerCurrentMonster.moves[selectedMoveIdx].category}</p>
-                    <p>{battleState?.playerCurrentMonster.moves[selectedMoveIdx].power}
-                        | {battleState?.playerCurrentMonster.moves[selectedMoveIdx].accuracy} %</p>
+                    <p>{battleState?.playerCurrentMonster?.moves[selectedMoveIdx].description}</p>
+                    <p>{battleState?.playerCurrentMonster?.moves[selectedMoveIdx].currentPp}
+                        / {battleState?.playerCurrentMonster?.moves[selectedMoveIdx].pp}</p>
+                    <p>{battleState?.playerCurrentMonster?.moves[selectedMoveIdx].category}</p>
+                    <p>{battleState?.playerCurrentMonster?.moves[selectedMoveIdx].power}
+                        | {battleState?.playerCurrentMonster?.moves[selectedMoveIdx].accuracy} %</p>
                 </div>
             {/if}
         </div>
@@ -20,7 +20,7 @@
 
     {#if moveOpened}
         <div class="moves">
-            {#each battleState.playerCurrentMonster.moves as move, index}
+            {#each battleState?.playerCurrentMonster?.moves as move, index}
                 <button class="action-btn" style="--color:#dc5959" {disabled}
                         class:selected={selectedMoveIdx === index}
                         on:mouseover={() => selectedMoveIdx = index}
@@ -31,6 +31,7 @@
         </div>
 
     {:else}
+
         <div class="actions">
 
             <button class="action-btn" style="--color:#dc5959" {disabled}
@@ -58,8 +59,7 @@
 
 <script lang="ts">
 
-
-    import type {BattleState} from "../../js/battle/battle";
+    import {BattleState} from "../../js/battle/battle";
     import {Attack, RunAway} from "../../js/battle/battle";
 
     export let opened;

@@ -2,7 +2,7 @@
 
 <div id="canvas-wrapper" bind:this={wrapper}>
     {#if ready && letsgo}
-        <MainScene bind:pokedex={pokedex} bind:canvas={canvas} bind:character={player}/>
+        <MainScene bind:pokedex={pokedex} bind:canvas={canvas} bind:character={character}/>
 
     {:else}
         <div class="loading" class:ready={ready}>
@@ -34,19 +34,16 @@
     <canvas bind:this={canvas}></canvas>
 </div>
 <script lang="ts">
-
-
-    import {Character} from "./lib/js/player/player";
+    import {Character, PlayerSprites} from "./lib/js/player/player";
     import {Pokedex} from "./lib/js/pokemons/pokedex";
-    import {PlayerSprites} from "./lib/js/sprites/sprites";
     import MainScene from "./lib/scenes/MainScene.svelte";
 
     export let canvas;
     let wrapper;
-    let player: Character;
+    let character: Character;
 
     let pokedexReady = false;
-    export let ready = false;
+    let ready = false;
 
     let images = [];
     let letsgo = false;
@@ -55,8 +52,11 @@
     let current: string;
     let preview: HTMLDivElement;
 
+    // test mobile
+    window.scrollTo(0, 1);
 
-    export let pokedex = new Pokedex();
+    let pokedex = new Pokedex();
+
     fetch('src/assets/data/final/pokedex.json')
         .then(response => response.json())
         .then(data => {
@@ -83,8 +83,9 @@
 
             firstPoke.isShiny = true;
 
-            player = new Character("Kaiser", "MALE",
-                new PlayerSprites('src/assets/characters/hero_male_front.png',
+            character = new Character("Kaiser", "MALE",
+                new PlayerSprites(
+                    'src/assets/characters/hero_male_front.png',
                     'src/assets/characters/hero_male_back.png',
                     'src/assets/characters/hero_male_left.png',
                     'src/assets/characters/hero_male_right.png',
