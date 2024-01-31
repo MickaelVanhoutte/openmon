@@ -1,6 +1,6 @@
 import {Character} from "../player/player";
 import {PokemonInstance} from "../pokemons/pokemon";
-import {MOVE_EFFECT_APPLIER} from "../pokemons/move-effects";
+//import {MOVE_EFFECT_APPLIER} from "../pokemons/move-effects";
 import type {Move} from "../pokemons/moves";
 
 
@@ -62,9 +62,11 @@ export class BattleState {
     sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
     private executeAction(action?: Action) {
-        console.log(this.turnStack);
-        console.log('executing action', {action});
-        if (action) {
+        //console.log(this.turnStack);
+        //console.log('executing action', {action});
+        if (action !== undefined) {
+            console.log('executing ' + action?.name)
+
             if (action instanceof Attack && !action.initiator.fainted) {
                 this.attack(action);
             } else if (action instanceof RunAway) {
@@ -78,23 +80,27 @@ export class BattleState {
             } else if (action instanceof RemoveHP) {
                 this.removeHP(action);
             } else if (action instanceof ApplyEffect) {
-                MOVE_EFFECT_APPLIER.apply(action.move.effect, action.target === 'opponent' ? [this.opponentCurrentMonster] : [action.initiator], action.initiator);
+                //MOVE_EFFECT_APPLIER.apply(action.move.effect, action.target === 'opponent' ? [this.opponentCurrentMonster] : [action.initiator], action.initiator);
             } else if (action instanceof EndBattle) {
                 this.onClose();
             }
         } else {
             // end turn
+            console.log('ending turn');
             this.endTurn();
+            return;
         }
 
-        if (this.turnStack?.length || 0 > 0) {
-            this.sleep(1000).then(
-                () => this.executeAction(this.turnStack?.shift())
-            );
-            //this.executeAction(stack?.shift(), stack)
-        } else {
-            this.endTurn();
-        }
+        /*this.sleep(1000).then(
+            () => {
+                let nextAction = this.turnStack?.shift();
+                console.log('executing ' + nextAction?.name)
+                this.executeAction(nextAction);
+            }console.log('executing ' + nextAction?.name)
+        );*/
+
+        this.executeAction(this.turnStack?.shift());
+
     }
 
     private runAway() {
@@ -124,13 +130,13 @@ export class BattleState {
         const actionsToPush: Action[] = [];
         const success = this.accuracyApplies(action.move);
 
-        console.log('attack', {attacker}, {target}, {success});
+        //console.log('attack', {attacker}, {target}, {success});
 
         if (success) {
 
             const result = this.calculateDamage(attacker, target, action.move);
 
-            console.log({result})
+            //console.log({result})
 
             actionsToPush.push(new Message(attacker.name + ' used ' + action.move.name + '!', action.initiator));
 
@@ -154,6 +160,7 @@ export class BattleState {
             actionsToPush.push(new Message('But it failed!', action.initiator));
         }
 
+        console.log('actions from attack ', actionsToPush);
         if (actionsToPush) {
             actionsToPush.reverse().forEach((action: Action) => this.turnStack.unshift(action));
         }

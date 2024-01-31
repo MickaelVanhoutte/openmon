@@ -1,3 +1,5 @@
+<svelte:options accessors={true}/>
+
 {#if battleState?.playerCurrentMonster && battleState?.opponentCurrentMonster}
     <ActionBar bind:opened={opened} bind:battleState={battleState}/>
     <AllyInfo bind:opened={opened} bind:pokemon={battleState.playerCurrentMonster}/>
@@ -11,13 +13,12 @@
     import AllyInfo from "./battle/AllyInfo.svelte";
     import ActionBar from "./battle/ActionBar.svelte";
     import EnemyInfo from "./battle/EnemyInfo.svelte";
-    import {BattleState} from "../js/battle/battle";
 
 
     export let opened;
     export let battleStart;
 
-    export let battleState: BattleState;
+    export let battleState;
 
     console.log('battle scene', {battleState});
 </script>

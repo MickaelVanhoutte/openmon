@@ -1,4 +1,4 @@
-<svelte:options customElement="open-mon"/>
+<svelte:options customElement="open-mon" accessors={true}/>
 
 <div id="canvas-wrapper" bind:this={wrapper}>
     {#if ready && letsgo}
@@ -53,7 +53,7 @@
     let preview: HTMLDivElement;
 
     // test mobile
-    window.scrollTo(0, 1);
+    //window.scrollTo(0, 1);
 
     let pokedex = new Pokedex();
 

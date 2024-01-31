@@ -1,6 +1,4 @@
 import {PokemonInstance} from "../pokemons/pokemon";
-import "@abraham/reflection";
-import {injectable, singleton} from "tsyringe";
 
 export class Position {
     x: number;
@@ -12,7 +10,6 @@ export class Position {
     }
 }
 
-@injectable()
 export class PokemonSpriteDrawer {
 
     private currentImage?: HTMLImageElement;
@@ -25,6 +22,9 @@ export class PokemonSpriteDrawer {
     private animateFrames: number = 0;
     private goingDown: boolean = true;
     private yOffset = 0;
+
+    constructor() {
+    }
 
     draw(ctx: CanvasRenderingContext2D, pokemon: PokemonInstance, type: "front" | "back", animate: boolean = true, frameOffset: number = 0, xOffset: number = 0, yOffset: number = 0) {
         if (pokemon.sprites) {
@@ -116,7 +116,6 @@ export class PokemonSpriteDrawer {
     }
 }
 
-@singleton()
 export class BattlefieldsDrawer {
 
     private images: Record<string, HTMLImageElement> = {};
@@ -132,6 +131,9 @@ export class BattlefieldsDrawer {
     private dimensions = {
         width: 240,
         height: 112,
+    }
+
+    constructor() {
     }
 
     public draw(ctx: CanvasRenderingContext2D, battlefield: 'default' | 'grass' | 'water' | 'rock' | 'rainy' = 'default') {
@@ -163,11 +165,13 @@ export class BattlefieldsDrawer {
 }
 
 
-@singleton()
 export class PlayerSpriteDrawer {
 
     private frames = {max: 3, val: 0, elapsed: 0};
     private images: Record<string, HTMLImageElement> = {};
+
+    constructor() {
+    }
 
     draw(ctx: CanvasRenderingContext2D, position: Position, movedOffset: Position, scale: number, bgWidth: number, bgHeight: number, sprite: string, moving: boolean) {
 
