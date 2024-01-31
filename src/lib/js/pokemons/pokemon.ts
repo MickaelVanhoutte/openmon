@@ -1,7 +1,9 @@
-import { PokedexEntry, PokedexSearchResult, SpriteGroup, Stats} from "./pokedex";
+import {PokedexEntry, PokedexSearchResult, Stats} from "./pokedex";
 import {EXPERIENCE_CHART} from "./experience";
 import {Move, MoveInstance} from "./moves";
-import {Position, SpriteDrawer} from "../sprites/sprites";
+import {PokemonSpriteDrawer} from "../sprites/sprites";
+import "@abraham/reflection";
+import {container} from "tsyringe";
 
 
 export class PokemonInstance extends PokedexEntry {
@@ -22,9 +24,8 @@ export class PokemonInstance extends PokedexEntry {
     public heldItem: any = {}; // TODO
 
     public isShiny: boolean = false;
-    public spriteDrawer: SpriteDrawer;
 
-    public position: Position = new Position(0, 0); // TODO rework
+    private spriteDrawer: PokemonSpriteDrawer;
 
     get spriteScale(): number {
         return 1;
@@ -77,11 +78,11 @@ export class PokemonInstance extends PokedexEntry {
             this.gender = this.percentageMale ? (Math.random() * this.percentageMale <= this.percentageMale ? 'male' : 'female') : 'unknown';
         }
 
-        this.spriteDrawer = new SpriteDrawer();
+        this.spriteDrawer = container.resolve(PokemonSpriteDrawer);
     }
 
     public draw(ctx: CanvasRenderingContext2D, type: 'front' | 'back', frameOffset: number = 0, xOffset: number = 0, yOffset: number = 0) {
-        this.spriteDrawer.draw(ctx, this, type, frameOffset, xOffset, yOffset);
+        this.spriteDrawer.draw(ctx, this, type, true, frameOffset, xOffset, yOffset);
     }
 
     public selectMove(iaLvl: 'Random' | 'Easy', target?: PokemonInstance): Move {

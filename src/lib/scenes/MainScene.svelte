@@ -38,10 +38,12 @@
     import type {Pokedex} from "../js/pokemons/pokedex";
     import {testMap} from "../js/mapping/maps/test-map";
     import type {Character} from "../js/player/player";
-    import {battleBackground, Position} from "../js/sprites/sprites";
+    import {BattlefieldsDrawer, Position} from "../js/sprites/sprites";
     import {BattleState} from "../js/battle/battle";
     import {keydownListener, keys, keyupListener, lastKey} from "../js/commands/keyboard";
     import type {PokemonInstance} from "../js/pokemons/pokemon";
+    import "@abraham/reflection";
+    import {container} from "tsyringe";
 
     // TODO getting bigger and bigger, refactor
 
@@ -54,6 +56,8 @@
     export let currentMap = testMap;
 
     export let canvas: HTMLCanvasElement;
+
+    let battlefieldsDrawer = container.resolve(BattlefieldsDrawer);
 
     //let imageScale = Math.min(4, Math.max(2, window.innerWidth / currentMap.background.width));
     let imageScale = 3;
@@ -112,11 +116,9 @@
     export let battle: {
         initiated: boolean,
         battleState?: BattleState,
-        frameElapsed?: number,
         startDate?: Date,
     } = {
         initiated: false,
-        frameElapsed: 0,
     }
 
     let monsterPositionOffset = 0;
@@ -172,7 +174,6 @@
                 if (keys.down.pressed || keys.up.pressed || keys.left.pressed || keys.right.pressed) {
 
                     if (currentMap.hasBattleZoneAt(character.positionOnMap) && Math.random() < 0.1) {
-                        character.frames.val = 0;
                         let monster = currentMap.randomMonster(pokedex);
                         window.cancelAnimationFrame(mainLoopContext.id);
                         initiateBattle(monster);
@@ -245,42 +246,23 @@
             }
 
             battleLoopContext.then = now - (elapsed % battleLoopContext.fpsInterval);
-            battle.frameElapsed++;
 
             ctx.fillStyle = 'black';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            battleBackground.draw(ctx, canvas);
+            battlefieldsDrawer.draw(ctx, 'default');
 
             battle.battleState?.opponentCurrentMonster?.draw(ctx, 'front', 50, 0, monsterPositionOffset);
             battle.battleState?.playerCurrentMonster?.draw(ctx, 'back', 0, 0, monsterPositionOffset);
-
-            // animate monsters
-            if (!!battle.battleState?.opponentCurrentMonster?.position) {
-                battleLoopContext.goDown = battle.frameElapsed <= 10;
-                if (battleLoopContext.goDown) {
-                    monsterPositionOffset++;
-                } else {
-                    monsterPositionOffset--;
-                }
-                battle.battleState.opponentCurrentMonster.position.y = initialOpponentPosition.y - monsterPositionOffset;
-                battle.battleState.playerCurrentMonster.position.y = initialAllyPosition.y + monsterPositionOffset;
-                if (battle.frameElapsed > 20) {
-                    battle.frameElapsed = 0;
-                }
-            }
         }
 
     }
 
     function initiateBattle(opponent: PokemonInstance | Character) {
         stopCommands();
-        battle.frameElapsed = 0;
         battle.initiated = true;
         battle.startDate = new Date();
         battle.battleState = new BattleState(character, opponent, canvas);
-        initialOpponentPosition = {...battle.battleState.opponentCurrentMonster.position};
-        initialAllyPosition = {...battle.battleState.playerCurrentMonster.position};
         unbindKeyboard();
 
         battle.battleState.onClose = () => {

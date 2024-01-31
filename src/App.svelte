@@ -77,26 +77,6 @@
 
             pokedexReady = true;
 
-            initCharacter();
-
-        });
-
-    function initCharacter() {
-        let front = new Image();
-        front.src = 'src/assets/sprites/hero_male_front.png';
-        let back = new Image();
-        back.src = 'src/assets/sprites/hero_male_back.png';
-        let left = new Image();
-        left.src = 'src/assets/sprites/hero_male_left.png';
-        let right = new Image();
-        right.src = 'src/assets/sprites/hero_male_right.png';
-        let battle = new Image();
-        battle.src = 'src/assets/sprites/hero_male_back.png';
-
-        Promise.all(Array.from([front, back, left, right, battle].filter(img => !img.complete)).map(img => new Promise(resolve => {
-            img.onload = img.onerror = resolve;
-        }))).then(() => {
-
             let firstPoke = pokedex.findById(1)?.result?.instanciate(5);
 
             if (!firstPoke) throw new Error('Could not find pokemon with id 251');
@@ -104,11 +84,16 @@
             firstPoke.isShiny = true;
 
             player = new Character("Kaiser", "MALE",
-                new PlayerSprites(front, back, left, right, battle), [firstPoke]);
+                new PlayerSprites('src/assets/characters/hero_male_front.png',
+                    'src/assets/characters/hero_male_back.png',
+                    'src/assets/characters/hero_male_left.png',
+                    'src/assets/characters/hero_male_right.png',
+                    'src/assets/characters/hero_male_back.png'),
+                [firstPoke]);
 
             ready = true;
+
         });
-    }
 
 
     function go() {
