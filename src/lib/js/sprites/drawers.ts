@@ -32,7 +32,7 @@ export class PokemonSpriteDrawer {
     draw(ctx: CanvasRenderingContext2D, pokemon: PokemonInstance, type: "front" | "back", animate: boolean = true, frameOffset: number = 0, xOffset: number = 0, yOffset: number = 0) {
         if (pokemon.sprites) {
 
-            this.updateScale(ctx.canvas.width, ctx.canvas.height);
+            //this.updateScale(ctx.canvas.width, ctx.canvas.height);
 
             let spriteGroup = pokemon.gender !== 'unknown' ? pokemon.sprites[pokemon.gender][type] : pokemon.sprites['male'][type];
             let entry = 'frame'
@@ -150,35 +150,13 @@ export class WoldSpriteDrawer {
         }
     }
 
-    /*    debugTiles(ctx: CanvasRenderingContext2D, movedOffset: Position, scale: number) {
-
-            let bgWidth = 960;
-            let bgHeight = 960;
-            // center
-            let x = ctx.canvas.width / 2 - bgWidth / 2;
-            let y = ctx.canvas.height / 2 - bgHeight / 2;
-
-            let startingX = x + (0 - movedOffset.x) * (16 * scale);
-            let startingY = y + (0 - movedOffset.y) * (16 * scale);
-
-            for (let i = 0; i < 20; i++) {
-                for(let j = 0; j < 20; j++) {
-                    ctx.strokeRect(
-                        startingX + i * 16 * scale,
-                        startingY + j * 16 * scale,
-                        16 * scale,
-                        16 * scale);
-                }
-            }
-        }*/
-
 
     private drawImage(ctx: CanvasRenderingContext2D, image: HTMLImageElement, map: OpenMap, movedOffset: Position, scale: number, debug: boolean = false) {
 
         // initial on map = 11, 11
         let initialPosition = new Position(
-            (16 * scale) * 11,
-            (16 * scale) * 11
+            (16 * scale) * map.playerInitialPosition.x,
+            (16 * scale) * map.playerInitialPosition.y
         )
 
         // canvas half - half character width scaled
@@ -207,33 +185,35 @@ export class WoldSpriteDrawer {
             image.height * scale,
         );
 
-        for (let i = 0; i < 20; i++) {
-            for (let j = 0; j < 20; j++) {
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-                ctx.fillText(`[${i}, ${j}]`, i * 16 * scale, j * 16 * scale)
-                if (map.hasBoundaryAt(new Position(i, j))) {
-                    ctx.fillStyle = 'rgba(0, 0, 255, 0.5)';
-                    ctx.fillRect(
+        if (debug) {
+            for (let i = 0; i < 20; i++) {
+                for (let j = 0; j < 20; j++) {
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+                    ctx.fillText(`[${i}, ${j}]`, i * 16 * scale, j * 16 * scale)
+                    if (map.hasBoundaryAt(new Position(i, j))) {
+                        ctx.fillStyle = 'rgba(0, 0, 255, 0.5)';
+                        ctx.fillRect(
+                            i * 16 * scale,
+                            j * 16 * scale,
+                            16 * scale,
+                            16 * scale);
+                    } else if (map.hasBattleZoneAt(new Position(i, j))) {
+                        ctx.fillStyle = 'rgba(0, 255, 0, 0.5)';
+                        ctx.fillRect(
+                            i * 16 * scale,
+                            j * 16 * scale,
+                            16 * scale,
+                            16 * scale);
+                    }
+                    ctx.strokeStyle = 'rgba(0, 0, 0, 0.8)';
+                    ctx.strokeRect(
                         i * 16 * scale,
                         j * 16 * scale,
                         16 * scale,
                         16 * scale);
-                } else if (map.hasBattleZoneAt(new Position(i, j))) {
-                    ctx.fillStyle = 'rgba(0, 255, 0, 0.5)';
-                    ctx.fillRect(
-                        i * 16 * scale,
-                        j * 16 * scale,
-                        16 * scale,
-                        16 * scale);
+
+
                 }
-                ctx.strokeStyle = 'rgba(0, 0, 0, 0.8)';
-                ctx.strokeRect(
-                    i * 16 * scale,
-                    j * 16 * scale,
-                    16 * scale,
-                    16 * scale);
-
-
             }
         }
 
@@ -300,14 +280,11 @@ export class PlayerSpriteDrawer {
     }
 
 
-    draw(ctx: CanvasRenderingContext2D, scale: number, sprite: string, moving: boolean,
-         bgWidth: number, bgHeight: number, bgRenderedW: number, bgRenderedH: number,
-         position: Position, movedOffset: Position) {
+    draw(ctx: CanvasRenderingContext2D, scale: number, sprite: string, moving: boolean) {
 
         let image = this.images[sprite];
         if (image && image.complete) {
-            this.drawImage(ctx, image, scale, moving,
-                bgWidth, bgHeight, bgRenderedW, bgRenderedH, position, movedOffset);
+            this.drawImage(ctx, image, scale, moving);
         } else {
             image = new Image();
             image.src = sprite;
@@ -317,20 +294,7 @@ export class PlayerSpriteDrawer {
         }
     }
 
-    private drawImage(ctx: CanvasRenderingContext2D, image: HTMLImageElement, scale: number, moving: boolean,
-                      bgWidth: number, bgHeight: number, bgRenderedW: number, bgRenderedH: number,
-                      position: Position, movedOffset: Position) {
-        console.log(ctx.canvas.width, ctx.canvas.height);
-
-        // center
-        let x = ctx.canvas.width / 2 - bgRenderedW / 2;
-        let y = ctx.canvas.height / 2 - bgRenderedH / 2;
-
-        let positionInPx = new Position(
-            (16 * scale) * position.x,
-            (16 * scale) * position.y
-        )
-        console.log(positionInPx);
+    private drawImage(ctx: CanvasRenderingContext2D, image: HTMLImageElement, scale: number, moving: boolean) {
 
         if (moving) {
             if (this.frames.max > 1) {
