@@ -24,7 +24,6 @@
     import {BattleState} from "../../js/battle/battle";
 
     export let opened;
-
     export let battleState: BattleState;
 
     $: percent = Math.floor(battleState?.playerCurrentMonster?.currentHp * 100 / battleState?.playerCurrentMonster?.currentStats?.hp);

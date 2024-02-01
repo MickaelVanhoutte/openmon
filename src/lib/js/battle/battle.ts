@@ -1,7 +1,7 @@
 import {Character} from "../player/player";
 import {PokemonInstance} from "../pokemons/pokemon";
 //import {MOVE_EFFECT_APPLIER} from "../pokemons/move-effects";
-import type {Move} from "../pokemons/moves";
+import {Move} from "../pokemons/moves";
 
 
 export class BattleState {

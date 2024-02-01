@@ -1,5 +1,5 @@
 import {PlayerSpriteDrawer, Position} from "../sprites/drawers";
-import type {PokemonInstance} from "../pokemons/pokemon";
+import {PokemonInstance} from "../pokemons/pokemon";
 
 export class Character {
     public name: string;

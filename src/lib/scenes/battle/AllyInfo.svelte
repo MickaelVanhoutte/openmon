@@ -3,33 +3,36 @@
 <div class="ally-info" class:opened={opened}>
 
     <div class="name-lvl">
-        <span>{pokemon.name}</span>
-        <span>Lv {pokemon.level}</span>
+        <span>{monster?.name}</span>
+        <span>Lv {level}</span>
     </div>
 
     <div class="status">
         <div class="hp">
             <span>HP</span>
             <div class="progressbar-wrapper">
-                <div class="progressbar" class:warning={percent <= 50} class:danger={percent < 15 } style="--width:{percent + '%'}"></div>
+                <div class="progressbar" class:warning={percent <= 50} class:danger={percent < 15 }
+                     style="--width:{percent + '%'}"></div>
             </div>
         </div>
-        {pokemon.currentHp} / {pokemon.currentStats.hp}
+        {currentHp} / {maxHp}
     </div>
 
 </div>
 
 <script lang="ts">
 
+    import {BattleState} from "../../js/battle/battle";
     import type {PokemonInstance} from "../../js/pokemons/pokemon";
 
     export let opened: boolean;
 
-    export let pokemon: PokemonInstance;
+    export let monster: PokemonInstance;
 
-    console.log(pokemon);
-
-    $: percent = Math.floor(pokemon.currentHp * 100 / pokemon.currentStats.hp);
+    $: currentHp = monster?.currentHp;
+    $: maxHp = monster?.currentStats?.hp;
+    $: level = monster?.level;
+    $: percent = currentHp * 100 / maxHp;
 
 </script>
 
@@ -74,7 +77,7 @@
       align-items: center;
     }
 
-    .status{
+    .status {
       display: flex;
       flex-direction: column;
       align-items: flex-end;
@@ -109,28 +112,29 @@
         .progressbar {
           width: var(--width);
           height: 100%;
-          background: rgb(184,244,166);
-          background: linear-gradient(0deg, rgba(184,244,166,1) 0%, rgba(86,170,58,1) 30%, rgba(86,170,58,1) 50%, rgba(86,170,58,1) 70%, rgba(184,244,166,1) 100%);
+          background: rgb(184, 244, 166);
+          background: linear-gradient(0deg, rgba(184, 244, 166, 1) 0%, rgba(86, 170, 58, 1) 30%, rgba(86, 170, 58, 1) 50%, rgba(86, 170, 58, 1) 70%, rgba(184, 244, 166, 1) 100%);
           text-align: center;
           border-radius: 2px;
 
           transition: width 1s ease-in-out;
 
           &.warning {
-            background: rgb(255,241,164);
-            background: linear-gradient(0deg, rgba(255,241,164,1) 0%, rgba(255,194,16,1) 30%, rgba(255,194,16,1) 50%, rgba(255,194,16,1) 70%, rgba(255,241,164,1) 100%);
+            background: rgb(255, 241, 164);
+            background: linear-gradient(0deg, rgba(255, 241, 164, 1) 0%, rgba(255, 194, 16, 1) 30%, rgba(255, 194, 16, 1) 50%, rgba(255, 194, 16, 1) 70%, rgba(255, 241, 164, 1) 100%);
           }
+
           &.danger {
-            background: rgb(244,177,159);
-            background: linear-gradient(0deg, rgba(244,177,159,1) 0%, rgba(223,85,48,1) 30%, rgba(223,85,48,1) 50%, rgba(223,85,48,1) 70%, rgba(244,177,159,1) 100%);
+            background: rgb(244, 177, 159);
+            background: linear-gradient(0deg, rgba(244, 177, 159, 1) 0%, rgba(223, 85, 48, 1) 30%, rgba(223, 85, 48, 1) 50%, rgba(223, 85, 48, 1) 70%, rgba(244, 177, 159, 1) 100%);
           }
         }
       }
     }
   }
 
-  @media screen and (max-width: 1100px){
-    .ally-info{
+  @media screen and (max-width: 1100px) {
+    .ally-info {
       font-size: 36px;
       border: 8px solid #595b59;
       height: 16dvh;

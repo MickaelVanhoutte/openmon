@@ -1,8 +1,9 @@
-import type {PokemonInstance} from "./pokemon";
+import {PokemonInstance} from "./pokemon";
 
 export class ExperienceCalculator {
 
     public ready = false;
+
     public chartById = new Map<number, ExperienceEntry[]>();
 
     constructor() {
