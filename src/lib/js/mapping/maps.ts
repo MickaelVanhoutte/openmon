@@ -1,7 +1,7 @@
 import {Boundary} from "./collisions";
 import {Position} from "../sprites/drawers";
-import type {Pokedex} from "../pokemons/pokedex";
-import type {PokemonInstance} from "../pokemons/pokemon";
+import {Pokedex} from "../pokemons/pokedex";
+import {PokemonInstance} from "../pokemons/pokemon";
 
 
 export const tileSize = 16;
@@ -35,12 +35,13 @@ export class OpenMap {
         this.levelRange = levelRange;
     }
 
-    randomMonster(dex: Pokedex): PokemonInstance {
+    randomMonster():{id: number, level: number} {
         const monsterId = this.monsters[Math.floor(Math.random() * this.monsters.length)];
         const level = Math.floor(Math.random() * (this.levelRange[1] - this.levelRange[0] + 1)) + this.levelRange[0];
         //const pokedex: PokemonInstance[] = localStorage.getItem('pokedex') && JSON.parse(localStorage.getItem('pokedex') || '[]') || [];
         //const monster = pokedex.find((monster: PokemonInstance) => monster.id === monsterId);
-        return dex.findById(monsterId).result.instanciate(level);
+        return {id: monsterId, level: level};
+        //return dex.findById(monsterId).result.instanciate(level);
     }
 
     initBattlesZones(battles: number []) {

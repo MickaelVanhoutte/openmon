@@ -1,4 +1,5 @@
-import type {Character} from "../model/player";
+import {Character} from "../player/player";
+
 
 export const keys = {
     up: {

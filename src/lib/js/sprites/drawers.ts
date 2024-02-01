@@ -12,6 +12,7 @@ export class Position {
 
 export class PokemonSpriteDrawer {
 
+    private images: Record<string, HTMLImageElement> = {}
     private currentImage?: HTMLImageElement;
     private frameElapsed: number = 0;
     private dimensions = {
@@ -53,10 +54,15 @@ export class PokemonSpriteDrawer {
             if (!imageSrc) return;
 
             if (!this.currentImage || this.currentImage.src !== imageSrc) {
-                let futureImage = new Image();
-                futureImage.src = imageSrc;
-                futureImage.onload = () => {
-                    this.currentImage = futureImage;
+                if(!this.images[imageSrc]) {
+                    let futureImage = new Image();
+                    futureImage.src = imageSrc;
+                    futureImage.onload = () => {
+                        this.currentImage = futureImage;
+                    }
+                    this.images[imageSrc] = futureImage;
+                }else {
+                    this.currentImage = this.images[imageSrc];
                 }
             }
 

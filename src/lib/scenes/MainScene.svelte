@@ -1,11 +1,9 @@
 <svelte:options accessors={true}/>
 
-{#if battle.initiated}
     <BattleScene bind:opened={opened}
-                 bind:battleState={battleState}
+                 bind:battleState={battle.battleState}
                  bind:battleStart={battleStart}/>
 
-{:else}
 
     <!-- TODO move to another component -->
     <div class="set outline">
@@ -29,7 +27,7 @@
         <button class="button-select">select</button>
     </div>
 
-{/if}
+
 
 <Menu bind:menuOpened={menuOpened} bind:player={character}/>
 
@@ -38,13 +36,13 @@
 
     import Menu from "./main/Menu.svelte";
     import BattleScene from "./BattleScene.svelte";
-    import type {Pokedex} from "../js/pokemons/pokedex";
+    import {Pokedex} from "../js/pokemons/pokedex";
     import {testMap} from "../js/mapping/maps/test-map";
-    import type {Character} from "../js/player/player";
+    import {Character} from "../js/player/player";
     import {BattlefieldsDrawer, Position} from "../js/sprites/drawers";
     import {BattleState} from "../js/battle/battle";
     import {keydownListener, keys, keyupListener, lastKey} from "../js/commands/keyboard";
-    import type {PokemonInstance} from "../js/pokemons/pokemon";
+    import {PokemonInstance} from "../js/pokemons/pokemon";
 
     // TODO getting bigger and bigger, refactor
 
@@ -52,10 +50,10 @@
     export let pokedex: Pokedex;
     export let character: Character;
 
-    let opened = false;
-    let menuOpened = false;
-    let battleStart = false;
-    let battleState: BattleState;
+    export let opened = false;
+    export let menuOpened = false;
+    export let battleStart = false;
+
     let currentMap = testMap;
     let battlefieldsDrawer = new BattlefieldsDrawer();
     let imageScale = 3;
@@ -108,9 +106,10 @@
         resize();
     });
 
-    let battle: {
+    export let battle: {
         initiated: boolean,
         startDate?: Date,
+        battleState?: BattleState;
     } = {
         initiated: false,
     }
@@ -168,9 +167,9 @@
                 if (keys.down.pressed || keys.up.pressed || keys.left.pressed || keys.right.pressed) {
 
                     if (currentMap.hasBattleZoneAt(character.positionOnMap) && Math.random() < 0.1) {
-                        let monster = currentMap.randomMonster(pokedex);
+                        let monster = currentMap.randomMonster();
                         window.cancelAnimationFrame(mainLoopContext.id);
-                        initiateBattle(monster);
+                        initiateBattle(pokedex.findById(monster.id).result.instanciate(monster.level));
                     }
                 }
 
@@ -246,8 +245,8 @@
 
             battlefieldsDrawer.draw(ctx, 'default');
 
-            battleState?.opponentCurrentMonster?.draw(ctx, 'front', 50, 0, monsterPositionOffset);
-            battleState?.playerCurrentMonster?.draw(ctx, 'back', 0, 0, monsterPositionOffset);
+            battle.battleState?.opponentCurrentMonster?.draw(ctx, 'front', 50, 0, monsterPositionOffset);
+            battle.battleState?.playerCurrentMonster?.draw(ctx, 'back', 0, 0, monsterPositionOffset);
         }
 
     }
@@ -256,10 +255,10 @@
         stopCommands();
         battle.initiated = true;
         battle.startDate = new Date();
-        battleState = new BattleState(character, opponent, canvas);
+        battle.battleState = new BattleState(character, opponent, canvas);
         unbindKeyboard();
 
-        battleState.onClose = () => {
+        battle.battleState.onClose = () => {
             stopBattle(battleLoopContext.id);
         }
         battleStart = true;

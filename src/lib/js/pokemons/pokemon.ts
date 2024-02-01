@@ -37,6 +37,7 @@ export class PokemonInstance extends PokedexEntry {
         super(pokedexEntry.id, pokedexEntry.name, pokedexEntry.types, pokedexEntry.abilities, pokedexEntry.moves, pokedexEntry.stats, pokedexEntry.height, pokedexEntry.weight, pokedexEntry.description, pokedexEntry.isLegendary, pokedexEntry.captureRate, pokedexEntry.experienceGrowth, pokedexEntry.baseXp, pokedexEntry.percentageMale, pokedexEntry.evolution, pokedexEntry.sprites);
 
         if (fromInstance) {
+
             // keep current if exists or random from new abilities
             this.currentAbility = pokedexEntry.abilities.includes(fromInstance.currentAbility) ?
                 fromInstance.currentAbility :
@@ -53,6 +54,7 @@ export class PokemonInstance extends PokedexEntry {
             this.evsToDistribute = fromInstance.evsToDistribute;
             this.heldItem = fromInstance.heldItem;
             this.updateCurrentStats();
+            console.log('fromInstance', this);
         } else {
             this.currentAbility = this.abilities[Math.floor(Math.random() * this.abilities.length)];
             this.evs = new Stats();
@@ -74,6 +76,7 @@ export class PokemonInstance extends PokedexEntry {
 
             // random gender based on percentageMale attr
             this.gender = this.percentageMale ? (Math.random() * this.percentageMale <= this.percentageMale ? 'male' : 'female') : 'unknown';
+            console.log('new', this);
         }
 
         this.spriteDrawer = new PokemonSpriteDrawer();

@@ -1,5 +1,5 @@
 import {PokemonInstance} from "./pokemon";
-import type {Move} from "./moves";
+import {Move} from "./moves";
 
 export class Pokedex {
 
