@@ -24,6 +24,7 @@
     import {Character, PlayerSprites} from "../js/player/player";
     import {testMap} from "../js/mapping/maps/test-map";
     import {testMap2} from "../js/mapping/maps/test-map2";
+    import type {Pokedex} from "../js/pokemons/pokedex";
 
     let playerName = 'Red';
     let playerClasses = [
@@ -33,6 +34,8 @@
     let selected = playerClasses[0];
     export let saveContext: SaveContext;
 
+    export let pokedex: Pokedex;
+
     function handleSubmit() {
         let player = Character.fromScratch(playerName, 'MALE', new PlayerSprites(
             'src/assets/characters/hero_male_front.png',
@@ -40,7 +43,8 @@
             'src/assets/characters/hero_male_left.png',
             'src/assets/characters/hero_male_right.png',
             'src/assets/characters/hero_male_back.png'));
-        let save = new Save(player, testMap2);
+        player.monsters.push(pokedex.findById(6).result.instanciate(5));
+        let save = new Save(player, testMap);
         saveContext.saves.push(save);
         localStorage.setItem('saves', JSON.stringify(saveContext.saves));
         saveContext = new SaveContext(saveContext.saves, false, save);

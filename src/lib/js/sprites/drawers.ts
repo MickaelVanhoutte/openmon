@@ -236,7 +236,7 @@ export class BattlefieldsDrawer {
     constructor() {
     }
 
-    public draw(ctx: CanvasRenderingContext2D, battlefield: 'default' | 'grass' | 'water' | 'rock' | 'rainy' = 'default') {
+    public draw(ctx: CanvasRenderingContext2D, animationStart: boolean, battlefield: 'default' | 'grass' | 'water' | 'rock' | 'rainy' = 'default') {
 
         let image = this.images[battlefield];
         if (image && image.complete) {

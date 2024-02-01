@@ -7,8 +7,10 @@ import {Move, MoveInstance, PokemonInstance} from "../pokemons/pokedex";
 export class BattleState {
 
     // for transition animation
-    public starting= true;
-    public ending= false;
+    public starting = true;
+    public ending = false;
+
+    public pokemonsAppearing = true;
 
     public player: Character;
     public playerCurrentMonster: PokemonInstance;

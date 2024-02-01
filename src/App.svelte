@@ -13,6 +13,7 @@
     {:else}
         <svelte:component this="{saveContext?.saves.length > 0 && !saveContext?.fresh ? LoadSave : PlayerCreation}"
                           bind:saveContext
+                          bind:pokedex={pokedex}
         >
         </svelte:component>
     {/if}
@@ -43,7 +44,7 @@
 
     export let canvas;
 
-    let pokedex = new Pokedex(pokedexJson);
+    export let pokedex = new Pokedex(pokedexJson);
 
     let saves: Save[] = localStorage.getItem('saves') && JSON.parse(localStorage.getItem('saves')).map((save: any) => {
         Object.setPrototypeOf(save, Save.prototype);

@@ -1,4 +1,3 @@
-import {PokemonSpriteDrawer} from "../sprites/drawers";
 import {EXPERIENCE_CHART} from "./experience";
 
 export class Pokedex {
@@ -351,8 +350,6 @@ export class PokemonInstance extends PokedexEntry {
 
     public isShiny: boolean = false;
 
-    private spriteDrawer: PokemonSpriteDrawer;
-
     get spriteScale(): number {
         return 1;
     }
@@ -406,12 +403,6 @@ export class PokemonInstance extends PokedexEntry {
             this.gender = this.percentageMale ? (Math.random() * this.percentageMale <= this.percentageMale ? 'male' : 'female') : 'unknown';
             console.log('new', this);
         }
-
-        this.spriteDrawer = new PokemonSpriteDrawer();
-    }
-
-    public draw(ctx: CanvasRenderingContext2D, type: 'front' | 'back', frameOffset: number = 0, xOffset: number = 0, yOffset: number = 0) {
-        this.spriteDrawer.draw(ctx, this, type, true, frameOffset, xOffset, yOffset);
     }
 
     public selectMove(iaLvl: 'Random' | 'Easy', target?: PokemonInstance): MoveInstance {
