@@ -1,10 +1,8 @@
-<svelte:options accessors={true}/>
-
-<div class="enemy-info" class:opened={opened}>
+<div class="ally-info">
 
     <div class="name-lvl">
-        <span>{battleState?.playerCurrentMonster?.name}</span>
-        <span>Lv {battleState?.playerCurrentMonster?.level}</span>
+        <span>{battleContext.playerCurrentMonster?.name}</span>
+        <span>Lv {battleContext.playerCurrentMonster.level}</span>
     </div>
 
     <div class="status">
@@ -15,6 +13,7 @@
                      style="--width:{percent + '%'}"></div>
             </div>
         </div>
+        {battleContext.playerCurrentMonster.currentHp} / {battleContext.playerCurrentMonster.currentStats.hp}
     </div>
 
 </div>
@@ -23,18 +22,33 @@
 
     import {BattleState} from "../../js/battle/battle";
 
-    export let opened;
-    export let battleState: BattleState;
+    export let battleContext: BattleState;
 
-    $: percent = Math.floor(battleState?.playerCurrentMonster?.currentHp * 100 / battleState?.playerCurrentMonster?.currentStats?.hp);
+    $: percent = Math.floor(battleContext.playerCurrentMonster.currentHp * 100 / battleContext.playerCurrentMonster.currentStats.hp);
 
 </script>
 
 <style lang="scss">
 
-  .enemy-info {
-    opacity: 0;
-    visibility: hidden;
+  @keyframes appear {
+    from {
+      right: -30dvw;
+    }
+    to {
+      right: 1dvw;
+    }
+  }
+
+  @keyframes bounce {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+
+  .ally-info {
     z-index: 9;
 
     background-color: antiquewhite;
@@ -42,10 +56,8 @@
     height: 12dvh;
     width: 30dvw;
     position: absolute;
-    top: 2dvh;
-    left: -30dvw;
-
-    transition: left 0.5s ease-in-out;
+    bottom: 26dvh;
+    right: -30dvw;
 
     border: 14px solid #595b59;
     border-radius: 24px;
@@ -59,11 +71,7 @@
 
     font-size: 46px;
 
-    &.opened {
-      opacity: 1;
-      visibility: visible;
-      left: 1dvw;
-    }
+    animation: appear .5s ease-in forwards,  bounce 2s ease-in-out infinite;
 
     .name-lvl {
       display: flex;
@@ -111,7 +119,7 @@
           text-align: center;
           border-radius: 2px;
 
-          transition: width 1s ease-in-out, background 1s ease-in-out 1s;
+          transition: width 1s ease-in-out;
 
           &.warning {
             background: rgb(255, 241, 164);
@@ -128,9 +136,10 @@
   }
 
   @media screen and (max-width: 1100px) {
-    .enemy-info {
+    .ally-info {
       font-size: 36px;
       border: 8px solid #595b59;
+      height: 16dvh;
 
       .hp {
         width: 80%;
@@ -142,4 +151,5 @@
       }
     }
   }
+
 </style>

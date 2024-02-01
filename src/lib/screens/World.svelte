@@ -55,7 +55,7 @@
             let allowedMove = true;
             context.player.moving = false;
 
-            // Stop battle if initiated
+            // Stop if initiated
             if (battleContext) {
                 return;
             }
@@ -121,6 +121,8 @@
             context.player.updatePosition(context.map.playerInitialPosition, mainLoopContext.movedOffset);
 
             if (mainLoopContext.debug) {
+                let fps = Math.round(1 / elapsed * 1000);
+
                 ctx.fillStyle = 'black';
                 ctx.fillRect(0, 0, 160, 60);
 
@@ -129,7 +131,7 @@
                 ctx.fillText(`Player moving: ${context.player.moving}`, 10, 20);
                 ctx.fillText(`Player direction: ${context.player.direction}`, 10, 30);
                 ctx.fillText(`Player offset: ${mainLoopContext.movedOffset.x}, ${mainLoopContext.movedOffset.y}`, 10, 40);
-                ctx.fillText(`fps: ${mainLoopContext.fps}`, 10, 50);
+                ctx.fillText(`fps: ${fps}`, 10, 50);
             }
         }
     }
@@ -143,6 +145,11 @@
         setTimeout(() => {
             battleContext.starting = false;
         }, 2000);
+
+        setTimeout(() => {
+            battleContext.pokemonsAppearing = false;
+            console.log('appearing false');
+        }, 5000);
 
     }
 
@@ -191,6 +198,7 @@
     }
 
     onDestroy(() => {
+        console.log('destroy');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         unbindKeyboard(context.player);
     });

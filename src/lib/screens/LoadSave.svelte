@@ -10,6 +10,8 @@
         {/each}
     </select>
 
+    <!--// TODO : display team, sprites etc-->
+
     <button type="submit">
         Let's go !
     </button>
@@ -26,10 +28,13 @@ or
 
 <script lang="ts">
     import {SaveContext} from "../js/saves/saves";
+    import {Pokedex} from "../js/pokemons/pokedex";
 
     export let saveContext: SaveContext;
 
     let selected = saveContext.saves[0];
+
+    export let pokedex: Pokedex;
 
     console.log(saveContext);
 
