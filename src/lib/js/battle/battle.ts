@@ -1,7 +1,7 @@
 import {Character} from "../player/player";
-import {PokemonInstance} from "../pokemons/pokemon";
+import {Move, MoveInstance, PokemonInstance} from "../pokemons/pokedex";
+
 //import {MOVE_EFFECT_APPLIER} from "../pokemons/move-effects";
-import {Move} from "../pokemons/moves";
 
 
 export class BattleState {
@@ -27,7 +27,7 @@ export class BattleState {
         return this.opponent instanceof PokemonInstance;
     }
 
-    constructor(player: Character, opponent: Character | PokemonInstance, canvas: HTMLCanvasElement) {
+    constructor(player: Character, opponent: Character | PokemonInstance) {
         this.player = player;
         this.opponent = opponent;
         this.playerCurrentMonster = player.monsters[0];
@@ -186,7 +186,7 @@ export class BattleState {
         //this.executeAction(this.turnStack.shift());
     }
 
-    private calculateDamage(attacker: PokemonInstance, defender: PokemonInstance, move: Move): DamageResults {
+    private calculateDamage(attacker: PokemonInstance, defender: PokemonInstance, move: MoveInstance): DamageResults {
         let result = new DamageResults();
         if (move.category !== 'status') {
             const attack = move.category === 'physical' ? attacker.currentStats.attack : attacker.currentStats.specialAttack;
@@ -224,7 +224,7 @@ export class BattleState {
         return Math.random() < 0.0625 ? 1.5 : 1;
     }
 
-    private calculateStab(attacker: PokemonInstance, move: Move) {
+    private calculateStab(attacker: PokemonInstance, move: MoveInstance) {
         return attacker.types.includes(move.type) ? 1.5 : 1;
     }
 
@@ -233,11 +233,11 @@ export class BattleState {
         this.turnStack.push(new Attack(move, 'ally', this.opponentCurrentMonster));
     }
 
-    private accuracyApplies(move: Move) {
+    private accuracyApplies(move: MoveInstance) {
         return move.accuracy === 100 || move.accuracy === 0 || !Number.isInteger(move.effectChance) || Math.random() * 100 < move.accuracy;
     }
 
-    private effectApplies(move: Move) {
+    private effectApplies(move: MoveInstance) {
         return move.effect && Number.isInteger(move.effectChance) && Math.random() * 100 < move.effectChance;
     }
 
@@ -351,11 +351,11 @@ export class ChangePokemon implements Action {
 export class Attack implements Action {
     public name: string;
     public description: string;
-    public move: Move;
+    public move: MoveInstance;
     public target: 'opponent' | 'ally';
     public initiator: PokemonInstance;
 
-    constructor(move: Move, target: 'opponent' | 'ally', initiator: PokemonInstance) {
+    constructor(move: MoveInstance, target: 'opponent' | 'ally', initiator: PokemonInstance) {
         this.name = move.name;
         this.description = move.description;
         this.move = move;

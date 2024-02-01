@@ -1,120 +1,98 @@
-<svelte:options customElement="open-mon" accessors={true}/>
+<svelte:options customElement="open-mon"/>
 
-<div id="canvas-wrapper" bind:this={wrapper}>
-    {#if ready && letsgo}
-        <MainScene bind:pokedex={pokedex} bind:canvas={canvas} bind:character={character}/>
+{#if saveContext && pokedex?.ready}
+    {#if context}
 
+        <svelte:component this="{battleContext ? Battle : World}"
+                          bind:context
+                          bind:battleContext
+                          bind:canvas={canvas}
+                          bind:pokedex={pokedex}
+        >
+        </svelte:component>
     {:else}
-        <div class="loading" class:ready={ready}>
-            {#if !ready}
-                <div class="o-pokeball c-loader u-swing"></div>
-
-                <span>Gotta catch em all... {current}</span>
-
-                <div bind:this={preview} id="preview">
-                </div>
-            {/if}
-        </div>
-        {#if ready}
-            <div class="buttons">
-                {#if save}
-                    <div class="letsgo">
-                        <button class="start-btn" on:click={() => go()}>Continue!</button>
-                        <img class="pika" alt="Evoli" src="src/assets/monsters/heartgold-soulsilver/133.png"/>
-                    </div>
-                {/if}
-                <div class="letsgo">
-                    <button class="start-btn" on:click={() => go()}>New game!</button>
-                    <img class="pika" alt="pikachu" src="src/assets/monsters/heartgold-soulsilver/25.png"/>
-                </div>
-            </div>
-        {/if}
+        <svelte:component this="{saveContext?.saves.length > 0 && !saveContext?.fresh ? LoadSave : PlayerCreation}"
+                          bind:saveContext
+        >
+        </svelte:component>
     {/if}
+{/if}
 
-    <canvas bind:this={canvas}></canvas>
-</div>
+<canvas bind:this={canvas}></canvas>
+
 <script lang="ts">
-    import {Character, PlayerSprites} from "./lib/js/player/player";
+
     import {Pokedex} from "./lib/js/pokemons/pokedex";
-    import MainScene from "./lib/scenes/MainScene.svelte";
+    import LoadSave from "./lib/screens/LoadSave.svelte";
+    import World from "./lib/screens/World.svelte";
+    import Battle from "./lib/screens/Battle.svelte";
+    import PlayerCreation from "./lib/screens/PlayerCreation.svelte";
+    import pokedexJson from "./assets/data/final/pokedex.json";
+    import {Save, SaveContext} from "./lib/js/saves/saves";
+    import {onMount} from "svelte";
 
     export let canvas;
-    let wrapper;
-    let character: Character;
 
-    let pokedexReady = false;
-    let ready = false;
+    let pokedex = new Pokedex(pokedexJson);
 
-    let images = [];
-    let letsgo = false;
+    let saves: Save[] = localStorage.getItem('saves') && JSON.parse(localStorage.getItem('saves')).map((save: any) => {
+        Object.setPrototypeOf(save, Save.prototype);
+        save.setPrototypes();
+        console.log(save)
+        return save;
+    }) || [];
 
-    let save;
-    let current: string;
-    let preview: HTMLDivElement;
+    let battling: boolean;
 
-    // test mobile
-    //window.scrollTo(0, 1);
+    let saveContext = new SaveContext(saves);
 
-    let pokedex = new Pokedex();
+    let battleContext = null;
 
-    fetch('src/assets/data/final/pokedex.json')
-        .then(response => response.json())
-        .then(data => {
-            pokedex.importFromJson(data);
+    // todo passer image scale
+    let imageScale = 3;
+    let tileSizeInPx = 16 * imageScale;
 
-
-            let maxSec = 5;
-            let now = Date.now();
-
-            while (!pokedex.ready && Date.now() - now < maxSec * 1000) {
-                console.log('loading dex...');
-            }
-
-            if (!pokedex.ready) {
-                console.error('Pokedex not ready after ' + maxSec + ' seconds');
-                window.location.reload();
-            }
-
-            pokedexReady = true;
-
-            let firstPoke = pokedex.findById(1)?.result?.instanciate(5);
-
-            if (!firstPoke) throw new Error('Could not find pokemon with id 251');
-
-            firstPoke.isShiny = true;
-
-            character = new Character("Kaiser", "MALE",
-                new PlayerSprites(
-                    'src/assets/characters/hero_male_front.png',
-                    'src/assets/characters/hero_male_back.png',
-                    'src/assets/characters/hero_male_left.png',
-                    'src/assets/characters/hero_male_right.png',
-                    'src/assets/characters/hero_male_back.png'),
-                [firstPoke]);
-
-            ready = true;
-
-        });
+    $:context = saveContext && saveContext.save ? saveContext.save : null;
 
 
-    function go() {
-        //openFullscreen();
-        letsgo = true;
-    }
+    onMount(() => {
+        resize();
+    });
 
-    function openFullscreen() {
-        if (wrapper.requestFullscreen) {
-            wrapper.requestFullscreen();
-        } else if (wrapper.webkitRequestFullscreen) { /* Safari */
-            wrapper.webkitRequestFullscreen();
-        } else if (wrapper.msRequestFullscreen) { /* IE11 */
-            wrapper.msRequestFullscreen();
+    function resize() {
+        if (window.innerHeight > window.innerWidth) {
+            imageScale = 5;
         }
+
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+        tileSizeInPx = 16 * imageScale;
     }
+
+
+
+    window.addEventListener('resize', () => {
+        resize();
+    });
+
+    window.addEventListener('orientationchange', () => {
+        resize();
+    });
+
 
 </script>
 
 <style lang="scss">
+  canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100dvw;
+    height: 100dvh;
+  }
+
+  /*
 
   #canvas-wrapper {
     width: 100dvw;
@@ -128,7 +106,6 @@
     -o-transform: rotate(0deg);
     -ms-transform: rotate(0deg);
     transform: rotate(0deg);
-
 
 
     canvas {
@@ -326,5 +303,6 @@
     justify-content: center;
   }
 
+  */
 
 </style>

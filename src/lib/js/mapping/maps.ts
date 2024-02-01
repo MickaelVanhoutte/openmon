@@ -1,7 +1,5 @@
 import {Boundary} from "./collisions";
-import {Position} from "../sprites/drawers";
-import {Pokedex} from "../pokemons/pokedex";
-import {PokemonInstance} from "../pokemons/pokemon";
+import {Position, WoldSpriteDrawer} from "../sprites/drawers";
 
 
 export const tileSize = 16;
@@ -9,10 +7,12 @@ export const battleTile = 8;
 export const collisionTile = 806;
 
 export class OpenMap {
-    public background: HTMLImageElement;
-    public foreground: HTMLImageElement;
+    public background: string;
+    public foreground: string;
+
     public width: number;
     public height: number;
+
     public collisions: Boundary[];
     public battleZones: Boundary[];
 
@@ -21,33 +21,76 @@ export class OpenMap {
 
     public playerInitialPosition: Position = new Position(11, 11);
 
-    public startingX: number = 0;
-    public startingY: number = 0;
+    /*public startingX: number = 0;
+    public startingY: number = 0;*/
 
-    constructor(background: HTMLImageElement, foreground: HTMLImageElement, width: number, height: number, collisions: number[], battles: number[], monsters: number[], levelRange: number[] = [1, 100]) {
+    constructor(background: string, foreground: string, width: number, height: number, collisions: Boundary[], battles: Boundary[], monsters: number[], playerInitialPosition: Position, levelRange: number[] = [1, 100]) {
         this.background = background;
         this.foreground = foreground;
         this.width = width;
         this.height = height;
-        this.collisions = this.initBoundaries(collisions);
-        this.battleZones = this.initBattlesZones(battles);
+        this.collisions = collisions;
+        this.battleZones = battles;
         this.monsters = monsters;
+        this.playerInitialPosition = playerInitialPosition;
         this.levelRange = levelRange;
     }
 
-    randomMonster():{id: number, level: number} {
-        const monsterId = this.monsters[Math.floor(Math.random() * this.monsters.length)];
-        const level = Math.floor(Math.random() * (this.levelRange[1] - this.levelRange[0] + 1)) + this.levelRange[0];
-        //const pokedex: PokemonInstance[] = localStorage.getItem('pokedex') && JSON.parse(localStorage.getItem('pokedex') || '[]') || [];
-        //const monster = pokedex.find((monster: PokemonInstance) => monster.id === monsterId);
-        return {id: monsterId, level: level};
-        //return dex.findById(monsterId).result.instanciate(level);
+    public static fromScratch(background: string, foreground: string, width: number, height: number, collisions: number[], battles: number[], monsters: number[], playerInitialPosition: Position = new Position(), levelRange: number[] = [1, 100]): OpenMap {
+        let collisionsCalc = OpenMap.initBoundaries(collisions, width);
+        let battleZonesCalc = OpenMap.initBattlesZones(battles, width);
+
+        return new OpenMap(
+            background,
+            foreground,
+            width,
+            height,
+            collisionsCalc,
+            battleZonesCalc,
+            monsters,
+            playerInitialPosition,
+            levelRange,
+        )
     }
 
-    initBattlesZones(battles: number []) {
+    public static fromInstance(map: OpenMap): OpenMap {
+        return new OpenMap(
+            map.background,
+            map.foreground,
+            map.width,
+            map.height,
+            map.collisions,
+            map.battleZones,
+            map.monsters,
+            map.playerInitialPosition,
+            map.levelRange,
+        )
+    }
+
+    public setPrototypes(): OpenMap {
+        Object.setPrototypeOf(this.playerInitialPosition, Position.prototype);
+        this.collisions.forEach((boundary) => {
+            Object.setPrototypeOf(boundary, Boundary.prototype);
+            Object.setPrototypeOf(boundary.position, Position.prototype);
+        });
+        this.battleZones.forEach((boundary) => {
+            Object.setPrototypeOf(boundary, Boundary.prototype);
+            Object.setPrototypeOf(boundary.position, Position.prototype);
+        });
+
+        return this;
+    }
+
+    randomMonster(): { id: number, level: number } {
+        const monsterId = this.monsters[Math.floor(Math.random() * this.monsters.length)];
+        const level = Math.floor(Math.random() * (this.levelRange[1] - this.levelRange[0] + 1)) + this.levelRange[0];
+        return {id: monsterId, level: level};
+    }
+
+    public static initBattlesZones(battles: number [], width: number) {
         const battle_map = [];
-        for (let i = 0; i < battles.length; i += this.width) {
-            battle_map.push(battles.slice(i, this.width + i));
+        for (let i = 0; i < battles.length; i += width) {
+            battle_map.push(battles.slice(i, width + i));
         }
 
         const boundariesTmp: Boundary[] = [];
@@ -64,10 +107,10 @@ export class OpenMap {
         return boundariesTmp;
     }
 
-    initBoundaries(collisions: number[]) {
+    public static initBoundaries(collisions: number[], width: number) {
         const collision_map = [];
-        for (let i = 0; i < collisions.length; i += this.width) {
-            collision_map.push(collisions.slice(i, this.width + i));
+        for (let i = 0; i < collisions.length; i += width) {
+            collision_map.push(collisions.slice(i, width + i));
         }
 
         const boundariesTmp: Boundary[] = [];
@@ -82,56 +125,17 @@ export class OpenMap {
         return boundariesTmp;
     }
 
-    drawBackground(ctx: CanvasRenderingContext2D, movedOffset: Position, scale: number) {
-        let bgWidth = this.background.width * scale;
-        let bgHeight = this.background.height * scale;
-        // center
-        let x = ctx.canvas.width / 2 - bgWidth / 2;
-        let y = ctx.canvas.height / 2 - bgHeight / 2;
-
-        this.startingX = x + (0 - movedOffset.x) * (16 * scale);
-        this.startingY = y + (0 - movedOffset.y) * (16 * scale);
-
-        ctx.drawImage(this.background,
-            0,
-            0,
-            this.background.width,
-            this.background.height,
-            this.startingX,
-            this.startingY,
-            this.background.width * scale,
-            this.background.height * scale,
-        )
-    }
-
-    drawForeground(ctx: CanvasRenderingContext2D, movedOffset: Position) {
-        if (this.foreground === null) {
-            return;
+    /*    drawBoundaries(ctx: CanvasRenderingContext2D, movedOffset: Position, scale: number) {
+            this.collisions.forEach((boundary) => {
+                boundary.debug(ctx, movedOffset, scale, this.startingX, this.startingY, 'rgba(255, 0, 0, 0.5)',);
+            })
         }
-        ctx.drawImage(this.foreground,
-            movedOffset.x * 16,
-            movedOffset.y * 16,
-            this.foreground.width,
-            this.foreground.height,
-            0,
-            0,
-            this.foreground.width * 3,
-            this.foreground.height * 3,
-        )
-    }
 
-
-    drawBoundaries(ctx: CanvasRenderingContext2D, movedOffset: Position, scale: number) {
-        this.collisions.forEach((boundary) => {
-            boundary.debug(ctx, movedOffset, scale, this.startingX, this.startingY, 'rgba(255, 0, 0, 0.5)',);
-        })
-    }
-
-    drawBattleZones(ctx: CanvasRenderingContext2D, movedOffset: Position, scale: number) {
-        this.battleZones.forEach((boundary) => {
-            boundary.debug(ctx, movedOffset, scale, this.startingX, this.startingY, 'rgba(0, 0, 255, 0.5)');
-        })
-    }
+        drawBattleZones(ctx: CanvasRenderingContext2D, movedOffset: Position, scale: number) {
+            this.battleZones.forEach((boundary) => {
+                boundary.debug(ctx, movedOffset, scale, this.startingX, this.startingY, 'rgba(0, 0, 255, 0.5)');
+            })
+        }*/
 
     hasBattleZoneAt(position: Position) {
         return this.battleZones.some((boundary) => {
