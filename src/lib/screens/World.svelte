@@ -54,9 +54,6 @@
 
             ctx.save();
             drawer.draw(ctx, context.map, mainLoopContext.movedOffset, mainLoopContext.imageScale, true);
-            //drawer.debugTiles(ctx, mainLoopContext.movedOffset, mainLoopContext.imageScale);
-            //currentMap.drawBoundaries(ctx, movedOffset, imageScale);
-            //currentMap.drawBattleZones(ctx, movedOffset, imageScale);
 
             if (renderedWidth > 0 && renderedHeight > 0) {
 
@@ -64,7 +61,7 @@
                     renderedWidth,
                     renderedHeight,
                 )
-                context.player.draw(ctx, mainLoopContext.imageScale, context.map.width, context.map.height, renderedWidth, renderedHeight, mainLoopContext.movedOffset);
+                context.player.draw(ctx, mainLoopContext.imageScale);
             }
             //currentMap.drawForeground(ctx, movedOffset); // FIXME non transparent tiles
 
@@ -136,8 +133,6 @@
             }
             context.player.updatePosition(context.map.playerInitialPosition, mainLoopContext.movedOffset);
         }
-        // }
-
     }
 
     function initiateBattle(opponent: PokemonInstance | Character) {
@@ -234,7 +229,7 @@
     }
 
     onDestroy(() => {
-        console.log('destroy world');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         unbindKeyboard(context.player);
     });
 

@@ -70,10 +70,8 @@ export class Character {
         return this.sprites[this.direction];
     }
 
-    public draw(ctx: CanvasRenderingContext2D, scale: number,
-                bgWidth: number, bgHeight: number, bgRenderedW: number, bgRenderedH: number,
-                movedOffset: Position) {
-        this.drawer.draw(ctx, scale, this.sprite, this.moving, bgWidth, bgHeight, bgRenderedW, bgRenderedH, this.positionOnMap, movedOffset);
+    public draw(ctx: CanvasRenderingContext2D, scale: number) {
+        this.drawer.draw(ctx, scale, this.sprite, this.moving);
     }
 
     updatePosition(initial: Position, movedOffset: Position) {

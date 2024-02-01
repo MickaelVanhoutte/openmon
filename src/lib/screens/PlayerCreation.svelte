@@ -23,6 +23,7 @@
     import {Save, SaveContext} from "../js/saves/saves";
     import {Character, PlayerSprites} from "../js/player/player";
     import {testMap} from "../js/mapping/maps/test-map";
+    import {testMap2} from "../js/mapping/maps/test-map2";
 
     let playerName = 'Red';
     let playerClasses = [
@@ -39,7 +40,7 @@
             'src/assets/characters/hero_male_left.png',
             'src/assets/characters/hero_male_right.png',
             'src/assets/characters/hero_male_back.png'));
-        let save = new Save(player, testMap);
+        let save = new Save(player, testMap2);
         saveContext.saves.push(save);
         localStorage.setItem('saves', JSON.stringify(saveContext.saves));
         saveContext = new SaveContext(saveContext.saves, false, save);

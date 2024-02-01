@@ -22,11 +22,12 @@
     },
     "last.exportedFilePath": "/Users/mika/workspace/projects-perso/openmon/src/assets/tiled",
     "last.imagePath": "/Users/mika/workspace/projects-perso/openmon/src/assets/tileset/firered",
+    "map.height": 60,
     "map.lastUsedExportFilter": "JSON map files (*.tmj *.json)",
     "map.lastUsedFormat": "tmx",
     "map.tileHeight": 16,
     "map.tileWidth": 16,
-    "map.width": 20,
+    "map.width": 80,
     "openFiles": [
         "tileset.tsx",
         "test-mal.tmx"
