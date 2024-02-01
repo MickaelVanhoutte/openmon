@@ -25,6 +25,7 @@ export let lastKey ={
 
 export function keyupListener(character: Character) {
     return (e: KeyboardEvent) => {
+        console.log(e);
         switch (e.key) {
             case 'ArrowDown' :
                 keys.down.pressed = false;
@@ -39,7 +40,6 @@ export function keyupListener(character: Character) {
                 keys.left.pressed = false;
                 break;
         }
-        character.moving = false;
     };
 }
 

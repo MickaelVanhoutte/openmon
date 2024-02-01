@@ -16,16 +16,15 @@
 
     export let pokedex: Pokedex;
 
-    let battleStarted = false;
-
     let ctx = canvas.getContext('2d');
     ctx.font = "12px Arial";
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
 
     let mainLoopContext = {
         id: 0,
-        fps: 12,
         then: Date.now(),
-        fpsInterval: 1000 / 12,
+        fpsInterval: 1000 / 18,
         imageScale: 3,
         movedOffset: new Position(0, 0),
         debug: false
@@ -136,96 +135,59 @@
     }
 
     function initiateBattle(opponent: PokemonInstance | Character) {
-        battleStarted = true;
+
+        battleContext = new BattleState(context.player, opponent);
+
+        unbindKeyboard(context.player);
 
         setTimeout(() => {
-            battleStarted = false;
-            battleContext = new BattleState(context.player, opponent);
-
+            battleContext.starting = false;
         }, 2000);
 
-        //stopCommands();
-        /*battle.initiated = true;
-        battle.startDate = new Date();
-        battleState = new BattleState(character, opponent, canvas);
-        unbindKeyboard();
-
-        battleState.onClose = () => {
-            stopBattle(battleLoopContext.id);
-        }
-        battleStart = true;
-
-        setTimeout(() => {
-            battleStart = false;
-            opened = true;
-            battleLoop();
-        }, 2000);*/
     }
 
     function bindKeyboard(player: Character) {
         window.addEventListener('keydown', keydownListener());
         window.addEventListener('keyup', keyupListener(player));
-        window.addEventListener('keydown', openMenuListener);
+        window.addEventListener('keydown', worldActionsListener);
+        window.addEventListener('keyup', worldActionsUpListener);
     }
 
     function unbindKeyboard(player: Character) {
         window.removeEventListener('keydown', keydownListener());
         window.removeEventListener('keyup', keyupListener(player));
-        window.removeEventListener('keydown', openMenuListener);
+        window.removeEventListener('keydown', worldActionsListener);
+        window.removeEventListener('keyup', worldActionsUpListener);
     }
 
-    function openMenuListener(event: KeyboardEvent) {
-        if (event.key === 'Escape') {
-            //menuOpened = !menuOpened;
+    function worldActionsListener(event: KeyboardEvent) {
+        console.log(event.key);
+        switch (event.key) {
+            case 'Escape':
+                //menuOpened = !menuOpened;
+                break;
+            case 'A':
+                //TODO
+                break;
+            case 'B':
+                //TODO
+                break;
+            case 'Shift':
+                context.player.running = true;
+                mainLoopContext.fpsInterval = 1000 / 24;
+                break;
+            case 'x':
+                mainLoopContext.debug = !mainLoopContext.debug;
         }
     }
 
-    function move(direction: 'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight') {
-        return (event: MouseEvent) => {
-            event.preventDefault();
-            switch (direction) {
-                case 'ArrowUp':
-                    keys.up.pressed = true;
-                    break;
-                case 'ArrowDown':
-                    keys.down.pressed = true;
-                    break;
-                case 'ArrowLeft':
-                    keys.left.pressed = true;
-                    break;
-                case 'ArrowRight':
-                    keys.right.pressed = true;
-                    break;
-            }
-            lastKey.key = direction;
+    function worldActionsUpListener(event: KeyboardEvent) {
+        switch (event.key) {
+            case 'Shift':
+                context.player.running = false;
+                mainLoopContext.fpsInterval = 1000 / 16;
+                break;
         }
-    }
-
-    function stop(direction: 'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight') {
-        return (event: MouseEvent) => {
-            switch (direction) {
-                case 'ArrowDown' :
-                    keys.down.pressed = false;
-                    break;
-                case 'ArrowUp' :
-                    keys.up.pressed = false;
-                    break;
-                case 'ArrowRight' :
-                    keys.right.pressed = false;
-                    break;
-                case 'ArrowLeft' :
-                    keys.left.pressed = false;
-                    break;
-            }
-        }
-    }
-
-    function stopCommands() {
-        keys.down.pressed = false;
-        keys.up.pressed = false;
-        keys.right.pressed = false;
-        keys.left.pressed = false;
-        context.player.moving = false;
     }
 
     onDestroy(() => {

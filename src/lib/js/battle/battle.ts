@@ -6,6 +6,10 @@ import {Move, MoveInstance, PokemonInstance} from "../pokemons/pokedex";
 
 export class BattleState {
 
+    // for transition animation
+    public starting= true;
+    public ending= false;
+
     public player: Character;
     public playerCurrentMonster: PokemonInstance;
 
@@ -82,6 +86,7 @@ export class BattleState {
             } else if (action instanceof ApplyEffect) {
                 //MOVE_EFFECT_APPLIER.apply(action.move.effect, action.target === 'opponent' ? [this.opponentCurrentMonster] : [action.initiator], action.initiator);
             } else if (action instanceof EndBattle) {
+                this.starting = true;
                 this.onClose();
             }
         } else {
