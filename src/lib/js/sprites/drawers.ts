@@ -186,7 +186,7 @@ export class WoldSpriteDrawer {
                     if (map.hasBoundaryAt(new Position(i, j))) {
                         ctx.fillStyle = 'rgba(0, 0, 255, 0.3)';
                         ctx.fillRect(
-                            i * 16 * scale ,
+                            i * 16 * scale,
                             j * 16 * scale,
                             16 * scale,
                             16 * scale);
@@ -269,6 +269,7 @@ export class PlayerSpriteDrawer {
 
     private frames = {max: 3, val: 0, elapsed: 0};
     private images: Record<string, HTMLImageElement> = {};
+    private lastImage: string = '';
 
     constructor() {
     }
@@ -278,8 +279,13 @@ export class PlayerSpriteDrawer {
 
         let image = this.images[sprite];
         if (image && image.complete) {
+            this.lastImage = sprite;
             this.drawImage(ctx, image, scale, moving);
         } else {
+            if (this.images[this.lastImage]) {
+                // fallback to latest
+                this.drawImage(ctx, this.images[this.lastImage], scale, moving);
+            }
             image = new Image();
             image.src = sprite;
             image.onload = () => {
@@ -295,12 +301,12 @@ export class PlayerSpriteDrawer {
             if (this.frames.max > 1) {
                 this.frames.elapsed += 1;
             }
-            //if (this.frames.elapsed % 2 === 0) {
+            if (this.frames.elapsed % 2 === 0) {
                 this.frames.val += 1
                 if (this.frames.val > this.frames.max - 1) {
                     this.frames.val = 0;
                 }
-            //}
+            }
         } else {
             this.frames.val = 1;
         }

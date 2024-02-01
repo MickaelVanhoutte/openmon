@@ -3,7 +3,7 @@
 {#if saveContext && pokedex?.ready}
     {#if context}
 
-        <svelte:component this="{battleContext ? Battle : World}"
+        <svelte:component this="{battleContext && !battleContext?.starting ? Battle : World}"
                           bind:context
                           bind:battleContext
                           bind:canvas={canvas}
@@ -18,6 +18,15 @@
     {/if}
 {/if}
 
+{#if battleContext && battleContext?.starting}
+<div class="battleStart"></div>
+{/if}
+
+{#if battleContext && battleContext.ending}
+    <div class="battleEnd"></div>
+{/if}
+
+
 <canvas bind:this={canvas}></canvas>
 
 <script lang="ts">
@@ -30,6 +39,7 @@
     import pokedexJson from "./assets/data/final/pokedex.json";
     import {Save, SaveContext} from "./lib/js/saves/saves";
     import {onMount} from "svelte";
+    import {BattleState} from "./lib/js/battle/battle";
 
     export let canvas;
 
@@ -46,7 +56,7 @@
 
     let saveContext = new SaveContext(saves);
 
-    let battleContext = null;
+    export let battleContext: BattleState;
 
     // todo passer image scale
     let imageScale = 3;
@@ -92,6 +102,63 @@
     height: 100dvh;
     z-index: -1;
   }
+
+  .battleStart {
+    opacity: 0;
+    background: #000000;
+    height: 100dvh;
+    width: 100dvw;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: opacity 0.5s ease-in-out;
+    z-index: 2;
+    animation: blink 2s ease-in-out;
+  }
+
+  @keyframes blink {
+    0% {
+      opacity: 1;
+    }
+    20% {
+      opacity: 0;
+    }
+    40% {
+      opacity: 1;
+    }
+    60% {
+      opacity: 0;
+    }
+    80% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  .battleEnd {
+    opacity: 0;
+    background: #000000;
+    height: 100dvh;
+    width: 100dvw;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: opacity 0.5s ease-in-out;
+    z-index: 2;
+    animation: fade-out 2s ease-in-out;
+  }
+
+  @keyframes fade-out {
+    0% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
 
   /*
 

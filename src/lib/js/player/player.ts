@@ -9,6 +9,7 @@ export class Character {
     public bag: any[] = [];
     public lvl: number = 1;
     public moving: boolean = false;
+    public running: boolean = false;
     public direction: 'up' | 'down' | 'left' | 'right' = 'down';
     public positionOnMap: Position;
 
