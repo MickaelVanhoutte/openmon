@@ -125,13 +125,9 @@ export class PokemonSpriteDrawer {
 }
 
 export class WoldSpriteDrawer {
-    public images: Record<string, HTMLImageElement> = {};
+    private images: Record<string, HTMLImageElement> = {};
 
-    public onImageReady: () => void;
-
-    constructor(onImageReady: () => void = () => {
-    }) {
-        this.onImageReady = onImageReady;
+    constructor() {
     }
 
 
@@ -144,7 +140,6 @@ export class WoldSpriteDrawer {
             image.src = map.background;
             image.onload = () => {
                 this.images[map.background] = image;
-                this.onImageReady();
                 this.drawImage(ctx, image, map, movedOffset, scale, debug);
             }
         }
@@ -186,19 +181,17 @@ export class WoldSpriteDrawer {
         );
 
         if (debug) {
-            for (let i = 0; i < 20; i++) {
-                for (let j = 0; j < 20; j++) {
-                    ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-                    ctx.fillText(`[${i}, ${j}]`, i * 16 * scale, j * 16 * scale)
+            for (let i = 0; i < map.width; i++) {
+                for (let j = 0; j < map.height; j++) {
                     if (map.hasBoundaryAt(new Position(i, j))) {
-                        ctx.fillStyle = 'rgba(0, 0, 255, 0.5)';
+                        ctx.fillStyle = 'rgba(0, 0, 255, 0.3)';
                         ctx.fillRect(
-                            i * 16 * scale,
+                            i * 16 * scale ,
                             j * 16 * scale,
                             16 * scale,
                             16 * scale);
                     } else if (map.hasBattleZoneAt(new Position(i, j))) {
-                        ctx.fillStyle = 'rgba(0, 255, 0, 0.5)';
+                        ctx.fillStyle = 'rgba(0, 255, 0, 0.3)';
                         ctx.fillRect(
                             i * 16 * scale,
                             j * 16 * scale,
@@ -211,10 +204,11 @@ export class WoldSpriteDrawer {
                         j * 16 * scale,
                         16 * scale,
                         16 * scale);
-
-
+                    ctx.fillStyle = 'rgba(0, 0, 0, 1)';
+                    ctx.fillText(`[${i}, ${j}]`, i * 16 * scale + 4, j * 16 * scale + 12)
                 }
             }
+
         }
 
 
@@ -297,15 +291,16 @@ export class PlayerSpriteDrawer {
     private drawImage(ctx: CanvasRenderingContext2D, image: HTMLImageElement, scale: number, moving: boolean) {
 
         if (moving) {
+
             if (this.frames.max > 1) {
                 this.frames.elapsed += 1;
             }
-            if (this.frames.elapsed % 2 === 0) {
+            //if (this.frames.elapsed % 2 === 0) {
                 this.frames.val += 1
                 if (this.frames.val > this.frames.max - 1) {
                     this.frames.val = 0;
                 }
-            }
+            //}
         } else {
             this.frames.val = 1;
         }

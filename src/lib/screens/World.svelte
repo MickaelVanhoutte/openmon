@@ -19,6 +19,7 @@
     let battleStarted = false;
 
     let ctx = canvas.getContext('2d');
+    ctx.font = "12px Arial";
 
     let mainLoopContext = {
         id: 0,
@@ -26,17 +27,11 @@
         then: Date.now(),
         fpsInterval: 1000 / 12,
         imageScale: 3,
-        movedOffset: new Position(0, 0)
+        movedOffset: new Position(0, 0),
+        debug: false
     }
 
-    let renderedWidth = 0;
-    let renderedHeight = 0;
-
-    let drawer = new WoldSpriteDrawer(() => {
-        renderedWidth = drawer.images[context.map.background].width * mainLoopContext.imageScale;
-        renderedHeight = drawer.images[context.map.background].height * mainLoopContext.imageScale;
-        console.log('on render, ', renderedWidth, renderedHeight);
-    });
+    let drawer = new WoldSpriteDrawer();
 
     /* Sizing */
 
@@ -53,16 +48,9 @@
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             ctx.save();
-            drawer.draw(ctx, context.map, mainLoopContext.movedOffset, mainLoopContext.imageScale, true);
+            drawer.draw(ctx, context.map, mainLoopContext.movedOffset, mainLoopContext.imageScale, mainLoopContext.debug);
 
-            if (renderedWidth > 0 && renderedHeight > 0) {
-
-                console.log(
-                    renderedWidth,
-                    renderedHeight,
-                )
-                context.player.draw(ctx, mainLoopContext.imageScale);
-            }
+            context.player.draw(ctx, mainLoopContext.imageScale);
             //currentMap.drawForeground(ctx, movedOffset); // FIXME non transparent tiles
 
             let allowedMove = true;
@@ -132,6 +120,18 @@
                 }
             }
             context.player.updatePosition(context.map.playerInitialPosition, mainLoopContext.movedOffset);
+
+            if (mainLoopContext.debug) {
+                ctx.fillStyle = 'black';
+                ctx.fillRect(0, 0, 160, 60);
+
+                ctx.fillStyle = 'white';
+                ctx.fillText(`Player position: ${context.player.positionOnMap.x}, ${context.player.positionOnMap.y}`, 10, 10);
+                ctx.fillText(`Player moving: ${context.player.moving}`, 10, 20);
+                ctx.fillText(`Player direction: ${context.player.direction}`, 10, 30);
+                ctx.fillText(`Player offset: ${mainLoopContext.movedOffset.x}, ${mainLoopContext.movedOffset.y}`, 10, 40);
+                ctx.fillText(`fps: ${mainLoopContext.fps}`, 10, 50);
+            }
         }
     }
 

@@ -3,7 +3,7 @@
 
 <form on:submit|preventDefault={handleSubmit}>
 
-    <select value={selected}>
+    <select bind:value={selected}>
         {#each playerClasses as pClass}
             <option value={pClass}>
                 {pClass}

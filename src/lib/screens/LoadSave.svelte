@@ -2,7 +2,7 @@
 
 <form on:submit|preventDefault={handleSubmit}>
 
-    <select value={selected}>
+    <select bind:value={selected}>
         {#each saveContext.saves as save}
             <option value={save}>
                 {save.name} : {save.date}
@@ -34,6 +34,7 @@ or
     console.log(saveContext);
 
     function handleSubmit() {
+        console.log('selected', selected);
         saveContext = new SaveContext(saveContext.saves, false, selected);
         console.log('start from save', saveContext);
     }
