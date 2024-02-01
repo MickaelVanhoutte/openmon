@@ -1,4 +1,6 @@
-import {PokemonInstance} from "../pokemons/pokemon";
+import {PokemonInstance} from "../pokemons/pokedex";
+import type {OpenMap} from "../mapping/maps";
+
 
 export class Position {
     x: number;
@@ -54,14 +56,14 @@ export class PokemonSpriteDrawer {
             if (!imageSrc) return;
 
             if (!this.currentImage || this.currentImage.src !== imageSrc) {
-                if(!this.images[imageSrc]) {
+                if (!this.images[imageSrc]) {
                     let futureImage = new Image();
                     futureImage.src = imageSrc;
                     futureImage.onload = () => {
                         this.currentImage = futureImage;
                     }
                     this.images[imageSrc] = futureImage;
-                }else {
+                } else {
                     this.currentImage = this.images[imageSrc];
                 }
             }
@@ -122,6 +124,124 @@ export class PokemonSpriteDrawer {
     }
 }
 
+export class WoldSpriteDrawer {
+    public images: Record<string, HTMLImageElement> = {};
+
+    public onImageReady: () => void;
+
+    constructor(onImageReady: () => void = () => {
+    }) {
+        this.onImageReady = onImageReady;
+    }
+
+
+    draw(ctx: CanvasRenderingContext2D, map: OpenMap, movedOffset: Position, scale: number, debug: boolean = true) {
+        let image = this.images[map.background];
+        if (image && image.complete) {
+            this.drawImage(ctx, image, map, movedOffset, scale, debug);
+        } else {
+            image = new Image();
+            image.src = map.background;
+            image.onload = () => {
+                this.images[map.background] = image;
+                this.onImageReady();
+                this.drawImage(ctx, image, map, movedOffset, scale, debug);
+            }
+        }
+    }
+
+    /*    debugTiles(ctx: CanvasRenderingContext2D, movedOffset: Position, scale: number) {
+
+            let bgWidth = 960;
+            let bgHeight = 960;
+            // center
+            let x = ctx.canvas.width / 2 - bgWidth / 2;
+            let y = ctx.canvas.height / 2 - bgHeight / 2;
+
+            let startingX = x + (0 - movedOffset.x) * (16 * scale);
+            let startingY = y + (0 - movedOffset.y) * (16 * scale);
+
+            for (let i = 0; i < 20; i++) {
+                for(let j = 0; j < 20; j++) {
+                    ctx.strokeRect(
+                        startingX + i * 16 * scale,
+                        startingY + j * 16 * scale,
+                        16 * scale,
+                        16 * scale);
+                }
+            }
+        }*/
+
+
+    private drawImage(ctx: CanvasRenderingContext2D, image: HTMLImageElement, map: OpenMap, movedOffset: Position, scale: number, debug: boolean = false) {
+
+        // initial on map = 11, 11
+        let initialPosition = new Position(
+            (16 * scale) * 11,
+            (16 * scale) * 11
+        )
+
+        // canvas half - half character width scaled
+        let centerX = ctx.canvas.width / 2 - (16) * scale / 2;
+        // canvas half - half character height scaled
+        let centerY = ctx.canvas.height / 2 - (20) * scale / 2;
+
+        // movedOffset
+        let offsetInPx = new Position(
+            movedOffset.x * (16 * scale),
+            movedOffset.y * (16 * scale)
+        )
+
+
+        ctx.translate(centerX - offsetInPx.x - initialPosition.x, centerY - offsetInPx.y - initialPosition.y);
+
+
+        ctx.drawImage(image,
+            0,
+            0,
+            image.width,
+            image.height,
+            0,
+            0,
+            image.width * scale,
+            image.height * scale,
+        );
+
+        for (let i = 0; i < 20; i++) {
+            for (let j = 0; j < 20; j++) {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+                ctx.fillText(`[${i}, ${j}]`, i * 16 * scale, j * 16 * scale)
+                if (map.hasBoundaryAt(new Position(i, j))) {
+                    ctx.fillStyle = 'rgba(0, 0, 255, 0.5)';
+                    ctx.fillRect(
+                        i * 16 * scale,
+                        j * 16 * scale,
+                        16 * scale,
+                        16 * scale);
+                } else if (map.hasBattleZoneAt(new Position(i, j))) {
+                    ctx.fillStyle = 'rgba(0, 255, 0, 0.5)';
+                    ctx.fillRect(
+                        i * 16 * scale,
+                        j * 16 * scale,
+                        16 * scale,
+                        16 * scale);
+                }
+                ctx.strokeStyle = 'rgba(0, 0, 0, 0.8)';
+                ctx.strokeRect(
+                    i * 16 * scale,
+                    j * 16 * scale,
+                    16 * scale,
+                    16 * scale);
+
+
+            }
+        }
+
+
+        ctx.restore();
+    }
+}
+
 export class BattlefieldsDrawer {
 
     private images: Record<string, HTMLImageElement> = {};
@@ -179,28 +299,38 @@ export class PlayerSpriteDrawer {
     constructor() {
     }
 
-    draw(ctx: CanvasRenderingContext2D, position: Position, movedOffset: Position, scale: number, bgWidth: number, bgHeight: number, sprite: string, moving: boolean) {
+
+    draw(ctx: CanvasRenderingContext2D, scale: number, sprite: string, moving: boolean,
+         bgWidth: number, bgHeight: number, bgRenderedW: number, bgRenderedH: number,
+         position: Position, movedOffset: Position) {
 
         let image = this.images[sprite];
         if (image && image.complete) {
-            this.drawImage(ctx, image, position, movedOffset, scale, bgWidth, bgHeight, sprite, moving);
+            this.drawImage(ctx, image, scale, moving,
+                bgWidth, bgHeight, bgRenderedW, bgRenderedH, position, movedOffset);
         } else {
             image = new Image();
             image.src = sprite;
             image.onload = () => {
                 this.images[sprite] = image;
-                this.drawImage(ctx, image, position, movedOffset, scale, bgWidth, bgHeight, sprite, moving);
             }
         }
     }
 
-    private drawImage(ctx: CanvasRenderingContext2D, image: HTMLImageElement, position: Position, movedOffset: Position, scale: number, bgWidth: number, bgHeight: number, sprite: string, moving: boolean) {
+    private drawImage(ctx: CanvasRenderingContext2D, image: HTMLImageElement, scale: number, moving: boolean,
+                      bgWidth: number, bgHeight: number, bgRenderedW: number, bgRenderedH: number,
+                      position: Position, movedOffset: Position) {
+        console.log(ctx.canvas.width, ctx.canvas.height);
 
-        let scaledBgWidth = bgWidth * scale;
-        let scaledBgHeight = bgHeight * scale;
         // center
-        let x = ctx.canvas.width / 2 - scaledBgWidth / 2;
-        let y = ctx.canvas.height / 2 - scaledBgHeight / 2;
+        let x = ctx.canvas.width / 2 - bgRenderedW / 2;
+        let y = ctx.canvas.height / 2 - bgRenderedH / 2;
+
+        let positionInPx = new Position(
+            (16 * scale) * position.x,
+            (16 * scale) * position.y
+        )
+        console.log(positionInPx);
 
         if (moving) {
             if (this.frames.max > 1) {
@@ -222,12 +352,13 @@ export class PlayerSpriteDrawer {
             0,
             image.width / this.frames.max,
             image.height,
-            x + (position.x),
-            y + (position.y) - 10,
+            ctx.canvas.width / 2 - (image.width / this.frames.max) * scale / 2,
+            ctx.canvas.height / 2 - (image.height) * scale / 2 - image.height / 2,
             (image.width / this.frames.max) * scale,
             image.height * scale
         );
     }
+
 }
 
 

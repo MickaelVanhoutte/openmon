@@ -10,9 +10,9 @@
 </div>
 
 <script lang="ts">
-    import AllyInfo from "./battle/AllyInfo.svelte";
-    import ActionBar from "./battle/ActionBar.svelte";
-    import EnemyInfo from "./battle/EnemyInfo.svelte";
+    import AllyInfo from "./battle/AllyInfo.sveltepp";
+    import ActionBar from "./battle/ActionBar.sveltepp";
+    import EnemyInfo from "./battle/EnemyInfo.sveltepp";
     import type {BattleState} from "../js/battle/battle";
 
 

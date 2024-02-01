@@ -1,9 +1,5 @@
 import {OpenMap} from "../maps";
-
-const background = new Image();
-background.src = 'src/assets/maps/test-map.png';
-const foreground = new Image();
-foreground.src = 'src/assets/maps/test-map-foreground.png';
+import {Position} from "../../sprites/drawers";
 
 const monsters = [
     95
@@ -52,4 +48,4 @@ const battles = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
-export const testMap = new OpenMap(background, foreground, 20, 20, collisions, battles, monsters, [3, 6]);
+export const testMap = OpenMap.fromScratch('src/assets/maps/test-map.png', 'src/assets/maps/test-map-foreground.png', 20, 20, collisions, battles, monsters, new Position(11, 11), [3, 6]);

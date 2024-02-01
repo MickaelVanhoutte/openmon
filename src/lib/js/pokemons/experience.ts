@@ -1,4 +1,5 @@
-import {PokemonInstance} from "./pokemon";
+import type {PokemonInstance} from "./pokedex";
+
 
 export class ExperienceCalculator {
 
