@@ -2,7 +2,7 @@
 
     <div class="name-lvl">
         <span>{battleState?.opponentCurrentMonster?.name}</span>
-        <span>Lv {level}</span>
+        <span>Lv {battleState?.playerCurrentMonster.level}</span>
     </div>
 
     <div class="status">
@@ -20,18 +20,19 @@
 <script lang="ts">
 
     import {BATTLE_STATE, BattleState} from "../../js/battle/battle";
-    import {onMount} from "svelte";
 
     let battleState: BattleState | undefined;
 
-    BATTLE_STATE.subscribe(value => {
-        battleState = value.state;
-    });
+    let currentHp = 0;
+    let percent = 0;
 
-    $:level = battleState?.playerCurrentMonster.level;
-    $:hp = battleState?.playerCurrentMonster.currentHp;
-    $:maxHp = battleState?.playerCurrentMonster.currentStats.hp;
-    $:percent = Math.floor(battleState?.opponentCurrentMonster?.currentHp * 100 / battleState?.opponentCurrentMonster?.currentStats?.hp);
+
+    BATTLE_STATE.subscribe(value => {
+        console.log('battle state changed', value.state);
+        battleState = value.state;
+        currentHp = battleState?.opponentCurrentMonster?.currentHp || 0;
+        percent = Math.floor(currentHp * 100 / battleState?.opponentCurrentMonster?.currentStats.hp);
+    });
 
 </script>
 
@@ -78,7 +79,7 @@
 
     font-size: 46px;
 
-    animation: appear .5s ease-in forwards,  bounce 2s ease-in-out infinite;
+    animation: appear .5s ease-in forwards, bounce 2s ease-in-out infinite;
 
     .name-lvl {
       display: flex;

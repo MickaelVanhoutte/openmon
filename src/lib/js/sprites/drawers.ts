@@ -32,8 +32,6 @@ export class PokemonSpriteDrawer {
     draw(ctx: CanvasRenderingContext2D, pokemon: PokemonInstance, type: "front" | "back", animate: boolean = true, frameOffset: number = 0, xOffset: number = 0, yOffset: number = 0) {
         if (pokemon.sprites) {
 
-            //this.updateScale(ctx.canvas.width, ctx.canvas.height);
-
             let spriteGroup = pokemon.gender !== 'unknown' ? pokemon.sprites[pokemon.gender][type] : pokemon.sprites['male'][type];
             let entry = 'frame'
             if (pokemon.isShiny) {
@@ -68,12 +66,22 @@ export class PokemonSpriteDrawer {
                 }
             }
 
-            this.goingDown = this.animateFrames <= 10;
-            this.yOffset = this.goingDown ? this.yOffset + 1 : this.yOffset - 1;
-            this.animateFrames++;
-            if (this.animateFrames >= 20) {
-                this.animateFrames = 0;
+            if (animate && !pokemon.fainted) {
+                this.goingDown = this.animateFrames <= 10;
+                this.yOffset = this.goingDown ? this.yOffset + 1 : this.yOffset - 1;
+                this.animateFrames++;
+                if (this.animateFrames >= 20) {
+                    this.animateFrames = 0;
+                }
             }
+            if (pokemon.fainted) {
+                this.yOffset += 25;
+                this.animateFrames++;
+                if (this.animateFrames >= 50) {
+                    this.animateFrames = 0;
+                }
+            }
+
 
             if (this.currentImage?.complete) {
                 let position = this.getPosition(ctx, type, xOffset, yOffset);
@@ -84,7 +92,7 @@ export class PokemonSpriteDrawer {
                     this.dimensions.width,
                     this.dimensions.height,
                     position.x,
-                    position.y + (animate ? this.yOffset : 0),
+                    position.y + (animate || pokemon.fainted ? this.yOffset : 0),
                     this.dimensions.width * this.spriteScale,
                     this.dimensions.height * this.spriteScale);
 
