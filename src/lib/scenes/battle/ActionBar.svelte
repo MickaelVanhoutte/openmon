@@ -3,7 +3,7 @@
     <div class="info">
         <div class="_inner">
             {#if !moveOpened}
-                {battleState?.currentMessage?.toUpperCase()}
+                {currentMessage?.toUpperCase()}
             {:else}
                 <div class="move-desc">
                     <p>{battleState?.playerCurrentMonster?.moves[selectedMoveIdx].description}</p>
@@ -59,8 +59,7 @@
 
 <script lang="ts">
 
-    import {BATTLE_STATE, BattleState} from "../../js/battle/battle";
-    import {Attack, RunAway} from "../../js/battle/battle";
+    import {Attack, BATTLE_STATE, BattleState, RunAway} from "../../js/battle/battle";
     import {onMount} from "svelte";
 
     let moveOpened = false;
@@ -73,7 +72,20 @@
         battleState = value.state;
     });
 
-    $:disabled = (battleState && !battleState.isPlayerTurn) || false;
+    let currentMessage = '';
+    battleState?.currentMessage.subscribe(value => {
+        console.log('new battleStackMessages change', value);
+        currentMessage = value;
+    });
+
+    let disabled = false;
+    battleState?.isPlayerTurn.subscribe(value => {
+        console.log('new battleTurn change', value);
+        disabled = !value;
+    });
+
+
+    //$:disabled = (battleState && !battleState.isPlayerTurn) || false;
 
     let selectedMoveIdx = 0;
     let selectedOptionIdx = 0;

@@ -189,7 +189,6 @@
     }
 
     function worldActionsListener(event: KeyboardEvent) {
-        console.log(event.key);
         switch (event.key) {
             case 'Escape':
                 menuOpened = !menuOpened;

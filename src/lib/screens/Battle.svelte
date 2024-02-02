@@ -42,7 +42,7 @@
     let battleLoopContext = {
         fps: 12,
         then: Date.now(),
-        fpsInterval: 1000 / 12,
+        fpsInterval: 1000 / 24,
         goDown: true,
         frameElapsed: 0,
         id: 0,

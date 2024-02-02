@@ -9,6 +9,7 @@
                     bind:pokedex={pokedex}>
             </Battle>
 
+            <!-- UI -->
             <EnemyInfo />
             <AllyInfo />
             <ActionBar />
@@ -31,7 +32,7 @@
     <div class="battleStart"></div>
 {/if}
 
-{#if battleState && battleState.ending}
+{#if endingBattle}
     <div class="battleEnd"></div>
 {/if}
 
@@ -67,13 +68,18 @@
 
     let saveContext = new SaveContext(saves);
 
-    //let battleContext: BattleState | undefined;
-
     let battleState: BattleState | undefined;
+    let endingBattle = false;
 
     BATTLE_STATE.subscribe(value => {
         console.log('battle state', value);
         battleState = value.state;
+        if(value.state && value.state.ending) {
+            endingBattle = true;
+            setTimeout(() => {
+                endingBattle = false;
+            }, 4000);
+        }
     });
 
     // todo passer image scale
@@ -162,13 +168,15 @@
     position: absolute;
     top: 0;
     left: 0;
-    transition: opacity 0.5s ease-in-out;
-    z-index: 2;
-    animation: fade-out 2s ease-in-out;
+    z-index: 10;
+    animation: fade-out 4s ease-in-out;
   }
 
   @keyframes fade-out {
     0% {
+      opacity: 0;
+    }
+    50% {
       opacity: 1;
     }
     100% {
