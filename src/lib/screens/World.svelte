@@ -35,7 +35,6 @@
         then: Date.now(),
         fpsInterval: 1000 / 18,
         imageScale: 3,
-        movedOffset: new Position(0, 0),
         debug: false
     }
 
@@ -51,12 +50,15 @@
 
         if (elapsed > mainLoopContext.fpsInterval) {
             mainLoopContext.then = now - (elapsed % mainLoopContext.fpsInterval);
+            let positionOnMap = new Position(
+                context.map.playerInitialPosition.x + context.map.playerMovedOffset.x,
+                context.map.playerInitialPosition.y + context.map.playerMovedOffset.y);
 
             ctx.fillStyle = 'black';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             ctx.save();
-            drawer.draw(ctx, context.map, mainLoopContext.movedOffset, mainLoopContext.imageScale, mainLoopContext.debug);
+            drawer.draw(ctx, context.map, mainLoopContext.imageScale, mainLoopContext.debug);
 
             context.player.draw(ctx, mainLoopContext.imageScale);
             //currentMap.drawForeground(ctx, movedOffset); // FIXME non transparent tiles
@@ -73,7 +75,7 @@
             // Check for battle
             if (keys.down.pressed || keys.up.pressed || keys.left.pressed || keys.right.pressed) {
 
-                if (context.map.hasBattleZoneAt(context.player.positionOnMap) && Math.random() < 0.1) {
+                if (context.map.hasBattleZoneAt(positionOnMap) && Math.random() < 0.1) {
                     let monster = context.map.randomMonster();
                     window.cancelAnimationFrame(mainLoopContext.id);
                     initiateBattle(pokedex.findById(monster.id).result.instanciate(monster.level));
@@ -83,51 +85,50 @@
             // Move player
             if (keys.down.pressed && lastKey.key === 'ArrowDown') {
 
-                if (context.map.hasBoundaryAt(new Position(context.player.positionOnMap.x, context.player.positionOnMap.y + 1))) {
+                if (context.map.hasBoundaryAt(new Position(positionOnMap.x, positionOnMap.y + 1))) {
                     allowedMove = false;
                 }
 
                 context.player.moving = true;
                 context.player.direction = 'down';
                 if (allowedMove) {
-                    mainLoopContext.movedOffset.y++;
+                    context.map.playerMovedOffset.y++;
                 }
             }
             if (keys.up.pressed && lastKey.key === 'ArrowUp') {
 
-                if (context.map.hasBoundaryAt(new Position(context.player.positionOnMap.x, context.player.positionOnMap.y - 1))) {
+                if (context.map.hasBoundaryAt(new Position(positionOnMap.x, positionOnMap.y - 1))) {
                     allowedMove = false;
                 }
                 context.player.moving = true
                 context.player.direction = 'up';
                 if (allowedMove) {
-                    mainLoopContext.movedOffset.y--;
+                    context.map.playerMovedOffset.y--;
                 }
             }
             if (keys.left.pressed && lastKey.key === 'ArrowLeft') {
 
-                if (context.map.hasBoundaryAt(new Position(context.player.positionOnMap.x - 1, context.player.positionOnMap.y))) {
+                if (context.map.hasBoundaryAt(new Position(positionOnMap.x - 1, positionOnMap.y))) {
                     allowedMove = false;
                 }
 
                 context.player.moving = true;
                 context.player.direction = 'left';
                 if (allowedMove) {
-                    mainLoopContext.movedOffset.x--;
+                    context.map.playerMovedOffset.x--;
                 }
             }
             if (keys.right.pressed && lastKey.key === 'ArrowRight') {
 
-                if (context.map.hasBoundaryAt(new Position(context.player.positionOnMap.x + 1, context.player.positionOnMap.y))) {
+                if (context.map.hasBoundaryAt(new Position(positionOnMap.x + 1, positionOnMap.y))) {
                     allowedMove = false;
                 }
                 context.player.moving = true;
                 context.player.direction = 'right';
                 if (allowedMove) {
-                    mainLoopContext.movedOffset.x++;
+                    context.map.playerMovedOffset.x++;
                 }
             }
-            context.player.updatePosition(context.map.playerInitialPosition, mainLoopContext.movedOffset);
 
             if (mainLoopContext.debug) {
                 let fps = Math.round(1 / elapsed * 1000);
@@ -136,10 +137,10 @@
                 ctx.fillRect(0, 0, 160, 60);
 
                 ctx.fillStyle = 'white';
-                ctx.fillText(`Player position: ${context.player.positionOnMap.x}, ${context.player.positionOnMap.y}`, 10, 10);
+                ctx.fillText(`Player position: ${positionOnMap.x}, ${positionOnMap.y}`, 10, 10);
                 ctx.fillText(`Player moving: ${context.player.moving}`, 10, 20);
                 ctx.fillText(`Player direction: ${context.player.direction}`, 10, 30);
-                ctx.fillText(`Player offset: ${mainLoopContext.movedOffset.x}, ${mainLoopContext.movedOffset.y}`, 10, 40);
+                ctx.fillText(`Player offset: ${context.map.playerMovedOffset.x}, ${context.map.playerMovedOffset.y}`, 10, 40);
                 ctx.fillText(`fps: ${fps}`, 10, 50);
             }
         }
@@ -154,7 +155,7 @@
         setTimeout(() => {
             console.log('starting false');
             BATTLE_STATE.update(value => {
-                if (value.state){
+                if (value.state) {
                     value.state.starting = false;
                     value.state.pokemonsAppearing = true;
                 }
@@ -164,7 +165,7 @@
 
         setTimeout(() => {
             BATTLE_STATE.update(value => {
-                if (value.state){
+                if (value.state) {
                     value.state.pokemonsAppearing = false;
                 }
                 return value;
