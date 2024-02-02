@@ -2,7 +2,7 @@
 
     <div class="name-lvl">
         <span>{battleState?.opponentCurrentMonster?.name}</span>
-        <span>Lv {battleState?.playerCurrentMonster.level}</span>
+        <span>Lv {battleState?.opponentCurrentMonster.level}</span>
     </div>
 
     <div class="status">
@@ -79,7 +79,7 @@
 
     font-size: 46px;
 
-    animation: appear .5s ease-in forwards, bounce 2s ease-in-out infinite;
+    animation: appear .5s ease-in forwards/*, bounce 2s ease-in-out infinite*/;
 
     .name-lvl {
       display: flex;

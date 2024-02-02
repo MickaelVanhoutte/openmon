@@ -1,5 +1,6 @@
 import {PokemonInstance} from "../pokemons/pokedex";
 import type {OpenMap} from "../mapping/maps";
+import {Character} from "../player/player";
 
 
 export class Position {
@@ -25,11 +26,12 @@ export class PokemonSpriteDrawer {
     private animateFrames: number = 0;
     private goingDown: boolean = true;
     private yOffset = 0;
+    private offsetPx = 1;
 
     constructor() {
     }
 
-    draw(ctx: CanvasRenderingContext2D, pokemon: PokemonInstance, type: "front" | "back", animate: boolean = true, frameOffset: number = 0, xOffset: number = 0, yOffset: number = 0) {
+    draw(ctx: CanvasRenderingContext2D, pokemon: PokemonInstance, type: "front" | "back", animate: boolean = true, frameOffset: number = 0, reverse: boolean = false, xOffset: number = 0, yOffset: number = 0) {
         if (pokemon.sprites) {
 
             let spriteGroup = pokemon.gender !== 'unknown' ? pokemon.sprites[pokemon.gender][type] : pokemon.sprites['male'][type];
@@ -66,14 +68,25 @@ export class PokemonSpriteDrawer {
                 }
             }
 
+            console.log(this.yOffset);
+            /*this.goingDown = animate && this.animateFrames <= 10;
             if (animate && !pokemon.fainted) {
-                this.goingDown = this.animateFrames <= 10;
-                this.yOffset = this.goingDown ? this.yOffset + 1 : this.yOffset - 1;
+                this.yOffset = this.goingDown ? this.animateFrames : 0 - this.animateFrames;
                 this.animateFrames++;
                 if (this.animateFrames >= 20) {
                     this.animateFrames = 0;
                 }
+            }*/
+
+            if(animate && !pokemon.fainted) {
+                this.yOffset += this.offsetPx;
+
+                if (this.yOffset < 0 || this.yOffset > 10) {
+                    this.offsetPx = this.offsetPx * -1;
+                }
             }
+
+
             if (pokemon.fainted) {
                 this.yOffset += 25;
                 this.animateFrames++;
@@ -81,7 +94,6 @@ export class PokemonSpriteDrawer {
                     this.animateFrames = 0;
                 }
             }
-
 
             if (this.currentImage?.complete) {
                 let position = this.getPosition(ctx, type, xOffset, yOffset);
@@ -92,7 +104,7 @@ export class PokemonSpriteDrawer {
                     this.dimensions.width,
                     this.dimensions.height,
                     position.x,
-                    position.y + (animate || pokemon.fainted ? this.yOffset : 0),
+                    position.y + this.yOffset,
                     this.dimensions.width * this.spriteScale,
                     this.dimensions.height * this.spriteScale);
 
@@ -228,6 +240,12 @@ export class BattlefieldsDrawer {
 
     private images: Record<string, HTMLImageElement> = {};
 
+    private player?: Character;
+
+    private playerBattleImage?: HTMLImageElement;
+
+    private frames = {max: 5, val: 0, elapsed: 0};
+
     private battlefields = {
         'default': 'src/assets/battle/battle-default.png',
         'grass': 'src/assets/battle/battle-grass.png',
@@ -241,25 +259,26 @@ export class BattlefieldsDrawer {
         height: 112,
     }
 
-    constructor() {
+    constructor(player: Character | undefined) {
+        this.player = player;
     }
 
     public draw(ctx: CanvasRenderingContext2D, animationStart: boolean, battlefield: 'default' | 'grass' | 'water' | 'rock' | 'rainy' = 'default') {
 
         let image = this.images[battlefield];
         if (image && image.complete) {
-            this.drawImage(ctx, image);
+            this.drawImage(ctx, image, animationStart);
         } else {
             image = new Image();
             image.src = this.battlefields[battlefield];
             image.onload = () => {
                 this.images[battlefield] = image;
-                ctx.drawImage(image, 0, 0, ctx.canvas.width, ctx.canvas.height);
+                this.drawImage(ctx, image, animationStart);
             }
         }
     }
 
-    private drawImage(ctx: CanvasRenderingContext2D, image: HTMLImageElement) {
+    private drawImage(ctx: CanvasRenderingContext2D, image: HTMLImageElement, animationStart: boolean) {
         ctx.drawImage(image,
             0,
             0,
@@ -269,6 +288,39 @@ export class BattlefieldsDrawer {
             0,
             ctx.canvas.width,
             ctx.canvas.height * 0.75)
+
+        if (animationStart && this.player) {
+
+            if (this.playerBattleImage && this.playerBattleImage.complete && this.frames.val < this.frames.max) {
+                this.frames.elapsed += 1;
+
+                if (this.frames.elapsed % 6 === 0) {
+                    this.frames.val += 1
+                }
+                this.drawPlayerAnimation(ctx, this.playerBattleImage, this.frames.val);
+            } else {
+                let image = new Image();
+                image.src = this.player.sprites.battle;
+                image.onload = () => {
+                    this.playerBattleImage = image;
+                }
+            }
+
+        }
+    }
+
+    private drawPlayerAnimation(ctx: CanvasRenderingContext2D, playerBattleImage: HTMLImageElement, val: number) {
+        ctx.drawImage(
+            playerBattleImage,
+            this.frames.val * (playerBattleImage.width / this.frames.max),
+            0,
+            playerBattleImage.width / this.frames.max - 1,
+            playerBattleImage.height,
+            ctx.canvas.width / 100 * 5,
+            ctx.canvas.height / 4 * 3 - playerBattleImage.height * 5,
+            (playerBattleImage.width / this.frames.max) * 5,
+            playerBattleImage.height * 5
+        );
     }
 }
 

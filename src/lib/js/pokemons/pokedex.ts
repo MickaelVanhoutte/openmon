@@ -26,8 +26,8 @@ export class Pokedex {
                     pokemon.description,
                     pokemon.isLegendary,
                     pokemon.captureRate,
-                    pokemon.baseXp,
                     pokemon.experienceGrowth,
+                    pokemon.baseXp,
                     pokemon.percentageMale,
                     pokemon.evolution,
                     pokemon.sprites
@@ -370,6 +370,7 @@ export class PokemonInstance extends PokedexEntry {
             // keep currentStats
             this.evs = fromInstance.evs;
             this.ivs = fromInstance.ivs;
+            this.updateCurrentStats();
             this.level = fromInstance.level;
             this.currentXp = fromInstance.currentXp;
             this.currentHp = fromInstance.currentHp;
@@ -378,8 +379,7 @@ export class PokemonInstance extends PokedexEntry {
             this.gender = fromInstance.gender;
             this.evsToDistribute = fromInstance.evsToDistribute;
             this.heldItem = fromInstance.heldItem;
-            this.updateCurrentStats();
-            console.log('fromInstance', this);
+
         } else {
             this.currentAbility = this.abilities[Math.floor(Math.random() * this.abilities.length)];
             this.evs = new Stats();
@@ -393,6 +393,7 @@ export class PokemonInstance extends PokedexEntry {
             );
             this.level = level || 5;
             this.currentXp = 0;
+
             this.updateCurrentStats();
             this.currentHp = this.currentStats.hp;
             this.moves = this.selectLatestMoves(pokedexEntry);
@@ -401,7 +402,6 @@ export class PokemonInstance extends PokedexEntry {
 
             // random gender based on percentageMale attr
             this.gender = this.percentageMale ? (Math.random() * this.percentageMale <= this.percentageMale ? 'male' : 'female') : 'unknown';
-            console.log('new', this);
         }
     }
 
@@ -456,6 +456,34 @@ export class PokemonInstance extends PokedexEntry {
         }
     }
 
+    public addXpResult(xp: number, evs: number): { levelup: boolean, xpLeft: number } {
+        this.evsToDistribute += this.totalEvs + evs <= 255 ? evs : (this.totalEvs + evs) - 255;
+        if (this.level >= 100) {
+            return {levelup: false, xpLeft: 0};
+        }
+
+        let result = {
+            levelup: false,
+            xpLeft: 0
+        }
+
+        let xpLeft = 0;
+        if (this.xpToNextLevel < xp) {
+            xpLeft = xp - this.xpToNextLevel;
+            const xpToAddNow = xp - xpLeft;
+            this.currentXp += xpToAddNow;
+            result.xpLeft = xpLeft
+        } else {
+            this.currentXp += xp;
+            result.xpLeft = 0;
+        }
+
+        if (this.currentXp >= this.xpToNextLevel) {
+            result.levelup = true;
+        }
+        return result;
+    }
+
     public addEvs(evs: Stats) {
         let total = this.totalEvs;
 
@@ -483,7 +511,6 @@ export class PokemonInstance extends PokedexEntry {
         // TODO
         //this.checkForNewMoves();
         //this.checkForEvolutions();
-        this.xpToNextLevel = EXPERIENCE_CHART.howMuchINeed(this.level, this.experienceGrowth);
     }
 
     private checkForNewMoves() {
@@ -508,6 +535,7 @@ export class PokemonInstance extends PokedexEntry {
 
     public updateCurrentStats() {
         this.currentStats = this.fromBaseStats();
+        this.xpToNextLevel = EXPERIENCE_CHART.howMuchINeed(this.level, this.growthRateId);
     }
 
     private selectLatestMoves(pokedexEntry: PokedexEntry) {

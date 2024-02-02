@@ -42,7 +42,7 @@
             'src/assets/characters/hero_male_back.png',
             'src/assets/characters/hero_male_left.png',
             'src/assets/characters/hero_male_right.png',
-            'src/assets/characters/hero_male_back.png'));
+            'src/assets/characters/hero_male_battle.png'));
         player.monsters.push(pokedex.findById(6).result.instanciate(5));
         let save = new Save(player, testMap);
         saveContext.saves.push(save);

@@ -48,4 +48,4 @@ const battles = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
-export const testMap = OpenMap.fromScratch('src/assets/maps/test-map.png', 'src/assets/maps/test-map-foreground.png', 20, 20, collisions, battles, monsters, new Position(11, 11), [3, 6]);
+export const testMap = OpenMap.fromScratch('src/assets/maps/test-map.png', 'src/assets/maps/test-map-foreground.png', 20, 20, collisions, battles, monsters, new Position(11, 11), new Position(0,0),[3, 6]);

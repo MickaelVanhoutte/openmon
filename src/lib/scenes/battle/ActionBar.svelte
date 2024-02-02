@@ -6,12 +6,25 @@
                 {currentMessage?.toUpperCase()}
             {:else}
                 <div class="move-desc">
-                    <p>{battleState?.playerCurrentMonster?.moves[selectedMoveIdx].description}</p>
-                    <p>{battleState?.playerCurrentMonster?.moves[selectedMoveIdx].currentPp}
-                        / {battleState?.playerCurrentMonster?.moves[selectedMoveIdx].pp}</p>
-                    <p>{battleState?.playerCurrentMonster?.moves[selectedMoveIdx].category}</p>
-                    <p>{battleState?.playerCurrentMonster?.moves[selectedMoveIdx].power}
-                        | {battleState?.playerCurrentMonster?.moves[selectedMoveIdx].accuracy} %</p>
+                    <div class="_desc">
+                        <p>
+                            {
+                                battleState?.playerCurrentMonster?.moves[selectedMoveIdx].description
+                                    .replace("$effect_chance", battleState?.playerCurrentMonster?.moves[selectedMoveIdx].effectChance)
+                            }
+                        </p>
+                    </div>
+                    <div class="stats">
+                        <p> PP :
+                            {battleState?.playerCurrentMonster?.moves[selectedMoveIdx].currentPp}
+                            / {battleState?.playerCurrentMonster?.moves[selectedMoveIdx].pp}
+                        </p>
+                        <p> Type : {battleState?.playerCurrentMonster?.moves[selectedMoveIdx].category}</p>
+                        <p> Power/ACC
+                            {battleState?.playerCurrentMonster?.moves[selectedMoveIdx].power}
+                            / {battleState?.playerCurrentMonster?.moves[selectedMoveIdx].accuracy} %
+                        </p>
+                    </div>
                 </div>
             {/if}
         </div>
@@ -66,26 +79,17 @@
     let show = false;
 
     let battleState: BattleState | undefined;
+    let currentMessage = '';
+    let disabled = false;
 
     BATTLE_STATE.subscribe(value => {
         console.log('battle state changed', value.state);
         battleState = value.state;
+        if (value.state) {
+            currentMessage = value.state.currentMessageV;
+            disabled = !value.state.isPlayerTurnV;
+        }
     });
-
-    let currentMessage = '';
-    battleState?.currentMessage.subscribe(value => {
-        console.log('new battleStackMessages change', value);
-        currentMessage = value;
-    });
-
-    let disabled = false;
-    battleState?.isPlayerTurn.subscribe(value => {
-        console.log('new battleTurn change', value);
-        disabled = !value;
-    });
-
-
-    //$:disabled = (battleState && !battleState.isPlayerTurn) || false;
 
     let selectedMoveIdx = 0;
     let selectedOptionIdx = 0;
@@ -210,18 +214,25 @@
         .move-desc {
           text-transform: initial;
           font-size: 46px;
-          display: flex;
-          flex-wrap: wrap;
-          gap: 16px;
           word-break: break-word;
           box-sizing: border-box;
           padding: 0 20px;
 
+          display: flex;
+          align-items: center;
+          gap: 16px;
+
           p {
-            flex: 45%;
             margin: 0;
           }
 
+          ._desc {
+            width: 50%;
+          }
+
+          .stats {
+            width: 50%;
+          }
         }
       }
     }
