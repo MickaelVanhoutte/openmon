@@ -1,20 +1,29 @@
+<Menu bind:menuOpened bind:player={context.player}/>
+
 <script lang="ts">
 
     import {keydownListener, keys, keyupListener, lastKey} from "../js/commands/keyboard";
     import {SelectedSave} from "../js/saves/saves";
     import {Position, WoldSpriteDrawer} from "../js/sprites/drawers";
-    import {BattleState} from "../js/battle/battle";
+    import {BATTLE_STATE, BattleContext, BattleState} from "../js/battle/battle";
     import {Pokedex} from "../js/pokemons/pokedex";
     import {PokemonInstance} from "../js/pokemons/pokedex";
     import {Character} from "../js/player/player";
     import {onDestroy, onMount} from "svelte";
+    import Menu from "../scenes/main/Menu.svelte";
 
     export let context: SelectedSave;
 
-    export let battleContext: BattleState;
+    let battleState: BattleState | undefined;
+
+    BATTLE_STATE.subscribe(value => {
+        battleState = value.state;
+    });
     export let canvas: HTMLCanvasElement;
 
     export let pokedex: Pokedex;
+
+    let menuOpened = false;
 
     let ctx = canvas.getContext('2d');
     ctx.font = "12px Arial";
@@ -56,7 +65,7 @@
             context.player.moving = false;
 
             // Stop if initiated
-            if (battleContext) {
+            if (battleState?.starting) {
                 return;
             }
 
@@ -138,19 +147,31 @@
 
     function initiateBattle(opponent: PokemonInstance | Character) {
 
-        battleContext = new BattleState(context.player, opponent);
-
-        unbindKeyboard(context.player);
+        let bContext = new BattleContext();
+        bContext.state = new BattleState(context.player, opponent)
+        BATTLE_STATE.set(bContext);
 
         setTimeout(() => {
-            battleContext.starting = false;
+            console.log('starting false');
+            BATTLE_STATE.update(value => {
+                if (value.state){
+                    value.state.starting = false;
+                    value.state.pokemonsAppearing = true;
+                }
+                return value;
+            });
         }, 2000);
 
         setTimeout(() => {
-            battleContext.pokemonsAppearing = false;
-            console.log('appearing false');
+            BATTLE_STATE.update(value => {
+                if (value.state){
+                    value.state.pokemonsAppearing = false;
+                }
+                return value;
+            });
         }, 5000);
 
+        unbindKeyboard(context.player);
     }
 
     function bindKeyboard(player: Character) {
@@ -171,7 +192,7 @@
         console.log(event.key);
         switch (event.key) {
             case 'Escape':
-                //menuOpened = !menuOpened;
+                menuOpened = !menuOpened;
                 break;
             case 'A':
                 //TODO

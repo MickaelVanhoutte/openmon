@@ -1,8 +1,8 @@
 <div class="enemy-info">
 
     <div class="name-lvl">
-        <span>{battleContext?.opponentCurrentMonster?.name}</span>
-        <span>Lv {battleContext?.opponentCurrentMonster?.level}</span>
+        <span>{battleState?.opponentCurrentMonster?.name}</span>
+        <span>Lv {level}</span>
     </div>
 
     <div class="status">
@@ -19,12 +19,19 @@
 
 <script lang="ts">
 
-    import {BattleState} from "../../js/battle/battle";
+    import {BATTLE_STATE, BattleState} from "../../js/battle/battle";
     import {onMount} from "svelte";
 
-    export let battleContext: BattleState;
+    let battleState: BattleState | undefined;
 
-    $: percent = Math.floor(battleContext?.opponentCurrentMonster?.currentHp * 100 / battleContext?.opponentCurrentMonster?.currentStats?.hp);
+    BATTLE_STATE.subscribe(value => {
+        battleState = value.state;
+    });
+
+    $:level = battleState?.playerCurrentMonster.level;
+    $:hp = battleState?.playerCurrentMonster.currentHp;
+    $:maxHp = battleState?.playerCurrentMonster.currentStats.hp;
+    $:percent = Math.floor(battleState?.opponentCurrentMonster?.currentHp * 100 / battleState?.opponentCurrentMonster?.currentStats?.hp);
 
 </script>
 

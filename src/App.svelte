@@ -3,13 +3,21 @@
 {#if saveContext && pokedex?.ready}
     {#if context}
 
-        <svelte:component this="{battleContext && !battleContext?.starting ? Battle : World}"
-                          bind:context
-                          bind:battleContext
-                          bind:canvas={canvas}
-                          bind:pokedex={pokedex}
-        >
-        </svelte:component>
+        {#if battleState && !battleState.starting}
+            <Battle bind:context
+                    bind:canvas={canvas}
+                    bind:pokedex={pokedex}>
+            </Battle>
+
+            <EnemyInfo />
+            <AllyInfo />
+            <ActionBar />
+        {:else}
+            <World bind:context
+                   bind:canvas={canvas}
+                   bind:pokedex={pokedex}/>
+        {/if}
+
     {:else}
         <svelte:component this="{saveContext?.saves.length > 0 && !saveContext?.fresh ? LoadSave : PlayerCreation}"
                           bind:saveContext
@@ -19,11 +27,11 @@
     {/if}
 {/if}
 
-{#if battleContext && battleContext?.starting}
-<div class="battleStart"></div>
+{#if battleState && battleState?.starting}
+    <div class="battleStart"></div>
 {/if}
 
-{#if battleContext && battleContext.ending}
+{#if battleState && battleState.ending}
     <div class="battleEnd"></div>
 {/if}
 
@@ -40,7 +48,10 @@
     import pokedexJson from "./assets/data/final/pokedex.json";
     import {Save, SaveContext} from "./lib/js/saves/saves";
     import {onMount} from "svelte";
-    import {BattleState} from "./lib/js/battle/battle";
+    import {BATTLE_STATE, BattleContext, BattleState} from "./lib/js/battle/battle";
+    import ActionBar from "./lib/scenes/battle/ActionBar.svelte";
+    import AllyInfo from "./lib/scenes/battle/AllyInfo.svelte";
+    import EnemyInfo from "./lib/scenes/battle/EnemyInfo.svelte";
 
     export let canvas;
 
@@ -49,7 +60,6 @@
     let saves: Save[] = localStorage.getItem('saves') && JSON.parse(localStorage.getItem('saves')).map((save: any) => {
         Object.setPrototypeOf(save, Save.prototype);
         save.setPrototypes();
-        console.log(save)
         return save;
     }) || [];
 
@@ -57,7 +67,14 @@
 
     let saveContext = new SaveContext(saves);
 
-    export let battleContext: BattleState;
+    //let battleContext: BattleState | undefined;
+
+    let battleState: BattleState | undefined;
+
+    BATTLE_STATE.subscribe(value => {
+        console.log('battle state', value);
+        battleState = value.state;
+    });
 
     // todo passer image scale
     let imageScale = 3;
@@ -75,12 +92,11 @@
             imageScale = 5;
         }
 
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
 
         tileSizeInPx = 16 * imageScale;
     }
-
 
 
     window.addEventListener('resize', () => {
