@@ -11,11 +11,10 @@ export class Character {
     public moving: boolean = false;
     public running: boolean = false;
     public direction: 'up' | 'down' | 'left' | 'right' = 'down';
-    public positionOnMap: Position;
 
     private drawer: PlayerSpriteDrawer;
 
-    constructor(name: string, gender: 'MALE' | 'FEMALE', sprites: PlayerSprites, monsters: PokemonInstance[], bag: any[], lvl: number, moving: boolean, direction: 'up' | 'down' | 'left' | 'right', positionOnMap: Position) {
+    constructor(name: string, gender: 'MALE' | 'FEMALE', sprites: PlayerSprites, monsters: PokemonInstance[], bag: any[], lvl: number, moving: boolean, direction: 'up' | 'down' | 'left' | 'right') {
         this.name = name;
         this.gender = gender;
         this.sprites = sprites;
@@ -24,12 +23,10 @@ export class Character {
         this.lvl = lvl;
         this.moving = moving;
         this.direction = direction;
-        this.positionOnMap = positionOnMap;
         this.drawer = new PlayerSpriteDrawer();
     }
 
     public static fromScratch(name: string, gender: 'MALE' | 'FEMALE', sprites: PlayerSprites): Character {
-        let positionOnMap = new Position(0, 0);
         return new Character(
             name,
             gender,
@@ -39,7 +36,6 @@ export class Character {
             1,
             false,
             'down',
-            positionOnMap
         )
     }
 
@@ -53,13 +49,11 @@ export class Character {
             character.lvl,
             character.moving,
             character.direction,
-            character.positionOnMap
         );
     }
 
     public setPrototypes(): Character {
         Object.setPrototypeOf(this.sprites, PlayerSprites.prototype);
-        Object.setPrototypeOf(this.positionOnMap, Position.prototype);
         this.monsters.forEach((monster) => {
             Object.setPrototypeOf(monster, PokemonInstance.prototype);
         });
@@ -73,11 +67,6 @@ export class Character {
 
     public draw(ctx: CanvasRenderingContext2D, scale: number) {
         this.drawer.draw(ctx, scale, this.sprite, this.moving);
-    }
-
-    updatePosition(initial: Position, movedOffset: Position) {
-        this.positionOnMap.x = initial.x + movedOffset.x;
-        this.positionOnMap.y = initial.y + movedOffset.y;
     }
 }
 

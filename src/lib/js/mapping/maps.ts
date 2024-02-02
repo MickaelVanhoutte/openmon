@@ -20,11 +20,12 @@ export class OpenMap {
     public levelRange: number[] = [1, 100];
 
     public playerInitialPosition: Position = new Position(11, 11);
+    public playerMovedOffset: Position = new Position(0, 0);
 
     /*public startingX: number = 0;
     public startingY: number = 0;*/
 
-    constructor(background: string, foreground: string, width: number, height: number, collisions: Boundary[], battles: Boundary[], monsters: number[], playerInitialPosition: Position, levelRange: number[] = [1, 100]) {
+    constructor(background: string, foreground: string, width: number, height: number, collisions: Boundary[], battles: Boundary[], monsters: number[], playerInitialPosition: Position, playerMovedOffset: Position = new Position(), levelRange: number[] = [1, 100]) {
         this.background = background;
         this.foreground = foreground;
         this.width = width;
@@ -36,7 +37,7 @@ export class OpenMap {
         this.levelRange = levelRange;
     }
 
-    public static fromScratch(background: string, foreground: string, width: number, height: number, collisions: number[], battles: number[], monsters: number[], playerInitialPosition: Position = new Position(), levelRange: number[] = [1, 100]): OpenMap {
+    public static fromScratch(background: string, foreground: string, width: number, height: number, collisions: number[], battles: number[], monsters: number[], playerInitialPosition: Position = new Position(), playerMovedOffset: Position = new Position(), levelRange: number[] = [1, 100]): OpenMap {
         let collisionsCalc = OpenMap.initBoundaries(collisions, width);
         let battleZonesCalc = OpenMap.initBattlesZones(battles, width);
 
@@ -49,6 +50,7 @@ export class OpenMap {
             battleZonesCalc,
             monsters,
             playerInitialPosition,
+            playerMovedOffset,
             levelRange,
         )
     }
@@ -63,6 +65,7 @@ export class OpenMap {
             map.battleZones,
             map.monsters,
             map.playerInitialPosition,
+            map.playerMovedOffset,
             map.levelRange,
         )
     }

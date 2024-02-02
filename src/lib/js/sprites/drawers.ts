@@ -139,22 +139,22 @@ export class WoldSpriteDrawer {
     }
 
 
-    draw(ctx: CanvasRenderingContext2D, map: OpenMap, movedOffset: Position, scale: number, debug: boolean = true) {
+    draw(ctx: CanvasRenderingContext2D, map: OpenMap, scale: number, debug: boolean = true) {
         let image = this.images[map.background];
         if (image && image.complete) {
-            this.drawImage(ctx, image, map, movedOffset, scale, debug);
+            this.drawImage(ctx, image, map, scale, debug);
         } else {
             image = new Image();
             image.src = map.background;
             image.onload = () => {
                 this.images[map.background] = image;
-                this.drawImage(ctx, image, map, movedOffset, scale, debug);
+                this.drawImage(ctx, image, map, scale, debug);
             }
         }
     }
 
 
-    private drawImage(ctx: CanvasRenderingContext2D, image: HTMLImageElement, map: OpenMap, movedOffset: Position, scale: number, debug: boolean = false) {
+    private drawImage(ctx: CanvasRenderingContext2D, image: HTMLImageElement, map: OpenMap, scale: number, debug: boolean = false) {
 
         // initial on map = 11, 11
         let initialPosition = new Position(
@@ -169,8 +169,8 @@ export class WoldSpriteDrawer {
 
         // movedOffset
         let offsetInPx = new Position(
-            movedOffset.x * (16 * scale),
-            movedOffset.y * (16 * scale)
+            map.playerMovedOffset.x * (16 * scale),
+            map.playerMovedOffset.y * (16 * scale)
         )
 
 
