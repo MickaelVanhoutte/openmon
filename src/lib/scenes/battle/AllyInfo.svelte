@@ -23,37 +23,6 @@
     import {BATTLE_STATE, BattleState} from "../../js/battle/battle";
     import {derived} from "svelte/store";
 
-    /*let battleState: any;*/
-    /*  let currentHp = $battleState?.allyHp;
-
-      let percent = derived(currentHp, ($currentHp) => {
-          return Math.floor($currentHp * 100 / battleState?.playerCurrentMonster.currentStats.hp);
-      });*/
-
-    // $:percent = Math.floor(battleState?.playerCurrentMonster.currentHp * 100 / battleState?.playerCurrentMonster.currentStats.hp);
-
-
-    /*let currentHp = 0;
-    let percent = 0
-
-
-    BATTLE_STATE.subscribe(value => {
-        console.log('-------------------------------');
-        console.log('new battle state', value);
-        if (value.state) {
-            battleState = value?.state;
-            currentHp = value.state.allyHpV;
-            percent = Math.floor(currentHp * 100 / battleState?.playerCurrentMonster.currentStats.hp);
-        }
-    });*/
-
-    /* battleState?.allyHp.subscribe(value => {
-         console.log('-------------------------------')
-         console.log('new ally hp', value);
-         console.log('-------------------------------')
-         currentHp = value.value;
-     });*/
-
     let battleState: BattleState | undefined;
 
     let currentHp = 0;
@@ -113,7 +82,7 @@
 
     font-size: 46px;
 
-    animation: appear .5s ease-in forwards, bounce 2s ease-in-out infinite;
+    animation: appear .5s ease-in forwards/*, bounce 2s ease-in-out infinite*/;
 
     .name-lvl {
       display: flex;

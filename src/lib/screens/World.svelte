@@ -170,7 +170,7 @@
                 }
                 return value;
             });
-        }, 5000);
+        }, 3500);
 
         unbindKeyboard(context.player);
     }
