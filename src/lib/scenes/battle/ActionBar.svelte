@@ -3,15 +3,15 @@
     <div class="info">
         <div class="_inner">
             {#if !moveOpened}
-                {battleContext?.currentMessage?.toUpperCase()}
+                {battleState?.currentMessage?.toUpperCase()}
             {:else}
                 <div class="move-desc">
-                    <p>{battleContext?.playerCurrentMonster?.moves[selectedMoveIdx].description}</p>
-                    <p>{battleContext?.playerCurrentMonster?.moves[selectedMoveIdx].currentPp}
-                        / {battleContext?.playerCurrentMonster?.moves[selectedMoveIdx].pp}</p>
-                    <p>{battleContext?.playerCurrentMonster?.moves[selectedMoveIdx].category}</p>
-                    <p>{battleContext?.playerCurrentMonster?.moves[selectedMoveIdx].power}
-                        | {battleContext?.playerCurrentMonster?.moves[selectedMoveIdx].accuracy} %</p>
+                    <p>{battleState?.playerCurrentMonster?.moves[selectedMoveIdx].description}</p>
+                    <p>{battleState?.playerCurrentMonster?.moves[selectedMoveIdx].currentPp}
+                        / {battleState?.playerCurrentMonster?.moves[selectedMoveIdx].pp}</p>
+                    <p>{battleState?.playerCurrentMonster?.moves[selectedMoveIdx].category}</p>
+                    <p>{battleState?.playerCurrentMonster?.moves[selectedMoveIdx].power}
+                        | {battleState?.playerCurrentMonster?.moves[selectedMoveIdx].accuracy} %</p>
                 </div>
             {/if}
         </div>
@@ -20,7 +20,7 @@
 
     {#if moveOpened}
         <div class="moves">
-            {#each battleContext?.playerCurrentMonster?.moves as move, index}
+            {#each battleState?.playerCurrentMonster?.moves as move, index}
                 <button class="action-btn" style="--color:#dc5959" {disabled}
                         class:selected={selectedMoveIdx === index}
                         on:mouseover={() => selectedMoveIdx = index}
@@ -59,15 +59,21 @@
 
 <script lang="ts">
 
-    import {BattleState} from "../../js/battle/battle";
+    import {BATTLE_STATE, BattleState} from "../../js/battle/battle";
     import {Attack, RunAway} from "../../js/battle/battle";
     import {onMount} from "svelte";
 
-    export let battleContext: BattleState;
     let moveOpened = false;
     let show = false;
 
-    $:disabled = (battleContext && !battleContext.isPlayerTurn) || false;
+    let battleState: BattleState | undefined;
+
+    BATTLE_STATE.subscribe(value => {
+        console.log('battle state changed', value.state);
+        battleState = value.state;
+    });
+
+    $:disabled = (battleState && !battleState.isPlayerTurn) || false;
 
     let selectedMoveIdx = 0;
     let selectedOptionIdx = 0;
@@ -77,30 +83,37 @@
     }
 
     function escape() {
-        battleContext.selectAction(new RunAway(battleContext.playerCurrentMonster));
+        if (battleState) {
+            battleState.selectAction(new RunAway(battleState.playerCurrentMonster));
+        }
     }
 
     function selectMove(move) {
-        battleContext.selectAction(new Attack(move, 'opponent', battleContext.playerCurrentMonster));
-        moveOpened = false;
+        if (battleState) {
+            battleState.selectAction(new Attack(move, 'opponent', battleState.playerCurrentMonster));
+            moveOpened = false;
+        }
     }
 
     window.addEventListener('keydown', (e) => {
+        if (!battleState) {
+            return;
+        }
         if (e.key === 'ArrowUp') {
             if (moveOpened) {
-                selectedMoveIdx = selectedMoveIdx === 0 ? battleContext.playerCurrentMonster.moves.length - 1 : selectedMoveIdx - 1;
+                selectedMoveIdx = selectedMoveIdx === 0 ? battleState.playerCurrentMonster.moves.length - 1 : selectedMoveIdx - 1;
             } else {
                 selectedOptionIdx = selectedOptionIdx === 0 ? 3 : selectedOptionIdx - 1;
             }
         } else if (e.key === 'ArrowDown') {
             if (moveOpened) {
-                selectedMoveIdx = selectedMoveIdx === battleContext.playerCurrentMonster.moves.length - 1 ? 0 : selectedMoveIdx + 1;
+                selectedMoveIdx = selectedMoveIdx === battleState.playerCurrentMonster.moves.length - 1 ? 0 : selectedMoveIdx + 1;
             } else {
                 selectedOptionIdx = selectedOptionIdx === 3 ? 0 : selectedOptionIdx + 1;
             }
         } else if (e.key === 'Enter') {
             if (moveOpened) {
-                selectMove(battleContext.playerCurrentMonster.moves[selectedMoveIdx]);
+                selectMove(battleState.playerCurrentMonster.moves[selectedMoveIdx]);
             } else {
                 if (selectedOptionIdx === 0) {
                     toggleMoveSelection();
@@ -108,6 +121,9 @@
                     escape();
                 }
             }
+        } else if (e.key === 'Escape') {
+            toggleMoveSelection();
+
         }
     })
 

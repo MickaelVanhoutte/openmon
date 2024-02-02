@@ -1,8 +1,8 @@
 <div class="ally-info">
 
     <div class="name-lvl">
-        <span>{battleContext.playerCurrentMonster?.name}</span>
-        <span>Lv {battleContext.playerCurrentMonster.level}</span>
+        <span>{battleState.playerCurrentMonster?.name}</span>
+        <span>Lv {battleState.playerCurrentMonster.level}</span>
     </div>
 
     <div class="status">
@@ -13,18 +13,22 @@
                      style="--width:{percent + '%'}"></div>
             </div>
         </div>
-        {battleContext.playerCurrentMonster.currentHp} / {battleContext.playerCurrentMonster.currentStats.hp}
+        {battleState.playerCurrentMonster.currentHp} / {battleState.playerCurrentMonster.currentStats.hp}
     </div>
 
 </div>
 
 <script lang="ts">
 
-    import {BattleState} from "../../js/battle/battle";
+    import {BATTLE_STATE, BattleState} from "../../js/battle/battle";
 
-    export let battleContext: BattleState;
+    let battleState: BattleState | undefined;
 
-    $: percent = Math.floor(battleContext.playerCurrentMonster.currentHp * 100 / battleContext.playerCurrentMonster.currentStats.hp);
+    BATTLE_STATE.subscribe(value => {
+        battleState = value.state;
+    });
+
+    $:percent = Math.floor(battleState?.playerCurrentMonster.currentHp * 100 / battleState?.playerCurrentMonster.currentStats.hp);
 
 </script>
 

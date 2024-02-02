@@ -36,7 +36,6 @@ or
 
     export let pokedex: Pokedex;
 
-    console.log(saveContext);
 
     function handleSubmit() {
         console.log('selected', selected);

@@ -1,8 +1,18 @@
 import {Character} from "../player/player";
 import {Move, MoveInstance, PokemonInstance} from "../pokemons/pokedex";
+import {writable} from "svelte/store";
 
 //import {MOVE_EFFECT_APPLIER} from "../pokemons/move-effects";
 
+
+export class BattleContext {
+    public state?: BattleState;
+
+    constructor() {
+    }
+}
+
+export const BATTLE_STATE = writable(new BattleContext());
 
 export class BattleState {
 
@@ -10,7 +20,7 @@ export class BattleState {
     public starting = true;
     public ending = false;
 
-    public pokemonsAppearing = true;
+    public pokemonsAppearing = false;
 
     public player: Character;
     public playerCurrentMonster: PokemonInstance;
@@ -98,15 +108,14 @@ export class BattleState {
             return;
         }
 
-        /*this.sleep(1000).then(
+        this.sleep(1000).then(
             () => {
                 let nextAction = this.turnStack?.shift();
-                console.log('executing ' + nextAction?.name)
                 this.executeAction(nextAction);
-            }console.log('executing ' + nextAction?.name)
-        );*/
+            }
+        );
 
-        this.executeAction(this.turnStack?.shift());
+        //this.executeAction(this.turnStack?.shift());
 
     }
 
