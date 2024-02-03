@@ -16,6 +16,13 @@ export const keys = {
     },
 }
 
+export function resetKeys(){
+    keys.down.pressed = false;
+    keys.up.pressed = false;
+    keys.right.pressed = false;
+    keys.left.pressed = false;
+}
+
 //export let lastKey: string = '';
 
 export let lastKey ={

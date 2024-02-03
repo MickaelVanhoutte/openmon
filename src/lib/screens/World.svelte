@@ -1,5 +1,7 @@
 <Menu bind:menuOpened bind:player={context.player}/>
 
+<Joy />
+
 <script lang="ts">
 
     import {keydownListener, keys, keyupListener, lastKey} from "../js/commands/keyboard";
@@ -10,7 +12,8 @@
     import {PokemonInstance} from "../js/pokemons/pokedex";
     import {Character} from "../js/player/player";
     import {onDestroy, onMount} from "svelte";
-    import Menu from "../scenes/main/Menu.svelte";
+    import Menu from "../ui/main/Menu.svelte";
+    import Joy from "../ui/controls/VControls.svelte";
 
     export let context: SelectedSave;
 

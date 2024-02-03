@@ -68,15 +68,6 @@ export class PokemonSpriteDrawer {
                 }
             }
 
-            console.log(this.yOffset);
-            /*this.goingDown = animate && this.animateFrames <= 10;
-            if (animate && !pokemon.fainted) {
-                this.yOffset = this.goingDown ? this.animateFrames : 0 - this.animateFrames;
-                this.animateFrames++;
-                if (this.animateFrames >= 20) {
-                    this.animateFrames = 0;
-                }
-            }*/
 
             if(animate && !pokemon.fainted) {
                 this.yOffset += this.offsetPx;
@@ -294,7 +285,7 @@ export class BattlefieldsDrawer {
             if (this.playerBattleImage && this.playerBattleImage.complete && this.frames.val < this.frames.max) {
                 this.frames.elapsed += 1;
 
-                if (this.frames.elapsed % 6 === 0) {
+                if (this.frames.elapsed % 4 === 0) {
                     this.frames.val += 1
                 }
                 this.drawPlayerAnimation(ctx, this.playerBattleImage, this.frames.val);

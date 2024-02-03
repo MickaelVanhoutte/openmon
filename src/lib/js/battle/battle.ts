@@ -497,7 +497,8 @@ export const typeChart = {
         "ghost": 0,
         "dragon": 1,
         "dark": 1,
-        "steel": 0.5
+        "steel": 0.5,
+        color: '#a8a67c'
     },
     "fire": {
         "normal": 1,
@@ -516,7 +517,9 @@ export const typeChart = {
         "ghost": 1,
         "dragon": 0.5,
         "dark": 1,
-        "steel": 2
+        "steel": 2,
+
+        color: '#e38643'
     },
     "water": {
         "normal": 1,
@@ -535,7 +538,9 @@ export const typeChart = {
         "ghost": 1,
         "dragon": 0.5,
         "dark": 1,
-        "steel": 1
+        "steel": 1,
+
+        color: '#728cc8',
     },
     "electric": {
         "normal": 1,
@@ -554,7 +559,9 @@ export const typeChart = {
         "ghost": 1,
         "dragon": 0.5,
         "dark": 1,
-        "steel": 1
+        "steel": 1,
+
+        color: '#ecb240'
     },
     "grass": {
         "normal": 1,
@@ -573,7 +580,9 @@ export const typeChart = {
         "ghost": 1,
         "dragon": 0.5,
         "dark": 1,
-        "steel": 0.5
+        "steel": 0.5,
+
+        color: '#8ac262'
     },
     "ice": {
         "normal": 1,
@@ -592,7 +601,9 @@ export const typeChart = {
         "ghost": 1,
         "dragon": 2,
         "dark": 1,
-        "steel": 0.5
+        "steel": 0.5,
+
+        color: '#a5d7d9'
     },
     "fighting": {
         "normal": 2,
@@ -611,7 +622,9 @@ export const typeChart = {
         "ghost": 0,
         "dragon": 1,
         "dark": 2,
-        "steel": 2
+        "steel": 2,
+
+        color: '#d84123',
     },
     "poison": {
         "normal": 1,
@@ -630,7 +643,9 @@ export const typeChart = {
         "ghost": 0.5,
         "dragon": 1,
         "dark": 1,
-        "steel": 0
+        "steel": 0,
+
+        color: '#8d4b9c'
     },
     "ground": {
         "normal": 1,
@@ -649,7 +664,9 @@ export const typeChart = {
         "ghost": 1,
         "dragon": 1,
         "dark": 1,
-        "steel": 2
+        "steel": 2,
+
+        color: '#b59f4b'
     },
     "flying": {
         "normal": 1,
@@ -668,7 +685,9 @@ export const typeChart = {
         "ghost": 1,
         "dragon": 1,
         "dark": 1,
-        "steel": 0.5
+        "steel": 0.5,
+
+        color: '#a8d6d8'
     },
     "psychic": {
         "normal": 1,
@@ -687,7 +706,9 @@ export const typeChart = {
         "ghost": 1,
         "dragon": 1,
         "dark": 0,
-        "steel": 0.5
+        "steel": 0.5,
+
+        color: '#e56289'
     },
     "bug": {
         "normal": 1,
@@ -706,7 +727,9 @@ export const typeChart = {
         "ghost": 0.5,
         "dragon": 1,
         "dark": 2,
-        "steel": 0.5
+        "steel": 0.5,
+
+        color: '#d8de57'
     },
     "rock": {
         "normal": 1,
@@ -725,7 +748,9 @@ export const typeChart = {
         "ghost": 1,
         "dragon": 1,
         "dark": 1,
-        "steel": 0.5
+        "steel": 0.5,
+
+        color: '#b59f4d'
     },
     "ghost": {
         "normal": 0,
@@ -744,7 +769,9 @@ export const typeChart = {
         "ghost": 2,
         "dragon": 1,
         "dark": 0.5,
-        "steel": 0.5
+        "steel": 0.5,
+
+        color: '#944a98'
     },
     "dragon": {
         "normal": 1,
@@ -763,7 +790,9 @@ export const typeChart = {
         "ghost": 1,
         "dragon": 2,
         "dark": 1,
-        "steel": 0.5
+        "steel": 0.5,
+
+        color: '#758bc6'
     },
     "dark": {
         "normal": 1,
@@ -782,7 +811,9 @@ export const typeChart = {
         "ghost": 2,
         "dragon": 1,
         "dark": 0.5,
-        "steel": 0.5
+        "steel": 0.5,
+
+        color: '#567783'
     },
     "steel": {
         "normal": 1,
@@ -801,6 +832,8 @@ export const typeChart = {
         "ghost": 1,
         "dragon": 1,
         "dark": 1,
-        "steel": 0.5
+        "steel": 0.5,
+
+        color: '#577884'
     }
 }

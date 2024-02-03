@@ -10,9 +10,9 @@
             </Battle>
 
             <!-- UI -->
-            <EnemyInfo />
-            <AllyInfo />
-            <ActionBar />
+            <EnemyInfo/>
+            <AllyInfo/>
+            <ActionBar/>
         {:else}
             <World bind:context
                    bind:canvas={canvas}
@@ -39,6 +39,7 @@
 
 <canvas bind:this={canvas}></canvas>
 
+
 <script lang="ts">
 
     import {Pokedex} from "./lib/js/pokemons/pokedex";
@@ -50,9 +51,9 @@
     import {Save, SaveContext} from "./lib/js/saves/saves";
     import {onMount} from "svelte";
     import {BATTLE_STATE, BattleContext, BattleState} from "./lib/js/battle/battle";
-    import ActionBar from "./lib/scenes/battle/ActionBar.svelte";
-    import AllyInfo from "./lib/scenes/battle/AllyInfo.svelte";
-    import EnemyInfo from "./lib/scenes/battle/EnemyInfo.svelte";
+    import ActionBar from "./lib/ui/battle/ActionBar.svelte";
+    import AllyInfo from "./lib/ui/battle/AllyInfo.svelte";
+    import EnemyInfo from "./lib/ui/battle/EnemyInfo.svelte";
 
     export let canvas;
 
@@ -74,7 +75,7 @@
     BATTLE_STATE.subscribe(value => {
         console.log('battle state', value);
         battleState = value.state;
-        if(value.state && value.state.ending) {
+        if (value.state && value.state.ending) {
             endingBattle = true;
             setTimeout(() => {
                 endingBattle = false;
