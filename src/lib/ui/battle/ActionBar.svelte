@@ -34,7 +34,7 @@
     {#if moveOpened}
         <div class="moves">
             {#each battleState?.playerCurrentMonster?.moves as move, index}
-                <button class="action-btn" style="--color:#dc5959" {disabled}
+                <button class="action-btn" style="--color:{typeChart[move.type].color}" {disabled}
                         class:selected={selectedMoveIdx === index}
                         on:mouseover={() => selectedMoveIdx = index}
                         on:click={() =>selectMove(move)}>
@@ -72,7 +72,7 @@
 
 <script lang="ts">
 
-    import {Attack, BATTLE_STATE, BattleState, RunAway} from "../../js/battle/battle";
+    import {Attack, BATTLE_STATE, BattleState, RunAway, typeChart} from "../../js/battle/battle";
     import {onMount} from "svelte";
 
     let moveOpened = false;

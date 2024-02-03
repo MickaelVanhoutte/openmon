@@ -20,6 +20,8 @@
   },
   "type": "module",
   "dependencies": {
-
+    "gamepadzilla": "^1.0.5",
+    "joystick-controller": "^1.0.15",
+    "virtual-joystick": "^1.0.1"
   }
 }
