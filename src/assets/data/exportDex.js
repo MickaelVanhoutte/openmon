@@ -58,6 +58,7 @@ function exportPokemons() {
                     };
             }
 
+            let pokedexNumber = pokemon.pokedex_number < 10 ? `00${pokemon.pokedex_number}` : pokemon.pokedex_number < 100 ? `0${pokemon.pokedex_number}` : pokemon.pokedex_number;
             pokedexArray.push({
                 id: pokemon.pokedex_number,
                 name: pokemon.name,
@@ -98,30 +99,12 @@ function exportPokemons() {
                 sprites: {
                     male: {
                         front :{
-                            frame1 : `src/assets/monsters/heartgold-soulsilver/${pokemon.pokedex_number}.png`,
-                            frame2 : `src/assets/monsters/heartgold-soulsilver/frame2/${pokemon.pokedex_number}.png`,
-                            shiny1 : `src/assets/monsters/heartgold-soulsilver/shiny/${pokemon.pokedex_number}.png`,
-                            shiny2 : `src/assets/monsters/heartgold-soulsilver/shiny/frame2/${pokemon.pokedex_number}.png`,
+                            frame1 : `src/assets/monsters/bw-animated/${pokedexNumber}.gif`,
+                            shiny1 : `src/assets/monsters/bw-animated/${pokedexNumber}s.gif`,
                         },
                         back :{
-                            frame1 : `src/assets/monsters/heartgold-soulsilver/back/${pokemon.pokedex_number}.png`,
-                            frame2 : `src/assets/monsters/heartgold-soulsilver/back/frame2/${pokemon.pokedex_number}.png`,
-                            shiny1 : `src/assets/monsters/heartgold-soulsilver/back/shiny/${pokemon.pokedex_number}.png`,
-                            shiny2 : `src/assets/monsters/heartgold-soulsilver/back/shiny/frame2/${pokemon.pokedex_number}.png`,
-                        },
-                    },
-                    female: {
-                        front :{
-                            frame1 : `src/assets/monsters/heartgold-soulsilver/female/${pokemon.pokedex_number}.png`,
-                            frame2 : `src/assets/monsters/heartgold-soulsilver/female/frame2/${pokemon.pokedex_number}.png`,
-                            shiny1 : `src/assets/monsters/heartgold-soulsilver/shiny/female/${pokemon.pokedex_number}.png`,
-                            shiny2: `src/assets/monsters/heartgold-soulsilver/shiny/female/frame2/${pokemon.pokedex_number}.png`,
-                        },
-                        back :{
-                            frame1 : `src/assets/monsters/heartgold-soulsilver/back/female/${pokemon.pokedex_number}.png`,
-                            frame2 : `src/assets/monsters/heartgold-soulsilver/back/female/frame2/${pokemon.pokedex_number}.png`,
-                            shiny1 : `src/assets/monsters/heartgold-soulsilver/back/shiny/female/${pokemon.pokedex_number}.png`,
-                            shiny2: `src/assets/monsters/heartgold-soulsilver/back/shiny/female/frame2/${pokemon.pokedex_number}.png`,
+                            frame1 : `src/assets/monsters/bw-animated/${pokedexNumber}b.gif`,
+                            shiny1 : `src/assets/monsters/bw-animated/${pokedexNumber}sb.gif`,
                         },
                     }
                 }
@@ -134,7 +117,7 @@ function exportPokemons() {
     console.log(pokedexArray.length);
     console.log(pokedexArray[250]);
 
-    fs.writeFile("./pokedex.json", JSON.stringify(pokedexArray), (error) => {
+    fs.writeFile("./pokedexBW-animated.json", JSON.stringify(pokedexArray), (error) => {
         // throwing the error
         // in case of a writing problem
         if (error) {

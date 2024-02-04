@@ -1,3 +1,7 @@
+<div bind:this={gifsWrapper}>
+
+</div>
+
 <script lang="ts">
 
     import {SelectedSave} from "../js/saves/saves";
@@ -10,6 +14,8 @@
     //export let battleContext: BattleState | undefined;
     export let canvas: HTMLCanvasElement;
     export let pokedex: Pokedex;
+
+    export let gifsWrapper: HTMLDivElement;
 
     let battleState: BattleState | undefined;
 
@@ -44,7 +50,9 @@
         goDown: true,
         frameElapsed: 0,
         id: 0,
-        debug: false
+        debug: false,
+        allydrawn: false,
+        opponentdrawn: false
     }
 
     function battleLoop() {
@@ -68,8 +76,40 @@
             drawer.draw(ctx, battleState.pokemonsAppearing, 'grass');
 
             if (!battleState.pokemonsAppearing) {
-                opponentDrawer.draw(ctx, battleState.opponentCurrentMonster, 'front', true, 0, true);
-                allyDrawer.draw(ctx, battleState.playerCurrentMonster, 'back', true, 0);
+                //opponentDrawer.draw(ctx, battleState.opponentCurrentMonster, 'front', true, 0, true);
+                //allyDrawer.draw(ctx, battleState.playerCurrentMonster, 'back', true, 0);
+
+                // animated gifs, handle them outside the canvas
+                if (!battleLoopContext.opponentdrawn) {
+
+                    let opponent = document.createElement('img') as HTMLImageElement;
+                    opponent.src = battleState.opponentCurrentMonster.sprites?.male?.front.frame1 || 'src/assets/monsters/bw/0.png';
+                    opponent.onload = () => {
+                        opponent.style.position = 'absolute';
+                        opponent.style.bottom = '50%';
+                        opponent.style.right = '15%';
+                        opponent.style.zIndex = '100';
+                        opponent.style.width = opponent.naturalWidth * 1.5 + 'px';
+                        opponent.style.height = opponent.naturalHeight * 1.5 + 'px';
+                        gifsWrapper.appendChild(opponent);
+                        battleLoopContext.opponentdrawn = true;
+                    }
+                }
+                if (!battleLoopContext.allydrawn) {
+                    let ally = document.createElement('img') as HTMLImageElement;
+                    ally.src = battleState.playerCurrentMonster.sprites?.male?.back.frame1 || 'src/assets/monsters/bw/0.png';
+                    ally.onload = () => {
+                        ally.style.position = 'absolute';
+                        ally.style.bottom = '25%';
+                        ally.style.left = '15%';
+                        ally.style.zIndex = '100';
+                        ally.style.width = ally.naturalWidth * 1.5 + 'px';
+                        ally.style.height = ally.naturalHeight * 1.5 + 'px';
+                        gifsWrapper.appendChild(ally);
+                        battleLoopContext.allydrawn = true;
+                    }
+                }
+
             }
 
             if (battleLoopContext.debug) {

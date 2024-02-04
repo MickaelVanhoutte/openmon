@@ -87,7 +87,7 @@ export class OpenMap {
     randomMonster(): { id: number, level: number } {
         const monsterId = this.monsters[Math.floor(Math.random() * this.monsters.length)];
         const level = Math.floor(Math.random() * (this.levelRange[1] - this.levelRange[0] + 1)) + this.levelRange[0];
-        console.log(level);
+        console.log(this.monsters, monsterId, level);
         return {id: monsterId, level: level};
     }
 
