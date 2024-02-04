@@ -33,14 +33,14 @@ export class BattleState {
     public turnStack: Action[];
 
     private escapeAttempts: number = 0;
-
+    public lastPokemonFaited: boolean;
     public isPlayerTurnV: boolean;
     public opponentHpV: number;
     public allyHpV: number;
     public currentMessageV: string;
 
 
-    public onClose: () => void = () => {
+    public onClose: (win: boolean) => void = () => {
     };
 
     get wild(): boolean {
@@ -56,6 +56,7 @@ export class BattleState {
         this.turnStack = [];
 
         this.isPlayerTurnV = true;
+        this.lastPokemonFaited = false;
         this.opponentHpV = this.opponentCurrentMonster.currentHp;
         this.allyHpV = this.playerCurrentMonster.currentHp;
         this.currentMessageV = `What should ${this.playerCurrentMonster.name} do ?`;
@@ -99,6 +100,14 @@ export class BattleState {
                 this.removeHP(action);
             } else if (action instanceof Faint) {
                 action.initiator.fainted = true;
+                if(action.initiator === this.opponentCurrentMonster){
+                    this.lastPokemonFaited = true;
+                    if( this.player.monsters.every((monster: PokemonInstance) => monster.fainted)){
+                        this.turnStack = [];
+                        this.addToStack(new Message('No more healthy pokemons', action.initiator));
+                        this.addToStack(new EndBattle(action.initiator, false));
+                    }
+                }
             } else if (action instanceof XPWin) {
                 let result = action.initiator.addXpResult(action.xp, 1);
                 if (result.levelup) {
@@ -115,7 +124,7 @@ export class BattleState {
                 this.endTurn(action)
             } else if (action instanceof EndBattle) {
                 this.ending = true;
-                this.onClose();
+                this.onClose(action.win);
             }
             BATTLE_STATE.set(new BattleContext(this));
 
@@ -363,11 +372,13 @@ export class EndBattle implements Action {
     public name: string;
     public description: string;
     public initiator: PokemonInstance;
+    public win: boolean;
 
-    constructor(initiator: PokemonInstance) {
+    constructor(initiator: PokemonInstance, win: boolean = true) {
         this.name = 'End Battle';
         this.description = 'End Battle';
         this.initiator = initiator;
+        this.win = win;
     }
 }
 

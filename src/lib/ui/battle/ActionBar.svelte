@@ -152,10 +152,10 @@
 
   @keyframes appear {
     from {
-      bottom: -25dvh;
+      bottom: -25%;
     }
     to {
-      bottom: 0dvh;
+      bottom: 0;
     }
   }
 
@@ -163,10 +163,10 @@
     z-index: 9;
     background-color: white;
 
-    height: 25dvh;
-    width: 100dvw;
+    height: 25%;
+    width: 100%;
     position: absolute;
-    bottom: -25dvh;
+    bottom: -25%;
     left: 0;
 
     transition: bottom 0.5s ease-in-out;
@@ -190,30 +190,32 @@
     .info {
 
       width: 50%;
-      height: 100%;
 
       display: flex;
       align-items: center;
       align-content: center;
       justify-content: space-around;
       position: relative;
+      padding: 10px 0 10px 10px;
 
       ._inner {
-        position: absolute;
-        left: 17px;
         z-index: 1;
-        height: calc(100% - 55px);
-        border: 10px solid black;
-        border-radius: 10px;
+        height: 100%;
+
         display: flex;
         align-items: center;
         justify-content: center;
         width: 100%;
         text-transform: capitalize;
+        text-align: center;
+
+        padding: 1rem;
+        box-sizing: border-box;
 
         .move-desc {
           text-transform: initial;
-          font-size: 46px;
+          text-align: left;
+          font-size: 32px;
           word-break: break-word;
           box-sizing: border-box;
           padding: 0 20px;
@@ -278,10 +280,10 @@
   .action-btn {
     background-color: var(--color);
 
-    font-size: 64px;
+    font-size: 42px;
     color: white;
     border-radius: 24px;
-    border: 6px solid #595b59;
+    border: 4px solid #595b59;
     font-family: pokemon, serif;
 
     transition: color 0.3s ease-in-out, opacity 0.3s ease-in-out;
@@ -315,12 +317,10 @@
       }
 
       .info ._inner {
-        left: 10px;
-        height: calc(100% - 37px);
-        border: 8px solid black;
 
         .move-desc {
           font-size: 32px;
+          padding: 0;
         }
       }
     }
