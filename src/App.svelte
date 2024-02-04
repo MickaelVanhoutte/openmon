@@ -142,13 +142,23 @@
     }
   }
 
-  @media screen  and (orientation: landscape){
+  @media screen and (orientation: landscape) {
     .battle-wrapper {
       width: 100dvw;
       max-width: 100dvw;
       height: 100dvh;
       overflow: hidden;
     }
+  }
+
+  @media screen and (orientation: landscape) and (min-width: 1680px) {
+    .battle-wrapper {
+      width: auto;
+      max-width: 1024px;
+      height: 100dvh;
+      overflow: hidden;
+    }
+
   }
 
   .battleStart {
