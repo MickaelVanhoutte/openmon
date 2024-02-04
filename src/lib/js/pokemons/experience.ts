@@ -8,7 +8,7 @@ export class ExperienceCalculator {
     public chartById = new Map<number, ExperienceEntry[]>();
 
     constructor() {
-        fetch('/src/assets/data/final/xp-chart.json')
+        fetch('src/assets/data/final/xp-chart.json')
             .then(response => response.json())
             .then(data => {
 
@@ -25,9 +25,9 @@ export class ExperienceCalculator {
     }
 
     public howMuchINeed(level: number, growthRateId: number): number {
-        if (!this.ready || level < 1 || level > 100 || !this.chartById.has(growthRateId)) {
+        if (!this.ready || level < 1 || level >= 100 || !this.chartById.has(growthRateId)) {
             console.error('ERROR', level, growthRateId)
-            return 0;
+            return Number.MAX_SAFE_INTEGER;
         }
         let chart = this.chartById.get(growthRateId);
         let entry = chart?.find((entry) => entry.level === level);
