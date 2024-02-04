@@ -21,7 +21,6 @@
 <script lang="ts">
 
     import {BATTLE_STATE, BattleState} from "../../js/battle/battle";
-    import {derived} from "svelte/store";
 
     let battleState: BattleState | undefined;
 
