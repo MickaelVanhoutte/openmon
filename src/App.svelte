@@ -4,15 +4,17 @@
     {#if context}
 
         {#if battleState && !battleState.starting}
-            <Battle bind:context
-                    bind:canvas={canvas}
-                    bind:pokedex={pokedex}>
-            </Battle>
+            <div class="battle-wrapper">
+                <Battle bind:context
+                        bind:canvas={canvas}
+                        bind:pokedex={pokedex}>
+                </Battle>
 
-            <!-- UI -->
-            <EnemyInfo/>
-            <AllyInfo/>
-            <ActionBar/>
+                <!-- UI -->
+                <EnemyInfo/>
+                <AllyInfo/>
+                <ActionBar/>
+            </div>
         {:else}
             <World bind:context
                    bind:canvas={canvas}
@@ -113,20 +115,39 @@
 <style lang="scss">
 
   canvas {
-   z-index: -1;
+    z-index: -1;
     width: 1024px;
     height: auto;
     overflow: hidden;
-position: absolute;
+    position: absolute;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
+  }
+
+  .battle-wrapper {
+    z-index: 1;
+    width: auto;
+    max-width: 100dvh;
+    height: 100vh;
+    overflow: hidden;
+    position: relative;
+    margin: auto;
   }
 
   @media screen and (orientation: portrait) {
     canvas {
       width: auto;
       height: 1024px;
+    }
+  }
+
+  @media screen  and (orientation: landscape){
+    .battle-wrapper {
+      width: 100dvw;
+      max-width: 100dvw;
+      height: 100dvh;
+      overflow: hidden;
     }
   }
 

@@ -7,7 +7,7 @@
     import {SelectedSave} from "../js/saves/saves";
     import {BATTLE_STATE, BattleState} from "../js/battle/battle";
     import {Pokedex} from "../js/pokemons/pokedex";
-    import {BattlefieldsDrawer, PokemonSpriteDrawer} from "../js/sprites/drawers";
+    import {BattlefieldsDrawer, PokemonSpriteDrawer, Position} from "../js/sprites/drawers";
     import {onMount} from "svelte";
 
     export let context: SelectedSave;
@@ -33,8 +33,12 @@
     let allyDrawer = new PokemonSpriteDrawer();
 
     if (battleState) {
-        battleState.onClose = () => {
-
+        battleState.onClose = (win: boolean) => {
+            if(!win){
+                // tp back to the start
+                this.context.map.playerMovedOffset = new Position(0,0);
+                this.context.pla
+            }
             setTimeout(() => {
                 // animate the battle closing
                 battleState = undefined;
@@ -63,12 +67,13 @@ function battle() {
                 let bg = document.createElement('img') as HTMLImageElement;
                 bg.src = 'src/assets/battle/battle-grass.png';
                 bg.onload = () => {
-                    bg.style.position = 'absolute';
-                    bg.style.bottom = '25%';
-                    bg.style.left = '0';
                     bg.style.zIndex = '0';
-                    bg.style.width = window.innerWidth + 'px';
-                    bg.style.height = window.innerHeight * 0.75 + 'px';
+                    bg.style.width = '100%';
+                    bg.style.height = '75%';
+                    bg.style.position = 'absolute';
+                    bg.style.top = '0';
+                    bg.style.left = '0';
+
                     gifsWrapper.appendChild(bg);
                     battleLoopContext.bgDrawn = true;
                 }
@@ -87,7 +92,7 @@ function battle() {
                     opponent.onload = () => {
                         opponent.style.position = 'absolute';
                         opponent.style.bottom = '50%';
-                        opponent.style.right = '15%';
+                        opponent.style.right = '10%';
                         opponent.style.zIndex = '8';
                         opponent.style.width = opponent.naturalWidth * 1.5 + 'px';
                         opponent.style.height = opponent.naturalHeight * 1.5 + 'px';
