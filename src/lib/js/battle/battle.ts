@@ -102,12 +102,11 @@ export class BattleState {
             } else if (action instanceof XPWin) {
                 let result = action.initiator.addXpResult(action.xp, 1);
                 if (result.levelup) {
-                    this.addToStack(new Message(`${action.initiator.name} grew to level ${action.initiator.level + 1}!`, action.initiator));
-                    action.initiator.level += 1;
-                    action.initiator.xpToNextLevel = EXPERIENCE_CHART.howMuchINeed(action.initiator.level, action.initiator.growthRateId);
+                    this.addToStack(new Message(`${action.initiator.name} grew to level ${action.initiator.level + 1}!`, action.initiator), true);
+                    action.initiator.levelUp();
                 }
                 if (result.xpLeft > 0) {
-                    this.addToStack(new XPWin(action.initiator, result.xpLeft));
+                    this.addToStack(new XPWin(action.initiator, result.xpLeft), true);
                 }
 
             } else if (action instanceof ApplyEffect) {
