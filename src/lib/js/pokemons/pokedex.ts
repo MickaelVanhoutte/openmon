@@ -89,7 +89,7 @@ export class PokedexEntry {
             front: SpriteGroup,
             back: SpriteGroup,
         },
-        female: {
+        female?: {
             front: SpriteGroup,
             back: SpriteGroup,
         }
@@ -116,7 +116,7 @@ export class PokedexEntry {
                 front: SpriteGroup,
                 back: SpriteGroup,
             },
-            female: {
+            female?: {
                 front: SpriteGroup,
                 back: SpriteGroup,
             }
@@ -309,11 +309,11 @@ export class Sprites {
 
 export class SpriteGroup {
     frame1: string;
-    frame2: string;
+    frame2?: string;
     shiny1: string;
-    shiny2: string;
+    shiny2?: string;
 
-    constructor(frame1: string, frame2: string, shiny1: string, shiny2: string) {
+    constructor(frame1: string, shiny1: string, shiny2?: string, frame2?: string) {
         this.frame1 = frame1;
         this.frame2 = frame2;
         this.shiny1 = shiny1;

@@ -15,12 +15,12 @@ export class Position {
 
 export class PokemonSpriteDrawer {
 
-    private images: Record<string, HTMLImageElement> = {}
+    private images: Record<string, HTMLImageElement> = {};
     private currentImage?: HTMLImageElement;
     private frameElapsed: number = 0;
     private dimensions = {
-        width: 80,
-        height: 80,
+        width: 96,
+        height: 96,
     }
     private spriteScale = 4;
     private animateFrames: number = 0;
@@ -34,24 +34,26 @@ export class PokemonSpriteDrawer {
     draw(ctx: CanvasRenderingContext2D, pokemon: PokemonInstance, type: "front" | "back", animate: boolean = true, frameOffset: number = 0, reverse: boolean = false, xOffset: number = 0, yOffset: number = 0) {
         if (pokemon.sprites) {
 
-            let spriteGroup = pokemon.gender !== 'unknown' ? pokemon.sprites[pokemon.gender][type] : pokemon.sprites['male'][type];
+            // @ts-ignore
+            let spriteGroup = pokemon.gender !== 'unknown' && pokemon.sprites[pokemon.gender] !== undefined ? pokemon.sprites[pokemon.gender][type] : pokemon.sprites['male'][type];
             let entry = 'frame'
             if (pokemon.isShiny) {
                 entry = 'shiny';
             }
 
-            if (this.frameElapsed + frameOffset < 100) {
-                entry += '1';
-            } else {
-                entry += '2';
+            let frame = '1';
+            // @ts-ignore
+            if (this.frameElapsed + frameOffset > 100 && pokemon.sprites[pokemon.gender] && pokemon.sprites[pokemon.gender][type][entry + '2'] !== undefined) {
+                frame = '2';
             }
+            entry += frame;
 
             if (this.frameElapsed + frameOffset >= 200) {
                 this.frameElapsed = 0;
             }
 
             // @ts-ignore
-            let imageSrc = spriteGroup[entry] as string;
+            let imageSrc = spriteGroup[entry] as string || 'src/assets/monsters/bw/0.png';
 
             if (!imageSrc) return;
 
@@ -69,7 +71,7 @@ export class PokemonSpriteDrawer {
             }
 
 
-            if(animate && !pokemon.fainted) {
+            if (animate && !pokemon.fainted) {
                 this.yOffset += this.offsetPx;
 
                 if (this.yOffset < 0 || this.yOffset > 10) {
@@ -96,8 +98,8 @@ export class PokemonSpriteDrawer {
                     this.dimensions.height,
                     position.x,
                     position.y + this.yOffset,
-                    this.dimensions.width * this.spriteScale,
-                    this.dimensions.height * this.spriteScale);
+                    this.dimensions.width * ( type === 'back'?  this.spriteScale * 1.5 : this.spriteScale),
+                    this.dimensions.height * ( type === 'back'?  this.spriteScale * 1.5 : this.spriteScale));
 
                 this.frameElapsed++;
             }
@@ -112,14 +114,19 @@ export class PokemonSpriteDrawer {
                 // x = 3/4 of the screen - half of the sprite size
                 (ctx.canvas.width / 4) * 3 - (this.dimensions.width * this?.spriteScale / 2) + xOffset,
                 // y = 1/2 of the screen - the sprite size (*1.2)
-                (ctx.canvas.height / 2) - ((this.dimensions.height * this?.spriteScale) * 1.2) + yOffset
+                //(ctx.canvas.height / 2) - ((this.dimensions.height * this?.spriteScale) * 1.2) + yOffset
+                // bottom of the image should start at 1/2 of the screen
+                (ctx.canvas.height / 2) - (this.dimensions.height * this.spriteScale) + yOffset
             );
         } else {
             position = new Position(
                 // x = 1/4 of the screen - half of the sprite size
-                (ctx.canvas.width / 4) - ((this.dimensions.width * this.spriteScale) / 2) + xOffset,
+                (ctx.canvas.width * .20) - (this.dimensions.width * this.spriteScale) / 2 + xOffset,
                 // y = 3/4 of the screen - 1/4 of the sprite size
-                (ctx.canvas.height / 4) * 3 - (this.dimensions.height * this.spriteScale * 0.75) + yOffset
+                //(ctx.canvas.height / 8) * 5 - (this.dimensions.height * this.spriteScale * 1.5) + yOffset
+
+                // bottom of the image should start at 3/4 of the screen
+                (ctx.canvas.height * 0.75) - (this.dimensions.height * .75 * this.spriteScale * 1.5) + yOffset
             );
         }
 

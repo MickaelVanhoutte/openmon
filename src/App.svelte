@@ -37,8 +37,13 @@
 {/if}
 
 
-<canvas bind:this={canvas}></canvas>
-
+<div class="wrapper">
+    <div class="container">
+        <div class="canvas-container">
+            <canvas bind:this={canvas} id="main" width="1024" height="640"></canvas>
+        </div>
+    </div>
+</div>
 
 <script lang="ts">
 
@@ -47,15 +52,16 @@
     import World from "./lib/screens/World.svelte";
     import Battle from "./lib/screens/Battle.svelte";
     import PlayerCreation from "./lib/screens/PlayerCreation.svelte";
-    import pokedexJson from "./assets/data/final/pokedex.json";
+    import pokedexJson from "./assets/data/final/pokedexBW-animated.json";
     import {Save, SaveContext} from "./lib/js/saves/saves";
     import {onMount} from "svelte";
-    import {BATTLE_STATE, BattleContext, BattleState} from "./lib/js/battle/battle";
+    import {BATTLE_STATE, BattleState} from "./lib/js/battle/battle";
     import ActionBar from "./lib/ui/battle/ActionBar.svelte";
     import AllyInfo from "./lib/ui/battle/AllyInfo.svelte";
     import EnemyInfo from "./lib/ui/battle/EnemyInfo.svelte";
 
     export let canvas;
+    export let container;
 
     export let pokedex = new Pokedex(pokedexJson);
 
@@ -95,14 +101,7 @@
     });
 
     function resize() {
-        if (window.innerHeight > window.innerWidth) {
-            imageScale = 5;
-        }
 
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        tileSizeInPx = 16 * imageScale;
     }
 
 
@@ -118,14 +117,42 @@
 </script>
 
 <style lang="scss">
-  canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100dvw;
-    height: 100dvh;
-    z-index: -1;
+
+/*
+  @media screen and (orientation: portrait) {
+    canvas {
+      width: 100dvw;
+      height: 100dvw;
+    }
   }
+  @media screen and (orientation: landscape) {
+    canvas {
+      width: 100dvh;
+      height: 100dvh;
+    }
+  }*/
+
+.wrapper {
+  display: table;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+}
+.container {
+  display: table-cell;
+  vertical-align: middle;
+}
+.canvas-container {
+  position: relative;
+  max-width: 100dvw;
+  min-width: 320px;
+  margin: 0 auto;
+}
+#main {
+  width: 100%;
+  height: auto;
+}
 
   .battleStart {
     opacity: 0;

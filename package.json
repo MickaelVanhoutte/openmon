@@ -20,8 +20,10 @@
   },
   "type": "module",
   "dependencies": {
+    "canvas": "^2.11.2",
     "gamepadzilla": "^1.0.5",
     "joystick-controller": "^1.0.15",
+    "png-js": "^1.0.0",
     "virtual-joystick": "^1.0.1"
   }
 }
