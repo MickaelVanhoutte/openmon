@@ -42,10 +42,10 @@
 
   @keyframes appear {
     from {
-      right: -30dvw;
+      right: -30%;
     }
     to {
-      right: 1dvw;
+      right: 1%;
     }
   }
 
@@ -63,11 +63,11 @@
 
     background-color: antiquewhite;
 
-    height: 12dvh;
-    width: 30dvw;
+    height: 12%;
+    width: 30%;
     position: absolute;
-    bottom: 26dvh;
-    right: -30dvw;
+    bottom: 26%;
+    right: -30%;
 
     border: 14px solid #595b59;
     border-radius: 24px;
