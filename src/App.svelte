@@ -37,13 +37,8 @@
 {/if}
 
 
-<div class="wrapper">
-    <div class="container">
-        <div class="canvas-container">
-            <canvas bind:this={canvas} id="main" width="1024" height="640"></canvas>
-        </div>
-    </div>
-</div>
+<canvas bind:this={canvas} id="main" width="1024" height="1024"></canvas>
+
 
 <script lang="ts">
 
@@ -61,7 +56,6 @@
     import EnemyInfo from "./lib/ui/battle/EnemyInfo.svelte";
 
     export let canvas;
-    export let container;
 
     export let pokedex = new Pokedex(pokedexJson);
 
@@ -118,41 +112,17 @@
 
 <style lang="scss">
 
-/*
-  @media screen and (orientation: portrait) {
-    canvas {
-      width: 100dvw;
-      height: 100dvw;
-    }
+  canvas {
+   z-index: -1;
+    width: 1024px;
+    height: auto;
+    overflow: hidden;
+position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
   }
-  @media screen and (orientation: landscape) {
-    canvas {
-      width: 100dvh;
-      height: 100dvh;
-    }
-  }*/
 
-.wrapper {
-  display: table;
-  padding: 0;
-  width: 100%;
-  height: 100%;
-  position: absolute;
-}
-.container {
-  display: table-cell;
-  vertical-align: middle;
-}
-.canvas-container {
-  position: relative;
-  max-width: 100dvw;
-  min-width: 320px;
-  margin: 0 auto;
-}
-#main {
-  width: 100%;
-  height: auto;
-}
 
   .battleStart {
     opacity: 0;
