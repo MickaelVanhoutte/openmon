@@ -196,6 +196,7 @@
       align-content: center;
       justify-content: space-around;
       position: relative;
+      box-sizing: border-box;
       padding: 10px 0 10px 10px;
 
       ._inner {
@@ -304,7 +305,8 @@
 
   @media screen and (max-width: 1100px) {
     .action-bar {
-      font-size: 32px;
+      font-size: 26px;
+      height: 30%;
 
       .actions, .moves {
         padding: 2px;
@@ -312,14 +314,14 @@
         border: 8px solid #595b59;
 
         .action-btn {
-          font-size: 32px;
+          font-size: 26px;
         }
       }
 
       .info ._inner {
 
         .move-desc {
-          font-size: 32px;
+          font-size: 18px;
           padding: 0;
         }
       }

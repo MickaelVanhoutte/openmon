@@ -2,16 +2,14 @@
 
     <div class="name-lvl">
         <span>{battleState?.opponentCurrentMonster?.name}</span>
-        <span>Lv {battleState?.opponentCurrentMonster.level}</span>
+        <span>Lv.{battleState?.opponentCurrentMonster.level}</span>
     </div>
 
-    <div class="status">
-        <div class="hp">
-            <span>HP</span>
-            <div class="progressbar-wrapper">
-                <div class="progressbar" class:warning={percent <= 50} class:danger={percent < 15 }
-                     style="--width:{percent + '%'}"></div>
-            </div>
+    <div class="hp">
+        <span>HP</span>
+        <div class="progressbar-wrapper">
+            <div class="progressbar" class:warning={percent <= 50} class:danger={percent < 15 }
+                 style="--width:{percent + '%'}"></div>
         </div>
     </div>
 
@@ -52,7 +50,7 @@
       transform: translateY(0);
     }
     50% {
-      transform: translateY(-8px);
+      transform: translateY(-2px);
     }
   }
 
@@ -61,44 +59,46 @@
 
     background-color: antiquewhite;
 
-    height: 12%;
-    width: 30%;
+    height: fit-content;
+    min-width: 36%;
     position: absolute;
     top: 2%;
     left: -30%;
 
     border: 14px solid #595b59;
-    border-radius: 24px;
+    border-radius: 10px;
 
-    padding: 16px;
+    padding: 8px 16px;
 
     display: flex;
     flex-direction: column;
-    gap: 10%;
+    gap: 8px;
     justify-content: space-evenly;
+    box-sizing: border-box;
 
     font-size: 46px;
 
-    animation: appear .5s ease-in forwards/*, bounce 2s ease-in-out infinite*/;
+    animation: appear .5s ease-in forwards, bounce 2s ease-in-out infinite;
 
     .name-lvl {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      margin-bottom: 4px;
     }
 
     .status {
       display: flex;
       flex-direction: column;
       align-items: flex-end;
-      gap: 8px;
+      //gap: 8px;
     }
 
     .hp {
 
       width: 60%;
       display: flex;
-      gap: 16px;
+      //gap: 16px;
       background-color: #262626;
       color: orange;
       align-items: center;
@@ -145,8 +145,18 @@
 
   @media screen and (max-width: 1100px) {
     .enemy-info {
-      font-size: 36px;
+      font-size: 26px;
       border: 8px solid #595b59;
+
+      min-width: 50%;
+      flex-direction: row;
+      align-items: center;
+      gap: 8px;
+      right: 0;
+
+      .name-lvl {
+        gap: 8px;
+      }
 
       .hp {
         width: 80%;
