@@ -2,19 +2,19 @@
 
     <div class="name-lvl">
         <span>{battleState.playerCurrentMonster?.name}</span>
-        <span>Lv {battleState.playerCurrentMonster.level}</span>
+        <span>Lv.{battleState.playerCurrentMonster.level}</span>
     </div>
 
-    <div class="status">
-        <div class="hp">
-            <span>HP</span>
-            <div class="progressbar-wrapper">
-                <div class="progressbar" class:warning={percent <= 50} class:danger={percent < 15 }
-                     style="--width:{percent + '%'}"></div>
-            </div>
+    <!--<div class="status">-->
+    <div class="hp">
+        <span>HP</span>
+        <div class="progressbar-wrapper">
+            <div class="progressbar" class:warning={percent <= 50} class:danger={percent < 15 }
+                 style="--width:{percent + '%'}"></div>
         </div>
-        {currentHp} / {battleState.playerCurrentMonster.currentStats.hp}
     </div>
+    <div>{currentHp}/{battleState.playerCurrentMonster.currentStats.hp}</div>
+    <!--</div>-->
 
 </div>
 
@@ -54,7 +54,7 @@
       transform: translateY(0);
     }
     50% {
-      transform: translateY(-8px);
+      transform: translateY(-2px);
     }
   }
 
@@ -63,44 +63,46 @@
 
     background-color: antiquewhite;
 
-    height: 12%;
-    width: 30%;
+    height: fit-content;
+    min-width: 36%;
     position: absolute;
     bottom: 26%;
     right: -30%;
 
     border: 14px solid #595b59;
-    border-radius: 24px;
+    border-radius: 10px;
 
-    padding: 16px;
+    padding: 8px 16px;
 
     display: flex;
     flex-direction: column;
-    gap: 10%;
+    gap: 8px;
+    box-sizing: border-box;
     justify-content: space-evenly;
 
     font-size: 46px;
 
-    animation: appear .5s ease-in forwards/*, bounce 2s ease-in-out infinite*/;
+    animation: appear .5s ease-in forwards , bounce 2s ease-in-out infinite;
 
     .name-lvl {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      margin-bottom: 4px;
     }
 
     .status {
       display: flex;
       flex-direction: column;
       align-items: flex-end;
-      gap: 8px;
+      //gap: 8px;
     }
 
     .hp {
 
       width: 60%;
       display: flex;
-      gap: 16px;
+      //gap: 16px;
       background-color: #262626;
       color: orange;
       align-items: center;
@@ -147,9 +149,20 @@
 
   @media screen and (max-width: 1100px) {
     .ally-info {
-      font-size: 36px;
+      font-size: 26px;
       border: 8px solid #595b59;
-      height: 16dvh;
+      bottom: 31%;
+
+      min-width: 50%;
+      flex-direction: row;
+      align-items: center;
+      gap: 8px;
+      right: 0;
+      left: 50%;
+
+      .name-lvl {
+        gap: 8px;
+      }
 
       .hp {
         width: 80%;

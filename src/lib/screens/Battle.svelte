@@ -66,14 +66,8 @@
             if (!battleLoopContext.bgDrawn) {
                 let bg = document.createElement('img') as HTMLImageElement;
                 bg.src = 'src/assets/battle/battle-grass.png';
+                bg.classList.add('battle-bg');
                 bg.onload = () => {
-                    bg.style.zIndex = '0';
-                    bg.style.width = '100%';
-                    bg.style.height = '75%';
-                    bg.style.position = 'absolute';
-                    bg.style.top = '0';
-                    bg.style.left = '0';
-
                     gifsWrapper.appendChild(bg);
                     battleLoopContext.bgDrawn = true;
                 }
@@ -129,6 +123,8 @@
 </script>
 
 <style lang="scss">
+
+
   .wrapper {
     font-size: 23px;
   }
@@ -145,5 +141,32 @@
     bottom: calc(64% - var(--height) / 2);
     right: calc(25% - var(--width) / 2);
     z-index: 8;
+  }
+
+  .wrapper :global(.battle-bg) {
+    z-index : 0;
+    width : 100%;
+    height : 75%;
+    position : absolute;
+    top : 0;
+    left : 0;
+  }
+
+  @media screen and (max-width: 1100px) {
+    .wrapper :global(.ally-sprite) {
+      width: calc(var(--width) * .75);
+      height: calc(var(--height) * .75);
+      bottom: 30%;
+    }
+
+    .wrapper :global(.opponent-sprite) {
+      width: calc(var(--width) * .75);
+      height: calc(var(--height) * .75);
+      bottom: calc(69% - var(--height) / 2);
+    }
+
+    .wrapper :global(.battle-bg) {
+      height: 70%;
+    }
   }
 </style>
