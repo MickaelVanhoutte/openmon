@@ -153,7 +153,7 @@
       border: 8px solid #595b59;
       bottom: 31%;
 
-      min-width: 50%;
+      width: 50%;
       flex-direction: row;
       align-items: center;
       gap: 8px;

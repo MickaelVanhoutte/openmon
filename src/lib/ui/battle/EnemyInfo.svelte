@@ -148,7 +148,7 @@
       font-size: 26px;
       border: 8px solid #595b59;
 
-      min-width: 50%;
+      width: 50%;
       flex-direction: row;
       align-items: center;
       gap: 8px;
