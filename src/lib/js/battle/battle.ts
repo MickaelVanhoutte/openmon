@@ -75,6 +75,7 @@ export class BattleState {
             this.addToStack(action);
         }
 
+        this.addToStack(new EndTurn(this.playerCurrentMonster));
         this.executeAction(this.turnStack?.shift());
     }
 
@@ -285,7 +286,8 @@ export class BattleState {
     }
 
     private endTurn(action: Action) {
-        if (this.wild || (this.opponent instanceof Character && this.opponent.monsters.every((monster: PokemonInstance) => monster.fainted))) {
+        if ((this.wild && this.opponent instanceof PokemonInstance && this.opponent.fainted) ||
+            (this.opponent instanceof Character && this.opponent.monsters.every((monster: PokemonInstance) => monster.fainted))) {
             this.addToStack(new Message('You won the battle!', action.initiator));
             this.addToStack(new EndBattle(action.initiator));
         }else if (this.player.monsters.every((monster: PokemonInstance) => monster.fainted)) {

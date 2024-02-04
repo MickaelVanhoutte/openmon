@@ -39,7 +39,7 @@
                 // animate the battle closing
                 battleState = undefined;
                 BATTLE_STATE.set({state: undefined});
-                window.cancelAnimationFrame(battleLoopContext.id);
+                //window.cancelAnimationFrame(battleLoopContext.id);
             }, 2000);
         }
     }
@@ -52,9 +52,68 @@
         id: 0,
         debug: false,
         allydrawn: false,
-        opponentdrawn: false
+        opponentdrawn: false,
+        bgDrawn: false
     }
 
+function battle() {
+
+        setInterval(() => {
+            if (!battleLoopContext.bgDrawn) {
+                let bg = document.createElement('img') as HTMLImageElement;
+                bg.src = 'src/assets/battle/battle-grass.png';
+                bg.onload = () => {
+                    bg.style.position = 'absolute';
+                    bg.style.bottom = '25%';
+                    bg.style.left = '0';
+                    bg.style.zIndex = '0';
+                    bg.style.width = window.innerWidth + 'px';
+                    bg.style.height = window.innerHeight * 0.75 + 'px';
+                    gifsWrapper.appendChild(bg);
+                    battleLoopContext.bgDrawn = true;
+                }
+            }
+
+
+            if (!battleState?.pokemonsAppearing) {
+                //opponentDrawer.draw(ctx, battleState.opponentCurrentMonster, 'front', true, 0, true);
+                //allyDrawer.draw(ctx, battleState.playerCurrentMonster, 'back', true, 0);
+
+                // animated gifs, handle them outside the canvas
+                if (!battleLoopContext.opponentdrawn) {
+
+                    let opponent = document.createElement('img') as HTMLImageElement;
+                    opponent.src = battleState?.opponentCurrentMonster.sprites?.male?.front.frame1 || 'src/assets/monsters/bw/0.png';
+                    opponent.onload = () => {
+                        opponent.style.position = 'absolute';
+                        opponent.style.bottom = '50%';
+                        opponent.style.right = '15%';
+                        opponent.style.zIndex = '8';
+                        opponent.style.width = opponent.naturalWidth * 1.5 + 'px';
+                        opponent.style.height = opponent.naturalHeight * 1.5 + 'px';
+                        gifsWrapper.appendChild(opponent);
+                        battleLoopContext.opponentdrawn = true;
+                    }
+                }
+                if (!battleLoopContext.allydrawn) {
+                    let ally = document.createElement('img') as HTMLImageElement;
+                    ally.src = battleState?.playerCurrentMonster.sprites?.male?.back.frame1 || 'src/assets/monsters/bw/0.png';
+                    ally.onload = () => {
+                        ally.style.position = 'absolute';
+                        ally.style.bottom = '25%';
+                        ally.style.left = '0';
+                        ally.style.zIndex = '8';
+                        ally.style.width = ally.naturalWidth + 'px';
+                        ally.style.height = ally.naturalHeight + 'px';
+                        gifsWrapper.appendChild(ally);
+                        battleLoopContext.allydrawn = true;
+                    }
+                }
+
+            }
+        }, 200);
+}
+    //deprecate
     function battleLoop() {
         battleLoopContext.id = window.requestAnimationFrame(battleLoop);
         let now = Date.now();
@@ -73,7 +132,23 @@
             ctx.fillStyle = 'black';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            drawer.draw(ctx, battleState.pokemonsAppearing, 'grass');
+            //drawer.draw(ctx, battleState.pokemonsAppearing, 'grass');
+
+            if(!battleLoopContext.bgDrawn) {
+                let bg = document.createElement('img') as HTMLImageElement;
+                bg.src = 'src/assets/battle/battle-grass.png';
+                bg.onload = () => {
+                    bg.style.position = 'absolute';
+                    bg.style.bottom = '25%';
+                    bg.style.left = '0';
+                    bg.style.zIndex = '0';
+                    bg.style.width = window.innerWidth + 'px';
+                    bg.style.height = window.innerHeight * 0.75 + 'px';
+                    gifsWrapper.appendChild(bg);
+                    battleLoopContext.bgDrawn = true;
+                }
+            }
+
 
             if (!battleState.pokemonsAppearing) {
                 //opponentDrawer.draw(ctx, battleState.opponentCurrentMonster, 'front', true, 0, true);
@@ -88,7 +163,7 @@
                         opponent.style.position = 'absolute';
                         opponent.style.bottom = '50%';
                         opponent.style.right = '15%';
-                        opponent.style.zIndex = '100';
+                        opponent.style.zIndex = '8';
                         opponent.style.width = opponent.naturalWidth * 1.5 + 'px';
                         opponent.style.height = opponent.naturalHeight * 1.5 + 'px';
                         gifsWrapper.appendChild(opponent);
@@ -101,10 +176,10 @@
                     ally.onload = () => {
                         ally.style.position = 'absolute';
                         ally.style.bottom = '25%';
-                        ally.style.left = '15%';
-                        ally.style.zIndex = '100';
-                        ally.style.width = ally.naturalWidth * 1.5 + 'px';
-                        ally.style.height = ally.naturalHeight * 1.5 + 'px';
+                        ally.style.left = '0';
+                        ally.style.zIndex = '8';
+                        ally.style.width = ally.naturalWidth  + 'px';
+                        ally.style.height = ally.naturalHeight  + 'px';
                         gifsWrapper.appendChild(ally);
                         battleLoopContext.allydrawn = true;
                     }
@@ -133,8 +208,8 @@
     }
 
     onMount(() => {
-        battleLoop();
-
+        //battleLoop();
+battle();
         window.addEventListener('keydown', (e) => {
             if (e.key === 'x') {
                 battleLoopContext.debug = !battleLoopContext.debug;

@@ -123,6 +123,12 @@ position: absolute;
     transform: translate(-50%, -50%);
   }
 
+  @media screen and (orientation: portrait) {
+    canvas {
+      width: auto;
+      height: 1024px;
+    }
+  }
 
   .battleStart {
     opacity: 0;
