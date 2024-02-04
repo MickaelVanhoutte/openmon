@@ -1,4 +1,4 @@
-import {PlayerSpriteDrawer, Position} from "../sprites/drawers";
+import {PlayerSpriteDrawer} from "../sprites/drawers";
 import {PokemonInstance} from "../pokemons/pokedex";
 
 export class Character {
