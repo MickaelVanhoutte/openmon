@@ -6,14 +6,10 @@
 
     import {SelectedSave} from "../js/saves/saves";
     import {BATTLE_STATE, BattleState} from "../js/battle/battle";
-    import {Pokedex} from "../js/pokemons/pokedex";
-    import {BattlefieldsDrawer, PokemonSpriteDrawer, Position} from "../js/sprites/drawers";
+    import {Position} from "../js/sprites/drawers";
     import {onMount} from "svelte";
 
     export let context: SelectedSave;
-    //export let battleContext: BattleState | undefined;
-    export let canvas: HTMLCanvasElement;
-    export let pokedex: Pokedex;
 
     export let gifsWrapper: HTMLDivElement;
 
@@ -22,15 +18,6 @@
     BATTLE_STATE.subscribe(value => {
         battleState = value.state;
     });
-
-    let ctx = canvas.getContext('2d');
-    ctx.font = "12px Arial";
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
-
-    let drawer = new BattlefieldsDrawer(battleState?.player);
-    let opponentDrawer = new PokemonSpriteDrawer();
-    let allyDrawer = new PokemonSpriteDrawer();
 
     if (battleState) {
         battleState.onClose = (win: boolean) => {
@@ -75,8 +62,6 @@
 
 
             if (!battleState?.pokemonsAppearing) {
-                //opponentDrawer.draw(ctx, battleState.opponentCurrentMonster, 'front', true, 0, true);
-                //allyDrawer.draw(ctx, battleState.playerCurrentMonster, 'back', true, 0);
 
                 // animated gifs, handle them outside the canvas
                 if (!battleLoopContext.opponentdrawn) {
@@ -138,7 +123,7 @@
 
   .wrapper :global(.opponent-sprite) {
     position: absolute;
-    bottom: calc(64% - var(--height) / 2);
+    bottom: 57%;
     right: calc(25% - var(--width) / 2);
     z-index: 8;
   }
@@ -160,9 +145,9 @@
     }
 
     .wrapper :global(.opponent-sprite) {
-      width: calc(var(--width) * .75);
-      height: calc(var(--height) * .75);
-      bottom: calc(69% - var(--height) / 2);
+      width: var(--width);
+      height: var(--height);
+      bottom: 57%;
     }
 
     .wrapper :global(.battle-bg) {

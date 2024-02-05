@@ -1,10 +1,10 @@
-import {PlayerSpriteDrawer} from "../sprites/drawers";
 import {PokemonInstance} from "../pokemons/pokedex";
+import {CHARACTER_SPRITES} from "../const";
 
 export class Character {
+    public spriteId: number;
     public name: string;
     public gender: 'MALE' | 'FEMALE';
-    public sprites: PlayerSprites;
     public monsters: PokemonInstance[];
     public bag: any[] = [];
     public lvl: number = 1;
@@ -12,25 +12,22 @@ export class Character {
     public running: boolean = false;
     public direction: 'up' | 'down' | 'left' | 'right' = 'down';
 
-    private drawer: PlayerSpriteDrawer;
-
-    constructor(name: string, gender: 'MALE' | 'FEMALE', sprites: PlayerSprites, monsters: PokemonInstance[], bag: any[], lvl: number, moving: boolean, direction: 'up' | 'down' | 'left' | 'right') {
+    constructor(spriteId: number, name: string, gender: 'MALE' | 'FEMALE', monsters: PokemonInstance[], bag: any[], lvl: number, moving: boolean, direction: 'up' | 'down' | 'left' | 'right') {
+        this.spriteId = 1;
         this.name = name;
         this.gender = gender;
-        this.sprites = sprites;
         this.monsters = monsters;
         this.bag = bag;
         this.lvl = lvl;
         this.moving = moving;
         this.direction = direction;
-        this.drawer = new PlayerSpriteDrawer();
     }
 
-    public static fromScratch(name: string, gender: 'MALE' | 'FEMALE', sprites: PlayerSprites): Character {
+    public static fromScratch(spriteId: number, name: string, gender: 'MALE' | 'FEMALE'): Character {
         return new Character(
+            spriteId,
             name,
             gender,
-            sprites,
             [],
             [],
             1,
@@ -41,9 +38,9 @@ export class Character {
 
     public static fromInstance(character: Character): Character {
         return new Character(
+            character.spriteId,
             character.name,
             character.gender,
-            character.sprites,
             character.monsters,
             character.bag,
             character.lvl,
@@ -53,39 +50,14 @@ export class Character {
     }
 
     public setPrototypes(): Character {
-        Object.setPrototypeOf(this.sprites, PlayerSprites.prototype);
         this.monsters.forEach((monster) => {
             Object.setPrototypeOf(monster, PokemonInstance.prototype);
         });
-        this.drawer = new PlayerSpriteDrawer();
         return this;
     }
 
-    get sprite(): string {
-        return this.sprites[this.direction];
-    }
-
-    public draw(ctx: CanvasRenderingContext2D, scale: number) {
-        this.drawer.draw(ctx, scale, this.sprite, this.moving);
-    }
-}
-
-export class PlayerSprites {
-    public down: string;
-    public up: string;
-    public left: string;
-    public right: string;
-    public battle: string;
-
-    public width: number = 80;
-    public height: number = 80;
-
-    constructor(front: string, back: string, left: string, right: string, battle: string) {
-        this.down = front;
-        this.up = back;
-        this.left = left;
-        this.right = right;
-        this.battle = battle;
+    public draw(ctx: CanvasRenderingContext2D, type: 'front' | 'overworld', scale: number) {
+        CHARACTER_SPRITES.draw(this.spriteId, ctx, type, this.direction,  scale, this.moving);
     }
 }
 

@@ -1,6 +1,4 @@
-import {PokemonInstance} from "../pokemons/pokedex";
 import type {OpenMap} from "../mapping/maps";
-import {Character} from "../player/player";
 
 
 export class Position {
@@ -10,135 +8,6 @@ export class Position {
     constructor(x: number = 0, y: number = 0) {
         this.x = x;
         this.y = y;
-    }
-}
-
-export class PokemonSpriteDrawer {
-
-    private images: Record<string, HTMLImageElement> = {};
-    private currentImage?: HTMLImageElement;
-    private frameElapsed: number = 0;
-    private dimensions = {
-        width: 96,
-        height: 96,
-    }
-    private spriteScale = 4;
-    private animateFrames: number = 0;
-    private goingDown: boolean = true;
-    private yOffset = 0;
-    private offsetPx = 1;
-
-    constructor() {
-    }
-
-    draw(ctx: CanvasRenderingContext2D, pokemon: PokemonInstance, type: "front" | "back", animate: boolean = true, frameOffset: number = 0, reverse: boolean = false, xOffset: number = 0, yOffset: number = 0) {
-        if (pokemon.sprites) {
-
-            // @ts-ignore
-            let spriteGroup = pokemon.gender !== 'unknown' && pokemon.sprites[pokemon.gender] !== undefined ? pokemon.sprites[pokemon.gender][type] : pokemon.sprites['male'][type];
-            let entry = 'frame'
-            if (pokemon.isShiny) {
-                entry = 'shiny';
-            }
-
-            let frame = '1';
-            // @ts-ignore
-            if (this.frameElapsed + frameOffset > 100 && pokemon.sprites[pokemon.gender] && pokemon.sprites[pokemon.gender][type][entry + '2'] !== undefined) {
-                frame = '2';
-            }
-            entry += frame;
-
-            if (this.frameElapsed + frameOffset >= 200) {
-                this.frameElapsed = 0;
-            }
-
-            // @ts-ignore
-            let imageSrc = spriteGroup[entry] as string || 'src/assets/monsters/bw/0.png';
-
-            if (!imageSrc) return;
-
-            if (!this.currentImage || this.currentImage.src !== imageSrc) {
-                if (!this.images[imageSrc]) {
-                    let futureImage = new Image();
-                    futureImage.src = imageSrc;
-                    futureImage.onload = () => {
-                        this.currentImage = futureImage;
-                    }
-                    this.images[imageSrc] = futureImage;
-                } else {
-                    this.currentImage = this.images[imageSrc];
-                }
-            }
-
-
-            if (animate && !pokemon.fainted) {
-                this.yOffset += this.offsetPx;
-
-                if (this.yOffset < 0 || this.yOffset > 10) {
-                    this.offsetPx = this.offsetPx * -1;
-                }
-            }
-
-
-            if (pokemon.fainted) {
-                this.yOffset += 25;
-                this.animateFrames++;
-                if (this.animateFrames >= 50) {
-                    this.animateFrames = 0;
-                }
-            }
-
-            if (this.currentImage?.complete) {
-                let position = this.getPosition(ctx, type, xOffset, yOffset);
-
-                ctx.drawImage(this.currentImage,
-                    0,
-                    0,
-                    this.dimensions.width,
-                    this.dimensions.height,
-                    position.x,
-                    position.y + this.yOffset,
-                    this.dimensions.width * ( type === 'back'?  this.spriteScale * 1.5 : this.spriteScale),
-                    this.dimensions.height * ( type === 'back'?  this.spriteScale * 1.5 : this.spriteScale));
-
-                this.frameElapsed++;
-            }
-
-        }
-    }
-
-    private getPosition(ctx: CanvasRenderingContext2D, type: "front" | "back", xOffset: number = 0, yOffset: number = 0) {
-        let position = new Position();
-        if (type === 'front') {
-            position = new Position(
-                // x = 3/4 of the screen - half of the sprite size
-                (ctx.canvas.width / 4) * 3 - (this.dimensions.width * this?.spriteScale / 2) + xOffset,
-                // y = 1/2 of the screen - the sprite size (*1.2)
-                //(ctx.canvas.height / 2) - ((this.dimensions.height * this?.spriteScale) * 1.2) + yOffset
-                // bottom of the image should start at 1/2 of the screen
-                (ctx.canvas.height / 2) - (this.dimensions.height * this.spriteScale) + yOffset
-            );
-        } else {
-            position = new Position(
-                // x = 1/4 of the screen - half of the sprite size
-                (ctx.canvas.width * .20) - (this.dimensions.width * this.spriteScale) / 2 + xOffset,
-                // y = 3/4 of the screen - 1/4 of the sprite size
-                //(ctx.canvas.height / 8) * 5 - (this.dimensions.height * this.spriteScale * 1.5) + yOffset
-
-                // bottom of the image should start at 3/4 of the screen
-                (ctx.canvas.height * 0.75) - (this.dimensions.height * .75 * this.spriteScale * 1.5) + yOffset
-            );
-        }
-
-        return position;
-    }
-
-    private updateScale(width: number, height: number) {
-        if (width < 1100) {
-            this.spriteScale = 2;
-        } else {
-            this.spriteScale = 4;
-        }
     }
 }
 
@@ -234,155 +103,130 @@ export class WoldSpriteDrawer {
     }
 }
 
-export class BattlefieldsDrawer {
+export class PlayerSprite {
 
-    private images: Record<string, HTMLImageElement> = {};
+    public id: number;
+    public name: string;
+    public front: SpriteFromSheet;
+    public overworld: SpriteFromSheet;
 
-    private player?: Character;
-
-    private playerBattleImage?: HTMLImageElement;
-
-    private frames = {max: 5, val: 0, elapsed: 0};
-
-    private battlefields = {
-        'default': 'src/assets/battle/battle-default.png',
-        'grass': 'src/assets/battle/battle-grass.png',
-        'water': 'src/assets/battle/battle-water.png',
-        'rock': 'src/assets/battle/battle-rock.png',
-        'rainy': 'src/assets/battle/battle-rainy.png',
-    }
-
-    private dimensions = {
-        width: 240,
-        height: 112,
-    }
-
-    constructor(player: Character | undefined) {
-        this.player = player;
-    }
-
-    public draw(ctx: CanvasRenderingContext2D, animationStart: boolean, battlefield: 'default' | 'grass' | 'water' | 'rock' | 'rainy' = 'default') {
-
-        let image = this.images[battlefield];
-        if (image && image.complete) {
-            this.drawImage(ctx, image, animationStart);
-        } else {
-            image = new Image();
-            image.src = this.battlefields[battlefield];
-            image.onload = () => {
-                this.images[battlefield] = image;
-                this.drawImage(ctx, image, animationStart);
-            }
-        }
-    }
-
-    private drawImage(ctx: CanvasRenderingContext2D, image: HTMLImageElement, animationStart: boolean) {
-        ctx.drawImage(image,
-            0,
-            0,
-            this.dimensions.width,
-            this.dimensions.height,
-            0,
-            0,
-            ctx.canvas.width,
-            ctx.canvas.height * 0.75)
-
-        if (animationStart && this.player) {
-
-            if (this.playerBattleImage && this.playerBattleImage.complete && this.frames.val < this.frames.max) {
-                this.frames.elapsed += 1;
-
-                if (this.frames.elapsed % 4 === 0) {
-                    this.frames.val += 1
-                }
-                this.drawPlayerAnimation(ctx, this.playerBattleImage, this.frames.val);
-            } else {
-                let image = new Image();
-                image.src = this.player.sprites.battle;
-                image.onload = () => {
-                    this.playerBattleImage = image;
-                }
-            }
-
-        }
-    }
-
-    private drawPlayerAnimation(ctx: CanvasRenderingContext2D, playerBattleImage: HTMLImageElement, val: number) {
-        ctx.drawImage(
-            playerBattleImage,
-            this.frames.val * (playerBattleImage.width / this.frames.max),
-            0,
-            playerBattleImage.width / this.frames.max - 1,
-            playerBattleImage.height,
-            ctx.canvas.width / 100 * 5,
-            ctx.canvas.height / 4 * 3 - playerBattleImage.height * 5,
-            (playerBattleImage.width / this.frames.max) * 5,
-            playerBattleImage.height * 5
-        );
-    }
-}
-
-
-export class PlayerSpriteDrawer {
+    private frontImg: HTMLImageElement;
+    private worldImg: HTMLImageElement;
 
     private frames = {max: 3, val: 0, elapsed: 0};
-    private images: Record<string, HTMLImageElement> = {};
-    private lastImage: string = '';
 
-    constructor() {
+    constructor(id: number, name: string, front: SpriteFromSheet, overworld: SpriteFromSheet) {
+        this.id = id;
+        this.name = name;
+        this.front = front;
+        this.overworld = overworld;
+
+        this.frontImg = new Image();
+        this.frontImg.src = front.source;
+        this.worldImg = new Image();
+        this.worldImg.src = overworld.source;
     }
 
+    public draw(canvas: CanvasRenderingContext2D, type: 'front' | 'overworld',
+                orientation: 'up' | 'down' | 'left' | 'right',
+                scale: number, moving: boolean) {
+        let sprite = this[type];
+        let img = type === 'front' ? this.frontImg : this.worldImg;
+        if (img.complete)
 
-    draw(ctx: CanvasRenderingContext2D, scale: number, sprite: string, moving: boolean) {
+            if (moving) {
 
-        let image = this.images[sprite];
-        if (image && image.complete) {
-            this.lastImage = sprite;
-            this.drawImage(ctx, image, scale, moving);
-        } else {
-            if (this.images[this.lastImage]) {
-                // fallback to latest
-                this.drawImage(ctx, this.images[this.lastImage], scale, moving);
-            }
-            image = new Image();
-            image.src = sprite;
-            image.onload = () => {
-                this.images[sprite] = image;
-            }
-        }
-    }
-
-    private drawImage(ctx: CanvasRenderingContext2D, image: HTMLImageElement, scale: number, moving: boolean) {
-
-        if (moving) {
-
-            if (this.frames.max > 1) {
-                this.frames.elapsed += 1;
-            }
-            if (this.frames.elapsed % 2 === 0) {
+                if (this.frames.max > 1) {
+                    this.frames.elapsed += 1;
+                }
                 this.frames.val += 1
                 if (this.frames.val > this.frames.max - 1) {
                     this.frames.val = 0;
                 }
+            } else {
+                this.frames.val = 0;
             }
-        } else {
-            this.frames.val = 1;
-        }
+        let sY = OrientationIndexes[orientation] * sprite.height;
 
-        ctx.drawImage(
-            image,
-            this.frames.val * (image.width / this.frames.max),
-            0,
-            image.width / this.frames.max,
-            image.height,
-            ctx.canvas.width / 2 - (image.width / this.frames.max) * scale / 2,
-            ctx.canvas.height / 2 - (image.height) * scale / 2 - image.height / 2,
-            (image.width / this.frames.max) * scale,
-            image.height * scale
+
+        canvas.drawImage(
+            img,
+            this.frames.val * (sprite.width),
+            sY,
+            sprite.width,
+            sprite.height,
+            canvas.canvas.width / 2 - (sprite.width) * scale / 2,
+            canvas.canvas.height / 2 - (sprite.height) * scale / 2 - sprite.height * scale / 4,
+            sprite.width * scale,
+            sprite.height * scale
         );
-    }
 
+    }
+}
+
+export const OrientationIndexes = {
+    "down": 0,
+    "left": 1,
+    "right": 2,
+    "up": 3,
+}
+
+export class SpriteFromSheet {
+    source: string;
+    startX: number;
+    startY: number;
+    height: number;
+    width: number;
+    frameNumber: number = 3;
+
+    constructor(source: string, startX: number, startY: number, height: number, width: number, frameNumber: number = 4) {
+        this.source = source;
+        this.startX = startX;
+        this.startY = startY;
+        this.height = height;
+        this.width = width;
+        this.frameNumber = frameNumber;
+    }
 }
 
 
+export class SpritesHolder {
+
+    private spritesByCharacter: Record<number, PlayerSprite> = {};
+
+    constructor(json: any[]) {
+        json.forEach(value => {
+            this.spritesByCharacter[value.id] = new PlayerSprite(
+                value.id,
+                value.name,
+                new SpriteFromSheet(
+                    value.front.source,
+                    value.front.startX,
+                    value.front.startY,
+                    value.front.height,
+                    value.front.width,
+                    value.front.frameNumber
+                ),
+                new SpriteFromSheet(
+                    value.overworld.source,
+                    value.overworld.startX,
+                    value.overworld.startY,
+                    value.overworld.height,
+                    value.overworld.width,
+                    value.overworld.frameNumber
+                )
+            )
+        });
+    }
+
+    getSprite(id: number): PlayerSprite {
+        return this.spritesByCharacter[id];
+    }
+
+    public draw(spriteId: number, canvas: CanvasRenderingContext2D, type: 'front' | 'overworld',
+                orientation: 'up' | 'down' | 'left' | 'right',
+                scale: number, moving: boolean){
+        this.spritesByCharacter[spriteId].draw(canvas, type, orientation, scale, moving);
+    }
+}
 

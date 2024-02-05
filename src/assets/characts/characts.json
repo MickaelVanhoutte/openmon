@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "name": "Ethan",
+    "front" : {
+      "source" : "src/assets/characts/1.png",
+      "startX": 0,
+      "startY": 0,
+      "height": 80,
+      "width": 80,
+      "frameNumber": 1
+    },
+    "overworld": {
+      "source": "src/assets/characts/overworld/trchar000.png",
+      "startX": 0,
+      "startY": 0,
+      "height": 64,
+      "width": 64,
+      "frameNumber": 4
+    }
+  }
+]
+
