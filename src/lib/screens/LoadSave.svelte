@@ -1,8 +1,8 @@
 <div class="load-screen">
 
     <div class="preview" bind:this={preview}>
-       <!-- <div class="player-wrapper" bind:this={playerWrapper}></div>
-        <div class="monster-wrapper" bind:this={monsterWrapper}></div>-->
+        <!-- <div class="player-wrapper" bind:this={playerWrapper}></div>
+         <div class="monster-wrapper" bind:this={monsterWrapper}></div>-->
     </div>
 
     <div class="save-list">
@@ -44,8 +44,6 @@
 
     export let saveContext: SaveContext;
 
-    /*export let playerWrapper: HTMLDivElement;
-    export let monsterWrapper: HTMLDivElement;*/
     export let preview: HTMLDivElement;
 
     let selected: Save;
@@ -71,19 +69,18 @@
 
     function handleSubmit() {
         console.log('selected', selected);
-        saveContext = new SaveContext(saveContext.saves, false, selected);
+        saveContext = saveContext.selectSave(selected);
         console.log('start from save', saveContext);
     }
 
     function removeSelected() {
-        saveContext = new SaveContext(saveContext.saves.filter(save => save !== selected), false);
-        localStorage.setItem('saves', JSON.stringify(saveContext.saves));
+        saveContext = saveContext.deleteSave(selected);
         console.log('remove save', saveContext);
+        this.selected = saveContext.saves[0] || null;
     }
 
     function startNew() {
-        saveContext = new SaveContext(saveContext.saves, true);
-        console.log('start fresh', saveContext);
+        saveContext = saveContext.requestNewGame();
     }
 
     onMount(() => {

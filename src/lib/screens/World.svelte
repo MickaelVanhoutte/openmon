@@ -1,13 +1,19 @@
 <canvas bind:this={canvas} id="main" width="1024" height="1024"></canvas>
 
-<Menu bind:menuOpened bind:player={context.player}/>
+<Menu bind:menuOpened bind:save bind:saveContext/>
 
 <Joy/>
+
+{#if battleState && battleState?.starting}
+    <div class="battleStart"></div>
+{/if}
+{#if battleState && battleState?.ending}
+    <div class="battleEnd"></div>
+{/if}
 
 <script lang="ts">
 
     import {keydownListener, keys, keyupListener, lastKey} from "../js/commands/keyboard";
-    import {SelectedSave} from "../js/saves/saves";
     import {Position} from "../js/sprites/drawers";
     import {BATTLE_STATE, BattleContext, BattleState} from "../js/battle/battle";
     import {PokemonInstance} from "../js/pokemons/pokedex";
@@ -16,9 +22,12 @@
     import Menu from "../ui/main/Menu.svelte";
     import Joy from "../ui/controls/VControls.svelte";
     import {MAP_DRAWER, POKEDEX} from "../js/const";
+    import {SaveContext, SelectedSave} from "../js/saves/saves";
 
     export let canvas: HTMLCanvasElement;
-    export let context: SelectedSave;
+
+    export let saveContext: SaveContext;
+    export let save: SelectedSave;
 
     let ctx;
 
@@ -53,20 +62,20 @@
         if (elapsed > mainLoopContext.fpsInterval) {
             mainLoopContext.then = now - (elapsed % mainLoopContext.fpsInterval);
             let positionOnMap = new Position(
-                context.map.playerInitialPosition.x + context.map.playerMovedOffset.x,
-                context.map.playerInitialPosition.y + context.map.playerMovedOffset.y);
+                save.map.playerInitialPosition.x + save.map.playerMovedOffset.x,
+                save.map.playerInitialPosition.y + save.map.playerMovedOffset.y);
 
             ctx.fillStyle = 'black';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             ctx.save();
-            MAP_DRAWER.draw(ctx, context.map, mainLoopContext.imageScale, mainLoopContext.debug);
+            MAP_DRAWER.draw(ctx, save.map, mainLoopContext.imageScale, mainLoopContext.debug);
 
-            context.player.draw(ctx, "overworld", mainLoopContext.playerScale);
+            save.player.draw(ctx, "overworld", mainLoopContext.playerScale);
             //currentMap.drawForeground(ctx, movedOffset); // FIXME non transparent tiles
 
             let allowedMove = true;
-            context.player.moving = false;
+            save.player.moving = false;
 
             // Stop if initiated
             if (battleState?.starting) {
@@ -77,8 +86,8 @@
             // Check for battle
             if (keys.down.pressed || keys.up.pressed || keys.left.pressed || keys.right.pressed) {
 
-                if (context.map.hasBattleZoneAt(positionOnMap) && Math.random() < 0.1) {
-                    let monster = context.map.randomMonster();
+                if (save.map.hasBattleZoneAt(positionOnMap) && Math.random() < 0.1) {
+                    let monster = save.map.randomMonster();
                     window.cancelAnimationFrame(mainLoopContext.id);
                     initiateBattle(POKEDEX.findById(monster.id).result.instanciate(monster.level));
                 }
@@ -87,48 +96,48 @@
             // Move player
             if (keys.down.pressed && lastKey.key === 'ArrowDown') {
 
-                if (context.map.hasBoundaryAt(new Position(positionOnMap.x, positionOnMap.y + 1))) {
+                if (save.map.hasBoundaryAt(new Position(positionOnMap.x, positionOnMap.y + 1))) {
                     allowedMove = false;
                 }
 
-                context.player.moving = true;
-                context.player.direction = 'down';
+                save.player.moving = true;
+                save.player.direction = 'down';
                 if (allowedMove) {
-                    context.map.playerMovedOffset.y++;
+                    save.map.playerMovedOffset.y++;
                 }
             }
             if (keys.up.pressed && lastKey.key === 'ArrowUp') {
 
-                if (context.map.hasBoundaryAt(new Position(positionOnMap.x, positionOnMap.y - 1))) {
+                if (save.map.hasBoundaryAt(new Position(positionOnMap.x, positionOnMap.y - 1))) {
                     allowedMove = false;
                 }
-                context.player.moving = true
-                context.player.direction = 'up';
+                save.player.moving = true
+                save.player.direction = 'up';
                 if (allowedMove) {
-                    context.map.playerMovedOffset.y--;
+                    save.map.playerMovedOffset.y--;
                 }
             }
             if (keys.left.pressed && lastKey.key === 'ArrowLeft') {
 
-                if (context.map.hasBoundaryAt(new Position(positionOnMap.x - 1, positionOnMap.y))) {
+                if (save.map.hasBoundaryAt(new Position(positionOnMap.x - 1, positionOnMap.y))) {
                     allowedMove = false;
                 }
 
-                context.player.moving = true;
-                context.player.direction = 'left';
+                save.player.moving = true;
+                save.player.direction = 'left';
                 if (allowedMove) {
-                    context.map.playerMovedOffset.x--;
+                    save.map.playerMovedOffset.x--;
                 }
             }
             if (keys.right.pressed && lastKey.key === 'ArrowRight') {
 
-                if (context.map.hasBoundaryAt(new Position(positionOnMap.x + 1, positionOnMap.y))) {
+                if (save.map.hasBoundaryAt(new Position(positionOnMap.x + 1, positionOnMap.y))) {
                     allowedMove = false;
                 }
-                context.player.moving = true;
-                context.player.direction = 'right';
+                save.player.moving = true;
+                save.player.direction = 'right';
                 if (allowedMove) {
-                    context.map.playerMovedOffset.x++;
+                    save.map.playerMovedOffset.x++;
                 }
             }
 
@@ -140,9 +149,9 @@
 
                 ctx.fillStyle = 'white';
                 ctx.fillText(`Player position: ${positionOnMap.x}, ${positionOnMap.y}`, 10, 10);
-                ctx.fillText(`Player moving: ${context.player.moving}`, 10, 20);
-                ctx.fillText(`Player direction: ${context.player.direction}`, 10, 30);
-                ctx.fillText(`Player offset: ${context.map.playerMovedOffset.x}, ${context.map.playerMovedOffset.y}`, 10, 40);
+                ctx.fillText(`Player moving: ${save.player.moving}`, 10, 20);
+                ctx.fillText(`Player direction: ${save.player.direction}`, 10, 30);
+                ctx.fillText(`Player offset: ${save.map.playerMovedOffset.x}, ${save.map.playerMovedOffset.y}`, 10, 40);
                 ctx.fillText(`fps: ${fps}`, 10, 50);
             }
         }
@@ -151,7 +160,7 @@
     function initiateBattle(opponent: PokemonInstance | Character) {
 
         let bContext = new BattleContext();
-        bContext.state = new BattleState(context.player, opponent)
+        bContext.state = new BattleState(save.player, opponent)
         BATTLE_STATE.set(bContext);
 
         setTimeout(() => {
@@ -174,7 +183,7 @@
             });
         }, 3500);
 
-        unbindKeyboard(context.player);
+        unbindKeyboard(save.player);
     }
 
     function bindKeyboard(player: Character) {
@@ -203,7 +212,7 @@
                 //TODO
                 break;
             case 'Shift':
-                context.player.running = true;
+                save.player.running = true;
                 mainLoopContext.fpsInterval = 1000 / 24;
                 break;
             case 'x':
@@ -214,21 +223,21 @@
     function worldActionsUpListener(event: KeyboardEvent) {
         switch (event.key) {
             case 'Shift':
-                context.player.running = false;
+                save.player.running = false;
                 mainLoopContext.fpsInterval = 1000 / 16;
                 break;
         }
     }
 
     onDestroy(() => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx?.clearRect(0, 0, canvas.width, canvas.height);
         window.cancelAnimationFrame(mainLoopContext.id);
-        unbindKeyboard(context.player);
+        unbindKeyboard(save.player);
     });
 
     onMount(() => {
         ctx = canvas.getContext('2d');
-        bindKeyboard(context.player);
+        bindKeyboard(save.player);
         mainLoop();
     });
 
@@ -244,5 +253,70 @@
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
+  }
+
+  @media screen and (orientation: portrait) {
+    canvas {
+      width: auto;
+      height: 1024px;
+    }
+  }
+
+  .battleStart {
+    opacity: 0;
+    background: #000000;
+    height: 100dvh;
+    width: 100dvw;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: opacity 0.5s ease-in-out;
+    z-index: 2;
+    animation: blink 2s ease-in-out;
+  }
+
+  @keyframes blink {
+    0% {
+      opacity: 1;
+    }
+    20% {
+      opacity: 0;
+    }
+    40% {
+      opacity: 1;
+    }
+    60% {
+      opacity: 0;
+    }
+    80% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  .battleEnd {
+    opacity: 0;
+    background: #000000;
+    height: 100dvh;
+    width: 100dvw;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    animation: fade-out 4s ease-in-out;
+  }
+
+  @keyframes fade-out {
+    0% {
+      opacity: 0;
+    }
+    50% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
   }
 </style>

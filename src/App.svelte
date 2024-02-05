@@ -1,38 +1,19 @@
 <svelte:options customElement="open-mon"/>
 
-{#if saveContext}
-    {#if context}
-
-        {#if battleState && !battleState.starting}
-            <div class="battle-wrapper">
-                <Battle bind:context
-                >
-                </Battle>
-
-                <!-- UI -->
-                <EnemyInfo/>
-                <AllyInfo/>
-                <ActionBar/>
-            </div>
-        {:else}
-            <World bind:context
-            />
-        {/if}
-
+{#if saveContext.saves.length === 0 || saveContext.newGame}
+    <PlayerCreation bind:saveContext/>
+{/if}
+{#if saveContext.saves.length > 0 && !saveContext.selected && !saveContext.newGame}
+    <LoadSave bind:saveContext/>
+{/if}
+{#if saveContext.selected}
+    {#if battleState && !battleState.starting}
+        <div class="battle-wrapper">
+            <Battle bind:save={saveContext.selected}/>
+        </div>
     {:else}
-        <svelte:component this="{saveContext?.saves.length > 0 && !saveContext?.fresh ? LoadSave : PlayerCreation}"
-                          bind:saveContext
-        >
-        </svelte:component>
+        <World bind:save={saveContext.selected} bind:saveContext/>
     {/if}
-{/if}
-
-{#if battleState && battleState?.starting}
-    <div class="battleStart"></div>
-{/if}
-
-{#if endingBattle}
-    <div class="battleEnd"></div>
 {/if}
 
 <script lang="ts">
@@ -41,30 +22,16 @@
     import World from "./lib/screens/World.svelte";
     import Battle from "./lib/screens/Battle.svelte";
     import PlayerCreation from "./lib/screens/PlayerCreation.svelte";
-    import {Save, SaveContext} from "./lib/js/saves/saves";
-    import {onMount} from "svelte";
     import {BATTLE_STATE, BattleState} from "./lib/js/battle/battle";
-    import ActionBar from "./lib/ui/battle/ActionBar.svelte";
-    import AllyInfo from "./lib/ui/battle/AllyInfo.svelte";
-    import EnemyInfo from "./lib/ui/battle/EnemyInfo.svelte";
+    import {SaveContext} from "./lib/js/saves/saves";
 
-    export let canvas;
-
-    let saves: Save[] = localStorage.getItem('saves') && JSON.parse(localStorage.getItem('saves')).map((save: any) => {
-        Object.setPrototypeOf(save, Save.prototype);
-        save.setPrototypes();
-        return save;
-    }) || [];
+    export let saveContext = new SaveContext();
 
     let battling: boolean;
-
-    let saveContext = new SaveContext(saves);
-
     let battleState: BattleState | undefined;
     let endingBattle = false;
 
     BATTLE_STATE.subscribe(value => {
-        console.log('battle state', value);
         battleState = value.state;
         if (value.state && value.state.ending) {
             endingBattle = true;
@@ -73,31 +40,6 @@
             }, 4000);
         }
     });
-
-    // todo passer image scale
-    let imageScale = 3;
-    let tileSizeInPx = 16 * imageScale;
-
-    $:context = saveContext && saveContext.save ? saveContext.save : null;
-
-
-    onMount(() => {
-        resize();
-    });
-
-    function resize() {
-
-    }
-
-
-    window.addEventListener('resize', () => {
-        resize();
-    });
-
-    window.addEventListener('orientationchange', () => {
-        resize();
-    });
-
 
 </script>
 
@@ -111,13 +53,6 @@
     overflow: hidden;
     position: relative;
     margin: auto;
-  }
-
-  @media screen and (orientation: portrait) {
-    canvas {
-      width: auto;
-      height: 1024px;
-    }
   }
 
   @media screen and (orientation: landscape) {
@@ -137,64 +72,6 @@
       overflow: hidden;
     }
 
-  }
-
-  .battleStart {
-    opacity: 0;
-    background: #000000;
-    height: 100dvh;
-    width: 100dvw;
-    position: absolute;
-    top: 0;
-    left: 0;
-    transition: opacity 0.5s ease-in-out;
-    z-index: 2;
-    animation: blink 2s ease-in-out;
-  }
-
-  @keyframes blink {
-    0% {
-      opacity: 1;
-    }
-    20% {
-      opacity: 0;
-    }
-    40% {
-      opacity: 1;
-    }
-    60% {
-      opacity: 0;
-    }
-    80% {
-      opacity: 1;
-    }
-    100% {
-      opacity: 0;
-    }
-  }
-
-  .battleEnd {
-    opacity: 0;
-    background: #000000;
-    height: 100dvh;
-    width: 100dvw;
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 10;
-    animation: fade-out 4s ease-in-out;
-  }
-
-  @keyframes fade-out {
-    0% {
-      opacity: 0;
-    }
-    50% {
-      opacity: 1;
-    }
-    100% {
-      opacity: 0;
-    }
   }
 
 

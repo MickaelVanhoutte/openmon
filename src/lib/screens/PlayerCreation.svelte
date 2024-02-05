@@ -33,7 +33,6 @@
     let selected = playerClasses[0];
     export let saveContext: SaveContext;
 
-
     function handleSubmit() {
         let player = Character.fromScratch(1, playerName, 'MALE');
         player.monsters.push(POKEDEX.findById(25).result.instanciate(5));
@@ -42,10 +41,8 @@
         player.monsters.push(POKEDEX.findById(9).result.instanciate(5));
         player.monsters.push(POKEDEX.findById(143).result.instanciate(5));
 
-        let save = new Save(player, testMap);
-        saveContext.saves.push(save);
-        localStorage.setItem('saves', JSON.stringify(saveContext.saves));
-        saveContext = new SaveContext(saveContext.saves, false, save);
+        saveContext.createSave(new Save(player, testMap));
+        saveContext = new SaveContext();
     }
 
 </script>
