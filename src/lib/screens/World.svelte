@@ -1,52 +1,51 @@
+<canvas bind:this={canvas} id="main" width="1024" height="1024"></canvas>
+
 <Menu bind:menuOpened bind:player={context.player}/>
 
-<Joy />
+<Joy/>
 
 <script lang="ts">
 
     import {keydownListener, keys, keyupListener, lastKey} from "../js/commands/keyboard";
     import {SelectedSave} from "../js/saves/saves";
-    import {Position, WoldSpriteDrawer} from "../js/sprites/drawers";
+    import {Position} from "../js/sprites/drawers";
     import {BATTLE_STATE, BattleContext, BattleState} from "../js/battle/battle";
-    import {Pokedex} from "../js/pokemons/pokedex";
     import {PokemonInstance} from "../js/pokemons/pokedex";
     import {Character} from "../js/player/player";
     import {onDestroy, onMount} from "svelte";
     import Menu from "../ui/main/Menu.svelte";
     import Joy from "../ui/controls/VControls.svelte";
+    import {MAP_DRAWER, POKEDEX} from "../js/const";
 
+    export let canvas: HTMLCanvasElement;
     export let context: SelectedSave;
+
+    let ctx;
 
     let battleState: BattleState | undefined;
 
     BATTLE_STATE.subscribe(value => {
         battleState = value.state;
     });
-    export let canvas: HTMLCanvasElement;
-
-    export let pokedex: Pokedex;
 
     let menuOpened = false;
-
-    let ctx = canvas.getContext('2d');
-    ctx.font = "12px Arial";
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
 
     let mainLoopContext = {
         id: 0,
         then: Date.now(),
-        fpsInterval: 1000 / 18,
-        imageScale: 3,
+        fpsInterval: 1000 / 10,
+        imageScale: window.innerWidth < 1100 ? 2 : 4.5,
+        playerScale: window.innerWidth < 1100 ? .66 : 1.5,
         debug: false
     }
-
-    let drawer = new WoldSpriteDrawer();
 
     /* Sizing */
 
     function mainLoop() {
         mainLoopContext.id = window.requestAnimationFrame(mainLoop);
+        ctx.font = "12px Arial";
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
 
         let now = Date.now();
         let elapsed = now - mainLoopContext.then;
@@ -61,9 +60,9 @@
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             ctx.save();
-            drawer.draw(ctx, context.map, mainLoopContext.imageScale, mainLoopContext.debug);
+            MAP_DRAWER.draw(ctx, context.map, mainLoopContext.imageScale, mainLoopContext.debug);
 
-            context.player.draw(ctx, mainLoopContext.imageScale);
+            context.player.draw(ctx, "overworld", mainLoopContext.playerScale);
             //currentMap.drawForeground(ctx, movedOffset); // FIXME non transparent tiles
 
             let allowedMove = true;
@@ -81,7 +80,7 @@
                 if (context.map.hasBattleZoneAt(positionOnMap) && Math.random() < 0.1) {
                     let monster = context.map.randomMonster();
                     window.cancelAnimationFrame(mainLoopContext.id);
-                    initiateBattle(pokedex.findById(monster.id).result.instanciate(monster.level));
+                    initiateBattle(POKEDEX.findById(monster.id).result.instanciate(monster.level));
                 }
             }
 
@@ -222,12 +221,13 @@
     }
 
     onDestroy(() => {
-        console.log('destroy');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+        window.cancelAnimationFrame(mainLoopContext.id);
         unbindKeyboard(context.player);
     });
 
     onMount(() => {
+        ctx = canvas.getContext('2d');
         bindKeyboard(context.player);
         mainLoop();
     });
@@ -235,5 +235,14 @@
 </script>
 
 <style lang="scss">
-
+  canvas {
+    z-index: -1;
+    width: 1024px;
+    height: auto;
+    overflow: hidden;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
 </style>
