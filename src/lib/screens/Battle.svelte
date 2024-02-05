@@ -2,16 +2,23 @@
 
 </div>
 
+<!-- UI -->
+<EnemyInfo/>
+<AllyInfo/>
+<ActionBar/>
+
 <script lang="ts">
 
-    import {SelectedSave} from "../js/saves/saves";
     import {BATTLE_STATE, BattleState} from "../js/battle/battle";
     import {Position} from "../js/sprites/drawers";
     import {onMount} from "svelte";
-
-    export let context: SelectedSave;
+    import ActionBar from "../ui/battle/ActionBar.svelte";
+    import EnemyInfo from "../ui/battle/EnemyInfo.svelte";
+    import AllyInfo from "../ui/battle/AllyInfo.svelte";
+    import type {SelectedSave} from "../js/saves/saves";
 
     export let gifsWrapper: HTMLDivElement;
+    export let save: SelectedSave;
 
     let battleState: BattleState | undefined;
 
@@ -24,7 +31,6 @@
             if (!win) {
                 // tp back to the start
                 this.context.map.playerMovedOffset = new Position(0, 0);
-                this.context.pla
             }
             setTimeout(() => {
                 // animate the battle closing
@@ -94,8 +100,6 @@
             }
         }, 200);
     }
-
-    //deprecate
 
     onMount(() => {
         battle();

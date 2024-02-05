@@ -13,7 +13,7 @@
             <button>Trainer</button>
         </li>
         <li>
-            <button>Save</button>
+            <button on:click{saveCurrent}>Save</button>
         </li>
         <li>
             <button>Options</button>
@@ -26,16 +26,28 @@
 
 
 <script lang="ts">
+
+    import type {SaveContext} from "../../js/saves/saves";
+    import {SelectedSave} from "../../js/saves/saves";
+
     export let menuOpened;
-    export let player;
+
+    export let saveContext: SaveContext;
+    export let save: SelectedSave;
+
+    function saveCurrent() {
+        saveContext = saveContext.updateSave(save.save);
+        this.menuOpened = false;
+    }
 </script>
 
 <style lang="scss">
   .menu {
     position: absolute;
     top: 0;
-    right: -20dvw;
-    width: 20dvw;
+    right: -30%;
+    width: 30%;
+    height: 100%;
     font-size: 36px;
     background-color: #FFFFFF;
     z-index: 3;
@@ -59,32 +71,33 @@
       inset #bfecf7 0 0 0 22px;
       border-radius: 12px;
       list-style: none;
-      padding: 12px 32px;
+      padding: 12px;
+      box-sizing: border-box;
       margin: 0;
       display: flex;
+      gap: 8px;
       flex-direction: column;
       height: 100%;
       width: 100%;
       align-items: center;
 
       li {
-        font-size: 4rem;
-        margin: 1rem 0;
+        font-size: 2rem;
         text-align: center;
         cursor: pointer;
         flex-grow: 1;
 
         width: 100%;
         height: 100%;
-        min-height: 60px;
+        //min-height: 60px;
 
         display: flex;
         align-items: center;
         justify-content: center;
 
         /*&:has(button:focus),*/
-         &:hover {
-          :before{
+        &:hover {
+          :before {
             content: "";
             width: 0;
             height: 0;
@@ -95,6 +108,7 @@
             left: 40px;
           }
         }
+
         button {
           background: none;
           border: none;
@@ -123,7 +137,7 @@
     &.open {
       opacity: 1;
       pointer-events: all;
-      right:0;
+      right: 0;
     }
   }
 </style>

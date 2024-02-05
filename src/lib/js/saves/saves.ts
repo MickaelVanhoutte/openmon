@@ -3,6 +3,7 @@ import {OpenMap} from "../mapping/maps";
 
 export class Save {
 
+    public id: number;
     public name: string;
     public player: Character;
     public map: OpenMap;
@@ -13,6 +14,7 @@ export class Save {
         this.player = player;
         this.map = map;
         this.date = new Date();
+        this.id = this.date.getMilliseconds();
     }
 
     public setPrototypes(): Save {
@@ -26,23 +28,79 @@ export class Save {
 }
 
 export class SaveContext {
-    public save?: Save;
-    public fresh: boolean;
     public saves: Save[] = [];
+    public selected?: SelectedSave;
+    public newGame = false;
 
-    constructor(saves: Save[], fresh: boolean = false, save?: Save) {
-        this.saves = saves;
-        this.fresh = fresh;
-        this.save = save;
+    constructor(newGame?: boolean, selected?: SelectedSave) {
+        // @ts-ignore
+        this.saves = localStorage.getItem('saves') && JSON.parse(localStorage.getItem('saves')).map((save: any) => {
+            Object.setPrototypeOf(save, Save.prototype);
+            save.setPrototypes();
+            return save;
+        }) || [];
+        this.newGame = newGame || false;
+        this.selected = selected;
+    }
+
+    public requestNewGame() {
+        Object.assign(this, new SaveContext(true, undefined));
+        return this;
+    }
+
+    public selectSave(save: Save) {
+        this.selected = new SelectedSave(save);
+        Object.assign(this, new SaveContext(false, this.selected));
+        return this;
+    }
+
+    public createSave(save: Save) {
+        this.saves.push(save);
+        this.selected = new SelectedSave(save);
+        this.newGame = false;
+        this.save();
+        Object.assign(this, new SaveContext(false, this.selected));
+        return this;
+    }
+
+    public deleteSave(save: Save) {
+        this.saves = [...this.saves.filter(s => s.id !== save.id)];
+        this.selected = undefined;
+        this.save();
+        Object.assign(this, new SaveContext(false, undefined));
+        return this;
+    }
+
+    public updateSave(save: Save) {
+        this.saves = [...this.saves.map(s => s.id === save.id ? save : s)];
+        this.selected = new SelectedSave(save);
+        this.save();
+        Object.assign(this, new SaveContext(false, this.selected));
+        return this;
+    }
+
+    private save() {
+        localStorage.setItem('saves', JSON.stringify(this.saves));
     }
 }
 
 export class SelectedSave {
-    public player: Character;
-    public map: OpenMap;
+    public save: Save;
 
-    constructor(player: Character, map: OpenMap) {
-        this.player = player;
-        this.map = map;
+    get player() {
+        return this.save.player;
+    }
+
+    get map() {
+        return this.save.map;
+    }
+
+    get id() {
+        return this.save.id;
+    }
+
+    constructor(save: Save) {
+        this.save = save;
     }
 }
+

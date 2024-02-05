@@ -5,7 +5,8 @@ import {SpritesHolder, WoldSpriteDrawer} from "./sprites/drawers";
 
 export let POKEDEX = new Pokedex(pokedexJson);
 
-// SPrites
+// Sprites
 
 export const MAP_DRAWER = new WoldSpriteDrawer();
 export const CHARACTER_SPRITES = new SpritesHolder(charactersJson);
+
