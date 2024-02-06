@@ -16,7 +16,6 @@
             dynamicPositionTarget: wrapper,
             distortion: true,
         }, (data) => {
-            console.log(data);
             // convert data.angle (radian) to a direction (top, bottom, left, right)
             resetKeys();
             if (data.angle) {

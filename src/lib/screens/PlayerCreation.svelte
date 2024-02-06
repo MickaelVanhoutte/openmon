@@ -35,14 +35,13 @@
 
     function handleSubmit() {
         let player = Character.fromScratch(1, playerName, 'MALE');
-        player.monsters.push(POKEDEX.findById(25).result.instanciate(5));
-        player.monsters.push(POKEDEX.findById(3).result.instanciate(5));
+        player.monsters.push(POKEDEX.findById(6).result.instanciate(5));
+       /* player.monsters.push(POKEDEX.findById(3).result.instanciate(5));
         player.monsters.push(POKEDEX.findById(6).result.instanciate(5));
         player.monsters.push(POKEDEX.findById(9).result.instanciate(5));
-        player.monsters.push(POKEDEX.findById(143).result.instanciate(5));
+        player.monsters.push(POKEDEX.findById(143).result.instanciate(5));*/
 
-        saveContext.createSave(new Save(player, testMap));
-        saveContext = new SaveContext();
+        saveContext = saveContext.createSave(new Save(player, testMap));
     }
 
 </script>

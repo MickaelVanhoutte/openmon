@@ -1,12 +1,12 @@
 <svelte:options customElement="open-mon"/>
 
-{#if saveContext.saves.length === 0 || saveContext.newGame}
+{#if saveContext?.saves.length === 0 || saveContext.newGame}
     <PlayerCreation bind:saveContext/>
 {/if}
-{#if saveContext.saves.length > 0 && !saveContext.selected && !saveContext.newGame}
+{#if saveContext?.saves.length > 0 && !saveContext?.selected && !saveContext.newGame}
     <LoadSave bind:saveContext/>
 {/if}
-{#if saveContext.selected}
+{#if saveContext?.selected}
     {#if battleState && !battleState.starting}
         <div class="battle-wrapper">
             <Battle bind:save={saveContext.selected}/>
@@ -22,8 +22,9 @@
     import World from "./lib/screens/World.svelte";
     import Battle from "./lib/screens/Battle.svelte";
     import PlayerCreation from "./lib/screens/PlayerCreation.svelte";
-    import {BATTLE_STATE, BattleState} from "./lib/js/battle/battle";
+    import { BattleState} from "./lib/js/battle/battle";
     import {SaveContext} from "./lib/js/saves/saves";
+    import {BATTLE_STATE} from "./lib/js/const";
 
     export let saveContext = new SaveContext();
 

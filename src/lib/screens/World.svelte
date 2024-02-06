@@ -15,13 +15,13 @@
 
     import {keydownListener, keys, keyupListener, lastKey} from "../js/commands/keyboard";
     import {Position} from "../js/sprites/drawers";
-    import {BATTLE_STATE, BattleContext, BattleState} from "../js/battle/battle";
+    import {BattleContext, BattleState} from "../js/battle/battle";
     import {PokemonInstance} from "../js/pokemons/pokedex";
     import {Character} from "../js/player/player";
     import {onDestroy, onMount} from "svelte";
     import Menu from "../ui/main/Menu.svelte";
     import Joy from "../ui/controls/VControls.svelte";
-    import {MAP_DRAWER, POKEDEX} from "../js/const";
+    import {BATTLE_STATE, MAP_DRAWER, POKEDEX} from "../js/const";
     import {SaveContext, SelectedSave} from "../js/saves/saves";
 
     export let canvas: HTMLCanvasElement;
@@ -164,7 +164,6 @@
         BATTLE_STATE.set(bContext);
 
         setTimeout(() => {
-            console.log('starting false');
             BATTLE_STATE.update(value => {
                 if (value.state) {
                     value.state.starting = false;

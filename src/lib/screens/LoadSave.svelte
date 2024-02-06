@@ -68,14 +68,11 @@
     }
 
     function handleSubmit() {
-        console.log('selected', selected);
         saveContext = saveContext.selectSave(selected);
-        console.log('start from save', saveContext);
     }
 
     function removeSelected() {
         saveContext = saveContext.deleteSave(selected);
-        console.log('remove save', saveContext);
         this.selected = saveContext.saves[0] || null;
     }
 
@@ -100,7 +97,7 @@
     box-sizing: border-box;
     align-content: center;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
 
     :global(img) {
       width: calc(100% / 7);
