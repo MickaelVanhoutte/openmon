@@ -24,6 +24,8 @@
     "gamepadzilla": "^1.0.5",
     "joystick-controller": "^1.0.15",
     "png-js": "^1.0.0",
+    "reflect-metadata": "^0.2.1",
+    "tsyringe": "^4.8.0",
     "virtual-joystick": "^1.0.1"
   }
 }

@@ -1,7 +1,7 @@
 import pokedex from './gen1-2.json' assert {type: 'json'};
 import pokedex2 from './pokedex.json' assert {type: 'json'};
 import pokeWithXp from './poke-withXp.json' assert {type: 'json'};
-import moveAssociations from './final/move-associations_all-togen2.json' assert {type: 'json'};
+import moveAssociations from './final/move-associations-bw.json' assert {type: 'json'};
 import * as fs from "fs";
 
 
@@ -23,7 +23,7 @@ const typeById = {
     15: 'ice',
     16: 'dragon',
     17: 'dark',
-    18: 'dragon'
+    18: 'fairy'
 }
 
 function exportPokemons() {
@@ -117,7 +117,7 @@ function exportPokemons() {
     console.log(pokedexArray.length);
     console.log(pokedexArray[250]);
 
-    fs.writeFile("./pokedexBW-animated.json", JSON.stringify(pokedexArray), (error) => {
+    fs.writeFile("./pokedexBW-animated2.json", JSON.stringify(pokedexArray), (error) => {
         // throwing the error
         // in case of a writing problem
         if (error) {
