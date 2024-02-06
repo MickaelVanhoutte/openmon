@@ -45,7 +45,7 @@ export class ExperienceCalculator {
         let f = 1; // if affection 1.2, probably won't be implemented
         let p = 1; // if pokemon exp point power 1.2, probably won't be implemented
 
-        console.log("XP WIN : ", opponent.name, opponent.baseXp, opponent.level, Math.floor(((b * l) / 7) * a * (1 / s) * t * e * v * f * p))
+
 
         return Math.floor(((b * l) / 7) * a * (1 / s) * t * e * v * f * p);
     }

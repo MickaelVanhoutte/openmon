@@ -72,8 +72,9 @@
 
 <script lang="ts">
 
-    import {Attack, BATTLE_STATE, BattleState, RunAway, typeChart} from "../../js/battle/battle";
+    import {Attack, BattleState, RunAway, typeChart} from "../../js/battle/battle";
     import {onMount} from "svelte";
+    import {BATTLE_STATE} from "../../js/const";
 
     let moveOpened = false;
     let show = false;
@@ -83,7 +84,6 @@
     let disabled = false;
 
     BATTLE_STATE.subscribe(value => {
-        console.log('battle state changed', value.state);
         battleState = value.state;
         if (value.state) {
             currentMessage = value.state.currentMessageV;

@@ -20,7 +20,8 @@
 
 <script lang="ts">
 
-    import {BATTLE_STATE, BattleState} from "../../js/battle/battle";
+    import {BattleState} from "../../js/battle/battle";
+    import {BATTLE_STATE} from "../../js/const";
 
     let battleState: BattleState | undefined;
 
@@ -29,7 +30,6 @@
 
 
     BATTLE_STATE.subscribe(value => {
-        console.log('battle state changed', value.state);
         battleState = value.state;
         currentHp = battleState?.playerCurrentMonster?.currentHp || 0;
         percent = Math.floor(currentHp * 100 / battleState?.playerCurrentMonster?.currentStats.hp);

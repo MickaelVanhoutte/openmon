@@ -1,7 +1,7 @@
 import {Character} from "../player/player";
 import {Move, MoveInstance, PokemonInstance} from "../pokemons/pokedex";
-import {writable} from "svelte/store";
 import {EXPERIENCE_CHART} from "../pokemons/experience";
+import {BATTLE_STATE} from "../const";
 
 //import {MOVE_EFFECT_APPLIER} from "../pokemons/move-effects";
 
@@ -13,8 +13,6 @@ export class BattleContext {
         this.state = state;
     }
 }
-
-export const BATTLE_STATE = writable(new BattleContext());
 
 export class BattleState {
 
@@ -100,9 +98,9 @@ export class BattleState {
                 this.removeHP(action);
             } else if (action instanceof Faint) {
                 action.initiator.fainted = true;
-                if(action.initiator === this.opponentCurrentMonster){
+                if (action.initiator === this.opponentCurrentMonster) {
                     this.lastPokemonFaited = true;
-                    if( this.player.monsters.every((monster: PokemonInstance) => monster.fainted)){
+                    if (this.player.monsters.every((monster: PokemonInstance) => monster.fainted)) {
                         this.turnStack = [];
                         this.addToStack(new Message('No more healthy pokemons', action.initiator));
                         this.addToStack(new EndBattle(action.initiator, false));
@@ -178,7 +176,7 @@ export class BattleState {
 
             const result = this.calculateDamage(attacker, target, action.move);
 
-            console.debug({result})
+            console.log({result})
 
             actionsToPush.push(new Message(attacker.name + ' used ' + action.move.name + '!', action.initiator));
 
@@ -214,6 +212,8 @@ export class BattleState {
             this.opponentCurrentMonster :
             this.playerCurrentMonster;
 
+        console.log(target.currentHp, action.damages, target.currentHp - action.damages)
+
         target.currentHp = target.currentHp - action.damages;
 
         if (target.currentHp <= 0) {
@@ -239,6 +239,7 @@ export class BattleState {
 
     private calculateDamage(attacker: PokemonInstance, defender: PokemonInstance, move: MoveInstance): DamageResults {
         let result = new DamageResults();
+        console.log(move, attacker, defender);
         if (move.category !== 'status') {
             const attack = move.category === 'physical' ? attacker.currentStats.attack : attacker.currentStats.specialAttack;
             const defense = move.category === 'physical' ? defender.currentStats.defense : defender.currentStats.specialDefense;
@@ -298,10 +299,10 @@ export class BattleState {
             (this.opponent instanceof Character && this.opponent.monsters.every((monster: PokemonInstance) => monster.fainted))) {
             this.addToStack(new Message('You won the battle!', action.initiator));
             this.addToStack(new EndBattle(action.initiator));
-        }else if (this.player.monsters.every((monster: PokemonInstance) => monster.fainted)) {
+        } else if (this.player.monsters.every((monster: PokemonInstance) => monster.fainted)) {
             this.addToStack(new Message('You lose the battle...', action.initiator));
             this.addToStack(new EndBattle(action.initiator));
-        }else {
+        } else {
             this.isPlayerTurnV = true;
             this.currentMessageV = `What should ${this.playerCurrentMonster.name} do ?`;
 
@@ -510,6 +511,7 @@ export const typeChart = {
         "dragon": 1,
         "dark": 1,
         "steel": 0.5,
+        "fairy" : 1,
         color: '#a8a67c'
     },
     "fire": {
@@ -530,7 +532,7 @@ export const typeChart = {
         "dragon": 0.5,
         "dark": 1,
         "steel": 2,
-
+        "fairy" : 1,
         color: '#e38643'
     },
     "water": {
@@ -551,7 +553,7 @@ export const typeChart = {
         "dragon": 0.5,
         "dark": 1,
         "steel": 1,
-
+        "fairy" : 1,
         color: '#728cc8',
     },
     "electric": {
@@ -572,7 +574,7 @@ export const typeChart = {
         "dragon": 0.5,
         "dark": 1,
         "steel": 1,
-
+        "fairy" : 1,
         color: '#ecb240'
     },
     "grass": {
@@ -593,7 +595,7 @@ export const typeChart = {
         "dragon": 0.5,
         "dark": 1,
         "steel": 0.5,
-
+        "fairy" : 1,
         color: '#8ac262'
     },
     "ice": {
@@ -614,7 +616,7 @@ export const typeChart = {
         "dragon": 2,
         "dark": 1,
         "steel": 0.5,
-
+        "fairy" : 1,
         color: '#a5d7d9'
     },
     "fighting": {
@@ -635,7 +637,7 @@ export const typeChart = {
         "dragon": 1,
         "dark": 2,
         "steel": 2,
-
+        "fairy" : .5,
         color: '#d84123',
     },
     "poison": {
@@ -656,7 +658,7 @@ export const typeChart = {
         "dragon": 1,
         "dark": 1,
         "steel": 0,
-
+        "fairy" : 2,
         color: '#8d4b9c'
     },
     "ground": {
@@ -677,7 +679,7 @@ export const typeChart = {
         "dragon": 1,
         "dark": 1,
         "steel": 2,
-
+        "fairy" : 1,
         color: '#b59f4b'
     },
     "flying": {
@@ -698,7 +700,7 @@ export const typeChart = {
         "dragon": 1,
         "dark": 1,
         "steel": 0.5,
-
+        "fairy" : 1,
         color: '#a8d6d8'
     },
     "psychic": {
@@ -719,7 +721,7 @@ export const typeChart = {
         "dragon": 1,
         "dark": 0,
         "steel": 0.5,
-
+        "fairy" : 1,
         color: '#e56289'
     },
     "bug": {
@@ -740,7 +742,7 @@ export const typeChart = {
         "dragon": 1,
         "dark": 2,
         "steel": 0.5,
-
+        "fairy" : .5,
         color: '#d8de57'
     },
     "rock": {
@@ -761,7 +763,7 @@ export const typeChart = {
         "dragon": 1,
         "dark": 1,
         "steel": 0.5,
-
+        "fairy" : 1,
         color: '#b59f4d'
     },
     "ghost": {
@@ -782,7 +784,7 @@ export const typeChart = {
         "dragon": 1,
         "dark": 0.5,
         "steel": 0.5,
-
+        "fairy" : 1,
         color: '#944a98'
     },
     "dragon": {
@@ -803,7 +805,7 @@ export const typeChart = {
         "dragon": 2,
         "dark": 1,
         "steel": 0.5,
-
+        "fairy" : 0,
         color: '#758bc6'
     },
     "dark": {
@@ -824,7 +826,7 @@ export const typeChart = {
         "dragon": 1,
         "dark": 0.5,
         "steel": 0.5,
-
+        "fairy" : .5,
         color: '#567783'
     },
     "steel": {
@@ -845,7 +847,27 @@ export const typeChart = {
         "dragon": 1,
         "dark": 1,
         "steel": 0.5,
-
+        "fairy" : 2,
         color: '#577884'
+    },
+    "fairy": {
+        "normal": 1,
+        "fire": .5,
+        "water": 1,
+        "electric": 1,
+        "grass": 1,
+        "ice": 1,
+        "fighting": 2,
+        "poison": .5,
+        "ground": 1,
+        "flying": 1,
+        "psychic": 1,
+        "bug": 1,
+        "rock": 1,
+        "ghost": 1,
+        "dragon": 2,
+        "dark": 2,
+        "steel": .5,
+        "color": '#ee99ac'
     }
 }

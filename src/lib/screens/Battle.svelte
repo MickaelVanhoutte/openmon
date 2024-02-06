@@ -9,13 +9,14 @@
 
 <script lang="ts">
 
-    import {BATTLE_STATE, BattleState} from "../js/battle/battle";
+    import {BattleState} from "../js/battle/battle";
     import {Position} from "../js/sprites/drawers";
     import {onMount} from "svelte";
     import ActionBar from "../ui/battle/ActionBar.svelte";
     import EnemyInfo from "../ui/battle/EnemyInfo.svelte";
     import AllyInfo from "../ui/battle/AllyInfo.svelte";
     import type {SelectedSave} from "../js/saves/saves";
+    import {BATTLE_STATE} from "../js/const";
 
     export let gifsWrapper: HTMLDivElement;
     export let save: SelectedSave;
@@ -30,7 +31,7 @@
         battleState.onClose = (win: boolean) => {
             if (!win) {
                 // tp back to the start
-                this.context.map.playerMovedOffset = new Position(0, 0);
+                this.save.map.playerMovedOffset = new Position(0, 0);
             }
             setTimeout(() => {
                 // animate the battle closing
@@ -88,8 +89,6 @@
                     ally.src = battleState?.playerCurrentMonster.sprites?.male?.back.frame1 || 'src/assets/monsters/bw/0.png';
                     ally.classList.add('ally-sprite');
                     ally.onload = () => {
-                        console.log(ally.naturalWidth, ally.width);
-
                         ally.style.setProperty('--width', ally.naturalWidth + 'px');
                         ally.style.setProperty('--height', ally.naturalHeight + 'px');
                         gifsWrapper.appendChild(ally);
