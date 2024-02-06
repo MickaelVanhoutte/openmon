@@ -1,7 +1,7 @@
 import {Character} from "../player/player";
 import {Move, MoveInstance, PokemonInstance} from "../pokemons/pokedex";
 import {EXPERIENCE_CHART} from "../pokemons/experience";
-import {BATTLE_STATE} from "../const";
+import {BATTLE_STATE, MOVE_EFFECT_APPLIER} from "../const";
 
 //import {MOVE_EFFECT_APPLIER} from "../pokemons/move-effects";
 
@@ -239,18 +239,16 @@ export class BattleState {
 
     private calculateDamage(attacker: PokemonInstance, defender: PokemonInstance, move: MoveInstance): DamageResults {
         let result = new DamageResults();
-        console.log(move, attacker, defender);
-        if (move.category !== 'status') {
+        const typeEffectiveness = this.calculateTypeEffectiveness(move.type, defender.types);
+        result.superEffective = typeEffectiveness > 1;
+        result.notVeryEffective = typeEffectiveness < 1;
+        result.immune = typeEffectiveness === 0;
+        const critical = result.immune ? 0 : this.calculateCritical();
+        result.critical = critical > 1;
+
+        if (move.category !== 'no-damage' && move.power > 0) {
             const attack = move.category === 'physical' ? attacker.currentStats.attack : attacker.currentStats.specialAttack;
             const defense = move.category === 'physical' ? defender.currentStats.defense : defender.currentStats.specialDefense;
-
-            const typeEffectiveness = this.calculateTypeEffectiveness(move.type, defender.types);
-            result.superEffective = typeEffectiveness > 1;
-            result.notVeryEffective = typeEffectiveness < 1;
-            result.immune = typeEffectiveness === 0;
-
-            const critical = result.immune ? 0 : this.calculateCritical();
-            result.critical = critical > 1;
 
             const random = Math.random() * (1 - 0.85) + 0.85;
             const stab = this.calculateStab(attacker, move);
@@ -259,7 +257,14 @@ export class BattleState {
             result.damages = Math.floor((((2 * attacker.level / 5 + 2) * move.power * attack / defense) / 50 + 2) * modifiers);
 
         } else {
+            // stack effect
             result.damages = 0;
+        }
+
+        let effectApplied = this.effectApplies(move);
+        if (effectApplied) {
+            MOVE_EFFECT_APPLIER.apply(move.effect, [defender], attacker);
+            result.effectSuccess = effectApplied;
         }
 
         return result;
@@ -291,7 +296,10 @@ export class BattleState {
     }
 
     private effectApplies(move: MoveInstance) {
-        return move.effect && Number.isInteger(move.effectChance) && Math.random() * 100 < move.effectChance;
+        return move.effect &&
+            ((Number.isInteger(move.effectChance) && Math.random() * 100 < move.effectChance) ||
+                //  100%
+                Number.isNaN(move.effectChance));
     }
 
     private endTurn(action: Action) {
@@ -511,7 +519,7 @@ export const typeChart = {
         "dragon": 1,
         "dark": 1,
         "steel": 0.5,
-        "fairy" : 1,
+        "fairy": 1,
         color: '#a8a67c'
     },
     "fire": {
@@ -532,7 +540,7 @@ export const typeChart = {
         "dragon": 0.5,
         "dark": 1,
         "steel": 2,
-        "fairy" : 1,
+        "fairy": 1,
         color: '#e38643'
     },
     "water": {
@@ -553,7 +561,7 @@ export const typeChart = {
         "dragon": 0.5,
         "dark": 1,
         "steel": 1,
-        "fairy" : 1,
+        "fairy": 1,
         color: '#728cc8',
     },
     "electric": {
@@ -574,7 +582,7 @@ export const typeChart = {
         "dragon": 0.5,
         "dark": 1,
         "steel": 1,
-        "fairy" : 1,
+        "fairy": 1,
         color: '#ecb240'
     },
     "grass": {
@@ -595,7 +603,7 @@ export const typeChart = {
         "dragon": 0.5,
         "dark": 1,
         "steel": 0.5,
-        "fairy" : 1,
+        "fairy": 1,
         color: '#8ac262'
     },
     "ice": {
@@ -616,7 +624,7 @@ export const typeChart = {
         "dragon": 2,
         "dark": 1,
         "steel": 0.5,
-        "fairy" : 1,
+        "fairy": 1,
         color: '#a5d7d9'
     },
     "fighting": {
@@ -637,7 +645,7 @@ export const typeChart = {
         "dragon": 1,
         "dark": 2,
         "steel": 2,
-        "fairy" : .5,
+        "fairy": .5,
         color: '#d84123',
     },
     "poison": {
@@ -658,7 +666,7 @@ export const typeChart = {
         "dragon": 1,
         "dark": 1,
         "steel": 0,
-        "fairy" : 2,
+        "fairy": 2,
         color: '#8d4b9c'
     },
     "ground": {
@@ -679,7 +687,7 @@ export const typeChart = {
         "dragon": 1,
         "dark": 1,
         "steel": 2,
-        "fairy" : 1,
+        "fairy": 1,
         color: '#b59f4b'
     },
     "flying": {
@@ -700,7 +708,7 @@ export const typeChart = {
         "dragon": 1,
         "dark": 1,
         "steel": 0.5,
-        "fairy" : 1,
+        "fairy": 1,
         color: '#a8d6d8'
     },
     "psychic": {
@@ -721,7 +729,7 @@ export const typeChart = {
         "dragon": 1,
         "dark": 0,
         "steel": 0.5,
-        "fairy" : 1,
+        "fairy": 1,
         color: '#e56289'
     },
     "bug": {
@@ -742,7 +750,7 @@ export const typeChart = {
         "dragon": 1,
         "dark": 2,
         "steel": 0.5,
-        "fairy" : .5,
+        "fairy": .5,
         color: '#d8de57'
     },
     "rock": {
@@ -763,7 +771,7 @@ export const typeChart = {
         "dragon": 1,
         "dark": 1,
         "steel": 0.5,
-        "fairy" : 1,
+        "fairy": 1,
         color: '#b59f4d'
     },
     "ghost": {
@@ -784,7 +792,7 @@ export const typeChart = {
         "dragon": 1,
         "dark": 0.5,
         "steel": 0.5,
-        "fairy" : 1,
+        "fairy": 1,
         color: '#944a98'
     },
     "dragon": {
@@ -805,7 +813,7 @@ export const typeChart = {
         "dragon": 2,
         "dark": 1,
         "steel": 0.5,
-        "fairy" : 0,
+        "fairy": 0,
         color: '#758bc6'
     },
     "dark": {
@@ -826,7 +834,7 @@ export const typeChart = {
         "dragon": 1,
         "dark": 0.5,
         "steel": 0.5,
-        "fairy" : .5,
+        "fairy": .5,
         color: '#567783'
     },
     "steel": {
@@ -847,7 +855,7 @@ export const typeChart = {
         "dragon": 1,
         "dark": 1,
         "steel": 0.5,
-        "fairy" : 2,
+        "fairy": 2,
         color: '#577884'
     },
     "fairy": {

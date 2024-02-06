@@ -7,7 +7,7 @@ export default defineConfig({
 	build: {
 		rollupOptions: {
 			output: {
-				entryFileNames: "explorer.js",
+				entryFileNames: "openmon.js",
 			},
 			input: "src/App.svelte",
 		},

@@ -200,7 +200,7 @@ export class UnknownMonster extends PokedexEntry {
 export class Move {
     public name: string;
     public type: string;
-    public category: 'physical' | 'special' | 'status';
+    public category: 'physical' | 'special' | 'no-damage';
     public power: number;
     public accuracy: number;
     public pp: number;
@@ -211,7 +211,7 @@ export class Move {
     public description: string;
     public level: number;
 
-    constructor(name: string, type: string, category: 'physical' | 'special' | 'status', power: number, accuracy: number, pp: number, priority: number, /*target: string,*/ effect: MoveEffect, effectChance: number, description: string, level: number) {
+    constructor(name: string, type: string, category: 'physical' | 'special' | 'no-damage', power: number, accuracy: number, pp: number, priority: number, /*target: string,*/ effect: MoveEffect, effectChance: number, description: string, level: number) {
         this.name = name;
         this.type = type;
         this.category = category;
@@ -325,7 +325,7 @@ export class SpriteGroup {
 export class MoveInstance extends Move {
     public currentPp: number;
 
-    constructor(name: string, type: string, category: 'physical' | 'special' | 'status', power: number, accuracy: number, pp: number, priority: number, /*target: string,*/ effect: MoveEffect, effectChance: number, description: string, level: number) {
+    constructor(name: string, type: string, category: 'physical' | 'special' | 'no-damage', power: number, accuracy: number, pp: number, priority: number, /*target: string,*/ effect: MoveEffect, effectChance: number, description: string, level: number) {
         super(name, type, category, power, accuracy, pp, priority, /*target,*/ effect, effectChance, description, level);
         this.currentPp = pp;
     }

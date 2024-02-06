@@ -58,14 +58,14 @@ function exportMoves() {
 
     let movesAssociation = movesAssFromJson;
     // Moves associations
-   /* {
-        "pokemon_id":"1",
-        "version_group_id":"1",
-        "move_id":"33",
-        "pokemon_move_method_id":"1",
-        "level":"1",
-        "order":"1"
-    }*/
+    /* {
+         "pokemon_id":"1",
+         "version_group_id":"1",
+         "move_id":"33",
+         "pokemon_move_method_id":"1",
+         "level":"1",
+         "order":"1"
+     }*/
 
     console.log('writing move associations');
 
@@ -73,26 +73,27 @@ function exportMoves() {
 
     movesAssociation
         //pokemon_move_method_id === 1 : by lvl up,  version_group_id === 7 : fire red
-        .filter((move) => Number.parseInt(move.pokemon_move_method_id) === 1 && move.version_group_id === '7' && move.pokemon_id <= 251)
+        .filter((move) => Number.parseInt(move.pokemon_move_method_id) === 1 && move.version_group_id === '11' && move.pokemon_id <= 251)
         .forEach((move) => {
 
             let moveFound = movesFromJson.find((m) => m.id === Number.parseInt(move.move_id));
             let moveEffectFound = moveEffectsFromJson.find((m) => m.move_effect_id === moveFound.effect_id);
 
             if (moveFound && typeById[moveFound.type_id] && moveEffectFound) {
+                console.log(moveFound.damage_class_id === 1 ? 'no-damage' : moveFound.damage_class_id === 2 ? 'physical' : 'special')
                 movesAssociationArray.push({
                     pokemon_id: move.pokemon_id,
                     move: {
                         name: moveFound.identifier,
                         type: typeById[moveFound.type_id],
-                        category: moveFound.damage_class_id === 1 ? 'physical' : moveFound.damage_class_id === 2 ? 'special' : 'status',
+                        category: moveFound.damage_class_id === 1 ? 'no-damage' : moveFound.damage_class_id === 2 ? 'physical' : 'special',
                         power: moveFound.power,
                         accuracy: moveFound.accuracy,
                         pp: moveFound.pp,
                         priority: moveFound.priority,
                         /*target: string,*/ // TODO
                         effect: moveEffectFound,
-                        effectChance: moveFound.effect_chance === '' ? null : moveFound.effect_chance,
+                        effectChance: moveFound.effect_chance === '' ? 100 : moveFound.effect_chance,
                         description: moveEffectFound.short_effect
                     },
                     level: move.level
@@ -102,7 +103,7 @@ function exportMoves() {
 
     console.log(movesAssociationArray.length);
 
-    fs.writeFile("./move-associations_all-togen2.json", JSON.stringify(movesAssociationArray), (error) => {
+    fs.writeFile("./move-associations-bw.json", JSON.stringify(movesAssociationArray), (error) => {
         // throwing the error
         // in case of a writing problem
         if (error) {

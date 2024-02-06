@@ -1,4 +1,7 @@
-/*
+import "reflect-metadata";
+import {injectable, injectAll, registry, singleton} from "tsyringe";
+import type {PokemonInstance} from "./pokedex";
+import {MoveEffect} from "./pokedex";
 
 
 interface Effect {
@@ -44,10 +47,42 @@ class Poison implements Effect {
     }
 }
 
+// 4 Drain
+
+@injectable()
+class Burn implements Effect {
+    move_effect_id = 5;
+
+    apply(target: PokemonInstance[]): void {
+        console.log('burn');
+    }
+}
+
+@injectable()
+class Freeze implements Effect {
+    move_effect_id = 6;
+
+    apply(target: PokemonInstance[]): void {
+        console.log('freeze');
+    }
+}
+
+@injectable()
+class Paralyze implements Effect {
+    move_effect_id = 7;
+
+    apply(target: PokemonInstance[]): void {
+        console.log('paralyse');
+    }
+}
 
 @registry([
     {token: Registry.token, useToken: RegularDamageEffect},
-
+    {token: Registry.token, useToken: Sleep},
+    {token: Registry.token, useToken: Poison},
+    {token: Registry.token, useToken: Burn},
+    {token: Registry.token, useToken: Freeze},
+    {token: Registry.token, useToken: Paralyze},
 ])
 abstract class Registry {
     static readonly token = Symbol("Effects");
@@ -63,6 +98,3 @@ export class MoveEffectApplier {
         this.moveEffects.find(effect => effect.move_effect_id === moveEffect.move_effect_id)?.apply(target) || console.log('No effect found');
     }
 }
-
-export const MOVE_EFFECT_APPLIER = container.resolve(MoveEffectApplier);
-*/
