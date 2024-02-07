@@ -1,9 +1,8 @@
+import "@abraham/reflection";
 import {Character} from "../player/player";
 import {Move, MoveInstance, PokemonInstance} from "../pokemons/pokedex";
 import {EXPERIENCE_CHART} from "../pokemons/experience";
 import {BATTLE_STATE, MOVE_EFFECT_APPLIER} from "../const";
-
-//import {MOVE_EFFECT_APPLIER} from "../pokemons/move-effects";
 
 
 export class BattleContext {
@@ -117,8 +116,21 @@ export class BattleState {
                 }
 
             } else if (action instanceof ApplyEffect) {
-                //MOVE_EFFECT_APPLIER.apply(action.move.effect, action.target === 'opponent' ? [this.opponentCurrentMonster] : [action.initiator], action.initiator);
+                let result = MOVE_EFFECT_APPLIER.apply(action.move.effect, action.target === 'opponent' ? [this.opponentCurrentMonster] : [action.initiator], action.initiator);
+                if (result?.message) {
+                    this.addToStack(new Message(result.message, action.initiator), true);
+                }
             } else if (action instanceof EndTurn) {
+
+                // TODO : export endTurn method && add effect play result message to stack
+                if(this.playerCurrentMonster.status && this.playerCurrentMonster.status.when=== 'end-turn'){
+                    this.playerCurrentMonster.status.playEffect(this.playerCurrentMonster);
+                }
+
+                if(this.opponentCurrentMonster.status && this.opponentCurrentMonster.status.when=== 'end-turn'){
+                    this.opponentCurrentMonster.status.playEffect(this.opponentCurrentMonster);
+                }
+
                 this.endTurn(action)
             } else if (action instanceof EndBattle) {
                 this.ending = true;
@@ -170,15 +182,15 @@ export class BattleState {
         const actionsToPush: Action[] = [];
         const success = this.accuracyApplies(action.move);
 
-        console.debug('attack', {attacker}, {target}, {success});
+        actionsToPush.push(new Message(attacker.name + ' used ' + action.move.name + '!', action.initiator));
+
+        console.log('attack', {attacker}, {target}, {success});
 
         if (success) {
 
             const result = this.calculateDamage(attacker, target, action.move);
 
             console.log({result})
-
-            actionsToPush.push(new Message(attacker.name + ' used ' + action.move.name + '!', action.initiator));
 
             if (result.immune) {
                 actionsToPush.push(new Message('It doesn\'t affect ' + target.name + '...', action.initiator));
@@ -257,14 +269,7 @@ export class BattleState {
             result.damages = Math.floor((((2 * attacker.level / 5 + 2) * move.power * attack / defense) / 50 + 2) * modifiers);
 
         } else {
-            // stack effect
             result.damages = 0;
-        }
-
-        let effectApplied = this.effectApplies(move);
-        if (effectApplied) {
-            MOVE_EFFECT_APPLIER.apply(move.effect, [defender], attacker);
-            result.effectSuccess = effectApplied;
         }
 
         return result;

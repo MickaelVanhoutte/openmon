@@ -4,7 +4,7 @@ import charactersJson from "../../assets/characts/characts.json";
 import {SpritesHolder, WoldSpriteDrawer} from "./sprites/drawers";
 import {writable} from "svelte/store";
 import {BattleContext} from "./battle/battle";
-import "reflect-metadata";
+import "@abraham/reflection";
 import {container} from "tsyringe";
 import {MoveEffectApplier} from "./pokemons/move-effects";
 
@@ -18,3 +18,4 @@ export const CHARACTER_SPRITES = new SpritesHolder(charactersJson);
 export const BATTLE_STATE = writable(new BattleContext());
 
 export const MOVE_EFFECT_APPLIER = container.resolve(MoveEffectApplier);
+console.log(MOVE_EFFECT_APPLIER);

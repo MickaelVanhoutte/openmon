@@ -9,6 +9,9 @@
     "check": "svelte-check --tsconfig ./tsconfig.json"
   },
   "devDependencies": {
+    "@rollup/plugin-typescript": "^11.1.6",
+    "@abraham/reflection": "^0.12.0",
+    "@anatine/esbuild-decorators": "^0.2.19",
     "@sveltejs/vite-plugin-svelte": "^3.0.1",
     "@tsconfig/svelte": "^5.0.2",
     "sass": "^1.69.5",
@@ -20,12 +23,10 @@
   },
   "type": "module",
   "dependencies": {
+    "@abraham/reflection": "^0.12.0",
+    "@anatine/esbuild-decorators": "^0.2.19",
     "canvas": "^2.11.2",
-    "gamepadzilla": "^1.0.5",
     "joystick-controller": "^1.0.15",
-    "png-js": "^1.0.0",
-    "reflect-metadata": "^0.2.1",
-    "tsyringe": "^4.8.0",
-    "virtual-joystick": "^1.0.1"
+    "tsyringe": "^4.8.0"
   }
 }

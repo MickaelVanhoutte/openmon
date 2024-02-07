@@ -1,4 +1,5 @@
 import {EXPERIENCE_CHART} from "./experience";
+import type {Effect} from "./move-effects";
 
 export class Pokedex {
 
@@ -350,6 +351,8 @@ export class PokemonInstance extends PokedexEntry {
 
     public isShiny: boolean = false;
 
+    public status?: Effect;
+
     get spriteScale(): number {
         return 1;
     }
@@ -428,6 +431,14 @@ export class PokemonInstance extends PokedexEntry {
             Math.floor(((this.ivs.specialDefense + this.stats.specialDefense * 2 + this.evs.specialDefense / 4) * this.level / 100 + 5)),
             Math.floor(((this.ivs.speed + this.stats.speed * 2 + this.evs.speed / 4) * this.level / 100 + 5))
         )
+    }
+
+    public removeHp(hp: number) {
+        this.currentHp -= hp;
+        if (this.currentHp <= 0) {
+            this.currentHp = 0;
+            this.fainted = true;
+        }
     }
 
     public howMuchXpWon(opponent: PokemonInstance, participated: number = 1, fromTrainer: boolean = false): number {
