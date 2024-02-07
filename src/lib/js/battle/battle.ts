@@ -116,21 +116,15 @@ export class BattleState {
                 }
 
             } else if (action instanceof ApplyEffect) {
-                let result = MOVE_EFFECT_APPLIER.apply(action.move.effect, action.target === 'opponent' ? [this.opponentCurrentMonster] : [action.initiator], action.initiator);
+                let target = 'opponent' ? this.opponentCurrentMonster : action.initiator;
+                let result = MOVE_EFFECT_APPLIER.apply(action.move.effect, [target], action.initiator);
+                if (result?.effect) {
+                    target.status = result.effect;
+                }
                 if (result?.message) {
                     this.addToStack(new Message(result.message, action.initiator), true);
                 }
             } else if (action instanceof EndTurn) {
-
-                // TODO : export endTurn method && add effect play result message to stack
-                if(this.playerCurrentMonster.status && this.playerCurrentMonster.status.when=== 'end-turn'){
-                    this.playerCurrentMonster.status.playEffect(this.playerCurrentMonster);
-                }
-
-                if(this.opponentCurrentMonster.status && this.opponentCurrentMonster.status.when=== 'end-turn'){
-                    this.opponentCurrentMonster.status.playEffect(this.opponentCurrentMonster);
-                }
-
                 this.endTurn(action)
             } else if (action instanceof EndBattle) {
                 this.ending = true;
@@ -179,6 +173,19 @@ export class BattleState {
     private attack(action: Attack) {
         const attacker = action.initiator;
         const target = action.target === 'opponent' ? this.opponentCurrentMonster : this.playerCurrentMonster;
+
+        // start turn effects (sleep, paralysis..)
+        if (attacker.status?.when === 'start-turn') {
+            let effect = attacker.status.playEffect(attacker);
+
+            if (effect?.message) {
+                this.addToStack(new Message(effect.message, attacker), true);
+            }
+            if (!effect.canPlay) {
+                return;
+            }
+        }
+
         const actionsToPush: Action[] = [];
         const success = this.accuracyApplies(action.move);
 
@@ -316,6 +323,23 @@ export class BattleState {
             this.addToStack(new Message('You lose the battle...', action.initiator));
             this.addToStack(new EndBattle(action.initiator));
         } else {
+
+            // TODO fix effect messages, split methods in 'check end battle', 'check-effects', 'end battle'
+
+            // end turn effects (burn, poison..)
+            if (this.playerCurrentMonster.status && this.playerCurrentMonster.status.when === 'end-turn') {
+                let effect = this.playerCurrentMonster.status.playEffect(this.playerCurrentMonster);
+                if (effect?.message) {
+                    this.addToStack(new Message(effect.message, this.playerCurrentMonster), true);
+                }
+            }
+            if (this.opponentCurrentMonster.status && this.opponentCurrentMonster.status.when === 'end-turn') {
+                let effect = this.opponentCurrentMonster.status.playEffect(this.opponentCurrentMonster);
+                if (effect?.message) {
+                    this.addToStack(new Message(effect.message, this.opponentCurrentMonster), true);
+                }
+            }
+
             this.isPlayerTurnV = true;
             this.currentMessageV = `What should ${this.playerCurrentMonster.name} do ?`;
 

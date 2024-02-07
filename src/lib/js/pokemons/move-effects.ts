@@ -13,9 +13,20 @@ export class EffectResult {
     }
 }
 
+export class EffectForTurn {
+    message?: string;
+    canPlay?: boolean;
+
+    constructor(canPlay?: boolean, message?: string) {
+        this.canPlay = canPlay;
+        this.message = message;
+    }
+}
+
 
 export interface Effect {
     move_effect_id: number;
+    abr: string;
     duration: number;
     when: 'start-turn' | 'end-turn' | 'before-move' | 'after-move' | 'before-switch' | 'after-switch' | 'before-faint' | 'after-faint';
     damages: number;
@@ -25,14 +36,13 @@ export interface Effect {
 
     apply(target: PokemonInstance[]): EffectResult;
 
-    playEffect(target: PokemonInstance): void;
-
-    canPlay(): boolean;
+    playEffect(target: PokemonInstance): EffectForTurn;
 }
 
 @injectable()
 class RegularDamageEffect implements Effect {
     move_effect_id: number = 1;
+    abr: string = '';
     duration: number = -1;
     when: 'start-turn' | 'end-turn' | 'before-move' | 'after-move' | 'before-switch' | 'after-switch' | 'before-faint' | 'after-faint' = 'after-move';
     damages: number = 0;
@@ -48,20 +58,17 @@ class RegularDamageEffect implements Effect {
         return new EffectResult(new RegularDamageEffect());
     }
 
-    playEffect(target: PokemonInstance): void {
+    playEffect(target: PokemonInstance): EffectForTurn {
         // nothing
+        return new EffectForTurn(true);
     }
-
-    canPlay(): boolean {
-        return true;
-    }
-
 
 }
 
 @injectable()
 class Sleep implements Effect {
     move_effect_id: number = 2;
+    abr: string = 'SLP';
     duration: number = 0;
     when: 'start-turn' | 'end-turn' | 'before-move' | 'after-move' | 'before-switch' | 'after-switch' | 'before-faint' | 'after-faint' = 'start-turn'
     damages: number = 0;
@@ -79,17 +86,14 @@ class Sleep implements Effect {
         return new EffectResult(sleep, `${target[0].name} fell asleep`);
     }
 
-    playEffect(target: PokemonInstance): void {
+    playEffect(target: PokemonInstance): EffectForTurn {
         this.turnsPassed++;
 
         if (this.turnsPassed >= this.duration) {
             this.healed = true;
             target.status = undefined;
         }
-    }
-
-    canPlay(): boolean {
-        return this.healed;
+        return new EffectForTurn(this.healed, this.healed ? `${target.name} woke up !` : `${target.name} is deep asleep`)
     }
 }
 
@@ -97,6 +101,7 @@ class Sleep implements Effect {
 @injectable()
 class Poison implements Effect {
     move_effect_id: number = 3;
+    abr: string = 'PSN';
     duration: number = -1;
     when: 'start-turn' | 'end-turn' | 'before-move' | 'after-move' | 'before-switch' | 'after-switch' | 'before-faint' | 'after-faint' = 'end-turn';
     damages: number = 0;
@@ -114,12 +119,9 @@ class Poison implements Effect {
         return new EffectResult(poison, `${target[0].name} is poisoned`);
     }
 
-    playEffect(target: PokemonInstance): void {
+    playEffect(target: PokemonInstance): EffectForTurn {
         target.removeHp(this.damages);
-    }
-
-    canPlay(): boolean {
-        return true;
+        return new EffectForTurn(true, `${target.name} is hurt by poison`);
     }
 }
 
@@ -128,6 +130,7 @@ class Poison implements Effect {
 @injectable()
 class Burn implements Effect {
     move_effect_id = 5;
+    abr: string = 'BRN';
     duration: number = -1;
     when: 'start-turn' | 'end-turn' | 'before-move' | 'after-move' | 'before-switch' | 'after-switch' | 'before-faint' | 'after-faint' = 'end-turn';
     damages: number = 0;
@@ -145,18 +148,17 @@ class Burn implements Effect {
         return new EffectResult(burn, `${target[0].name} is burnt`);
     }
 
-    playEffect(target: PokemonInstance): void {
+    playEffect(target: PokemonInstance): EffectForTurn {
         target.removeHp(this.damages);
+        return new EffectForTurn(true, `${target.name} is hurt by burn`);
     }
 
-    canPlay(): boolean {
-        return true;
-    }
 }
 
 @injectable()
 class Freeze implements Effect {
     move_effect_id = 6;
+    abr: string = 'FRZ';
     duration: number = -1;
     when: 'start-turn' | 'end-turn' | 'before-move' | 'after-move' | 'before-switch' | 'after-switch' | 'before-faint' | 'after-faint' = "start-turn";
     damages: number = 0;
@@ -172,21 +174,20 @@ class Freeze implements Effect {
         return new EffectResult(new Freeze(), `${target[0].name} is frozen`);
     }
 
-    playEffect(target: PokemonInstance): void {
+    playEffect(target: PokemonInstance): EffectForTurn {
         if (Math.random() < 0.2) {
             this.healed = true;
             target.status = undefined;
         }
-    }
 
-    canPlay(): boolean {
-        return this.healed;
+        return new EffectForTurn(this.healed, this.healed ? `${target.name} thawed out` : `${target.name} is frozen solid`);
     }
 }
 
 @injectable()
 class Paralyze implements Effect {
     move_effect_id = 7;
+    abr: string = 'PAR';
     duration: number = -1;
     when: 'start-turn' | 'end-turn' | 'before-move' | 'after-move' | 'before-switch' | 'after-switch' | 'before-faint' | 'after-faint' = "start-turn";
     damages: number = 0;
@@ -202,13 +203,11 @@ class Paralyze implements Effect {
         return new EffectResult(new Paralyze(), `${target[0].name} is paralyzed`);
     }
 
-    playEffect(target: PokemonInstance): void {
-
+    playEffect(target: PokemonInstance): EffectForTurn {
+        let canPlay = Math.random() < 0.25;
+        return new EffectForTurn(canPlay, canPlay ? undefined : `${target.name} is fully paralyzed`);
     }
 
-    canPlay(): boolean {
-        return Math.random() < 0.25;
-    }
 }
 
 
@@ -226,6 +225,7 @@ abstract class Registry {
 
 class UnknownEffect implements Effect {
     damages: number = 0;
+    abr: string = '???';
     duration: number = 0;
     move_effect_id: number = 0;
     when: "start-turn" | "end-turn" | "before-move" | "after-move" | "before-switch" | "after-switch" | "before-faint" | "after-faint" = "start-turn";
@@ -236,12 +236,9 @@ class UnknownEffect implements Effect {
         return new EffectResult(new UnknownEffect(), 'Effect not implemented yet...');
     }
 
-    canPlay(): boolean {
-        return true;
-    }
-
-    playEffect(target: PokemonInstance): void {
+    playEffect(target: PokemonInstance): EffectForTurn {
         target.status = undefined;
+        return new EffectForTurn(true, 'Effect not implemented yet...');
     }
 
 }

@@ -5,13 +5,22 @@
         <span>Lv.{battleState?.opponentCurrentMonster.level}</span>
     </div>
 
-    <div class="hp">
-        <span>HP</span>
-        <div class="progressbar-wrapper">
-            <div class="progressbar" class:warning={percent <= 50} class:danger={percent < 15 }
-                 style="--width:{percent + '%'}"></div>
+    <div class="hp-status">
+        <div class="status">
+            {#if battleState?.opponentCurrentMonster?.status}
+                {battleState?.opponentCurrentMonster?.status?.abr}
+            {/if}
+        </div>
+
+        <div class="hp">
+            <span>HP</span>
+            <div class="progressbar-wrapper">
+                <div class="progressbar" class:warning={percent <= 50} class:danger={percent < 15 }
+                     style="--width:{percent + '%'}"></div>
+            </div>
         </div>
     </div>
+
 
 </div>
 
@@ -87,6 +96,12 @@
       margin-bottom: 4px;
     }
 
+    .hp-status{
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
     .status {
       display: flex;
       flex-direction: column;
@@ -149,8 +164,8 @@
       border: 8px solid #595b59;
 
       width: 50%;
-      flex-direction: row;
-      align-items: center;
+      flex-direction: column;
+      align-items: normal;
       gap: 8px;
       right: 0;
 
@@ -159,7 +174,7 @@
       }
 
       .hp {
-        width: 80%;
+        width: 50%;
         height: 18px;
 
         .progressbar-wrapper {
