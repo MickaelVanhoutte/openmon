@@ -62,7 +62,7 @@ export class BattleState {
     public selectAction(action: Action) {
         this.isPlayerTurnV = false;
 
-        if (action instanceof Attack && this.playerCurrentMonster.currentStats.speed > this.opponentCurrentMonster.currentStats.speed
+        if (action instanceof Attack && this.playerCurrentMonster.battleStats.speed > this.opponentCurrentMonster.battleStats.speed
             || action instanceof RunAway
             || action instanceof ChangePokemon
             || action instanceof BagObject) {
@@ -155,7 +155,7 @@ export class BattleState {
             // randomized based on opponent speed
             this.escapeAttempts++;
             const random = Math.random() * 255;
-            const f = Math.floor((this.opponentCurrentMonster.currentStats.speed * 128) / this.playerCurrentMonster.currentStats.speed) + 30 * this.escapeAttempts * random;
+            const f = Math.floor((this.opponentCurrentMonster.battleStats.speed * 128) / this.playerCurrentMonster.battleStats.speed) + 30 * this.escapeAttempts * random;
 
             if (f > 255) {
                 this.turnStack = [];
@@ -174,9 +174,9 @@ export class BattleState {
         const attacker = action.initiator;
         const target = action.target === 'opponent' ? this.opponentCurrentMonster : this.playerCurrentMonster;
 
-        // start turn effects (sleep, paralysis..)
+        // start turn statuses (sleep, paralysis..)
         if (attacker.status?.when === 'start-turn') {
-            let effect = attacker.status.playEffect(attacker);
+            let effect = attacker.status.playEffect(attacker, target);
 
             if (effect?.message) {
                 this.addToStack(new Message(effect.message, attacker), true);
@@ -185,6 +185,7 @@ export class BattleState {
                 return;
             }
         }
+
 
         const actionsToPush: Action[] = [];
         const success = this.accuracyApplies(action.move);
@@ -196,8 +197,13 @@ export class BattleState {
         if (success) {
 
             const result = this.calculateDamage(attacker, target, action.move);
+            let effect = MOVE_EFFECT_APPLIER.findEffect(action.move.effect);
 
             console.log({result})
+
+            if (effect.when === 'before-move' && this.effectApplies(action.move)) {
+                actionsToPush.push(new ApplyEffect(action.move, action.target, action.initiator))
+            }
 
             if (result.immune) {
                 actionsToPush.push(new Message('It doesn\'t affect ' + target.name + '...', action.initiator));
@@ -212,9 +218,11 @@ export class BattleState {
 
             actionsToPush.push(new RemoveHP(result.damages, action.target, action.initiator));
 
+            // Apply attack effect
             if (!result.immune && this.effectApplies(action.move)) {
                 actionsToPush.push(new ApplyEffect(action.move, action.target, action.initiator))
             }
+
         } else {
             actionsToPush.push(new Message('But it failed!', action.initiator));
         }
@@ -266,8 +274,8 @@ export class BattleState {
         result.critical = critical > 1;
 
         if (move.category !== 'no-damage' && move.power > 0) {
-            const attack = move.category === 'physical' ? attacker.currentStats.attack : attacker.currentStats.specialAttack;
-            const defense = move.category === 'physical' ? defender.currentStats.defense : defender.currentStats.specialDefense;
+            const attack = move.category === 'physical' ? attacker.battleStats.attack : attacker.battleStats.specialAttack;
+            const defense = move.category === 'physical' ? defender.battleStats.defense : defender.battleStats.specialDefense;
 
             const random = Math.random() * (1 - 0.85) + 0.85;
             const stab = this.calculateStab(attacker, move);
@@ -328,22 +336,23 @@ export class BattleState {
 
             // end turn effects (burn, poison..)
             if (this.playerCurrentMonster.status && this.playerCurrentMonster.status.when === 'end-turn') {
-                let effect = this.playerCurrentMonster.status.playEffect(this.playerCurrentMonster);
+                let effect = this.playerCurrentMonster.status.playEffect(this.playerCurrentMonster, this.opponentCurrentMonster);
                 if (effect?.message) {
                     this.addToStack(new Message(effect.message, this.playerCurrentMonster), true);
                 }
             }
             if (this.opponentCurrentMonster.status && this.opponentCurrentMonster.status.when === 'end-turn') {
-                let effect = this.opponentCurrentMonster.status.playEffect(this.opponentCurrentMonster);
+                let effect = this.opponentCurrentMonster.status.playEffect(this.opponentCurrentMonster, this.playerCurrentMonster);
                 if (effect?.message) {
                     this.addToStack(new Message(effect.message, this.opponentCurrentMonster), true);
                 }
             }
 
+            this.addToStack(new Message(`What should ${this.playerCurrentMonster.name} do ?`, action.initiator));
             this.isPlayerTurnV = true;
-            this.currentMessageV = `What should ${this.playerCurrentMonster.name} do ?`;
 
         }
+        this.playerCurrentMonster.resetBattleStats();
         BATTLE_STATE.set(new BattleContext(this));
     }
 }

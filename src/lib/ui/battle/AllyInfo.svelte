@@ -6,14 +6,25 @@
     </div>
 
     <!--<div class="status">-->
-    <div class="hp">
-        <span>HP</span>
-        <div class="progressbar-wrapper">
-            <div class="progressbar" class:warning={percent <= 50} class:danger={percent < 15 }
-                 style="--width:{percent + '%'}"></div>
+    <div class="hp-status">
+        <div class="status">
+            {#if battleState?.playerCurrentMonster?.status}
+                {battleState?.playerCurrentMonster?.status?.abr}
+            {/if}
+        </div>
+
+        <div class="hp">
+            <span>HP</span>
+            <div class="progressbar-wrapper">
+                <span class="hp-value">{currentHp} / {battleState.playerCurrentMonster.currentStats.hp}</span>
+                <div class="progressbar" class:warning={percent <= 50} class:danger={percent < 15 }
+                     style="--width:{percent + '%'}">
+                </div>
+            </div>
         </div>
     </div>
-    <div>{currentHp}/{battleState.playerCurrentMonster.currentStats.hp}</div>
+
+
     <!--</div>-->
 
 </div>
@@ -82,13 +93,19 @@
 
     font-size: 46px;
 
-    animation: appear .5s ease-in forwards , bounce 2s ease-in-out infinite;
+    animation: appear .5s ease-in forwards, bounce 2s ease-in-out infinite;
 
     .name-lvl {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 4px;
+    }
+
+    .hp-status {
+      display: flex;
+      flex-direction: row;
+      gap: 8px;
+      justify-content: space-between;
     }
 
     .status {
@@ -110,8 +127,8 @@
       border-radius: 8px;
       padding: 3px;
 
-      span {
-        padding: 0 0 0 12px;
+      & > span {
+        padding: 0 12px;
         font-weight: bold;
       }
 
@@ -122,15 +139,28 @@
         background-color: #595b59;
         border-radius: 4px;
         border: 2px solid white;
+        position: relative;
+
+        .hp-value {
+          position: absolute;
+          //mix-blend-mode: difference;
+          font-size: 18px;
+          color: white;
+          left: 50%;
+          top: 50%;
+          transform: translate(-50%, -50%);
+        }
 
         .progressbar {
           width: var(--width);
           height: 100%;
           background: rgb(184, 244, 166);
           background: linear-gradient(0deg, rgba(184, 244, 166, 1) 0%, rgba(86, 170, 58, 1) 30%, rgba(86, 170, 58, 1) 50%, rgba(86, 170, 58, 1) 70%, rgba(184, 244, 166, 1) 100%);
-          text-align: center;
           border-radius: 2px;
-
+          display: flex;
+          text-align: center;
+          align-items: center;
+          justify-content: center;
           transition: width 1s ease-in-out;
 
           &.warning {
@@ -154,8 +184,8 @@
       bottom: 31%;
 
       width: 50%;
-      flex-direction: row;
-      align-items: center;
+      flex-direction: column;
+      align-items: normal;
       gap: 8px;
       right: 0;
       left: 50%;
@@ -165,7 +195,7 @@
       }
 
       .hp {
-        width: 80%;
+        width: 70%;
         height: 18px;
 
         .progressbar-wrapper {

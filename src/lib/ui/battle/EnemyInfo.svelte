@@ -93,13 +93,13 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 4px;
     }
 
     .hp-status{
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
+      display: flex;
+      flex-direction: row;
+      gap: 8px;
+      justify-content: space-between;
     }
 
     .status {
@@ -121,8 +121,8 @@
       border-radius: 8px;
       padding: 3px;
 
-      span {
-        padding: 0 0 0 12px;
+      & > span {
+        padding: 0 12px;
         font-weight: bold;
       }
 
@@ -133,6 +133,10 @@
         background-color: #595b59;
         border-radius: 4px;
         border: 2px solid white;
+
+        .hp-value {
+          position: absolute;
+        }
 
         .progressbar {
           width: var(--width);
@@ -174,7 +178,7 @@
       }
 
       .hp {
-        width: 50%;
+        width: 70%;
         height: 18px;
 
         .progressbar-wrapper {
