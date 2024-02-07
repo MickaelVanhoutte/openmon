@@ -17,7 +17,7 @@
 {/if}
 
 <script lang="ts">
-
+    import "@abraham/reflection";
     import LoadSave from "./lib/screens/LoadSave.svelte";
     import World from "./lib/screens/World.svelte";
     import Battle from "./lib/screens/Battle.svelte";

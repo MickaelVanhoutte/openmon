@@ -58,14 +58,14 @@ function exportMoves() {
 
     let movesAssociation = movesAssFromJson;
     // Moves associations
-   /* {
-        "pokemon_id":"1",
-        "version_group_id":"1",
-        "move_id":"33",
-        "pokemon_move_method_id":"1",
-        "level":"1",
-        "order":"1"
-    }*/
+    /* {
+         "pokemon_id":"1",
+         "version_group_id":"1",
+         "move_id":"33",
+         "pokemon_move_method_id":"1",
+         "level":"1",
+         "order":"1"
+     }*/
 
     console.log('writing move associations');
 

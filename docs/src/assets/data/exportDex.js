@@ -78,7 +78,7 @@ function exportPokemons() {
                         effectChance: move.move.effectChance,
                         description: move.move.description,
                         level: Number.parseInt(move.level),
-                }}),
+                    }}),
                 stats: {
                     hp: pokemon.hp,
                     attack: pokemon.attack,

@@ -15,6 +15,14 @@
                 "y": 160.74074074074073
             }
         },
+        "test-map2.tmx": {
+            "scale": 0.8077,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 571.9945524328341,
+                "y": 461.80512566546986
+            }
+        },
         "tileset.tsx": {
             "scaleInDock": 1.9183,
             "scaleInEditor": 1
@@ -34,8 +42,8 @@
     ],
     "project": "openmon.tiled-project",
     "recentFiles": [
-        "tileset.tsx",
-        "test-mal.tmx"
+        "test-mal.tmx",
+        "tileset.tsx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.margin": 1,
