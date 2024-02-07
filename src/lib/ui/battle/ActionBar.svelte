@@ -36,8 +36,8 @@
             {#each battleState?.playerCurrentMonster?.moves as move, index}
                 <button class="action-btn" style="--color:{typeChart[move.type].color}" {disabled}
                         class:selected={selectedMoveIdx === index}
-                        on:mouseover={() => selectedMoveIdx = index}
-                        on:click={() =>selectMove(move)}>
+                        on:mouseover={() => selectMove(index)}
+                        on:click={() => launchMove(move)}>
                     {move.name.toUpperCase()}
                 </button>
             {/each}
@@ -104,7 +104,12 @@
         }
     }
 
-    function selectMove(move) {
+    function selectMove(idx: number) {
+        console.log(idx);
+        selectedMoveIdx = idx;
+    }
+
+    function launchMove(move) {
         if (battleState) {
             battleState.selectAction(new Attack(move, 'opponent', battleState.playerCurrentMonster));
             moveOpened = false;
@@ -129,7 +134,7 @@
             }
         } else if (e.key === 'Enter') {
             if (moveOpened) {
-                selectMove(battleState.playerCurrentMonster.moves[selectedMoveIdx]);
+                launchMove(battleState.playerCurrentMonster.moves[selectedMoveIdx]);
             } else {
                 if (selectedOptionIdx === 0) {
                     toggleMoveSelection();
@@ -289,6 +294,7 @@
 
     transition: color 0.3s ease-in-out, opacity 0.3s ease-in-out;
     flex: 48%;
+    max-width: 48%;
 
     &:hover, &.selected {
       cursor: pointer;

@@ -1,8 +1,8 @@
 import {OpenMap} from "../maps";
 import {Position} from "../../sprites/drawers";
 
-//const monsters = Array.from({length: 251}, (v, k) => k + 1);
-const monsters = [122];
+const monsters = Array.from({length: 251}, (v, k) => k + 1);
+//const monsters = [122];
 const collisions = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 806, 806, 806, 806, 806, 806, 0, 0, 0, 0, 0, 0, 0, 0,

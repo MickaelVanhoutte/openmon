@@ -257,7 +257,10 @@ export class Stats {
     public speed: number;
     public total: number;
 
-    constructor(hp: number = 0, attack: number = 0, defense: number = 0, specialAttack: number = 0, specialDefense: number = 0, speed: number = 0, total?: number) {
+    public accuracy: number;
+    public evasion: number;
+
+    constructor(hp: number = 0, attack: number = 0, defense: number = 0, specialAttack: number = 0, specialDefense: number = 0, speed: number = 0, evasion: number = 0, accuracy: number = 100, total?: number) {
         this.hp = hp;
         this.attack = attack;
         this.defense = defense;
@@ -269,7 +272,8 @@ export class Stats {
         } else {
             this.total = this.hp + this.attack + this.defense + this.specialAttack + this.specialDefense + this.speed;
         }
-
+        this.accuracy = accuracy;
+        this.evasion = evasion;
     }
 }
 
@@ -335,6 +339,7 @@ export class MoveInstance extends Move {
 export class PokemonInstance extends PokedexEntry {
 
     public currentStats: Stats = new Stats();
+    public statsChanges: Stats = new Stats();
     public currentHp: number = 1;
     public currentXp: number = 0;
     public xpToNextLevel: number = 0;
@@ -359,6 +364,18 @@ export class PokemonInstance extends PokedexEntry {
 
     get totalEvs(): number {
         return this.evs.attack + this.evs.defense + this.evs.specialAttack + this.evs.specialDefense + this.evs.speed + this.evs.hp;
+    }
+
+    get battleStats(): Stats {
+        return new Stats(
+            this.currentStats.hp,
+            this.currentStats.attack * (this.statsChanges.attack > 0 ? (2 + this.statsChanges.attack / 2) : (2 / 2 + this.statsChanges.attack)),
+            this.currentStats.defense * (this.statsChanges.defense > 0 ? (2 + this.statsChanges.defense / 2) : (2 / 2 + this.statsChanges.defense)),
+            this.currentStats.specialAttack * (this.statsChanges.specialAttack > 0 ? (2 + this.statsChanges.specialAttack / 2) : (2 / 2 + this.statsChanges.specialAttack)),
+            this.currentStats.specialDefense * (this.statsChanges.specialDefense > 0 ? (2 + this.statsChanges.specialDefense / 2) : (2 / 2 + this.statsChanges.specialDefense)),
+            this.currentStats.speed * (this.statsChanges.speed > 0 ? (2 + this.statsChanges.speed / 2) : (2 / 2 + this.statsChanges.speed)),
+            this.currentStats.evasion * (this.statsChanges.evasion > 0 ? (3 + this.statsChanges.evasion / 3) : (3 / 3 + this.statsChanges.evasion)),
+        );
     }
 
     constructor(pokedexEntry: PokedexEntry, level?: number, fromInstance?: PokemonInstance) {
@@ -406,6 +423,14 @@ export class PokemonInstance extends PokedexEntry {
             // random gender based on percentageMale attr
             this.gender = this.percentageMale ? (Math.random() * this.percentageMale <= this.percentageMale ? 'male' : 'female') : 'unknown';
         }
+    }
+
+    public changeBattleStats(stat: 'hp' | 'attack' | 'defense' | 'specialAttack' | 'specialDefense' | 'speed' | 'evasion' | 'accuracy', value: number) {
+        this.battleStats[stat] > -6 && this.battleStats[stat] < 6 ? this.battleStats[stat] += value : console.log(`${stat}cannot go higher`);
+    }
+
+    public resetBattleStats() {
+        this.statsChanges = new Stats();
     }
 
     public selectMove(iaLvl: 'Random' | 'Easy', target?: PokemonInstance): MoveInstance {
