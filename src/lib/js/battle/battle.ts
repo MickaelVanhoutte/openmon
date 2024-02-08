@@ -30,10 +30,7 @@ export class BattleState {
     public turnStack: Action[];
 
     private escapeAttempts: number = 0;
-    public lastPokemonFaited: boolean;
     public isPlayerTurnV: boolean;
-    public opponentHpV: number;
-    public allyHpV: number;
     public currentMessageV: string;
 
 
@@ -53,9 +50,6 @@ export class BattleState {
         this.turnStack = [];
 
         this.isPlayerTurnV = true;
-        this.lastPokemonFaited = false;
-        this.opponentHpV = this.opponentCurrentMonster.currentHp;
-        this.allyHpV = this.playerCurrentMonster.currentHp;
         this.currentMessageV = `What should ${this.playerCurrentMonster.name} do ?`;
     }
 
@@ -73,7 +67,10 @@ export class BattleState {
             this.addToStack(action);
         }
 
-        this.addToStack(new EndTurn(this.playerCurrentMonster));
+        this.addToStack(new EndTurnChecks(this.playerCurrentMonster));
+        this.addToStack(new EndTurnChecks(this.opponentCurrentMonster));
+        this.addToStack(new Message(`What should ${this.playerCurrentMonster.name} do ?`, action.initiator));
+        this.addToStack(new EndTurn(action.initiator));
         this.executeAction(this.turnStack?.shift());
     }
 
@@ -95,16 +92,6 @@ export class BattleState {
                 this.currentMessageV = action.description;
             } else if (action instanceof RemoveHP) {
                 this.removeHP(action);
-            } else if (action instanceof Faint) {
-                action.initiator.fainted = true;
-                if (action.initiator === this.opponentCurrentMonster) {
-                    this.lastPokemonFaited = true;
-                    if (this.player.monsters.every((monster: PokemonInstance) => monster.fainted)) {
-                        this.turnStack = [];
-                        this.addToStack(new Message('No more healthy pokemons', action.initiator));
-                        this.addToStack(new EndBattle(action.initiator, false));
-                    }
-                }
             } else if (action instanceof XPWin) {
                 let result = action.initiator.addXpResult(action.xp, 1);
                 if (result.levelup) {
@@ -116,16 +103,20 @@ export class BattleState {
                 }
 
             } else if (action instanceof ApplyEffect) {
-                let target = 'opponent' ? this.opponentCurrentMonster : action.initiator;
-                let result = MOVE_EFFECT_APPLIER.apply(action.move.effect, [target], action.initiator);
-                if (result?.effect) {
-                    target.status = result.effect;
+                let target = action.initiator === this.playerCurrentMonster ? this.opponentCurrentMonster : this.playerCurrentMonster;
+                if (!target.fainted) {
+                    let result = MOVE_EFFECT_APPLIER.apply(action.move.effect, [target], action.initiator);
+                    if (result?.effect) {
+                        target.status = result.effect;
+                    }
+                    if (result?.message) {
+                        this.addToStack(new Message(result.message, action.initiator), true);
+                    }
                 }
-                if (result?.message) {
-                    this.addToStack(new Message(result.message, action.initiator), true);
-                }
+            } else if (action instanceof EndTurnChecks) {
+                this.endTurnChecks(action)
             } else if (action instanceof EndTurn) {
-                this.endTurn(action)
+                this.isPlayerTurnV = true;
             } else if (action instanceof EndBattle) {
                 this.ending = true;
                 this.onClose(action.win);
@@ -159,7 +150,7 @@ export class BattleState {
 
             if (f > 255) {
                 this.turnStack = [];
-                this.addToStack(new EndBattle(this.playerCurrentMonster));
+                this.addToStack(new EndBattle(this.playerCurrentMonster, true));
                 this.addToStack(new Message('You ran away safely!', this.playerCurrentMonster), true);
             } else {
                 this.addToStack(new Message('Failed to run away!', this.playerCurrentMonster), true);
@@ -234,33 +225,41 @@ export class BattleState {
     }
 
     private removeHP(action: RemoveHP) {
-        let actionsToPush = [];
         const target = action.target === 'opponent' ?
             this.opponentCurrentMonster :
             this.playerCurrentMonster;
 
-        console.log(target.currentHp, action.damages, target.currentHp - action.damages)
-
         target.currentHp = target.currentHp - action.damages;
 
+        this.checkFainted(target, action.initiator);
+    }
+
+    private checkFainted(target: PokemonInstance, initiator: PokemonInstance) {
         if (target.currentHp <= 0) {
             target.currentHp = 0;
+            target.fainted = true;
+            target.status = undefined;
+            target.resetBattleStats();
 
             // clear stack
-            this.turnStack = [];
+            console.log(this.turnStack);
+            // remove target attack from stack && end turn check
+            this.turnStack = this.turnStack.filter((action: Action) => {
+                return !(action instanceof Attack && action.initiator === target)
+                    && !(action instanceof EndTurnChecks && action.initiator === target);
+            });
 
-            action.target === 'opponent' ? this.opponentHpV = target.currentHp : this.allyHpV = target.currentHp;
-
-            this.addToStack(new Message(target.name + ' fainted!', action.initiator));
-            this.addToStack(new Faint(target));
+            console.log(this.turnStack);
+            // this.turnStack = [];
 
             if (target === this.opponentCurrentMonster) {
-                let xp = EXPERIENCE_CHART.howMuchIGet(action.initiator, target, 1, false, false);
-                this.addToStack(new Message(`${action.initiator.name} gets ${xp} experience!`, action.initiator));
-                this.addToStack(new XPWin(action.initiator, xp));
+                let xp = EXPERIENCE_CHART.howMuchIGet(initiator, target, 1, false, false);
+                this.addToStack(new XPWin(initiator, xp), true);
+                this.addToStack(new Message(`${initiator.name} gets ${xp} experience!`, initiator), true);
+
             }
 
-            this.addToStack(new EndTurn(action.initiator));
+            this.addToStack(new Message(target.name + ' fainted!', initiator), true);
         }
     }
 
@@ -322,38 +321,34 @@ export class BattleState {
                 Number.isNaN(move.effectChance));
     }
 
-    private endTurn(action: Action) {
+    private endTurnChecks(action: Action) {
+        // end turn effects (burn, poison..)
+        let opponent = action.initiator === this.playerCurrentMonster ? this.opponentCurrentMonster : this.playerCurrentMonster;
+        if (action.initiator.status && action.initiator.status.when === 'end-turn') {
+            let effect = action.initiator.status.playEffect(action.initiator, opponent);
+            if (effect?.message) {
+                this.addToStack(new Message(effect.message, action.initiator), true);
+            }
+            this.checkFainted(action.initiator, opponent);
+        }
+
         if ((this.wild && this.opponent instanceof PokemonInstance && this.opponent.fainted) ||
             (this.opponent instanceof Character && this.opponent.monsters.every((monster: PokemonInstance) => monster.fainted))) {
+            //remove end turn action from stack
+            this.turnStack = this.turnStack.filter((action: Action) => {
+                return !(action instanceof EndTurn);
+            });
             this.addToStack(new Message('You won the battle!', action.initiator));
-            this.addToStack(new EndBattle(action.initiator));
+            this.addToStack(new EndBattle(action.initiator, true));
         } else if (this.player.monsters.every((monster: PokemonInstance) => monster.fainted)) {
+            //remove end turn action from stack
+            this.turnStack = this.turnStack.filter((action: Action) => {
+                return !(action instanceof EndTurn);
+            });
             this.addToStack(new Message('You lose the battle...', action.initiator));
-            this.addToStack(new EndBattle(action.initiator));
-        } else {
-
-            // TODO fix effect messages, split methods in 'check end battle', 'check-effects', 'end battle'
-
-            // end turn effects (burn, poison..)
-            if (this.playerCurrentMonster.status && this.playerCurrentMonster.status.when === 'end-turn') {
-                let effect = this.playerCurrentMonster.status.playEffect(this.playerCurrentMonster, this.opponentCurrentMonster);
-                if (effect?.message) {
-                    this.addToStack(new Message(effect.message, this.playerCurrentMonster), true);
-                }
-            }
-            if (this.opponentCurrentMonster.status && this.opponentCurrentMonster.status.when === 'end-turn') {
-                let effect = this.opponentCurrentMonster.status.playEffect(this.opponentCurrentMonster, this.playerCurrentMonster);
-                if (effect?.message) {
-                    this.addToStack(new Message(effect.message, this.opponentCurrentMonster), true);
-                }
-            }
-
-            this.addToStack(new Message(`What should ${this.playerCurrentMonster.name} do ?`, action.initiator));
-            this.isPlayerTurnV = true;
-
+            this.addToStack(new EndBattle(action.initiator, false));
         }
-        this.playerCurrentMonster.resetBattleStats();
-        BATTLE_STATE.set(new BattleContext(this));
+
     }
 }
 
@@ -376,6 +371,18 @@ export interface Action {
     initiator: PokemonInstance;
 }
 
+export class EndTurnChecks implements Action {
+    name: string;
+    description: string;
+    initiator: PokemonInstance;
+
+    constructor(initiator: PokemonInstance) {
+        this.name = 'End Turn Checks';
+        this.description = 'End Turn Checks';
+        this.initiator = initiator;
+    }
+}
+
 export class EndTurn implements Action {
     name: string;
     description: string;
@@ -387,18 +394,6 @@ export class EndTurn implements Action {
         this.initiator = initiator;
     }
 
-}
-
-export class Faint implements Action {
-    name: string;
-    description: string;
-    initiator: PokemonInstance;
-
-    constructor(initiator: PokemonInstance) {
-        this.name = 'Faint';
-        this.description = `${initiator.name} fainted!`;
-        this.initiator = initiator;
-    }
 }
 
 export class XPWin implements Action {
