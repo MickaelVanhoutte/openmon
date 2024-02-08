@@ -12,6 +12,7 @@ export class EffectResult {
         this.effect = effect;
     }
 }
+
 export class EffectForTurn {
     message?: string;
     canPlay?: boolean = true;
@@ -38,7 +39,7 @@ export interface Effect {
 }
 
 @injectable()
-@registry([{ token: 'Effect', useClass: RegularDamageEffect }])
+@registry([{token: 'Effect', useClass: RegularDamageEffect}])
 class RegularDamageEffect implements Effect {
     move_effect_id: number = 1;
     abr: string = '';
@@ -65,7 +66,7 @@ class RegularDamageEffect implements Effect {
 }
 
 @injectable()
-@registry([{ token: 'Effect', useClass: Sleep }])
+@registry([{token: 'Effect', useClass: Sleep}])
 class Sleep implements Effect {
     move_effect_id: number = 2;
     abr: string = 'SLP';
@@ -99,7 +100,7 @@ class Sleep implements Effect {
 
 
 @injectable()
-@registry([{ token: 'Effect', useClass: Poison }])
+@registry([{token: 'Effect', useClass: Poison}])
 class Poison implements Effect {
     move_effect_id: number = 3;
     abr: string = 'PSN';
@@ -136,7 +137,7 @@ class Poison implements Effect {
 */
 
 @injectable()
-@registry([{ token: 'Effect', useClass: Burn }])
+@registry([{token: 'Effect', useClass: Burn}])
 class Burn implements Effect {
     move_effect_id = 5;
     abr: string = 'BRN';
@@ -165,7 +166,7 @@ class Burn implements Effect {
 }
 
 @injectable()
-@registry([{ token: 'Effect', useClass: Freeze }])
+@registry([{token: 'Effect', useClass: Freeze}])
 class Freeze implements Effect {
     move_effect_id = 6;
     abr: string = 'FRZ';
@@ -195,7 +196,7 @@ class Freeze implements Effect {
 }
 
 @injectable()
-@registry([{ token: 'Effect', useClass: Paralyze }])
+@registry([{token: 'Effect', useClass: Paralyze}])
 class Paralyze implements Effect {
     move_effect_id = 7;
     abr: string = 'PAR';
@@ -243,7 +244,7 @@ class Paralyze implements Effect {
 */
 
 @injectable()
-@registry([{ token: 'Effect', useClass: RaiseAttack }])
+@registry([{token: 'Effect', useClass: RaiseAttack}])
 class RaiseAttack implements Effect {
     move_effect_id: number = 11;
     abr: string = 'ATK+';
@@ -265,7 +266,7 @@ class RaiseAttack implements Effect {
 }
 
 @injectable()
-@registry([{ token: 'Effect', useClass: RaiseDefense }])
+@registry([{token: 'Effect', useClass: RaiseDefense}])
 class RaiseDefense implements Effect {
     move_effect_id: number = 12;
     abr: string = 'DEF+';
@@ -287,7 +288,7 @@ class RaiseDefense implements Effect {
 }
 
 @injectable()
-@registry([{ token: 'Effect', useClass: RaiseSPAttack }])
+@registry([{token: 'Effect', useClass: RaiseSPAttack}])
 class RaiseSPAttack implements Effect {
     move_effect_id: number = 14;
     abr: string = 'DEF+';
@@ -309,7 +310,7 @@ class RaiseSPAttack implements Effect {
 }
 
 @injectable()
-@registry([{ token: 'Effect', useClass: RaiseEvasion }])
+@registry([{token: 'Effect', useClass: RaiseEvasion}])
 class RaiseEvasion implements Effect {
     move_effect_id: number = 17;
     abr: string = 'DEF+';
@@ -340,7 +341,7 @@ class RaiseEvasion implements Effect {
 */
 
 @injectable()
-@registry([{ token: 'Effect', useClass: LowerAttack }])
+@registry([{token: 'Effect', useClass: LowerAttack}])
 class LowerAttack implements Effect {
     move_effect_id: number = 19;
     abr: string = 'ATK-';
@@ -362,7 +363,7 @@ class LowerAttack implements Effect {
 }
 
 @injectable()
-@registry([{ token: 'Effect', useClass: LowerDefense }])
+@registry([{token: 'Effect', useClass: LowerDefense}])
 class LowerDefense implements Effect {
     move_effect_id: number = 20;
     abr: string = 'DEF-';
@@ -384,7 +385,7 @@ class LowerDefense implements Effect {
 }
 
 @injectable()
-@registry([{ token: 'Effect', useClass: LowerSpeed }])
+@registry([{token: 'Effect', useClass: LowerSpeed}])
 class LowerSpeed implements Effect {
     move_effect_id: number = 21;
     abr: string = 'SPE-';
@@ -406,7 +407,7 @@ class LowerSpeed implements Effect {
 }
 
 @injectable()
-@registry([{ token: 'Effect', useClass: LowerAccuracy }])
+@registry([{token: 'Effect', useClass: LowerAccuracy}])
 class LowerAccuracy implements Effect {
     move_effect_id: number = 24;
     abr: string = 'ACC-';
@@ -428,7 +429,7 @@ class LowerAccuracy implements Effect {
 }
 
 @injectable()
-@registry([{ token: 'Effect', useClass: LowerEvasion }])
+@registry([{token: 'Effect', useClass: LowerEvasion}])
 class LowerEvasion implements Effect {
     move_effect_id: number = 25;
     abr: string = 'EVA-';
@@ -450,7 +451,6 @@ class LowerEvasion implements Effect {
 }
 
 
-
 class UnknownEffect implements Effect {
     damages: number = 0;
     abr: string = '???';
@@ -461,11 +461,11 @@ class UnknownEffect implements Effect {
     healed: boolean = false;
 
     apply(target: PokemonInstance[]): EffectResult {
-        return new EffectResult(new UnknownEffect(), 'Effect not implemented yet...');
+        return new EffectResult(undefined, 'Effect not implemented yet...');
     }
 
     playEffect(target: PokemonInstance): EffectForTurn {
-        target.status = undefined;
+
         return new EffectForTurn(true, 'Effect not implemented yet...');
     }
 

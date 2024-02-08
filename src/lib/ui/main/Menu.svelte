@@ -13,7 +13,7 @@
             <button>Trainer</button>
         </li>
         <li>
-            <button on:click{saveCurrent}>Save</button>
+            <button on:click={()=> saveCurrent()}>Save</button>
         </li>
         <li>
             <button>Options</button>
@@ -37,7 +37,7 @@
 
     function saveCurrent() {
         saveContext = saveContext.updateSave(save.save);
-        this.menuOpened = false;
+        menuOpened = false;
     }
 </script>
 
