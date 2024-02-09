@@ -88,6 +88,78 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="stat-values">
+
+                    <ul>
+                        <li class="hp">
+                            <span class="th">HP</span>
+                            <span class="td">{selectedMons.currentHp}/{selectedMons.currentStats.hp}</span>
+
+                            <!--<div class="p-hp">
+                                <span>HP</span>
+                                <div class="progressbar-wrapper">
+                                    <div class="progressbar" class:warning={percent <= 50} class:danger={percent < 15 }
+                                         style="&#45;&#45;width:{percent + '%'}">
+                                    </div>
+                                </div>
+                            </div>-->
+                        </li>
+                        <li>
+                            <span class="th">ATTACK</span>
+                            <span class="td">{selectedMons.currentStats.attack}</span>
+                        </li>
+                        <li>
+                            <span class="th">DEFENSE</span>
+                            <span class="td">{selectedMons.currentStats.defense}</span>
+                        </li>
+                        <li>
+                            <span class="th">SP.ATK</span>
+                            <span class="td">{selectedMons.currentStats.specialAttack}</span>
+                        </li>
+                        <li>
+                            <span class="th">SP.DEF</span>
+                            <span class="td">{selectedMons.currentStats.specialDefense}</span>
+                        </li>
+                        <li>
+                            <span class="th">SPEED</span>
+                            <span class="td">{selectedMons.currentStats.speed}</span>
+                        </li>
+                    </ul>
+
+                </div>
+                <div class="others">
+
+                    <div class="exp">
+                        <div>
+                            <span class="th">EXP.</span>
+                            <div>
+                                <span class="td">
+                                    <span class="_th">
+                                        EXP. POINTS
+                                    </span>
+                                    <span class="_td">
+                                        {selectedMons.currentXp}
+                                    </span>
+                                </span>
+                                    <span class="th">
+                                    NEXT LEVEL
+                                </span>
+                                    <span class="td">
+                                    {selectedMons.xpToNextLevel}
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="ability">
+                        <span class="th">ABILITY</span>
+                        <span class="td">{selectedMons.currentAbility}</span>
+                        <!-- TODO ability desc-->
+                    </div>
+                </div>
+
             </div>
         {:else if tab === 2}
             <div class="skills">
@@ -106,7 +178,8 @@
                 <div class="moves">
                     <div class="__wrapper">
                         {#each selectedMons.moves as move, index}
-                            <div class="move" class:selected={index === selectedMove} on:click={() => selectedMove = index}>
+                            <div class="move" class:selected={index === selectedMove}
+                                 on:click={() => selectedMove = index}>
                                 <span style="--bg:{typeChart[move.type].color}"
                                       class="type">{move.type.toUpperCase()}</span>
                                 <span class="name">{move.name}</span>
@@ -142,6 +215,7 @@
     $:description = selectedMons.moves[selectedMove].description
         ?.replace("$effect_chance", selectedMons?.moves[selectedMove]?.effectChance)
         ?.replace(mechanicRegex, "");
+    $:percent = Math.floor(selectedMons.currentHp * 100 / selectedMons?.currentStats.hp)
 
     let tab = 0;
     let selectedMove = 0;
@@ -307,6 +381,7 @@
         background-color: #c8a8e8;
         border-right: 4px solid #54506c;
         border-bottom: 4px solid #54506c;
+        box-sizing: border-box;
 
         .info {
           height: 100%;
@@ -338,7 +413,7 @@
       background-size: 16.00px 16.00px;
 
       .infos {
-        width: calc(50% - 4px);
+        width: 50%;
         height: 100%;
         position: absolute;
         top: 0;
@@ -355,7 +430,7 @@
           width: 100%;
           display: flex;
           flex-direction: column;
-          gap: 16px;
+          gap: 8px;
           box-sizing: border-box;
 
           li {
@@ -413,7 +488,6 @@
         bottom: 2%;
         left: 1%;
         width: 98%;
-        /* margin: auto; */
         height: 27%;
         background-color: #f8f0e8;
         padding: 16px;
@@ -447,6 +521,178 @@
     .stats {
       background-image: linear-gradient(0deg, #f8d058 25%, #f8e878 25%, #f8e878 50%, #f8d058 50%, #f8d058 75%, #f8e878 75%, #f8e878 100%);
       background-size: 16.00px 16.00px;
+
+      .stat-values {
+        width: 50%;
+        height: 60%;
+        position: absolute;
+        top: 0;
+        right: 0;
+        box-sizing: border-box;
+
+
+        ul {
+          list-style: none;
+          margin: 0;
+          padding: 8px 32px;
+          height: 100%;
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          box-sizing: border-box;
+
+          li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+
+
+            /*&.hp {
+              position: relative;
+              margin-bottom: 14px;
+
+              .p-hp {
+
+                width: 40%;
+                display: flex;
+                //gap: 16px;
+                background-color: #262626;
+                color: orange;
+                align-items: center;
+                justify-content: space-evenly;
+                border-radius: 8px;
+                padding: 0 3px;
+
+                position: absolute;
+                bottom: -17px;
+                right: 0;
+
+                font-size: 20px;
+
+                .progressbar-wrapper {
+
+                  height: 8px;
+                  width: 100%;
+                  background-color: #595b59;
+                  border-radius: 4px;
+                  border: 2px solid white;
+
+
+                  .progressbar {
+                    width: var(--width);
+                    height: 100%;
+                    background: rgb(184, 244, 166);
+                    background: linear-gradient(0deg, rgba(184, 244, 166, 1) 0%, rgba(86, 170, 58, 1) 30%, rgba(86, 170, 58, 1) 50%, rgba(86, 170, 58, 1) 70%, rgba(184, 244, 166, 1) 100%);
+                    text-align: center;
+                    border-radius: 2px;
+
+                    transition: width 1s ease-in-out, background 1s ease-in-out 1s;
+
+                    &.warning {
+                      background: rgb(255, 241, 164);
+                      background: linear-gradient(0deg, rgba(255, 241, 164, 1) 0%, rgba(255, 194, 16, 1) 30%, rgba(255, 194, 16, 1) 50%, rgba(255, 194, 16, 1) 70%, rgba(255, 241, 164, 1) 100%);
+                    }
+
+                    &.danger {
+                      background: rgb(244, 177, 159);
+                      background: linear-gradient(0deg, rgba(244, 177, 159, 1) 0%, rgba(223, 85, 48, 1) 30%, rgba(223, 85, 48, 1) 50%, rgba(223, 85, 48, 1) 70%, rgba(244, 177, 159, 1) 100%);
+                    }
+                  }
+                }
+              }
+            }*/
+
+
+            .th {
+              width: 40%;
+              text-align: center;
+              height: 12px;
+              border-radius: 4px;
+              background-color: #54506c;
+              line-height: 8px;
+              font-size: 36px;
+              color: white;
+              text-shadow: 3px 1px 2px #54506c;
+            }
+
+            .td {
+              width: 26%;
+              color: #54506c;
+              background-color: #f8f0e8;
+              padding: 0 8px;
+              font-size: 32px;
+              text-transform: uppercase;
+              border-radius: 8px;
+
+              display: flex;
+              justify-content: flex-end;
+              gap: 16px;
+            }
+          }
+        }
+      }
+
+      .others {
+        width: 98%;
+        height: 36%;
+        position: absolute;
+        bottom: 2%;
+        left: 1%;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 8px;
+
+        .exp {
+
+
+          .th {
+           /* text-align: center;
+            height: 12px;
+            width: 17%;
+            border-radius: 4px;
+            background-color: #54506c;
+            line-height: 8px;
+            font-size: 36px;
+            color: white;
+            text-shadow: 3px 1px 2px #54506c;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            gap: 16px;
+            padding: 0 16px;
+            align-items: center;*/
+
+            & > div {
+
+            }
+          }
+        }
+
+        .ability {
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          gap: 16px;
+          padding: 0 16px;
+
+          .th {
+            text-align: center;
+            height: 12px;
+            width: 30%;
+            border-radius: 4px;
+            background-color: #54506c;
+            line-height: 8px;
+            font-size: 36px;
+            color: white;
+            text-shadow: 3px 1px 2px #54506c;
+
+          }
+        }
+      }
     }
 
     .skills {
@@ -454,7 +700,7 @@
       background-size: 16.00px 16.00px;
 
       .moves {
-        width: calc(50% - 4px);
+        width: 50%;
         height: 100%;
         position: absolute;
         top: 0;
