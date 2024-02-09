@@ -336,7 +336,7 @@ export class BattleState {
             (this.opponent instanceof Character && this.opponent.monsters.every((monster: PokemonInstance) => monster.fainted))) {
             //remove end turn action from stack
             this.turnStack = this.turnStack.filter((action: Action) => {
-                return !(action instanceof EndTurn);
+                return !(action instanceof EndTurn) && (!(action instanceof Message) && action?.description.startsWith('What should'));
             });
             this.addToStack(new Message('You won the battle!', action.initiator));
             this.addToStack(new EndBattle(action.initiator, true));
