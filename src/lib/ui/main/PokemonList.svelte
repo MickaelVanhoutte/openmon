@@ -73,14 +73,14 @@
     </div>
 
     <div class="actions">
-        <button on:click={()=>pokemonListOpened=false}>Cancel</button>
+        <button on:click={()=>pokemonListOpened=false}>CANCEL</button>
     </div>
 
-    <div class="context">
+    <!--<div class="context">
         <div class="menu">
             <p>Choose a Pokémon</p>
         </div>
-    </div>
+    </div>-->
 
     <div class="options" class:hidden={!openOptions}>
         <ul>
@@ -203,11 +203,11 @@
 
   .options {
     position: absolute;
-    width: 20dvw;
+    /* width: 30dvw; */
     text-align: left;
     bottom: 4px;
     right: 4px;
-    padding: 12px 20px 12px 26px;
+    padding: 18px 26px 18px 26px;
     background-color: white;
     border: 2px solid #54506c;
     border-radius: 8px;
@@ -215,13 +215,16 @@
     transition: bottom 0.3s ease-in-out;
 
     &.hidden {
-      bottom: -100%;
+      bottom: -100dvh;
     }
 
     ul {
       margin: 0;
       padding: 0;
       list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
 
       li {
         &.selected {
@@ -245,8 +248,8 @@
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100dvw;
+    height: 100vh;
     background-image: url("src/assets/menus/pokemon-list.png");
     background-size: cover;
     background-position: top left;
@@ -255,6 +258,7 @@
 
     .pokemons {
       height: 100%;
+      width: 100%;
       display: flex;
 
       .first {
@@ -266,11 +270,11 @@
       }
 
       .others {
-        width: 56%;
+        width: 60%;
+        padding: 1%;
         display: flex;
         flex-direction: column;
-        gap: 4px;
-        /* height: 100%; */
+        gap: 1%;
         box-sizing: border-box;
         align-items: flex-start;
         justify-content: center;
@@ -306,17 +310,23 @@
 
         &.big {
           flex-direction: column;
-          width: 80%;
+          width: 86%;
           border-radius: 4px;
           padding-top: 8%;
           align-items: normal;
 
+
           .header {
-            padding-right: 15%;
+            padding-right: 2%;
+            width: 100%;
           }
 
           .footer {
             width: 100%;
+
+            .hp {
+              width: 60%;
+            }
           }
         }
 
@@ -335,9 +345,11 @@
           display: flex;
           flex-direction: row;
           position: relative;
-          justify-content: flex-end;
-          gap: 30px;
+          justify-content: space-around;
+          //gap: 2%;
           height: 100%;
+          width: 55%;
+          align-items: center;
 
           div {
             display: flex;
@@ -361,12 +373,12 @@
           flex-direction: column;
           align-items: flex-end;
           justify-content: center;
-          width: 60%;
+          width: 45%;
           /*background-color: #95cfe0;*/
 
           .hp {
 
-            width: 60%;
+            width: 100%;
             display: flex;
             //gap: 16px;
             background-color: #262626;
@@ -447,7 +459,7 @@
         .poke-card {
           .footer {
             .hp {
-              width: 70%;
+              width: 100%;
               height: 18px;
 
               .progressbar-wrapper {

@@ -1,24 +1,22 @@
-<canvas bind:this={canvas} id="main" width="1024" height="1024"></canvas>
+<div class="world-wrapper" bind:this={wrapper}>
+    <canvas bind:this={canvas} id="main" width="1024" height="1024"></canvas>
 
-<Menu bind:menuOpened bind:pokemonListOpened bind:openSummary bind:save bind:saveContext/>
+    <Menu bind:menuOpened bind:pokemonListOpened bind:openSummary bind:save bind:saveContext/>
 
-{#if !menuOpened && !pokemonListOpened}
-    <WorldJoystick/>
-{/if}
-{#if !pokemonListOpened}
-    <button on:click={() => menuOpened = !menuOpened} class="start"></button>
-{/if}
+    {#if !pokemonListOpened}
+        <button on:click={() => menuOpened = !menuOpened} class="start">start</button>
+    {/if}
 
-{#if battleState && battleState?.starting}
-    <div class="battleStart"></div>
-{/if}
-{#if battleState && battleState?.ending}
-    <div class="battleEnd"></div>
-{/if}
-
+    {#if battleState && battleState?.starting}
+        <div class="battleStart"></div>
+    {/if}
+    {#if battleState && battleState?.ending}
+        <div class="battleEnd"></div>
+    {/if}
+</div>
 <script lang="ts">
 
-    import {keys, lastKey} from "../js/commands/keyboard";
+    import {keys, lastKey, resetKeys} from "../js/commands/keyboard";
     import {Position} from "../js/sprites/drawers";
     import {BattleContext, BattleState} from "../js/battle/battle";
     import {PokemonInstance} from "../js/pokemons/pokedex";
@@ -27,10 +25,10 @@
     import Menu from "../ui/main/Menu.svelte";
     import {BATTLE_STATE, MAP_DRAWER, POKEDEX} from "../js/const";
     import {SaveContext, SelectedSave} from "../js/saves/saves";
-    import WorldJoystick from "../ui/controls/WorldJoystick.svelte";
+    import JoystickController from 'joystick-controller';
 
     export let canvas: HTMLCanvasElement;
-
+    export let wrapper: HTMLDivElement;
     export let saveContext: SaveContext;
     export let save: SelectedSave;
 
@@ -271,6 +269,44 @@
     }
 
 
+    const joystick = new JoystickController({
+        dynamicPosition: true,
+        dynamicPositionTarget: wrapper,
+        distortion: true,
+    }, (data) => {
+        // convert data.angle (radian) to a direction (top, bottom, left, right)
+        if (!menuOpened && !pokemonListOpened) {
+            resetKeys();
+            if (data.angle) {
+                let direction;
+                let degrees = data.angle * (180 / Math.PI);
+
+                if (degrees < 0) {
+                    degrees = 360 + degrees;
+                }
+
+                if (degrees > 45 && degrees < 135) {
+                    direction = 'bottom';
+                    keys.down.pressed = true;
+                    lastKey.key = 'ArrowDown';
+                } else if (degrees > 135 && degrees < 225) {
+                    direction = 'left';
+                    keys.left.pressed = true;
+                    lastKey.key = 'ArrowLeft';
+                } else if (degrees > 225 && degrees < 315) {
+                    direction = 'top';
+                    keys.up.pressed = true;
+                    lastKey.key = 'ArrowUp';
+                } else {
+                    direction = 'right';
+                    keys.right.pressed = true;
+                    lastKey.key = 'ArrowRight';
+                }
+            }
+        }
+    });
+
+
     onDestroy(() => {
         ctx?.clearRect(0, 0, canvas.width, canvas.height);
         window.cancelAnimationFrame(mainLoopContext.id);
@@ -286,6 +322,17 @@
 </script>
 
 <style lang="scss">
+  .world-wrapper {
+    position: absolute;
+    width: 100dvw;
+    height: 100dvh;
+    overflow: hidden;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+
   canvas {
     z-index: -1;
     width: 1024px;
@@ -298,8 +345,9 @@
   }
 
   .start {
+    font-family: pokemon, serif;
     position: absolute;
-    bottom: 3dvh;
+    bottom: 5dvh;
     left: calc(50% - 25px);
     width: 50px;
     height: 20px;
@@ -308,6 +356,9 @@
     border: none;
     background-size: cover;
     z-index: 15;
+    font-size: 12px;
+    color: rgba(255, 255, 255, .6);
+
   }
 
   @media screen and (orientation: portrait) {
