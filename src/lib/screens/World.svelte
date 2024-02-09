@@ -1,8 +1,10 @@
 <canvas bind:this={canvas} id="main" width="1024" height="1024"></canvas>
 
-<Menu bind:menuOpened bind:save bind:saveContext/>
+<Menu bind:menuOpened bind:pokemonListOpened bind:openSummary bind:save bind:saveContext/>
 
-<Joy/>
+{#if !menuOpened && !pokemonListOpened}
+    <Joy/>
+{/if}
 
 {#if battleState && battleState?.starting}
     <div class="battleStart"></div>
@@ -13,7 +15,7 @@
 
 <script lang="ts">
 
-    import {keydownListener, keys, keyupListener, lastKey} from "../js/commands/keyboard";
+    import {keys, lastKey} from "../js/commands/keyboard";
     import {Position} from "../js/sprites/drawers";
     import {BattleContext, BattleState} from "../js/battle/battle";
     import {PokemonInstance} from "../js/pokemons/pokedex";
@@ -38,6 +40,8 @@
     });
 
     let menuOpened = false;
+    let pokemonListOpened = false;
+    let openSummary = false;
 
     let mainLoopContext = {
         id: 0,
@@ -47,8 +51,6 @@
         playerScale: window.innerWidth < 1100 ? .66 : 1.5,
         debug: false
     }
-
-    /* Sizing */
 
     function mainLoop() {
         mainLoopContext.id = window.requestAnimationFrame(mainLoop);
@@ -157,6 +159,76 @@
         }
     }
 
+
+    const keyUpListener = (e) => {
+        if (!menuOpened && !pokemonListOpened && !openSummary) {
+            switch (e.key) {
+                case 'ArrowDown' :
+                    keys.down.pressed = false;
+                    break;
+                case 'ArrowUp' :
+                    keys.up.pressed = false;
+                    break;
+                case 'ArrowRight' :
+                    keys.right.pressed = false;
+                    break;
+                case 'ArrowLeft' :
+                    keys.left.pressed = false;
+                    break;
+                case 'Shift':
+                    save.player.running = false;
+                    mainLoopContext.fpsInterval = 1000 / 10;
+                    break;
+            }
+        }
+    };
+
+    const keyDownListener =  (e) => {
+        if (!menuOpened && !pokemonListOpened && !openSummary) {
+            switch (e.key) {
+                case 'ArrowDown' :
+                    lastKey.key = 'ArrowDown';
+                    keys.down.pressed = true;
+                    break;
+                case 'ArrowUp' :
+                    lastKey.key = 'ArrowUp';
+                    keys.up.pressed = true;
+                    break;
+                case 'ArrowRight' :
+                    lastKey.key = 'ArrowRight';
+                    keys.right.pressed = true;
+                    break;
+                case 'ArrowLeft' :
+                    lastKey.key = 'ArrowLeft';
+                    keys.left.pressed = true;
+                    break;
+                case 'Shift':
+                    save.player.running = true;
+                    mainLoopContext.fpsInterval = 1000 / 24;
+                    break;
+                case 'x':
+                    mainLoopContext.debug = !mainLoopContext.debug;
+                    break;
+                case 'Escape':
+                    menuOpened = !menuOpened;
+                    break;
+            }
+        } else {
+            switch (e.key) {
+                case 'Escape':
+                    if (openSummary) {
+                        openSummary = false;
+                    } else if (pokemonListOpened) {
+                        pokemonListOpened = false;
+                    } else {
+                        menuOpened = !menuOpened;
+                    }
+                    break;
+            }
+        }
+    };
+
+
     function initiateBattle(opponent: PokemonInstance | Character) {
 
         let bContext = new BattleContext();
@@ -182,61 +254,29 @@
             });
         }, 3500);
 
-        unbindKeyboard(save.player);
+        unbindKeyboard();
     }
 
-    function bindKeyboard(player: Character) {
-        window.addEventListener('keydown', keydownListener());
-        window.addEventListener('keyup', keyupListener(player));
-        window.addEventListener('keydown', worldActionsListener);
-        window.addEventListener('keyup', worldActionsUpListener);
+    function bindKeyboard() {
+        window.addEventListener('keydown', keyDownListener);
+        window.addEventListener('keyup', keyUpListener);
     }
 
-    function unbindKeyboard(player: Character) {
-        window.removeEventListener('keydown', keydownListener());
-        window.removeEventListener('keyup', keyupListener(player));
-        window.removeEventListener('keydown', worldActionsListener);
-        window.removeEventListener('keyup', worldActionsUpListener);
+    function unbindKeyboard() {
+        window.removeEventListener('keydown', keyDownListener);
+        window.removeEventListener('keyup', keyUpListener);
     }
 
-    function worldActionsListener(event: KeyboardEvent) {
-        switch (event.key) {
-            case 'Escape':
-                menuOpened = !menuOpened;
-                break;
-            case 'A':
-                //TODO
-                break;
-            case 'B':
-                //TODO
-                break;
-            case 'Shift':
-                save.player.running = true;
-                mainLoopContext.fpsInterval = 1000 / 24;
-                break;
-            case 'x':
-                mainLoopContext.debug = !mainLoopContext.debug;
-        }
-    }
-
-    function worldActionsUpListener(event: KeyboardEvent) {
-        switch (event.key) {
-            case 'Shift':
-                save.player.running = false;
-                mainLoopContext.fpsInterval = 1000 / 16;
-                break;
-        }
-    }
 
     onDestroy(() => {
         ctx?.clearRect(0, 0, canvas.width, canvas.height);
         window.cancelAnimationFrame(mainLoopContext.id);
-        unbindKeyboard(save.player);
+        unbindKeyboard();
     });
 
     onMount(() => {
         ctx = canvas.getContext('2d');
-        bindKeyboard(save.player);
+        bindKeyboard();
         mainLoop();
     });
 

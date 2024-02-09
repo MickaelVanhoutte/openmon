@@ -8,11 +8,11 @@
     ],
     "fileStates": {
         "test-mal.tmx": {
-            "scale": 1.35,
+            "scale": 1.5725,
             "selectedLayer": 4,
             "viewCenter": {
-                "x": 160.74074074074073,
-                "y": 160.74074074074073
+                "x": 146.2639109697933,
+                "y": 163.43402225755167
             }
         },
         "test-map2.tmx": {
@@ -38,12 +38,14 @@
     "map.width": 80,
     "openFiles": [
         "tileset.tsx",
-        "test-mal.tmx"
+        "test-mal.tmx",
+        "test-map2.tmx"
     ],
     "project": "openmon.tiled-project",
     "recentFiles": [
-        "test-mal.tmx",
-        "tileset.tsx"
+        "tileset.tsx",
+        "test-map2.tmx",
+        "test-mal.tmx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.margin": 1,
