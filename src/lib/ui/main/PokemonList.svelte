@@ -295,6 +295,7 @@
         text-shadow: 3px 1px 2px #54506c;
         display: flex;
         flex-direction: row;
+        gap: 5%;
         width: 100%;
 
         padding: 0 2% 0 0;
@@ -319,6 +320,13 @@
           .header {
             padding-right: 2%;
             width: 100%;
+
+            .img-wrapper{
+              img {
+                max-width: 70%;
+                height: auto;
+              }
+            }
           }
 
           .footer {
@@ -358,12 +366,14 @@
           }
 
           .img-wrapper {
-            width: auto;
-            height: 100%;
+           /* width: auto;
+            height: 100%;*/
 
             img {
-              width: 100%;
-              height: 100%;
+              /*width: 100%;
+              height: 100%;*/
+              max-width: 50%;
+              height: auto;
             }
           }
         }
