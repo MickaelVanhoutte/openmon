@@ -50,7 +50,7 @@
     z-index: 1;
     width: auto;
     max-width: 100dvh;
-    height: 100vh;
+    height: 100dvh;
     overflow: hidden;
     position: relative;
     margin: auto;
