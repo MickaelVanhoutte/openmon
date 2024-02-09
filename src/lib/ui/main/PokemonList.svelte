@@ -249,7 +249,7 @@
     top: 0;
     left: 0;
     width: 100dvw;
-    height: 100vh;
+    height: 100dvh;
     background-image: url("src/assets/menus/pokemon-list.png");
     background-size: cover;
     background-position: top left;
@@ -281,7 +281,7 @@
 
         .poke-card {
           /*flex-grow: 1;*/
-          height: calc((100vh - (4px * 6)) / 5);
+          height: calc((100dvh - (4px * 6)) / 5);
 
           &.empty {
             background: none;
