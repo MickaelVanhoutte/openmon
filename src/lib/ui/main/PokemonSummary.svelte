@@ -95,6 +95,8 @@
                         <li class="hp">
                             <span class="th">HP</span>
                             <span class="td">{selectedMons.currentHp}/{selectedMons.currentStats.hp}</span>
+                            <span class="td">{selectedMons.ivs.hp}</span>
+                            <span class="td">{selectedMons.evs.hp}</span>
 
                             <!--<div class="p-hp">
                                 <span>HP</span>
@@ -108,22 +110,34 @@
                         <li>
                             <span class="th">ATTACK</span>
                             <span class="td">{selectedMons.currentStats.attack}</span>
+                            <span class="td">{selectedMons.ivs.attack}</span>
+                            <span class="td">{selectedMons.evs.attack}</span>
+
                         </li>
                         <li>
                             <span class="th">DEFENSE</span>
                             <span class="td">{selectedMons.currentStats.defense}</span>
+                            <span class="td">{selectedMons.ivs.defense}</span>
+                            <span class="td">{selectedMons.evs.defense}</span>
+
                         </li>
                         <li>
                             <span class="th">SP.ATK</span>
                             <span class="td">{selectedMons.currentStats.specialAttack}</span>
+                            <span class="td">{selectedMons.ivs.specialAttack}</span>
+                            <span class="td">{selectedMons.evs.specialAttack}</span>
                         </li>
                         <li>
                             <span class="th">SP.DEF</span>
                             <span class="td">{selectedMons.currentStats.specialDefense}</span>
+                            <span class="td">{selectedMons.ivs.specialDefense}</span>
+                            <span class="td">{selectedMons.evs.specialDefense}</span>
                         </li>
                         <li>
                             <span class="th">SPEED</span>
                             <span class="td">{selectedMons.currentStats.speed}</span>
+                            <span class="td">{selectedMons.ivs.speed}</span>
+                            <span class="td">{selectedMons.evs.speed}</span>
                         </li>
                     </ul>
 
@@ -131,31 +145,24 @@
                 <div class="others">
 
                     <div class="exp">
-                        <div>
-                            <span class="th">EXP.</span>
-                            <div>
-                                <span class="td">
-                                    <span class="_th">
-                                        EXP. POINTS
-                                    </span>
-                                    <span class="_td">
-                                        {selectedMons.currentXp}
-                                    </span>
-                                </span>
-                                    <span class="th">
-                                    NEXT LEVEL
-                                </span>
-                                    <span class="td">
-                                    {selectedMons.xpToNextLevel}
-                                </span>
-                            </div>
-                        </div>
-
+                        <span class="th">EXP.</span>
+                        <table>
+                            <tr>
+                                <td>EXP POINTS</td>
+                                <td class="value">{selectedMons.currentXp}</td>
+                            </tr>
+                            <tr>
+                                <td>NEXT LV.</td>
+                                <td class="value">{selectedMons.xpToNextLevel}</td>
+                            </tr>
+                        </table>
                     </div>
 
                     <div class="ability">
+
                         <span class="th">ABILITY</span>
                         <span class="td">{selectedMons.currentAbility}</span>
+
                         <!-- TODO ability desc-->
                     </div>
                 </div>
@@ -376,7 +383,7 @@
         position: absolute;
         top: 0;
         left: 0;
-        width: 50%;
+        width: 40%;
         height: 60%;
         background-color: #c8a8e8;
         border-right: 4px solid #54506c;
@@ -413,7 +420,7 @@
       background-size: 16.00px 16.00px;
 
       .infos {
-        width: 50%;
+        width: 60%;
         height: 100%;
         position: absolute;
         top: 0;
@@ -523,7 +530,7 @@
       background-size: 16.00px 16.00px;
 
       .stat-values {
-        width: 50%;
+        width: 60%;
         height: 60%;
         position: absolute;
         top: 0;
@@ -647,34 +654,7 @@
         gap: 8px;
 
         .exp {
-
-
-          .th {
-           /* text-align: center;
-            height: 12px;
-            width: 17%;
-            border-radius: 4px;
-            background-color: #54506c;
-            line-height: 8px;
-            font-size: 36px;
-            color: white;
-            text-shadow: 3px 1px 2px #54506c;
-            display: flex;
-            flex-direction: row;
-            justify-content: center;
-            gap: 16px;
-            padding: 0 16px;
-            align-items: center;*/
-
-            & > div {
-
-            }
-          }
-        }
-
-        .ability {
           display: flex;
-          flex-direction: column;
           justify-content: space-between;
           gap: 16px;
           padding: 0 16px;
@@ -689,6 +669,67 @@
             font-size: 36px;
             color: white;
             text-shadow: 3px 1px 2px #54506c;
+          }
+
+          table {
+            width: 70%;
+            font-size: 32px;
+            color: #54506c;
+            text-transform: uppercase;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+
+            tr {
+              display: flex;
+              justify-content: space-between;
+              border-radius: 8px;
+
+              td {
+                width: 50%;
+                background-color: #f9f8a1;
+                border-bottom: 3px solid #f8f9d8;
+                padding: 0 16px;
+                border-radius: 4px;
+
+                &.value {
+                  text-align: right;
+                  background-color: #f8f9d8;
+                  border-bottom: 3px solid #f9f8a1;
+                }
+              }
+            }
+          }
+        }
+
+        .ability {
+          display: flex;
+          flex-direction: row;
+          justify-content: space-between;
+          gap: 16px;
+          padding: 0 16px;
+
+          .th {
+            display: block;
+            text-align: center;
+            height: 12px;
+            width: 32%;
+            border-radius: 4px;
+            background-color: #54506c;
+            line-height: 8px;
+            font-size: 36px;
+            color: white;
+            text-shadow: 3px 1px 2px #54506c;
+          }
+
+          .td {
+            width: 70%;
+            color: #54506c;
+            background-color: #f8f0e8;
+            padding: 0 16px;
+            font-size: 32px;
+            text-transform: uppercase;
+            border-radius: 8px;
 
           }
         }
@@ -700,7 +741,7 @@
       background-size: 16.00px 16.00px;
 
       .moves {
-        width: 50%;
+        width: 60%;
         height: 100%;
         position: absolute;
         top: 0;
@@ -763,7 +804,7 @@
       }
 
       .description {
-        width: 48%;
+        width: 38%;
         height: 34%;
         position: absolute;
         bottom: 2%;
