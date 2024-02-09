@@ -19,6 +19,17 @@
         <button style="--index: 1" class:active={tab === 1} on:click={() => tab = 1}><span></span></button>
         <button style="--index: 2" class:active={tab === 2} on:click={() => tab = 2}><span></span></button>
 
+        <button class="previous" on:click={()=> previous() }>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 16L6 10H18L12 16Z"></path>
+            </svg>
+        </button>
+        <button class="next" on:click={()=> next() }>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 8L18 14H6L12 8Z"></path>
+            </svg>
+        </button>
+
         <button class="back" on:click={()=>openSummary=false}>BACK</button>
     </div>
 
@@ -253,11 +264,9 @@
                 }
             } else {
                 if (e.key === "ArrowDown") {
-                    selectedMove = 0;
-                    selected = selected === save.player.monsters.length - 1 ? 0 : selected + 1;
+                    next();
                 } else if (e.key === "ArrowUp") {
-                    selectedMove = 0;
-                    selected = selected === 0 ? save.player.monsters.length - 1 : selected - 1;
+                    previous();
                 }
             }
         }
@@ -269,6 +278,16 @@
             window.removeEventListener("keydown", listener);
         }
     })
+
+    function previous() {
+        selectedMove = 0;
+        selected = selected === 0 ? save.player.monsters.length - 1 : selected - 1;
+    }
+
+    function next() {
+        selectedMove = 0;
+        selected = selected === save.player.monsters.length - 1 ? 0 : selected + 1;
+    }
 </script>
 
 <style lang="scss">
@@ -348,6 +367,24 @@
           font-size: 32px;
           color: white;
           text-shadow: 3px 1px 2px #54506c;
+        }
+
+        &.previous {
+          right: 12%;
+          background: none;
+          font-size: 32px;
+          color: white;
+          display: flex;
+          align-items: center;
+        }
+
+        &.next {
+          right: 20%;
+          background: none;
+          font-size: 32px;
+          color: white;
+          display: flex;
+          align-items: center;
         }
 
         &:nth-child(4) {
