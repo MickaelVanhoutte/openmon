@@ -311,16 +311,17 @@
 
   @media screen and (max-width: 1100px) {
     .action-bar {
-      font-size: 26px;
+      font-size: 22px;
       height: 30%;
 
       .actions, .moves {
+        box-sizing: border-box;
         padding: 2px;
-        gap: 4px;
+        gap: 1%;
         border: 8px solid #595b59;
 
         .action-btn {
-          font-size: 26px;
+          font-size: 22px;
         }
       }
 

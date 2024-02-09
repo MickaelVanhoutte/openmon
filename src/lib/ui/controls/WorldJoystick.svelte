@@ -11,41 +11,7 @@
     export let wrapper;
 
     onMount(() => {
-        const joystick = new JoystickController({
-            dynamicPosition: true,
-            dynamicPositionTarget: wrapper,
-            distortion: true,
-        }, (data) => {
-            // convert data.angle (radian) to a direction (top, bottom, left, right)
-            resetKeys();
-            if (data.angle) {
-                let direction;
-                let degrees = data.angle * (180 / Math.PI);
 
-                if (degrees < 0) {
-                    degrees = 360 + degrees;
-                }
-
-                if (degrees > 45 && degrees < 135) {
-                    direction = 'bottom';
-                    keys.down.pressed = true;
-                    lastKey.key = 'ArrowDown';
-                } else if (degrees > 135 && degrees < 225) {
-                    direction = 'left';
-                    keys.left.pressed = true;
-                    lastKey.key = 'ArrowLeft';
-                } else if (degrees > 225 && degrees < 315) {
-                    direction = 'top';
-                    keys.up.pressed = true;
-                    lastKey.key = 'ArrowUp';
-                } else {
-                    direction = 'right';
-                    keys.right.pressed = true;
-                    lastKey.key = 'ArrowRight';
-                }
-            }
-
-        });
     });
 
 

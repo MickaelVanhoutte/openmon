@@ -94,7 +94,7 @@
                     <ul>
                         <li class="hp">
                             <span class="th">HP</span>
-                            <span class="td">{selectedMons.currentHp}/{selectedMons.currentStats.hp}</span>
+                            <span class="td main">{selectedMons.currentHp}/{selectedMons.currentStats.hp}</span>
                             <span class="td">{selectedMons.ivs.hp}</span>
                             <span class="td">{selectedMons.evs.hp}</span>
 
@@ -109,33 +109,33 @@
                         </li>
                         <li>
                             <span class="th">ATTACK</span>
-                            <span class="td">{selectedMons.currentStats.attack}</span>
+                            <span class="td main">{selectedMons.currentStats.attack}</span>
                             <span class="td">{selectedMons.ivs.attack}</span>
                             <span class="td">{selectedMons.evs.attack}</span>
 
                         </li>
                         <li>
                             <span class="th">DEFENSE</span>
-                            <span class="td">{selectedMons.currentStats.defense}</span>
+                            <span class="td main">{selectedMons.currentStats.defense}</span>
                             <span class="td">{selectedMons.ivs.defense}</span>
                             <span class="td">{selectedMons.evs.defense}</span>
 
                         </li>
                         <li>
                             <span class="th">SP.ATK</span>
-                            <span class="td">{selectedMons.currentStats.specialAttack}</span>
+                            <span class="td main">{selectedMons.currentStats.specialAttack}</span>
                             <span class="td">{selectedMons.ivs.specialAttack}</span>
                             <span class="td">{selectedMons.evs.specialAttack}</span>
                         </li>
                         <li>
                             <span class="th">SP.DEF</span>
-                            <span class="td">{selectedMons.currentStats.specialDefense}</span>
+                            <span class="td main">{selectedMons.currentStats.specialDefense}</span>
                             <span class="td">{selectedMons.ivs.specialDefense}</span>
                             <span class="td">{selectedMons.evs.specialDefense}</span>
                         </li>
                         <li>
                             <span class="th">SPEED</span>
-                            <span class="td">{selectedMons.currentStats.speed}</span>
+                            <span class="td main">{selectedMons.currentStats.speed}</span>
                             <span class="td">{selectedMons.ivs.speed}</span>
                             <span class="td">{selectedMons.evs.speed}</span>
                         </li>
@@ -148,22 +148,22 @@
                         <span class="th">EXP.</span>
                         <table>
                             <tr>
-                                <td>EXP POINTS</td>
-                                <td class="value">{selectedMons.currentXp}</td>
-                            </tr>
-                            <tr>
-                                <td>NEXT LV.</td>
-                                <td class="value">{selectedMons.xpToNextLevel}</td>
+                                <td><span>EXP POINTS</span><span class="value">{selectedMons.currentXp}</span></td>
+                                <td><span>NEXT LV.</span><span class="value">{selectedMons.xpToNextLevel}</span></td>
                             </tr>
                         </table>
                     </div>
 
                     <div class="ability">
-
-                        <span class="th">ABILITY</span>
-                        <span class="td">{selectedMons.currentAbility}</span>
-
-                        <!-- TODO ability desc-->
+                        <div class="name-desc">
+                            <div class="title">
+                                <span class="th">ABILITY</span>
+                                <span class="td">{selectedMons.currentAbility}</span>
+                            </div>
+                            <div class="desc">
+                                {abilities.find(ability => ability.names === selectedMons.currentAbility)?.description}
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -211,6 +211,7 @@
     import {onMount} from "svelte";
     import {SelectedSave} from "../../js/saves/saves";
     import {typeChart} from "../../js/battle/battle";
+    import abilities from "../../../assets/data/final/abilities.json";
 
     export let save: SelectedSave;
     export let selected: number
@@ -276,8 +277,11 @@
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    width: 100dvw;
+    height: 100dvh;
     z-index: 9;
 
     .tabs {
@@ -339,7 +343,7 @@
 
         &.back {
           font-family: pokemon, serif;
-          right: 0;
+          right: 2%;
           background: none;
           font-size: 32px;
           color: white;
@@ -376,6 +380,7 @@
     .summary, .stats, .skills {
       border: 4px solid #54506c;
       height: 100%;
+      width: 100%;
       box-sizing: border-box;
       position: relative;
 
@@ -437,7 +442,7 @@
           width: 100%;
           display: flex;
           flex-direction: column;
-          gap: 8px;
+          gap: 1.5%;
           box-sizing: border-box;
 
           li {
@@ -541,7 +546,7 @@
         ul {
           list-style: none;
           margin: 0;
-          padding: 8px 32px;
+          padding: 2%;
           height: 100%;
           width: 100%;
           display: flex;
@@ -613,7 +618,7 @@
 
 
             .th {
-              width: 40%;
+              min-width: 30%;
               text-align: center;
               height: 12px;
               border-radius: 4px;
@@ -625,17 +630,21 @@
             }
 
             .td {
-              width: 26%;
+              width: 18%;
               color: #54506c;
               background-color: #f8f0e8;
               padding: 0 8px;
-              font-size: 32px;
               text-transform: uppercase;
               border-radius: 8px;
-
+              font-size: 24px;
+              line-height: 1.1;
               display: flex;
               justify-content: flex-end;
               gap: 16px;
+
+              &.main {
+                width: 34%;
+              }
             }
           }
         }
@@ -651,29 +660,29 @@
         display: flex;
         flex-direction: column;
         justify-content: center;
-        gap: 8px;
+        gap: 2%;
 
         .exp {
           display: flex;
           justify-content: space-between;
-          gap: 16px;
-          padding: 0 16px;
+          gap: 2%;
+          padding: 0;
 
           .th {
             text-align: center;
             height: 12px;
-            width: 30%;
+            width: 20%;
             border-radius: 4px;
             background-color: #54506c;
             line-height: 8px;
-            font-size: 36px;
+            font-size: 32px;
             color: white;
             text-shadow: 3px 1px 2px #54506c;
           }
 
           table {
-            width: 70%;
-            font-size: 32px;
+            width: 78%;
+            font-size: 24px;
             color: #54506c;
             text-transform: uppercase;
             border-radius: 8px;
@@ -684,6 +693,7 @@
               display: flex;
               justify-content: space-between;
               border-radius: 8px;
+              gap: 1%;
 
               td {
                 width: 50%;
@@ -691,6 +701,8 @@
                 border-bottom: 3px solid #f8f9d8;
                 padding: 0 16px;
                 border-radius: 4px;
+                display: flex;
+                justify-content: space-between;
 
                 &.value {
                   text-align: right;
@@ -704,34 +716,61 @@
 
         .ability {
           display: flex;
-          flex-direction: row;
+          flex-direction: column;
           justify-content: space-between;
-          gap: 16px;
-          padding: 0 16px;
+          gap: 1%;
+          padding: 0;
+          box-sizing: border-box;
+
+          .title {
+            width: 21%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            justify-content: space-around;
+          }
 
           .th {
             display: block;
             text-align: center;
             height: 12px;
-            width: 32%;
+            width: 100%;
             border-radius: 4px;
             background-color: #54506c;
             line-height: 8px;
-            font-size: 36px;
+            font-size: 32px;
             color: white;
             text-shadow: 3px 1px 2px #54506c;
           }
 
           .td {
-            width: 70%;
             color: #54506c;
             background-color: #f8f0e8;
-            padding: 0 16px;
-            font-size: 32px;
+            padding: 10px;
+            font-size: 21px;
             text-transform: uppercase;
             border-radius: 8px;
-
+            box-sizing: border-box;
+            width: 100%;
           }
+
+          .name-desc {
+            display: flex;
+            flex-direction: row;
+            gap: 2%;
+            align-items: flex-end;
+
+            .desc {
+              width: 78%;
+              font-size: 24px;
+              background-color: #f9f8a1;
+              border-radius: 8px;
+              padding: 4px 16px;
+            }
+          }
+
+
         }
       }
     }
@@ -754,7 +793,7 @@
 
           display: flex;
           flex-direction: column;
-          gap: 16px;
+          gap: 4%;
           padding: 16px;
           height: 100%;
           box-sizing: border-box;
@@ -788,15 +827,16 @@
               font-size: 32px;
               text-transform: uppercase;
               position: absolute;
-              left: 20%;
+              left: 50%;
               top: 10%;
+              transform: translateX(-50%);
             }
 
             .pp {
               font-size: 32px;
               text-transform: uppercase;
               position: absolute;
-              right: 20%;
+              right: 2%;
               bottom: 10%;
             }
           }
