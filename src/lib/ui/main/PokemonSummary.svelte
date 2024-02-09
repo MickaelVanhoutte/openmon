@@ -20,14 +20,10 @@
         <button style="--index: 2" class:active={tab === 2} on:click={() => tab = 2}><span></span></button>
 
         <button class="previous" on:click={()=> previous() }>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 16L6 10H18L12 16Z"></path>
-            </svg>
+            <span class="arrow"></span>
         </button>
         <button class="next" on:click={()=> next() }>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 8L18 14H6L12 8Z"></path>
-            </svg>
+            <span class="arrow"></span>
         </button>
 
         <button class="back" on:click={()=>openSummary=false}>BACK</button>
@@ -369,29 +365,44 @@
           text-shadow: 3px 1px 2px #54506c;
         }
 
-        &.previous {
-          right: 12%;
+        &.previous, &.next {
           background: none;
           font-size: 32px;
           color: white;
-          display: flex;
-          align-items: center;
+          text-align: center;
+          z-index: 9;
+
+          span.arrow {
+            border: solid white;
+            border-width: 0 5px 5px 0;
+            display: inline-block;
+            padding: 5px;
+          }
+        }
+
+        &.previous {
+          right: 14%;
+          width: 40px;
+          .arrow {
+            transform: rotate(-135deg);
+            -webkit-transform: rotate(-135deg);
+          }
         }
 
         &.next {
           right: 20%;
-          background: none;
-          font-size: 32px;
-          color: white;
-          display: flex;
-          align-items: center;
+          width: 40px;
+          .arrow{
+            transform: rotate(45deg);
+            -webkit-transform: rotate(45deg);
+          }
         }
 
         &:nth-child(4) {
           border-radius: 0 50px 50px 0;
         }
 
-        span {
+        span:not(.arrow) {
           height: 26px;
           width: 18px;
           background-color: #0078c0;
