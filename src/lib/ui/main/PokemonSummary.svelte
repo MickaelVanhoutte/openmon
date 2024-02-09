@@ -106,7 +106,7 @@
                 <div class="moves">
                     <div class="__wrapper">
                         {#each selectedMons.moves as move, index}
-                            <div class="move" class:selected={index === selectedMove} on:click={selectedMove = index}>
+                            <div class="move" class:selected={index === selectedMove} on:click={() => selectedMove = index}>
                                 <span style="--bg:{typeChart[move.type].color}"
                                       class="type">{move.type.toUpperCase()}</span>
                                 <span class="name">{move.name}</span>
