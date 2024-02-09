@@ -3,7 +3,10 @@
 <Menu bind:menuOpened bind:pokemonListOpened bind:openSummary bind:save bind:saveContext/>
 
 {#if !menuOpened && !pokemonListOpened}
-    <Joy/>
+    <WorldJoystick/>
+{/if}
+{#if !pokemonListOpened}
+    <button on:click={() => menuOpened = !menuOpened} class="start"></button>
 {/if}
 
 {#if battleState && battleState?.starting}
@@ -22,9 +25,9 @@
     import {Character} from "../js/player/player";
     import {onDestroy, onMount} from "svelte";
     import Menu from "../ui/main/Menu.svelte";
-    import Joy from "../ui/controls/VControls.svelte";
     import {BATTLE_STATE, MAP_DRAWER, POKEDEX} from "../js/const";
     import {SaveContext, SelectedSave} from "../js/saves/saves";
+    import WorldJoystick from "../ui/controls/WorldJoystick.svelte";
 
     export let canvas: HTMLCanvasElement;
 
@@ -183,7 +186,7 @@
         }
     };
 
-    const keyDownListener =  (e) => {
+    const keyDownListener = (e) => {
         if (!menuOpened && !pokemonListOpened && !openSummary) {
             switch (e.key) {
                 case 'ArrowDown' :
@@ -292,6 +295,19 @@
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
+  }
+
+  .start {
+    position: absolute;
+    bottom: 3dvh;
+    left: calc(50% - 25px);
+    width: 50px;
+    height: 20px;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.4);
+    border: none;
+    background-size: cover;
+    z-index: 15;
   }
 
   @media screen and (orientation: portrait) {

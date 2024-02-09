@@ -53,7 +53,7 @@
 
 <style lang="scss">
   .controllers {
-    z-index: 7;
+    z-index: 12;
     position: absolute;
     bottom: 0;
     left: 0;
