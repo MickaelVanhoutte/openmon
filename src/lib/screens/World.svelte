@@ -349,15 +349,20 @@
     position: absolute;
     bottom: 5dvh;
     left: calc(50% - 25px);
-    width: 50px;
-    height: 20px;
+    width: 60px;
+    height: 24px;
+    /* padding: 6px; */
+    display: flex;
     border-radius: 8px;
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(0, 0, 0, 0.5);
     border: none;
     background-size: cover;
     z-index: 15;
-    font-size: 12px;
-    color: rgba(255, 255, 255, .6);
+    /* line-height: 16px; */
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.7);
+    align-items: center;
+    justify-content: center;
 
   }
 
