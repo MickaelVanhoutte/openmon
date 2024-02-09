@@ -12,13 +12,14 @@
                     <span class="bubble off" on:click={() => tab = 1}></span>
                 {/if}
 
-
                 <span class="bubble"></span>
             </div>
         </div>
         <button style="--index: 0" class:active={tab === 0} on:click={() => tab = 0}><span></span></button>
         <button style="--index: 1" class:active={tab === 1} on:click={() => tab = 1}><span></span></button>
         <button style="--index: 2" class:active={tab === 2} on:click={() => tab = 2}><span></span></button>
+
+        <button class="back" on:click={()=>openSummary=false}>BACK</button>
     </div>
 
     <div class="tab-content">
@@ -255,7 +256,16 @@
         top: 0;
         z-index: 1;
 
-        &:last-child {
+        &.back {
+          font-family: pokemon, serif;
+          right: 0;
+          background: none;
+          font-size: 32px;
+          color: white;
+          text-shadow: 3px 1px 2px #54506c;
+        }
+
+        &:nth-child(4) {
           border-radius: 0 50px 50px 0;
         }
 

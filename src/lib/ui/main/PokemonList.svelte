@@ -2,7 +2,10 @@
 
     <div class="pokemons">
         <div class="first">
-            <div class="poke-card big" class:selected={selected === 0} on:click={()=> select(0)}>
+            <div class="poke-card big"
+                 class:selected={selected === 0}
+                 class:switching={switchToIdx === 0}
+                 on:click={()=> select(0)}>
                 <div class="header">
                     <div class="img-wrapper">
                         <img src="{first.sprites[first.gender].front.frame1}" alt="{first.name}"/>
@@ -31,7 +34,10 @@
         <div class="others">
 
             {#each others as monster, index}
-                <div class="poke-card" class:selected={selected === index + 1} on:click={()=>select(index+1)}>
+                <div class="poke-card"
+                     class:selected={selected === (index + 1)}
+                     class:switching={switchToIdx === (index + 1)}
+                     on:click={() => select(index + 1)}>
                     <div class="header">
                         <div class="img-wrapper">
                             <img src="{monster.sprites[monster.gender].front.frame1}" alt="{monster.name}"/>
@@ -79,7 +85,7 @@
     <div class="options" class:hidden={!openOptions}>
         <ul>
             <li class:selected={optionSelected === 0} on:click={() => summarize()}>SUMMARY</li>
-            <li class:selected={optionSelected === 1}>SWITCH</li>
+            <li class:selected={optionSelected === 1} on:click={() => saveSwitch()}>SWITCH</li>
             <li class:selected={optionSelected === 2}>ITEM</li>
             <li class:selected={optionSelected === 3} on:click={() => openOptions = false}>CANCEL</li>
         </ul>
@@ -110,7 +116,7 @@
     let optionSelected = 0;
 
 
-    let emptyslots = new Array(6 - save.player.monsters.length).fill(0);
+    $:emptyslots = new Array(6 - save.player.monsters.length).fill(0);
 
     function getPercentage(monster: PokemonInstance) {
         return monster.currentHp / monster.currentStats.hp * 100;
@@ -118,12 +124,20 @@
 
     function select(index: number) {
         if (index === selected) {
-            openOptions = !openOptions
+            if (!!switchToIdx) {
+                switchTo();
+            } else {
+                openOptions = !openOptions
+            }
         } else {
             selected = index;
             openOptions = false
         }
+    }
 
+    function saveSwitch() {
+        switchToIdx = selected;
+        openOptions = false;
     }
 
     function switchTo() {
@@ -131,9 +145,7 @@
             swap(save.player.monsters, selected, switchToIdx);
             first = save.player.monsters.at(0);
             others = save.player.monsters.slice(1);
-            selected = switchToIdx;
             switchToIdx = undefined;
-            emptyslots = new Array(6 - save.player.monsters.length).fill(0);
         }
     }
 
@@ -147,14 +159,18 @@
     }
 
     const listener = (e) => {
-        if(openSummary) return;
+        if (openSummary) return;
         if (!openOptions) {
             if (e.key === "ArrowUp") {
                 selected = selected === 0 ? others.length : selected - 1;
             } else if (e.key === "ArrowDown") {
                 selected = selected === others.length ? 0 : selected + 1;
             } else if (e.key === "Enter") {
-                openOptions = true;
+                if (switchToIdx != undefined && selected != undefined) {
+                    switchTo();
+                } else {
+                    openOptions = true;
+                }
             }
         } else {
             if (e.key === "ArrowUp") {
@@ -166,6 +182,8 @@
                     summarize();
                 } else if (optionSelected === 3) {
                     openOptions = false;
+                } else if (optionSelected === 1) {
+                    saveSwitch();
                 }
             }
         }
@@ -216,7 +234,7 @@
             border-left: 12px solid #262626;
             position: absolute;
             left: 5px;
-            margin-top:2px;
+            margin-top: 2px;
           }
         }
       }
@@ -307,6 +325,10 @@
           background-color: #8edeee;
           background-image: linear-gradient(0deg, #bbf2fe 46%, #8edeee 46%, #8edeee 50%, #bbf2fe 50%, #bbf2fe 56%, #8edeee 56%, #8edeee 100%);
           background-size: 100% 100%;
+        }
+
+        &.switching {
+          border: 6px solid greenyellow;
         }
 
         .header {
