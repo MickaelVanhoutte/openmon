@@ -1,44 +1,81 @@
 <div class="menu" class:open={menuOpened}>
     <ul>
-        <li>
-            <button tabindex="0">Pokedex</button>
+        <li class:selected={selected===0} on:pointerover={()=>selected=0}>
+            Pokedex
         </li>
-        <li>
-            <button>Pokemon</button>
+        <li class:selected={selected===1} on:mouseover={()=>selected=1} on:click={() => openList()}>
+            Pokemon
         </li>
-        <li>
-            <button>Bag</button>
+        <li class:selected={selected===2} on:mouseover={()=>selected=2}>
+            Bag
         </li>
-        <li>
-            <button>Trainer</button>
+        <li class:selected={selected===3} on:mouseover={()=>selected=3}>
+            Trainer
         </li>
-        <li>
-            <button on:click={()=> saveCurrent()}>Save</button>
+        <li class:selected={selected===4} on:mouseover={()=>selected=4} on:click={()=> saveCurrent()}>
+            Save
         </li>
-        <li>
-            <button>Options</button>
+        <li class:selected={selected===5} on:mouseover={()=>selected=5}>
+            Options
         </li>
-        <li>
-            <button>Credits</button>
+        <li class:selected={selected===6} on:mouseover={()=>selected=6}>
+            Credits
         </li>
     </ul>
 </div>
 
+<!-- TODO avoid escap open menu again -->
+{#if pokemonListOpened}
+    <PokemonList bind:save bind:pokemonListOpened bind:openSummary/>
+{/if}
 
 <script lang="ts">
 
     import type {SaveContext} from "../../js/saves/saves";
     import {SelectedSave} from "../../js/saves/saves";
+    import PokemonList from "./PokemonList.svelte";
+    import {onMount} from "svelte";
 
     export let menuOpened;
 
+    export let pokemonListOpened;
+
+    export let openSummary;
+
     export let saveContext: SaveContext;
     export let save: SelectedSave;
+
+    let selected = 0;
 
     function saveCurrent() {
         saveContext = saveContext.updateSave(save.save);
         menuOpened = false;
     }
+
+    function openList() {
+        menuOpened = false;
+        pokemonListOpened = true;
+    }
+
+    const listener = (e: KeyboardEvent) => {
+        if (e.key === "ArrowUp") {
+            selected = selected === 0 ? 6 : selected - 1;
+        } else if (e.key === "ArrowDown") {
+            selected = selected === 6 ? 0 : selected + 1;
+        } else if (e.key === "Enter") {
+            if (selected === 1) {
+                openList();
+            } else if (selected === 4) {
+                saveCurrent();
+            }
+        }
+    }
+
+    onMount(() => {
+        window.addEventListener("keydown", listener);
+        return () => window.removeEventListener("keydown", listener);
+    });
+
 </script>
 
 <style lang="scss">
@@ -50,7 +87,7 @@
     height: 100%;
     font-size: 36px;
     background-color: #FFFFFF;
-    z-index: 3;
+    z-index: 8;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -75,7 +112,6 @@
       box-sizing: border-box;
       margin: 0;
       display: flex;
-      gap: 8px;
       flex-direction: column;
       height: 100%;
       width: 100%;
@@ -95,40 +131,16 @@
         align-items: center;
         justify-content: center;
 
-        /*&:has(button:focus),*/
-        &:hover {
-          :before {
+        &.selected {
+          &:before {
             content: "";
             width: 0;
             height: 0;
-            border-top: 20px solid transparent;
-            border-bottom: 20px solid transparent;
-            border-left: 20px solid #262626;
+            border-top: 12px solid transparent;
+            border-bottom: 12px solid transparent;
+            border-left: 12px solid #262626;
             position: absolute;
             left: 40px;
-          }
-        }
-
-        button {
-          background: none;
-          border: none;
-          font-size: inherit;
-          font-family: inherit;
-          cursor: inherit;
-          outline: none;
-          width: 100%;
-          height: 100%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-
-          :before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
           }
         }
       }

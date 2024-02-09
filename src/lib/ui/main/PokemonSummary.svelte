@@ -1,0 +1,528 @@
+<div class="screen">
+
+    <div class="tabs">
+        <div class="current" style="--index: {tab}">
+            <span>{tabs[tab]}</span>
+
+            <div class="bubbles">
+                {#if tab === 1}
+                    <span class="bubble off" on:click={() => tab = 0}></span>
+                {:else if tab === 2}
+                    <span class="bubble off" on:click={() => tab = 0}></span>
+                    <span class="bubble off" on:click={() => tab = 1}></span>
+                {/if}
+
+
+                <span class="bubble"></span>
+            </div>
+        </div>
+        <button style="--index: 0" class:active={tab === 0} on:click={() => tab = 0}><span></span></button>
+        <button style="--index: 1" class:active={tab === 1} on:click={() => tab = 1}><span></span></button>
+        <button style="--index: 2" class:active={tab === 2} on:click={() => tab = 2}><span></span></button>
+    </div>
+
+    <div class="tab-content">
+
+        {#if tab === 0}
+            <div class="summary">
+
+                <div class="img-wrapper">
+                    <div class="info">
+                        <div>
+                            <span>Lv{selectedMons.level}</span><span>{selectedMons.name}</span>
+                        </div>
+                        <div class="img-bg">
+                            <img src="{selectedMons.sprites[selectedMons.gender].front.frame1}"
+                                 alt="{selectedMons.name} img"/>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="infos">
+                    <ul>
+                        <li>
+                            <span class="th">No</span>
+                            <span class="td">{("00" + selectedMons.id).slice(-3)}</span>
+                        </li>
+                        <li>
+                            <span class="th">NAME</span>
+                            <span class="td">{selectedMons.name}</span>
+                        </li>
+                        <li>
+                            <span class="th">TYPE</span>
+                            <span class="td">
+                                {#each selectedMons.types as type}
+                                    <span style="--bg:{typeChart[type].color}" class="type">{type}</span>
+                                {/each}
+                            </span>
+                        </li>
+                        <li>
+                            <span class="th">OT</span>
+                            <span class="td">{save.player.name}</span>
+                        </li>
+                        <li>
+                            <span class="th">ITEM</span>
+                            <span class="td">NONE</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="memo">
+                    <span class="title">TRAINER MEMO</span>
+                    <p>{selectedMons.nature.toUpperCase() || 'UNKNOWN'} nature.</p>
+                    <p>Met in PALLET TOWN at Lv 5.</p>
+                </div>
+
+            </div>
+        {:else if tab === 1}
+            <div class="stats">
+                <div class="img-wrapper">
+                    <div class="info">
+                        <div>
+                            <span>Lv{selectedMons.level}</span><span>{selectedMons.name}</span>
+                        </div>
+                        <div class="img-bg">
+                            <img src="{selectedMons.sprites[selectedMons.gender].front.frame1}"
+                                 alt="{selectedMons.name} img"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {:else if tab === 2}
+            <div class="skills">
+                <div class="img-wrapper">
+                    <div class="info">
+                        <div>
+                            <span>Lv{selectedMons.level}</span><span>{selectedMons.name}</span>
+                        </div>
+                        <div class="img-bg">
+                            <img src="{selectedMons.sprites[selectedMons.gender].front.frame1}"
+                                 alt="{selectedMons.name} img"/>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="moves">
+                    <div class="__wrapper">
+                        {#each selectedMons.moves as move, index}
+                            <div class="move" class:selected={index === selectedMove} on:click={selectedMove = index}>
+                                <span style="--bg:{typeChart[move.type].color}"
+                                      class="type">{move.type.toUpperCase()}</span>
+                                <span class="name">{move.name}</span>
+                                <span class="pp">PP {move.currentPp}/{move.pp}</span>
+                            </div>
+                        {/each}
+                    </div>
+                </div>
+
+                <div class="description">
+                    <p>
+                        {description}
+                    </p>
+                </div>
+            </div>
+        {/if}
+    </div>
+</div>
+
+
+<script lang="ts">
+    import {onMount} from "svelte";
+    import {SelectedSave} from "../../js/saves/saves";
+    import {typeChart} from "../../js/battle/battle";
+
+    export let save: SelectedSave;
+    export let selected: number
+    export let openSummary: boolean;
+
+    let mechanicRegex = /{[^}]*}/g;
+
+    $:selectedMons = save.player.monsters[selected];
+    $:description = selectedMons.moves[selectedMove].description
+        ?.replace("$effect_chance", selectedMons?.moves[selectedMove]?.effectChance)
+        ?.replace(mechanicRegex, "");
+
+    let tab = 0;
+    let selectedMove = 0;
+
+    const tabs = {
+        0: 'POKEMON INFO',
+        1: 'POKEMON STATS',
+        2: 'POKEMON SKILLS'
+    }
+
+    const listener = (e: KeyboardEvent) => {
+        if (openSummary) {
+            if (e.key === "ArrowRight") {
+                tab = (tab + 1) % 3;
+            } else if (e.key === "ArrowLeft") {
+                tab = (tab + 2) % 3;
+            } else if (e.key === "Escape") {
+                openSummary = false;
+            }
+
+            if (tab === 2) {
+                if (e.key === "ArrowDown") {
+                    selectedMove = (selectedMove + 1) % selectedMons.moves.length;
+                    console.log(selectedMons.moves[selectedMove].description);
+                } else if (e.key === "ArrowUp") {
+                    selectedMove = (selectedMove + selectedMons.moves.length - 1) % selectedMons.moves.length;
+                }
+            } else {
+                if (e.key === "ArrowDown") {
+                    selectedMove = 0;
+                    selected = selected === save.player.monsters.length - 1 ? 0 : selected + 1;
+                } else if (e.key === "ArrowUp") {
+                    selectedMove = 0;
+                    selected = selected === 0 ? save.player.monsters.length - 1 : selected - 1;
+                }
+            }
+        }
+    }
+
+    onMount(() => {
+        window.addEventListener("keydown", listener);
+        return () => {
+            window.removeEventListener("keydown", listener);
+        }
+    })
+</script>
+
+<style lang="scss">
+
+  .screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9;
+
+    .tabs {
+      height: 46px;
+      width: 100%;
+
+      display: flex;
+      align-items: center;
+
+      background-color: #0078c0;
+      font-size: 32px;
+      color: white;
+      text-shadow: 3px 1px 2px #54506c;
+
+
+      .current {
+        width: calc(40% + (var(--index) + 1) * 80px);
+        height: 100%;
+        background-color: #e0d898;
+        display: flex;
+        align-items: center;
+        border-radius: 0 50px 50px 0;
+        z-index: 2;
+        position: relative;
+        box-sizing: border-box;
+        padding-left: 10%;
+        justify-content: space-between;
+
+        .bubbles {
+          display: flex;
+          gap: 62px;
+          padding-right: 30px;
+
+          .bubble {
+            height: 26px;
+            width: 18px;
+            background-color: white;
+            border-radius: 16px;
+            position: relative;
+            z-index: 9;
+
+            &.off {
+              background-color: rgba(84, 80, 108, 0.33);
+            }
+          }
+        }
+
+      }
+
+      button {
+        background-color: #68c0c8;
+        border: none;
+        width: 80px;
+        height: 46px;
+        position: absolute;
+        left: calc(40% + var(--index) * 80px);
+        top: 0;
+        z-index: 1;
+
+        &:last-child {
+          border-radius: 0 50px 50px 0;
+        }
+
+        span {
+          height: 26px;
+          width: 18px;
+          background-color: #0078c0;
+          border-radius: 16px;
+          position: absolute;
+          z-index: 9;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+        }
+
+
+      }
+    }
+
+    .tab-content {
+      height: calc(100% - 46px);
+      width: 100%;
+      box-sizing: border-box;
+      background-color: white;
+    }
+
+    .summary, .stats, .skills {
+      border: 4px solid #54506c;
+      height: 100%;
+      box-sizing: border-box;
+      position: relative;
+
+      .img-wrapper {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 50%;
+        height: 60%;
+        background-color: #c8a8e8;
+        border-right: 4px solid #54506c;
+        border-bottom: 4px solid #54506c;
+
+        .info {
+          height: 100%;
+
+          div:first-of-type {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 5%;
+            color: white;
+            font-size: 32px;
+            text-shadow: 3px 1px 2px #54506c;
+          }
+
+          .img-bg {
+            display: flex;
+            justify-content: center;
+            height: 74%;
+            width: 90%;
+            margin: 3% auto;
+            background-image: linear-gradient(0deg, #ffffff 12.50%, #e7e7e8 12.50%, #e7e7e8 50%, #ffffff 50%, #ffffff 62.50%, #e7e7e8 62.50%, #e7e7e8 100%);
+            background-size: 32.00px 32.00px;
+          }
+        }
+      }
+    }
+
+    .summary {
+      background-image: linear-gradient(0deg, #f8cfa8 25%, #f8a890 25%, #f8a890 50%, #f8cfa8 50%, #f8cfa8 75%, #f8a890 75%, #f8a890 100%);
+      background-size: 16.00px 16.00px;
+
+      .infos {
+        width: calc(50% - 4px);
+        height: 100%;
+        position: absolute;
+        top: 0;
+        right: 0;
+        border-top: 4px solid #e0f8f8;
+        border-right: 4px solid #e0f8f8;
+        box-sizing: border-box;
+
+        ul {
+          list-style: none;
+          margin: 0;
+          padding: 8px 32px;
+          height: 100%;
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+          box-sizing: border-box;
+
+          li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+
+            .th {
+              width: 40%;
+              text-align: center;
+              height: 12px;
+              border-radius: 4px;
+              background-color: #54506c;
+              line-height: 8px;
+              font-size: 36px;
+              color: white;
+              text-shadow: 3px 1px 2px #54506c;
+            }
+
+            .td {
+              width: 60%;
+              color: #54506c;
+              background-color: #f8f0e8;
+              padding: 0 26px;
+              font-size: 36px;
+              text-transform: uppercase;
+              border-radius: 8px;
+
+              display: flex;
+              justify-content: space-around;
+              gap: 16px;
+
+              .type {
+                background-color: var(--bg);
+                color: white;
+                text-shadow: 3px 1px 2px #54506c;
+                font-size: 26px;
+                border-radius: 8px;
+                padding: 4px;
+                display: flex;
+                flex-grow: 1;
+                gap: 8px;
+                justify-content: center;
+                max-width: 50%;
+                width: 40%;
+              }
+            }
+          }
+        }
+      }
+
+      .memo {
+        position: absolute;
+        bottom: 2%;
+        left: 1%;
+        width: 98%;
+        /* margin: auto; */
+        height: 27%;
+        background-color: #f8f0e8;
+        padding: 16px;
+        box-sizing: border-box;
+        border-radius: 8px;
+
+        .title {
+          text-align: center;
+          height: 12px;
+          width: 30%;
+          border-radius: 4px;
+          background-color: #54506c;
+          line-height: 8px;
+          font-size: 36px;
+          color: white;
+          text-shadow: 3px 1px 2px #54506c;
+          position: absolute;
+          top: -12px;
+          left: 0;
+        }
+
+        p {
+          margin: 0;
+          font-size: 32px;
+          color: #54506c;
+          border-bottom: 2px solid #e7e8c0;
+        }
+      }
+    }
+
+    .stats {
+      background-image: linear-gradient(0deg, #f8d058 25%, #f8e878 25%, #f8e878 50%, #f8d058 50%, #f8d058 75%, #f8e878 75%, #f8e878 100%);
+      background-size: 16.00px 16.00px;
+    }
+
+    .skills {
+      background-image: linear-gradient(0deg, #97e8d0 25%, #a7f0d8 25%, #a7f0d8 50%, #97e8d0 50%, #97e8d0 75%, #a7f0d8 75%, #a7f0d8 100%);
+      background-size: 16.00px 16.00px;
+
+      .moves {
+        width: calc(50% - 4px);
+        height: 100%;
+        position: absolute;
+        top: 0;
+        right: 0;
+        border-top: 4px solid #e0f8f8;
+        border-right: 4px solid #e0f8f8;
+        box-sizing: border-box;
+
+        .__wrapper {
+
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+          padding: 16px;
+          height: 100%;
+          box-sizing: border-box;
+
+          .move {
+            background-color: #f0f8f8;
+            color: #54506c;
+            padding: 12px;
+            border-radius: 8px;
+            position: relative;
+            height: calc(100% / 4);
+            box-sizing: border-box;
+
+            &.selected {
+              border: 4px solid #54506c;
+            }
+
+            .type {
+              color: white;
+              text-shadow: 3px 1px 2px #54506c;
+              background-color: var(--bg);
+              border-radius: 8px;
+              padding: 4px;
+              font-size: 26px;
+              position: absolute;
+              top: -4px;
+              left: -10px;
+            }
+
+            .name {
+              font-size: 32px;
+              text-transform: uppercase;
+              position: absolute;
+              left: 20%;
+              top: 10%;
+            }
+
+            .pp {
+              font-size: 32px;
+              text-transform: uppercase;
+              position: absolute;
+              right: 20%;
+              bottom: 10%;
+            }
+          }
+        }
+      }
+
+      .description {
+        width: 48%;
+        height: 34%;
+        position: absolute;
+        bottom: 2%;
+        left: 1%;
+        background-color: #f0f8f8;
+        box-sizing: border-box;
+        border-radius: 8px;
+        padding: 4px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        word-wrap: break-word;
+        word-break: break-word;
+        border: 4px solid #54506c;
+      }
+    }
+  }
+</style>
