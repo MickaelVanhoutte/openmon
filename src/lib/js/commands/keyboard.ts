@@ -93,11 +93,11 @@ export class ABButtons {
         this.container.style.zIndex = "7";
 
         let buttonA = document.createElement("button");
-        buttonA.style.width = "50px";
-        buttonA.style.height = "50px";
+        buttonA.style.fontFamily= "pokemon, serif";
+        buttonA.style.padding = '12px 16px';
         buttonA.style.backgroundColor = "rgba(84, 80, 108, 0.64)";
         buttonA.style.border = "1px solid black";
-        buttonA.style.borderRadius = "40%";
+        buttonA.style.borderRadius = "50%";
         buttonA.style.cursor = "pointer";
         buttonA.style.outline = "none";
         buttonA.style.fontSize = "20px";
@@ -130,11 +130,11 @@ export class ABButtons {
         this.container.appendChild(buttonA);
 
         let buttonB = document.createElement("button");
-        buttonB.style.width = "50px";
-        buttonB.style.height = "50px";
+        buttonB.style.fontFamily= "pokemon, serif";
+        buttonB.style.padding = '12px 16px';
         buttonB.style.backgroundColor = "rgba(84, 80, 108, 0.64)";
         buttonB.style.border = "1px solid black";
-        buttonB.style.borderRadius = "40%";
+        buttonB.style.borderRadius = "50%";
         buttonB.style.cursor = "pointer";
         buttonB.style.outline = "none";
         buttonB.style.fontSize = "20px";

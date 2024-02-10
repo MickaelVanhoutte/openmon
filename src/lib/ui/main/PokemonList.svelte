@@ -124,7 +124,7 @@
 
     function select(index: number) {
         if (index === selected) {
-            if (!!switchToIdx) {
+            if (switchToIdx != undefined && selected != undefined) {
                 switchTo();
             } else {
                 openOptions = !openOptions
@@ -141,7 +141,7 @@
     }
 
     function switchTo() {
-        if (switchToIdx !== undefined) {
+        if (switchToIdx != undefined && selected != undefined) {
             swap(save.player.monsters, selected, switchToIdx);
             first = save.player.monsters.at(0);
             others = save.player.monsters.slice(1);
@@ -203,11 +203,12 @@
 
   .options {
     position: absolute;
-    /* width: 30dvw; */
+    font-size: 32px;
+    font-weight: bold;
     text-align: left;
-    bottom: 4px;
-    right: 4px;
-    padding: 18px 26px 18px 26px;
+    bottom: 1%;
+    right: 1%;
+    padding: 22px 36px 22px 36px;
     background-color: white;
     border: 2px solid #54506c;
     border-radius: 8px;
@@ -224,7 +225,7 @@
       list-style: none;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 16px;
 
       li {
         &.selected {
