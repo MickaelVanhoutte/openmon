@@ -730,7 +730,19 @@
                 width: 21%;
 
                 button {
+                  background: #54506c;
+                  color: white;
+                  border-radius: 8px;
+                  font-size: 16px;
+                  height: 26px;
+                  width: 26px;
+                  box-sizing: border-box;
 
+                  &:disabled {
+                    background: rgba(84, 80, 108, 0.3);
+                    color: rgba(255, 255, 255, 0.8);
+                    border: 0;
+                  }
                 }
               }
 
