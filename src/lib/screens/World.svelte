@@ -13,10 +13,13 @@
     {#if battleState && battleState?.ending}
         <div class="battleEnd"></div>
     {/if}
+
+    <div class="joysticks" bind:this={joysticks}></div>
+    <div class="ab-buttons" bind:this={abButtonsC}></div>
 </div>
 <script lang="ts">
 
-    import {keys, lastKey, resetKeys} from "../js/commands/keyboard";
+    import {ABButtons, keys, lastKey, resetKeys} from "../js/commands/keyboard";
     import {Position} from "../js/sprites/drawers";
     import {BattleContext, BattleState} from "../js/battle/battle";
     import {PokemonInstance} from "../js/pokemons/pokedex";
@@ -29,6 +32,8 @@
 
     export let canvas: HTMLCanvasElement;
     export let wrapper: HTMLDivElement;
+    export let abButtonsC: HTMLDivElement;
+    export let joysticks: HTMLDivElement;
     export let saveContext: SaveContext;
     export let save: SelectedSave;
 
@@ -268,12 +273,7 @@
         window.removeEventListener('keyup', keyUpListener);
     }
 
-
-    const joystick = new JoystickController({
-        dynamicPosition: true,
-        dynamicPositionTarget: wrapper,
-        distortion: true,
-    }, (data) => {
+    const jsCallback = (data) => {
         // convert data.angle (radian) to a direction (top, bottom, left, right)
         if (!menuOpened && !pokemonListOpened) {
             resetKeys();
@@ -304,19 +304,34 @@
                 }
             }
         }
-    });
+    }
 
+    let abButtons;
+    let joystick;
 
     onDestroy(() => {
         ctx?.clearRect(0, 0, canvas.width, canvas.height);
         window.cancelAnimationFrame(mainLoopContext.id);
         unbindKeyboard();
+        joystick?.destroy();
+        abButtons?.destroy();
     });
 
     onMount(() => {
         ctx = canvas.getContext('2d');
         bindKeyboard();
         mainLoop();
+        abButtons = new ABButtons(abButtonsC, (a, b) => {
+            keys.a.pressed = a;
+            keys.b.pressed = b;
+            console.log('a', a, 'b', b);
+        });
+        joystick = new JoystickController({
+            dynamicPosition: true,
+            dynamicPositionTarget: joysticks,
+            containerClass: 'joysticks',
+            distortion: true,
+        }, jsCallback);
     });
 
 </script>
@@ -331,6 +346,11 @@
     left: 0;
     right: 0;
     bottom: 0;
+
+    .joysticks {
+      height: 100dvh;
+      width: calc(99dvw - 130px);
+    }
   }
 
   canvas {
@@ -354,13 +374,14 @@
     /* padding: 6px; */
     display: flex;
     border-radius: 8px;
-    background: rgba(0, 0, 0, 0.5);
-    border: none;
+    background: rgba(84, 80, 108, 0.64);
+    outline: none;
     background-size: cover;
     z-index: 15;
     /* line-height: 16px; */
     font-size: 16px;
-    color: rgba(255, 255, 255, 0.7);
+    border: 1px solid #000000;
+    color: white;
     align-items: center;
     justify-content: center;
 
