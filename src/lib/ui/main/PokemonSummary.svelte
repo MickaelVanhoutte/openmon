@@ -99,11 +99,22 @@
                 <div class="stat-values">
 
                     <ul>
+                        <li class="head">
+                            <span class="th invisible"></span>
+                            <span class="th main">VALUE</span>
+                            <span class="th">IV</span>
+                            <span class="th">EV. ({selectedMons.evsToDistribute})</span>
+                        </li>
+
                         <li class="hp">
                             <span class="th">HP</span>
                             <span class="td main">{selectedMons.currentHp}/{selectedMons.currentStats.hp}</span>
-                            <span class="td">{selectedMons.ivs.hp}</span>
-                            <span class="td">{selectedMons.evs.hp}</span>
+                            <span class="td" style="--color:{ivColor(selectedMons.ivs.hp)}">{selectedMons.ivs.hp}</span>
+                            <span class="td inputs">
+                                <button disabled={plusDisabled} on:click={() => addEv('hp', 1) }>+</button>
+                                <span>{selectedMons.evs.hp}</span>
+                                <button disabled={minusHpDisabled} on:click={() => addEv('hp', -1) }>-</button>
+                            </span>
 
                             <!--<div class="p-hp">
                                 <span>HP</span>
@@ -117,34 +128,62 @@
                         <li>
                             <span class="th">ATTACK</span>
                             <span class="td main">{selectedMons.currentStats.attack}</span>
-                            <span class="td">{selectedMons.ivs.attack}</span>
-                            <span class="td">{selectedMons.evs.attack}</span>
+                            <span class="td"
+                                  style="--color:{ivColor(selectedMons.ivs.attack)}">{selectedMons.ivs.attack}</span>
+                            <span class="td inputs">
+                                <button disabled={plusDisabled} on:click={() => addEv('attack', 1) }>+</button>
+                                <span>{selectedMons.evs.attack}</span>
+                                <button disabled={minusAttackDisabled} on:click={() => addEv('attack', -1) }>-</button>
+                            </span>
 
                         </li>
                         <li>
                             <span class="th">DEFENSE</span>
                             <span class="td main">{selectedMons.currentStats.defense}</span>
-                            <span class="td">{selectedMons.ivs.defense}</span>
-                            <span class="td">{selectedMons.evs.defense}</span>
+                            <span class="td"
+                                  style="--color:{ivColor(selectedMons.ivs.defense)}">{selectedMons.ivs.defense}</span>
+                            <span class="td inputs">
+                                <button disabled={plusDisabled} on:click={() => addEv('defense', 1) }>+</button>
+                                <span>{selectedMons.evs.defense}</span>
+                                <button disabled={minusDefenseDisabled}
+                                        on:click={() => addEv('defense', -1) }>-</button>
+                            </span>
 
                         </li>
                         <li>
                             <span class="th">SP.ATK</span>
                             <span class="td main">{selectedMons.currentStats.specialAttack}</span>
-                            <span class="td">{selectedMons.ivs.specialAttack}</span>
-                            <span class="td">{selectedMons.evs.specialAttack}</span>
+                            <span class="td"
+                                  style="--color:{ivColor(selectedMons.ivs.specialAttack)}">{selectedMons.ivs.specialAttack}</span>
+                            <span class="td inputs">
+                                <button disabled={plusDisabled} on:click={() => addEv('specialAttack', 1) }>+</button>
+                                <span>{selectedMons.evs.specialAttack}</span>
+                                <button disabled={minusSpecialAttackDisabled}
+                                        on:click={() => addEv('specialAttack', -1) }>-</button>
+                            </span>
                         </li>
                         <li>
                             <span class="th">SP.DEF</span>
                             <span class="td main">{selectedMons.currentStats.specialDefense}</span>
-                            <span class="td">{selectedMons.ivs.specialDefense}</span>
-                            <span class="td">{selectedMons.evs.specialDefense}</span>
+                            <span class="td"
+                                  style="--color:{ivColor(selectedMons.ivs.specialDefense)}">{selectedMons.ivs.specialDefense}</span>
+                            <span class="td inputs">
+                                <button disabled={plusDisabled} on:click={() => addEv('specialDefense', 1) }>+</button>
+                                <span>{selectedMons.evs.specialDefense}</span>
+                                <button disabled={minusSpecialDefenseDisabled}
+                                        on:click={() => addEv('specialDefense', -1) }>-</button>
+                            </span>
                         </li>
                         <li>
                             <span class="th">SPEED</span>
                             <span class="td main">{selectedMons.currentStats.speed}</span>
-                            <span class="td">{selectedMons.ivs.speed}</span>
-                            <span class="td">{selectedMons.evs.speed}</span>
+                            <span class="td"
+                                  style="--color:{ivColor(selectedMons.ivs.speed)}">{selectedMons.ivs.speed}</span>
+                            <span class="td inputs">
+                                <button disabled={plusDisabled} on:click={() => addEv('speed', 1) }>+</button>
+                                <span>{selectedMons.evs.speed}</span>
+                                <button disabled={minusSpeedDisabled} on:click={() => addEv('speed', -1) }>-</button>
+                            </span>
                         </li>
                     </ul>
 
@@ -231,9 +270,27 @@
         ?.replace("$effect_chance", selectedMons?.moves[selectedMove]?.effectChance)
         ?.replace(mechanicRegex, "");
     $:percent = Math.floor(selectedMons.currentHp * 100 / selectedMons?.currentStats.hp)
+    $:plusDisabled = selectedMons.evsToDistribute === 0;
+    $:minusHpDisabled = selectedMons.evs.hp === 0;
+    $:minusAttackDisabled = selectedMons.evs.attack === 0;
+    $:minusDefenseDisabled = selectedMons.evs.defense === 0;
+    $:minusSpecialAttackDisabled = selectedMons.evs.specialAttack === 0;
+    $:minusSpecialDefenseDisabled = selectedMons.evs.specialDefense === 0;
+    $:minusSpeedDisabled = selectedMons.evs.speed === 0;
 
     let tab = 0;
     let selectedMove = 0;
+
+    function ivColor(value: number) {
+
+        if (value >= 26) {
+            return 'green';
+        } else if (value >= 16) {
+            return '#9B6A0F';
+        } else {
+            return '#E61717';
+        }
+    }
 
     const tabs = {
         0: 'POKEMON INFO',
@@ -283,6 +340,12 @@
     function next() {
         selectedMove = 0;
         selected = selected === save.player.monsters.length - 1 ? 0 : selected + 1;
+    }
+
+    function addEv(stat: 'hp' | 'attack' | 'defense' | 'specialAttack' | 'specialDefense' | 'speed', number: number) {
+        if (selectedMons.evsToDistribute >= number && selectedMons.evs[stat] + number >= 0) {
+            selectedMons.addEv(stat, number);
+        }
     }
 </script>
 
@@ -358,7 +421,7 @@
 
         &.back {
           font-family: pokemon, serif;
-          right: 2%;
+          right: 1%;
           background: none;
           font-size: 32px;
           color: white;
@@ -381,8 +444,9 @@
         }
 
         &.previous {
-          right: 14%;
+          right: 12%;
           width: 40px;
+
           .arrow {
             transform: rotate(-135deg);
             -webkit-transform: rotate(-135deg);
@@ -390,9 +454,10 @@
         }
 
         &.next {
-          right: 20%;
+          right: 17%;
           width: 40px;
-          .arrow{
+
+          .arrow {
             transform: rotate(45deg);
             -webkit-transform: rotate(45deg);
           }
@@ -465,6 +530,12 @@
             background-size: 32.00px 32.00px;
           }
         }
+      }
+    }
+
+    .stats {
+      .img-wrapper {
+        width: 30%;
       }
     }
 
@@ -583,87 +654,50 @@
       background-size: 16.00px 16.00px;
 
       .stat-values {
-        width: 60%;
+        width: 70%;
         height: 60%;
         position: absolute;
         top: 0;
         right: 0;
         box-sizing: border-box;
-
+        border-top: 4px solid #e0f8f8;
+        border-right: 4px solid #e0f8f8;
 
         ul {
           list-style: none;
           margin: 0;
-          padding: 2%;
+          padding: 2% 2% 0 2%;
           height: 100%;
           width: 100%;
           display: flex;
           flex-direction: column;
-          gap: 4px;
+          gap: 2%;
           box-sizing: border-box;
 
           li {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 16px;
+            gap: 2%;
+            max-height: calc(100% / 7);
 
+            &.head {
+              .th {
+                font-size: 24px;
+                justify-content: flex-start;
+                width: 21%;
+                min-width: unset;
 
-            /*&.hp {
-              position: relative;
-              margin-bottom: 14px;
+                &.invisible {
+                  visibility: hidden;
+                  min-width: 30%;
+                }
 
-              .p-hp {
-
-                width: 40%;
-                display: flex;
-                //gap: 16px;
-                background-color: #262626;
-                color: orange;
-                align-items: center;
-                justify-content: space-evenly;
-                border-radius: 8px;
-                padding: 0 3px;
-
-                position: absolute;
-                bottom: -17px;
-                right: 0;
-
-                font-size: 20px;
-
-                .progressbar-wrapper {
-
-                  height: 8px;
-                  width: 100%;
-                  background-color: #595b59;
-                  border-radius: 4px;
-                  border: 2px solid white;
-
-
-                  .progressbar {
-                    width: var(--width);
-                    height: 100%;
-                    background: rgb(184, 244, 166);
-                    background: linear-gradient(0deg, rgba(184, 244, 166, 1) 0%, rgba(86, 170, 58, 1) 30%, rgba(86, 170, 58, 1) 50%, rgba(86, 170, 58, 1) 70%, rgba(184, 244, 166, 1) 100%);
-                    text-align: center;
-                    border-radius: 2px;
-
-                    transition: width 1s ease-in-out, background 1s ease-in-out 1s;
-
-                    &.warning {
-                      background: rgb(255, 241, 164);
-                      background: linear-gradient(0deg, rgba(255, 241, 164, 1) 0%, rgba(255, 194, 16, 1) 30%, rgba(255, 194, 16, 1) 50%, rgba(255, 194, 16, 1) 70%, rgba(255, 241, 164, 1) 100%);
-                    }
-
-                    &.danger {
-                      background: rgb(244, 177, 159);
-                      background: linear-gradient(0deg, rgba(244, 177, 159, 1) 0%, rgba(223, 85, 48, 1) 30%, rgba(223, 85, 48, 1) 50%, rgba(223, 85, 48, 1) 70%, rgba(244, 177, 159, 1) 100%);
-                    }
-                  }
+                &.main {
+                  width: 21%;
                 }
               }
-            }*/
-
+            }
 
             .th {
               min-width: 30%;
@@ -672,14 +706,15 @@
               border-radius: 4px;
               background-color: #54506c;
               line-height: 8px;
-              font-size: 36px;
+              font-size: 32px;
               color: white;
               text-shadow: 3px 1px 2px #54506c;
             }
 
             .td {
               width: 18%;
-              color: #54506c;
+              color: var(--color, #54506c);
+              font-weight: bold;
               background-color: #f8f0e8;
               padding: 0 8px;
               text-transform: uppercase;
@@ -688,11 +723,17 @@
               line-height: 1.1;
               display: flex;
               justify-content: flex-end;
-              gap: 16px;
 
-              &.main {
-                width: 34%;
+              &.inputs {
+                padding: 0;
+                justify-content: space-between;
+                width: 21%;
+
+                button {
+
+                }
               }
+
             }
           }
         }
@@ -700,7 +741,6 @@
 
       .others {
         width: 98%;
-        height: 36%;
         position: absolute;
         bottom: 2%;
         left: 1%;
@@ -708,7 +748,7 @@
         display: flex;
         flex-direction: column;
         justify-content: center;
-        gap: 2%;
+        gap: 1%;
 
         .exp {
           display: flex;
@@ -796,7 +836,9 @@
             color: #54506c;
             background-color: #f8f0e8;
             padding: 10px;
-            font-size: 21px;
+            font-size: 24px;
+            text-align: center;
+            font-weight: bold;
             text-transform: uppercase;
             border-radius: 8px;
             box-sizing: border-box;
@@ -893,8 +935,8 @@
 
       .description {
         font-size: 26px;
-        width: 38%;
-        height: 34%;
+        width: 39%;
+        height: 36%;
         position: absolute;
         bottom: 2%;
         left: 1%;
