@@ -38,7 +38,7 @@
         player.monsters.push(POKEDEX.findById(3).result.instanciate(5));
         player.monsters.push(POKEDEX.findById(25).result.instanciate(5));
 
-        player.monsters.push(POKEDEX.findById(6).result.instanciate(5));
+        player.monsters.push(POKEDEX.findById(6).result.instanciate(100));
         player.monsters.push(POKEDEX.findById(9).result.instanciate(5));
         player.monsters.push(POKEDEX.findById(143).result.instanciate(5));
 
