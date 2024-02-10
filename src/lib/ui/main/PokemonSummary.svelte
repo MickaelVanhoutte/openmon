@@ -738,6 +738,14 @@
                   width: 26px;
                   box-sizing: border-box;
 
+                  touch-action: none;
+                  -webkit-touch-callout: none;
+                  user-select: none;
+                  -webkit-user-select: none;
+                  -moz-user-select: none;
+                  -ms-user-select: none;
+                  -o-user-select: none;
+
                   &:disabled {
                     background: rgba(84, 80, 108, 0.3);
                     color: rgba(255, 255, 255, 0.8);
