@@ -207,7 +207,7 @@
                                 <span class="td">{selectedMons.currentAbility}</span>
                             </div>
                             <div class="desc">
-                                {abilities.find(ability => ability.names === selectedMons.currentAbility)?.description}
+                                {abilities.find(ability => ability.names === selectedMons.currentAbility)?.description.replace(mechanicRegex, "")}
                             </div>
                         </div>
                     </div>
