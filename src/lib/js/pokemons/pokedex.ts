@@ -345,7 +345,7 @@ export class PokemonInstance extends PokedexEntry {
     public xpToNextLevel: number = 0;
     public currentAbility: string = "";
     public level: number = 1;
-    public evsToDistribute: number = 0;
+    public evsToDistribute: number = 100;
     public fainted: boolean = false;
     public moves: MoveInstance[] = [];
     public ivs: Stats = new Stats();
@@ -498,22 +498,12 @@ export class PokemonInstance extends PokedexEntry {
         return result;
     }
 
-    /*    public addEvs(evs: Stats) {
-            let total = this.totalEvs;
-
-            this.evs.hp += this.evs.hp + evs.hp <= 255 && total + evs.hp < 512 ? evs.hp : 0;
-            this.evs.attack += this.evs.attack + evs.attack <= 255 && total + evs.attack < 512 ? evs.attack : 0;
-            this.evs.defense += this.evs.defense + evs.defense <= 255 && total + evs.defense < 512 ? evs.defense : 0;
-            this.evs.specialAttack += this.evs.specialAttack + evs.specialAttack <= 255 && total + evs.specialAttack < 512 ? evs.specialAttack : 0;
-            this.evs.specialDefense += this.evs.specialDefense + evs.specialDefense <= 255 && total + evs.specialDefense < 512 ? evs.specialDefense : 0;
-            this.evs.speed += this.evs.speed + evs.speed <= 255 && total + evs.speed < 512 ? evs.speed : 0;
-        }*/
-
     public addEv(ev: 'hp' | 'attack' | 'defense' | 'specialAttack' | 'specialDefense' | 'speed', value: number) {
         let total = this.totalEvs;
         if (this.evsToDistribute >= value) {
             this.evs[ev] += this.evs[ev] + value <= 255 && total + value < 512 ? value : 0;
             this.evsToDistribute -= value;
+            this.updateCurrentStats();
         }
     }
 
