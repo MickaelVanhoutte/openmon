@@ -753,6 +753,7 @@
 
       .others {
         width: 98%;
+        max-height: 39%;
         position: absolute;
         bottom: 2%;
         left: 1%;
@@ -760,7 +761,7 @@
         display: flex;
         flex-direction: column;
         justify-content: center;
-        gap: 1%;
+        gap: 8px;
 
         .exp {
           display: flex;
@@ -798,7 +799,6 @@
               td {
                 width: 50%;
                 background-color: #f9f8a1;
-                border-bottom: 3px solid #f8f9d8;
                 padding: 0 16px;
                 border-radius: 4px;
                 display: flex;
@@ -807,7 +807,6 @@
                 &.value {
                   text-align: right;
                   background-color: #f8f9d8;
-                  border-bottom: 3px solid #f9f8a1;
                 }
               }
             }
@@ -847,8 +846,8 @@
           .td {
             color: #54506c;
             background-color: #f8f0e8;
-            padding: 10px;
-            font-size: 24px;
+            padding: 8px;
+            font-size: 22px;
             text-align: center;
             font-weight: bold;
             text-transform: uppercase;
@@ -865,10 +864,10 @@
 
             .desc {
               width: 78%;
-              font-size: 24px;
+              font-size: 22px;
               background-color: #f9f8a1;
               border-radius: 8px;
-              padding: 4px 16px;
+              padding: 1%;
             }
           }
 
