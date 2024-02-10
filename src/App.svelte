@@ -22,7 +22,7 @@
     import World from "./lib/screens/World.svelte";
     import Battle from "./lib/screens/Battle.svelte";
     import PlayerCreation from "./lib/screens/PlayerCreation.svelte";
-    import { BattleState} from "./lib/js/battle/battle";
+    import {BattleState} from "./lib/js/battle/battle";
     import {SaveContext} from "./lib/js/saves/saves";
     import {BATTLE_STATE} from "./lib/js/const";
 
@@ -45,6 +45,25 @@
 </script>
 
 <style lang="scss">
+
+  :root {
+
+    * {
+      box-sizing: border-box;
+      touch-action: none;
+      -webkit-touch-callout: none;
+      user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      -o-user-select: none;
+      -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+    }
+  }
 
   .battle-wrapper {
     z-index: 1;
