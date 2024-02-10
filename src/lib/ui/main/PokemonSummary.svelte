@@ -892,6 +892,7 @@
       }
 
       .description {
+        font-size: 26px;
         width: 38%;
         height: 34%;
         position: absolute;
@@ -900,7 +901,7 @@
         background-color: #f0f8f8;
         box-sizing: border-box;
         border-radius: 8px;
-        padding: 4px 16px;
+        padding: 1%;
         display: flex;
         align-items: center;
         justify-content: center;

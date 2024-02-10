@@ -314,6 +314,7 @@
           width: 86%;
           border-radius: 4px;
           padding-top: 8%;
+          padding-bottom: 4%;
           align-items: normal;
 
 
