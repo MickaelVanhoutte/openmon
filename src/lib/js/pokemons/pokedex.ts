@@ -345,7 +345,7 @@ export class PokemonInstance extends PokedexEntry {
     public xpToNextLevel: number = 0;
     public currentAbility: string = "";
     public level: number = 1;
-    public evsToDistribute: number = 100;
+    public evsToDistribute: number = 510;
     public fainted: boolean = false;
     public moves: MoveInstance[] = [];
     public ivs: Stats = new Stats();
@@ -471,7 +471,7 @@ export class PokemonInstance extends PokedexEntry {
     }
 
     public addXpResult(xp: number, evs: number): { levelup: boolean, xpLeft: number } {
-        this.evsToDistribute += this.totalEvs + evs <= 255 ? evs : (this.totalEvs + evs) - 255;
+        this.evsToDistribute += (this.totalEvs + evs <= 510) ? evs : (this.totalEvs + evs) - 510;
         if (this.level >= 100) {
             return {levelup: false, xpLeft: 0};
         }
