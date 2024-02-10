@@ -345,7 +345,7 @@ export class PokemonInstance extends PokedexEntry {
     public xpToNextLevel: number = 0;
     public currentAbility: string = "";
     public level: number = 1;
-    public evsToDistribute: number = 10;
+    public evsToDistribute: number = 0;
     public fainted: boolean = false;
     public moves: MoveInstance[] = [];
     public ivs: Stats = new Stats();
@@ -469,29 +469,7 @@ export class PokemonInstance extends PokedexEntry {
     public howMuchXpWon(opponent: PokemonInstance, participated: number = 1, fromTrainer: boolean = false): number {
         return EXPERIENCE_CHART.howMuchIGet(this, opponent, participated, fromTrainer, false);
     }
-
-    public addXp(xp: number, evs: number) {
-        this.evsToDistribute += this.totalEvs + evs <= 255 ? evs : (this.totalEvs + evs) - 255;
-        if (this.level >= 100) {
-            return;
-        }
-        let xpLeft = 0;
-        if (this.xpToNextLevel < xp) {
-            xpLeft = xp - this.xpToNextLevel;
-            const xpToAddNow = xp - xpLeft;
-            this.currentXp += xpToAddNow;
-        } else {
-            this.currentXp += xp;
-        }
-
-        if (this.currentXp >= this.xpToNextLevel) {
-            this.levelUp();
-        }
-        if (xpLeft > 0) {
-            this.addXp(xpLeft, 0);
-        }
-    }
-
+    
     public addXpResult(xp: number, evs: number): { levelup: boolean, xpLeft: number } {
         this.evsToDistribute += this.totalEvs + evs <= 255 ? evs : (this.totalEvs + evs) - 255;
         if (this.level >= 100) {

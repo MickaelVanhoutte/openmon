@@ -93,7 +93,7 @@ export class BattleState {
             } else if (action instanceof RemoveHP) {
                 this.removeHP(action);
             } else if (action instanceof XPWin) {
-                let result = action.initiator.addXpResult(action.xp, 1);
+                let result = action.initiator.addXpResult(action.xp, this.opponent instanceof Character ? 3 : 1);
                 if (result.levelup) {
                     this.addToStack(new Message(`${action.initiator.name} grew to level ${action.initiator.level + 1}!`, action.initiator), true);
                     action.initiator.levelUp();
