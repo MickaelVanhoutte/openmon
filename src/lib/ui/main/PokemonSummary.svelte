@@ -34,7 +34,7 @@
         {#if tab === 0}
             <PokemonInfo bind:save bind:selected />
         {:else if tab === 1}
-            <PokemonStats bind:save bind:selected bind:evs/>
+            <PokemonStats bind:save bind:selected/>
         {:else if tab === 2}
             <PokemonSkills bind:save bind:selected bind:selectedMove/>
         {/if}
