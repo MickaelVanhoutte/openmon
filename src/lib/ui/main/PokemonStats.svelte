@@ -180,20 +180,18 @@
             fill: true,
             backgroundColor: 'rgba(255, 99, 132, 0.2)',
             borderColor: 'rgb(255, 99, 132)',
-            pointBackgroundColor: 'rgb(255, 99, 132)',
-            pointBorderColor: '#fff',
-            pointHoverBackgroundColor: '#fff',
-            pointHoverBorderColor: 'rgb(255, 99, 132)'
+            pointBorderWidth: 0,
+            spanGaps: true,
+            tension: 0
         }, {
             label: 'EVs',
             data: [selectedMons.evs.hp, selectedMons.evs.attack, selectedMons.evs.defense, selectedMons.evs.speed, selectedMons.evs.specialDefense, selectedMons.evs.specialAttack],
             fill: true,
             backgroundColor: 'rgba(54, 162, 235, 0.2)',
             borderColor: 'rgb(54, 162, 235)',
-            pointBackgroundColor: 'rgb(54, 162, 235)',
-            pointBorderColor: '#fff',
-            pointHoverBackgroundColor: '#fff',
-            pointHoverBorderColor: 'rgb(54, 162, 235)'
+            pointBorderWidth: 0,
+            spanGaps: true,
+            tension: 0
         }]
     };
 
@@ -203,15 +201,24 @@
         options: {
             scales: {
                 r: {
+                    min: -20,
+                    max: Math.max(...Object.values({...selectedMons.currentStats, total: 0})),
+                    beginAtZero: true,
+
                     pointLabels: {
                         display: true,
                         color: 'white'
                     },
                     ticks: {
-                        display: false // Hides the labels in the middle (numbers)
+                        display: false, // Hides the labels in the middle (numbers)
+                        maxTicksLimit: 3,
                     },
                     grid: {
                         color: 'rgba(255, 255, 255, 0.3)',
+
+                    },
+                    gridLines: {
+                        display: false
                     }
                 },
 
