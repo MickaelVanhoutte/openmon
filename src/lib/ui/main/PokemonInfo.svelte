@@ -38,6 +38,10 @@
                 <span class="th">ITEM</span>
                 <span class="td">NONE</span>
             </li>
+            <li>
+                <span class="th">NATURE</span>
+                <span class="td">{selectedMons.nature.identifier.toUpperCase()}</span>
+            </li>
         </ul>
     </div>
 
