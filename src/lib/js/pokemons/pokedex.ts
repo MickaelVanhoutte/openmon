@@ -1,6 +1,173 @@
 import {EXPERIENCE_CHART} from "./experience";
 import type {Effect} from "./move-effects";
 
+export class Nature {
+    public id: number;
+    public identifier: string;
+    public decreasedStatId: string;
+    public increasedStatId: string;
+
+    constructor(id: number, identifier: string, decreasedStatId: string, increasedStatId: string) {
+        this.id = id;
+        this.identifier = identifier;
+        this.decreasedStatId = decreasedStatId;
+        this.increasedStatId = increasedStatId;
+    }
+}
+
+export const NATURES: Nature[] = [
+    {
+        "id": 1,
+        "identifier": "hardy",
+        "decreasedStatId": "attack",
+        "increasedStatId": "attack"
+    },
+    {
+        "id": 2,
+        "identifier": "bold",
+        "decreasedStatId": "attack",
+        "increasedStatId": "defense"
+    },
+    {
+        "id": 3,
+        "identifier": "modest",
+        "decreasedStatId": "attack",
+        "increasedStatId": "specialAttack"
+    },
+    {
+        "id": 4,
+        "identifier": "calm",
+        "decreasedStatId": "attack",
+        "increasedStatId": "specialDefense"
+    },
+    {
+        "id": 5,
+        "identifier": "timid",
+        "decreasedStatId": "attack",
+        "increasedStatId": "speed"
+    },
+    {
+        "id": 6,
+        "identifier": "lonely",
+        "decreasedStatId": "defense",
+        "increasedStatId": "attack"
+    },
+    {
+        "id": 7,
+        "identifier": "docile",
+        "decreasedStatId": "defense",
+        "increasedStatId": "defense"
+    },
+    {
+        "id": 8,
+        "identifier": "mild",
+        "decreasedStatId": "defense",
+        "increasedStatId": "specialAttack"
+    },
+    {
+        "id": 9,
+        "identifier": "gentle",
+        "decreasedStatId": "defense",
+        "increasedStatId": "specialDefense"
+    },
+    {
+        "id": 10,
+        "identifier": "hasty",
+        "decreasedStatId": "defense",
+        "increasedStatId": "speed"
+    },
+    {
+        "id": 11,
+        "identifier": "adamant",
+        "decreasedStatId": "specialAttack",
+        "increasedStatId": "attack"
+    },
+    {
+        "id": 12,
+        "identifier": "impish",
+        "decreasedStatId": "specialAttack",
+        "increasedStatId": "defense"
+    },
+    {
+        "id": 13,
+        "identifier": "bashful",
+        "decreasedStatId": "specialAttack",
+        "increasedStatId": "specialAttack"
+    },
+    {
+        "id": 14,
+        "identifier": "careful",
+        "decreasedStatId": "specialAttack",
+        "increasedStatId": "specialDefense"
+    },
+    {
+        "id": 15,
+        "identifier": "rash",
+        "decreasedStatId": "specialDefense",
+        "increasedStatId": "specialAttack"
+    },
+    {
+        "id": 16,
+        "identifier": "jolly",
+        "decreasedStatId": "specialAttack",
+        "increasedStatId": "speed"
+    },
+    {
+        "id": 17,
+        "identifier": "naughty",
+        "decreasedStatId": "specialDefense",
+        "increasedStatId": "attack"
+    },
+    {
+        "id": 18,
+        "identifier": "lax",
+        "decreasedStatId": "specialDefense",
+        "increasedStatId": "defense"
+    },
+    {
+        "id": 19,
+        "identifier": "quirky",
+        "decreasedStatId": "specialDefense",
+        "increasedStatId": "specialDefense"
+    },
+    {
+        "id": 20,
+        "identifier": "naive",
+        "decreasedStatId": "specialDefense",
+        "increasedStatId": "speed"
+    },
+    {
+        "id": 21,
+        "identifier": "brave",
+        "decreasedStatId": "speed",
+        "increasedStatId": "attack"
+    },
+    {
+        "id": 22,
+        "identifier": "relaxed",
+        "decreasedStatId": "speed",
+        "increasedStatId": "defense"
+    },
+    {
+        "id": 23,
+        "identifier": "quiet",
+        "decreasedStatId": "speed",
+        "increasedStatId": "specialAttack"
+    },
+    {
+        "id": 24,
+        "identifier": "sassy",
+        "decreasedStatId": "speed",
+        "increasedStatId": "specialDefense"
+    },
+    {
+        "id": 25,
+        "identifier": "serious",
+        "decreasedStatId": "speed",
+        "increasedStatId": "speed"
+    }
+];
+
 export class Pokedex {
 
     public entries: PokedexEntry[] = [];
@@ -171,7 +338,10 @@ export class PokedexEntry {
     }
 
     public instanciate(level: number) {
-        return new PokemonInstance(this, level);
+        // random nature
+        let nature = NATURES[Math.floor(Math.random() * NATURES.length)];
+
+        return new PokemonInstance(this, level, nature);
     }
 }
 
@@ -350,7 +520,7 @@ export class PokemonInstance extends PokedexEntry {
     public moves: MoveInstance[] = [];
     public ivs: Stats = new Stats();
     public evs: Stats = new Stats();
-    public nature: string = ""; // TODO
+    public nature: Nature; // TODO
     public gender: 'male' | 'female' | 'unknown';
     public heldItem: any = {}; // TODO
 
@@ -378,7 +548,7 @@ export class PokemonInstance extends PokedexEntry {
         );
     }
 
-    constructor(pokedexEntry: PokedexEntry, level?: number, fromInstance?: PokemonInstance) {
+    constructor(pokedexEntry: PokedexEntry, level: number, nature: Nature, fromInstance?: PokemonInstance) {
         super(pokedexEntry.id, pokedexEntry.name, pokedexEntry.types, pokedexEntry.abilities, pokedexEntry.moves, pokedexEntry.stats, pokedexEntry.height, pokedexEntry.weight, pokedexEntry.description, pokedexEntry.isLegendary, pokedexEntry.captureRate, pokedexEntry.experienceGrowth, pokedexEntry.baseXp, pokedexEntry.percentageMale, pokedexEntry.evolution, pokedexEntry.sprites);
 
         if (fromInstance) {
@@ -399,6 +569,7 @@ export class PokemonInstance extends PokedexEntry {
             this.gender = fromInstance.gender;
             this.evsToDistribute = fromInstance.evsToDistribute;
             this.heldItem = fromInstance.heldItem;
+            this.nature = fromInstance.nature;
 
         } else {
             this.currentAbility = this.abilities[Math.floor(Math.random() * this.abilities.length)];
@@ -413,6 +584,7 @@ export class PokemonInstance extends PokedexEntry {
             );
             this.level = level || 5;
             this.currentXp = 0;
+            this.nature = nature;
 
             this.updateCurrentStats();
             this.currentHp = this.currentStats.hp;
@@ -449,12 +621,12 @@ export class PokemonInstance extends PokedexEntry {
 
     private fromBaseStats(): Stats {
         return new Stats(
-            Math.floor(((this.ivs.hp + this.stats.hp * 2 + this.evs.hp / 4) * this.level / 100 + 10 + this.level)),
-            Math.floor(((this.ivs.attack + this.stats.attack * 2 + this.evs.attack / 4) * this.level / 100 + 5)),
-            Math.floor(((this.ivs.defense + this.stats.defense * 2 + this.evs.defense / 4) * this.level / 100 + 5)),
-            Math.floor(((this.ivs.specialAttack + this.stats.specialAttack * 2 + this.evs.specialAttack / 4) * this.level / 100 + 5)),
-            Math.floor(((this.ivs.specialDefense + this.stats.specialDefense * 2 + this.evs.specialDefense / 4) * this.level / 100 + 5)),
-            Math.floor(((this.ivs.speed + this.stats.speed * 2 + this.evs.speed / 4) * this.level / 100 + 5))
+            Math.floor(((this.ivs.hp + this.stats.hp * 2 + this.evs.hp / 4) * this.level / 100 + 10 + this.level) * (this.nature.increasedStatId === 'hp' ? 1.1 : (this.nature.decreasedStatId === 'hp' ? 0.9 : 1))),
+            Math.floor(((this.ivs.attack + this.stats.attack * 2 + this.evs.attack / 4) * this.level / 100 + 5) * (this.nature.increasedStatId === 'attack' ? 1.1 : (this.nature.decreasedStatId === 'attack' ? 0.9 : 1))),
+            Math.floor(((this.ivs.defense + this.stats.defense * 2 + this.evs.defense / 4) * this.level / 100 + 5) * (this.nature.increasedStatId === 'defense' ? 1.1 : (this.nature.decreasedStatId === 'defense' ? 0.9 : 1))),
+            Math.floor(((this.ivs.specialAttack + this.stats.specialAttack * 2 + this.evs.specialAttack / 4) * this.level / 100 + 5) * (this.nature.increasedStatId === 'specialAttack' ? 1.1 : (this.nature.decreasedStatId === 'specialAttack' ? 0.9 : 1))),
+            Math.floor(((this.ivs.specialDefense + this.stats.specialDefense * 2 + this.evs.specialDefense / 4) * this.level / 100 + 5) * (this.nature.increasedStatId === 'specialDefense' ? 1.1 : (this.nature.decreasedStatId === 'specialDefense' ? 0.9 : 1))),
+            Math.floor(((this.ivs.speed + this.stats.speed * 2 + this.evs.speed / 4) * this.level / 100 + 5) * (this.nature.increasedStatId === 'speed' ? 1.1 : (this.nature.decreasedStatId === 'speed' ? 0.9 : 1))),
         )
     }
 
@@ -501,8 +673,9 @@ export class PokemonInstance extends PokedexEntry {
     public addEv(ev: 'hp' | 'attack' | 'defense' | 'specialAttack' | 'specialDefense' | 'speed', value: number) {
         let total = this.totalEvs;
         if (this.evsToDistribute >= value) {
-            this.evs[ev] += this.evs[ev] + value <= 255 && total + value < 512 ? value : 0;
-            this.evsToDistribute -= value;
+            let toAdd = this.evs[ev] + value <= 252 && total + value <= 510 ? value : 0;
+            this.evs[ev] += toAdd
+            this.evsToDistribute -= toAdd;
             this.updateCurrentStats();
         }
     }
@@ -540,7 +713,7 @@ export class PokemonInstance extends PokedexEntry {
 
     private evolve(id: number, future: PokedexSearchResult) {
         if (future.found && future.result) {
-            Object.assign(this, new PokemonInstance(future.result, this.level, this));
+            Object.assign(this, new PokemonInstance(future.result, this.level, this.nature, this));
             this.checkForNewMoves();
         }
     }

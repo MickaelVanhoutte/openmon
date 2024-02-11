@@ -4,25 +4,27 @@
     </div>
 
     <div class="stat-values">
-
         <table>
-
             <thead>
-            <tr class="head">
-                <th width="30%" class="th invisible"></th>
+            <tr>
+                <th width="40%" class="th invisible" style="color:rgba(242, 228, 3, .5)">STATS</th>
                 <th width="10%" class="th">IV</th>
-                <th width="60%" class="th">EV. ({selectedMons.evsToDistribute})</th>
+                <th width="50%" class="th" style="color:rgb(242, 228, 3)">EV ({selectedMons.evsToDistribute})</th>
             </tr>
             </thead>
             <tbody>
-            <tr class="hp">
-                <td class="th">HP</td>
-                <!--<td class="td main">{selectedMons.currentHp}/{selectedMons.currentStats.hp}</td>-->
-                <td class="td" style="--color:{ivColor(selectedMons.ivs.hp)}">{selectedMons.ivs.hp}</td>
+            <tr>
+                <td>
+                    <div class="value">
+                        <span style="color:{selectedMons.nature.increasedStatId === 'hp'? '#1383f6' : selectedMons.nature.decreasedStatId === 'hp' ? '#e74462' : 'white'}">HP</span>
+                        <span>{selectedMons.currentHp}/{selectedMons.currentStats.hp}</span>
+                    </div>
+                </td>
+                <td style="--color:{ivColor(selectedMons.ivs.hp)}">{selectedMons.ivs.hp}</td>
                 <td class="td inputs">
                     <div class="double">
                         <button disabled={plusDisabled} on:click={() => addEv('hp', 1) }>+</button>
-                        <button disabled={plusDisabled} on:click={() => addEv('hp', 10) }>++</button>
+                        <button disabled={plusPlusDisabled} on:click={() => addEv('hp', 10) }>++</button>
 
                     </div>
                     <div>
@@ -30,19 +32,22 @@
                     </div>
                     <div class="double">
                         <button disabled={minusHpDisabled} on:click={() => addEv('hp', -1) }>-</button>
-                        <button disabled={minusHpDisabled} on:click={() => addEv('hp', -10) }>- -</button>
+                        <button disabled={minusMinusHpDisabled} on:click={() => addEv('hp', -10) }>- -</button>
                     </div>
                 </td>
             </tr>
             <tr>
-                <td class="th">ATTACK</td>
-                <!--<td class="td main">{selectedMons.currentStats.attack}</td>-->
-                <td class="td"
-                    style="--color:{ivColor(selectedMons.ivs.attack)}">{selectedMons.ivs.attack}</td>
+                <td>
+                    <div class="value">
+                        <span style="color:{selectedMons.nature.increasedStatId === 'attack'? '#1383f6' : selectedMons.nature.decreasedStatId === 'attack' ? '#e74462' : 'white'}">ATK.</span>
+                        <span>{selectedMons.currentStats.attack}</span>
+                    </div>
+                </td>
+                <td style="--color:{ivColor(selectedMons.ivs.attack)}">{selectedMons.ivs.attack}</td>
                 <td class="td inputs">
                     <div class="double">
                         <button disabled={plusDisabled} on:click={() => addEv('attack', 1) }>+</button>
-                        <button disabled={plusDisabled} on:click={() => addEv('attack', 10) }>++</button>
+                        <button disabled={plusPlusDisabled} on:click={() => addEv('attack', 10) }>++</button>
 
                     </div>
                     <div>
@@ -50,20 +55,23 @@
                     </div>
                     <div class="double">
                         <button disabled={minusAttackDisabled} on:click={() => addEv('attack', -1) }>-</button>
-                        <button disabled={minusAttackDisabled} on:click={() => addEv('attack', -10) }>--</button>
+                        <button disabled={minusMinusAttackDisabled} on:click={() => addEv('attack', -10) }>--</button>
                     </div>
                 </td>
 
             </tr>
             <tr>
-                <td class="th">DEFENSE</td>
-                <!--<td class="td main">{selectedMons.currentStats.defense}</td>-->
-                <td class="td"
-                    style="--color:{ivColor(selectedMons.ivs.defense)}">{selectedMons.ivs.defense}</td>
+                <td>
+                    <div class="value">
+                        <span style="color:{selectedMons.nature.increasedStatId === 'defense'? '#1383f6' : selectedMons.nature.decreasedStatId === 'defense' ? '#e74462' : 'white'}">DEF.</span>
+                        <span>{selectedMons.currentStats.defense}</span>
+                    </div>
+                </td>
+                <td style="--color:{ivColor(selectedMons.ivs.defense)}">{selectedMons.ivs.defense}</td>
                 <td class="td inputs">
                     <div class="double">
                         <button disabled={plusDisabled} on:click={() => addEv('defense', 1) }>+</button>
-                        <button disabled={plusDisabled} on:click={() => addEv('defense', 10) }>++</button>
+                        <button disabled={plusPlusDisabled} on:click={() => addEv('defense', 10) }>++</button>
 
                     </div>
                     <div>
@@ -71,60 +79,77 @@
                     </div>
                     <div class="double">
                         <button disabled={minusDefenseDisabled} on:click={() => addEv('defense', -1) }>-</button>
-                        <button disabled={minusDefenseDisabled} on:click={() => addEv('defense', -10) }>--</button>
+                        <button disabled={minusMinusDefenseDisabled} on:click={() => addEv('defense', -10) }>--</button>
                     </div>
                 </td>
 
             </tr>
             <tr>
-                <td class="th">SP.ATK</td>
-                <!--<td class="td main">{selectedMons.currentStats.specialAttack}</td>-->
-                <td class="td"
-                    style="--color:{ivColor(selectedMons.ivs.specialAttack)}">{selectedMons.ivs.specialAttack}</td>
-                <td class="td inputs">
+                <td>
+                    <div class="value">
+                        <span style="color:{selectedMons.nature.increasedStatId === 'specialAttack'? '#1383f6' : selectedMons.nature.decreasedStatId === 'specialAttack' ? '#e74462' : 'white'}">SP.ATK</span>
+                        <span>{selectedMons.currentStats.specialAttack}</span>
+                    </div>
+                </td>
+                <td style="--color:{ivColor(selectedMons.ivs.specialAttack)}">{selectedMons.ivs.specialAttack}</td>
+                <td class="inputs">
                     <div class="double">
                         <button disabled={plusDisabled} on:click={() => addEv('specialAttack', 1) }>+</button>
-                        <button disabled={plusDisabled} on:click={() => addEv('specialAttack', 10) }>++</button>
+                        <button disabled={plusPlusDisabled} on:click={() => addEv('specialAttack', 10) }>++</button>
 
                     </div>
                     <div>
                         <span>{selectedMons.evs.specialAttack}</span>
                     </div>
                     <div class="double">
-                        <button disabled={minusSpecialAttackDisabled} on:click={() => addEv('specialAttack', -1) }>-</button>
-                        <button disabled={minusSpecialAttackDisabled} on:click={() => addEv('specialAttack', -10) }>--</button>
+                        <button disabled={minusSpecialAttackDisabled} on:click={() => addEv('specialAttack', -1) }>-
+                        </button>
+                        <button disabled={minusMinusSpecialAttackDisabled}
+                                on:click={() => addEv('specialAttack', -10) }>--
+                        </button>
                     </div>
                 </td>
             </tr>
             <tr>
-                <td class="th">SP.DEF</td>
-                <!--<td class="td main">{selectedMons.currentStats.specialDefense}</td>-->
-                <td class="td"
-                    style="--color:{ivColor(selectedMons.ivs.specialDefense)}">{selectedMons.ivs.specialDefense}</td>
+                <td>
+                    <div class="value">
+                        <span style="color:{selectedMons.nature.increasedStatId === 'specialDefense'? '#1383f6' : selectedMons.nature.decreasedStatId === 'specialDefense' ? '#e74462' : 'white'}">SP.DEF</span>
+                        <span>{selectedMons.currentStats.specialDefense}</span>
+                    </div>
+                </td>
+                <td style="--color:{ivColor(selectedMons.ivs.specialDefense)}">{selectedMons.ivs.specialDefense}</td>
                 <td class="td inputs">
                     <div class="double">
                         <button disabled={plusDisabled} on:click={() => addEv('specialDefense', 1) }>+</button>
-                        <button disabled={plusDisabled} on:click={() => addEv('specialDefense', 10) }>++</button>
+                        <button disabled={plusPlusDisabled} on:click={() => addEv('specialDefense', 10) }>++</button>
 
                     </div>
                     <div>
                         <span>{selectedMons.evs.specialDefense}</span>
                     </div>
                     <div class="double">
-                        <button disabled={minusSpecialDefenseDisabled} on:click={() => addEv('specialDefense', -1) }>-</button>
-                        <button disabled={minusSpecialDefenseDisabled} on:click={() => addEv('specialDefense', -10) }>--</button>
+                        <button disabled={minusSpecialDefenseDisabled} on:click={() => addEv('specialDefense', -1) }>-
+                        </button>
+                        <button disabled={minusMinusSpecialDefenseDisabled}
+                                on:click={() => addEv('specialDefense', -10) }>
+                            --
+                        </button>
                     </div>
                 </td>
             </tr>
             <tr>
-                <td class="th">SPEED</td>
-                <!--<td class="td main">{selectedMons.currentStats.speed}</td>-->
+                <td>
+                    <div class="value">
+                        <span style="color:{selectedMons.nature.increasedStatId === 'speed'? '#1383f6' : selectedMons.nature.decreasedStatId === 'speed' ? '#e74462' : 'white'}">SPEED</span>
+                        <span>{selectedMons.currentStats.speed}</span>
+                    </div>
+                </td>
                 <td class="td"
                     style="--color:{ivColor(selectedMons.ivs.speed)}">{selectedMons.ivs.speed}</td>
                 <td class="td inputs">
                     <div class="double">
                         <button disabled={plusDisabled} on:click={() => addEv('speed', 1) }>+</button>
-                        <button disabled={plusDisabled} on:click={() => addEv('speed', 10) }>++</button>
+                        <button disabled={plusPlusDisabled} on:click={() => addEv('speed', 10) }>++</button>
 
                     </div>
                     <div>
@@ -132,7 +157,7 @@
                     </div>
                     <div class="double">
                         <button disabled={minusSpeedDisabled} on:click={() => addEv('speed', -1) }>-</button>
-                        <button disabled={minusSpeedDisabled} on:click={() => addEv('speed', -10) }>--</button>
+                        <button disabled={minusMinusSpeedDisabled} on:click={() => addEv('speed', -10) }>--</button>
                     </div>
                 </td>
             </tr>
@@ -159,21 +184,28 @@
 
     $:percent = Math.floor(selectedMons.currentHp * 100 / selectedMons?.currentStats.hp)
     $:plusDisabled = selectedMons.evsToDistribute === 0;
+    $:plusPlusDisabled = selectedMons.evsToDistribute < 10;
     $:minusHpDisabled = selectedMons.evs.hp === 0;
+    $:minusMinusHpDisabled = selectedMons.evs.hp < 10;
     $:minusAttackDisabled = selectedMons.evs.attack === 0;
+    $:minusMinusAttackDisabled = selectedMons.evs.attack < 10;
     $:minusDefenseDisabled = selectedMons.evs.defense === 0;
+    $:minusMinusDefenseDisabled = selectedMons.evs.defense < 10;
     $:minusSpecialAttackDisabled = selectedMons.evs.specialAttack === 0;
+    $:minusMinusSpecialAttackDisabled = selectedMons.evs.specialAttack < 10;
     $:minusSpecialDefenseDisabled = selectedMons.evs.specialDefense === 0;
+    $:minusMinusSpecialDefenseDisabled = selectedMons.evs.specialDefense < 10;
     $:minusSpeedDisabled = selectedMons.evs.speed === 0;
+    $:minusMinusSpeedDisabled = selectedMons.evs.speed < 10;
 
     function ivColor(value: number) {
 
         if (value >= 26) {
-            return 'green';
+            return '#27d227';
         } else if (value >= 16) {
-            return '#9B6A0F';
+            return '#fff22b';
         } else {
-            return '#E61717';
+            return '#f54949';
         }
     }
 
@@ -198,18 +230,22 @@
             label: 'current',
             data: [selectedMons.currentStats.hp, selectedMons.currentStats.attack, selectedMons.currentStats.defense, selectedMons.currentStats.speed, selectedMons.currentStats.specialDefense, selectedMons.currentStats.specialAttack],
             fill: true,
-            backgroundColor: 'rgba(255, 99, 132, 0.2)',
-            borderColor: 'rgb(255, 99, 132)',
+            backgroundColor: 'rgba(242, 228, 3, .3)',
+            borderColor: 'rgba(242, 228, 3, 0)',
+            borderWidth: 2,
             pointBorderWidth: 0,
+            pointStyle: false,
             spanGaps: true,
             tension: 0
         }, {
             label: 'EVs',
             data: [selectedMons.evs.hp, selectedMons.evs.attack, selectedMons.evs.defense, selectedMons.evs.speed, selectedMons.evs.specialDefense, selectedMons.evs.specialAttack],
             fill: true,
-            backgroundColor: 'rgba(54, 162, 235, 0.2)',
-            borderColor: 'rgb(54, 162, 235)',
+            backgroundColor: 'rgba(242, 228, 3, 1)',
+            borderColor: 'rgba(242, 228, 3, 0)',
+            borderWidth: 2,
             pointBorderWidth: 0,
+            pointStyle: false,
             spanGaps: true,
             tension: 0
         }]
@@ -223,7 +259,7 @@
         options: {
             scales: {
                 r: {
-                    min: -20,
+                    min: -30,
                     max: Math.max(Math.max(...Object.values({
                         ...selectedMons.currentStats,
                         total: 0
@@ -232,15 +268,25 @@
 
                     pointLabels: {
                         display: true,
-                        color: 'white',
+                        //color: 'white',
+                        color: [
+                            selectedMons.nature.increasedStatId === 'hp'? '#1383f6' : selectedMons.nature.decreasedStatId === 'hp' ? '#e74462' : 'white',
+                            selectedMons.nature.increasedStatId === 'attack'? '#1383f6' : selectedMons.nature.decreasedStatId === 'attack' ? '#e74462' : 'white',
+                            selectedMons.nature.increasedStatId === 'defense'? '#1383f6' : selectedMons.nature.decreasedStatId === 'defense' ? '#e74462' : 'white',
+                            selectedMons.nature.increasedStatId === 'specialAttack'? '#1383f6' : selectedMons.nature.decreasedStatId === 'specialAttack' ? '#e74462' : 'white',
+                            selectedMons.nature.increasedStatId === 'specialDefense'? '#1383f6' : selectedMons.nature.decreasedStatId === 'specialDefense' ? '#e74462' : 'white',
+                            selectedMons.nature.increasedStatId === 'speed'? '#1383f6' : selectedMons.nature.decreasedStatId === 'speed' ? '#e74462' : 'white'
+                        ],
                         font: {
-                            size: 18,
-                            family: 'pokemon, serif'
+                            size: 22,
+                            family: 'pokemon, serif',
+                            weight: '500'
                         }
                     },
                     ticks: {
                         display: false, // Hides the labels in the middle (numbers)
                         maxTicksLimit: 3,
+                        color: 'white'
                     },
                     grid: {
                         color: 'rgba(255, 255, 255, 0.3)',
@@ -255,7 +301,6 @@
             plugins: {
                 legend: {
                     display: false,
-                    color: 'white'
                 },
                 title: {
                     display: false,
@@ -267,7 +312,6 @@
             elements: {
                 line: {
                     borderWidth: 2
-
                 }
             }
         },
@@ -316,7 +360,7 @@
       left: 0;
       width: 45%;
       height: 102%;
-      background-color: rgba(84, 80, 108, .80);
+      background-color: rgba(84, 80, 108, .5);
       border-right: 4px solid #54506c;
       border-bottom: 4px solid #54506c;
       box-sizing: border-box;
@@ -358,8 +402,8 @@
       top: 0;
       right: 0;
       box-sizing: border-box;
-     /* border-top: 4px solid #e0f8f8;
-      border-right: 4px solid #e0f8f8;*/
+      /* border-top: 4px solid #e0f8f8;
+       border-right: 4px solid #e0f8f8;*/
       font-size: 24px;
 
       table {
@@ -372,40 +416,86 @@
         box-sizing: border-box;
 
         thead {
+          height: 30px;
+
           th {
             background-color: rgba(44, 56, 69, 0.85);
             color: #fff;
             border: 1px solid #2C3845;
-          }
-        }
 
-        tr {
-          max-height: calc(100% / 7);
+            &:first-of-type {
+              border-radius: 8px 0 0 0;
+            }
 
-          &:nth-child(odd) {
-            background-color: rgba(35, 96, 96, 0.91);
-            color: white;
-          }
-
-          &:nth-child(even) {
-            background-color: rgba(44, 56, 69, 0.85);
-            color: white;
-          }
-
-
-          td {
-            padding: 10px 10px 0;
-            text-align: center;
-
-            &.inputs {
-              display: flex;
-              flex-direction: row;
-              justify-content: space-between;
-              align-items: center;
+            &:last-of-type {
+              border-radius: 0 8px 0 0;
             }
           }
         }
 
+
+        tbody {
+          height: calc(100% - 30px);
+
+          tr {
+            height: calc(100% / 7);
+            max-height: calc(100% / 7);
+
+            &:nth-child(odd) {
+              background-color: rgba(35, 96, 96, 0.91);
+              color: white;
+            }
+
+            &:nth-child(even) {
+              background-color: rgba(44, 56, 69, 0.85);
+              color: white;
+            }
+
+            &:last-of-type {
+              td:first-of-type {
+                border-radius: 0 0 0 8px;
+              }
+
+              td:last-of-type {
+                border-radius: 0 0 8px 0;
+              }
+            }
+
+
+            td {
+              padding: 0 8px;
+              height: calc((100dvh - 46px - 30px) / 7);
+              text-align: center;
+              color: var(--color, white);
+
+              div.value {
+                display: flex;
+                justify-content: space-between;
+
+                span {color: var(--color, white);}
+              }
+
+              &.inputs {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+
+                button {
+                  -webkit-touch-callout: none;
+                  -webkit-user-select: none;
+                  -khtml-user-select: none;
+                  -moz-user-select: none;
+                  -ms-user-select: none;
+                  user-select: none;
+                  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+
+                  touch-action: pan-x pan-y;
+                }
+              }
+            }
+          }
+        }
       }
     }
   }
