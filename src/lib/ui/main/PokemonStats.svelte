@@ -5,125 +5,146 @@
 
     <div class="stat-values">
 
-        <ul>
-            <li class="head">
-                <span class="th invisible"></span>
-                <span class="th main">VALUE</span>
-                <span class="th">IV</span>
-                <span class="th">EV. ({selectedMons.evsToDistribute})</span>
-            </li>
+        <table>
 
-            <li class="hp">
-                <span class="th">HP</span>
-                <span class="td main">{selectedMons.currentHp}/{selectedMons.currentStats.hp}</span>
-                <span class="td" style="--color:{ivColor(selectedMons.ivs.hp)}">{selectedMons.ivs.hp}</span>
-                <span class="td inputs">
-                                <button disabled={plusDisabled} on:click={() => addEv('hp', 1) }>+</button>
-                                <span>{selectedMons.evs.hp}</span>
-                                <button disabled={minusHpDisabled} on:click={() => addEv('hp', -1) }>-</button>
-                            </span>
+            <thead>
+            <tr class="head">
+                <th width="30%" class="th invisible"></th>
+                <th width="10%" class="th">IV</th>
+                <th width="60%" class="th">EV. ({selectedMons.evsToDistribute})</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="hp">
+                <td class="th">HP</td>
+                <!--<td class="td main">{selectedMons.currentHp}/{selectedMons.currentStats.hp}</td>-->
+                <td class="td" style="--color:{ivColor(selectedMons.ivs.hp)}">{selectedMons.ivs.hp}</td>
+                <td class="td inputs">
+                    <div class="double">
+                        <button disabled={plusDisabled} on:click={() => addEv('hp', 1) }>+</button>
+                        <button disabled={plusDisabled} on:click={() => addEv('hp', 10) }>++</button>
 
-                <!--<div class="p-hp">
-                    <span>HP</span>
-                    <div class="progressbar-wrapper">
-                        <div class="progressbar" class:warning={percent <= 50} class:danger={percent < 15 }
-                             style="&#45;&#45;width:{percent + '%'}">
-                        </div>
                     </div>
-                </div>-->
-            </li>
-            <li>
-                <span class="th">ATTACK</span>
-                <span class="td main">{selectedMons.currentStats.attack}</span>
-                <span class="td"
-                      style="--color:{ivColor(selectedMons.ivs.attack)}">{selectedMons.ivs.attack}</span>
-                <span class="td inputs">
-                                <button disabled={plusDisabled} on:click={() => addEv('attack', 1) }>+</button>
-                                <span>{selectedMons.evs.attack}</span>
-                                <button disabled={minusAttackDisabled} on:click={() => addEv('attack', -1) }>-</button>
-                            </span>
+                    <div>
+                        <span>{selectedMons.evs.hp}</span>
+                    </div>
+                    <div class="double">
+                        <button disabled={minusHpDisabled} on:click={() => addEv('hp', -1) }>-</button>
+                        <button disabled={minusHpDisabled} on:click={() => addEv('hp', -10) }>- -</button>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="th">ATTACK</td>
+                <!--<td class="td main">{selectedMons.currentStats.attack}</td>-->
+                <td class="td"
+                    style="--color:{ivColor(selectedMons.ivs.attack)}">{selectedMons.ivs.attack}</td>
+                <td class="td inputs">
+                    <div class="double">
+                        <button disabled={plusDisabled} on:click={() => addEv('attack', 1) }>+</button>
+                        <button disabled={plusDisabled} on:click={() => addEv('attack', 10) }>++</button>
 
-            </li>
-            <li>
-                <span class="th">DEFENSE</span>
-                <span class="td main">{selectedMons.currentStats.defense}</span>
-                <span class="td"
-                      style="--color:{ivColor(selectedMons.ivs.defense)}">{selectedMons.ivs.defense}</span>
-                <span class="td inputs">
-                                <button disabled={plusDisabled} on:click={() => addEv('defense', 1) }>+</button>
-                                <span>{selectedMons.evs.defense}</span>
-                                <button disabled={minusDefenseDisabled}
-                                        on:click={() => addEv('defense', -1) }>-</button>
-                            </span>
+                    </div>
+                    <div>
+                        <span>{selectedMons.evs.attack}</span>
+                    </div>
+                    <div class="double">
+                        <button disabled={minusAttackDisabled} on:click={() => addEv('attack', -1) }>-</button>
+                        <button disabled={minusAttackDisabled} on:click={() => addEv('attack', -10) }>--</button>
+                    </div>
+                </td>
 
-            </li>
-            <li>
-                <span class="th">SP.ATK</span>
-                <span class="td main">{selectedMons.currentStats.specialAttack}</span>
-                <span class="td"
-                      style="--color:{ivColor(selectedMons.ivs.specialAttack)}">{selectedMons.ivs.specialAttack}</span>
-                <span class="td inputs">
-                                <button disabled={plusDisabled} on:click={() => addEv('specialAttack', 1) }>+</button>
-                                <span>{selectedMons.evs.specialAttack}</span>
-                                <button disabled={minusSpecialAttackDisabled}
-                                        on:click={() => addEv('specialAttack', -1) }>-</button>
-                            </span>
-            </li>
-            <li>
-                <span class="th">SP.DEF</span>
-                <span class="td main">{selectedMons.currentStats.specialDefense}</span>
-                <span class="td"
-                      style="--color:{ivColor(selectedMons.ivs.specialDefense)}">{selectedMons.ivs.specialDefense}</span>
-                <span class="td inputs">
-                                <button disabled={plusDisabled} on:click={() => addEv('specialDefense', 1) }>+</button>
-                                <span>{selectedMons.evs.specialDefense}</span>
-                                <button disabled={minusSpecialDefenseDisabled}
-                                        on:click={() => addEv('specialDefense', -1) }>-</button>
-                            </span>
-            </li>
-            <li>
-                <span class="th">SPEED</span>
-                <span class="td main">{selectedMons.currentStats.speed}</span>
-                <span class="td"
-                      style="--color:{ivColor(selectedMons.ivs.speed)}">{selectedMons.ivs.speed}</span>
-                <span class="td inputs">
-                                <button disabled={plusDisabled} on:click={() => addEv('speed', 1) }>+</button>
-                                <span>{selectedMons.evs.speed}</span>
-                                <button disabled={minusSpeedDisabled} on:click={() => addEv('speed', -1) }>-</button>
-                            </span>
-            </li>
-        </ul>
+            </tr>
+            <tr>
+                <td class="th">DEFENSE</td>
+                <!--<td class="td main">{selectedMons.currentStats.defense}</td>-->
+                <td class="td"
+                    style="--color:{ivColor(selectedMons.ivs.defense)}">{selectedMons.ivs.defense}</td>
+                <td class="td inputs">
+                    <div class="double">
+                        <button disabled={plusDisabled} on:click={() => addEv('defense', 1) }>+</button>
+                        <button disabled={plusDisabled} on:click={() => addEv('defense', 10) }>++</button>
+
+                    </div>
+                    <div>
+                        <span>{selectedMons.evs.defense}</span>
+                    </div>
+                    <div class="double">
+                        <button disabled={minusDefenseDisabled} on:click={() => addEv('defense', -1) }>-</button>
+                        <button disabled={minusDefenseDisabled} on:click={() => addEv('defense', -10) }>--</button>
+                    </div>
+                </td>
+
+            </tr>
+            <tr>
+                <td class="th">SP.ATK</td>
+                <!--<td class="td main">{selectedMons.currentStats.specialAttack}</td>-->
+                <td class="td"
+                    style="--color:{ivColor(selectedMons.ivs.specialAttack)}">{selectedMons.ivs.specialAttack}</td>
+                <td class="td inputs">
+                    <div class="double">
+                        <button disabled={plusDisabled} on:click={() => addEv('specialAttack', 1) }>+</button>
+                        <button disabled={plusDisabled} on:click={() => addEv('specialAttack', 10) }>++</button>
+
+                    </div>
+                    <div>
+                        <span>{selectedMons.evs.specialAttack}</span>
+                    </div>
+                    <div class="double">
+                        <button disabled={minusSpecialAttackDisabled} on:click={() => addEv('specialAttack', -1) }>-</button>
+                        <button disabled={minusSpecialAttackDisabled} on:click={() => addEv('specialAttack', -10) }>--</button>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="th">SP.DEF</td>
+                <!--<td class="td main">{selectedMons.currentStats.specialDefense}</td>-->
+                <td class="td"
+                    style="--color:{ivColor(selectedMons.ivs.specialDefense)}">{selectedMons.ivs.specialDefense}</td>
+                <td class="td inputs">
+                    <div class="double">
+                        <button disabled={plusDisabled} on:click={() => addEv('specialDefense', 1) }>+</button>
+                        <button disabled={plusDisabled} on:click={() => addEv('specialDefense', 10) }>++</button>
+
+                    </div>
+                    <div>
+                        <span>{selectedMons.evs.specialDefense}</span>
+                    </div>
+                    <div class="double">
+                        <button disabled={minusSpecialDefenseDisabled} on:click={() => addEv('specialDefense', -1) }>-</button>
+                        <button disabled={minusSpecialDefenseDisabled} on:click={() => addEv('specialDefense', -10) }>--</button>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="th">SPEED</td>
+                <!--<td class="td main">{selectedMons.currentStats.speed}</td>-->
+                <td class="td"
+                    style="--color:{ivColor(selectedMons.ivs.speed)}">{selectedMons.ivs.speed}</td>
+                <td class="td inputs">
+                    <div class="double">
+                        <button disabled={plusDisabled} on:click={() => addEv('speed', 1) }>+</button>
+                        <button disabled={plusDisabled} on:click={() => addEv('speed', 10) }>++</button>
+
+                    </div>
+                    <div>
+                        <span>{selectedMons.evs.speed}</span>
+                    </div>
+                    <div class="double">
+                        <button disabled={minusSpeedDisabled} on:click={() => addEv('speed', -1) }>-</button>
+                        <button disabled={minusSpeedDisabled} on:click={() => addEv('speed', -10) }>--</button>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
 
     </div>
-    <div class="others">
 
-        <div class="exp">
-            <span class="th">EXP.</span>
-            <table>
-                <tr>
-                    <td><span>EXP POINTS</span><span class="value">{selectedMons.currentXp}</span></td>
-                    <td><span>NEXT LV.</span><span class="value">{selectedMons.xpToNextLevel}</span></td>
-                </tr>
-            </table>
-        </div>
-
-        <div class="ability">
-            <div class="name-desc">
-                <div class="title">
-                    <span class="th">ABILITY</span>
-                    <span class="td">{selectedMons.currentAbility}</span>
-                </div>
-                <div class="desc">
-                    {abilities.find(ability => ability.names === selectedMons.currentAbility)?.description.replace(mechanicRegex, "")}
-                </div>
-            </div>
-        </div>
-    </div>
 
 </div>
 
 <script lang="ts">
-    import abilities from "../../../assets/data/final/abilities.json";
     import {SelectedSave} from "../../js/saves/saves.js";
     import Chart from 'chart.js/auto';
     import {onMount} from "svelte";
@@ -133,9 +154,6 @@
     export let prevSelected: number;
     export let graphWrapper: HTMLDivElement;
     export let graph: HTMLCanvasElement;
-
-
-    let mechanicRegex = /{[^}]*}/g;
 
     $:selectedMons = save.player.monsters[selected];
 
@@ -169,12 +187,12 @@
 
     $:data = {
         labels: [
-            'HP',
-            'Attack',
-            'Defense',
-            'Speed',
-            'Sp. Def',
-            'Sp. Atk',
+            ['HP', selectedMons.currentStats.hp],
+            ['Attack', selectedMons.currentStats.attack],
+            ['Defense', selectedMons.currentStats.defense],
+            ['Speed', selectedMons.currentStats.speed],
+            ['Sp. Def', selectedMons.currentStats.specialDefense],
+            ['Sp. Atk', selectedMons.currentStats.specialAttack],
         ],
         datasets: [{
             label: 'current',
@@ -206,12 +224,19 @@
             scales: {
                 r: {
                     min: -20,
-                    max: Math.max(...Object.values({...selectedMons.currentStats, total: 0})),
+                    max: Math.max(Math.max(...Object.values({
+                        ...selectedMons.currentStats,
+                        total: 0
+                    })), Math.max(...Object.values({...selectedMons.evs, total: 0}))),
                     beginAtZero: true,
 
                     pointLabels: {
                         display: true,
-                        color: 'white'
+                        color: 'white',
+                        font: {
+                            size: 18,
+                            family: 'pokemon, serif'
+                        }
                     },
                     ticks: {
                         display: false, // Hides the labels in the middle (numbers)
@@ -252,7 +277,7 @@
     $:ctx = graph?.getContext('2d');
 
     $: {
-        if(graph && graphWrapper) {
+        if (graph && graphWrapper) {
             graph.width = graphWrapper.clientWidth;
             graph.height = graphWrapper.clientHeight;
         }
@@ -289,8 +314,8 @@
       position: absolute;
       top: 0;
       left: 0;
-      width: 30%;
-      height: 60%;
+      width: 45%;
+      height: 102%;
       background-color: rgba(84, 80, 108, .80);
       border-right: 4px solid #54506c;
       border-bottom: 4px solid #54506c;
@@ -327,231 +352,59 @@
     }
 
     .stat-values {
-      width: 70%;
-      height: 60%;
+      width: 55%;
+      height: 100%;
       position: absolute;
       top: 0;
       right: 0;
       box-sizing: border-box;
-      border-top: 4px solid #e0f8f8;
-      border-right: 4px solid #e0f8f8;
+     /* border-top: 4px solid #e0f8f8;
+      border-right: 4px solid #e0f8f8;*/
+      font-size: 24px;
 
-      ul {
-        list-style: none;
+      table {
+
+        table-layout: fixed;
         margin: 0;
-        padding: 2% 2% 0 2%;
+        padding: 0;
         height: 100%;
         width: 100%;
-        display: flex;
-        flex-direction: column;
-        gap: 2%;
         box-sizing: border-box;
 
-        li {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          gap: 2%;
+        thead {
+          th {
+            background-color: rgba(44, 56, 69, 0.85);
+            color: #fff;
+            border: 1px solid #2C3845;
+          }
+        }
+
+        tr {
           max-height: calc(100% / 7);
 
-          &.head {
-            .th {
-              font-size: 24px;
-              justify-content: flex-start;
-              width: 21%;
-              min-width: unset;
-
-              &.invisible {
-                visibility: hidden;
-                min-width: 30%;
-              }
-
-              &.main {
-                width: 21%;
-              }
-            }
-          }
-
-          .th {
-            min-width: 30%;
-            text-align: center;
-            height: 12px;
-            border-radius: 4px;
-            background-color: #54506c;
-            line-height: 8px;
-            font-size: 32px;
+          &:nth-child(odd) {
+            background-color: rgba(35, 96, 96, 0.91);
             color: white;
-            text-shadow: 3px 1px 2px #54506c;
           }
 
-          .td {
-            width: 18%;
-            color: var(--color, #54506c);
-            font-weight: bold;
-            background-color: #f8f0e8;
-            padding: 0 8px;
-            text-transform: uppercase;
-            border-radius: 8px;
-            font-size: 24px;
-            line-height: 1.1;
-            display: flex;
-            justify-content: flex-end;
+          &:nth-child(even) {
+            background-color: rgba(44, 56, 69, 0.85);
+            color: white;
+          }
+
+
+          td {
+            padding: 10px 10px 0;
+            text-align: center;
 
             &.inputs {
-              padding: 0;
-              justify-content: space-between;
-              width: 21%;
-
-              button {
-                background: #54506c;
-                color: white;
-                border-radius: 8px;
-                font-size: 16px;
-                height: 26px;
-                width: 26px;
-                box-sizing: border-box;
-
-                touch-action: none;
-                -webkit-touch-callout: none;
-                user-select: none;
-                -webkit-user-select: none;
-                -moz-user-select: none;
-                -ms-user-select: none;
-                -o-user-select: none;
-
-                &:disabled {
-                  background: rgba(84, 80, 108, 0.3);
-                  color: rgba(255, 255, 255, 0.8);
-                  border: 0;
-                }
-              }
-            }
-
-          }
-        }
-      }
-    }
-
-    .others {
-      width: 98%;
-      max-height: 39%;
-      position: absolute;
-      bottom: 2%;
-      left: 1%;
-      box-sizing: border-box;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: 8px;
-
-      .exp {
-        display: flex;
-        justify-content: space-between;
-        gap: 2%;
-        padding: 0;
-
-        .th {
-          text-align: center;
-          height: 12px;
-          width: 20%;
-          border-radius: 4px;
-          background-color: #54506c;
-          line-height: 8px;
-          font-size: 32px;
-          color: white;
-          text-shadow: 3px 1px 2px #54506c;
-        }
-
-        table {
-          width: 78%;
-          font-size: 24px;
-          color: #54506c;
-          text-transform: uppercase;
-          border-radius: 8px;
-          display: flex;
-          flex-direction: column;
-
-          tr {
-            display: flex;
-            justify-content: space-between;
-            border-radius: 8px;
-            gap: 1%;
-
-            td {
-              width: 50%;
-              background-color: #f9f8a1;
-              padding: 0 16px;
-              border-radius: 4px;
               display: flex;
+              flex-direction: row;
               justify-content: space-between;
-
-              &.value {
-                text-align: right;
-                background-color: #f8f9d8;
-              }
+              align-items: center;
             }
           }
         }
-      }
-
-      .ability {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        gap: 1%;
-        padding: 0;
-        box-sizing: border-box;
-
-        .title {
-          width: 21%;
-          height: 100%;
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-          justify-content: space-around;
-        }
-
-        .th {
-          display: block;
-          text-align: center;
-          height: 12px;
-          width: 100%;
-          border-radius: 4px;
-          background-color: #54506c;
-          line-height: 8px;
-          font-size: 32px;
-          color: white;
-          text-shadow: 3px 1px 2px #54506c;
-        }
-
-        .td {
-          color: #54506c;
-          background-color: #f8f0e8;
-          padding: 8px;
-          font-size: 22px;
-          text-align: center;
-          font-weight: bold;
-          text-transform: uppercase;
-          border-radius: 8px;
-          box-sizing: border-box;
-          width: 100%;
-        }
-
-        .name-desc {
-          display: flex;
-          flex-direction: row;
-          gap: 2%;
-          align-items: flex-end;
-
-          .desc {
-            width: 78%;
-            font-size: 22px;
-            background-color: #f9f8a1;
-            border-radius: 8px;
-            padding: 1%;
-          }
-        }
-
 
       }
     }
