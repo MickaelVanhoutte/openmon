@@ -108,15 +108,17 @@
     export let openSummary;
     export let save: SelectedSave;
 
+    export let selected = 0;
+
     let first = save.player.monsters.at(0);
     let others = save.player.monsters.slice(1);
-    let selected = 0;
+
     let switchToIdx = undefined;
     let openOptions = false;
     let optionSelected = 0;
 
 
-    $:emptyslots = new Array(6 - save.player.monsters.length).fill(0);
+    let emptyslots = new Array(6 - save.player.monsters.length).fill(0);
 
     function getPercentage(monster: PokemonInstance) {
         return monster.currentHp / monster.currentStats.hp * 100;
