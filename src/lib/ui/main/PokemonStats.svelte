@@ -1,14 +1,6 @@
 <div class="stats">
-    <div class="img-wrapper">
-        <div class="info">
-            <div>
-                <span>Lv{selectedMons.level}</span><span>{selectedMons.name}</span>
-            </div>
-            <div class="img-bg">
-                <img src="{selectedMons.sprites[selectedMons.gender].front.frame1}"
-                     alt="{selectedMons.name} img"/>
-            </div>
-        </div>
+    <div class="stats-wrapper" >
+        <canvas bind:this={graph}></canvas>
     </div>
 
     <div class="stat-values">
@@ -96,7 +88,7 @@
                       style="--color:{ivColor(selectedMons.ivs.speed)}">{selectedMons.ivs.speed}</span>
                 <span class="td inputs">
                                 <button disabled={plusDisabled} on:click={() => addEv('speed', 1) }>+</button>
-                                <span>{evs.speed}</span>
+                                <span>{selectedMons.evs.speed}</span>
                                 <button disabled={minusSpeedDisabled} on:click={() => addEv('speed', -1) }>-</button>
                             </span>
             </li>
@@ -133,12 +125,13 @@
 <script lang="ts">
     import abilities from "../../../assets/data/final/abilities.json";
     import {SelectedSave} from "../../js/saves/saves.js";
-    import type {Stats} from "../../js/pokemons/pokedex";
+    import Chart from 'chart.js/auto';
+    import {onMount} from "svelte";
 
     export let save: SelectedSave;
     export let selected: number;
 
-    export let evs: Stats;
+    export let graph: HTMLCanvasElement;
 
     let mechanicRegex = /{[^}]*}/g;
 
@@ -171,6 +164,86 @@
             selectedMons = selectedMons;
         }
     }
+
+    $:data = {
+        labels: [
+            'HP',
+            'Attack',
+            'Defense',
+            'Speed',
+            'Sp. Def',
+            'Sp. Atk',
+        ],
+        datasets: [{
+            label: 'current',
+            data: [selectedMons.currentStats.hp, selectedMons.currentStats.attack, selectedMons.currentStats.defense, selectedMons.currentStats.speed, selectedMons.currentStats.specialDefense, selectedMons.currentStats.specialAttack],
+            fill: true,
+            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+            borderColor: 'rgb(255, 99, 132)',
+            pointBackgroundColor: 'rgb(255, 99, 132)',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: 'rgb(255, 99, 132)'
+        }, {
+            label: 'EVs',
+            data: [selectedMons.evs.hp, selectedMons.evs.attack, selectedMons.evs.defense, selectedMons.evs.speed, selectedMons.evs.specialDefense, selectedMons.evs.specialAttack],
+            fill: true,
+            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+            borderColor: 'rgb(54, 162, 235)',
+            pointBackgroundColor: 'rgb(54, 162, 235)',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: 'rgb(54, 162, 235)'
+        }]
+    };
+
+    $:config = {
+        type: 'radar',
+        data: data,
+        options: {
+            scales: {
+                r: {
+                    pointLabels: {
+                        display: true,
+                        color: 'white'
+                    },
+                    ticks: {
+                        display: false // Hides the labels in the middle (numbers)
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.3)',
+                    }
+                },
+
+            },
+            plugins: {
+                legend: {
+                    display: false,
+                    color: 'white'
+                },
+                title: {
+                    display: false,
+                },
+                datalabels: {
+                    display: false,
+                }
+            },
+            elements: {
+                line: {
+                    borderWidth: 2
+
+                }
+            }
+        },
+    };
+
+    $:ctx = graph?.getContext('2d');
+
+    let chart;
+    $: {
+        chart?.destroy();
+        chart = new Chart(ctx, config);
+    };
 </script>
 
 
@@ -186,18 +259,24 @@
     box-sizing: border-box;
     position: relative;
 
-    .img-wrapper {
+    .stats-wrapper {
       position: absolute;
       top: 0;
       left: 0;
       width: 30%;
       height: 60%;
-      background-color: #c8a8e8;
+      background-color: rgba(84, 80, 108, .80);
       border-right: 4px solid #54506c;
       border-bottom: 4px solid #54506c;
       box-sizing: border-box;
 
-      .info {
+      canvas {
+        width: 100%;
+        height: 100%;
+        margin: auto;
+      }
+
+      /*.info {
         height: 100%;
 
         div:first-of-type {
@@ -218,7 +297,7 @@
           background-image: linear-gradient(0deg, #ffffff 12.50%, #e7e7e8 12.50%, #e7e7e8 50%, #ffffff 50%, #ffffff 62.50%, #e7e7e8 62.50%, #e7e7e8 100%);
           background-size: 32.00px 32.00px;
         }
-      }
+      }*/
     }
 
     .stat-values {
