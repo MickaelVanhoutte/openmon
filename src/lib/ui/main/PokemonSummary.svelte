@@ -34,7 +34,7 @@
         {#if tab === 0}
             <PokemonInfo bind:save bind:selected />
         {:else if tab === 1}
-            <PokemonStats bind:save bind:selected/>
+            <PokemonStats bind:save bind:selected bind:prevSelected/>
         {:else if tab === 2}
             <PokemonSkills bind:save bind:selected bind:selectedMove/>
         {/if}
@@ -51,6 +51,7 @@
 
     export let save: SelectedSave;
     export let selected: number;
+    export let prevSelected: number;
     export let openSummary: boolean;
 
     export let selectedMove = 0;
@@ -101,11 +102,13 @@
 
     function previous() {
         selectedMove = 0;
+        prevSelected = selected;
         selected = selected === 0 ? save.player.monsters.length - 1 : selected - 1;
     }
 
     function next() {
         selectedMove = 0;
+        prevSelected = selected;
         selected = selected === save.player.monsters.length - 1 ? 0 : selected + 1;
     }
 

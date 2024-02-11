@@ -1,5 +1,5 @@
 <div class="stats">
-    <div class="stats-wrapper" >
+    <div class="stats-wrapper" bind:this={graphWrapper}>
         <canvas bind:this={graph}></canvas>
     </div>
 
@@ -130,8 +130,10 @@
 
     export let save: SelectedSave;
     export let selected: number;
-
+    export let prevSelected: number;
+    export let graphWrapper: HTMLDivElement;
     export let graph: HTMLCanvasElement;
+
 
     let mechanicRegex = /{[^}]*}/g;
 
@@ -198,6 +200,8 @@
     $:config = {
         type: 'radar',
         data: data,
+        responsive: true,
+        maintainAspectRatio: false,
         options: {
             scales: {
                 r: {
@@ -244,13 +248,28 @@
         },
     };
 
+    let chart;
     $:ctx = graph?.getContext('2d');
 
-    let chart;
     $: {
-        chart?.destroy();
-        chart = new Chart(ctx, config);
-    };
+        if(graph && graphWrapper) {
+            graph.width = graphWrapper.clientWidth;
+            graph.height = graphWrapper.clientHeight;
+        }
+        if (prevSelected !== selected || selected === 0 || prevSelected === 0) {
+            ctx = graph?.getContext('2d');
+            chart?.destroy();
+            chart = new Chart(ctx, config);
+        } else {
+            chart?.update()
+        }
+    }
+
+    onMount(() => {
+        graph.width = graphWrapper.clientWidth;
+        graph.height = graphWrapper.clientHeight;
+    });
+
 </script>
 
 
