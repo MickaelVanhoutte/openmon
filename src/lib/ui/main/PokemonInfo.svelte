@@ -41,17 +41,43 @@
         </ul>
     </div>
 
-    <div class="memo">
+  <!--  <div class="memo">
         <span class="title">TRAINER MEMO</span>
         <p>{selectedMons.nature.toUpperCase() || 'UNKNOWN'} nature.</p>
         <p>Met in PALLET TOWN at Lv 5.</p>
     </div>
+-->
 
+    <div class="others">
+
+        <div class="exp">
+            <span class="th">EXP.</span>
+            <table>
+                <tr>
+                    <td><span>EXP POINTS</span><span class="value">{selectedMons.currentXp}</span></td>
+                    <td><span>NEXT LV.</span><span class="value">{selectedMons.xpToNextLevel}</span></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="ability">
+            <div class="name-desc">
+                <div class="title">
+                    <span class="th">ABILITY</span>
+                    <span class="td">{selectedMons.currentAbility}</span>
+                </div>
+                <div class="desc">
+                    {abilities.find(ability => ability.names === selectedMons.currentAbility)?.description.replace(mechanicRegex, "")}
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script lang="ts">
     import {typeChart} from "../../js/battle/battle.js";
     import {SelectedSave} from "../../js/saves/saves.js";
+    import abilities from "../../../assets/data/final/abilities.json";
 
     export let save: SelectedSave;
     export let selected: number;
@@ -180,7 +206,7 @@
       }
     }
 
-    .memo {
+    /*.memo {
       position: absolute;
       bottom: 2%;
       left: 1%;
@@ -211,6 +237,130 @@
         font-size: 32px;
         color: #54506c;
         border-bottom: 2px solid #e7e8c0;
+      }
+    }*/
+
+    .others {
+      width: 98%;
+      max-height: 39%;
+      position: absolute;
+      bottom: 2%;
+      left: 1%;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 8px;
+
+      .exp {
+        display: flex;
+        justify-content: space-between;
+        gap: 2%;
+        padding: 0;
+
+        .th {
+          text-align: center;
+          height: 12px;
+          width: 20%;
+          border-radius: 4px;
+          background-color: #54506c;
+          line-height: 8px;
+          font-size: 32px;
+          color: white;
+          text-shadow: 3px 1px 2px #54506c;
+        }
+
+        table {
+          width: 78%;
+          font-size: 24px;
+          color: #54506c;
+          text-transform: uppercase;
+          border-radius: 8px;
+          display: flex;
+          flex-direction: column;
+
+          tr {
+            display: flex;
+            justify-content: space-between;
+            border-radius: 8px;
+            gap: 1%;
+
+            td {
+              width: 50%;
+              background-color: #f9f8a1;
+              padding: 0 16px;
+              border-radius: 4px;
+              display: flex;
+              justify-content: space-between;
+
+              &.value {
+                text-align: right;
+                background-color: #f8f9d8;
+              }
+            }
+          }
+        }
+      }
+
+      .ability {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 1%;
+        padding: 0;
+        box-sizing: border-box;
+
+        .title {
+          width: 21%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          justify-content: space-around;
+        }
+
+        .th {
+          display: block;
+          text-align: center;
+          height: 12px;
+          width: 100%;
+          border-radius: 4px;
+          background-color: #54506c;
+          line-height: 8px;
+          font-size: 32px;
+          color: white;
+          text-shadow: 3px 1px 2px #54506c;
+        }
+
+        .td {
+          color: #54506c;
+          background-color: #f8f0e8;
+          padding: 8px;
+          font-size: 22px;
+          text-align: center;
+          font-weight: bold;
+          text-transform: uppercase;
+          border-radius: 8px;
+          box-sizing: border-box;
+          width: 100%;
+        }
+
+        .name-desc {
+          display: flex;
+          flex-direction: row;
+          gap: 2%;
+          align-items: flex-end;
+
+          .desc {
+            width: 78%;
+            font-size: 22px;
+            background-color: #f9f8a1;
+            border-radius: 8px;
+            padding: 1%;
+          }
+        }
+
+
       }
     }
   }
