@@ -173,7 +173,7 @@
           }
 
           .name {
-            font-size: 32px;
+            font-size: 26px;
             text-transform: uppercase;
             /*position: absolute;
             left: 50%;
@@ -182,7 +182,7 @@
           }
 
           .pp {
-            font-size: 32px;
+            font-size: 26px;
             text-transform: uppercase;
            /* position: absolute;
             right: 2%;
