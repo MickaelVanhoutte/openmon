@@ -18,8 +18,20 @@
                      on:click={() => selectedMove = index}>
                                 <span style="--bg:{typeChart[move.type].color}"
                                       class="type">{move.type.toUpperCase()}</span>
-                    <span class="name">{move.name}</span>
-                    <span class="pp">PP {move.currentPp}/{move.pp}</span>
+
+                    <div class="flex-row">
+                        <div class="flex-col">
+                            <span class="name">{move.name}</span>
+                            <span>{move.category ===  'no-damage' ? 'status' : move.category }</span>
+                        </div>
+
+                        <div class="flex-col">
+                            <span>power {move.power ? move.power : '/'}</span>
+                            <span class="pp">PP {move.currentPp}/{move.pp}</span>
+                        </div>
+                    </div>
+
+
                 </div>
             {/each}
         </div>
@@ -68,7 +80,7 @@
       position: absolute;
       top: 0;
       left: 0;
-      width: 40%;
+      width: 30%;
       height: 60%;
       background-color: #c8a8e8;
       border-right: 4px solid #54506c;
@@ -100,7 +112,7 @@
     }
 
     .moves {
-      width: 60%;
+      width: 70%;
       height: 100%;
       position: absolute;
       top: 0;
@@ -127,6 +139,24 @@
           height: calc(100% / 4);
           box-sizing: border-box;
 
+          .flex-row {
+            gap: 10%;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            height: 100%;
+            width: 100%;
+            padding-left: 20%;
+            box-sizing: border-box;
+          }
+
+          .flex-col {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+          }
+
           &.selected {
             border: 4px solid #54506c;
           }
@@ -146,26 +176,26 @@
           .name {
             font-size: 32px;
             text-transform: uppercase;
-            position: absolute;
+            /*position: absolute;
             left: 50%;
             top: 10%;
-            transform: translateX(-50%);
+            transform: translateX(-50%);*/
           }
 
           .pp {
             font-size: 32px;
             text-transform: uppercase;
-            position: absolute;
+           /* position: absolute;
             right: 2%;
-            bottom: 10%;
+            bottom: 10%;*/
           }
         }
       }
     }
 
     .description {
-      font-size: 26px;
-      width: 39%;
+      font-size: 22px;
+      width: 29%;
       height: 36%;
       position: absolute;
       bottom: 2%;

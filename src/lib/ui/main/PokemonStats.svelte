@@ -298,13 +298,10 @@
     import {SelectedSave} from "../../js/saves/saves.js";
     import Chart from 'chart.js/auto';
     import abilities from "../../../assets/data/final/abilities.json";
-    import {onMount} from "svelte";
-    import type {PokemonInstance} from "../../js/pokemons/pokedex";
     import {Nature} from "../../js/pokemons/pokedex";
 
     export let save: SelectedSave;
     export let selected: number;
-    export let prevSelected: number;
     export let update: boolean;
 
     export let statEdit: boolean;
@@ -542,14 +539,14 @@
     .stat-values {
       width: 70%;
       height: 70%;
-      max-height: 65%;
+      max-height: 70%;
       position: absolute;
       top: 0;
       right: 0;
       box-sizing: border-box;
       border-top: 4px solid #e0f8f8;
       border-right: 4px solid #e0f8f8;
-
+      padding-top: 4px;
       transition: width 0.5s ease-in-out;
 
       &.minimize {
