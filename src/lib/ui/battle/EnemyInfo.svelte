@@ -50,7 +50,7 @@
       left: -30%;
     }
     to {
-      left: 1%;
+      left: 2%;
     }
   }
 
@@ -66,18 +66,13 @@
   .enemy-info {
     z-index: 9;
 
-    background-color: antiquewhite;
-
     height: fit-content;
-    min-width: 36%;
+    min-width: 30%;
     position: absolute;
     top: 2%;
     left: -30%;
 
-    border: 14px solid #595b59;
     border-radius: 10px;
-
-    padding: 8px 16px;
 
     display: flex;
     flex-direction: column;
@@ -85,7 +80,7 @@
     justify-content: space-evenly;
     box-sizing: border-box;
 
-    font-size: 46px;
+    font-size: 24px;
 
     animation: appear .5s ease-in forwards, bounce 2s ease-in-out infinite;
 
@@ -98,7 +93,6 @@
     .hp-status{
       display: flex;
       flex-direction: row;
-      gap: 8px;
       justify-content: space-between;
     }
 
@@ -106,20 +100,18 @@
       display: flex;
       flex-direction: column;
       align-items: flex-end;
-      //gap: 8px;
     }
 
     .hp {
 
-      width: 60%;
+      width: 100%;
       display: flex;
-      //gap: 16px;
       background-color: #262626;
       color: orange;
       align-items: center;
       justify-content: space-evenly;
-      border-radius: 8px;
-      padding: 3px;
+      border-radius: 5px;
+      padding: 2px;
 
       & > span {
         padding: 0 12px;
@@ -128,7 +120,7 @@
 
       .progressbar-wrapper {
 
-        height: 24px;
+        height: 14px;
         width: 100%;
         background-color: #595b59;
         border-radius: 4px;
@@ -162,29 +154,4 @@
     }
   }
 
-  @media screen and (max-width: 1100px) {
-    .enemy-info {
-      font-size: 26px;
-      border: 8px solid #595b59;
-
-      width: 50%;
-      flex-direction: column;
-      align-items: normal;
-      gap: 8px;
-      right: 0;
-
-      .name-lvl {
-        gap: 8px;
-      }
-
-      .hp {
-        width: 70%;
-        height: 18px;
-
-        .progressbar-wrapper {
-          height: 14px;
-        }
-      }
-    }
-  }
 </style>

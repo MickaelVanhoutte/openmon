@@ -134,13 +134,14 @@
   .wrapper :global(.battle-bg) {
     z-index : 0;
     width : 100%;
-    height : 75%;
+    height : 100%;
     position : absolute;
     top : 0;
     left : 0;
+    //border-radius: 0 0 5% 20% ;
   }
 
-  @media screen and (max-width: 1100px) {
+/*  @media screen and (max-width: 1100px) {
     .wrapper :global(.ally-sprite) {
       width: calc(var(--width) * .75);
       height: calc(var(--height) * .75);
@@ -156,5 +157,5 @@
     .wrapper :global(.battle-bg) {
       height: 70%;
     }
-  }
+  }*/
 </style>
