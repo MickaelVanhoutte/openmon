@@ -2,7 +2,7 @@
 
     <div class="tabs">
         <div class="current" style="--index: {tab}">
-            <span>{tabs[tab]}</span>
+            <span>{tabs[tab].replace("$POKEMON", selectedMons.name)}</span>
 
             <div class="bubbles">
                 {#if tab === 1}
@@ -26,15 +26,15 @@
             <span class="arrow"></span>
         </button>
 
-        <button class="back" on:click={()=>openSummary=false}>BACK</button>
+        <button class="back" on:click={back}>BACK</button>
     </div>
 
     <div class="tab-content">
 
         {#if tab === 0}
-            <PokemonInfo bind:save bind:selected />
+            <PokemonInfo bind:save bind:selected/>
         {:else if tab === 1}
-            <PokemonStats bind:save bind:selected bind:prevSelected/>
+            <PokemonStats bind:save bind:selected bind:prevSelected bind:statEdit/>
         {:else if tab === 2}
             <PokemonSkills bind:save bind:selected bind:selectedMove/>
         {/if}
@@ -56,19 +56,29 @@
 
     export let selectedMove = 0;
 
+    export let statEdit = false
+
     let tab = 0;
 
     const tabs = {
-        0: 'POKEMON INFO',
-        1: 'POKEMON STATS',
-        2: 'POKEMON SKILLS'
+        0: '$POKEMON INFO',
+        1: '$POKEMON STATS',
+        2: '$POKEMON SKILLS'
     }
 
     $:selectedMons = save.player.monsters[selected];
     $:evs = selectedMons.evs;
 
+    function back() {
+        if (statEdit) {
+            statEdit = false;
+            return;
+        }
+        openSummary = false;
+    }
+
     const listener = (e: KeyboardEvent) => {
-        if (openSummary) {
+        if (openSummary && !statEdit) {
             if (e.key === "ArrowRight") {
                 tab = (tab + 1) % 3;
             } else if (e.key === "ArrowLeft") {
@@ -110,12 +120,6 @@
         selectedMove = 0;
         prevSelected = selected;
         selected = selected === save.player.monsters.length - 1 ? 0 : selected + 1;
-    }
-
-    function addEv(stat: 'hp' | 'attack' | 'defense' | 'specialAttack' | 'specialDefense' | 'speed', number: number) {
-        if (selectedMons.evsToDistribute >= number && selectedMons.evs[stat] + number >= 0) {
-            selectedMons.addEv(stat, number);
-        }
     }
 </script>
 
@@ -188,6 +192,18 @@
         left: calc(40% + var(--index) * 80px);
         top: 0;
         z-index: 1;
+
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+
+        touch-action: pan-x pan-y;
+        outline: none;
+
 
         &.back {
           font-family: pokemon, serif;
