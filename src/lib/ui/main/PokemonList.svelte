@@ -297,7 +297,7 @@
       .poke-card {
         font-size: 32px;
         color: white;
-        text-shadow: 3px 1px 2px #54506c;
+        text-shadow: 1px 1px 1px black;
         display: flex;
         flex-direction: row;
         gap: 5%;
@@ -460,7 +460,7 @@
         text-align: center;
         font-family: pokemon, serif;
         color: white;
-        text-shadow: 3px 1px 2px #54506c;
+        text-shadow: 1px 1px 1px black;
         background-color: #5c4389;
         border-radius: 20px;
         border: 6px solid #3d3e53;

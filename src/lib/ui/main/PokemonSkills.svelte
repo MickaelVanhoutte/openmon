@@ -96,7 +96,7 @@
           padding: 0 5%;
           color: white;
           font-size: 32px;
-          text-shadow: 3px 1px 2px #54506c;
+          text-shadow: 1px 1px 1px black;
         }
 
         .img-bg {
@@ -126,7 +126,7 @@
         display: flex;
         flex-direction: column;
         gap: 4%;
-        padding: 16px;
+        padding: 1% 3%;
         height: 100%;
         box-sizing: border-box;
 
@@ -136,7 +136,7 @@
           padding: 12px;
           border-radius: 8px;
           position: relative;
-          height: calc(100% / 4);
+          height: calc((100% - 4 * 4%) / 4);
           box-sizing: border-box;
 
           .flex-row {
@@ -163,7 +163,7 @@
 
           .type {
             color: white;
-            text-shadow: 3px 1px 2px #54506c;
+            text-shadow: 1px 1px 1px black;
             background-color: var(--bg);
             border-radius: 8px;
             padding: 4px;

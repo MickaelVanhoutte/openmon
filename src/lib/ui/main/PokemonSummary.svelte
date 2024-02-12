@@ -34,7 +34,7 @@
         {#if tab === 0}
             <PokemonInfo bind:save bind:selected/>
         {:else if tab === 1}
-            <PokemonStats bind:save bind:update bind:selected bind:statEdit/>
+            <PokemonStats bind:save bind:selected bind:statEdit/>
         {:else if tab === 2}
             <PokemonSkills bind:save bind:selected bind:selectedMove/>
         {/if}
@@ -51,8 +51,6 @@
 
     export let save: SelectedSave;
     export let selected: number;
-
-    export let update: boolean;
     export let openSummary: boolean;
 
     export let selectedMove = 0;
@@ -113,13 +111,13 @@
 
     function previous() {
         selectedMove = 0;
-        update = false;
+        statEdit = false;
         selected = selected === 0 ? save.player.monsters.length - 1 : selected - 1;
     }
 
     function next() {
-        selectedMove = 0
-        update = false;
+        selectedMove = 0;
+        statEdit = false;
         selected = selected === save.player.monsters.length - 1 ? 0 : selected + 1;
     }
 </script>
@@ -147,11 +145,11 @@
       background-color: #0078c0;
       font-size: 32px;
       color: white;
-      text-shadow: 3px 1px 2px #54506c;
+      text-shadow: 1px 1px 1px black;
 
 
       .current {
-        width: calc(40% + (var(--index) + 1) * 80px);
+        width: calc(35% + (var(--index) + 1) * 80px);
         height: 100%;
         background-color: #e0d898;
         display: flex;
@@ -160,7 +158,7 @@
         z-index: 2;
         position: relative;
         box-sizing: border-box;
-        padding-left: 10%;
+        padding-left: 4%;
         justify-content: space-between;
 
         .bubbles {
@@ -190,7 +188,7 @@
         width: 80px;
         height: 46px;
         position: absolute;
-        left: calc(40% + var(--index) * 80px);
+        left: calc(35% + var(--index) * 80px);
         top: 0;
         z-index: 1;
 
@@ -212,7 +210,7 @@
           background: none;
           font-size: 32px;
           color: white;
-          text-shadow: 3px 1px 2px #54506c;
+          text-shadow: 1px 1px 1px black;
         }
 
         &.previous, &.next {
@@ -231,22 +229,24 @@
         }
 
         &.previous {
-          right: 12%;
+          right: 14%;
           width: 40px;
 
           .arrow {
             transform: rotate(-135deg);
             -webkit-transform: rotate(-135deg);
+            margin-top: 5px;
           }
         }
 
         &.next {
-          right: 17%;
+          right: 20%;
           width: 40px;
 
           .arrow {
             transform: rotate(45deg);
             -webkit-transform: rotate(45deg);
+            margin-bottom: 5px;
           }
         }
 

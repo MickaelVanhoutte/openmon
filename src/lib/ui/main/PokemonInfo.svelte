@@ -93,7 +93,7 @@
           padding: 0 5%;
           color: white;
           font-size: 32px;
-          text-shadow: 3px 1px 2px #54506c;
+          text-shadow: 1px 1px 1px black;
         }
 
         .img-bg {
@@ -145,7 +145,7 @@
             line-height: 8px;
             font-size: 36px;
             color: white;
-            text-shadow: 3px 1px 2px #54506c;
+            text-shadow: 1px 1px 1px black;
           }
 
           .td {
@@ -164,7 +164,7 @@
             .type {
               background-color: var(--bg);
               color: white;
-              text-shadow: 3px 1px 2px #54506c;
+              text-shadow: 1px 1px 1px black;
               font-size: 26px;
               border-radius: 8px;
               padding: 4px;
@@ -200,7 +200,7 @@
         line-height: 8px;
         font-size: 36px;
         color: white;
-        text-shadow: 3px 1px 2px #54506c;
+        text-shadow: 1px 1px 1px black;
         position: absolute;
         top: -12px;
         left: 0;

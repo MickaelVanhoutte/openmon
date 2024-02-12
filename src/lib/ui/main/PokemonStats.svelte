@@ -302,7 +302,6 @@
 
     export let save: SelectedSave;
     export let selected: number;
-    export let update: boolean;
 
     export let statEdit: boolean;
     export let graphWrapper: HTMLDivElement;
@@ -521,7 +520,7 @@
           padding: 0 5%;
           color: white;
           font-size: 32px;
-          text-shadow: 3px 1px 2px #54506c;
+          text-shadow: 1px 1px 1px black;
         }
 
         .img-bg {
@@ -647,7 +646,7 @@
             line-height: 8px;
             font-size: 32px;
             color: white;
-            text-shadow: 3px 1px 2px #54506c;
+            text-shadow: 1px 1px 1px black;
           }
 
           .td {
@@ -701,7 +700,7 @@
           line-height: 8px;
           font-size: 32px;
           color: white;
-          text-shadow: 3px 1px 2px #54506c;
+          text-shadow: 1px 1px 1px black;
         }
 
         table {
