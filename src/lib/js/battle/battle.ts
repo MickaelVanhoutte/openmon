@@ -78,7 +78,7 @@ export class BattleState {
 
     private executeAction(action?: Action) {
         if (action !== undefined) {
-            console.debug('executing ' + action?.name)
+            console.debug('executing ' + action?.name, action)
 
             if (action instanceof Attack && !action.initiator.fainted) {
                 this.attack(action);
@@ -94,6 +94,7 @@ export class BattleState {
                 this.removeHP(action);
             } else if (action instanceof XPWin) {
                 let result = action.initiator.addXpResult(action.xp, this.opponent instanceof Character ? 3 : 1);
+                console.log(result);
                 if (result.levelup) {
                     this.addToStack(new Message(`${action.initiator.name} grew to level ${action.initiator.level + 1}!`, action.initiator), true);
                     action.initiator.levelUp();

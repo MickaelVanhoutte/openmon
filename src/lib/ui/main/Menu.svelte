@@ -24,7 +24,6 @@
     </ul>
 </div>
 
-<!-- TODO avoid escap open menu again -->
 {#if pokemonListOpened}
     <PokemonList bind:save bind:pokemonListOpened bind:openSummary/>
 {/if}
@@ -86,26 +85,19 @@
     width: 30%;
     height: 100%;
     font-size: 36px;
-    background-color: #FFFFFF;
+    background-color: rgba(44, 56, 69, 0.95);
+    color: white;
     z-index: 8;
     display: flex;
     justify-content: center;
     align-items: center;
+    box-sizing: border-box;
     opacity: 0;
     pointer-events: none;
     transition: right 0.3s ease-in-out;
-    border: 3px solid #1e1e1e;
-    border-radius: 16px;
+    border-left: 8px solid #1e1e1e;
 
     ul {
-      box-shadow: inset #009688 0 0 0 5px,
-      inset #059c8e 0 0 0 1px,
-      inset #0cab9c 0 0 0 10px,
-      inset #1fbdae 0 0 0 11px,
-      inset #8ce9ff 0 0 0 16px,
-      inset #48e4d6 0 0 0 17px,
-      inset #e5f9f7 0 0 0 21px,
-      inset #bfecf7 0 0 0 22px;
       border-radius: 12px;
       list-style: none;
       padding: 12px;
@@ -138,9 +130,9 @@
             height: 0;
             border-top: 12px solid transparent;
             border-bottom: 12px solid transparent;
-            border-left: 12px solid #262626;
+            border-left: 12px solid white;
             position: absolute;
-            left: 40px;
+            left: 16px;
           }
         }
       }

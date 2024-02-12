@@ -80,22 +80,21 @@ export class ABButtons {
 
         this.container = document.createElement("div");
         this.container.style.position = "fixed";
-        this.container.style.bottom = "1dvh";
-        this.container.style.right = "1dvw";
-        this.container.style.width = "130px";
-        this.container.style.height = "110px";
+        this.container.style.bottom = "5dvh";
+        this.container.style.right = "3dvw";
+        this.container.style.width = "110px";
+        this.container.style.height = "100px";
 
         this.container.style.display = "flex";
         this.container.style.flexDirection = "column";
         this.container.style.justifyContent = "space-between";
         this.container.style.alignItems = "center";
-        this.container.style.padding = "5px";
         this.container.style.zIndex = "7";
 
         let buttonA = document.createElement("button");
         buttonA.style.fontFamily= "pokemon, serif";
         buttonA.style.padding = '12px 16px';
-        buttonA.style.backgroundColor = "rgba(84, 80, 108, 0.64)";
+        buttonA.style.backgroundColor = "rgba(44, 56, 69, 0.95)";
         buttonA.style.border = "1px solid black";
         buttonA.style.borderRadius = "50%";
         buttonA.style.cursor = "pointer";
@@ -117,12 +116,12 @@ export class ABButtons {
         });
         buttonA.addEventListener("mouseup", () => {
             this.a = false;
-            buttonA.style.backgroundColor = "rgba(84, 80, 108, 0.64)";
+            buttonA.style.backgroundColor = "rgba(44, 56, 69, 0.95)";
             this.onChange(this.a, this.b);
         });
         buttonA.addEventListener("touchend", () => {
             this.a = false;
-            buttonA.style.backgroundColor = "rgba(84, 80, 108, 0.64)";
+            buttonA.style.backgroundColor = "rgba(44, 56, 69, 0.95)";
             this.onChange(this.a, this.b);
         });
 
@@ -132,7 +131,7 @@ export class ABButtons {
         let buttonB = document.createElement("button");
         buttonB.style.fontFamily= "pokemon, serif";
         buttonB.style.padding = '12px 16px';
-        buttonB.style.backgroundColor = "rgba(84, 80, 108, 0.64)";
+        buttonB.style.backgroundColor = "rgba(44, 56, 69, 0.95)";
         buttonB.style.border = "1px solid black";
         buttonB.style.borderRadius = "50%";
         buttonB.style.cursor = "pointer";

@@ -373,28 +373,21 @@
     bottom: 5dvh;
     left: calc(50% - 25px);
     width: 60px;
-    height: 24px;
-    /* padding: 6px; */
+    /* height: 24px; */
+    box-sizing: border-box;
+    padding: 2px 0;
     display: flex;
     border-radius: 8px;
-    background: rgba(84, 80, 108, 0.64);
+    background-color: rgba(44, 56, 69, 0.95);
     outline: none;
-    background-size: cover;
+    /* background-size: cover; */
     z-index: 15;
-    /* line-height: 16px; */
-    font-size: 16px;
+    font-size: 18px;
     border: 1px solid #000000;
     color: white;
-    align-items: center;
     justify-content: center;
+    align-items: center;
 
-  }
-
-  @media screen and (orientation: portrait) {
-    canvas {
-      width: auto;
-      height: 1024px;
-    }
   }
 
   .battleStart {
