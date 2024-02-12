@@ -88,6 +88,8 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      font-size: 28px;
+      font-weight: 500;
     }
 
     .hp-status{
@@ -134,20 +136,22 @@
           width: var(--width);
           height: 100%;
           background: rgb(184, 244, 166);
-          background: linear-gradient(0deg, rgba(184, 244, 166, 1) 0%, rgba(86, 170, 58, 1) 30%, rgba(86, 170, 58, 1) 50%, rgba(86, 170, 58, 1) 70%, rgba(184, 244, 166, 1) 100%);
-          text-align: center;
+          background: linear-gradient(0deg, rgb(86, 170, 58) 0%, rgb(86, 170, 58) 50%, rgb(86, 170, 58) 100%);
           border-radius: 2px;
-
-          transition: width 1s ease-in-out, background 1s ease-in-out 1s;
+          display: flex;
+          text-align: center;
+          align-items: center;
+          justify-content: center;
+          transition: width 1s ease-in-out;
 
           &.warning {
             background: rgb(255, 241, 164);
-            background: linear-gradient(0deg, rgba(255, 241, 164, 1) 0%, rgba(255, 194, 16, 1) 30%, rgba(255, 194, 16, 1) 50%, rgba(255, 194, 16, 1) 70%, rgba(255, 241, 164, 1) 100%);
+            background: linear-gradient(0deg, rgba(255, 194, 16, 1) 0%, rgba(255, 194, 16, 1) 50%, rgba(255, 194, 16, 1) 100%);
           }
 
           &.danger {
             background: rgb(244, 177, 159);
-            background: linear-gradient(0deg, rgba(244, 177, 159, 1) 0%, rgba(223, 85, 48, 1) 30%, rgba(223, 85, 48, 1) 50%, rgba(223, 85, 48, 1) 70%, rgba(244, 177, 159, 1) 100%);
+            background: linear-gradient(0deg, rgba(223, 85, 48, 1) 0%, rgba(223, 85, 48, 1) 50%, rgba(223, 85, 48, 1) 100%);
           }
         }
       }

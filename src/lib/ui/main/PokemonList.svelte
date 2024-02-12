@@ -208,12 +208,13 @@
   .options {
     position: absolute;
     font-size: 32px;
-    font-weight: bold;
+    font-weight: 500;
     text-align: left;
     bottom: 1%;
     right: 1%;
     padding: 22px 36px 22px 36px;
-    background-color: white;
+    background: rgb(220,231,233);
+    background: linear-gradient(180deg, rgba(220,231,233,1) 0%, rgba(255,255,255,1) 50%, rgba(220,231,233,0.713344712885154) 100%);
     border: 2px solid #54506c;
     border-radius: 8px;
     box-sizing: border-box;
@@ -265,6 +266,7 @@
       height: 100%;
       width: 100%;
       display: flex;
+      background-color: rgba(44, 56, 69, 0.75);
 
       .first {
         width: 40%;
@@ -305,11 +307,11 @@
 
         padding: 0 2% 0 0;
         box-sizing: border-box;
-        border-radius: 200px 8px 8px 200px;
+        border-radius: 24px 8px 8px 24px;
         justify-content: space-between;
         align-items: center;
 
-        border: 6px solid #54506c;
+        border: 2px solid rgba(0,0,0,.7);
         background-color: #4ba1de;
         background-image: linear-gradient(0deg, #95cfe0 46%, #4ba1de 46%, #4ba1de 50%, #95cfe0 50%, #95CFE0 56%, #4BA1DE 56%, #4ba1de 100%);
         background-size: 100% 100%;
@@ -317,9 +319,8 @@
         &.big {
           flex-direction: column;
           width: 86%;
-          border-radius: 4px;
-          padding-top: 8%;
-          padding-bottom: 4%;
+          border-radius: 24px;
+          padding: 4%;
           align-items: normal;
 
 
@@ -345,7 +346,7 @@
         }
 
         &.selected {
-          border: 6px solid #f27241;
+          border: 4px solid #f27241;
           background-color: #8edeee;
           background-image: linear-gradient(0deg, #bbf2fe 46%, #8edeee 46%, #8edeee 50%, #bbf2fe 50%, #bbf2fe 56%, #8edeee 56%, #8edeee 100%);
           background-size: 100% 100%;
@@ -369,6 +370,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            text-shadow: 2px 1px 1px black;
           }
 
           .img-wrapper {
@@ -396,8 +398,10 @@
 
             width: 100%;
             display: flex;
+            height: 18px;
             //gap: 16px;
             background-color: #262626;
+            font-size: 24px;
             color: orange;
             align-items: center;
             justify-content: space-evenly;
@@ -411,21 +415,21 @@
 
             .progressbar-wrapper {
 
-              height: 24px;
+              height: 14px;
               width: 100%;
               background-color: #595b59;
               border-radius: 4px;
               border: 2px solid white;
 
               .hp-value {
-
+                text-shadow: 2px 1px 1px black;
               }
 
               .progressbar {
                 width: var(--width);
                 height: 100%;
                 background: rgb(184, 244, 166);
-                background: linear-gradient(0deg, rgba(184, 244, 166, 1) 0%, rgba(86, 170, 58, 1) 30%, rgba(86, 170, 58, 1) 50%, rgba(86, 170, 58, 1) 70%, rgba(184, 244, 166, 1) 100%);
+                background: linear-gradient(0deg, rgb(86, 170, 58) 0%, rgb(86, 170, 58) 50%, rgb(86, 170, 58) 100%);
                 text-align: center;
                 border-radius: 2px;
 
@@ -433,12 +437,12 @@
 
                 &.warning {
                   background: rgb(255, 241, 164);
-                  background: linear-gradient(0deg, rgba(255, 241, 164, 1) 0%, rgba(255, 194, 16, 1) 30%, rgba(255, 194, 16, 1) 50%, rgba(255, 194, 16, 1) 70%, rgba(255, 241, 164, 1) 100%);
+                  background: linear-gradient(0deg, rgba(255, 194, 16, 1) 0%, rgba(255, 194, 16, 1) 50%, rgba(255, 194, 16, 1) 100%);
                 }
 
                 &.danger {
                   background: rgb(244, 177, 159);
-                  background: linear-gradient(0deg, rgba(244, 177, 159, 1) 0%, rgba(223, 85, 48, 1) 30%, rgba(223, 85, 48, 1) 50%, rgba(223, 85, 48, 1) 70%, rgba(244, 177, 159, 1) 100%);
+                  background: linear-gradient(0deg, rgba(223, 85, 48, 1) 0%, rgba(223, 85, 48, 1) 50%, rgba(223, 85, 48, 1) 100%);
                 }
               }
             }
@@ -461,32 +465,14 @@
         font-family: pokemon, serif;
         color: white;
         text-shadow: 3px 1px 2px #54506c;
-        background-color: #5c4389;
+        background-color: #5c438966;
         border-radius: 20px;
-        border: 6px solid #3d3e53;
+        border: 4px solid #262626;
       }
     }
 
   }
 
-  @media screen and (max-width: 1100px) {
-    .pokemon-list {
-      .pokemons {
-        .poke-card {
-          .footer {
-            .hp {
-              width: 100%;
-              height: 18px;
-
-              .progressbar-wrapper {
-                height: 14px;
-              }
-            }
-          }
-        }
-      }
-    }
-  }
 
 
 </style>

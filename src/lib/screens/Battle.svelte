@@ -126,7 +126,7 @@
 
   .wrapper :global(.opponent-sprite) {
     position: absolute;
-    bottom: 57%;
+    bottom: 44%;
     right: calc(25% - var(--width) / 2);
     z-index: 8;
   }

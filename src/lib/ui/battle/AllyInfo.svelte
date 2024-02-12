@@ -1,17 +1,20 @@
 <div class="ally-info">
 
     <div class="name-lvl">
-        <span>{battleState.playerCurrentMonster?.name}</span>
-        <span>Lv.{battleState.playerCurrentMonster.level}</span>
-    </div>
-
-    <!--<div class="status">-->
-    <div class="hp-status">
         <div class="status">
             {#if battleState?.playerCurrentMonster?.status}
                 {battleState?.playerCurrentMonster?.status?.abr}
             {/if}
         </div>
+        <div>
+            <span>{battleState.playerCurrentMonster?.name}</span>
+            <span>Lv.{battleState.playerCurrentMonster.level}</span>
+        </div>
+    </div>
+
+    <!--<div class="status">-->
+    <div class="hp-status">
+
 
         <div class="hp">
             <span>HP</span>
@@ -22,8 +25,15 @@
                 </div>
             </div>
         </div>
+
     </div>
 
+    <div class="exp">
+        <div class="progressbar-wrapper">
+            <div class="progressbar" style="--width:{expPercent + '%'}">
+            </div>
+        </div>
+    </div>
 
     <!--</div>-->
 
@@ -38,12 +48,14 @@
 
     let currentHp = 0;
     let percent = 0;
+    let expPercent = 0;
 
 
     BATTLE_STATE.subscribe(value => {
         battleState = value.state;
         currentHp = battleState?.playerCurrentMonster?.currentHp || 0;
         percent = Math.floor(currentHp * 100 / battleState?.playerCurrentMonster?.currentStats.hp);
+        expPercent = Math.floor(battleState?.playerCurrentMonster?.currentXp * 100 / battleState?.playerCurrentMonster?.xpToNextLevel);
     });
 
 
@@ -73,9 +85,9 @@
     z-index: 9;
 
     height: fit-content;
-    min-width: 30%;
+    min-width: 35%;
     position: absolute;
-    bottom: 30%;
+    bottom: 28%;
     right: -30%;
 
     display: flex;
@@ -92,6 +104,9 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+
+      font-size: 28px;
+      font-weight: 500;
     }
 
     .hp-status {
@@ -106,15 +121,64 @@
       align-items: flex-end;
     }
 
+    .exp {
+      width: 100%;
+      display: flex;
+      border: 2px solid #262626;
+      background-color: #262626;
+      align-items: center;
+      justify-content: space-evenly;
+      margin-top: -10px;
+      border-radius: 0 0 11px 0;
+      box-sizing: border-box;
+
+      &:before {
+        content: "";
+        display: inline-block;
+        height: 0;
+        width: 0;
+        position: absolute;
+        left: -14px;
+        bottom: 0;
+        border-bottom: 28px solid #262626;
+        border-left: 14px solid transparent;
+      }
+
+
+      .progressbar-wrapper {
+
+        height: 10px;
+        width: 100%;
+        background-color: #595b59;
+        border-radius: 4px 0 9px 4px;
+        position: relative;
+
+        .progressbar {
+          width: var(--width);
+          height: 100%;
+
+          background: #0e73cf;
+
+          border-radius: 2px;
+          display: flex;
+          text-align: center;
+          align-items: center;
+          justify-content: center;
+          transition: width 1s ease-in-out;
+        }
+      }
+    }
+
     .hp {
 
       width: 100%;
       display: flex;
       background-color: #262626;
+      font-size: 24px;
       color: orange;
       align-items: center;
       justify-content: space-evenly;
-      border-radius: 5px;
+      border-radius: 4px 4px 0 0;
       padding: 2px;
 
       & > span {
@@ -124,7 +188,7 @@
 
       .progressbar-wrapper {
 
-        height: 14px;
+        height: 20px;
         width: 100%;
         background-color: #595b59;
         border-radius: 4px;
@@ -145,7 +209,7 @@
           width: var(--width);
           height: 100%;
           background: rgb(184, 244, 166);
-          background: linear-gradient(0deg, rgba(184, 244, 166, 1) 0%, rgba(86, 170, 58, 1) 30%, rgba(86, 170, 58, 1) 50%, rgba(86, 170, 58, 1) 70%, rgba(184, 244, 166, 1) 100%);
+          background: linear-gradient(0deg, rgb(86, 170, 58) 0%, rgb(86, 170, 58) 50%, rgb(86, 170, 58) 100%);
           border-radius: 2px;
           display: flex;
           text-align: center;
@@ -155,43 +219,15 @@
 
           &.warning {
             background: rgb(255, 241, 164);
-            background: linear-gradient(0deg, rgba(255, 241, 164, 1) 0%, rgba(255, 194, 16, 1) 30%, rgba(255, 194, 16, 1) 50%, rgba(255, 194, 16, 1) 70%, rgba(255, 241, 164, 1) 100%);
+            background: linear-gradient(0deg, rgba(255, 194, 16, 1) 0%, rgba(255, 194, 16, 1) 50%, rgba(255, 194, 16, 1) 100%);
           }
 
           &.danger {
             background: rgb(244, 177, 159);
-            background: linear-gradient(0deg, rgba(244, 177, 159, 1) 0%, rgba(223, 85, 48, 1) 30%, rgba(223, 85, 48, 1) 50%, rgba(223, 85, 48, 1) 70%, rgba(244, 177, 159, 1) 100%);
+            background: linear-gradient(0deg, rgba(223, 85, 48, 1) 0%, rgba(223, 85, 48, 1) 50%, rgba(223, 85, 48, 1) 100%);
           }
         }
       }
     }
   }
-
- /* @media screen and (max-width: 1100px) {
-    .ally-info {
-      font-size: 26px;
-      bottom: 31%;
-
-      width: 50%;
-      flex-direction: column;
-      align-items: normal;
-      gap: 8px;
-      right: 0;
-      left: 50%;
-
-      .name-lvl {
-        gap: 8px;
-      }
-
-      .hp {
-        width: 70%;
-        height: 18px;
-
-        .progressbar-wrapper {
-          height: 14px;
-        }
-      }
-    }
-  }*/
-
 </style>

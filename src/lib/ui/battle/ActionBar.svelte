@@ -37,7 +37,7 @@
                 <button class="action-btn" style="--color:{typeChart[move.type].color}" {disabled}
                         class:selected={selectedMoveIdx === index}
                         on:mouseover={() => selectMove(index)}
-                        on:click={() => launchMove(move)}>
+                        on:click={() => launchMove(index, move)}>
                     {move.name.toUpperCase()}
                 </button>
             {/each}
@@ -48,7 +48,7 @@
         <div class="actions">
 
             <button class="action-btn" style="--color:#dc5959" {disabled}
-                    on:click={toggleMoveSelection} class:selected={ selectedOptionIdx === 0}>
+                    on:click={() => moveOpened=true} class:selected={ selectedOptionIdx === 0}>
                 FIGHT
             </button>
 
@@ -60,7 +60,7 @@
                 POKEMONS
             </button>
 
-            <button class="action-btn" style="--color:#599bdc" {disabled} class:selected={ selectedOptionIdx === 2}
+            <button class="action-btn" style="--color:#599bdc" {disabled} class:selected={ selectedOptionIdx === 3}
                     on:click={escape}>
                 RUN
             </button>
@@ -75,6 +75,7 @@
     import {Attack, BattleState, RunAway, typeChart} from "../../js/battle/battle";
     import {onMount} from "svelte";
     import {BATTLE_STATE} from "../../js/const";
+    import type {MoveInstance} from "../../js/pokemons/pokedex";
 
     let moveOpened = false;
     let show = false;
@@ -94,9 +95,6 @@
     let selectedMoveIdx = 0;
     let selectedOptionIdx = 0;
 
-    function toggleMoveSelection() {
-        moveOpened = !moveOpened;
-    }
 
     function escape() {
         if (battleState) {
@@ -109,8 +107,10 @@
         selectedMoveIdx = idx;
     }
 
-    function launchMove(move) {
-        if (battleState) {
+    function launchMove(idx: number, move: MoveInstance) {
+        if (idx != selectedMoveIdx) {
+            selectedMoveIdx = idx;
+        } else if (battleState) {
             battleState.selectAction(new Attack(move, 'opponent', battleState.playerCurrentMonster));
             moveOpened = false;
         }
@@ -134,16 +134,16 @@
             }
         } else if (e.key === 'Enter') {
             if (moveOpened) {
-                launchMove(battleState.playerCurrentMonster.moves[selectedMoveIdx]);
+                launchMove(selectedMoveIdx, battleState.playerCurrentMonster.moves[selectedMoveIdx]);
             } else {
                 if (selectedOptionIdx === 0) {
-                    toggleMoveSelection();
+                    moveOpened = true;
                 } else if (selectedOptionIdx === 3) {
                     escape();
                 }
             }
         } else if (e.key === 'Escape') {
-            toggleMoveSelection();
+            moveOpened = false;
 
         }
     })
@@ -176,14 +176,6 @@
 
     transition: bottom 0.5s ease-in-out;
 
-    /*box-shadow: inset #009688 0 0 0 5px,
-    inset #059c8e 0 0 0 1px,
-    inset #0cab9c 0 0 0 10px,
-    inset #1fbdae 0 0 0 11px,
-    inset #8ce9ff 0 0 0 16px,
-    inset #48e4d6 0 0 0 17px,
-    inset #e5f9f7 0 0 0 21px,
-    inset #bfecf7 0 0 0 22px;*/
     text-shadow: 3px 3px 1px #bfecf7;
 
     display: flex;
@@ -195,9 +187,8 @@
     .info {
 
       width: 50%;
-      //background-color: rgba(255, 255, 255, .95);
       background: rgb(220,231,233);
-      background: linear-gradient(0deg, rgba(220,231,233,1) 0%, rgba(255,255,255,1) 50%, rgba(220,231,233,1) 100%);
+      background: linear-gradient(180deg, rgba(220,231,233,1) 0%, rgba(255,255,255,1) 50%, rgba(220,231,233,0.713344712885154) 100%);
       border-radius: 12px;
       display: flex;
       align-items: center;
@@ -205,10 +196,11 @@
       justify-content: space-around;
       position: relative;
       box-sizing: border-box;
-      padding: 2%;
+      padding: 1%;
 
       -webkit-box-shadow: 5px 10px 21px 7px #000000;
       box-shadow: 5px 10px 21px 7px #000000;
+
 
       ._inner {
         z-index: 1;
@@ -220,21 +212,19 @@
         width: 100%;
         text-transform: capitalize;
         text-align: center;
-
-        padding: 1rem;
         box-sizing: border-box;
 
         .move-desc {
           text-transform: initial;
           text-align: left;
-          font-size: 32px;
+          font-size: 20px;
           word-break: break-word;
           box-sizing: border-box;
-          padding: 0 20px;
+          padding: 0 1%;
 
           display: flex;
           align-items: center;
-          gap: 16px;
+          gap: 1%;
 
           p {
             margin: 0;
@@ -255,11 +245,9 @@
       width: 50%;
       height: 100%;
       display: flex;
-      //background: #FFFFFF;
-      // border: 14px solid #595b59;
       border-radius: 8px;
       box-sizing: border-box;
-      padding: 12px;
+      padding: 0 2%;
       z-index: 2;
 
       flex-wrap: wrap;
@@ -268,50 +256,30 @@
     }
   }
 
-  /*
-    @media screen and (max-width: 1100px) and (orientation: portrait) {
-      .action-bar  {
-        bottom: 0;
-        right: 0;
-        width: 100dvh;
-        height: 33dvw;
-        !*font-size: 38px;*!
-
-        .action-btn {
-          !*font-size: 32px;*!
-        }
-
-        .info ._inner .move-desc {
-          !*font-size: 32px;
-          gap: 0;*!
-        }
-      }
-    }*/
-
-
   .action-btn {
-    background-color: var(--color);
+    border: 2px solid var(--color);
 
     font-size: 26px;
     color: white;
+    text-shadow: 1px 1px 1px var(--color);
+    background-color: rgba(44, 56, 69, 0.84);
     border-radius: 8px;
-    border: 3px solid #595b59;
     font-family: pokemon, serif;
 
     transition: color 0.3s ease-in-out, opacity 0.3s ease-in-out;
     flex: 48%;
     max-width: 48%;
 
-    &.red {
-      border: 3px solid #2f1606;
-      box-shadow: inset 0 0 10px #2f1606, inset 0 3px 30px #87442b, 0 0 50px rgba(0, 0, 0, 0.8), 0 30px 30px rgba(0, 0, 0, 0.7);
-    }
+    -webkit-box-shadow: 4px 6px 21px 2px #000000;
+    box-shadow: 4px 6px 21px 2px #000000;
 
     &:hover, &.selected {
       cursor: pointer;
-      opacity: .96;
-      color: #262626;
+      background-color: rgba(44, 56, 69, 0.50);
+      color: white;
+      text-shadow: none;
     }
+
 
     &[disabled] {
       opacity: .5;
@@ -319,30 +287,4 @@
       pointer-events: none;
     }
   }
-
-  /*@media screen and (max-width: 1100px) {
-    .action-bar {
-      font-size: 22px;
-      height: 30%;
-
-      .actions, .moves {
-        box-sizing: border-box;
-        padding: 2px;
-        gap: 1%;
-        border: 8px solid #595b59;
-
-        .action-btn {
-          font-size: 22px;
-        }
-      }
-
-      .info ._inner {
-
-        .move-desc {
-          font-size: 18px;
-          padding: 0;
-        }
-      }
-    }
-  }*/
 </style>
