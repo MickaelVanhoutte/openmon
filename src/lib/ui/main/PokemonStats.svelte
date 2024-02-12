@@ -1,4 +1,120 @@
 <div class="stats">
+    <div class="img-wrapper">
+        <div class="info">
+            <div>
+                <span>Lv{selectedMons.level}</span><span>{selectedMons.name}</span>
+            </div>
+            <div class="img-bg">
+                <img src="{selectedMons.sprites[selectedMons.gender].front.frame1}"
+                     alt="{selectedMons.name} img"/>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-values">
+
+        <ul>
+            <li class="head">
+                <div class="edit" class:flash={selectedMons.evsToDistribute > 0}>
+                    <button on:click={() => statEdit = !statEdit}>
+                        <span class="svg">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path
+                                d="M5.33409 4.54491C6.3494 3.63637 7.55145 2.9322 8.87555 2.49707C9.60856 3.4128 10.7358 3.99928 12 3.99928C13.2642 3.99928 14.3914 3.4128 15.1245 2.49707C16.4486 2.9322 17.6506 3.63637 18.6659 4.54491C18.2405 5.637 18.2966 6.90531 18.9282 7.99928C19.5602 9.09388 20.6314 9.77679 21.7906 9.95392C21.9279 10.6142 22 11.2983 22 11.9993C22 12.7002 21.9279 13.3844 21.7906 14.0446C20.6314 14.2218 19.5602 14.9047 18.9282 15.9993C18.2966 17.0932 18.2405 18.3616 18.6659 19.4536C17.6506 20.3622 16.4486 21.0664 15.1245 21.5015C14.3914 20.5858 13.2642 19.9993 12 19.9993C10.7358 19.9993 9.60856 20.5858 8.87555 21.5015C7.55145 21.0664 6.3494 20.3622 5.33409 19.4536C5.75952 18.3616 5.7034 17.0932 5.0718 15.9993C4.43983 14.9047 3.36862 14.2218 2.20935 14.0446C2.07212 13.3844 2 12.7002 2 11.9993C2 11.2983 2.07212 10.6142 2.20935 9.95392C3.36862 9.77679 4.43983 9.09388 5.0718 7.99928C5.7034 6.90531 5.75952 5.637 5.33409 4.54491ZM13.5 14.5974C14.9349 13.7689 15.4265 11.9342 14.5981 10.4993C13.7696 9.0644 11.9349 8.57277 10.5 9.4012C9.06512 10.2296 8.5735 12.0644 9.40192 13.4993C10.2304 14.9342 12.0651 15.4258 13.5 14.5974Z"></path></svg>
+                        </span>
+                        <span>({selectedMons.evsToDistribute} EVs)</span>
+                    </button>
+                </div>
+                <span class="th main">VALUE</span>
+                <span class="th">IV</span>
+                <span class="th">EV</span>
+            </li>
+
+            <li class="hp">
+                <span class="th">HP</span>
+                <span class="td main">{selectedMons.currentHp}/{selectedMons.currentStats.hp}</span>
+                <span class="td" style="--color:{ivColor(selectedMons.ivs.hp)}">{selectedMons.ivs.hp}</span>
+                <span class="td inputs">
+                                <span>{selectedMons.evs.hp}</span>
+                            </span>
+            </li>
+            <li>
+                <span class="th">ATTACK</span>
+                <span class="td main">{selectedMons.currentStats.attack}</span>
+                <span class="td"
+                      style="--color:{ivColor(selectedMons.ivs.attack)}">{selectedMons.ivs.attack}</span>
+                <span class="td inputs">
+                                <span>{selectedMons.evs.attack}</span>
+                            </span>
+
+            </li>
+            <li>
+                <span class="th">DEFENSE</span>
+                <span class="td main">{selectedMons.currentStats.defense}</span>
+                <span class="td"
+                      style="--color:{ivColor(selectedMons.ivs.defense)}">{selectedMons.ivs.defense}</span>
+                <span class="td inputs">
+                                <span>{selectedMons.evs.defense}</span>
+                            </span>
+
+            </li>
+            <li>
+                <span class="th">SP.ATK</span>
+                <span class="td main">{selectedMons.currentStats.specialAttack}</span>
+                <span class="td"
+                      style="--color:{ivColor(selectedMons.ivs.specialAttack)}">{selectedMons.ivs.specialAttack}</span>
+                <span class="td inputs">
+                                <span>{selectedMons.evs.specialAttack}</span>
+                            </span>
+            </li>
+            <li>
+                <span class="th">SP.DEF</span>
+                <span class="td main">{selectedMons.currentStats.specialDefense}</span>
+                <span class="td"
+                      style="--color:{ivColor(selectedMons.ivs.specialDefense)}">{selectedMons.ivs.specialDefense}</span>
+                <span class="td inputs">
+                                <span>{selectedMons.evs.specialDefense}</span>
+                            </span>
+            </li>
+            <li>
+                <span class="th">SPEED</span>
+                <span class="td main">{selectedMons.currentStats.speed}</span>
+                <span class="td"
+                      style="--color:{ivColor(selectedMons.ivs.speed)}">{selectedMons.ivs.speed}</span>
+                <span class="td inputs">
+                                <span>{selectedMons.evs.speed}</span>
+                            </span>
+            </li>
+        </ul>
+
+    </div>
+    <div class="others">
+
+        <div class="exp">
+            <span class="th">EXP.</span>
+            <table>
+                <tr>
+                    <td><span>EXP POINTS</span><span class="value">{selectedMons.currentXp}</span></td>
+                    <td><span>NEXT LV.</span><span class="value">{selectedMons.xpToNextLevel}</span></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="ability">
+            <div class="name-desc">
+                <div class="title">
+                    <span class="th">ABILITY</span>
+                    <span class="td">{selectedMons.currentAbility}</span>
+                </div>
+                <div class="desc">
+                    {abilities.find(ability => ability.names === selectedMons.currentAbility)?.description.replace(mechanicRegex, "")}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="stats-edit" class:open={statEdit}>
     <div class="stats-wrapper" bind:this={graphWrapper}>
         <canvas bind:this={graph}></canvas>
     </div>
@@ -172,11 +288,14 @@
 <script lang="ts">
     import {SelectedSave} from "../../js/saves/saves.js";
     import Chart from 'chart.js/auto';
+    import abilities from "../../../assets/data/final/abilities.json";
     import {onMount} from "svelte";
 
     export let save: SelectedSave;
     export let selected: number;
     export let prevSelected: number;
+
+    export let statEdit: boolean;
     export let graphWrapper: HTMLDivElement;
     export let graph: HTMLCanvasElement;
 
@@ -198,12 +317,15 @@
     $:minusSpeedDisabled = selectedMons.evs.speed === 0;
     $:minusMinusSpeedDisabled = selectedMons.evs.speed < 10;
 
+    let mechanicRegex = /{[^}]*}/g;
+
+
     function ivColor(value: number) {
 
         if (value >= 26) {
             return '#27d227';
         } else if (value >= 16) {
-            return '#fff22b';
+            return '#e8a327';
         } else {
             return '#f54949';
         }
@@ -270,12 +392,12 @@
                         display: true,
                         //color: 'white',
                         color: [
-                            selectedMons.nature.increasedStatId === 'hp'? '#1383f6' : selectedMons.nature.decreasedStatId === 'hp' ? '#e74462' : 'white',
-                            selectedMons.nature.increasedStatId === 'attack'? '#1383f6' : selectedMons.nature.decreasedStatId === 'attack' ? '#e74462' : 'white',
-                            selectedMons.nature.increasedStatId === 'defense'? '#1383f6' : selectedMons.nature.decreasedStatId === 'defense' ? '#e74462' : 'white',
-                            selectedMons.nature.increasedStatId === 'specialAttack'? '#1383f6' : selectedMons.nature.decreasedStatId === 'specialAttack' ? '#e74462' : 'white',
-                            selectedMons.nature.increasedStatId === 'specialDefense'? '#1383f6' : selectedMons.nature.decreasedStatId === 'specialDefense' ? '#e74462' : 'white',
-                            selectedMons.nature.increasedStatId === 'speed'? '#1383f6' : selectedMons.nature.decreasedStatId === 'speed' ? '#e74462' : 'white'
+                            selectedMons.nature.increasedStatId === 'hp' ? '#1383f6' : selectedMons.nature.decreasedStatId === 'hp' ? '#e74462' : 'white',
+                            selectedMons.nature.increasedStatId === 'attack' ? '#1383f6' : selectedMons.nature.decreasedStatId === 'attack' ? '#e74462' : 'white',
+                            selectedMons.nature.increasedStatId === 'defense' ? '#1383f6' : selectedMons.nature.decreasedStatId === 'defense' ? '#e74462' : 'white',
+                            selectedMons.nature.increasedStatId === 'specialAttack' ? '#1383f6' : selectedMons.nature.decreasedStatId === 'specialAttack' ? '#e74462' : 'white',
+                            selectedMons.nature.increasedStatId === 'specialDefense' ? '#1383f6' : selectedMons.nature.decreasedStatId === 'specialDefense' ? '#e74462' : 'white',
+                            selectedMons.nature.increasedStatId === 'speed' ? '#1383f6' : selectedMons.nature.decreasedStatId === 'speed' ? '#e74462' : 'white'
                         ],
                         font: {
                             size: 22,
@@ -354,24 +476,18 @@
     box-sizing: border-box;
     position: relative;
 
-    .stats-wrapper {
+    .img-wrapper {
       position: absolute;
       top: 0;
       left: 0;
-      width: 45%;
-      height: 102%;
-      background-color: rgba(84, 80, 108, .5);
+      width: 30%;
+      height: 60%;
+      background-color: #c8a8e8;
       border-right: 4px solid #54506c;
       border-bottom: 4px solid #54506c;
       box-sizing: border-box;
 
-      canvas {
-        width: 100%;
-        height: 100%;
-        margin: auto;
-      }
-
-      /*.info {
+      .info {
         height: 100%;
 
         div:first-of-type {
@@ -392,7 +508,295 @@
           background-image: linear-gradient(0deg, #ffffff 12.50%, #e7e7e8 12.50%, #e7e7e8 50%, #ffffff 50%, #ffffff 62.50%, #e7e7e8 62.50%, #e7e7e8 100%);
           background-size: 32.00px 32.00px;
         }
-      }*/
+      }
+    }
+
+    .stat-values {
+      width: 70%;
+      height: 65%;
+      max-height: 65%;
+      position: absolute;
+      top: 0;
+      right: 0;
+      box-sizing: border-box;
+      border-top: 4px solid #e0f8f8;
+      border-right: 4px solid #e0f8f8;
+
+      ul {
+        list-style: none;
+        margin: 0;
+        padding: 2% 2% 0 2%;
+        height: 100%;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 2%;
+        box-sizing: border-box;
+
+        li {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 2%;
+          max-height: calc(100% / 7);
+
+          &.head {
+
+            .edit {
+              min-width: 30%;
+
+              &.flash button .svg {
+                animation: flash 2s ease-in-out infinite;
+              }
+
+              @keyframes flash {
+                0% {
+                  color: #54506c;
+                }
+                50% {
+                  color: rgb(19, 131, 246);
+                }
+                100% {
+                  color: #54506c;
+                }
+              }
+
+              button {
+                background-color: transparent;
+                border: none;
+                cursor: pointer;
+                padding: 0;
+                margin: 0;
+                display: flex;
+                align-items: center;
+                width: 100%;
+                justify-content: flex-start;
+                font-family: pokemon, serif;
+                font-size: 22px;
+                gap: 2%;
+                color: #54506c;
+                outline: none;
+                -webkit-touch-callout: none;
+                -webkit-user-select: none;
+                -khtml-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+                -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+
+                touch-action: pan-x pan-y;
+
+                svg {
+                  width: 32px;
+                  height: 32px;
+
+                }
+              }
+            }
+
+            .th {
+              font-size: 24px;
+              justify-content: flex-start;
+              width: 21%;
+              min-width: unset;
+
+
+              &.main {
+                width: 21%;
+              }
+            }
+          }
+
+          .th {
+            min-width: 30%;
+            text-align: center;
+            height: 12px;
+            border-radius: 4px;
+            background-color: #54506c;
+            line-height: 8px;
+            font-size: 32px;
+            color: white;
+            text-shadow: 3px 1px 2px #54506c;
+          }
+
+          .td {
+            width: 18%;
+            color: var(--color, #54506c);
+            font-weight: bold;
+            background-color: #f8f0e8;
+            padding: 0 8px;
+            text-transform: uppercase;
+            border-radius: 8px;
+            font-size: 24px;
+            line-height: 1.1;
+            display: flex;
+            justify-content: flex-end;
+          }
+        }
+      }
+    }
+
+    .others {
+      width: 98%;
+      height: 31%;
+      max-height: 31%;
+      position: absolute;
+      bottom: 1%;
+      left: 1%;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 1%;
+
+      .exp {
+        display: flex;
+        justify-content: space-between;
+        gap: 2%;
+        padding: 0;
+
+        .th {
+          text-align: center;
+          height: 12px;
+          width: 20%;
+          border-radius: 4px;
+          background-color: #54506c;
+          line-height: 8px;
+          font-size: 32px;
+          color: white;
+          text-shadow: 3px 1px 2px #54506c;
+        }
+
+        table {
+          width: 78%;
+          font-size: 24px;
+          color: #54506c;
+          text-transform: uppercase;
+          border-radius: 8px;
+          display: flex;
+          flex-direction: column;
+
+          tr {
+            display: flex;
+            justify-content: space-between;
+            border-radius: 8px;
+            gap: 1%;
+
+            td {
+              width: 50%;
+              background-color: #f9f8a1;
+              padding: 0 16px;
+              border-radius: 4px;
+              display: flex;
+              justify-content: space-between;
+
+              &.value {
+                text-align: right;
+                background-color: #f8f9d8;
+              }
+            }
+          }
+        }
+      }
+
+      .ability {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 1%;
+        padding: 0;
+        box-sizing: border-box;
+
+        .title {
+          width: 21%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          justify-content: space-around;
+        }
+
+        .th {
+          display: block;
+          text-align: center;
+          height: 12px;
+          width: 100%;
+          border-radius: 4px;
+          background-color: #54506c;
+          line-height: 8px;
+          font-size: 32px;
+          color: white;
+          text-shadow: 3px 1px 2px #54506c;
+        }
+
+        .td {
+          color: #54506c;
+          background-color: #f8f0e8;
+          padding: 8px;
+          font-size: 22px;
+          text-align: center;
+          font-weight: bold;
+          text-transform: uppercase;
+          border-radius: 8px;
+          box-sizing: border-box;
+          width: 100%;
+        }
+
+        .name-desc {
+          display: flex;
+          flex-direction: row;
+          gap: 2%;
+          align-items: flex-end;
+
+          .desc {
+            width: 78%;
+            font-size: 22px;
+            background-color: #f9f8a1;
+            border-radius: 8px;
+            padding: 1%;
+          }
+        }
+
+
+      }
+    }
+  }
+
+  .stats-edit {
+    background: #262626;
+
+    border: 4px solid #54506c;
+    height: calc(100% - 46px);
+    width: 100%;
+    box-sizing: border-box;
+    position: absolute;
+
+    z-index: 2;
+    left: 0;
+    bottom: -100%;
+    transition: bottom 0.5s ease-in-out;
+
+    &.open {
+      bottom: 0;
+    }
+
+    .stats-wrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 45%;
+      height: 102%;
+      background-color: rgba(84, 80, 108, .5);
+      border-right: 4px solid #54506c;
+      border-bottom: 4px solid #54506c;
+      box-sizing: border-box;
+
+      canvas {
+        width: 100%;
+        height: 100%;
+        margin: auto;
+      }
+
     }
 
     .stat-values {
@@ -402,8 +806,6 @@
       top: 0;
       right: 0;
       box-sizing: border-box;
-      /* border-top: 4px solid #e0f8f8;
-       border-right: 4px solid #e0f8f8;*/
       font-size: 24px;
 
       table {
@@ -472,7 +874,9 @@
                 display: flex;
                 justify-content: space-between;
 
-                span {color: var(--color, white);}
+                span {
+                  color: var(--color, white);
+                }
               }
 
               &.inputs {
@@ -482,6 +886,7 @@
                 align-items: center;
 
                 button {
+                  outline: none;
                   -webkit-touch-callout: none;
                   -webkit-user-select: none;
                   -khtml-user-select: none;
