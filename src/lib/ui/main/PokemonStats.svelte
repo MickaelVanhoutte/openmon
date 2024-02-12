@@ -29,8 +29,10 @@
                 <span class="th">EV</span>
             </li>
 
-            <li class="hp">
-                <span class="th">HP</span>
+            <li>
+                <span class="th"
+                      style="color:{natureColor('hp',selectedMons.nature)}"
+                >HP</span>
                 <span class="td main">{selectedMons.currentHp}/{selectedMons.currentStats.hp}</span>
                 <span class="td" style="--color:{ivColor(selectedMons.ivs.hp)}">{selectedMons.ivs.hp}</span>
                 <span class="td inputs">
@@ -38,7 +40,9 @@
                             </span>
             </li>
             <li>
-                <span class="th">ATTACK</span>
+                <span class="th"
+                      style="color:{natureColor('attack',selectedMons.nature)}"
+                >ATTACK</span>
                 <span class="td main">{selectedMons.currentStats.attack}</span>
                 <span class="td"
                       style="--color:{ivColor(selectedMons.ivs.attack)}">{selectedMons.ivs.attack}</span>
@@ -48,7 +52,9 @@
 
             </li>
             <li>
-                <span class="th">DEFENSE</span>
+                <span class="th"
+                      style="color:{natureColor('defense',selectedMons.nature)}"
+                >DEFENSE</span>
                 <span class="td main">{selectedMons.currentStats.defense}</span>
                 <span class="td"
                       style="--color:{ivColor(selectedMons.ivs.defense)}">{selectedMons.ivs.defense}</span>
@@ -58,7 +64,9 @@
 
             </li>
             <li>
-                <span class="th">SP.ATK</span>
+                <span class="th"
+                      style="color:{natureColor('specialAttack',selectedMons.nature)}"
+                >SP.ATK</span>
                 <span class="td main">{selectedMons.currentStats.specialAttack}</span>
                 <span class="td"
                       style="--color:{ivColor(selectedMons.ivs.specialAttack)}">{selectedMons.ivs.specialAttack}</span>
@@ -67,7 +75,9 @@
                             </span>
             </li>
             <li>
-                <span class="th">SP.DEF</span>
+                <span class="th"
+                      style="color:{natureColor('specialDefense',selectedMons.nature)}"
+                >SP.DEF</span>
                 <span class="td main">{selectedMons.currentStats.specialDefense}</span>
                 <span class="td"
                       style="--color:{ivColor(selectedMons.ivs.specialDefense)}">{selectedMons.ivs.specialDefense}</span>
@@ -76,7 +86,9 @@
                             </span>
             </li>
             <li>
-                <span class="th">SPEED</span>
+                <span class="th"
+                      style="color:{natureColor('speed',selectedMons.nature)}"
+                >SPEED</span>
                 <span class="td main">{selectedMons.currentStats.speed}</span>
                 <span class="td"
                       style="--color:{ivColor(selectedMons.ivs.speed)}">{selectedMons.ivs.speed}</span>
@@ -100,14 +112,11 @@
         </div>
 
         <div class="ability">
-            <div class="name-desc">
-                <div class="title">
-                    <span class="th">ABILITY</span>
-                    <span class="td">{selectedMons.currentAbility}</span>
-                </div>
-                <div class="desc">
-                    {abilities.find(ability => ability.names === selectedMons.currentAbility)?.description.replace(mechanicRegex, "")}
-                </div>
+            <div class="title">
+                <span class="td">{selectedMons.currentAbility}</span>
+            </div>
+            <div class="desc">
+                {abilities.find(ability => ability.names === selectedMons.currentAbility)?.description.replace(mechanicRegex, "")}
             </div>
         </div>
     </div>
@@ -132,7 +141,7 @@
             <tr>
                 <td>
                     <div class="value">
-                        <span style="color:{selectedMons.nature.increasedStatId === 'hp'? '#1383f6' : selectedMons.nature.decreasedStatId === 'hp' ? '#e74462' : 'white'}">HP</span>
+                        <span style="color:{natureColor('hp',selectedMons.nature)}">HP</span>
                         <span>{selectedMons.currentHp}/{selectedMons.currentStats.hp}</span>
                     </div>
                 </td>
@@ -155,7 +164,7 @@
             <tr>
                 <td>
                     <div class="value">
-                        <span style="color:{selectedMons.nature.increasedStatId === 'attack'? '#1383f6' : selectedMons.nature.decreasedStatId === 'attack' ? '#e74462' : 'white'}">ATK.</span>
+                        <span style="color:{natureColor('attack',selectedMons.nature)}">ATK.</span>
                         <span>{selectedMons.currentStats.attack}</span>
                     </div>
                 </td>
@@ -179,7 +188,7 @@
             <tr>
                 <td>
                     <div class="value">
-                        <span style="color:{selectedMons.nature.increasedStatId === 'defense'? '#1383f6' : selectedMons.nature.decreasedStatId === 'defense' ? '#e74462' : 'white'}">DEF.</span>
+                        <span style="color:{natureColor('defense',selectedMons.nature)}">DEF.</span>
                         <span>{selectedMons.currentStats.defense}</span>
                     </div>
                 </td>
@@ -203,7 +212,7 @@
             <tr>
                 <td>
                     <div class="value">
-                        <span style="color:{selectedMons.nature.increasedStatId === 'specialAttack'? '#1383f6' : selectedMons.nature.decreasedStatId === 'specialAttack' ? '#e74462' : 'white'}">SP.ATK</span>
+                        <span style="color:{natureColor('specialAttack',selectedMons.nature)}">SP.ATK</span>
                         <span>{selectedMons.currentStats.specialAttack}</span>
                     </div>
                 </td>
@@ -229,7 +238,7 @@
             <tr>
                 <td>
                     <div class="value">
-                        <span style="color:{selectedMons.nature.increasedStatId === 'specialDefense'? '#1383f6' : selectedMons.nature.decreasedStatId === 'specialDefense' ? '#e74462' : 'white'}">SP.DEF</span>
+                        <span style="color:{natureColor('specialDefense',selectedMons.nature)}">SP.DEF</span>
                         <span>{selectedMons.currentStats.specialDefense}</span>
                     </div>
                 </td>
@@ -256,7 +265,7 @@
             <tr>
                 <td>
                     <div class="value">
-                        <span style="color:{selectedMons.nature.increasedStatId === 'speed'? '#1383f6' : selectedMons.nature.decreasedStatId === 'speed' ? '#e74462' : 'white'}">SPEED</span>
+                        <span style="color:{natureColor('speed',selectedMons.nature)}">SPEED</span>
                         <span>{selectedMons.currentStats.speed}</span>
                     </div>
                 </td>
@@ -290,6 +299,8 @@
     import Chart from 'chart.js/auto';
     import abilities from "../../../assets/data/final/abilities.json";
     import {onMount} from "svelte";
+    import type {PokemonInstance} from "../../js/pokemons/pokedex";
+    import {Nature} from "../../js/pokemons/pokedex";
 
     export let save: SelectedSave;
     export let selected: number;
@@ -329,6 +340,18 @@
         } else {
             return '#f54949';
         }
+    }
+
+    function natureColor(stat: string, nature: Nature) {
+       if(nature.increasedStatId === nature.decreasedStatId) {
+           return 'white';
+       } else if (nature.increasedStatId === stat) {
+            return '#1383f6';
+       } else if (nature.decreasedStatId === stat) {
+            return '#e74462';
+       } else {
+            return 'white';
+       }
     }
 
     function addEv(stat: 'hp' | 'attack' | 'defense' | 'specialAttack' | 'specialDefense' | 'speed', number: number) {
@@ -390,14 +413,13 @@
 
                     pointLabels: {
                         display: true,
-                        //color: 'white',
                         color: [
-                            selectedMons.nature.increasedStatId === 'hp' ? '#1383f6' : selectedMons.nature.decreasedStatId === 'hp' ? '#e74462' : 'white',
-                            selectedMons.nature.increasedStatId === 'attack' ? '#1383f6' : selectedMons.nature.decreasedStatId === 'attack' ? '#e74462' : 'white',
-                            selectedMons.nature.increasedStatId === 'defense' ? '#1383f6' : selectedMons.nature.decreasedStatId === 'defense' ? '#e74462' : 'white',
-                            selectedMons.nature.increasedStatId === 'specialAttack' ? '#1383f6' : selectedMons.nature.decreasedStatId === 'specialAttack' ? '#e74462' : 'white',
-                            selectedMons.nature.increasedStatId === 'specialDefense' ? '#1383f6' : selectedMons.nature.decreasedStatId === 'specialDefense' ? '#e74462' : 'white',
-                            selectedMons.nature.increasedStatId === 'speed' ? '#1383f6' : selectedMons.nature.decreasedStatId === 'speed' ? '#e74462' : 'white'
+                            natureColor('hp', selectedMons.nature),
+                            natureColor('attack', selectedMons.nature),
+                            natureColor('defense', selectedMons.nature),
+                            natureColor('speed', selectedMons.nature),
+                            natureColor('specialDefense', selectedMons.nature),
+                            natureColor('specialAttack', selectedMons.nature),
                         ],
                         font: {
                             size: 22,
@@ -406,7 +428,7 @@
                         }
                     },
                     ticks: {
-                        display: false, // Hides the labels in the middle (numbers)
+                        display: false,
                         maxTicksLimit: 3,
                         color: 'white'
                     },
@@ -513,7 +535,7 @@
 
     .stat-values {
       width: 70%;
-      height: 65%;
+      height: 70%;
       max-height: 65%;
       position: absolute;
       top: 0;
@@ -525,7 +547,7 @@
       ul {
         list-style: none;
         margin: 0;
-        padding: 2% 2% 0 2%;
+        padding: 0 1%;
         height: 100%;
         width: 100%;
         display: flex;
@@ -638,8 +660,8 @@
 
     .others {
       width: 98%;
-      height: 31%;
-      max-height: 31%;
+      height: 29%;
+      max-height: 29%;
       position: absolute;
       bottom: 1%;
       left: 1%;
@@ -647,11 +669,12 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
-      gap: 1%;
+      gap: 4%;
 
       .exp {
         display: flex;
         justify-content: space-between;
+        align-items: center;
         gap: 2%;
         padding: 0;
 
@@ -701,32 +724,19 @@
 
       .ability {
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         justify-content: space-between;
-        gap: 1%;
+        gap: 2%;
         padding: 0;
         box-sizing: border-box;
 
         .title {
-          width: 21%;
+          width: 20%;
           height: 100%;
           display: flex;
           flex-direction: column;
           gap: 12px;
           justify-content: space-around;
-        }
-
-        .th {
-          display: block;
-          text-align: center;
-          height: 12px;
-          width: 100%;
-          border-radius: 4px;
-          background-color: #54506c;
-          line-height: 8px;
-          font-size: 32px;
-          color: white;
-          text-shadow: 3px 1px 2px #54506c;
         }
 
         .td {
@@ -742,20 +752,15 @@
           width: 100%;
         }
 
-        .name-desc {
-          display: flex;
-          flex-direction: row;
-          gap: 2%;
-          align-items: flex-end;
 
           .desc {
-            width: 78%;
+            width: 77%;
             font-size: 22px;
             background-color: #f9f8a1;
             border-radius: 8px;
             padding: 1%;
           }
-        }
+
 
 
       }
