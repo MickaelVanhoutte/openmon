@@ -154,7 +154,6 @@
           .flex-col {
             display: flex;
             flex-direction: column;
-            gap: 4px;
           }
 
           &.selected {

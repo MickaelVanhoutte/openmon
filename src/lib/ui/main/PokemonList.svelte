@@ -460,7 +460,7 @@
         text-align: center;
         font-family: pokemon, serif;
         color: white;
-        text-shadow: 1px 1px 1px black;
+        text-shadow: 3px 1px 2px #54506c;
         background-color: #5c4389;
         border-radius: 20px;
         border: 6px solid #3d3e53;
