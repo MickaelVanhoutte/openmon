@@ -78,7 +78,7 @@
     }
 
     const listener = (e: KeyboardEvent) => {
-        if (openSummary && !statEdit) {
+        if (openSummary) {
             if (e.key === "ArrowRight") {
                 tab = (tab + 1) % 3;
             } else if (e.key === "ArrowLeft") {
