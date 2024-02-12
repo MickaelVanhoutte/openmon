@@ -93,7 +93,7 @@
 </div>
 
 {#if openSummary}
-    <PokemonSummary bind:save bind:selected bind:openSummary/>
+    <PokemonSummary bind:save bind:update bind:prevSelected={prevSelected} bind:selected bind:openSummary/>
 {/if}
 
 <script lang="ts">
@@ -109,6 +109,10 @@
     export let save: SelectedSave;
 
     export let selected = 0;
+
+    let prevSelected = 0;
+
+    export let update = false;
 
     let first = save.player.monsters.at(0);
     let others = save.player.monsters.slice(1);

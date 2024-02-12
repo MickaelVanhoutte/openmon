@@ -125,7 +125,7 @@
 
 <div class="stats-edit" class:open={statEdit}>
     <div class="stats-wrapper" bind:this={graphWrapper}>
-        <canvas bind:this={graph}></canvas>
+        <canvas bind:this={graph} use:makeChart={data, config}></canvas>
     </div>
 
     <div class="stat-values">
@@ -305,13 +305,13 @@
     export let save: SelectedSave;
     export let selected: number;
     export let prevSelected: number;
+    export let update: boolean;
 
     export let statEdit: boolean;
     export let graphWrapper: HTMLDivElement;
     export let graph: HTMLCanvasElement;
 
     $:selectedMons = save.player.monsters[selected];
-
     $:percent = Math.floor(selectedMons.currentHp * 100 / selectedMons?.currentStats.hp)
     $:plusDisabled = selectedMons.evsToDistribute === 0;
     $:plusPlusDisabled = selectedMons.evsToDistribute < 10;
@@ -360,7 +360,10 @@
             // fix force reload
             selectedMons = selectedMons;
         }
+
     }
+
+    let chart;
 
     $:data = {
         labels: [
@@ -461,23 +464,23 @@
         },
     };
 
-    let chart;
-    $:ctx = graph?.getContext('2d');
 
-    $: {
-        if (prevSelected !== selected || selected === 0 || prevSelected === 0) {
-            ctx = graph?.getContext('2d');
-            chart?.destroy();
-            chart = new Chart(ctx, config);
-        } else {
-            chart?.update()
+    function makeChart(ctx, d, l) {
+        const myChart = new Chart(ctx, config); //init the chart
+        return {
+            update(u) {
+
+                console.log(myChart);
+                myChart.data = u.data;
+                myChart.config.options = config.options;
+                myChart.update('none')
+            },
+            destroy() {
+                myChart.destroy();
+            }
         }
     }
 
-    onMount(() => {
-        graph.width = graphWrapper.clientWidth;
-        graph.height = graphWrapper.clientHeight;
-    });
 
 </script>
 
