@@ -56,7 +56,7 @@
       right: -30%;
     }
     to {
-      right: 1%;
+      right: 2%;
     }
   }
 
@@ -72,18 +72,11 @@
   .ally-info {
     z-index: 9;
 
-    background-color: antiquewhite;
-
     height: fit-content;
-    min-width: 36%;
+    min-width: 30%;
     position: absolute;
-    bottom: 26%;
+    bottom: 30%;
     right: -30%;
-
-    border: 14px solid #595b59;
-    border-radius: 10px;
-
-    padding: 8px 16px;
 
     display: flex;
     flex-direction: column;
@@ -91,7 +84,7 @@
     box-sizing: border-box;
     justify-content: space-evenly;
 
-    font-size: 46px;
+    font-size: 24px;
 
     animation: appear .5s ease-in forwards, bounce 2s ease-in-out infinite;
 
@@ -104,7 +97,6 @@
     .hp-status {
       display: flex;
       flex-direction: row;
-      gap: 8px;
       justify-content: space-between;
     }
 
@@ -112,20 +104,18 @@
       display: flex;
       flex-direction: column;
       align-items: flex-end;
-      //gap: 8px;
     }
 
     .hp {
 
-      width: 60%;
+      width: 100%;
       display: flex;
-      //gap: 16px;
       background-color: #262626;
       color: orange;
       align-items: center;
       justify-content: space-evenly;
-      border-radius: 8px;
-      padding: 3px;
+      border-radius: 5px;
+      padding: 2px;
 
       & > span {
         padding: 0 12px;
@@ -134,7 +124,7 @@
 
       .progressbar-wrapper {
 
-        height: 24px;
+        height: 14px;
         width: 100%;
         background-color: #595b59;
         border-radius: 4px;
@@ -177,10 +167,9 @@
     }
   }
 
-  @media screen and (max-width: 1100px) {
+ /* @media screen and (max-width: 1100px) {
     .ally-info {
       font-size: 26px;
-      border: 8px solid #595b59;
       bottom: 31%;
 
       width: 50%;
@@ -203,6 +192,6 @@
         }
       }
     }
-  }
+  }*/
 
 </style>

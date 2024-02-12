@@ -160,49 +160,55 @@
       bottom: -25%;
     }
     to {
-      bottom: 0;
+      bottom: 1%;
     }
   }
 
   .action-bar {
     z-index: 9;
-    background-color: white;
+    //background-color: white;
 
     height: 25%;
-    width: 100%;
+    width: 98%;
     position: absolute;
     bottom: -25%;
-    left: 0;
+    left: 1%;
 
     transition: bottom 0.5s ease-in-out;
 
-    box-shadow: inset #009688 0 0 0 5px,
+    /*box-shadow: inset #009688 0 0 0 5px,
     inset #059c8e 0 0 0 1px,
     inset #0cab9c 0 0 0 10px,
     inset #1fbdae 0 0 0 11px,
     inset #8ce9ff 0 0 0 16px,
     inset #48e4d6 0 0 0 17px,
     inset #e5f9f7 0 0 0 21px,
-    inset #bfecf7 0 0 0 22px;
+    inset #bfecf7 0 0 0 22px;*/
     text-shadow: 3px 3px 1px #bfecf7;
 
     display: flex;
 
-    font-size: 64px;
+    font-size: 26px;
 
     animation: appear 0.5s ease-in forwards;
 
     .info {
 
       width: 50%;
-
+      //background-color: rgba(255, 255, 255, .95);
+      background: rgb(220,231,233);
+      background: linear-gradient(0deg, rgba(220,231,233,1) 0%, rgba(255,255,255,1) 50%, rgba(220,231,233,1) 100%);
+      border-radius: 12px;
       display: flex;
       align-items: center;
       align-content: center;
       justify-content: space-around;
       position: relative;
       box-sizing: border-box;
-      padding: 10px 0 10px 10px;
+      padding: 2%;
+
+      -webkit-box-shadow: 5px 10px 21px 7px #000000;
+      box-shadow: 5px 10px 21px 7px #000000;
 
       ._inner {
         z-index: 1;
@@ -249,8 +255,8 @@
       width: 50%;
       height: 100%;
       display: flex;
-      background: #FFFFFF;
-      border: 14px solid #595b59;
+      //background: #FFFFFF;
+      // border: 14px solid #595b59;
       border-radius: 8px;
       box-sizing: border-box;
       padding: 12px;
@@ -286,15 +292,20 @@
   .action-btn {
     background-color: var(--color);
 
-    font-size: 42px;
+    font-size: 26px;
     color: white;
-    border-radius: 24px;
-    border: 4px solid #595b59;
+    border-radius: 8px;
+    border: 3px solid #595b59;
     font-family: pokemon, serif;
 
     transition: color 0.3s ease-in-out, opacity 0.3s ease-in-out;
     flex: 48%;
     max-width: 48%;
+
+    &.red {
+      border: 3px solid #2f1606;
+      box-shadow: inset 0 0 10px #2f1606, inset 0 3px 30px #87442b, 0 0 50px rgba(0, 0, 0, 0.8), 0 30px 30px rgba(0, 0, 0, 0.7);
+    }
 
     &:hover, &.selected {
       cursor: pointer;
@@ -309,7 +320,7 @@
     }
   }
 
-  @media screen and (max-width: 1100px) {
+  /*@media screen and (max-width: 1100px) {
     .action-bar {
       font-size: 22px;
       height: 30%;
@@ -333,5 +344,5 @@
         }
       }
     }
-  }
+  }*/
 </style>
