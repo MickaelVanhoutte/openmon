@@ -537,8 +537,8 @@
 
     .stat-values {
       width: 70%;
-      height: 70%;
-      max-height: 70%;
+      height: 62%;
+      max-height: 62%;
       position: absolute;
       top: 0;
       right: 0;
