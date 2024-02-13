@@ -94,8 +94,8 @@
           width: 100%;
 
           img {
-            height: auto;
-            width: 60%;
+            width: auto;
+            height: 80%;
             margin: auto;
           }
         }
@@ -116,7 +116,7 @@
 
         transition: all 0.5s ease-in-out;
 
-        font-size: 24px;
+        font-size: 22px;
       }
     }
 

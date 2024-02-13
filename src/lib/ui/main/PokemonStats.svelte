@@ -85,8 +85,8 @@
                                 <span>{selectedMons.evs[key]}</span>
                             </div>
                             <div class="double">
-                                <button disabled={disabled(key, 1)} on:click={() => addEv(key, -1) }>-</button>
-                                <button disabled={disabled(key, 10)} on:click={() => addEv(key, -10) }>- -</button>
+                                <button disabled={disabled(key, -1)} on:click={() => addEv(key, -1) }>-</button>
+                                <button disabled={disabled(key, -10)} on:click={() => addEv(key, -10) }>- -</button>
                             </div>
                         </div>
                     </td>
@@ -106,7 +106,7 @@
     import Chart from 'chart.js/auto';
     import abilities from "../../../assets/data/final/abilities.json";
     import {Nature} from "../../js/pokemons/pokedex";
-    import { slide, fade } from 'svelte/transition';
+    import {slide, fade} from 'svelte/transition';
     import {backInOut} from "svelte/easing";
 
     export let save: SelectedSave;
@@ -119,8 +119,10 @@
     $:selectedMons = save.player.monsters[selected];
     $:statsKeys = Object.keys(selectedMons.stats).filter(key => key !== 'total' && key !== 'accuracy' && key !== 'evasion');
     $:percent = Math.floor(selectedMons.currentHp * 100 / selectedMons?.currentStats.hp)
+
     $:plusDisabled = selectedMons.evsToDistribute === 0;
     $:plusPlusDisabled = selectedMons.evsToDistribute < 10;
+
     $:minusHpDisabled = selectedMons.evs.hp === 0;
     $:minusMinusHpDisabled = selectedMons.evs.hp < 10;
     $:minusAttackDisabled = selectedMons.evs.attack === 0;
@@ -136,7 +138,14 @@
 
 
     function disabled(key: string, testValue: number) {
-        return true;
+        if (testValue > 0) {
+            // add 1/10, must have enough evs to distribute or not maxed
+            return selectedMons.evsToDistribute - testValue < 0 || selectedMons.evs[key] + testValue > 252;
+        } else {
+            // remove 1/10, must already have evs distributed and  not go below 0
+            return selectedMons.evs[key] === 0 || selectedMons.evs[key] + testValue <= 0;
+        }
+
     }
 
     let mechanicRegex = /\{mechanic:.*?\}/g;
@@ -165,12 +174,9 @@
     }
 
     function addEv(stat: 'hp' | 'attack' | 'defense' | 'specialAttack' | 'specialDefense' | 'speed', number: number) {
-        if (selectedMons.evsToDistribute >= number && selectedMons.evs[stat] + number >= 0) {
-            selectedMons.addEv(stat, number);
-            // fix force reload
-            selectedMons = selectedMons;
-        }
-
+        selectedMons.addEv(stat, number);
+        // fix force reload
+        selectedMons = selectedMons;
     }
 
     let chart;
@@ -279,8 +285,6 @@
         const myChart = new Chart(ctx, config); //init the chart
         return {
             update(u) {
-
-                console.log(myChart);
                 myChart.data = u.data;
                 myChart.config.options = config.options;
                 myChart.update('none')
@@ -320,19 +324,12 @@
 
         .ability {
           height: 0;
-          visibility: hidden;
+          opacity: 0;
           padding: 0;
         }
 
         .img-wrapper {
           height: 100%;
-
-
-          .img-bg {
-            img {
-              width: 100%;
-            }
-          }
         }
       }
 
@@ -344,7 +341,7 @@
         background-color: rgba(44, 56, 69, 0.65);
         justify-content: space-between;
 
-        transition: height 0.5s ease-in-out;
+        transition: all 0.5s ease-in-out;
 
         .img-bg {
           display: flex;
@@ -353,9 +350,9 @@
           width: 100%;
 
           img {
-            transition: width 0.5s ease-in-out;
-            height: auto;
-            width: 60%;
+            transition-delay: .2s;
+            width: auto;
+            height: 80%;
             margin: auto;
           }
         }
@@ -366,6 +363,7 @@
         background-color: rgba(44, 56, 69, 0.65);
         height: 50%;
         width: 100%;
+        opacity: 1;
         display: flex;
         flex-direction: column;
         box-sizing: border-box;
@@ -377,11 +375,11 @@
         transition: all 0.5s ease-in-out;
 
         ._name {
-          font-size: 32px;
+          font-size: 28px;
         }
 
         ._desc {
-          font-size: 24px;
+          font-size: 22px;
         }
       }
     }
@@ -599,6 +597,10 @@
                     background: rgba(84, 80, 108, .2);
                     color: white;
                     padding: 2px 6px;
+
+                    &[disabled] {
+                      background-color: rgba(255, 255, 255, .5);
+                    }
                   }
                 }
               }
