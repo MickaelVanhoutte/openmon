@@ -353,6 +353,10 @@
     .joysticks {
       height: 100dvh;
       width: calc(99dvw - 130px);
+      z-index: 7;
+      position: absolute;
+      left: 0;
+      top: 0;
     }
   }
 
