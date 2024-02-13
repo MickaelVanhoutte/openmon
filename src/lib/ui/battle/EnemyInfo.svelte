@@ -90,6 +90,7 @@
       align-items: center;
       font-size: 28px;
       font-weight: 500;
+      text-shadow: 1px 1px 1px #787b7e;
     }
 
     .hp-status{
