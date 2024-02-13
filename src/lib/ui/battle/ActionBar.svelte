@@ -251,7 +251,7 @@
       z-index: 2;
 
       flex-wrap: wrap;
-      gap: 12px;
+      gap: 8px;
 
     }
   }
@@ -286,5 +286,12 @@
       cursor: not-allowed;
       pointer-events: none;
     }
+  }
+
+  .moves .action-btn {
+    font-size: 20px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
   }
 </style>
