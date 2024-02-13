@@ -151,7 +151,7 @@
       .current {
         width: calc(35% + (var(--index) + 1) * 80px);
         height: 100%;
-        background-color: #e0d898;
+        background-color: #313e62;
         display: flex;
         align-items: center;
         border-radius: 0 50px 50px 0;
@@ -175,7 +175,7 @@
             z-index: 9;
 
             &.off {
-              background-color: rgba(84, 80, 108, 0.33);
+              background-color: rgba(255, 255, 255, 0.5);
             }
           }
         }
@@ -274,7 +274,9 @@
       height: calc(100% - 46px);
       width: 100%;
       box-sizing: border-box;
-      background-color: white;
+      background-color: #0e2742f0;
+      background-image: url("src/assets/menus/p-sum.jpg");
+      background-blend-mode: soft-light;
     }
 
   }
