@@ -118,8 +118,8 @@
         width: 100%;
 
         img {
-          height: 70%;
-          width: 70%;
+          width: auto;
+          height: 80%;
           margin: auto;
         }
       }

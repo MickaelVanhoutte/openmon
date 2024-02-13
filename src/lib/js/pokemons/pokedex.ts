@@ -672,7 +672,7 @@ export class PokemonInstance extends PokedexEntry {
 
     public addEv(ev: 'hp' | 'attack' | 'defense' | 'specialAttack' | 'specialDefense' | 'speed', value: number) {
         let total = this.totalEvs;
-        if (this.evsToDistribute >= value) {
+        if (this.evsToDistribute >= value && this.evs[ev] + value <= 252 && this.evs[ev] + value > 0 && total + value <= 510) {
             let toAdd = this.evs[ev] + value <= 252 && total + value <= 510 ? value : 0;
             this.evs[ev] += toAdd
             this.evsToDistribute -= toAdd;
