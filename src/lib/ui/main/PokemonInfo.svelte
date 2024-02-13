@@ -1,218 +1,263 @@
-<div class="summary">
+<div class="summary"
+     in:slide="{{duration: 500, delay: 100,axis: 'x', easing: backInOut}}" out:fade>
 
     <div class="img-wrapper">
-        <div class="info">
-            <div>
-                <span>Lv{selectedMons.level}</span><span>{selectedMons.name}</span>
-            </div>
-            <div class="img-bg">
-                <img src="{selectedMons.sprites[selectedMons.gender].front.frame1}"
-                     alt="{selectedMons.name} img"/>
-            </div>
+
+        <div class="img-bg">
+            <img src="{selectedMons.sprites[selectedMons.gender].front.frame1}"
+                 alt="{selectedMons.name} img"/>
         </div>
+
+        <div class="name-level">
+            <span>Lv{selectedMons.level}</span><span>{selectedMons.name}</span>
+        </div>
+
     </div>
 
     <div class="infos">
-        <ul>
-            <li>
-                <span class="th">No</span>
-                <span class="td">{("00" + selectedMons.id).slice(-3)}</span>
-            </li>
-            <li>
-                <span class="th">NAME</span>
-                <span class="td">{selectedMons.name}</span>
-            </li>
-            <li>
-                <span class="th">TYPE</span>
-                <span class="td">
-                                {#each selectedMons.types as type}
-                                    <span style="--bg:{typeChart[type].color}" class="type">{type}</span>
-                                {/each}
-                            </span>
-            </li>
-            <li>
-                <span class="th">OT</span>
-                <span class="td">{save.player.name}</span>
-            </li>
-            <li>
-                <span class="th">ITEM</span>
-                <span class="td">NONE</span>
-            </li>
+        <table>
+            <tr>
+                <td class="head">Pokedex ID</td>
+                <td>{("00" + selectedMons.id).slice(-3)}</td>
+            </tr>
+            <tr>
+                <td class="head">Name</td>
+                <td>{selectedMons.name}</td>
+            </tr>
+            <tr>
+                <td class="head">Type</td>
+                <td class="types">
+                    {#each selectedMons.types as type}
+                        <span style="--bg:{typeChart[type].color}" class="type">{type.toUpperCase()}</span>
+                    {/each}
+                </td>
+            </tr>
+            <tr>
+                <td class="head">Original trainer</td>
+                <td>{save.player.name}</td>
+            </tr>
+            <tr>
+                <td class="head">Nature</td>
+                <td class="nature">
+                    <span>{selectedMons.nature.identifier.toUpperCase()}</span>
+                    <div>
+                        <span>+ {selectedMons.nature.increasedStatId.replace(/attack/i, 'atk').replace(/defense/i, 'def').replace("special", "sp.").toUpperCase()}</span>
+                        <span>- {selectedMons.nature.increasedStatId.replace(/attack/i, 'atk').replace(/defense/i, 'def').replace("special", "sp.").toUpperCase()}</span>
+                    </div>
+                </td>
+            </tr>
 
-        </ul>
-    </div>
+            <tr>
+                <td class="head">Exp.</td>
+                <td class="experience">
+                    <div>{selectedMons.currentXp} / {selectedMons.xpToNextLevel}</div>
+                    <div class="exp">
+                        <div class="progressbar-wrapper">
+                            <div class="progressbar" style="--width:{expPercent + '%'}">
+                            </div>
+                        </div>
+                    </div>
 
-   <div class="memo">
-        <span class="title">TRAINER MEMO</span>
-        <p>{selectedMons.nature.identifier.toUpperCase() || 'UNKNOWN'} nature.</p>
-        <p>Met in PALLET TOWN at Lv 5.</p>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="head">Held item</td>
+                <td>{selectedMons.item?.name || 'None'}</td>
+            </tr>
+            {#if selectedMons.item}
+                <tr>
+                    <td colspan="2">
+                        {selectedMons.item?.description}
+                    </td>
+                </tr>
+            {/if}
+        </table>
     </div>
 </div>
 
 <script lang="ts">
     import {typeChart} from "../../js/battle/battle.js";
     import {SelectedSave} from "../../js/saves/saves.js";
-
+    import { slide, fade } from 'svelte/transition';
+    import {backInOut} from "svelte/easing";
 
     export let save: SelectedSave;
     export let selected: number;
 
-
     $:selectedMons = save.player.monsters[selected];
+
+    $:expPercent = Math.floor(selectedMons?.currentXp * 100 / selectedMons?.xpToNextLevel);
 </script>
 
-
 <style lang="scss">
-  .summary {
-    background-image: linear-gradient(0deg, #f8cfa8 25%, #f8a890 25%, #f8a890 50%, #f8cfa8 50%, #f8cfa8 75%, #f8a890 75%, #f8a890 100%);
-    background-size: 16.00px 16.00px;
 
-    border: 4px solid #54506c;
+  .summary {
     height: 100%;
     width: 100%;
     box-sizing: border-box;
     position: relative;
+    display: flex;
+    flex-direction: row;
+    background-color: #0e2742f0;
+    background-image: url("src/assets/menus/p-sum.jpg");
+    text-shadow: 1px 1px 1px black;
 
     .img-wrapper {
-      position: absolute;
-      top: 0;
-      left: 0;
+      height: 100%;
       width: 40%;
-      height: 60%;
-      background-color: #c8a8e8;
-      border-right: 4px solid #54506c;
-      border-bottom: 4px solid #54506c;
-      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      background-color: rgba(44, 56, 69, 0.65);
+      justify-content: space-between;
 
-      .info {
-        height: 100%;
+      .img-bg {
+        display: flex;
+        justify-content: center;
+        height: 90%;
+        width: 100%;
 
-        div:first-of-type {
-          display: flex;
-          justify-content: space-between;
-          padding: 0 5%;
-          color: white;
-          font-size: 32px;
-          text-shadow: 1px 1px 1px black;
+        img {
+          height: 70%;
+          width: 70%;
+          margin: auto;
         }
+      }
 
-        .img-bg {
-          display: flex;
-          justify-content: center;
-          height: 74%;
-          width: 90%;
-          margin: 3% auto;
-          background-image: linear-gradient(0deg, #ffffff 12.50%, #e7e7e8 12.50%, #e7e7e8 50%, #ffffff 50%, #ffffff 62.50%, #e7e7e8 62.50%, #e7e7e8 100%);
-          background-size: 32.00px 32.00px;
-        }
+      .name-level {
+        display: flex;
+        flex-direction: row;
+        height: 12%;
+        padding: 0 4%;
+        justify-content: space-between;
+        align-items: center;
+        color: white;
+        background-color: rgba(44, 56, 69, 0.65);
       }
     }
 
-
     .infos {
-      width: 60%;
       height: 100%;
-      position: absolute;
-      top: 0;
-      right: 0;
-      border-top: 4px solid #e0f8f8;
-      border-right: 4px solid #e0f8f8;
+      width: 60%;
+      padding: 2%;
       box-sizing: border-box;
+      background-color: rgba(44, 56, 69, 0.5);
 
-      ul {
-        list-style: none;
-        margin: 0;
-        padding: 8px 32px;
-        height: 100%;
+      table {
         width: 100%;
-        display: flex;
-        flex-direction: column;
-        gap: 1.5%;
-        box-sizing: border-box;
+        max-height: calc(100dvh - 46px);
+        font-size: 26px;
 
-        li {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          gap: 16px;
-
-          .th {
-            width: 40%;
-            text-align: center;
-            height: 12px;
-            border-radius: 4px;
-            background-color: #54506c;
-            line-height: 8px;
-            font-size: 36px;
+        tr {
+          box-sizing: border-box;
+          //max-height: calc(100% / 7);
+          td {
             color: white;
-            text-shadow: 1px 1px 1px black;
+            padding: 1%;
+            box-sizing: border-box;
+            height: calc(100% / 7);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+
+            &:first-of-type {
+              width: 40%;
+            }
+
+            &.head {
+              color: #f8d058;
+            }
+
+            &.nature {
+              display: flex;
+              flex-direction: row;
+              gap: 4px;
+              justify-content: space-between;
+              align-items: flex-end;
+
+              span {
+                color: white;
+                display: flex;
+                font-weight: 500;
+            }
+
+            div {
+              display: flex;
+              flex-direction: column;
+              gap: 4px;
+              font-size: 18px;
+              justify-content: space-between;
+            }
           }
 
-          .td {
-            width: 60%;
-            color: #54506c;
-            background-color: #f8f0e8;
-            padding: 0 26px;
-            font-size: 36px;
-            text-transform: uppercase;
-            border-radius: 8px;
-
+          &.types {
             display: flex;
-            justify-content: space-around;
-            gap: 16px;
+            gap: 8px;
+            flex-direction: row;
+            justify-content: flex-start;
 
             .type {
               background-color: var(--bg);
               color: white;
               text-shadow: 1px 1px 1px black;
-              font-size: 26px;
+              font-size: 18px;
               border-radius: 8px;
-              padding: 4px;
+              padding: 4px 12px;
               display: flex;
-              flex-grow: 1;
-              gap: 8px;
+              font-weight: 500;
               justify-content: center;
               max-width: 50%;
               width: 40%;
             }
           }
+
+          &.experience {
+
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            font-size: 18px;
+            align-items: flex-end;
+
+            .exp {
+              width: 100%;
+              display: flex;
+              border: 2px solid #262626;
+              background-color: #262626;
+              align-items: center;
+              justify-content: space-evenly;
+              border-radius: 4px;
+              box-sizing: border-box;
+
+              .progressbar-wrapper {
+
+                height: 10px;
+                width: 100%;
+                background-color: #595b59;
+                border-radius: 4px;
+                position: relative;
+
+                .progressbar {
+                  width: var(--width);
+                  height: 100%;
+
+                  background: #0e73cf;
+
+                  border-radius: 2px;
+                  display: flex;
+                  text-align: center;
+                  align-items: center;
+                  justify-content: center;
+                  transition: width 1s ease-in-out;
+                }
+              }
+            }
+          }
+
         }
       }
     }
-
-    .memo {
-      position: absolute;
-      bottom: 2%;
-      left: 1%;
-      width: 98%;
-      height: 27%;
-      background-color: #f8f0e8;
-      padding: 16px;
-      box-sizing: border-box;
-      border-radius: 8px;
-
-      .title {
-        text-align: center;
-        height: 12px;
-        width: 30%;
-        border-radius: 4px;
-        background-color: #54506c;
-        line-height: 8px;
-        font-size: 36px;
-        color: white;
-        text-shadow: 1px 1px 1px black;
-        position: absolute;
-        top: -12px;
-        left: 0;
-      }
-
-      p {
-        margin: 0;
-        font-size: 32px;
-        color: #54506c;
-        border-bottom: 2px solid #e7e8c0;
-      }
-    }
-
   }
+
+
+}
+
 </style>
