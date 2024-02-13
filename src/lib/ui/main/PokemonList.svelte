@@ -1,4 +1,5 @@
-<div class="pokemon-list">
+<div class="pokemon-list"
+     in:slide="{{duration: 500, delay: 100, axis: 'x', easing: backInOut}}" out:fade>
 
     <div class="pokemons">
         <div class="first">
@@ -102,6 +103,8 @@
     import {PokemonInstance} from "../../js/pokemons/pokedex";
     import PokemonSummary from "./PokemonSummary.svelte";
     import {onMount} from "svelte";
+    import {backInOut} from "svelte/easing";
+    import { slide, fade } from 'svelte/transition';
 
     export let pokemonListOpened;
 

@@ -32,7 +32,7 @@ export default defineConfig({
 		svelte({
 			preprocess: sveltePreprocess(),
 			emitCss: false,
-			inspector: true,
+			inspector: false,
 			compilerOptions: {
 				customElement: true,
 				accessors: true,
