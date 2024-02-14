@@ -11,8 +11,8 @@
             "scale": 1.5725,
             "selectedLayer": 4,
             "viewCenter": {
-                "x": 146.2639109697933,
-                "y": 163.43402225755167
+                "x": 232.75039745627984,
+                "y": 162.79809220985692
             }
         },
         "test-map2.tmx": {
@@ -29,13 +29,13 @@
         }
     },
     "last.exportedFilePath": "/Users/mika/workspace/projects-perso/openmon/src/assets/tiled",
-    "last.imagePath": "/Users/mika/workspace/projects-perso/openmon/src/assets/tileset/firered",
-    "map.height": 60,
+    "last.imagePath": "/Users/mika/workspace/projects-perso/openmon/src/assets/tileset",
+    "map.height": 200,
     "map.lastUsedExportFilter": "JSON map files (*.tmj *.json)",
     "map.lastUsedFormat": "tmx",
     "map.tileHeight": 16,
     "map.tileWidth": 16,
-    "map.width": 80,
+    "map.width": 200,
     "openFiles": [
         "tileset.tsx",
         "test-mal.tmx",
@@ -48,8 +48,8 @@
         "test-mal.tmx"
     ],
     "tileset.lastUsedFormat": "tsx",
-    "tileset.margin": 1,
-    "tileset.spacing": 1,
+    "tileset.margin": 0,
+    "tileset.spacing": 0,
     "tileset.tileSize": {
         "height": 16,
         "width": 16

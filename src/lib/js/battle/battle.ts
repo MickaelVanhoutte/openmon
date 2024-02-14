@@ -279,7 +279,7 @@ export class BattleState {
 
             const random = Math.random() * (1 - 0.85) + 0.85;
             const stab = this.calculateStab(attacker, move);
-            const other = 1; // burn, weather, badges  ...
+            const other = 1; // TODO weather, badges  ...
             const modifiers = typeEffectiveness * critical * random * stab * other;
             result.damages = Math.floor((((2 * attacker.level / 5 + 2) * move.power * attack / defense) / 50 + 2) * modifiers);
 

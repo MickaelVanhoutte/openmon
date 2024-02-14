@@ -226,8 +226,8 @@
         right: 0;
         bottom: 0;
         left: 0;
-        background: rgb(118,167,177);
-        background: radial-gradient(circle at 10% 20%, rgb(69, 86, 102) 0%, rgb(34, 34, 34) 90%);
+        background: #359cc4;
+        //background: radial-gradient(circle at 17% 21%, #359cc4 2%, rgb(27 27 30) 80%);
         //background-image: linear-gradient(to bottom right, #434343 0%, black 100%);
         //background-image: linear-gradient(to bottom right, #38A2D7, #561139);
         //background: linear-gradient(149deg, rgba(118,167,177,1) 0%, rgba(91,103,138,0.9206276260504201) 11%, rgba(13,21,42,0.9122242647058824) 100%);

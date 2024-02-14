@@ -119,24 +119,6 @@
     $:selectedMons = save.player.monsters[selected];
     $:statsKeys = Object.keys(selectedMons.stats).filter(key => key !== 'total' && key !== 'accuracy' && key !== 'evasion');
     $:percent = Math.floor(selectedMons.currentHp * 100 / selectedMons?.currentStats.hp)
-
-    $:plusDisabled = selectedMons.evsToDistribute === 0;
-    $:plusPlusDisabled = selectedMons.evsToDistribute < 10;
-
-    $:minusHpDisabled = selectedMons.evs.hp === 0;
-    $:minusMinusHpDisabled = selectedMons.evs.hp < 10;
-    $:minusAttackDisabled = selectedMons.evs.attack === 0;
-    $:minusMinusAttackDisabled = selectedMons.evs.attack < 10;
-    $:minusDefenseDisabled = selectedMons.evs.defense === 0;
-    $:minusMinusDefenseDisabled = selectedMons.evs.defense < 10;
-    $:minusSpecialAttackDisabled = selectedMons.evs.specialAttack === 0;
-    $:minusMinusSpecialAttackDisabled = selectedMons.evs.specialAttack < 10;
-    $:minusSpecialDefenseDisabled = selectedMons.evs.specialDefense === 0;
-    $:minusMinusSpecialDefenseDisabled = selectedMons.evs.specialDefense < 10;
-    $:minusSpeedDisabled = selectedMons.evs.speed === 0;
-    $:minusMinusSpeedDisabled = selectedMons.evs.speed < 10;
-
-
     function disabled(key: string, testValue: number) {
         if (testValue > 0) {
             // add 1/10, must have enough evs to distribute or not maxed
