@@ -32,6 +32,20 @@ export class WoldSpriteDrawer {
         }
     }
 
+    drawFG(ctx: CanvasRenderingContext2D, map: OpenMap, scale: number, debug: boolean = true) {
+        let image = this.images[map.foreground];
+        if (image && image.complete) {
+            this.drawImage(ctx, image, map, scale, debug);
+        } else {
+            image = new Image();
+            image.src = map.foreground;
+            image.onload = () => {
+                this.images[map.foreground] = image;
+                this.drawImage(ctx, image, map, scale, debug);
+            }
+        }
+    }
+
 
     private drawImage(ctx: CanvasRenderingContext2D, image: HTMLImageElement, map: OpenMap, scale: number, debug: boolean = false) {
 
@@ -51,7 +65,7 @@ export class WoldSpriteDrawer {
             map.playerMovedOffset.x * (16 * scale),
             map.playerMovedOffset.y * (16 * scale)
         )
-
+        ctx.save();
 
         ctx.translate(centerX - offsetInPx.x - initialPosition.x, centerY - offsetInPx.y - initialPosition.y);
 

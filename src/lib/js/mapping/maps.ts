@@ -3,8 +3,8 @@ import {Position, WoldSpriteDrawer} from "../sprites/drawers";
 
 
 export const tileSize = 16;
-export const battleTile = 8;
-export const collisionTile = 806;
+export const battleTile = 2283;
+export const collisionTile = 4295;
 
 export class OpenMap {
     public background: string;

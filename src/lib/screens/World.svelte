@@ -78,11 +78,10 @@
 
             if(!pokemonListOpened) {
 
-                ctx.save();
-                MAP_DRAWER.draw(ctx, save.map, mainLoopContext.imageScale, mainLoopContext.debug);
 
+                MAP_DRAWER.draw(ctx, save.map, mainLoopContext.imageScale, mainLoopContext.debug);
                 save.player.draw(ctx, "overworld", mainLoopContext.playerScale);
-                //currentMap.drawForeground(ctx, movedOffset); // FIXME non transparent tiles
+                MAP_DRAWER.drawFG(ctx, save.map, mainLoopContext.imageScale, mainLoopContext.debug);
 
                 let allowedMove = true;
                 save.player.moving = false;
