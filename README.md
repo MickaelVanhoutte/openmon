@@ -3,6 +3,8 @@
 OpenMon is an attempt to create a web pokemon game, solely for educational purpose. 
 There is no backend, everything is done on the client side.
 
+TLDR: [test OpenMon](https://mickaelvanhoutte.github.io/openmon/)
+
 ## Credits
 
 Every resources (images, sounds, names) is owned by Nintendo and the Pokemon Company. I do not claim anything.
@@ -47,5 +49,5 @@ This will create a `dist` folder with the built files. The openmon.js is copied 
 
 ### Deploy
 
-Pushing to master will automatically deploy the project to [Github Pages](https://openmon.github.io/).
+Pushing to master will automatically deploy the project to [Github Pages](https://mickaelvanhoutte.github.io/openmon/).
 
