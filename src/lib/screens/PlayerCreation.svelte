@@ -22,8 +22,8 @@
 <script lang="ts">
     import {Save, SaveContext} from "../js/saves/saves";
     import {Character} from "../js/player/player";
-    import {map1} from "../js/mapping/maps/map1";
     import {POKEDEX} from "../js/const";
+    import {start} from "../js/mapping/maps/start";
 
     let playerName = 'Ethan';
     let playerClasses = [
@@ -42,7 +42,7 @@
         player.monsters.push(POKEDEX.findById(9).result.instanciate(5));
         player.monsters.push(POKEDEX.findById(143).result.instanciate(5));
 
-        saveContext = saveContext.createSave(new Save(player, map1));
+        saveContext = saveContext.createSave(new Save(player, start));
     }
 
 </script>

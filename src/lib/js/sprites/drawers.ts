@@ -33,15 +33,19 @@ export class WoldSpriteDrawer {
     }
 
     drawFG(ctx: CanvasRenderingContext2D, map: OpenMap, scale: number, debug: boolean = true) {
-        let image = this.images[map.foreground];
-        if (image && image.complete) {
-            this.drawImage(ctx, image, map, scale, debug);
-        } else {
-            image = new Image();
-            image.src = map.foreground;
-            image.onload = () => {
-                this.images[map.foreground] = image;
+        if (map.foreground !== undefined) {
+            let image = this.images[map.foreground];
+            if (image && image.complete) {
                 this.drawImage(ctx, image, map, scale, debug);
+            } else {
+                image = new Image();
+                image.src = map.foreground;
+                image.onload = () => {
+                    if (map.foreground) {
+                        this.images[map.foreground] = image;
+                        this.drawImage(ctx, image, map, scale, debug);
+                    }
+                }
             }
         }
     }
@@ -239,7 +243,7 @@ export class SpritesHolder {
 
     public draw(spriteId: number, canvas: CanvasRenderingContext2D, type: 'front' | 'overworld',
                 orientation: 'up' | 'down' | 'left' | 'right',
-                scale: number, moving: boolean){
+                scale: number, moving: boolean) {
         this.spritesByCharacter[spriteId].draw(canvas, type, orientation, scale, moving);
     }
 }

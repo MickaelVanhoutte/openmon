@@ -76,12 +76,14 @@
             ctx.fillStyle = 'black';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            if(!pokemonListOpened) {
+            if (!pokemonListOpened) {
 
 
                 MAP_DRAWER.draw(ctx, save.map, mainLoopContext.imageScale, mainLoopContext.debug);
                 save.player.draw(ctx, "overworld", mainLoopContext.playerScale);
-                MAP_DRAWER.drawFG(ctx, save.map, mainLoopContext.imageScale, mainLoopContext.debug);
+                if (save.map.foreground !== undefined) {
+                    MAP_DRAWER.drawFG(ctx, save.map, mainLoopContext.imageScale, mainLoopContext.debug);
+                }
 
                 let allowedMove = true;
                 save.player.moving = false;
