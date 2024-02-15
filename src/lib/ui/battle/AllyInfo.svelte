@@ -82,7 +82,7 @@
   }
 
   .ally-info {
-    z-index: 9;
+    z-index: 7;
 
     height: fit-content;
     min-width: 35%;
