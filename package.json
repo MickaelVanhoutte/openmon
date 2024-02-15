@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && mkdir docs && mkdir docs/src && cp dist/openmon.js docs && cp -R src/assets docs/src && cp final/index.html docs && mkdir docs/static && cp -R static/* docs/static",
+    "build": "vite build && rm -rf docs && mkdir docs && mkdir docs/src && cp dist/openmon.js docs && cp -R src/assets docs/src && cp final/index.html docs && mkdir docs/static && cp -R static/* docs/static",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json"
   },
