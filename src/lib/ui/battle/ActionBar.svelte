@@ -56,7 +56,8 @@
                 BAG
             </button>
 
-            <button class="action-btn" style="--color:#7EAF53" {disabled} class:selected={ selectedOptionIdx === 2}>
+            <button class="action-btn" style="--color:#7EAF53" {disabled} class:selected={ selectedOptionIdx === 2}
+                    on:click={switchOpen}>
                 POKEMONS
             </button>
 
@@ -72,10 +73,12 @@
 
 <script lang="ts">
 
-    import {Attack, BattleState, RunAway, typeChart} from "../../js/battle/battle";
+    import {Attack, BattleState, RunAway, SwitchAction, typeChart} from "../../js/battle/battle";
     import {onMount} from "svelte";
     import {BATTLE_STATE} from "../../js/const";
     import type {MoveInstance} from "../../js/pokemons/pokedex";
+
+    export let switchOpened: boolean;
 
     let moveOpened = false;
     let show = false;
@@ -102,8 +105,11 @@
         }
     }
 
+    function switchOpen(){
+        switchOpened = true;
+    }
+
     function selectMove(idx: number) {
-        console.log(idx);
         selectedMoveIdx = idx;
     }
 
@@ -165,8 +171,7 @@
   }
 
   .action-bar {
-    z-index: 9;
-    //background-color: white;
+    z-index: 7;
 
     height: 25%;
     width: 98%;
@@ -187,8 +192,8 @@
     .info {
 
       width: 50%;
-      background: rgb(220,231,233);
-      background: linear-gradient(180deg, rgba(220,231,233,1) 0%, rgba(255,255,255,1) 50%, rgba(220,231,233,0.713344712885154) 100%);
+      background: rgb(220, 231, 233);
+      background: linear-gradient(180deg, rgba(220, 231, 233, 1) 0%, rgba(255, 255, 255, 1) 50%, rgba(220, 231, 233, 0.713344712885154) 100%);
       border-radius: 12px;
       display: flex;
       align-items: center;

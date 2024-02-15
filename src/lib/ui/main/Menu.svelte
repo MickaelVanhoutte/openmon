@@ -1,4 +1,3 @@
-
 <!-- TOOD : Pokedex, Options, Credits-->
 
 <div class="menu-wrapper" class:open={menuOpened}>
@@ -47,7 +46,7 @@
 </div>
 
 {#if pokemonListOpened}
-    <PokemonList bind:save bind:pokemonListOpened bind:openSummary/>
+    <PokemonList bind:save bind:pokemonListOpened bind:openSummary bind:isBattle/>
 {/if}
 
 <script lang="ts">
@@ -65,8 +64,10 @@
 
     export let saveContext: SaveContext;
     export let save: SelectedSave;
+    export let isBattle = false;
 
     let selected = 0;
+
 
     let menuSize = window.innerHeight * .2;
 
@@ -189,11 +190,11 @@
 
       /*** HEX CONTENT **********************************************************************/
       .hex img {
-       /* left: -100%;
-        right: -100%;
-        width: auto;
-        height: 100%;
-        margin: 0 auto;*/
+        /* left: -100%;
+         right: -100%;
+         width: auto;
+         height: 100%;
+         margin: 0 auto;*/
         position: absolute;
         height: 50%;
         width: auto;
@@ -213,11 +214,10 @@
         //margin-top: 70%;
         opacity: 1;
         z-index: 1;
-        color: rgba(255, 255, 255 , .65);
+        color: rgba(255, 255, 255, .65);
         position: absolute;
         bottom: 6%;
       }
-
 
 
       .img {

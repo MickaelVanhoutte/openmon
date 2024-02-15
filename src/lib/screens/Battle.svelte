@@ -1,15 +1,20 @@
-<div bind:this={gifsWrapper} class="wrapper">
+<div class="battle">
+    <div bind:this={gifsWrapper} class="wrapper">
 
+    </div>
+
+    <!-- UI -->
+    <EnemyInfo/>
+    <AllyInfo/>
+    <ActionBar bind:switchOpened={switchOpened}/>
+
+    {#if switchOpened}
+        <PokemonList {save} {isBattle} bind:switchOpened={switchOpened} onChange={(pkm) => !!pkm && pkm !==0 && sendSwitchAction(pkm)}/>
+    {/if}
 </div>
-
-<!-- UI -->
-<EnemyInfo/>
-<AllyInfo/>
-<ActionBar/>
-
 <script lang="ts">
 
-    import {BattleState} from "../js/battle/battle";
+    import {BattleState, SwitchAction} from "../js/battle/battle";
     import {Position} from "../js/sprites/drawers";
     import {onMount} from "svelte";
     import ActionBar from "../ui/battle/ActionBar.svelte";
@@ -17,9 +22,17 @@
     import AllyInfo from "../ui/battle/AllyInfo.svelte";
     import type {SelectedSave} from "../js/saves/saves";
     import {BATTLE_STATE} from "../js/const";
+    import PokemonList from "../ui/main/PokemonList.svelte";
+    import type {PokemonInstance} from "../js/pokemons/pokedex";
 
     export let gifsWrapper: HTMLDivElement;
     export let save: SelectedSave;
+
+    export let switched = false;
+
+    let switchOpened = false;
+
+    export let isBattle = true;
 
     let battleState: BattleState | undefined;
 
@@ -28,6 +41,10 @@
     });
 
     if (battleState) {
+        battleState.onPokemonChange = () => {
+            battleLoopContext.allydrawn = false;
+        }
+
         battleState.onClose = (win: boolean) => {
             if (!win) {
                 // tp back to the start
@@ -54,6 +71,9 @@
         bgDrawn: false
     }
 
+    let ally: HTMLImageElement;
+    let opponent: HTMLImageElement;
+
     function battle() {
 
         setInterval(() => {
@@ -73,7 +93,7 @@
                 // animated gifs, handle them outside the canvas
                 if (!battleLoopContext.opponentdrawn) {
 
-                    let opponent = document.createElement('img') as HTMLImageElement;
+                    opponent = document.createElement('img') as HTMLImageElement;
                     opponent.classList.add('opponent-sprite');
                     opponent.src = battleState?.opponentCurrentMonster.sprites?.male?.front.frame1 || 'src/assets/monsters/bw/0.png';
                     opponent.onload = () => {
@@ -85,19 +105,30 @@
                     }
                 }
                 if (!battleLoopContext.allydrawn) {
-                    let ally = document.createElement('img') as HTMLImageElement;
-                    ally.src = battleState?.playerCurrentMonster.sprites?.male?.back.frame1 || 'src/assets/monsters/bw/0.png';
-                    ally.classList.add('ally-sprite');
-                    ally.onload = () => {
-                        ally.style.setProperty('--width', ally.naturalWidth + 'px');
-                        ally.style.setProperty('--height', ally.naturalHeight + 'px');
-                        gifsWrapper.appendChild(ally);
-                        battleLoopContext.allydrawn = true;
+                    console.log('redraw');
+                    if (!ally) {
+                        ally = document.createElement('img') as HTMLImageElement;
+                        ally.classList.add('ally-sprite');
+                    }
+                    if (ally) {
+                        ally.src = battleState?.playerCurrentMonster.sprites?.male?.back.frame1 || 'src/assets/monsters/bw/0.png';
+                        ally.onload = () => {
+                            ally.style.setProperty('--width', ally.naturalWidth + 'px');
+                            ally.style.setProperty('--height', ally.naturalHeight + 'px');
+                            gifsWrapper.appendChild(ally);
+                            battleLoopContext.allydrawn = true;
+                        }
                     }
                 }
 
             }
         }, 200);
+    }
+
+    function sendSwitchAction(newMonster: PokemonInstance) {
+        if (battleState?.playerCurrentMonster) {
+            battleState?.selectAction(new SwitchAction(newMonster));
+        }
     }
 
     onMount(() => {
@@ -112,6 +143,9 @@
 
 <style lang="scss">
 
+  .battle {
+    z-index: 7;
+  }
 
   .wrapper {
     font-size: 23px;
@@ -121,41 +155,41 @@
     position: absolute;
     bottom: 25%;
     left: calc(25% - var(--width) / 2);
-    z-index: 8;
+    z-index: 7;
   }
 
   .wrapper :global(.opponent-sprite) {
     position: absolute;
     bottom: 44%;
     right: calc(25% - var(--width) / 2);
-    z-index: 8;
+    z-index: 7;
   }
 
   .wrapper :global(.battle-bg) {
-    z-index : 0;
-    width : 100%;
-    height : 100%;
-    position : absolute;
-    top : 0;
-    left : 0;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
     //border-radius: 0 0 5% 20% ;
   }
 
-/*  @media screen and (max-width: 1100px) {
-    .wrapper :global(.ally-sprite) {
-      width: calc(var(--width) * .75);
-      height: calc(var(--height) * .75);
-      bottom: 30%;
-    }
+  /*  @media screen and (max-width: 1100px) {
+      .wrapper :global(.ally-sprite) {
+        width: calc(var(--width) * .75);
+        height: calc(var(--height) * .75);
+        bottom: 30%;
+      }
 
-    .wrapper :global(.opponent-sprite) {
-      width: var(--width);
-      height: var(--height);
-      bottom: 57%;
-    }
+      .wrapper :global(.opponent-sprite) {
+        width: var(--width);
+        height: var(--height);
+        bottom: 57%;
+      }
 
-    .wrapper :global(.battle-bg) {
-      height: 70%;
-    }
-  }*/
+      .wrapper :global(.battle-bg) {
+        height: 70%;
+      }
+    }*/
 </style>

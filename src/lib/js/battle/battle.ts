@@ -37,6 +37,9 @@ export class BattleState {
     public onClose: (win: boolean) => void = () => {
     };
 
+    public onPokemonChange: () => void = () => {
+    };
+
     get wild(): boolean {
         return this.opponent instanceof PokemonInstance;
     }
@@ -58,7 +61,7 @@ export class BattleState {
 
         if (action instanceof Attack && this.playerCurrentMonster.battleStats.speed > this.opponentCurrentMonster.battleStats.speed
             || action instanceof RunAway
-            || action instanceof ChangePokemon
+            || action instanceof SwitchAction
             || action instanceof BagObject) {
             this.addToStack(action);
             this.selectOpponentAction();
@@ -69,7 +72,7 @@ export class BattleState {
 
         this.addToStack(new EndTurnChecks(this.playerCurrentMonster));
         this.addToStack(new EndTurnChecks(this.opponentCurrentMonster));
-        this.addToStack(new Message(`What should ${this.playerCurrentMonster.name} do ?`, action.initiator));
+        //this.addToStack(new Message(`What should ${this.playerCurrentMonster.name} do ?`, action.initiator));
         this.addToStack(new EndTurn(action.initiator));
         this.executeAction(this.turnStack?.shift());
     }
@@ -84,8 +87,15 @@ export class BattleState {
                 this.attack(action);
             } else if (action instanceof RunAway) {
                 this.runAway();
+            } else if (action instanceof SwitchAction) {
+                this.addToStack(new ChangePokemon(action.initiator), true);
+                this.addToStack(new Message(`${action.initiator.name}, go!`, action.initiator), true);
+                this.addToStack(new Message(`${this.playerCurrentMonster.name}, come back!`, action.initiator), true);
             } else if (action instanceof ChangePokemon) {
-                // this.changePokemon(action);
+                // TODO, animation
+                this.playerCurrentMonster = action.initiator;
+                // order to change sprite to component
+                this.onPokemonChange();
             } else if (action instanceof BagObject) {
                 // this.useBagObject(action);
             } else if (action instanceof Message) {
@@ -94,7 +104,6 @@ export class BattleState {
                 this.removeHP(action);
             } else if (action instanceof XPWin) {
                 let result = action.initiator.addXpResult(action.xp, this.opponent instanceof Character ? 3 : 1);
-                console.log(result);
                 if (result.levelup) {
                     this.addToStack(new Message(`${action.initiator.name} grew to level ${action.initiator.level + 1}!`, action.initiator), true);
                     action.initiator.levelUp();
@@ -117,6 +126,7 @@ export class BattleState {
             } else if (action instanceof EndTurnChecks) {
                 this.endTurnChecks(action)
             } else if (action instanceof EndTurn) {
+                this.currentMessageV = `What should ${this.playerCurrentMonster.name} do ?`;
                 this.isPlayerTurnV = true;
             } else if (action instanceof EndBattle) {
                 this.ending = true;
@@ -372,6 +382,7 @@ export interface Action {
     initiator: PokemonInstance;
 }
 
+
 export class EndTurnChecks implements Action {
     name: string;
     description: string;
@@ -484,13 +495,23 @@ export class RunAway implements Action {
 export class ChangePokemon implements Action {
     public description: string;
     public name: string;
-    public targetIdx: number;
     public initiator: PokemonInstance;
 
-    constructor(targetIdx: number, initiator: PokemonInstance) {
+    constructor(initiator: PokemonInstance) {
         this.name = 'Change Pokemon';
         this.description = 'Change the current pokemon';
-        this.targetIdx = targetIdx;
+        this.initiator = initiator;
+    }
+}
+
+export class SwitchAction implements Action {
+    name: string;
+    description: string;
+    initiator: PokemonInstance;
+
+    constructor(initiator: PokemonInstance) {
+        this.name = 'Switch';
+        this.description = 'Switch';
         this.initiator = initiator;
     }
 }

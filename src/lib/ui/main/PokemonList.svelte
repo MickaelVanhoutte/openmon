@@ -74,7 +74,7 @@
     </div>
 
     <div class="actions">
-        <button on:click={()=>pokemonListOpened=false}>CANCEL</button>
+        <button on:click={closeList}>CANCEL</button>
     </div>
 
     <!--<div class="context">
@@ -86,8 +86,10 @@
     <div class="options" class:hidden={!openOptions}>
         <ul>
             <li class:selected={optionSelected === 0} on:click={() => summarize()}>SUMMARY</li>
-            <li class:selected={optionSelected === 1} on:click={() => saveSwitch()}>SWITCH</li>
-            <li class:selected={optionSelected === 2}>ITEM</li>
+            <li class:selected={optionSelected === 1} on:click={() => isBattle ? switchNow() : saveSwitch()}>SWITCH</li>
+            {#if !isBattle}
+                <li class:selected={optionSelected === 2}>ITEM</li>
+            {/if}
             <li class:selected={optionSelected === 3} on:click={() => openOptions = false}>CANCEL</li>
         </ul>
     </div>
@@ -104,13 +106,15 @@
     import PokemonSummary from "./PokemonSummary.svelte";
     import {onMount} from "svelte";
     import {backInOut} from "svelte/easing";
-    import { slide, fade } from 'svelte/transition';
+    import {slide, fade} from 'svelte/transition';
 
-    export let pokemonListOpened;
+    export let pokemonListOpened: boolean;
+    export let switchOpened: boolean;
 
-    export let openSummary;
+    export let openSummary: boolean;
     export let save: SelectedSave;
 
+    export let isBattle: boolean;
     export let selected = 0;
 
     export let update = false;
@@ -140,6 +144,16 @@
             selected = index;
             openOptions = false
         }
+    }
+
+    let currentBattlePokemon: PokemonInstance | undefined = undefined;
+    export let onChange;
+    $:onChange(!!currentBattlePokemon && currentBattlePokemon);
+
+    function switchNow() {
+        //swap(save.player.monsters, selected, 0);
+        closeList();
+        currentBattlePokemon = save.player.monsters[selected];
     }
 
     function saveSwitch() {
@@ -196,6 +210,15 @@
         }
     }
 
+    function closeList() {
+        if (isBattle) {
+            switchOpened = false;
+        } else {
+            pokemonListOpened = false;
+        }
+
+    }
+
     onMount(() => {
         window.addEventListener('keydown', listener);
         return () => {
@@ -216,8 +239,8 @@
     bottom: 1%;
     right: 1%;
     padding: 22px 36px 22px 36px;
-    background: rgb(220,231,233);
-    background: linear-gradient(180deg, rgba(220,231,233,1) 0%, rgba(255,255,255,1) 50%, rgba(220,231,233,0.713344712885154) 100%);
+    background: rgb(220, 231, 233);
+    background: linear-gradient(180deg, rgba(220, 231, 233, 1) 0%, rgba(255, 255, 255, 1) 50%, rgba(220, 231, 233, 0.713344712885154) 100%);
     border: 2px solid #54506c;
     border-radius: 8px;
     box-sizing: border-box;
@@ -314,7 +337,7 @@
         justify-content: space-between;
         align-items: center;
 
-        border: 2px solid rgba(0,0,0,.7);
+        border: 2px solid rgba(0, 0, 0, .7);
         background-color: #4ba1de;
         background-image: linear-gradient(0deg, #95cfe0 46%, #4ba1de 46%, #4ba1de 50%, #95cfe0 50%, #95CFE0 56%, #4BA1DE 56%, #4ba1de 100%);
         background-size: 100% 100%;
@@ -331,7 +354,7 @@
             padding-right: 2%;
             width: 100%;
 
-            .img-wrapper{
+            .img-wrapper {
               img {
                 max-width: 70%;
                 height: auto;
@@ -377,8 +400,8 @@
           }
 
           .img-wrapper {
-           /* width: auto;
-            height: 100%;*/
+            /* width: auto;
+             height: 100%;*/
 
             img {
               /*width: 100%;
@@ -475,7 +498,6 @@
     }
 
   }
-
 
 
 </style>
