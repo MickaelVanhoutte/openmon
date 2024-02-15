@@ -1,0 +1,106 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "map1.tmx",
+    "expandedProjectPaths": [
+    ],
+    "fileStates": {
+        "map1.tmx": {
+            "expandedGroupLayers": [
+                22,
+                9,
+                5,
+                8
+            ],
+            "scale": 0.53,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 765.0943396226414,
+                "y": 2562.264150943396
+            }
+        },
+        "start-village.tmx": {
+            "expandedGroupLayers": [
+                6
+            ],
+            "scale": 0.8722,
+            "selectedLayer": 3,
+            "viewCenter": {
+                "x": 501.60513643659704,
+                "y": 471.2221967438661
+            }
+        },
+        "start.tmx": {
+            "scale": 0.7426,
+            "selectedLayer": 8,
+            "viewCenter": {
+                "x": 927.1478588742257,
+                "y": 168.32749798007
+            }
+        },
+        "test-mal.tmx": {
+            "scale": 1.5725,
+            "selectedLayer": 4,
+            "viewCenter": {
+                "x": 160.57233704292526,
+                "y": 160.25437201907792
+            }
+        },
+        "test-map2.tmx": {
+            "scale": 0.8077,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 639.4701002847592,
+                "y": 480.3763773678346
+            }
+        },
+        "tileset.tsx": {
+            "scaleInDock": 1.9183,
+            "scaleInEditor": 1
+        },
+        "tileset2.16.tsx": {
+            "scaleInDock": 2.0968,
+            "scaleInEditor": 1
+        },
+        "ts2.tsx": {
+            "scaleInDock": 1.641,
+            "scaleInEditor": 1
+        }
+    },
+    "last.exportedFilePath": "/Users/mika/workspace/projects-perso/openmon/src/assets/tiled",
+    "last.imagePath": "/Users/mika/workspace/projects-perso/openmon/src/assets/tileset",
+    "map.height": 60,
+    "map.lastUsedExportFilter": "JSON map files (*.tmj *.json)",
+    "map.lastUsedFormat": "tmx",
+    "map.tileHeight": 16,
+    "map.tileWidth": 16,
+    "map.width": 60,
+    "openFiles": [
+        "tileset.tsx",
+        "test-mal.tmx",
+        "test-map2.tmx",
+        "ts2.tsx",
+        "tileset2.16.tsx",
+        "map1.tmx",
+        "start.tmx"
+    ],
+    "project": "openmon.tiled-project",
+    "recentFiles": [
+        "tileset.tsx",
+        "test-mal.tmx",
+        "test-map2.tmx",
+        "ts2.tsx",
+        "tileset2.16.tsx",
+        "start.tmx",
+        "map1.tmx"
+    ],
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.margin": 0,
+    "tileset.spacing": 0,
+    "tileset.tileSize": {
+        "height": 16,
+        "width": 16
+    }
+}
