@@ -17,6 +17,13 @@ export class WoldSpriteDrawer {
     constructor() {
     }
 
+    prepareMap(map: OpenMap) {
+        if (!this.images[map.background]) {
+            let image = new Image();
+            image.src = map.background;
+            this.images[map.background] = image;
+        }
+    }
 
     draw(ctx: CanvasRenderingContext2D, map: OpenMap, scale: number, debug: boolean = true) {
         let image = this.images[map.background];
@@ -117,6 +124,60 @@ export class WoldSpriteDrawer {
         }
 
 
+        ctx.restore();
+    }
+
+    drawArrow(ctx: CanvasRenderingContext2D, direction: 'down' | 'up' | 'right' | 'left', positionOnMap: Position, imageScale: number) {
+        let image = this.images['arrow'];
+        if (image && image.complete) {
+            this.drawArrowImg(ctx, image, direction, positionOnMap, imageScale);
+        } else {
+            image = new Image();
+            image.src = 'src/assets/maps/arrow.png'
+            image.onload = () => {
+                this.images['arrow'] = image;
+                this.drawArrowImg(ctx, image, direction, positionOnMap, imageScale);
+            }
+        }
+    }
+
+    private drawArrowImg(ctx: CanvasRenderingContext2D, image: HTMLImageElement, direction: 'down' | 'up' | 'right' | 'left', positionOnMap: Position, imageScale: number) {
+        // rotate image to match direction
+        let angle = 0;
+        let x = 0;
+        let y = 0;
+        switch (direction) {
+            case 'down':
+                angle = Math.PI;
+                y -= 30;
+                break;
+            case 'up':
+                angle = 0;
+                y -= 40;
+                break;
+            case 'right':
+                angle = Math.PI / 2;
+                x += 40;
+                break;
+            case 'left':
+                angle = -Math.PI / 2;
+                x -= 40;
+                break;
+        }
+
+        ctx.save();
+
+        // move to the center of the canvas
+        ctx.translate(ctx.canvas.width/2,ctx.canvas.height/2);
+
+        // rotate the canvas to the specified degrees
+        ctx.rotate(angle);
+
+        // draw the image
+        // since the context is rotated, the image will be rotated also
+        ctx.drawImage(image,-image.width/2 + x,-image.width/2 + y);
+
+        // we’re done with the rotating so restore the unrotated context
         ctx.restore();
     }
 }

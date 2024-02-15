@@ -1,8 +1,8 @@
-import {Boundary} from "./collisions";
+import {Boundary, Jonction} from "./collisions";
 import {Position} from "../sprites/drawers";
 
-
 export const tileSize = 16;
+
 
 export class OpenMap {
     public background: string;
@@ -25,8 +25,16 @@ export class OpenMap {
     public battleTile: number;
     public collisionTile: number;
 
+    public jonctions: Jonction[] = []
 
-    constructor(background: string, width: number, height: number, collisions: number[], battles: number[], monsters: number[], playerInitialPosition: Position, playerMovedOffset: Position = new Position(), levelRange: number[] = [1, 100], foreground?: string, battleTile?: number, collisionTile?: number) {
+
+    constructor(background: string, width: number, height: number,
+                collisions: number[], battles: number[], monsters: number[],
+                playerInitialPosition: Position,
+                playerMovedOffset: Position = new Position(),
+                levelRange: number[] = [1, 100],
+                jonctions: Jonction[] = [],
+                foreground?: string, battleTile?: number, collisionTile?: number) {
         this.background = background;
         this.foreground = foreground;
         this.width = width;
@@ -40,9 +48,15 @@ export class OpenMap {
         this.monsters = monsters;
         this.playerInitialPosition = playerInitialPosition;
         this.levelRange = levelRange;
+        this.jonctions = jonctions;
     }
 
-    public static fromScratch(background: string, width: number, height: number, collisions: number[], battles: number[], monsters: number[], playerInitialPosition: Position = new Position(), playerMovedOffset: Position = new Position(), levelRange: number[] = [1, 100], foreground?: string, battleTile?: number, collisionTile?: number): OpenMap {
+    public static fromScratch(background: string, width: number, height: number,
+                              collisions: number[], battles: number[], monsters: number[],
+                              playerInitialPosition: Position = new Position(), playerMovedOffset: Position = new Position(),
+                              levelRange: number[] = [1, 100],
+                              jonctions: Jonction[] = [],
+                              foreground?: string, battleTile?: number, collisionTile?: number): OpenMap {
 
 
         return new OpenMap(
@@ -55,6 +69,7 @@ export class OpenMap {
             playerInitialPosition,
             playerMovedOffset,
             levelRange,
+            jonctions,
             foreground,
             battleTile,
             collisionTile
@@ -72,6 +87,7 @@ export class OpenMap {
             map.playerInitialPosition,
             map.playerMovedOffset,
             map.levelRange,
+            map.jonctions,
             map?.foreground,
         )
     }
@@ -86,6 +102,12 @@ export class OpenMap {
             Object.setPrototypeOf(boundary, Boundary.prototype);
             Object.setPrototypeOf(boundary.position, Position.prototype);
         });
+        this.jonctions.forEach((jonction) => {
+            Object.setPrototypeOf(jonction, Jonction.prototype);
+            jonction.positions.forEach((position) => {
+                Object.setPrototypeOf(position, Position.prototype);
+            });
+        });
 
         return this;
     }
@@ -93,7 +115,6 @@ export class OpenMap {
     randomMonster(): { id: number, level: number } {
         const monsterId = this.monsters[Math.floor(Math.random() * this.monsters.length)];
         const level = Math.floor(Math.random() * (this.levelRange[1] - this.levelRange[0] + 1)) + this.levelRange[0];
-        console.log(this.monsters, monsterId, level);
         return {id: monsterId, level: level};
     }
 
@@ -145,5 +166,15 @@ export class OpenMap {
         return this.collisionsZones.some((boundary) => {
             return boundary.position.x === position.x && boundary.position.y === position.y;
         }) || position.x < 0 || position.y < 0 || position.x > this.width - 1 || position.y > this.height - 1
+    }
+
+    jonctionAt(position: Position): Jonction | undefined {
+        for (let i = 0; i < this.jonctions.length; i++) {
+            for (let j = 0; j < this.jonctions[i].positions.length; j++) {
+                if (this.jonctions[i].positions[j].x === position.x && this.jonctions[i].positions[j].y === position.y) {
+                    return this.jonctions[i];
+                }
+            }
+        }
     }
 }

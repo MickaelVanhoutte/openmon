@@ -1,5 +1,18 @@
 import {Position} from "../sprites/drawers";
 
+export class Jonction {
+    public id: number;
+    public mapIdx: number;
+    public positions: Position[];
+    public start: Position;
+
+    constructor(id: number, mapIdx: number, positions: Position[], start: Position) {
+        this.id = id;
+        this.mapIdx = mapIdx;
+        this.positions = positions;
+        this.start = start;
+    }
+}
 
 export class Boundary implements Rectangular {
     public position: Position;

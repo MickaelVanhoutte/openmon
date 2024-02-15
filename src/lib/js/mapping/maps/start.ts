@@ -1,5 +1,6 @@
-import {OpenMap} from "../maps";
+import { OpenMap} from "../maps";
 import {Position} from "../../sprites/drawers";
+import {Jonction} from "../collisions";
 
 const monsters = Array.from({length: 251}, (v, k) => k + 1);
 
@@ -124,4 +125,37 @@ const battles = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
-export const start = OpenMap.fromScratch('src/assets/maps/start.png', 100, 60, collisions, battles, monsters, new Position(18, 52), new Position(0, 0), [3, 6], undefined, 2239, 4295);
+const jonction: Jonction = new Jonction(
+    1,
+    1,
+    [
+        // 60, 0 to 83, 0
+        new Position(60, 0),
+        new Position(61, 0),
+        new Position(62, 0),
+        new Position(63, 0),
+        new Position(64, 0),
+        new Position(65, 0),
+        new Position(66, 0),
+        new Position(67, 0),
+        new Position(68, 0),
+        new Position(69, 0),
+        new Position(70, 0),
+        new Position(71, 0),
+        new Position(72, 0),
+        new Position(73, 0),
+        new Position(74, 0),
+        new Position(75, 0),
+        new Position(76, 0),
+        new Position(77, 0),
+        new Position(78, 0),
+        new Position(79, 0),
+        new Position(80, 0),
+        new Position(81, 0),
+        new Position(82, 0),
+        new Position(83, 0),
+    ],
+    new Position(71, 1),
+)
+
+export const start = OpenMap.fromScratch('src/assets/maps/start.png', 100, 60, collisions, battles, monsters, new Position(18, 52), new Position(0, 0), [3, 6], [jonction], undefined, 2239, 4295);

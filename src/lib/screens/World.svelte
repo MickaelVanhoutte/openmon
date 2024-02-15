@@ -10,10 +10,9 @@
     {#if battleState && battleState?.starting}
         <div class="battleStart"></div>
     {/if}
-    {#if battleState && battleState?.ending}
-        <div class="battleEnd"></div>
+    {#if !pokemonListOpened}
+        <div class="battleEnd" class:active={battleState && battleState?.ending || mainLoopContext.changingMap}></div>
     {/if}
-
     <div class="joysticks" bind:this={joysticks}></div>
     <div class="ab-buttons" bind:this={abButtonsC}></div>
 </div>
@@ -26,9 +25,11 @@
     import {Character} from "../js/player/player";
     import {onDestroy, onMount} from "svelte";
     import Menu from "../ui/main/Menu.svelte";
-    import {BATTLE_STATE, MAP_DRAWER, POKEDEX} from "../js/const";
+    import {BATTLE_STATE, MAP_DRAWER, maps, POKEDEX} from "../js/const";
     import {SaveContext, SelectedSave} from "../js/saves/saves";
     import JoystickController from 'joystick-controller';
+    import {OpenMap} from "../js/mapping/maps.js";
+    import type {Jonction} from "../js/mapping/collisions";
 
     export let canvas: HTMLCanvasElement;
     export let wrapper: HTMLDivElement;
@@ -55,7 +56,23 @@
         fpsInterval: 1000 / 10,
         imageScale: window.innerWidth < 1100 ? 2 : 4.5,
         playerScale: window.innerWidth < 1100 ? .66 : 1.5,
-        debug: false
+        debug: false,
+        displayChangingMap: false,
+        changingMap: false,
+    }
+
+    function changeMap(jonction: Jonction) {
+        mainLoopContext.changingMap = true;
+        let map = OpenMap.fromInstance(maps[jonction.mapIdx]);
+        map.playerInitialPosition = map.jonctions.find(j => j.id === jonction.id)?.start || new Position(0, 0);
+        save.save.map = map;
+        mainLoopContext.displayChangingMap = true;
+        setTimeout(() => {
+            mainLoopContext.changingMap = false;
+        }, 4000);
+        setTimeout(() => {
+            mainLoopContext.displayChangingMap = false;
+        }, 2000);
     }
 
     function mainLoop() {
@@ -67,7 +84,7 @@
         let now = Date.now();
         let elapsed = now - mainLoopContext.then;
 
-        if (elapsed > mainLoopContext.fpsInterval) {
+        if (elapsed > mainLoopContext.fpsInterval && !mainLoopContext.displayChangingMap) {
             mainLoopContext.then = now - (elapsed % mainLoopContext.fpsInterval);
             let positionOnMap = new Position(
                 save.map.playerInitialPosition.x + save.map.playerMovedOffset.x,
@@ -85,6 +102,18 @@
                     MAP_DRAWER.drawFG(ctx, save.map, mainLoopContext.imageScale, mainLoopContext.debug);
                 }
 
+                if (elapsed > mainLoopContext.fpsInterval / 2) {
+                    if (save.player.direction === 'down' && save.map.jonctionAt(new Position(positionOnMap.x, positionOnMap.y + 1))) {
+                        MAP_DRAWER.drawArrow(ctx, "down", positionOnMap, mainLoopContext.imageScale);
+                    } else if (save.player.direction === 'up' && save.map.jonctionAt(new Position(positionOnMap.x, positionOnMap.y - 1))) {
+                        MAP_DRAWER.drawArrow(ctx, "up", positionOnMap, mainLoopContext.imageScale);
+                    } else if (save.player.direction === 'right' && save.map.jonctionAt(new Position(positionOnMap.x + 1, positionOnMap.y))) {
+                        MAP_DRAWER.drawArrow(ctx, "right", positionOnMap, mainLoopContext.imageScale);
+                    } else if (save.player.direction === 'left' && save.map.jonctionAt(new Position(positionOnMap.x - 1, positionOnMap.y))) {
+                        MAP_DRAWER.drawArrow(ctx, "left", positionOnMap, mainLoopContext.imageScale);
+                    }
+                }
+
                 let allowedMove = true;
                 save.player.moving = false;
 
@@ -97,7 +126,12 @@
                 // Check for battle
                 if (keys.down.pressed || keys.up.pressed || keys.left.pressed || keys.right.pressed) {
 
-                    if (save.map.hasBattleZoneAt(positionOnMap) && Math.random() < 0.1) {
+                    let jonction = save.map.jonctionAt(new Position(positionOnMap.x, positionOnMap.y));
+                    if (jonction !== undefined) {
+                        changeMap(jonction);
+                    }
+                    // battle ?
+                    if (save.map.hasBattleZoneAt(positionOnMap) && Math.random() < 0.05) {
                         let monster = save.map.randomMonster();
                         window.cancelAnimationFrame(mainLoopContext.id);
                         initiateBattle(POKEDEX.findById(monster.id).result.instanciate(monster.level));
@@ -185,10 +219,10 @@
                 case 'ArrowLeft' :
                     keys.left.pressed = false;
                     break;
-                case 'Shift':
-                    save.player.running = false;
-                    mainLoopContext.fpsInterval = 1000 / 10;
-                    break;
+                /* case 'Shift':
+                     save.player.running = false;
+                     mainLoopContext.fpsInterval = 1000 / 10;
+                     break;*/
             }
         }
     };
@@ -212,10 +246,10 @@
                     lastKey.key = 'ArrowLeft';
                     keys.left.pressed = true;
                     break;
-                case 'Shift':
-                    save.player.running = true;
-                    mainLoopContext.fpsInterval = 1000 / 24;
-                    break;
+                /* case 'Shift':
+                     save.player.running = true;
+                     mainLoopContext.fpsInterval = 1000 / 24;
+                     break;*/
                 case 'x':
                     mainLoopContext.debug = !mainLoopContext.debug;
                     break;
@@ -437,8 +471,11 @@
     position: absolute;
     top: 0;
     left: 0;
-    z-index: 10;
-    animation: fade-out 4s ease-in-out;
+    z-index: 9;
+
+    &.active {
+      animation: fade-out 4s ease-in-out;
+    }
   }
 
   @keyframes fade-out {

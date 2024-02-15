@@ -7,6 +7,8 @@ import {BattleContext} from "./battle/battle";
 import "@abraham/reflection";
 import {container} from "tsyringe";
 import {MoveEffectApplier} from "./pokemons/move-effects";
+import {start} from "./mapping/maps/start";
+import {startVillage} from "./mapping/maps/start-village";
 
 export let POKEDEX = new Pokedex(pokedexJson);
 
@@ -18,4 +20,8 @@ export const CHARACTER_SPRITES = new SpritesHolder(charactersJson);
 export const BATTLE_STATE = writable(new BattleContext());
 
 export const MOVE_EFFECT_APPLIER = container.resolve(MoveEffectApplier);
-console.log(MOVE_EFFECT_APPLIER);
+
+export const maps = {
+    0: start,
+    1: startVillage,
+}
