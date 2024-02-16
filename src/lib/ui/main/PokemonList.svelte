@@ -86,7 +86,9 @@
     <div class="options" class:hidden={!openOptions}>
         <ul>
             <li class:selected={optionSelected === 0} on:click={() => summarize()}>SUMMARY</li>
+            {#if !isBattle || selected !== 0}
             <li class:selected={optionSelected === 1} on:click={() => isBattle ? switchNow() : saveSwitch()}>SWITCH</li>
+            {/if}
             {#if !isBattle}
                 <li class:selected={optionSelected === 2}>ITEM</li>
             {/if}
@@ -96,7 +98,7 @@
 </div>
 
 {#if openSummary}
-    <PokemonSummary bind:save bind:update bind:selected bind:openSummary/>
+    <PokemonSummary bind:save bind:update bind:selected bind:openSummary bind:isBattle/>
 {/if}
 
 <script lang="ts">
@@ -107,6 +109,8 @@
     import {onMount} from "svelte";
     import {backInOut} from "svelte/easing";
     import {slide, fade} from 'svelte/transition';
+    import {BattleState} from "../../js/battle/battle";
+    import {BATTLE_STATE} from "../../js/const";
 
     export let pokemonListOpened: boolean;
     export let switchOpened: boolean;
@@ -119,8 +123,14 @@
 
     export let update = false;
 
-    let first = save.player.monsters.at(0);
-    let others = save.player.monsters.slice(1);
+    let battleState: BattleState | undefined;
+
+    BATTLE_STATE.subscribe(value => {
+        battleState = value.state;
+    });
+
+    $:first = isBattle ? battleState?.playerCurrentMonster : save.player.monsters.at(0);
+    $:others = isBattle ? save.player.monsters.filter((pkmn => pkmn !== first)) : save.player.monsters.slice(1);
 
     let switchToIdx = undefined;
     let openOptions = false;
@@ -153,7 +163,7 @@
     function switchNow() {
         //swap(save.player.monsters, selected, 0);
         closeList();
-        currentBattlePokemon = save.player.monsters[selected];
+        currentBattlePokemon = others[selected - 1];
     }
 
     function saveSwitch() {

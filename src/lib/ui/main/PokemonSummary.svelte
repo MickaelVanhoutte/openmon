@@ -34,7 +34,7 @@
         {#if tab === 0}
             <PokemonInfo bind:save bind:selected/>
         {:else if tab === 1}
-            <PokemonStats bind:save bind:selected bind:statEdit/>
+            <PokemonStats bind:save bind:selected bind:statEdit bind:isBattle/>
         {:else if tab === 2}
             <PokemonSkills bind:save bind:selected bind:selectedMove/>
         {/if}
@@ -48,14 +48,13 @@
     import PokemonInfo from "./PokemonInfo.svelte";
     import PokemonStats from "./PokemonStats.svelte";
     import PokemonSkills from "./PokemonSkills.svelte";
-
     export let save: SelectedSave;
     export let selected: number;
     export let openSummary: boolean;
-
     export let selectedMove = 0;
+    export let statEdit = false;
 
-    export let statEdit = false
+    export let isBattle: boolean;
 
     let tab = 0;
 

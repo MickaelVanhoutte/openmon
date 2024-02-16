@@ -46,7 +46,7 @@
 </div>
 
 {#if pokemonListOpened}
-    <PokemonList bind:save bind:pokemonListOpened bind:openSummary bind:isBattle/>
+    <PokemonList bind:save bind:pokemonListOpened bind:openSummary bind:isBattle onChange={(pkmn) => 0}/>
 {/if}
 
 <script lang="ts">
