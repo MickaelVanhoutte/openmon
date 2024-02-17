@@ -74,7 +74,7 @@
     </div>
 
     <div class="actions">
-        <button on:click={closeList}>CANCEL</button>
+        <button on:click={() => closeList()}>CANCEL</button>
     </div>
 
     <!--<div class="context">
@@ -87,7 +87,9 @@
         <ul>
             <li class:selected={optionSelected === 0} on:click={() => summarize()}>SUMMARY</li>
             {#if !isBattle || selected !== 0}
-            <li class:selected={optionSelected === 1} on:click={() => isBattle ? switchNow() : saveSwitch()}>SWITCH</li>
+                <li class:selected={optionSelected === 1} on:click={() => isBattle ? switchNow() : saveSwitch()}>
+                    SWITCH
+                </li>
             {/if}
             {#if !isBattle}
                 <li class:selected={optionSelected === 2}>ITEM</li>
@@ -202,7 +204,10 @@
                 } else {
                     openOptions = true;
                 }
+            } else if (e.key === "Escape") {
+                closeList();
             }
+
         } else {
             if (e.key === "ArrowUp") {
                 optionSelected = optionSelected === 0 ? 3 : optionSelected - 1;
@@ -216,6 +221,8 @@
                 } else if (optionSelected === 1) {
                     saveSwitch();
                 }
+            } else if (e.key === "Escape") {
+                openOptions = false;
             }
         }
     }

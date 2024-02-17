@@ -4,8 +4,22 @@
 
     <div class="grid">
         <ul id="hexGrid">
+
+
             <li class="hex">
-                <div class="hexIn">
+                <div class="hexIn" class:selected={selected === 0}>
+                    <a class="hexLink" on:click={() => menuOpened = false}>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19.0001 10.0001L19.0003 19L17.0003 19L17.0002 12.0001L9.41409 12V17.4142L2.99988 11L9.41409 4.58578L9.41409 10L19.0001 10.0001Z"></path></svg>
+                        <h1>Back</h1>
+                        <div class='img'></div>
+                    </a>
+                </div>
+            </li>
+
+
+
+            <li class="hex">
+                <div class="hexIn" class:selected={selected === 1}>
                     <a class="hexLink" on:click={() => openList()}>
                         <img src="src/assets/menus/pokeball.png" alt="pokemons">
                         <h1>Pokémons</h1>
@@ -15,8 +29,8 @@
             </li>
 
             <li class="hex">
-                <div class="hexIn">
-                    <a class="hexLink" href="#">
+                <div class="hexIn" class:selected={selected === 2}>
+                    <a class="hexLink" on:click={() => openBag()}>
                         <img src="src/assets/menus/bag.png" alt="bag">
                         <h1>Bag</h1>
                         <div class='img'></div>
@@ -24,8 +38,8 @@
                 </div>
             </li>
             <li class="hex">
-                <div class="hexIn">
-                    <a class="hexLink" href="#">
+                <div class="hexIn" class:selected={selected === 3}>
+                    <a class="hexLink">
                         <img src="src/assets/menus/trainer.png" alt="trainer">
                         <h1>Trainer</h1>
                         <div class='img'></div>
@@ -33,7 +47,7 @@
                 </div>
             </li>
             <li class="hex">
-                <div class="hexIn">
+                <div class="hexIn" class:selected={selected === 4}>
                     <a class="hexLink" on:click={()=> saveCurrent()}>
                         <img src="src/assets/menus/save.png" alt="save">
                         <h1>Save</h1>
@@ -46,7 +60,11 @@
 </div>
 
 {#if pokemonListOpened}
-    <PokemonList bind:save bind:pokemonListOpened bind:openSummary bind:isBattle onChange={(pkmn) => 0}/>
+    <PokemonList bind:save bind:pokemonListOpened bind:openSummary bind:isBattle onChange={() => 0}/>
+{/if}
+
+{#if bagOpened}
+    <Bag bind:save bind:bagOpened bind:isBattle/>
 {/if}
 
 <script lang="ts">
@@ -55,11 +73,11 @@
     import {SelectedSave} from "../../js/saves/saves";
     import PokemonList from "./PokemonList.svelte";
     import {onMount} from "svelte";
+    import Bag from "./Bag.svelte";
 
-    export let menuOpened;
-
-    export let pokemonListOpened;
-
+    export let menuOpened: boolean;
+    export let pokemonListOpened: boolean;
+    export let bagOpened: boolean;
     export let openSummary;
 
     export let saveContext: SaveContext;
@@ -68,12 +86,10 @@
 
     let selected = 0;
 
-
-    let menuSize = window.innerHeight * .2;
-
     function saveCurrent() {
-        saveContext = saveContext.updateSave(save.save);
+        // TODO confirm
         menuOpened = false;
+        saveContext = saveContext.updateSave(save.save);
     }
 
     function openList() {
@@ -81,16 +97,29 @@
         pokemonListOpened = true;
     }
 
+    function openBag() {
+        menuOpened = false;
+        bagOpened = true;
+    }
+
     const listener = (e: KeyboardEvent) => {
-        if (e.key === "ArrowUp") {
-            selected = selected === 0 ? 6 : selected - 1;
-        } else if (e.key === "ArrowDown") {
-            selected = selected === 6 ? 0 : selected + 1;
-        } else if (e.key === "Enter") {
-            if (selected === 1) {
-                openList();
-            } else if (selected === 4) {
-                saveCurrent();
+        if (menuOpened) {
+            if (e.key === "ArrowUp") {
+                selected = selected === 0 ? 4 : selected - 1;
+            } else if (e.key === "ArrowDown") {
+                selected = selected === 4 ? 0 : selected + 1;
+            } else if (e.key === "Enter") {
+                if (selected === 0) {
+                   menuOpened = false;
+                } else if(selected === 1){
+                    openList();
+                } else if (selected === 2) {
+                    openBag();
+                } else if (selected === 3) {
+                    // TODO : Trainer
+                } else if (selected === 4) {
+                    saveCurrent();
+                }
             }
         }
     }
@@ -189,12 +218,7 @@
 
 
       /*** HEX CONTENT **********************************************************************/
-      .hex img {
-        /* left: -100%;
-         right: -100%;
-         width: auto;
-         height: 100%;
-         margin: 0 auto;*/
+      .hex img, .hex svg {
         position: absolute;
         height: 50%;
         width: auto;
@@ -202,6 +226,10 @@
         left: 50%;
         transform: translate(-50%, -50%);
         z-index: 2;
+      }
+
+      .hex svg {
+        height: 33%;
       }
 
       .hex h1, .hex p {
@@ -227,11 +255,6 @@
         bottom: 0;
         left: 0;
         background: #359cc4;
-        //background: radial-gradient(circle at 17% 21%, #359cc4 2%, rgb(27 27 30) 80%);
-        //background-image: linear-gradient(to bottom right, #434343 0%, black 100%);
-        //background-image: linear-gradient(to bottom right, #38A2D7, #561139);
-        //background: linear-gradient(149deg, rgba(118,167,177,1) 0%, rgba(91,103,138,0.9206276260504201) 11%, rgba(13,21,42,0.9122242647058824) 100%);
-        background-position: center center;
         background-size: cover;
         overflow: hidden;
         -webkit-clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
@@ -261,16 +284,24 @@
 
 
       .hexLink:hover h1, .hexLink:focus h1,
-      .hexLink:hover p, .hexLink:focus p {
+      .hexLink:hover h1, .hexLink:focus p {
         opacity: 1;
         transition: 0.8s;
       }
 
 
+      .hexIn.selected .img:before,
+      .hexIn.selected .img:after,
+      .hexIn.selected .hexLink,
       .hexIn:hover .img:before,
       .hexIn:hover .img:after,
       .hexIn:hover .hexLink {
         opacity: 1;
+
+        .hexLink h1, .hexLink p {
+          opacity: 1;
+          transition: 0.8s;
+        }
       }
 
 

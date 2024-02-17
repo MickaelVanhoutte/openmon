@@ -638,6 +638,18 @@ export class PokemonInstance extends PokedexEntry {
         }
     }
 
+    public heal(hp: number){
+        this.currentHp += hp;
+        if (this.currentHp > this.currentStats.hp) {
+            this.currentHp = this.currentStats.hp;
+        }
+    }
+
+    public revive(percentHp: number){
+        this.fainted = false;
+        this.currentHp = Math.floor(this.currentStats.hp * percentHp / 100);
+    }
+
     public howMuchXpWon(opponent: PokemonInstance, participated: number = 1, fromTrainer: boolean = false): number {
         return EXPERIENCE_CHART.howMuchIGet(this, opponent, participated, fromTrainer, false);
     }

@@ -1,6 +1,7 @@
 import pokedex from './gen1-2.json' assert {type: 'json'};
 import pokedex2 from './pokedex.json' assert {type: 'json'};
 import pokeWithXp from './poke-withXp.json' assert {type: 'json'};
+import pokeWithCatchRate from './pokemons-catch.json' assert {type: 'json'};
 import moveAssociations from './final/move-associations-bw.json' assert {type: 'json'};
 import * as fs from "fs";
 
@@ -42,6 +43,7 @@ function exportPokemons() {
 
         let secondSource = pokemon2FromJson.find((p) => p.id === pokemon.pokedex_number);
         let thirdSource = pokeWithXp.find((p) => p.id === pokemon.pokedex_number);
+        let fourthSource = pokeWithCatchRate.pokemon.find((p) => p.id === pokemon.pokedex_number);
 
         if (secondSource && thirdSource) {
 
@@ -92,7 +94,7 @@ function exportPokemons() {
                 weight: pokemon.weight_kg,
                 description: secondSource.description,
                 isLegendary: pokemon.is_legendary,
-                captureRate: pokemon.capture_rate,
+                captureRate: fourthSource.catchRate,
                 experienceGrowth: pokemon.experience_growth,
                 percentageMale: pokemon.percentage_male,
                 evolution: evolution,
