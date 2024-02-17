@@ -7,18 +7,18 @@
 
             <div class="bubbles">
                 {#if tab === 1}
-                    <span class="bubble off" on:click={() => tab = 0}></span>
+                    <span class="bubble off" on:click={() => changeTab(0)}></span>
                 {:else if tab === 2}
-                    <span class="bubble off" on:click={() => tab = 0}></span>
-                    <span class="bubble off" on:click={() => tab = 1}></span>
+                    <span class="bubble off" on:click={() => changeTab(0)}></span>
+                    <span class="bubble off" on:click={() => changeTab(1)}></span>
                 {/if}
 
                 <span class="bubble"></span>
             </div>
         </div>
-        <button style="--index: 0" class:active={tab === 0} on:click={() => tab = 0}><span></span></button>
-        <button style="--index: 1" class:active={tab === 1} on:click={() => tab = 1}><span></span></button>
-        <button style="--index: 2" class:active={tab === 2} on:click={() => tab = 2}><span></span></button>
+        <button style="--index: 0" class:active={tab === 0} on:click={() => changeTab(0)}><span></span></button>
+        <button style="--index: 1" class:active={tab === 1} on:click={() => changeTab(1)}><span></span></button>
+        <button style="--index: 2" class:active={tab === 2} on:click={() => changeTab(2)}><span></span></button>
 
 
         <button class="back" on:click={() => back()}>BACK</button>
@@ -37,7 +37,7 @@
             <ul bind:this={list}>
                 {#each pocket as [id, qty], idx}
                     <li>
-                        <div class="item" class:selected={selected === idx}>
+                        <div class="item" class:selected={selected === idx} on:click={() => selected = idx}>
                             <span>{ITEMS.getItem(id)?.name}</span>
                             <span>x {qty}</span>
                         </div>
@@ -113,6 +113,11 @@
             window.removeEventListener("keydown", listener);
         };
     });
+
+    function changeTab(number: number) {
+        tab = number;
+        selected = 0;
+    }
 
 </script>
 
