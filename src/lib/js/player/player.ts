@@ -54,6 +54,7 @@ export class Character {
         this.monsters.forEach((monster) => {
             Object.setPrototypeOf(monster, PokemonInstance.prototype);
         });
+        this.bag = new Bag(this.bag);
         return this;
     }
 

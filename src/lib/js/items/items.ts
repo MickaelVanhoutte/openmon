@@ -1,4 +1,5 @@
 import type {PokemonInstance} from "../pokemons/pokedex";
+import itemsJson from "../../../assets/data/final/usable-items.json";
 
 export class ItemUsageResult {
     public success: boolean;
@@ -103,4 +104,33 @@ export class ReviveItem extends AItem {
     }
 }
 
+export class ItemsReferences {
+    public static POKEBALL = 34;
+    public static POTION = 27;
+    public static REVIVE = 29;
+
+    public references: Record<number, AItem> = {}
+    constructor() {
+        itemsJson.forEach((item: any) => {
+            switch (item.categoryId) {
+                case 34:
+                    this.references[item.id] = new Pokeball(item.id, item.categoryId, item.name, item.description, item.power);
+                    break;
+                case 27:
+                    this.references[item.id] = new HealingItem(item.id, item.categoryId, item.name, item.description, item.power);
+                    break;
+                case 29:
+                    this.references[item.id] = new ReviveItem(item.id, item.categoryId, item.name, item.description, item.power);
+                    break;
+                default:
+                    break;
+            }
+        });
+
+    }
+
+    public getItem(id: number): AItem | undefined {
+        return this.references[id];
+    }
+}
 

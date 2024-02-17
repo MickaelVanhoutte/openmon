@@ -51,6 +51,12 @@
         }, {passive: false});
     }
 
+    window.addEventListener('beforeunload', function (event) {
+        event.preventDefault();
+
+        event.returnValue = 'Leaving already ?';
+    });
+
 </script>
 
 <style lang="scss">

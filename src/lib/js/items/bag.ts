@@ -1,37 +1,40 @@
-import {AItem, Pokeball} from "./items";
-import {HealingItem, ReviveItem} from "./items";
+import {AItem} from "./items";
 import {ITEMS} from "../const";
 
 export class Bag {
     // Map<id, quantity>
-    balls = new Map<number, number>();
-    potions = new Map<number, number>();
+    public balls : Record<number, number> = {};
+    public potions : Record<number, number> = {};
+    public revives : Record<number, number> = {};
 
     constructor(bag?: Bag) {
         if (bag) {
-            this.balls = new Map(bag.balls);
-            this.balls.forEach((value, key) => {
-                Object.setPrototypeOf(this.balls.get(key), Pokeball.prototype);
+            Object.keys(bag['balls']).forEach((key) => {
+                // @ts-ignore
+                this.balls[parseInt(key)] = parseInt(bag['balls'][key]);
             });
-            this.potions = new Map(bag.potions);
-            this.potions.forEach((value, key) => {
-                if (value === 27) {
-                    Object.setPrototypeOf(this.potions.get(key), HealingItem.prototype);
-                } else {
-                    Object.setPrototypeOf(this.potions.get(key), ReviveItem.prototype);
-                }
+            Object.keys(bag['potions']).forEach((key) => {
+                // @ts-ignore
+                this.potions[parseInt(key)] = parseInt(bag['potions'][key]);
+            });
+            Object.keys(bag['revives']).forEach((key) => {
+                // @ts-ignore
+                this.revives[parseInt(key)] = parseInt(bag['revives'][key]);
             });
         }
     }
 
     addItems(id: number, quantity: number) {
-        switch (id) {
+        let categoryItem = ITEMS.getItem(id)?.categoryId;
+        switch (categoryItem) {
             case 34:
-                this.balls.set(id, (this.balls.get(id) || 0) + quantity);
+                this.balls[id] = (this.balls[id] || 0) + quantity;
                 break;
             case 27:
+                this.potions[id] = (this.potions[id] || 0) + quantity;
+                break;
             case 29:
-                this.potions.set(id, (this.potions.get(id) || 0) + quantity);
+                this.revives[id] = (this.revives[id] || 0) + quantity;
                 break;
             default:
                 break;
@@ -41,24 +44,24 @@ export class Bag {
     getItem(id: number): AItem | undefined {
         switch (id) {
             case 34:
-                let ball = this.balls.get(id);
+                let ball = this.balls[id];
                 if (ball && ball > 0) {
-                    this.balls.set(id, ball - 1);
-                    return ITEMS.get(id)?.instanciate();
+                    this.balls[id] = ball - 1;
+                    return ITEMS.getItem(id)?.instanciate();
                 }
                 break;
             case 27:
-                let potion = this.potions.get(id);
+                let potion = this.potions[id];
                 if (potion && potion > 0) {
-                    this.potions.set(id, potion - 1);
-                    return ITEMS.get(id)?.instanciate();
+                    this.potions[id] = potion - 1;
+                    return ITEMS.getItem(id)?.instanciate();
                 }
                 break;
             case 29:
-                let revive = this.potions.get(id);
+                let revive = this.revives[id];
                 if (revive && revive > 0) {
-                    this.potions.set(id, revive - 1);
-                    return ITEMS.get(id)?.instanciate();
+                    this.revives[id] = revive - 1;
+                    return ITEMS.getItem(id)?.instanciate();
                 }
                 break;
             default:

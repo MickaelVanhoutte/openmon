@@ -26,7 +26,7 @@
             <span class="arrow"></span>
         </button>
 
-        <button class="back" on:click={back}>BACK</button>
+        <button class="back" on:click={() => back()}>BACK</button>
     </div>
 
     <div class="tab-content">

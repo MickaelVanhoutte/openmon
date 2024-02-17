@@ -44,6 +44,7 @@
         player.monsters.push(POKEDEX.findById(9).result.instanciate(5));
         player.monsters.push(POKEDEX.findById(143).result.instanciate(5));
 
+        console.log(player);
         saveContext = saveContext.createSave(new Save(player, start));
     }
 
