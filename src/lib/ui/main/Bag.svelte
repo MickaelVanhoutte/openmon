@@ -26,16 +26,26 @@
     </div>
     <div class="tab-content">
 
-        <ul class="item-list">
-            {#each pocket as [id, qty]}
-                <li>
-                    <div class="item">
-                        <span>{ITEMS.getItem(id)?.name}</span>
-                        <span>x {qty}</span>
-                    </div>
-                </li>
-            {/each}
-        </ul>
+        <div class="item-desc">
+            <div class="content">
+                <p>{ITEMS.getItem(pocket[selected][0])?.name}</p>
+                <p>{ITEMS.getItem(pocket[selected][0])?.description}</p>
+            </div>
+        </div>
+
+        <div class="item-list">
+            <ul bind:this={list}>
+                {#each pocket as [id, qty], idx}
+                    <li>
+                        <div class="item" class:selected={selected === idx}>
+                            <span>{ITEMS.getItem(id)?.name}</span>
+                            <span>x {qty}</span>
+                        </div>
+                    </li>
+                {/each}
+            </ul>
+        </div>
+
     </div>
 </div>
 
@@ -52,6 +62,8 @@
     export let save: SelectedSave;
     export let isBattle = false;
 
+    export let list: HTMLUListElement;
+
 
     let tab = 0;
     const tabs = {
@@ -66,20 +78,30 @@
         2: 'revives'
     };
 
-    console.log(save.player.bag);
     $:pocket =  Object.keys(save.player.bag[categories[tab]]).map(id => [id, save.player.bag[categories[tab]][id]]);
+    let selected = 0;
 
     function back() {
         bagOpened = false;
     }
 
     const listener = (e: KeyboardEvent) => {
-        if (e.key === "Escape") {
-            bagOpened = false;
-        } else if (e.key === "ArrowRight") {
+        if (e.key === "ArrowRight") {
             tab = (tab + 1) % 3;
+            selected = 0;
         } else if (e.key === "ArrowLeft") {
             tab = (tab + 2) % 3;
+            selected = 0;
+        } else if (e.key === "ArrowUp") {
+            selected = (selected + pocket.length - 1) % pocket.length;
+            if(selected === pocket.length - 1) {
+                list.scroll({top: list.clientHeight - list.children[0].clientHeight ,behavior:'smooth'});
+            }
+        } else if (e.key === "ArrowDown") {
+            selected = (selected + 1) % pocket.length;
+            if(selected === 0) {
+                list.scroll({top: 0 ,behavior:'smooth'});
+            }
         } else if (e.key === "Escape") {
             back();
         }
@@ -246,36 +268,74 @@
       background-image: url("src/assets/menus/p-sum.jpg");
       background-blend-mode: soft-light;
 
-      .item-list {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        padding: 0;
-        margin: 0;
-        overflow-y: auto;
-        height: calc(100%);
-        box-sizing: border-box;
+      display: flex;
+      gap: 2%;
 
-        li {
-          width: 30%;
+      .item-desc {
+        height: 100%;
+        width: 50%;
+        padding: 2%;
+        box-sizing: border-box;
+        font-size: 32px;
+        color: white;
+        text-shadow: 1px 1px 1px black;
+
+        .content {
           display: flex;
-          justify-content: center;
+          flex-direction: column;
+          height: 100%;
           align-items: center;
-          padding: 10px;
+          justify-content: center;
+
+          background: rgba(0, 0, 0, 0.5);
+          border-radius: 16px;
+        }
+      }
+
+      .item-list {
+        max-height: 100%;
+        width: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        color: white;
+        text-shadow: 1px 1px 1px black;
+        padding: 2%;
+
+        ul {
+          list-style: none;
+          margin: 0;
+          display: flex;
+          flex-direction: column;
+          width: 100%;
+          height: 100%;
+          overflow-y: scroll;
+          padding: 2%;
           box-sizing: border-box;
 
-          .item {
-            width: 100%;
-            height: 100%;
-            background-color: #0e2742f0;
+          //todo scrolllbar
+            scrollbar-width: thin;
+            scrollbar-color: #68c0c8 #0e2742f0;
+
+
+          li {
             display: flex;
-            justify-content: center;
+            width: 100%;
             align-items: center;
-            border-radius: 10px;
-            box-shadow: 0 0 10px 0 black;
-            font-size: 24px;
-            color: white;
-            text-shadow: 1px 1px 1px black;
+            justify-content: center;
+          }
+
+          .item {
+            display: flex;
+            width: 100%;
+            justify-content: space-between;
+            padding: 2%;
+
+            &.selected {
+              // underline
+                border-bottom: 2px solid white;
+            }
           }
         }
       }

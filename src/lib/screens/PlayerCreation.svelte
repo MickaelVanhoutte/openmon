@@ -37,6 +37,21 @@
         let player = Character.fromScratch(1, playerName, 'MALE');
         player.bag.addItems(4, 5); // pokeball
         player.bag.addItems(17, 5); // potion
+
+        player.bag.addItems(1, 5);
+        player.bag.addItems(2, 5);
+        player.bag.addItems(3, 5);
+        player.bag.addItems(23, 5);
+        player.bag.addItems(24, 5);
+        player.bag.addItems(25, 5);
+        player.bag.addItems(26, 5);
+        player.bag.addItems(30, 5);
+        player.bag.addItems(31, 5);
+        player.bag.addItems(32, 5);
+        player.bag.addItems(33, 5);
+        player.bag.addItems(28, 5);
+        player.bag.addItems(29, 5);
+
         player.monsters.push(POKEDEX.findById(3).result.instanciate(5));
         player.monsters.push(POKEDEX.findById(25).result.instanciate(5));
 
