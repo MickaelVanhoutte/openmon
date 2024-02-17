@@ -1,21 +1,23 @@
 <div class="world-wrapper" bind:this={wrapper}>
     <canvas bind:this={canvas} id="main" width="1024" height="1024"></canvas>
 
-    <Menu bind:menuOpened bind:pokemonListOpened bind:openSummary bind:save bind:saveContext/>
+    <Menu bind:menuOpened bind:pokemonListOpened bind:bagOpened bind:openSummary bind:save bind:saveContext/>
 
-    {#if !pokemonListOpened}
+    {#if !pokemonListOpened && !bagOpened}
         <button on:click={() => menuOpened = !menuOpened} class="start">start</button>
     {/if}
 
-    {#if battleState && battleState?.starting}
+    {#if battleState && battleState?.starting && !pokemonListOpened && !bagOpened }
         <div class="battleStart"></div>
     {/if}
-    {#if !pokemonListOpened}
+
+    {#if !pokemonListOpened && !bagOpened}
         <div class="battleEnd" class:active={battleState && battleState?.ending || mainLoopContext.changingMap}></div>
     {/if}
     <div class="joysticks" bind:this={joysticks}></div>
     <div class="ab-buttons" bind:this={abButtonsC}></div>
 </div>
+
 <script lang="ts">
 
     import {ABButtons, keys, lastKey, resetKeys} from "../js/commands/keyboard";
@@ -25,7 +27,7 @@
     import {Character} from "../js/player/player";
     import {onDestroy, onMount} from "svelte";
     import Menu from "../ui/main/Menu.svelte";
-    import {BATTLE_STATE, MAP_DRAWER, maps, POKEDEX} from "../js/const";
+    import {BATTLE_STATE, MAP_DRAWER, MAPS, POKEDEX} from "../js/const";
     import {SaveContext, SelectedSave} from "../js/saves/saves";
     import JoystickController from 'joystick-controller';
     import {OpenMap} from "../js/mapping/maps.js";
@@ -48,6 +50,7 @@
 
     let menuOpened = false;
     let pokemonListOpened = false;
+    let bagOpened = false;
     let openSummary = false;
 
     let mainLoopContext = {
@@ -63,7 +66,7 @@
 
     function changeMap(jonction: Jonction) {
         mainLoopContext.changingMap = true;
-        let map = OpenMap.fromInstance(maps[jonction.mapIdx]);
+        let map = OpenMap.fromInstance(MAPS[jonction.mapIdx]);
         map.playerInitialPosition = map.jonctions.find(j => j.id === jonction.id)?.start || new Position(0, 0);
         save.save.map = map;
         mainLoopContext.displayChangingMap = true;
@@ -93,7 +96,7 @@
             ctx.fillStyle = 'black';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            if (!pokemonListOpened) {
+            if (!pokemonListOpened && !bagOpened) {
 
 
                 MAP_DRAWER.draw(ctx, save.map, mainLoopContext.imageScale, mainLoopContext.debug);
@@ -227,8 +230,12 @@
         }
     };
 
+    $:{
+        console.log(menuOpened, pokemonListOpened, bagOpened);
+    }
+
     const keyDownListener = (e) => {
-        if (!menuOpened && !pokemonListOpened && !openSummary) {
+        if (!menuOpened && !pokemonListOpened && !openSummary && !bagOpened) {
             switch (e.key) {
                 case 'ArrowDown' :
                     lastKey.key = 'ArrowDown';
@@ -255,9 +262,23 @@
                     break;
                 case 'Escape':
                     menuOpened = !menuOpened;
-                    break;
             }
-        } else {
+        }else{
+            switch (e.key) {
+                case 'Escape':
+                    menuOpened = false;
+                    /*if (openSummary) {
+                        openSummary = false;
+                    } else if (pokemonListOpened) {
+                        pokemonListOpened = false;
+                    } else {
+
+                    }
+                    break;*/
+            }
+        }
+
+        /*else {
             switch (e.key) {
                 case 'Escape':
                     if (openSummary) {
@@ -269,7 +290,7 @@
                     }
                     break;
             }
-        }
+        }*/
     };
 
 
@@ -471,7 +492,7 @@
     position: absolute;
     top: 0;
     left: 0;
-    z-index: 9;
+    z-index: 6;
 
     &.active {
       animation: fade-out 4s ease-in-out;

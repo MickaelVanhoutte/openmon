@@ -1,18 +1,19 @@
 import {PokemonInstance} from "../pokemons/pokedex";
 import {CHARACTER_SPRITES} from "../const";
+import {Bag} from "../items/bag";
 
 export class Character {
     public spriteId: number;
     public name: string;
     public gender: 'MALE' | 'FEMALE';
     public monsters: PokemonInstance[];
-    public bag: any[] = [];
+    public bag = new Bag();
     public lvl: number = 1;
     public moving: boolean = false;
     public running: boolean = false;
     public direction: 'up' | 'down' | 'left' | 'right' = 'down';
 
-    constructor(spriteId: number, name: string, gender: 'MALE' | 'FEMALE', monsters: PokemonInstance[], bag: any[], lvl: number, moving: boolean, direction: 'up' | 'down' | 'left' | 'right') {
+    constructor(spriteId: number, name: string, gender: 'MALE' | 'FEMALE', monsters: PokemonInstance[], bag: Bag, lvl: number, moving: boolean, direction: 'up' | 'down' | 'left' | 'right') {
         this.spriteId = 1;
         this.name = name;
         this.gender = gender;
@@ -29,7 +30,7 @@ export class Character {
             name,
             gender,
             [],
-            [],
+            new Bag(),
             1,
             false,
             'down',
@@ -57,7 +58,7 @@ export class Character {
     }
 
     public draw(ctx: CanvasRenderingContext2D, type: 'front' | 'overworld', scale: number) {
-        CHARACTER_SPRITES.draw(this.spriteId, ctx, type, this.direction,  scale, this.moving);
+        CHARACTER_SPRITES.draw(this.spriteId, ctx, type, this.direction, scale, this.moving);
     }
 }
 
