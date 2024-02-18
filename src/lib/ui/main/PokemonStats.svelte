@@ -53,7 +53,7 @@
     </div>
 </div>
 
-<div class="stats-edit" class:open={statEdit}>
+<div class="stats-edit" style="--zIndex:{zIndex+1}" class:open={statEdit}>
     <div class="stats-wrapper" bind:this={graphWrapper}>
         <canvas bind:this={graph} use:makeChart={data, config}></canvas>
     </div>
@@ -477,7 +477,7 @@
     box-sizing: border-box;
     position: absolute;
 
-    z-index: 2;
+    z-index: var(--zIndex, 11);
     left: 0;
     bottom: -100%;
     transition: bottom 0.5s ease-in-out;

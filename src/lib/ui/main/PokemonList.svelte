@@ -74,7 +74,9 @@
     </div>
 
     <div class="actions">
-        <button on:click={() => closeList()}>CANCEL</button>
+        {#if !forceChange}
+            <button on:click={() => closeList()}>CANCEL</button>
+        {/if}
     </div>
 
     <!--<div class="context">
@@ -96,7 +98,9 @@
                     </li>
                 {/if}
                 {#if !isBattle}
-                    <li class:selected={optionSelected === 2} on:click={() => {openBag = true; openOptions = false}}>ITEM</li>
+                    <li class:selected={optionSelected === 2} on:click={() => {openBag = true; openOptions = false}}>
+                        ITEM
+                    </li>
                 {/if}
                 <li class:selected={optionSelected === 3} on:click={() => openOptions = false}>CANCEL</li>
             {/if}
@@ -136,6 +140,8 @@
     export let save: SelectedSave;
 
     export let isBattle: boolean;
+
+    export let forceChange: boolean;
     export let selected = 0;
 
     export let itemToUse;
@@ -232,7 +238,7 @@
             save.player.bag.use(itemToUse, selectedMons);
             save.player.name = save.player.name;
         } else {
-            let selectedMons = selected === 0? first : others[selected - 1];
+            let selectedMons = selected === 0 ? first : others[selected - 1];
             onChange(selectedMons);
         }
         setTimeout(() => {

@@ -654,7 +654,7 @@ export class PokemonInstance extends PokedexEntry {
         return EXPERIENCE_CHART.howMuchIGet(this, opponent, participated, fromTrainer, false);
     }
 
-    public addXpResult(xp: number, evs: number): { levelup: boolean, xpLeft: number } {
+    public addXpResult(totalXp: number, evs: number): { levelup: boolean, xpLeft: number } {
         this.evsToDistribute += (this.totalEvs + evs <= 510) ? evs : (this.totalEvs + evs) - 510;
         if (this.level >= 100) {
             return {levelup: false, xpLeft: 0};
@@ -666,19 +666,16 @@ export class PokemonInstance extends PokedexEntry {
         }
 
         let xpLeft = 0;
-        if (this.xpToNextLevel < xp) {
-            xpLeft = xp - this.xpToNextLevel;
-            const xpToAddNow = xp - xpLeft;
+        if (this.xpToNextLevel < this.currentXp + totalXp) {
+            xpLeft = totalXp - (this.xpToNextLevel - this.currentXp);
+            const xpToAddNow = totalXp - xpLeft;
             this.currentXp += xpToAddNow;
             result.xpLeft = xpLeft
+            result.levelup = true;
         } else {
-            this.currentXp += xp;
-            result.xpLeft = 0;
+            this.currentXp += totalXp;
         }
 
-        if (this.currentXp >= this.xpToNextLevel) {
-            result.levelup = true;
-        }
         return result;
     }
 

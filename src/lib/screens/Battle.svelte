@@ -9,7 +9,13 @@
     <ActionBar bind:switchOpened={switchOpened} bind:bagOpened={bagOpened}/>
 
     {#if switchOpened}
-        <PokemonList {save} {isBattle} bind:switchOpened={switchOpened} zIndex={zIndexNext} onChange={(pkm) => !!pkm && pkm !==0 && sendSwitchAction(pkm)}/>
+        <PokemonList {save} {isBattle} bind:switchOpened={switchOpened} zIndex={zIndexNext}
+                     onChange={(pkm) => !!pkm && pkm !==0 && sendSwitchAction(pkm)}/>
+    {/if}
+
+    {#if changePokemon}
+        <PokemonList {save} {isBattle} bind:forceChange={changePokemon} bind:switchOpened={switchOpened} zIndex={zIndexNext}
+                     onChange={(pkm) => !!pkm && pkm !==0 && send(pkm)}/>
     {/if}
 
     {#if bagOpened}
@@ -18,7 +24,7 @@
 </div>
 <script lang="ts">
 
-    import {BagObject, BattleState, SwitchAction} from "../js/battle/battle";
+    import {BagObject, BattleContext, BattleState, SwitchAction} from "../js/battle/battle";
     import {Position} from "../js/sprites/drawers";
     import {onMount} from "svelte";
     import ActionBar from "../ui/battle/ActionBar.svelte";
@@ -45,6 +51,8 @@
     export let isBattle = true;
 
     let battleState: BattleState | undefined;
+
+    $:changePokemon = battleState?.changePokemon;
 
     BATTLE_STATE.subscribe(value => {
         battleState = value.state;
@@ -141,6 +149,19 @@
         }
     }
 
+    function send(pokemon: PokemonInstance) {
+        if (battleState?.playerCurrentMonster) {
+            let pkmnIndex = battleState.player.monsters.indexOf(pokemon);
+            // exchange 0 and pkmnIndex in the array
+            [battleState.player.monsters[0], battleState.player.monsters[pkmnIndex]] = [battleState.player.monsters[pkmnIndex], battleState.player.monsters[0]];
+            battleState.playerCurrentMonster = battleState.player.monsters[0];
+            battleState.changePokemon = false;
+            battleState.currentMessageV = `What should ${battleState.playerCurrentMonster.name} do?`;
+            BATTLE_STATE.set(new BattleContext(battleState));
+            battleLoopContext.allydrawn = false;
+        }
+    }
+
     function sendObjectAction(item: { item: number, target: PokemonInstance }) {
 
         // todo check if item can be applied before sending
@@ -149,6 +170,7 @@
         }
         bagOpened = false;
     }
+
 
     /**
      * From battle

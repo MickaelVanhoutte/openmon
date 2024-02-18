@@ -32,6 +32,7 @@ export class BattleState {
     private escapeAttempts: number = 0;
     public isPlayerTurnV: boolean;
     public currentMessageV: string;
+    public changePokemon: boolean = false;
 
 
     public onClose: (win: boolean) => void = () => {
@@ -47,7 +48,9 @@ export class BattleState {
     constructor(player: Character, opponent: Character | PokemonInstance) {
         this.player = player;
         this.opponent = opponent;
-        this.playerCurrentMonster = player.monsters[0];
+        // playerCurrentMonster = first not fainted pokemon
+        this.playerCurrentMonster = player.monsters.find((monster: PokemonInstance) => !monster.fainted) || player.monsters[0];
+
         this.opponentCurrentMonster = this.wild ? opponent as PokemonInstance : (opponent as Character).monsters[0];
 
         this.turnStack = [];
@@ -110,14 +113,20 @@ export class BattleState {
                 this.currentMessageV = action.description;
             } else if (action instanceof RemoveHP) {
                 this.removeHP(action);
+            }else if (action instanceof LvlUp) {
+                if (action.xpLeft > 0) {
+                    this.addToStack(new XPWin(action.initiator, action.xpLeft), true);
+                }
+
+                this.addToStack(new Message(action.description, action.initiator), true);
+                action.initiator.levelUp();
+
+                // todo display stats
             } else if (action instanceof XPWin) {
                 let result = action.initiator.addXpResult(action.xp, this.opponent instanceof Character ? 3 : 1);
-                if (result.levelup) {
-                    this.addToStack(new Message(`${action.initiator.name} grew to level ${action.initiator.level + 1}!`, action.initiator), true);
-                    action.initiator.levelUp();
-                }
-                if (result.xpLeft > 0) {
-                    this.addToStack(new XPWin(action.initiator, result.xpLeft), true);
+
+                if(result.levelup) {
+                    this.addToStack(new LvlUp(action.initiator, result.xpLeft), true);
                 }
 
             } else if (action instanceof ApplyEffect) {
@@ -259,17 +268,15 @@ export class BattleState {
             target.fainted = true;
             target.status = undefined;
             target.resetBattleStats();
-
+console.log('clear stack');
             // clear stack
             console.log(this.turnStack);
-            // remove target attack from stack && end turn check
+            // remove target attack from stack
             this.turnStack = this.turnStack.filter((action: Action) => {
-                return !(action instanceof Attack && action.initiator === target)
-                    && !(action instanceof EndTurnChecks && action.initiator === target);
+                return !(action instanceof Attack && action.initiator === target);
             });
 
             console.log(this.turnStack);
-            // this.turnStack = [];
 
             if (target === this.opponentCurrentMonster) {
                 let xp = EXPERIENCE_CHART.howMuchIGet(initiator, target, 1, false, false);
@@ -343,7 +350,7 @@ export class BattleState {
     private endTurnChecks(action: Action) {
         // end turn effects (burn, poison..)
         let opponent = action.initiator === this.playerCurrentMonster ? this.opponentCurrentMonster : this.playerCurrentMonster;
-        if (action.initiator.status && action.initiator.status.when === 'end-turn') {
+        if (!action.initiator.fainted && action.initiator.status && action.initiator.status.when === 'end-turn') {
             let effect = action.initiator.status.playEffect(action.initiator, opponent);
             if (effect?.message) {
                 this.addToStack(new Message(effect.message, action.initiator), true);
@@ -366,6 +373,10 @@ export class BattleState {
             });
             this.addToStack(new Message('You lose the battle...', action.initiator));
             this.addToStack(new EndBattle(action.initiator, false));
+        }else if (this.playerCurrentMonster.fainted) {
+            console.log('change pokemon');
+            //TODO
+            this.changePokemon = true;
         }
 
     }
@@ -428,6 +439,21 @@ export class XPWin implements Action {
         this.initiator = initiator;
         this.xp = xp;
     }
+}
+
+export class LvlUp implements Action {
+    name: string;
+    description: string;
+    initiator: PokemonInstance;
+    xpLeft: number;
+
+    constructor(initiator: PokemonInstance, xpLeft: number = 0) {
+        this.name = 'Level Up';
+        this.description = `${initiator.name} grew to level ${initiator.level + 1}!`;
+        this.initiator = initiator;
+        this.xpLeft = xpLeft;
+    }
+
 }
 
 export class EndBattle implements Action {
