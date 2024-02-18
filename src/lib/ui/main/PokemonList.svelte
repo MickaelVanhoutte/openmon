@@ -1,4 +1,4 @@
-<div class="pokemon-list"
+<div class="pokemon-list" style="--zIndex:{zIndex}"
      in:slide="{{duration: 500, delay: 100, axis: 'x', easing: backInOut}}" out:fade>
 
     <div class="pokemons">
@@ -85,22 +85,33 @@
 
     <div class="options" class:hidden={!openOptions}>
         <ul>
-            <li class:selected={optionSelected === 0} on:click={() => summarize()}>SUMMARY</li>
-            {#if !isBattle || selected !== 0}
-                <li class:selected={optionSelected === 1} on:click={() => isBattle ? switchNow() : saveSwitch()}>
-                    SWITCH
-                </li>
+            {#if !!itemToUse}
+                <li class:selected={optionSelected === 0} on:click={() => useItem()}>USE ({itemName})</li>
+                <li class:selected={optionSelected === 1} on:click={() => openOptions = false}>CANCEL</li>
+            {:else}
+                <li class:selected={optionSelected === 0} on:click={() => summarize()}>SUMMARY</li>
+                {#if !isBattle || selected !== 0}
+                    <li class:selected={optionSelected === 1} on:click={() => isBattle ? switchNow() : saveSwitch()}>
+                        SWITCH
+                    </li>
+                {/if}
+                {#if !isBattle}
+                    <li class:selected={optionSelected === 2} on:click={() => {openBag = true; openOptions = false}}>ITEM</li>
+                {/if}
+                <li class:selected={optionSelected === 3} on:click={() => openOptions = false}>CANCEL</li>
             {/if}
-            {#if !isBattle}
-                <li class:selected={optionSelected === 2}>ITEM</li>
-            {/if}
-            <li class:selected={optionSelected === 3} on:click={() => openOptions = false}>CANCEL</li>
+
         </ul>
     </div>
 </div>
 
 {#if openSummary}
-    <PokemonSummary bind:save bind:update bind:selected bind:openSummary bind:isBattle/>
+    <PokemonSummary bind:save bind:update bind:selected bind:openSummary bind:isBattle bind:zIndex={zIndexNext}/>
+{/if}
+
+{#if openBag}
+    <Bag bind:save bind:isBattle bind:selectedMons={selected} bind:bagOpened={openBag} bind:zIndex={zIndexNext}
+         onChange="{() => openBag = false}"/>
 {/if}
 
 <script lang="ts">
@@ -112,20 +123,34 @@
     import {backInOut} from "svelte/easing";
     import {slide, fade} from 'svelte/transition';
     import {BattleState} from "../../js/battle/battle";
-    import {BATTLE_STATE} from "../../js/const";
+    import {BATTLE_STATE, ITEMS} from "../../js/const";
+    import Bag from "./Bag.svelte";
+    import {Character} from "../../js/player/player";
 
     export let pokemonListOpened: boolean;
     export let switchOpened: boolean;
 
     export let openSummary: boolean;
+
+    export let openBag: boolean;
     export let save: SelectedSave;
 
     export let isBattle: boolean;
     export let selected = 0;
 
+    export let itemToUse;
+
+    $:itemName = ITEMS.getItem(itemToUse)?.name;
+
     export let update = false;
 
+    export let zIndex;
+
+    $:zIndexNext = zIndex + 1;
+
     let battleState: BattleState | undefined;
+
+    let numberOfOptions = !!itemToUse ? 2 : isBattle ? 3 : 4;
 
     BATTLE_STATE.subscribe(value => {
         battleState = value.state;
@@ -191,6 +216,31 @@
         openSummary = true;
     }
 
+    function closeList() {
+        if (isBattle && !itemToUse) {
+            switchOpened = false;
+        } else {
+            pokemonListOpened = false;
+        }
+
+    }
+
+    function useItem() {
+
+        if (!isBattle && itemToUse) {
+            let selectedMons = save.player.monsters.at(selected);
+            save.player.bag.use(itemToUse, selectedMons);
+            save.player.name = save.player.name;
+        } else {
+            let selectedMons = selected === 0? first : others[selected - 1];
+            onChange(selectedMons);
+        }
+        setTimeout(() => {
+            closeList();
+        }, 1000);
+
+    }
+
     const listener = (e) => {
         if (openSummary) return;
         if (!openOptions) {
@@ -210,31 +260,35 @@
 
         } else {
             if (e.key === "ArrowUp") {
-                optionSelected = optionSelected === 0 ? 3 : optionSelected - 1;
+                optionSelected = optionSelected === 0 ? numberOfOptions : optionSelected - 1;
             } else if (e.key === "ArrowDown") {
-                optionSelected = optionSelected === 3 ? 0 : optionSelected + 1;
+                optionSelected = optionSelected === numberOfOptions ? 0 : optionSelected + 1;
             } else if (e.key === "Enter") {
-                if (optionSelected === 0) {
-                    summarize();
-                } else if (optionSelected === 3) {
-                    openOptions = false;
-                } else if (optionSelected === 1) {
-                    saveSwitch();
+
+                if (!!itemToUse) {
+                    if (optionSelected === 0) {
+                        useItem();
+                    } else if (optionSelected === numberOfOptions) {
+                        openOptions = false;
+                    }
+                } else {
+                    if (optionSelected === 0) {
+                        summarize();
+                    } else if (optionSelected === numberOfOptions) {
+                        openOptions = false;
+                    } else if (optionSelected === 1 && !isBattle && !itemToUse) {
+                        saveSwitch();
+                    } else if (optionSelected === 2 && !isBattle) {
+                        openBag = true;
+                    }
                 }
+
             } else if (e.key === "Escape") {
                 openOptions = false;
             }
         }
     }
 
-    function closeList() {
-        if (isBattle) {
-            switchOpened = false;
-        } else {
-            pokemonListOpened = false;
-        }
-
-    }
 
     onMount(() => {
         window.addEventListener('keydown', listener);
@@ -303,7 +357,7 @@
     background-size: cover;
     background-position: top left;
     background-repeat: round;
-    z-index: 8;
+    z-index: var(--zIndex, 8);
 
     .pokemons {
       height: 100%;

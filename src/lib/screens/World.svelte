@@ -134,7 +134,7 @@
                         changeMap(jonction);
                     }
                     // battle ?
-                    if (save.map.hasBattleZoneAt(positionOnMap) && Math.random() < 0.05) {
+                    if (save.map.hasBattleZoneAt(positionOnMap) && Math.random() < 0.07) {
                         let monster = save.map.randomMonster();
                         window.cancelAnimationFrame(mainLoopContext.id);
                         initiateBattle(POKEDEX.findById(monster.id).result.instanciate(monster.level));
@@ -229,10 +229,6 @@
             }
         }
     };
-
-    $:{
-        console.log(menuOpened, pokemonListOpened, bagOpened);
-    }
 
     const keyDownListener = (e) => {
         if (!menuOpened && !pokemonListOpened && !openSummary && !bagOpened) {

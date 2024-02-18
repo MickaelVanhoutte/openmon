@@ -1,4 +1,4 @@
-<div class="bag"
+<div class="bag" style="--zIndex: {zIndex}"
      in:slide="{{duration: 500, delay: 100, axis: 'x', easing: backInOut}}" out:fade>
 
     <div class="tabs">
@@ -37,7 +37,8 @@
             <ul bind:this={list}>
                 {#each pocket as [id, qty], idx}
                     <li>
-                        <div class="item" class:selected={selected === idx} on:click={() => selected = idx}>
+                        <div class="item" class:selected={selected === idx}
+                             on:click={() => {selected = idx; openOptions = true}}>
                             <span>{ITEMS.getItem(id)?.name}</span>
                             <span>x {qty}</span>
                         </div>
@@ -47,8 +48,19 @@
         </div>
 
     </div>
+
+    <div class="options" class:hidden={!openOptions}>
+        <ul>
+            <li class:selected={optionSelected === 0} on:click={() => use(undefined)}>USE</li>
+            <li class:selected={optionSelected === 1} on:click={() => openOptions = false}>CANCEL</li>
+        </ul>
+    </div>
 </div>
 
+{#if openPokemonList}
+    <PokemonList bind:pokemonListOpened={openPokemonList} bind:save={save} bind:isBattle={isBattle}
+                 bind:itemToUse={itemToUse} onChange={(pkmn) => use(pkmn)} zIndex="{zIndex + 1}"/>
+{/if}
 <script lang="ts">
 
     import {SelectedSave} from "../../js/saves/saves";
@@ -56,13 +68,24 @@
     import {backInOut} from "svelte/easing";
     import {fade, slide} from 'svelte/transition';
     import {ITEMS} from "../../js/const";
+    import PokemonList from "./PokemonList.svelte";
+    import {PokemonInstance} from "../../js/pokemons/pokedex";
+    import {Bag} from "../../js/items/bag";
 
 
     export let bagOpened: boolean;
     export let save: SelectedSave;
     export let isBattle = false;
+    export let selectedMons: number | undefined;
 
     export let list: HTMLUListElement;
+
+    export let zIndex;
+
+    let openOptions = false;
+    let optionSelected = 0;
+
+    let openPokemonList = false;
 
 
     let tab = 0;
@@ -78,32 +101,90 @@
         2: 'revives'
     };
 
-    $:pocket =  Object.keys(save.player.bag[categories[tab]]).map(id => [id, save.player.bag[categories[tab]][id]]);
+    $:pocket = Object.keys(save.player.bag[categories[tab]]).map(id => [id, save.player.bag[categories[tab]][id]]);
+    $:itemToUse = pocket[selected][0];
     let selected = 0;
+
+    export let onChange;
 
     function back() {
         bagOpened = false;
     }
 
+    function use(pkmn?: PokemonInstance) {
+        openOptions = false;
+
+        if (isBattle && !pkmn) {
+            openPokemonList = true;
+        } else if (isBattle && pkmn !== undefined) {
+            let item = pocket[selected][0];
+            onChange(!!item && {item: item, target: pkmn});
+
+        } else if (!isBattle) {
+            if (selectedMons !== undefined) {
+                let item = pocket[selected][0];
+                save.player.bag.use(item, save.player.monsters[selectedMons]);
+                save.player.bag =new Bag(save.player.bag);
+                back();
+            } else {
+                openPokemonList = true;
+            }
+        }
+
+
+    }
+
+    function changeTab(number: number) {
+        tab = number;
+        selected = 0;
+    }
+
+    function consumeItem() {
+        save.player.bag[categories[tab]][itemToUse]--;
+        if (save.player.bag[categories[tab]][itemToUse] === 0) {
+            delete save.player.bag[categories[tab]][itemToUse];
+        }
+        //openPokemonList = false;
+    }
+
     const listener = (e: KeyboardEvent) => {
-        if (e.key === "ArrowRight") {
-            tab = (tab + 1) % 3;
-            selected = 0;
-        } else if (e.key === "ArrowLeft") {
-            tab = (tab + 2) % 3;
-            selected = 0;
-        } else if (e.key === "ArrowUp") {
-            selected = (selected + pocket.length - 1) % pocket.length;
-            if(selected === pocket.length - 1) {
-                list.scroll({top: list.clientHeight - list.children[0].clientHeight ,behavior:'smooth'});
+        if (!openOptions) {
+            if (e.key === "ArrowRight") {
+                tab = (tab + 1) % 3;
+                selected = 0;
+            } else if (e.key === "ArrowLeft") {
+                tab = (tab + 2) % 3;
+                selected = 0;
+            } else if (e.key === "ArrowUp") {
+                selected = (selected + pocket.length - 1) % pocket.length;
+                if (selected === pocket.length - 1) {
+                    list.scroll({top: list.clientHeight - list.children[0].clientHeight, behavior: 'smooth'});
+                }
+            } else if (e.key === "ArrowDown") {
+                selected = (selected + 1) % pocket.length;
+                if (selected === 0) {
+                    list.scroll({top: 0, behavior: 'smooth'});
+                }
+            } else if (e.key === "Enter") {
+                openOptions = true;
+            } else if (e.key === "Escape") {
+                back();
             }
-        } else if (e.key === "ArrowDown") {
-            selected = (selected + 1) % pocket.length;
-            if(selected === 0) {
-                list.scroll({top: 0 ,behavior:'smooth'});
+        } else {
+            if (e.key === "ArrowUp") {
+                optionSelected = optionSelected === 0 ? 1 : optionSelected - 1;
+            } else if (e.key === "ArrowDown") {
+                optionSelected = optionSelected === 1 ? 0 : optionSelected + 1;
+            } else if (e.key === "Enter") {
+                if (optionSelected === 0) {
+                    use(undefined);
+                } else if (optionSelected === 1) {
+                    openOptions = false;
+                }
+            } else if (e.key === "Escape") {
+                openOptions = false;
+                optionSelected = 0;
             }
-        } else if (e.key === "Escape") {
-            back();
         }
     };
 
@@ -114,10 +195,6 @@
         };
     });
 
-    function changeTab(number: number) {
-        tab = number;
-        selected = 0;
-    }
 
 </script>
 
@@ -128,7 +205,7 @@
     left: 0;
     width: 100dvw;
     height: 100dvh;
-    z-index: 8;
+    z-index: var(--zIndex, 8);
 
     .tabs {
       height: 46px;
@@ -320,8 +397,8 @@
           box-sizing: border-box;
 
           //todo scrolllbar
-            scrollbar-width: thin;
-            scrollbar-color: #68c0c8 #0e2742f0;
+          scrollbar-width: thin;
+          scrollbar-color: #68c0c8 #0e2742f0;
 
 
           li {
@@ -339,7 +416,52 @@
 
             &.selected {
               // underline
-                border-bottom: 2px solid white;
+              border-bottom: 2px solid rgba(255, 255, 255, 0.5);
+            }
+          }
+        }
+      }
+    }
+
+    .options {
+      position: absolute;
+      font-size: 32px;
+      font-weight: 500;
+      text-align: left;
+      bottom: 1%;
+      right: 1%;
+      padding: 22px 36px 22px 36px;
+      background: rgb(220, 231, 233);
+      background: linear-gradient(180deg, rgba(220, 231, 233, 1) 0%, rgba(255, 255, 255, 1) 50%, rgba(220, 231, 233, 0.713344712885154) 100%);
+      border: 2px solid #54506c;
+      border-radius: 8px;
+      box-sizing: border-box;
+      transition: bottom 0.3s ease-in-out;
+
+      &.hidden {
+        bottom: -100dvh;
+      }
+
+      ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+
+        li {
+          &.selected {
+            &:before {
+              content: "";
+              width: 0;
+              height: 0;
+              border-top: 12px solid transparent;
+              border-bottom: 12px solid transparent;
+              border-left: 12px solid #262626;
+              position: absolute;
+              left: 5px;
+              margin-top: 2px;
             }
           }
         }

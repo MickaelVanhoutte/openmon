@@ -97,7 +97,15 @@ export class BattleState {
                 // order to change sprite to component
                 this.onPokemonChange();
             } else if (action instanceof BagObject) {
-                // this.useBagObject(action);
+                let item = this.player.bag.getItem(action.itemId);
+                if (item) {
+                    let result = item.apply(action.target);
+                    if (!result.success) {
+                        this.addToStack(new Message('It failed!', action.initiator), true);
+                    }
+                }
+                this.addToStack(new Message(`${action.player.name} used ${item?.name}!`, action.initiator), true);
+
             } else if (action instanceof Message) {
                 this.currentMessageV = action.description;
             } else if (action instanceof RemoveHP) {
@@ -535,18 +543,18 @@ export class Attack implements Action {
 export class BagObject implements Action {
     description: string;
     name: string;
-    public itemId: string;
-    public targetType: 'opponent' | 'ally';
-    public targetIdx: number;
+    public itemId: number;
+    public target: PokemonInstance;
     public initiator: PokemonInstance;
+    public player: Character;
 
-    constructor(name: string, description: string, itemId: string, targetType: 'opponent' | 'ally', initiator: PokemonInstance, targetIdx = 0) {
-        this.name = name;
-        this.description = description;
+    constructor(itemId: number, target:PokemonInstance, initiator: PokemonInstance, player: Character) {
+        this.name = 'Bag Object';
+        this.description = 'Use a bag object';
         this.itemId = itemId;
-        this.targetType = targetType;
-        this.targetIdx = targetIdx;
+        this.target = target;
         this.initiator = initiator;
+        this.player = player;
     }
 }
 

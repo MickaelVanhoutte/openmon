@@ -60,11 +60,11 @@
 </div>
 
 {#if pokemonListOpened}
-    <PokemonList bind:save bind:pokemonListOpened bind:openSummary bind:isBattle onChange={() => 0}/>
+    <PokemonList bind:save bind:pokemonListOpened bind:openSummary bind:isBattle onChange={() => 0} zIndex="{8}"/>
 {/if}
 
 {#if bagOpened}
-    <Bag bind:save bind:bagOpened bind:isBattle/>
+    <Bag bind:save bind:bagOpened bind:isBattle zIndex="{8}"/>
 {/if}
 
 <script lang="ts">

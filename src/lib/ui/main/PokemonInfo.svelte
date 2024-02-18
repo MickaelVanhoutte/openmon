@@ -1,4 +1,4 @@
-<div class="summary"
+<div class="summary"  style="--zIndex:{zIndex}"
      in:slide="{{duration: 500, delay: 100,axis: 'x', easing: backInOut}}" out:fade>
 
     <div class="img-wrapper">
@@ -85,6 +85,8 @@
     export let save: SelectedSave;
     export let selected: number;
 
+    export let zIndex;
+
     $:selectedMons = save.player.monsters[selected];
 
     $:expPercent = Math.floor(selectedMons?.currentXp * 100 / selectedMons?.xpToNextLevel);
@@ -102,6 +104,7 @@
     background-color: #0e2742f0;
     background-image: url("src/assets/menus/p-sum.jpg");
     text-shadow: 1px 1px 1px black;
+    z-index: var(--zIndex, 11);
 
     .img-wrapper {
       height: 100%;
