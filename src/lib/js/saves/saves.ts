@@ -1,5 +1,6 @@
 import {Character} from "../player/player";
 import {OpenMap} from "../mapping/maps";
+import {Settings} from "../player/settings";
 
 export class Save {
 
@@ -7,12 +8,14 @@ export class Save {
     public name: string;
     public player: Character;
     public map: OpenMap;
+    public settings: Settings;
     public date: Date;
 
     constructor(player: Character, map: OpenMap) {
         this.name = player.name;
         this.player = player;
         this.map = map;
+        this.settings = new Settings();
         this.date = new Date();
         this.id = this.date.getMilliseconds();
     }
@@ -89,6 +92,10 @@ export class SelectedSave {
 
     get player() {
         return this.save.player;
+    }
+
+    get settings() {
+        return this.save.settings;
     }
 
     get map() {

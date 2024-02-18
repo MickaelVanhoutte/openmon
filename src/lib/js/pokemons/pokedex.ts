@@ -650,8 +650,8 @@ export class PokemonInstance extends PokedexEntry {
         this.currentHp = Math.floor(this.currentStats.hp * percentHp / 100);
     }
 
-    public howMuchXpWon(opponent: PokemonInstance, participated: number = 1, fromTrainer: boolean = false): number {
-        return EXPERIENCE_CHART.howMuchIGet(this, opponent, participated, fromTrainer, false);
+    public howMuchXpWon(opponent: PokemonInstance, participated: number = 1, fromTrainer: boolean = false, xpShare: boolean): number {
+        return EXPERIENCE_CHART.howMuchIGet(this, opponent, participated, fromTrainer, xpShare);
     }
 
     public addXpResult(totalXp: number, evs: number): { levelup: boolean, xpLeft: number } {

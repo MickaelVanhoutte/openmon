@@ -3,6 +3,7 @@ import {Character} from "../player/player";
 import {Move, MoveInstance, PokemonInstance} from "../pokemons/pokedex";
 import {EXPERIENCE_CHART} from "../pokemons/experience";
 import {BATTLE_STATE, MOVE_EFFECT_APPLIER} from "../const";
+import type {Settings} from "../player/settings";
 
 
 export class BattleContext {
@@ -15,6 +16,7 @@ export class BattleContext {
 
 export class BattleState {
 
+    public settings: Settings;
     // for transition animation
     public starting = true;
     public ending = false;
@@ -34,6 +36,8 @@ export class BattleState {
     public currentMessageV: string;
     public changePokemon: boolean = false;
 
+    public participants: Set<PokemonInstance> = new Set<PokemonInstance>();
+
 
     public onClose: (win: boolean) => void = () => {
     };
@@ -45,12 +49,13 @@ export class BattleState {
         return this.opponent instanceof PokemonInstance;
     }
 
-    constructor(player: Character, opponent: Character | PokemonInstance) {
+    constructor(player: Character, opponent: Character | PokemonInstance, settings: Settings) {
         this.player = player;
         this.opponent = opponent;
+        this.settings = settings;
         // playerCurrentMonster = first not fainted pokemon
         this.playerCurrentMonster = player.monsters.find((monster: PokemonInstance) => !monster.fainted) || player.monsters[0];
-
+        this.participants.add(this.playerCurrentMonster);
         this.opponentCurrentMonster = this.wild ? opponent as PokemonInstance : (opponent as Character).monsters[0];
 
         this.turnStack = [];
@@ -85,6 +90,7 @@ export class BattleState {
     private executeAction(action?: Action) {
         if (action !== undefined) {
             console.debug('executing ' + action?.name, action)
+            // todo refactor : stack from the end & apply in action class
 
             if (action instanceof Attack && !action.initiator.fainted) {
                 this.attack(action);
@@ -97,6 +103,7 @@ export class BattleState {
             } else if (action instanceof ChangePokemon) {
                 // TODO, animation
                 this.playerCurrentMonster = action.initiator;
+                this.participants.add(this.playerCurrentMonster);
                 // order to change sprite to component
                 this.onPokemonChange();
             } else if (action instanceof BagObject) {
@@ -268,21 +275,31 @@ export class BattleState {
             target.fainted = true;
             target.status = undefined;
             target.resetBattleStats();
-console.log('clear stack');
-            // clear stack
-            console.log(this.turnStack);
+
             // remove target attack from stack
             this.turnStack = this.turnStack.filter((action: Action) => {
                 return !(action instanceof Attack && action.initiator === target);
             });
 
-            console.log(this.turnStack);
-
             if (target === this.opponentCurrentMonster) {
-                let xp = EXPERIENCE_CHART.howMuchIGet(initiator, target, 1, false, false);
-                this.addToStack(new XPWin(initiator, xp), true);
-                this.addToStack(new Message(`${initiator.name} gets ${xp} experience!`, initiator), true);
+                let xp = EXPERIENCE_CHART.howMuchIGet(initiator, target, this.participants.size, this.opponent instanceof Character, this.settings.xpShare);
+                for (let participant of this.participants) {
+                    if(!participant.fainted) {
+                        this.addToStack(new XPWin(participant, xp), true);
+                        this.addToStack(new Message(`${participant.name} gets ${xp} experience!`, participant), true);
+                    }
+                }
+                if(this.settings.xpShare) {
+                    let nonParticipants = this.player.monsters.filter((monster: PokemonInstance) => !this.participants.has(monster));
 
+                    let npXp = Math.floor(xp / 2);
+                    for (let nParticipant of nonParticipants) {
+                        if(!nParticipant.fainted) {
+                            this.addToStack(new XPWin(nParticipant, npXp), true);
+                            this.addToStack(new Message(`${nParticipant.name} gets ${npXp} experience via XP-Share!`, nParticipant), true);
+                        }
+                    }
+                }
             }
 
             this.addToStack(new Message(target.name + ' fainted!', initiator), true);

@@ -150,11 +150,13 @@
     }
 
     function send(pokemon: PokemonInstance) {
+        // TODO this code should be in the battle state
         if (battleState?.playerCurrentMonster) {
             let pkmnIndex = battleState.player.monsters.indexOf(pokemon);
             // exchange 0 and pkmnIndex in the array
             [battleState.player.monsters[0], battleState.player.monsters[pkmnIndex]] = [battleState.player.monsters[pkmnIndex], battleState.player.monsters[0]];
             battleState.playerCurrentMonster = battleState.player.monsters[0];
+            battleState.participants.add(this.playerCurrentMonster);
             battleState.changePokemon = false;
             battleState.currentMessageV = `What should ${battleState.playerCurrentMonster.name} do?`;
             BATTLE_STATE.set(new BattleContext(battleState));
