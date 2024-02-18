@@ -52,7 +52,8 @@
                 FIGHT
             </button>
 
-            <button class="action-btn" style="--color:#eca859" {disabled} class:selected={ selectedOptionIdx === 1}>
+            <button class="action-btn" style="--color:#eca859" {disabled} class:selected={ selectedOptionIdx === 1}
+                    on:click={openBag}>
                 BAG
             </button>
 
@@ -80,6 +81,8 @@
 
     export let switchOpened: boolean;
 
+    export let bagOpened: boolean;
+
     let moveOpened = false;
     let show = false;
 
@@ -105,8 +108,12 @@
         }
     }
 
-    function switchOpen(){
+    function switchOpen() {
         switchOpened = true;
+    }
+
+    function openBag() {
+        bagOpened = true;
     }
 
     function selectMove(idx: number) {
@@ -126,31 +133,38 @@
         if (!battleState) {
             return;
         }
-        if (e.key === 'ArrowUp') {
-            if (moveOpened) {
-                selectedMoveIdx = selectedMoveIdx === 0 ? battleState.playerCurrentMonster.moves.length - 1 : selectedMoveIdx - 1;
-            } else {
-                selectedOptionIdx = selectedOptionIdx === 0 ? 3 : selectedOptionIdx - 1;
-            }
-        } else if (e.key === 'ArrowDown') {
-            if (moveOpened) {
-                selectedMoveIdx = selectedMoveIdx === battleState.playerCurrentMonster.moves.length - 1 ? 0 : selectedMoveIdx + 1;
-            } else {
-                selectedOptionIdx = selectedOptionIdx === 3 ? 0 : selectedOptionIdx + 1;
-            }
-        } else if (e.key === 'Enter') {
-            if (moveOpened) {
-                launchMove(selectedMoveIdx, battleState.playerCurrentMonster.moves[selectedMoveIdx]);
-            } else {
-                if (selectedOptionIdx === 0) {
-                    moveOpened = true;
-                } else if (selectedOptionIdx === 3) {
-                    escape();
-                }
-            }
-        } else if (e.key === 'Escape') {
-            moveOpened = false;
+        if (!bagOpened && !switchOpened && !disabled) {
 
+            if (e.key === 'ArrowUp') {
+                if (moveOpened) {
+                    selectedMoveIdx = selectedMoveIdx === 0 ? battleState.playerCurrentMonster.moves.length - 1 : selectedMoveIdx - 1;
+                } else {
+                    selectedOptionIdx = selectedOptionIdx === 0 ? 3 : selectedOptionIdx - 1;
+                }
+            } else if (e.key === 'ArrowDown') {
+                if (moveOpened) {
+                    selectedMoveIdx = selectedMoveIdx === battleState.playerCurrentMonster.moves.length - 1 ? 0 : selectedMoveIdx + 1;
+                } else {
+                    selectedOptionIdx = selectedOptionIdx === 3 ? 0 : selectedOptionIdx + 1;
+                }
+            } else if (e.key === 'Enter') {
+                if (moveOpened) {
+                    launchMove(selectedMoveIdx, battleState.playerCurrentMonster.moves[selectedMoveIdx]);
+                } else {
+                    if (selectedOptionIdx === 0) {
+                        moveOpened = true;
+                    } else if (selectedOptionIdx === 1) {
+                        openBag();
+                    } else if (selectedOptionIdx === 2) {
+                        switchOpen();
+                    } else if (selectedOptionIdx === 3) {
+                        escape();
+                    }
+                }
+            } else if (e.key === 'Escape') {
+                moveOpened = false;
+
+            }
         }
     })
 

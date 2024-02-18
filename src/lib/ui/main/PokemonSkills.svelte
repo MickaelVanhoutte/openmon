@@ -1,4 +1,4 @@
-<div class="skills"
+<div class="skills"  style="--zIndex:{zIndex}"
      in:slide="{{duration: 500, delay: 100, axis: 'x', easing: backInOut}}" out:fade>
     <div class="img-skillDesc">
         <div class="img-wrapper">
@@ -49,7 +49,9 @@
     export let save: SelectedSave;
     export let selected: number
 
+    export let zIndex;
     export let selectedMove: number;
+
 
     let mechanicRegex = /{[^}]*}/g;
 
@@ -72,6 +74,7 @@
     background-image: url("src/assets/menus/p-sum.jpg");
 
     text-shadow: 1px 1px 1px black;
+    z-index: var(--zIndex, 11);
 
     .img-skillDesc {
       display: flex;

@@ -1,4 +1,4 @@
-<div class="stats"
+<div class="stats" style="--zIndex:{zIndex}"
      in:slide="{{duration: 500, delay: 100,axis: 'x', easing: backInOut}}" out:fade>
 
     <div class="img-ability" class:enlarge={statEdit}>
@@ -119,6 +119,8 @@
     export let graph: HTMLCanvasElement;
 
     export let isBattle: boolean;
+
+    export let zIndex;
 
     $:selectedMons = save.player.monsters[selected];
     $:statsKeys = Object.keys(selectedMons.stats).filter(key => key !== 'total' && key !== 'accuracy' && key !== 'evasion');
@@ -298,6 +300,8 @@
     background-image: url("src/assets/menus/p-sum.jpg");
 
     text-shadow: 1px 1px 1px black;
+
+    z-index: var(--zIndex, 11);
 
     .img-ability {
       display: flex;

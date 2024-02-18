@@ -6,15 +6,19 @@
     <!-- UI -->
     <EnemyInfo/>
     <AllyInfo/>
-    <ActionBar bind:switchOpened={switchOpened}/>
+    <ActionBar bind:switchOpened={switchOpened} bind:bagOpened={bagOpened}/>
 
     {#if switchOpened}
-        <PokemonList {save} {isBattle} bind:switchOpened={switchOpened} onChange={(pkm) => !!pkm && pkm !==0 && sendSwitchAction(pkm)}/>
+        <PokemonList {save} {isBattle} bind:switchOpened={switchOpened} zIndex={zIndexNext} onChange={(pkm) => !!pkm && pkm !==0 && sendSwitchAction(pkm)}/>
+    {/if}
+
+    {#if bagOpened}
+        <Bag {save} {isBattle} bind:bagOpened zIndex={zIndexNext} onChange="{(item) => sendObjectAction(item)}"/>
     {/if}
 </div>
 <script lang="ts">
 
-    import {BattleState, SwitchAction} from "../js/battle/battle";
+    import {BagObject, BattleState, SwitchAction} from "../js/battle/battle";
     import {Position} from "../js/sprites/drawers";
     import {onMount} from "svelte";
     import ActionBar from "../ui/battle/ActionBar.svelte";
@@ -24,6 +28,8 @@
     import {BATTLE_STATE} from "../js/const";
     import PokemonList from "../ui/main/PokemonList.svelte";
     import type {PokemonInstance} from "../js/pokemons/pokedex";
+    import Bag from "../ui/main/Bag.svelte";
+    import type {AItem} from "../js/items/items";
 
     export let gifsWrapper: HTMLDivElement;
     export let save: SelectedSave;
@@ -31,6 +37,10 @@
     export let switched = false;
 
     let switchOpened = false;
+
+    let bagOpened = false;
+
+    let zIndexNext = 8;
 
     export let isBattle = true;
 
@@ -130,6 +140,28 @@
             battleState?.selectAction(new SwitchAction(newMonster));
         }
     }
+
+    function sendObjectAction(item: { item: number, target: PokemonInstance }) {
+
+        // todo check if item can be applied before sending
+        if (battleState?.playerCurrentMonster) {
+            battleState?.selectAction(new BagObject(item.item, item.target, battleState.playerCurrentMonster, battleState.player));
+        }
+        bagOpened = false;
+    }
+
+    /**
+     * From battle
+     * Battle -> Bag (item) -> PokemonList (pokemon)
+     *           onchange(pokemon, item)  <- onchange(pokemont)
+     *
+     * From world
+     * World -> Bag (item) -> PokemonList (pokemon) : use
+     *
+     * World -> PokemonList (pokemon) -> bag (item) : use
+     *
+     *
+     */
 
     onMount(() => {
         battle();

@@ -1,4 +1,4 @@
-<div class="screen">
+<div class="screen" style="--zIndex:{zIndex}">
 
     <div class="tabs">
         <div class="current" style="--index: {tab}">
@@ -32,11 +32,11 @@
     <div class="tab-content">
 
         {#if tab === 0}
-            <PokemonInfo bind:save bind:selected/>
+            <PokemonInfo bind:save bind:selected bind:zIndex={zIndexNext}/>
         {:else if tab === 1}
-            <PokemonStats bind:save bind:selected bind:statEdit bind:isBattle/>
+            <PokemonStats bind:save bind:selected bind:statEdit bind:isBattle bind:zIndex={zIndexNext}/>
         {:else if tab === 2}
-            <PokemonSkills bind:save bind:selected bind:selectedMove/>
+            <PokemonSkills bind:save bind:selected bind:selectedMove bind:zIndex={zIndexNext}/>
         {/if}
     </div>
 </div>
@@ -53,8 +53,10 @@
     export let openSummary: boolean;
     export let selectedMove = 0;
     export let statEdit = false;
-
     export let isBattle: boolean;
+
+    export let zIndex;
+    $:zIndexNext = zIndex+1;
 
     let tab = 0;
 
@@ -132,7 +134,7 @@
     overflow: hidden;
     width: 100dvw;
     height: 100dvh;
-    z-index: 9;
+    z-index: var(--zIndex, 10);
 
     .tabs {
       height: 46px;
