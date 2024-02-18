@@ -32,6 +32,7 @@
     import JoystickController from 'joystick-controller';
     import {OpenMap} from "../js/mapping/maps.js";
     import type {Jonction} from "../js/mapping/collisions";
+    import {Settings} from "../js/player/settings";
 
     export let canvas: HTMLCanvasElement;
     export let wrapper: HTMLDivElement;
@@ -293,7 +294,7 @@
     function initiateBattle(opponent: PokemonInstance | Character) {
 
         let bContext = new BattleContext();
-        bContext.state = new BattleState(save.player, opponent)
+        bContext.state = new BattleState(save.player, opponent, save.settings || new Settings())
         BATTLE_STATE.set(bContext);
 
         setTimeout(() => {
