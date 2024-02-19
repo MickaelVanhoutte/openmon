@@ -26,9 +26,19 @@
                 </div>
             </li>
 
-
             <li class="hex">
                 <div class="hexIn" class:selected={selected === 2}>
+                    <a class="hexLink" on:click={() => pokedex()}>
+                        <img src="src/assets/menus/pokedex.png" alt="pc boxes">
+                        <h1>Pokedex</h1>
+                        <div class='img'></div>
+                    </a>
+                </div>
+            </li>
+
+
+            <li class="hex">
+                <div class="hexIn" class:selected={selected === 3}>
                     <a class="hexLink" on:click={() => openBag()}>
                         <img src="src/assets/menus/bag.png" alt="bag">
                         <h1>Bag</h1>
@@ -37,7 +47,7 @@
                 </div>
             </li>
             <li class="hex">
-                <div class="hexIn" class:selected={selected === 3}>
+                <div class="hexIn" class:selected={selected === 4}>
                     <a class="hexLink" on:click={() => trainer()}>
                         <img src="src/assets/menus/trainer.png" alt="trainer">
                         <h1>Trainer</h1>
@@ -46,7 +56,7 @@
                 </div>
             </li>
             <li class="hex">
-                <div class="hexIn" class:selected={selected === 4}>
+                <div class="hexIn" class:selected={selected === 5}>
                     <a class="hexLink" on:click={()=> saveCurrent()}>
                         <img src="src/assets/menus/save.png" alt="save">
                         <h1>Save</h1>
@@ -56,7 +66,7 @@
             </li>
 
             <li class="hex">
-                <div class="hexIn" class:selected={selected === 5}>
+                <div class="hexIn" class:selected={selected === 6}>
                     <a class="hexLink" on:click={()=> settings()}>
                         <img src="src/assets/menus/settings.png" alt="settings">
                         <h1>Settings</h1>
@@ -66,7 +76,7 @@
             </li>
 
             <li class="hex">
-                <div class="hexIn" class:selected={selected === 6}>
+                <div class="hexIn" class:selected={selected === 7}>
                     <a class="hexLink" on:click={() => close()}>
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19.0001 10.0001L19.0003 19L17.0003 19L17.0002 12.0001L9.41409 12V17.4142L2.99988 11L9.41409 4.58578L9.41409 10L19.0001 10.0001Z"></path></svg>
                         <h1>Back</h1>
@@ -88,11 +98,11 @@
 
 <script lang="ts">
 
-    import type {SaveContext} from "../../js/saves/saves";
-    import {SelectedSave} from "../../js/saves/saves";
-    import PokemonList from "./PokemonList.svelte";
+    import type {SaveContext} from "../js/saves/saves";
+    import {SelectedSave} from "../js/saves/saves";
+    import PokemonList from "./pokemon-list/PokemonList.svelte";
     import {onMount} from "svelte";
-    import Bag from "./Bag.svelte";
+    import Bag from "./bag/Bag.svelte";
 
     export let menuOpened: boolean;
     export let pokemonListOpened: boolean;
@@ -133,6 +143,10 @@
         // TODO
     }
 
+    function pokedex() {
+        // TODO
+    }
+
     function close() {
         menuOpened = false;
     }
@@ -140,23 +154,25 @@
     const listener = (e: KeyboardEvent) => {
         if (menuOpened) {
             if (e.key === "ArrowUp") {
-                selected = selected === 0 ? 4 : selected - 1;
+                selected = selected === 0 ? 7 : selected - 1;
             } else if (e.key === "ArrowDown") {
-                selected = selected === 4 ? 0 : selected + 1;
+                selected = selected === 7 ? 0 : selected + 1;
             } else if (e.key === "Enter") {
                 if (selected === 0) {
                     openList();
-                } else if(selected === 1){
+                } else if(selected === 1) {
                     openBoxes()
-                } else if (selected === 2) {
-                    openBag();
+                } else if(selected === 2){
+                    pokedex();
                 } else if (selected === 3) {
-                    trainer();
+                    openBag();
                 } else if (selected === 4) {
-                    saveCurrent();
+                    trainer(); // merge with settings ?
                 } else if (selected === 5) {
-                    settings();
+                    saveCurrent();
                 } else if (selected === 6) {
+                    settings();
+                } else if (selected === 7) {
                     close();
                 }
             }
@@ -189,11 +205,11 @@
     }
 
     .grid {
-      width: 50%;
+      width: 45%;
       position: absolute;
       top: 50%;
       left: 50%;
-      transform: translate(-56%, -53%);
+      transform: translate(-57%, -50%);
 
 
       #hexGrid {
@@ -255,8 +271,6 @@
         transform: skewY(-30deg) rotate3d(0, 0, 1, 60deg);
       }
 
-
-      /*** HEX CONTENT **********************************************************************/
       .hex img, .hex svg {
         position: absolute;
         height: 50%;
@@ -319,9 +333,6 @@
         background: linear-gradient(to top, transparent, rgba(0, 0, 0, 0.5), transparent);
       }
 
-      /*** HOVER EFFECT  **********************************************************************/
-
-
       .hexLink:hover h1, .hexLink:focus h1,
       .hexLink:hover h1, .hexLink:focus p {
         opacity: 1;
@@ -360,50 +371,3 @@
   }
 
 </style>
-<!--
-<div class="hexagone"><div class="hexagonemain"></div></div>
-
-.hexagone {
-    position: relative;
-    /* Pour rendre responsive mettre width à 100% *;
-    width: 103.92305px;
-    visibility: hidden;
-    overflow: hidden;
-    -webkit-filter : drop-shadow(5px 5px 5px rgba(0,0,0,0.6));
-    filter : drop-shadow(5px 5px 5px rgba(0,0,0,0.6));
-}
-.hexagone:after {
-    -moz-box-sizing: content-box;
-    -webkit-box-sizing: content-box;
-    box-sizing: content-box;
-    content: "";
-    display: block;
-    margin-top: 28.86751%;
-    padding-bottom: 86.602%;
-}
-.hexagone .hexagonemain{
-    display: block;
-    position: absolute;
-    width: 100%;
-    padding-bottom: 115.47005%;
-    overflow: hidden;
-    visibility: hidden;
-    -webkit-transform: rotate3d(0, 0, 1, -60deg) skewY(30deg);
-    -ms-transform: rotate3d(0, 0, 1, -60deg) skewY(30deg);
-    transform: rotate3d(0, 0, 1, -60deg) skewY(30deg);
-    z-index: 1;
-}
-.hexagone .hexagonemain:before{
-    content: "";
-    display: block;
-    position: absolute;
-    visibility: visible;
-    display: block;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    background-color: #2c2c5b;
-    -webkit-transform: skewY(-30deg) rotate3d(0, 0, 1, 60deg);
-    -ms-transform: skewY(-30deg) rotate3d(0, 0, 1, 60deg);
-    transform: skewY(-30deg) rotate3d(0, 0, 1, 60deg);
-}-->

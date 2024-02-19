@@ -68,7 +68,7 @@
     import {backInOut} from "svelte/easing";
     import {fade, slide} from 'svelte/transition';
     import {ITEMS} from "../../js/const";
-    import PokemonList from "./PokemonList.svelte";
+    import PokemonList from "../pokemon-list/PokemonList.svelte";
     import {PokemonInstance} from "../../js/pokemons/pokedex";
     import {Bag} from "../../js/items/bag";
     import {Pokeball} from "../../js/items/items";
