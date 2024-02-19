@@ -8,18 +8,6 @@
 
             <li class="hex">
                 <div class="hexIn" class:selected={selected === 0}>
-                    <a class="hexLink" on:click={() => menuOpened = false}>
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19.0001 10.0001L19.0003 19L17.0003 19L17.0002 12.0001L9.41409 12V17.4142L2.99988 11L9.41409 4.58578L9.41409 10L19.0001 10.0001Z"></path></svg>
-                        <h1>Back</h1>
-                        <div class='img'></div>
-                    </a>
-                </div>
-            </li>
-
-
-
-            <li class="hex">
-                <div class="hexIn" class:selected={selected === 1}>
                     <a class="hexLink" on:click={() => openList()}>
                         <img src="src/assets/menus/pokeball.png" alt="pokemons">
                         <h1>Pokémons</h1>
@@ -27,6 +15,17 @@
                     </a>
                 </div>
             </li>
+
+            <li class="hex">
+                <div class="hexIn" class:selected={selected === 1}>
+                    <a class="hexLink" on:click={() => openBoxes()}>
+                        <img src="src/assets/menus/boxes.png" alt="pc boxes">
+                        <h1>Boxes</h1>
+                        <div class='img'></div>
+                    </a>
+                </div>
+            </li>
+
 
             <li class="hex">
                 <div class="hexIn" class:selected={selected === 2}>
@@ -39,7 +38,7 @@
             </li>
             <li class="hex">
                 <div class="hexIn" class:selected={selected === 3}>
-                    <a class="hexLink">
+                    <a class="hexLink" on:click={() => trainer()}>
                         <img src="src/assets/menus/trainer.png" alt="trainer">
                         <h1>Trainer</h1>
                         <div class='img'></div>
@@ -51,6 +50,26 @@
                     <a class="hexLink" on:click={()=> saveCurrent()}>
                         <img src="src/assets/menus/save.png" alt="save">
                         <h1>Save</h1>
+                        <div class='img'></div>
+                    </a>
+                </div>
+            </li>
+
+            <li class="hex">
+                <div class="hexIn" class:selected={selected === 5}>
+                    <a class="hexLink" on:click={()=> settings()}>
+                        <img src="src/assets/menus/settings.png" alt="settings">
+                        <h1>Settings</h1>
+                        <div class='img'></div>
+                    </a>
+                </div>
+            </li>
+
+            <li class="hex">
+                <div class="hexIn" class:selected={selected === 6}>
+                    <a class="hexLink" on:click={() => close()}>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19.0001 10.0001L19.0003 19L17.0003 19L17.0002 12.0001L9.41409 12V17.4142L2.99988 11L9.41409 4.58578L9.41409 10L19.0001 10.0001Z"></path></svg>
+                        <h1>Back</h1>
                         <div class='img'></div>
                     </a>
                 </div>
@@ -102,6 +121,22 @@
         bagOpened = true;
     }
 
+    function settings() {
+        // TODO
+    }
+
+    function openBoxes() {
+        // TODO
+    }
+
+    function trainer() {
+        // TODO
+    }
+
+    function close() {
+        menuOpened = false;
+    }
+
     const listener = (e: KeyboardEvent) => {
         if (menuOpened) {
             if (e.key === "ArrowUp") {
@@ -110,15 +145,19 @@
                 selected = selected === 4 ? 0 : selected + 1;
             } else if (e.key === "Enter") {
                 if (selected === 0) {
-                   menuOpened = false;
-                } else if(selected === 1){
                     openList();
+                } else if(selected === 1){
+                    openBoxes()
                 } else if (selected === 2) {
                     openBag();
                 } else if (selected === 3) {
-                    // TODO : Trainer
+                    trainer();
                 } else if (selected === 4) {
                     saveCurrent();
+                } else if (selected === 5) {
+                    settings();
+                } else if (selected === 6) {
+                    close();
                 }
             }
         }
@@ -154,7 +193,7 @@
       position: absolute;
       top: 50%;
       left: 50%;
-      transform: translate(-50%, -50%);
+      transform: translate(-56%, -53%);
 
 
       #hexGrid {
