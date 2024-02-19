@@ -128,7 +128,7 @@
     import {slide, fade} from 'svelte/transition';
     import {BattleState} from "../../js/battle/battle";
     import {BATTLE_STATE, ITEMS} from "../../js/const";
-    import Bag from "./Bag.svelte";
+    import Bag from "../bag/Bag.svelte";
     import {Character} from "../../js/player/player";
 
     export let pokemonListOpened: boolean;
@@ -359,7 +359,7 @@
     left: 0;
     width: 100dvw;
     height: 100dvh;
-    background-image: url("src/assets/menus/pokemon-list.png");
+    background-image: url("src/assets/menus/p-sum.jpg");
     background-size: cover;
     background-position: top left;
     background-repeat: round;

@@ -26,7 +26,7 @@
     import {PokemonInstance} from "../js/pokemons/pokedex";
     import {Character} from "../js/player/player";
     import {onDestroy, onMount} from "svelte";
-    import Menu from "../ui/main/Menu.svelte";
+    import Menu from "../ui/Menu.svelte";
     import {BATTLE_STATE, MAP_DRAWER, MAPS, POKEDEX} from "../js/const";
     import {SaveContext, SelectedSave} from "../js/saves/saves";
     import JoystickController from 'joystick-controller';
@@ -260,34 +260,12 @@
                 case 'Escape':
                     menuOpened = !menuOpened;
             }
-        }else{
+        } else {
             switch (e.key) {
                 case 'Escape':
                     menuOpened = false;
-                    /*if (openSummary) {
-                        openSummary = false;
-                    } else if (pokemonListOpened) {
-                        pokemonListOpened = false;
-                    } else {
-
-                    }
-                    break;*/
             }
         }
-
-        /*else {
-            switch (e.key) {
-                case 'Escape':
-                    if (openSummary) {
-                        openSummary = false;
-                    } else if (pokemonListOpened) {
-                        pokemonListOpened = false;
-                    } else {
-                        menuOpened = !menuOpened;
-                    }
-                    break;
-            }
-        }*/
     };
 
 
@@ -438,7 +416,7 @@
     background-color: rgba(44, 56, 69, 0.95);
     outline: none;
     /* background-size: cover; */
-    z-index: 15;
+    z-index: 8;
     font-size: 18px;
     border: 1px solid #000000;
     color: white;

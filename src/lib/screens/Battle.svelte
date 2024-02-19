@@ -33,9 +33,9 @@
     import AllyInfo from "../ui/battle/AllyInfo.svelte";
     import type {SelectedSave} from "../js/saves/saves";
     import {BATTLE_STATE, ITEMS} from "../js/const";
-    import PokemonList from "../ui/main/PokemonList.svelte";
+    import PokemonList from "../ui/pokemon-list/PokemonList.svelte";
     import type {PokemonInstance} from "../js/pokemons/pokedex";
-    import Bag from "../ui/main/Bag.svelte";
+    import Bag from "../ui/bag/Bag.svelte";
     import type {AItem} from "../js/items/items";
     import {Pokeball} from "../js/items/items";
 
