@@ -2,38 +2,9 @@ import {Character} from "../player/player";
 import {OpenMap} from "../mapping/maps";
 import {Settings} from "../player/settings";
 import {PokemonInstance} from "../pokemons/pokedex";
+import {PokemonBox} from "../pokemons/boxes";
 
-export class PokemonBox {
-    public name: string;
-    public values: Array<PokemonInstance | undefined>;
 
-    constructor(name: string, values: Array<PokemonInstance | undefined>) {
-        this.name = name;
-        this.values = values;
-    }
-
-    private firstSpot() {
-        return this.values.indexOf(this.values.find(pkmn => pkmn === null || pkmn === undefined));
-    }
-
-    public add(pkmn: PokemonInstance) {
-        let spot = this.firstSpot();
-        if (spot !== -1) {
-            this.values[spot] = pkmn;
-        }
-    }
-
-    public move(index1: number, index2: number) {
-        //exchange
-        let val1 = Object.assign({}, this.values[index1]);
-        this.values[index1] = Object.assign({}, this.values[index2]);
-        this.values[index2] = val1;
-    }
-
-    public isFull() {
-        return this.values.every(val => val instanceof PokemonInstance);
-    }
-}
 
 export class Save {
 

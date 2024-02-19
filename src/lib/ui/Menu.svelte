@@ -96,6 +96,11 @@
     <Bag bind:save bind:bagOpened bind:isBattle zIndex="{8}"/>
 {/if}
 
+{#if boxOpened}
+    <Boxes bind:save bind:boxOpened/>
+{/if}
+
+
 <script lang="ts">
 
     import type {SaveContext} from "../js/saves/saves";
@@ -103,10 +108,14 @@
     import PokemonList from "./pokemon-list/PokemonList.svelte";
     import {onMount} from "svelte";
     import Bag from "./bag/Bag.svelte";
+    import Boxes from "./boxes/Boxes.svelte";
 
+    // todo check, export might not be needed for most of them
     export let menuOpened: boolean;
     export let pokemonListOpened: boolean;
     export let bagOpened: boolean;
+
+    export let boxOpened: boolean;
     export let openSummary;
 
     export let saveContext: SaveContext;
@@ -136,7 +145,8 @@
     }
 
     function openBoxes() {
-        // TODO
+        menuOpened = false;
+        boxOpened = true
     }
 
     function trainer() {
