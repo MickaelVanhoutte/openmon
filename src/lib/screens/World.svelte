@@ -1,7 +1,8 @@
 <div class="world-wrapper" bind:this={wrapper}>
     <canvas bind:this={canvas} id="main" width="1024" height="1024"></canvas>
 
-    <Menu bind:menuOpened bind:pokemonListOpened bind:bagOpened bind:openSummary bind:save bind:saveContext/>
+    <Menu bind:menuOpened bind:pokemonListOpened bind:bagOpened bind:openSummary bind:boxOpened
+          bind:save bind:saveContext />
 
     {#if !pokemonListOpened && !bagOpened}
         <button on:click={() => menuOpened = !menuOpened} class="start">start</button>
@@ -53,6 +54,7 @@
     let pokemonListOpened = false;
     let bagOpened = false;
     let openSummary = false;
+    let boxOpened = false;
 
     let mainLoopContext = {
         id: 0,
@@ -209,7 +211,7 @@
 
 
     const keyUpListener = (e) => {
-        if (!menuOpened && !pokemonListOpened && !openSummary) {
+        if (!menuOpened && !pokemonListOpened && !openSummary && !bagOpened && !boxOpened) {
             switch (e.key) {
                 case 'ArrowDown' :
                     keys.down.pressed = false;
@@ -232,7 +234,7 @@
     };
 
     const keyDownListener = (e) => {
-        if (!menuOpened && !pokemonListOpened && !openSummary && !bagOpened) {
+        if (!menuOpened && !pokemonListOpened && !openSummary && !bagOpened && !boxOpened) {
             switch (e.key) {
                 case 'ArrowDown' :
                     lastKey.key = 'ArrowDown';

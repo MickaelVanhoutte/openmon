@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "map1.tmx",
+    "activeFile": "start.tmx",
     "expandedProjectPaths": [
     ],
     "fileStates": {
@@ -28,8 +28,8 @@
             "scale": 0.8722,
             "selectedLayer": 3,
             "viewCenter": {
-                "x": 501.60513643659704,
-                "y": 471.2221967438661
+                "x": 511.92387067186417,
+                "y": 611.0983719330429
             }
         },
         "start.tmx": {
@@ -61,7 +61,7 @@
             "scaleInEditor": 1
         },
         "tileset2.16.tsx": {
-            "scaleInDock": 2.0968,
+            "scaleInDock": 1.3318,
             "scaleInEditor": 1
         },
         "ts2.tsx": {
@@ -84,7 +84,8 @@
         "ts2.tsx",
         "tileset2.16.tsx",
         "map1.tmx",
-        "start.tmx"
+        "start.tmx",
+        "start-village.tmx"
     ],
     "project": "openmon.tiled-project",
     "recentFiles": [
@@ -93,8 +94,9 @@
         "test-map2.tmx",
         "ts2.tsx",
         "tileset2.16.tsx",
-        "start.tmx",
-        "map1.tmx"
+        "map1.tmx",
+        "start-village.tmx",
+        "start.tmx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.margin": 0,
