@@ -71,6 +71,7 @@
     import PokemonList from "./PokemonList.svelte";
     import {PokemonInstance} from "../../js/pokemons/pokedex";
     import {Bag} from "../../js/items/bag";
+    import {Pokeball} from "../../js/items/items";
 
 
     export let bagOpened: boolean;
@@ -114,17 +115,20 @@
     function use(pkmn?: PokemonInstance) {
         openOptions = false;
 
-        if (isBattle && !pkmn) {
+        let item = pocket[selected][0];
+        let instance = ITEMS.getItem(item)?.instanciate();
+
+        if (isBattle && !(instance instanceof Pokeball) && !pkmn) {
             openPokemonList = true;
+        } else if (isBattle && instance instanceof Pokeball) {
+            onChange({item: item});
         } else if (isBattle && pkmn !== undefined) {
-            let item = pocket[selected][0];
             onChange(!!item && {item: item, target: pkmn});
 
         } else if (!isBattle) {
             if (selectedMons !== undefined) {
-                let item = pocket[selected][0];
                 save.player.bag.use(item, save.player.monsters[selectedMons]);
-                save.player.bag =new Bag(save.player.bag);
+                save.player.bag = new Bag(save.player.bag);
                 back();
             } else {
                 openPokemonList = true;

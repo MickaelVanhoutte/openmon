@@ -1,5 +1,7 @@
 import type {PokemonInstance} from "../pokemons/pokedex";
 import itemsJson from "../../../assets/data/final/usable-items.json";
+import type {BattleState} from "../battle/battle";
+import {Character} from "../player/player";
 
 export class ItemUsageResult {
     public success: boolean;
@@ -24,7 +26,9 @@ export abstract class AItem {
         this.power = power;
     }
 
-    abstract instanciate(instance?:AItem): AItem;
+    abstract instanciate(instance?: AItem): AItem;
+
+    abstract doesApply(target: PokemonInstance, current?: PokemonInstance, battleState?: BattleState): boolean;
 
     abstract apply(target: PokemonInstance, current?: PokemonInstance): ItemUsageResult;
 }
@@ -40,7 +44,11 @@ export class Pokeball extends AItem {
         return new Pokeball(this.id, this.categoryId, this.name, this.description, this.power);
     }
 
-    apply(target: PokemonInstance, current?: PokemonInstance): ItemUsageResult {
+    doesApply(target: PokemonInstance, current?: PokemonInstance, battleState?: BattleState): boolean {
+        return !(!battleState || battleState.opponent instanceof Character);
+    }
+
+    apply(target: PokemonInstance, current: PokemonInstance): ItemUsageResult {
         if (current) {
             let currentHp = target.currentHp;
             let maxHp = target.currentStats.hp;
@@ -55,7 +63,8 @@ export class Pokeball extends AItem {
                 }
             }
 
-            let success = ((3 * maxHp - 2 * currentHp) / (3 * maxHp)) * captureRate * bonus * statusBonus;
+            let success = (( 1 + ( maxHp * 3 - currentHp * 2 ) * captureRate * this.power * statusBonus ) / ( maxHp * 3 )) / 256;
+
             console.log(success);
             return new ItemUsageResult(Math.random() < success);
         }
@@ -73,6 +82,10 @@ export class HealingItem extends AItem {
 
     instanciate(): AItem {
         return new HealingItem(this.id, this.categoryId, this.name, this.description, this.power);
+    }
+
+    doesApply(target: PokemonInstance, current?: PokemonInstance, battleState?: BattleState): boolean {
+        return !(!target.fainted && target.currentHp === target.currentStats.hp);
     }
 
     apply(target: PokemonInstance): ItemUsageResult {
@@ -94,6 +107,9 @@ export class ReviveItem extends AItem {
         return new ReviveItem(this.id, this.categoryId, this.name, this.description, this.power);
     }
 
+    doesApply(target: PokemonInstance, current?: PokemonInstance, battleState?: BattleState): boolean {
+        return target.fainted;
+    }
     apply(target: PokemonInstance): ItemUsageResult {
         if (target.fainted) {
             target.revive(this.power === -1 ? target.currentStats.hp : target.currentStats.hp * this.power / 100);
@@ -110,6 +126,7 @@ export class ItemsReferences {
     public static REVIVE = 29;
 
     public references: Record<number, AItem> = {}
+
     constructor() {
         itemsJson.forEach((item: any) => {
             switch (item.categoryId) {

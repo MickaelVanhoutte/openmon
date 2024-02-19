@@ -9,7 +9,7 @@
                  on:click={()=> select(0)}>
                 <div class="header">
                     <div class="img-wrapper">
-                        <img src="{first.sprites[first.gender].front.frame1}" alt="{first.name}"/>
+                        <img src="{first.sprites[first?.gender]?.front.frame1 || first.sprites.male?.front?.frame1}" alt="{first.name}"/>
                     </div>
                     <div>
                         <span>{first.name}</span>
@@ -41,7 +41,7 @@
                      on:click={() => select(index + 1)}>
                     <div class="header">
                         <div class="img-wrapper">
-                            <img src="{monster.sprites[monster.gender].front.frame1}" alt="{monster.name}"/>
+                            <img src="{monster.sprites[monster?.gender]?.front.frame1 || monster.sprites.male?.front?.frame1}" alt="{monster.name}"/>
                         </div>
                         <div>
                             <span>{monster.name}</span>

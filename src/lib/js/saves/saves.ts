@@ -1,6 +1,39 @@
 import {Character} from "../player/player";
 import {OpenMap} from "../mapping/maps";
 import {Settings} from "../player/settings";
+import {PokemonInstance} from "../pokemons/pokedex";
+
+export class PokemonBox {
+    public name: string;
+    public values: Array<PokemonInstance | undefined>;
+
+    constructor(name: string, values: Array<PokemonInstance | undefined>) {
+        this.name = name;
+        this.values = values;
+    }
+
+    private firstSpot() {
+        return this.values.indexOf(this.values.find(pkmn => pkmn === null || pkmn === undefined));
+    }
+
+    public add(pkmn: PokemonInstance) {
+        let spot = this.firstSpot();
+        if (spot !== -1) {
+            this.values[spot] = pkmn;
+        }
+    }
+
+    public move(index1: number, index2: number) {
+        //exchange
+        let val1 = Object.assign({}, this.values[index1]);
+        this.values[index1] = Object.assign({}, this.values[index2]);
+        this.values[index2] = val1;
+    }
+
+    public isFull() {
+        return this.values.every(val => val instanceof PokemonInstance);
+    }
+}
 
 export class Save {
 
@@ -10,14 +43,24 @@ export class Save {
     public map: OpenMap;
     public settings: Settings;
     public date: Date;
+    public pkmnBoxes: Array<PokemonBox>
 
     constructor(player: Character, map: OpenMap) {
         this.name = player.name;
         this.player = player;
         this.map = map;
         this.settings = new Settings();
+        this.pkmnBoxes = this.initEmptyBoxes();
         this.date = new Date();
         this.id = this.date.getMilliseconds();
+    }
+
+    private initEmptyBoxes(): Array<PokemonBox> {
+        let boxes = new Array<PokemonBox>(10);
+        for (let i = 0; i < 10; i++) {
+            boxes[i] = new PokemonBox('Box ' + i, new Array(36).fill(undefined));
+        }
+        return boxes;
     }
 
     public setPrototypes(): Save {
@@ -26,6 +69,16 @@ export class Save {
         this.player.setPrototypes();
         Object.setPrototypeOf(this.map, OpenMap.prototype);
         this.map.setPrototypes();
+        Object.setPrototypeOf(this.settings, Settings.prototype);
+        Object.setPrototypeOf(this.pkmnBoxes, Array.prototype)
+        this.pkmnBoxes.forEach((box) => {
+            Object.setPrototypeOf(box, PokemonBox.prototype);
+            box.values.forEach((pkmn) => {
+                if (pkmn) {
+                    Object.setPrototypeOf(pkmn, PokemonInstance.prototype)
+                }
+            })
+        });
         return this;
     }
 }
@@ -104,6 +157,10 @@ export class SelectedSave {
 
     get id() {
         return this.save.id;
+    }
+
+    get boxes() {
+        return this.save.pkmnBoxes;
     }
 
     constructor(save: Save) {
