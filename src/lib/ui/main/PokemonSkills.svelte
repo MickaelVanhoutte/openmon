@@ -4,7 +4,7 @@
         <div class="img-wrapper">
 
             <div class="img-bg">
-                <img src="{selectedMons.sprites[selectedMons.gender].front.frame1}"
+                <img src="{selectedMons.sprites[selectedMons?.gender]?.front.frame1 || selectedMons.sprites.male?.front?.frame1}"
                      alt="{selectedMons.name} img"/>
             </div>
         </div>

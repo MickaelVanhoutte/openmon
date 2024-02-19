@@ -14,28 +14,30 @@
     {/if}
 
     {#if changePokemon}
-        <PokemonList {save} {isBattle} bind:forceChange={changePokemon} bind:switchOpened={switchOpened} zIndex={zIndexNext}
+        <PokemonList {save} {isBattle} bind:forceChange={changePokemon} bind:switchOpened={switchOpened}
+                     zIndex={zIndexNext}
                      onChange={(pkm) => !!pkm && pkm !==0 && send(pkm)}/>
     {/if}
 
     {#if bagOpened}
-        <Bag {save} {isBattle} bind:bagOpened zIndex={zIndexNext} onChange="{(item) => sendObjectAction(item)}"/>
+        <Bag {save} {isBattle} bind:bagOpened zIndex={zIndexNext} onChange="{(result) => sendObjectAction(result)}"/>
     {/if}
 </div>
 <script lang="ts">
 
-    import {BagObject, BattleContext, BattleState, SwitchAction} from "../js/battle/battle";
+    import {BagObject, BattleContext, BattleResult, BattleState, SwitchAction} from "../js/battle/battle";
     import {Position} from "../js/sprites/drawers";
     import {onMount} from "svelte";
     import ActionBar from "../ui/battle/ActionBar.svelte";
     import EnemyInfo from "../ui/battle/EnemyInfo.svelte";
     import AllyInfo from "../ui/battle/AllyInfo.svelte";
     import type {SelectedSave} from "../js/saves/saves";
-    import {BATTLE_STATE} from "../js/const";
+    import {BATTLE_STATE, ITEMS} from "../js/const";
     import PokemonList from "../ui/main/PokemonList.svelte";
     import type {PokemonInstance} from "../js/pokemons/pokedex";
     import Bag from "../ui/main/Bag.svelte";
     import type {AItem} from "../js/items/items";
+    import {Pokeball} from "../js/items/items";
 
     export let gifsWrapper: HTMLDivElement;
     export let save: SelectedSave;
@@ -63,10 +65,19 @@
             battleLoopContext.allydrawn = false;
         }
 
-        battleState.onClose = (win: boolean) => {
-            if (!win) {
+        battleState.onClose = (result: BattleResult) => {
+            if (!result.win) {
                 // tp back to the start
                 this.save.map.playerMovedOffset = new Position(0, 0);
+            } else if (result.caught) {
+                // add caught pokemon to team if space or in the box
+                if (save.player.monsters.length < 6) {
+                    save.player.monsters.push(result.caught);
+                } else {
+                    // first available space in boxes
+
+                    save.boxes[save.boxes.indexOf(save.boxes.find(box => !box.isFull()))].add(result.caught);
+                }
             }
             setTimeout(() => {
                 // animate the battle closing
@@ -164,13 +175,25 @@
         }
     }
 
-    function sendObjectAction(item: { item: number, target: PokemonInstance }) {
-
-        // todo check if item can be applied before sending
-        if (battleState?.playerCurrentMonster) {
-            battleState?.selectAction(new BagObject(item.item, item.target, battleState.playerCurrentMonster, battleState.player));
+    function sendObjectAction(result: { item: number, target?: PokemonInstance }) {
+        let itm = ITEMS.getItem(result.item)?.instanciate();
+        if (result.target) {
+            if (itm && battleState && itm.doesApply(result.target, battleState.playerCurrentMonster, battleState)) {
+                battleState?.selectAction(new BagObject(result.item, result.target, battleState.playerCurrentMonster, battleState.player));
+                bagOpened = false;
+            } else {
+                //TODO message
+                alert('This item cannot be used here');
+            }
+        } else if (itm instanceof Pokeball && battleState && itm.doesApply(battleState.opponentCurrentMonster, battleState.playerCurrentMonster, battleState)) {
+            console.log(battleState);
+            battleState?.selectAction(new BagObject(result.item, battleState.opponentCurrentMonster, battleState.playerCurrentMonster, battleState.player));
+            bagOpened = false;
+        } else {
+            //TODO message
+            alert('This item cannot be used here');
         }
-        bagOpened = false;
+
     }
 
 
