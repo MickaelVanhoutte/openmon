@@ -1,5 +1,3 @@
-<!-- TOOD : Pokedex, Options, Credits-->
-
 <div class="menu-wrapper" class:open={menuOpened}>
 
     <div class="grid">
