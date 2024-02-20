@@ -81,13 +81,16 @@
     import {SelectedSave} from "../../js/saves/saves.js";
     import { slide, fade } from 'svelte/transition';
     import {backInOut} from "svelte/easing";
+    import {PokemonInstance} from "../../js/pokemons/pokedex";
 
     export let save: SelectedSave;
     export let selected: number;
 
     export let zIndex;
 
-    $:selectedMons = save.player.monsters[selected];
+    export let pkmnList: PokemonInstance[];
+
+    $:selectedMons = pkmnList[selected];
 
     $:expPercent = Math.floor(selectedMons?.currentXp * 100 / selectedMons?.xpToNextLevel);
 </script>

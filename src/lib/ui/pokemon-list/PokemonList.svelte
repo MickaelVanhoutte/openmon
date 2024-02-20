@@ -9,7 +9,8 @@
                  on:click={()=> select(0)}>
                 <div class="header">
                     <div class="img-wrapper">
-                        <img src="{first.sprites[first?.gender]?.front.frame1 || first.sprites.male?.front?.frame1}" alt="{first.name}"/>
+                        <img src="{first.sprites[first?.gender]?.front.frame1 || first.sprites.male?.front?.frame1}"
+                             alt="{first.name}"/>
                     </div>
                     <div>
                         <span>{first.name}</span>
@@ -41,7 +42,8 @@
                      on:click={() => select(index + 1)}>
                     <div class="header">
                         <div class="img-wrapper">
-                            <img src="{monster.sprites[monster?.gender]?.front.frame1 || monster.sprites.male?.front?.frame1}" alt="{monster.name}"/>
+                            <img src="{monster.sprites[monster?.gender]?.front.frame1 || monster.sprites.male?.front?.frame1}"
+                                 alt="{monster.name}"/>
                         </div>
                         <div>
                             <span>{monster.name}</span>
@@ -110,7 +112,9 @@
 </div>
 
 {#if openSummary}
-    <PokemonSummary bind:save bind:update bind:selected bind:openSummary bind:isBattle bind:zIndex={zIndexNext}/>
+    <PokemonSummary bind:save bind:selected bind:openSummary bind:isBattle
+                    bind:pkmnList={save.player.monsters}
+                    bind:zIndex={zIndexNext}/>
 {/if}
 
 {#if openBag}
@@ -147,8 +151,6 @@
     export let itemToUse;
 
     $:itemName = ITEMS.getItem(itemToUse)?.name;
-
-    export let update = false;
 
     export let zIndex;
 
@@ -336,19 +338,18 @@
       gap: 16px;
 
       li {
-        &.selected {
-          &:before {
-            content: "";
-            width: 0;
-            height: 0;
-            border-top: 12px solid transparent;
-            border-bottom: 12px solid transparent;
-            border-left: 12px solid #262626;
-            position: absolute;
-            left: 5px;
-            margin-top: 2px;
-          }
+        &.selected::before {
+          content: "";
+          width: 0;
+          height: 0;
+          border-top: 12px solid transparent;
+          border-bottom: 12px solid transparent;
+          border-left: 12px solid #262626;
+          position: absolute;
+          left: 5px;
+          margin-top: 2px;
         }
+
       }
     }
   }
