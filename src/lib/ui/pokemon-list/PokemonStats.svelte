@@ -107,7 +107,7 @@
     import {SelectedSave} from "../../js/saves/saves.js";
     import Chart from 'chart.js/auto';
     import abilities from "../../../assets/data/final/abilities.json";
-    import {Nature} from "../../js/pokemons/pokedex";
+    import {Nature, PokemonInstance} from "../../js/pokemons/pokedex";
     import {slide, fade} from 'svelte/transition';
     import {backInOut} from "svelte/easing";
 
@@ -122,7 +122,9 @@
 
     export let zIndex;
 
-    $:selectedMons = save.player.monsters[selected];
+    export let pkmnList: PokemonInstance[];
+
+    $:selectedMons = pkmnList[selected];
     $:statsKeys = Object.keys(selectedMons.stats).filter(key => key !== 'total' && key !== 'accuracy' && key !== 'evasion');
     $:percent = Math.floor(selectedMons.currentHp * 100 / selectedMons?.currentStats.hp)
 

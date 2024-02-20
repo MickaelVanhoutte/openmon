@@ -45,17 +45,18 @@
     import {SelectedSave} from "../../js/saves/saves";
     import { slide, fade } from 'svelte/transition';
     import {backInOut} from "svelte/easing";
+    import {PokemonInstance} from "../../js/pokemons/pokedex";
 
     export let save: SelectedSave;
     export let selected: number
 
     export let zIndex;
     export let selectedMove: number;
-
+    export let pkmnList: PokemonInstance[];
 
     let mechanicRegex = /{[^}]*}/g;
 
-    $:selectedMons = save.player.monsters[selected];
+    $:selectedMons = pkmnList[selected];
     $:description = selectedMons.moves[selectedMove].description
         ?.replace("$effect_chance", selectedMons?.moves[selectedMove]?.effectChance)
         ?.replace(mechanicRegex, "");

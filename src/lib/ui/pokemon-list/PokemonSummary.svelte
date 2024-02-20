@@ -32,11 +32,17 @@
     <div class="tab-content">
 
         {#if tab === 0}
-            <PokemonInfo bind:save bind:selected bind:zIndex={zIndexNext}/>
+            <PokemonInfo bind:save bind:selected
+                         bind:pkmnList
+                         bind:zIndex={zIndexNext}/>
         {:else if tab === 1}
-            <PokemonStats bind:save bind:selected bind:statEdit bind:isBattle bind:zIndex={zIndexNext}/>
+            <PokemonStats bind:save bind:selected bind:statEdit bind:isBattle
+                          bind:pkmnList
+                          bind:zIndex={zIndexNext}/>
         {:else if tab === 2}
-            <PokemonSkills bind:save bind:selected bind:selectedMove bind:zIndex={zIndexNext}/>
+            <PokemonSkills bind:save bind:selected bind:selectedMove
+                           bind:pkmnList
+                           bind:zIndex={zIndexNext}/>
         {/if}
     </div>
 </div>
@@ -48,12 +54,15 @@
     import PokemonInfo from "./PokemonInfo.svelte";
     import PokemonStats from "./PokemonStats.svelte";
     import PokemonSkills from "./PokemonSkills.svelte";
+    import type {PokemonInstance} from "../../js/pokemons/pokedex";
     export let save: SelectedSave;
     export let selected: number;
     export let openSummary: boolean;
     export let selectedMove = 0;
     export let statEdit = false;
     export let isBattle: boolean;
+
+    export let pkmnList: PokemonInstance[];
 
     export let zIndex;
     $:zIndexNext = zIndex+1;
@@ -66,7 +75,7 @@
         2: '$POKEMON SKILLS'
     }
 
-    $:selectedMons = save.player.monsters[selected];
+    $:selectedMons = pkmnList[selected];
     $:evs = selectedMons.evs;
 
     function back() {
@@ -113,13 +122,13 @@
     function previous() {
         selectedMove = 0;
         statEdit = false;
-        selected = selected === 0 ? save.player.monsters.length - 1 : selected - 1;
+        selected = selected === 0 ? pkmnList.length - 1 : selected - 1;
     }
 
     function next() {
         selectedMove = 0;
         statEdit = false;
-        selected = selected === save.player.monsters.length - 1 ? 0 : selected + 1;
+        selected = selected === pkmnList.length - 1 ? 0 : selected + 1;
     }
 </script>
 
