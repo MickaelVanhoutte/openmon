@@ -411,7 +411,7 @@
 
         padding: 0 2% 0 0;
         box-sizing: border-box;
-        border-radius: 24px 8px 8px 24px;
+        border-radius: 8px 8px 8px 8px;
         justify-content: space-between;
         align-items: center;
 
@@ -423,7 +423,6 @@
         &.big {
           flex-direction: column;
           width: 86%;
-          border-radius: 24px;
           padding: 4%;
           align-items: normal;
 
@@ -478,12 +477,7 @@
           }
 
           .img-wrapper {
-            /* width: auto;
-             height: 100%;*/
-
             img {
-              /*width: 100%;
-              height: 100%;*/
               max-width: 50%;
               height: auto;
             }
@@ -563,15 +557,15 @@
 
       button {
         width: 100%;
-        height: 46px;
+        height: 42px;
         font-size: 32px;
         text-align: center;
         font-family: pokemon, serif;
         color: white;
         text-shadow: 3px 1px 2px #54506c;
         background-color: #5c438966;
-        border-radius: 20px;
-        border: 4px solid #262626;
+        border-radius: 4px;
+        border: 2px solid rgba(0, 0, 0, 0.7);
       }
     }
 
