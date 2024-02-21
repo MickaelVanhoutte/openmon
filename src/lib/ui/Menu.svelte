@@ -299,14 +299,24 @@
         transform: skewY(-30deg) rotate3d(0, 0, 1, 60deg);
       }
 
-      .hex img, .hex svg {
+      .hex img {
+        position: absolute;
+        scale: 2;
+        top: 50%;
+        left: 50%;
+        transform-origin: left;
+        transform: rotate(0deg) translate(-50%, -50%);
+        z-index: 2;
+      }
+
+      .hex svg {
         position: absolute;
         height: 50%;
         width: auto;
-        top: 35%;
+        top: 25%;
         left: 50%;
         transform-origin: left;
-        transform: rotate(0deg) translate(-50%, -50%) ;
+        transform: rotate(0deg) translate(-50%, -50%);
         z-index: 2;
       }
 
@@ -356,6 +366,7 @@
 
         img, svg {
           position: absolute;
+          -webkit-backface-visibility: hidden;
           animation: shake 0.5s ease-in-out infinite;
         }
 
@@ -367,19 +378,19 @@
 
       @keyframes shake {
         0% {
-          transform: rotate(0deg) translate(-50%, -50%);
+          transform: rotate(0deg) translate(-50%, -50%) translatez(0);
         }
         25% {
-          transform: rotate(5deg) translate(-50%, -50%);
+          transform: rotate(10deg) translate(-50%, -50%) translatez(0);
         }
         50% {
-          transform: rotate(0) translate(-50%, -50%);
+          transform: rotate(0) translate(-50%, -50%) translatez(0);
         }
         75% {
-          transform: rotate(-5deg) translate(-50%, -50%);
+          transform: rotate(-10deg) translate(-50%, -50%) translatez(0);
         }
         100% {
-          transform: rotate(0deg) translate(-50%, -50%);
+          transform: rotate(0deg) translate(-50%, -50%) translatez(0);
         }
       }
 
