@@ -5,8 +5,16 @@
         </div>
         <div class="entries">
             {#each save.player.monsters as pokemon, i}
-                <div class="entry" class:over={selectZone === 'party' && over === i }
+                <div class="entry"
+                     class:over={selectZone === 'party' && over === i }
+                     class:moving={firstSelection?.zone === 'party' && firstSelection?.index === i && firstSelection?.moving}
                      on:click={() => openOptions(new BoxSelection( 'party', i, selectedBox, pokemon))}>
+
+                    {#if firstSelection?.moving && selectZone === 'party' && over === i}
+                        <img class="moving"
+                             src={firstSelection.selected.sprites[firstSelection.selected?.gender]?.front.frame1 || firstSelection.selected.sprites.male?.front?.frame1}
+                             alt="moving pokemon"/>
+                    {/if}
                     <div>
                         <span>{pokemon.name}</span>
                         <span>Lv. {pokemon.level}</span>
@@ -24,11 +32,20 @@
     <div class="box">
         <div class="box-change" class:over={selectZone === 'box-change'}>
             <button on:click={() => prevBox()}>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M4.83578 12L11.0429 18.2071L12.4571 16.7929L7.66421 12L12.4571 7.20712L11.0429 5.79291L4.83578 12ZM10.4857 12L16.6928 18.2071L18.107 16.7929L13.3141 12L18.107 7.20712L16.6928 5.79291L10.4857 12Z"></path></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M4.83578 12L11.0429 18.2071L12.4571 16.7929L7.66421 12L12.4571 7.20712L11.0429 5.79291L4.83578 12ZM10.4857 12L16.6928 18.2071L18.107 16.7929L13.3141 12L18.107 7.20712L16.6928 5.79291L10.4857 12Z"></path>
+                </svg>
             </button>
+            {#if firstSelection?.moving && selectZone === 'box-change'}
+                <img class="moving"
+                     src={firstSelection.selected.sprites[firstSelection.selected?.gender]?.front.frame1 || firstSelection.selected.sprites.male?.front?.frame1}
+                     alt="moving pokemon"/>
+            {/if}
             <span> {box.name} </span>
             <button on:click={() => nextBox()}>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19.1642 12L12.9571 5.79291L11.5429 7.20712L16.3358 12L11.5429 16.7929L12.9571 18.2071L19.1642 12ZM13.5143 12L7.30722 5.79291L5.89301 7.20712L10.6859 12L5.89301 16.7929L7.30722 18.2071L13.5143 12Z"></path></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19.1642 12L12.9571 5.79291L11.5429 7.20712L16.3358 12L11.5429 16.7929L12.9571 18.2071L19.1642 12ZM13.5143 12L7.30722 5.79291L5.89301 7.20712L10.6859 12L5.89301 16.7929L7.30722 18.2071L13.5143 12Z"></path>
+                </svg>
             </button>
         </div>
         <div class="entries">
@@ -36,14 +53,22 @@
             {#each box.values as entry, index}
                 <div class="entry"
                      class:over={selectZone === 'box' && over === index}
-                     class:selected={firstSelection?.box === selectedBox && firstSelection?.index === index}
+                     class:selected={firstSelection?.box === selectedBox && firstSelection.zone === 'box' && firstSelection?.index === index}
+                     class:moving={firstSelection?.box === selectedBox && firstSelection?.zone === 'box' && firstSelection?.index === index && firstSelection?.moving}
                      on:click={() => openOptions(new BoxSelection( 'box', index, selectedBox, entry))}
                 >
+                    {#if firstSelection?.moving && selectZone === 'box' && over === index}
+                        <img class="moving"
+                             src={firstSelection.selected.sprites[firstSelection.selected?.gender]?.front.frame1 || firstSelection.selected.sprites.male?.front?.frame1}
+                             alt="moving pokemon"/>
+                    {/if}
+
+
                     <div class="title"
                          class:show={selectZone === 'box' && over === index && box.values[over] instanceof PokemonInstance &&!firstSelection}>
                         {entry?.name}
                     </div>
-                    {#if entry instanceof PokemonInstance}
+                    {#if entry instanceof PokemonInstance && !(firstSelection?.selected === entry && firstSelection.moving)}
                         <img src={entry.sprites[entry?.gender]?.front.frame1 || entry.sprites.male?.front?.frame1}
                              alt={entry.name}>
                     {/if}
@@ -55,16 +80,17 @@
     <div class="options" class:opened={optionsOpened}>
         <ul>
             <li class:selected={selectedOption === 0} on:click={() => setMoving()}>MOVE</li>
-            <li class:selected={selectedOption === 1} on:click={() => openSummary = true}>SUMMARY</li>
-            <li class:selected={selectedOption === 2}>RELEASE</li>
-            <li class:selected={selectedOption === 3} on:click={() => cancel()}>CANCEL</li>
+            <li class:selected={selectedOption === 1} on:click={() => openSum()}>SUMMARY</li>
+            <!--<li class:selected={selectedOption === 2}>RELEASE</li>-->
+            <li class:selected={selectedOption === 2} on:click={() => cancel()}>CANCEL</li>
         </ul>
     </div>
+
 </div>
 
 
 {#if openSummary && firstSelection}
-    <PokemonSummary bind:save bind:pkmnList bind:selected={firstSelection.index}
+    <PokemonSummary bind:save bind:pkmnList bind:selected={pkmnListSelectedIndex}
                     bind:openSummary bind:isBattle
                     bind:zIndex={zIndexNext}
     />
@@ -96,6 +122,7 @@
     let selectedOption: number = 0;
     let firstSelection: BoxSelection | undefined;
     let secondSelection: BoxSelection | undefined;
+    export let pkmnListSelectedIndex: number = 0;
 
     function openOptions(selection: BoxSelection) {
         if (!firstSelection && selection.selected instanceof PokemonInstance) {
@@ -104,12 +131,29 @@
             selectedOption = 0;
             optionsOpened = true;
             firstSelection = selection;
-        } else if (firstSelection && firstSelection.selected instanceof PokemonInstance) {
+        } else if (firstSelection && firstSelection.selected instanceof PokemonInstance && firstSelection.moving) {
             secondSelection = selection;
             swapPokemon(firstSelection, secondSelection);
             optionsOpened = false;
             over = selection.index
             selectZone = selection.zone;
+        } else if (selection.selected instanceof PokemonInstance) {
+            optionsOpened = false;
+            setTimeout(() => {
+                over = selection.index;
+                selectZone = selection.zone;
+                selectedOption = 0;
+                firstSelection = selection;
+                secondSelection = undefined;
+                optionsOpened = true;
+            }, 200);
+
+        } else {
+            optionsOpened = false;
+            firstSelection = undefined;
+            secondSelection = undefined
+            selectZone = selection.zone;
+            over = selection.index;
         }
 
     }
@@ -153,6 +197,13 @@
 
         firstSelection = undefined;
         secondSelection = undefined;
+    }
+
+    function openSum() {
+        let box = save.boxes[selectedBox]
+        let list = selectZone === 'box' ? box.values.filter(p => p instanceof PokemonInstance) : save.player.monsters
+        pkmnListSelectedIndex = list.indexOf(firstSelection?.selected)
+        openSummary = true;
     }
 
     const listener = (e) => {
@@ -235,33 +286,24 @@
                     // ENTER
                 } else if (e.key === 'Enter') {
 
-                    if (!optionsOpened) {
-                        if (!firstSelection) {
-                            if (selectZone === 'box') {
-                                if (box.values[over] instanceof PokemonInstance) {
-                                    openOptions(new BoxSelection('box', over, selectedBox, box.values[over]));
-                                }
-                            } else if (selectZone === 'party') {
-                                if (save.player.monsters[over] instanceof PokemonInstance) {
-                                    openOptions(new BoxSelection('party', over));
-                                }
+                    if (!firstSelection) {
+                        if (selectZone === 'box') {
+                            if (box.values[over] instanceof PokemonInstance) {
+                                openOptions(new BoxSelection('box', over, selectedBox, box.values[over]));
                             }
-                        } else if (!secondSelection) {
-                            if (selectZone === 'box') {
-                                if (box.values[over] instanceof PokemonInstance) {
-                                    secondSelection = new BoxSelection('box', over, selectedBox, box.values[over]);
-                                    swapPokemon(firstSelection, secondSelection);
-                                    optionsOpened = false;
-                                }
-                            } else if (selectZone === 'party') {
-                                secondSelection = new BoxSelection('party', over);
-                                swapPokemon(firstSelection, secondSelection);
-                                optionsOpened = false;
+                        } else if (selectZone === 'party') {
+                            if (save.player.monsters[over] instanceof PokemonInstance) {
+                                openOptions(new BoxSelection('party', over));
                             }
                         }
-
-                    } else {
-                        // swap ?
+                    } else if (!secondSelection) {
+                        if (selectZone === 'box') {
+                            secondSelection = new BoxSelection('box', over, selectedBox, box.values[over]);
+                            swapPokemon(firstSelection, secondSelection);
+                        } else if (selectZone === 'party') {
+                            secondSelection = new BoxSelection('party', over);
+                            swapPokemon(firstSelection, secondSelection);
+                        }
                     }
                 }
             } else {
@@ -277,22 +319,14 @@
                     }
                 } else if (e.key === 'Enter') {
                     if (selectedOption === 0 && firstSelection) {
-                        firstSelection.moving = true;
-                        optionsOpened = false;
-                        console.log('selected, set moving');
-                        /*if (firstSelection.box === selectedBox) {
-                            secondSelection = new BoxSelection('box', over, selectedBox, box.values[over]);
-                        } else {
-                            secondSelection = new BoxSelection('party', over);
-                        }
-                        save.swapPokemon(firstSelection, secondSelection);
-                        optionsOpened = false;*/
+                        setMoving()
                     } else if (selectedOption === 1) {
-                        openSummary = true;
-                    } else if (selectedOption === 2) {
+                        openSum();
+                    } /*else if (selectedOption === 2) {
                         //save.releasePokemon(firstSelection);
                         //optionsOpened = false;
-                    } else if (selectedOption === 3) {
+                    } */
+                    else if (selectedOption === 2) {
                         firstSelection = undefined;
                         secondSelection = undefined;
                         optionsOpened = false;
@@ -437,6 +471,16 @@
           background-color: rgba(0, 0, 0, 0.5);
           border-radius: 4px;
           padding-left: 4%;
+          position: relative;
+
+
+          img.moving {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 70%;
+          }
+
 
           div {
             display: flex;
@@ -469,11 +513,15 @@
         width: 99%;
         box-sizing: border-box;
         padding: 1% 3.5%;
+        position: relative;
 
-
-        &.over {
-          background-color: rgba(0, 0, 0, 0.2);
+        img.moving {
+          position: absolute;
+          top: -2%;
+          right: 20%;
+          height: 100%;
         }
+
 
         button {
           min-width: 10%;
@@ -539,17 +587,20 @@
             }
           }
 
+          img.moving {
+            position: absolute;
+            top: -30%;
+            left: -20%;
+            height: 80%;
+          }
+
+
           img {
             height: 90%;
           }
 
           &.selected {
             background-color: rgba(0, 0, 0, 0.8);
-
-            img {
-              position: absolute;
-              top: -2%;
-            }
           }
         }
       }
