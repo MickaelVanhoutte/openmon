@@ -227,7 +227,7 @@
     }
 
     .grid {
-      width: 66dvh;
+      width: 80dvh;
       position: absolute;
       top: 50%;
       left: 50%;
