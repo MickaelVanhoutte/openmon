@@ -1,4 +1,5 @@
-<div class="screen" style="--zIndex:{zIndex}">
+<div class="screen" style="--zIndex:{zIndex}"
+     in:slide="{{duration: 500, delay: 100,axis: 'x', easing: backInOut}}" out:fade>
 
     <div class="tabs">
         <div class="current" style="--index: {tab}">
@@ -55,6 +56,9 @@
     import PokemonStats from "./PokemonStats.svelte";
     import PokemonSkills from "./PokemonSkills.svelte";
     import type {PokemonInstance} from "../../js/pokemons/pokedex";
+    import {slide, fade} from 'svelte/transition';
+    import {backInOut} from "svelte/easing";
+
     export let save: SelectedSave;
     export let selected: number;
     export let openSummary: boolean;

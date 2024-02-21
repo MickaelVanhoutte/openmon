@@ -1,6 +1,8 @@
 <div class="boxes">
     <div class="party">
-        <div class="title"><span>Party</span></div>
+        <div class="title">
+            <button class="cancel" on:click={() => boxOpened = false}>BACK</button>
+        </div>
         <div class="entries">
             {#each save.player.monsters as pokemon, i}
                 <div class="entry" class:over={selectZone === 'party' && over === i }
@@ -21,9 +23,13 @@
 
     <div class="box">
         <div class="box-change" class:over={selectZone === 'box-change'}>
-            <span on:click={() => prevBox()}> prev</span>
+            <button on:click={() => prevBox()}>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M4.83578 12L11.0429 18.2071L12.4571 16.7929L7.66421 12L12.4571 7.20712L11.0429 5.79291L4.83578 12ZM10.4857 12L16.6928 18.2071L18.107 16.7929L13.3141 12L18.107 7.20712L16.6928 5.79291L10.4857 12Z"></path></svg>
+            </button>
             <span> {box.name} </span>
-            <span on:click={() => nextBox()}> next</span>
+            <button on:click={() => nextBox()}>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19.1642 12L12.9571 5.79291L11.5429 7.20712L16.3358 12L11.5429 16.7929L12.9571 18.2071L19.1642 12ZM13.5143 12L7.30722 5.79291L5.89301 7.20712L10.6859 12L5.89301 16.7929L7.30722 18.2071L13.5143 12Z"></path></svg>
+            </button>
         </div>
         <div class="entries">
 
@@ -48,10 +54,10 @@
 
     <div class="options" class:opened={optionsOpened}>
         <ul>
-            <li class:selected={selectedOption === 0} on:click={() => {firstSelection.moving = true; optionsOpened = false;}}>MOVE</li>
+            <li class:selected={selectedOption === 0} on:click={() => setMoving()}>MOVE</li>
             <li class:selected={selectedOption === 1} on:click={() => openSummary = true}>SUMMARY</li>
             <li class:selected={selectedOption === 2}>RELEASE</li>
-            <li class:selected={selectedOption === 3} on:click={() => optionsOpened = false}>CANCEL</li>
+            <li class:selected={selectedOption === 3} on:click={() => cancel()}>CANCEL</li>
         </ul>
     </div>
 </div>
@@ -92,9 +98,28 @@
     let secondSelection: BoxSelection | undefined;
 
     function openOptions(selection: BoxSelection) {
-        selectedOption = 0;
-        optionsOpened = true;
-        firstSelection = selection;
+        if (!firstSelection && selection.selected instanceof PokemonInstance) {
+            selectZone = selection.zone;
+            over = selection.index;
+            selectedOption = 0;
+            optionsOpened = true;
+            firstSelection = selection;
+        } else if (firstSelection && firstSelection.selected instanceof PokemonInstance) {
+            secondSelection = selection;
+            swapPokemon(firstSelection, secondSelection);
+            optionsOpened = false;
+            over = selection.index
+            selectZone = selection.zone;
+        }
+
+    }
+
+
+    function setMoving() {
+        if (firstSelection) {
+            firstSelection.moving = true;
+            optionsOpened = false;
+        }
     }
 
     function prevBox() {
@@ -288,6 +313,12 @@
         }
     });
 
+    function cancel() {
+        firstSelection = undefined;
+        secondSelection = undefined;
+        optionsOpened = false;
+    }
+
 
 </script>
 <style lang="scss">
@@ -359,13 +390,27 @@
       flex-direction: column;
 
       .title {
-        height: 46px;
+        height: 42px;
         width: 100%;
 
         display: flex;
         flex-direction: row;
         justify-content: center;
         align-items: center;
+        padding: 1%;
+        box-sizing: border-box;
+
+        .cancel {
+          width: 66%;
+          font-size: 28px;
+          text-align: center;
+          font-family: pokemon, serif;
+          color: white;
+          text-shadow: 3px 1px 2px #54506c;
+          background-color: #5c438966;
+          border-radius: 4px;
+          border: 2px solid rgba(0, 0, 0, 0.7);
+        }
       }
 
       .entries {
@@ -420,16 +465,31 @@
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
-        height: 46px;
+        height: 42px;
         width: 99%;
+        box-sizing: border-box;
+        padding: 1% 3.5%;
+
 
         &.over {
           background-color: rgba(0, 0, 0, 0.2);
         }
 
-        span {
+        button {
+          min-width: 10%;
+          height: 100%;
+          font-size: 26px;
+          text-align: center;
+          font-family: pokemon, serif;
+          color: white;
+          text-shadow: 3px 1px 2px #54506c;
+          background-color: #5c438966;
+          border-radius: 4px;
+          border: 2px solid rgba(0, 0, 0, 0.7);
 
-
+          svg {
+            height: 100%;
+          }
         }
       }
 
