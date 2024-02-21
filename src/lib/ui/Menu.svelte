@@ -231,7 +231,7 @@
       position: absolute;
       top: 50%;
       left: 50%;
-      transform: translate(-60%, -42%);
+      transform: translate(-58%, -51%);
 
 
       #hexGrid {
@@ -251,6 +251,13 @@
         transition: all 0.2s;
         backface-visibility: hidden;
         will-change: transform;
+
+        &:last-of-type {
+          width: 30%;
+          position: absolute;
+          bottom: 39.5%;
+          left: -20%;
+        }
       }
 
       .hex::after {
@@ -322,6 +329,7 @@
 
       .hex svg {
         height: 33%;
+        top: 38%;
       }
 
       .hex span.title, .hex p {
