@@ -81,6 +81,7 @@
 
     $:selectedMons = pkmnList[selected];
     $:evs = selectedMons.evs;
+    console.log(pkmnList, selected, selectedMons);
 
     function back() {
         if (statEdit) {
@@ -91,6 +92,7 @@
     }
 
     const listener = (e: KeyboardEvent) => {
+        console.log(openSummary, e.key, tab);
         if (openSummary) {
             if (e.key === "ArrowRight") {
                 tab = (tab + 1) % 3;
@@ -124,12 +126,16 @@
     })
 
     function previous() {
+        console.log(selected, pkmnList);
+        console.log(selectedMons);
         selectedMove = 0;
         statEdit = false;
         selected = selected === 0 ? pkmnList.length - 1 : selected - 1;
     }
 
     function next() {
+        console.log(selected, pkmnList);
+        console.log(selectedMons);
         selectedMove = 0;
         statEdit = false;
         selected = selected === pkmnList.length - 1 ? 0 : selected + 1;
