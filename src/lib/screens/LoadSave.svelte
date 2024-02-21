@@ -8,20 +8,20 @@
     <div class="save-list">
         {#each saveContext.saves as save}
             <div class="save-wrapper">
-                <div class="save" tabindex="0"
+                <button class="save" tabindex="1"
                      on:click={() =>  selected = save}
                      on:mouseover={() =>  selected = save}
                      on:focus={() =>  selected = save}
                 >
                     <p>{new Date(save.date).toUTCString()}</p>
                     <p>{save.name} - lvl {save.player.level || 1}</p>
-                </div>
+                </button>
                 {#if selected === save}
                     <div class="actions">
-                        <button class="go" on:click={handleSubmit}>
+                        <button class="go" on:click={handleSubmit} tabindex="1">
                             Continue
                         </button>
-                        <button class="erase" on:click={removeSelected}>
+                        <button class="erase" on:click={removeSelected} tabindex="1">
                             Erase
                         </button>
                     </div>

@@ -6,6 +6,7 @@
         <div class="entries">
             {#each save.player.monsters as pokemon, i}
                 <div class="entry"
+                     tabindex="1"
                      class:over={selectZone === 'party' && over === i }
                      class:moving={firstSelection?.zone === 'party' && firstSelection?.index === i && firstSelection?.moving}
                      on:click={() => openOptions(new BoxSelection( 'party', i, selectedBox, pokemon))}>
