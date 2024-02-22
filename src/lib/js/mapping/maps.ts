@@ -37,6 +37,8 @@ export class OpenMap {
                 foreground?: string, battleTile?: number, collisionTile?: number) {
         this.background = background;
         this.foreground = foreground;
+        this.playerInitialPosition = playerInitialPosition;
+        this.playerMovedOffset = playerMovedOffset;
         this.width = width;
         this.height = height;
         this.battleTile = battleTile || 2239;
@@ -46,7 +48,6 @@ export class OpenMap {
         this.collisionsZones = this.initBoundaries(collisions, width);
         this.battleZones = this.initBattlesZones(battles, width);
         this.monsters = monsters;
-        this.playerInitialPosition = playerInitialPosition;
         this.levelRange = levelRange;
         this.jonctions = jonctions;
     }

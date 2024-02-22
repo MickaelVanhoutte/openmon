@@ -2,7 +2,7 @@
     <canvas bind:this={canvas} id="main" width="1024" height="1024"></canvas>
 
     <Menu bind:menuOpened bind:pokemonListOpened bind:bagOpened bind:openSummary bind:boxOpened
-          bind:save bind:saveContext />
+          bind:save bind:saveContext/>
 
     {#if !pokemonListOpened && !bagOpened}
         <button on:click={() => menuOpened = !menuOpened} class="start">start</button>
@@ -55,17 +55,28 @@
     let bagOpened = false;
     let openSummary = false;
     let boxOpened = false;
+    let igTime: any;
 
     let mainLoopContext = {
         id: 0,
         then: Date.now(),
-        fpsInterval: 1000 / 10,
-        imageScale: window.innerWidth < 1100 ? 2 : 4.5,
-        playerScale: window.innerWidth < 1100 ? .66 : 1.5,
+        fpsInterval: 1000 / 16,
+        imageScale: 2,
+        playerScale: .66,
         debug: false,
         displayChangingMap: false,
         changingMap: false,
     }
+
+    let playerPosition = new Position(
+        save.map.playerMovedOffset.x + save.map.playerInitialPosition.x,
+        save.map.playerMovedOffset.y + save.map.playerInitialPosition.y);
+
+    let playerPositionInPx = new Position(
+        Math.floor(playerPosition.x * (16 * mainLoopContext.imageScale)),
+        Math.floor(playerPosition.y * (16 * mainLoopContext.imageScale)));
+
+    let targetPosition = new Position(playerPositionInPx.x, playerPositionInPx.y);
 
     function changeMap(jonction: Jonction) {
         mainLoopContext.changingMap = true;
@@ -90,38 +101,72 @@
         let now = Date.now();
         let elapsed = now - mainLoopContext.then;
 
+
         if (elapsed > mainLoopContext.fpsInterval && !mainLoopContext.displayChangingMap) {
             mainLoopContext.then = now - (elapsed % mainLoopContext.fpsInterval);
-            let positionOnMap = new Position(
-                save.map.playerInitialPosition.x + save.map.playerMovedOffset.x,
-                save.map.playerInitialPosition.y + save.map.playerMovedOffset.y);
 
-            ctx.fillStyle = 'black';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            //  day night  cycle
+            igTime = Math.floor(now / 1000 / 60);
+
+            // acccelerate time
+            /*let hour =  Math.floor(igTime / 60 % 24) ;
+            console.log(hour)
+            let filter = 'brightness(1)';
+            if (hour > 22 || hour < 4) {
+                filter = 'brightness(.35)';
+            }else if( hour > 19 || hour < 6) {
+                filter = 'brightness(.6)';
+            } else if(hour > 17 || hour < 8) {
+                filter = 'brightness(.8) hue-rotate(-56deg)';
+            }
+            wrapper.style.filter = filter;*/
 
             if (!pokemonListOpened && !bagOpened) {
 
 
-                MAP_DRAWER.draw(ctx, save.map, mainLoopContext.imageScale, mainLoopContext.debug);
+                ctx.fillStyle = 'black';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                const deltaX = targetPosition.x - playerPositionInPx.x;
+                const deltaY = targetPosition.y - playerPositionInPx.y;
+                const speed = .66;
+
+                if (Math.abs(deltaX * speed) > 1 || Math.abs(deltaY * speed) > 1) {
+                    // Update player position gradually
+                    playerPositionInPx.x += deltaX * speed;
+                    playerPositionInPx.y += deltaY * speed;
+                } else {
+                    // Snap to the target position if movement is small
+                    save.player.moving = false;
+                    playerPositionInPx.x = targetPosition.x;
+                    playerPositionInPx.y = targetPosition.y;
+
+                }
+
+
+                //console.log(playerPosition, playerPositionInPx, targetPosition);
+
+                MAP_DRAWER.draw(ctx, save.map, mainLoopContext.imageScale, playerPositionInPx, mainLoopContext.debug);
                 save.player.draw(ctx, "overworld", mainLoopContext.playerScale);
                 if (save.map.foreground !== undefined) {
-                    MAP_DRAWER.drawFG(ctx, save.map, mainLoopContext.imageScale, mainLoopContext.debug);
+                    MAP_DRAWER.drawFG(ctx, save.map, mainLoopContext.imageScale, playerPositionInPx, mainLoopContext.debug);
                 }
 
                 if (elapsed > mainLoopContext.fpsInterval / 2) {
-                    if (save.player.direction === 'down' && save.map.jonctionAt(new Position(positionOnMap.x, positionOnMap.y + 1))) {
-                        MAP_DRAWER.drawArrow(ctx, "down", positionOnMap, mainLoopContext.imageScale);
-                    } else if (save.player.direction === 'up' && save.map.jonctionAt(new Position(positionOnMap.x, positionOnMap.y - 1))) {
-                        MAP_DRAWER.drawArrow(ctx, "up", positionOnMap, mainLoopContext.imageScale);
-                    } else if (save.player.direction === 'right' && save.map.jonctionAt(new Position(positionOnMap.x + 1, positionOnMap.y))) {
-                        MAP_DRAWER.drawArrow(ctx, "right", positionOnMap, mainLoopContext.imageScale);
-                    } else if (save.player.direction === 'left' && save.map.jonctionAt(new Position(positionOnMap.x - 1, positionOnMap.y))) {
-                        MAP_DRAWER.drawArrow(ctx, "left", positionOnMap, mainLoopContext.imageScale);
-                    }
+                    /* if (save.player.direction === 'down' && save.map.jonctionAt(new Position(positionOnMap.x, positionOnMap.y + 1))) {
+                         MAP_DRAWER.drawArrow(ctx, "down", positionOnMap, mainLoopContext.imageScale);
+                     } else if (save.player.direction === 'up' && save.map.jonctionAt(new Position(positionOnMap.x, positionOnMap.y - 1))) {
+                         MAP_DRAWER.drawArrow(ctx, "up", positionOnMap, mainLoopContext.imageScale);
+                     } else if (save.player.direction === 'right' && save.map.jonctionAt(new Position(positionOnMap.x + 1, positionOnMap.y))) {
+                         MAP_DRAWER.drawArrow(ctx, "right", positionOnMap, mainLoopContext.imageScale);
+                     } else if (save.player.direction === 'left' && save.map.jonctionAt(new Position(positionOnMap.x - 1, positionOnMap.y))) {
+                         MAP_DRAWER.drawArrow(ctx, "left", positionOnMap, mainLoopContext.imageScale);
+                     }*/
                 }
 
                 let allowedMove = true;
-                save.player.moving = false;
+
 
                 // Stop if initiated
                 if (battleState?.starting) {
@@ -132,12 +177,12 @@
                 // Check for battle
                 if (keys.down.pressed || keys.up.pressed || keys.left.pressed || keys.right.pressed) {
 
-                    let jonction = save.map.jonctionAt(new Position(positionOnMap.x, positionOnMap.y));
+                    let jonction = save.map.jonctionAt(playerPosition);
                     if (jonction !== undefined) {
                         changeMap(jonction);
                     }
                     // battle ?
-                    if (save.map.hasBattleZoneAt(positionOnMap) && Math.random() < 0.07) {
+                    if (save.map.hasBattleZoneAt(playerPosition) && Math.random() < 0.07) {
                         let monster = save.map.randomMonster();
                         window.cancelAnimationFrame(mainLoopContext.id);
                         initiateBattle(POKEDEX.findById(monster.id).result.instanciate(monster.level));
@@ -146,49 +191,75 @@
 
                 // Move player
                 if (keys.down.pressed && lastKey.key === 'ArrowDown') {
+                    if (save.player.direction !== 'down') {
+                        save.player.direction = 'down';
+                    } else {
+                        if (save.map.hasBoundaryAt(new Position(playerPosition.x, playerPosition.y + 1))) {
+                            allowedMove = false;
+                        }
 
-                    if (save.map.hasBoundaryAt(new Position(positionOnMap.x, positionOnMap.y + 1))) {
-                        allowedMove = false;
-                    }
-
-                    save.player.moving = true;
-                    save.player.direction = 'down';
-                    if (allowedMove) {
-                        save.map.playerMovedOffset.y++;
+                        save.player.moving = true;
+                        save.player.direction = 'down';
+                        if (allowedMove) {
+                            targetPosition = new Position(targetPosition.x, Math.floor(targetPosition.y + (16 * mainLoopContext.imageScale)));
+                            playerPosition = new Position(playerPosition.x, playerPosition.y + 1);
+                            save.map.playerMovedOffset.y++;
+                        }
                     }
                 }
                 if (keys.up.pressed && lastKey.key === 'ArrowUp') {
 
-                    if (save.map.hasBoundaryAt(new Position(positionOnMap.x, positionOnMap.y - 1))) {
-                        allowedMove = false;
-                    }
-                    save.player.moving = true
-                    save.player.direction = 'up';
-                    if (allowedMove) {
-                        save.map.playerMovedOffset.y--;
+                    if (save.player.direction !== 'up') {
+                        save.player.direction = 'up';
+                    } else {
+                        if (save.map.hasBoundaryAt(new Position(playerPosition.x, playerPosition.y - 1))) {
+                            allowedMove = false;
+                        }
+                        save.player.moving = true
+                        save.player.direction = 'up';
+                        if (allowedMove) {
+                            targetPosition = new Position(targetPosition.x, Math.floor(targetPosition.y - (16 * mainLoopContext.imageScale)));
+                            playerPosition = new Position(playerPosition.x, playerPosition.y - 1);
+                            save.map.playerMovedOffset.y--;
+                        }
                     }
                 }
                 if (keys.left.pressed && lastKey.key === 'ArrowLeft') {
 
-                    if (save.map.hasBoundaryAt(new Position(positionOnMap.x - 1, positionOnMap.y))) {
-                        allowedMove = false;
-                    }
+                    if (save.player.direction !== 'left') {
+                        save.player.direction = 'left';
+                    } else {
 
-                    save.player.moving = true;
-                    save.player.direction = 'left';
-                    if (allowedMove) {
-                        save.map.playerMovedOffset.x--;
+                        if (save.map.hasBoundaryAt(new Position(playerPosition.x - 1, playerPosition.y))) {
+                            allowedMove = false;
+                        }
+
+                        save.player.moving = true;
+                        save.player.direction = 'left';
+                        if (allowedMove) {
+                            targetPosition = new Position(Math.floor(targetPosition.x - (16 * mainLoopContext.imageScale)), targetPosition.y);
+                            playerPosition = new Position(playerPosition.x - 1, playerPosition.y);
+                            save.map.playerMovedOffset.x--;
+                        }
                     }
                 }
                 if (keys.right.pressed && lastKey.key === 'ArrowRight') {
 
-                    if (save.map.hasBoundaryAt(new Position(positionOnMap.x + 1, positionOnMap.y))) {
-                        allowedMove = false;
-                    }
-                    save.player.moving = true;
-                    save.player.direction = 'right';
-                    if (allowedMove) {
-                        save.map.playerMovedOffset.x++;
+                    if (save.player.direction !== 'right') {
+                        save.player.direction = 'right';
+                    } else {
+
+
+                        if (save.map.hasBoundaryAt(new Position(playerPosition.x + 1, playerPosition.y))) {
+                            allowedMove = false;
+                        }
+                        save.player.moving = true;
+                        save.player.direction = 'right';
+                        if (allowedMove) {
+                            targetPosition = new Position(Math.floor(targetPosition.x + (16 * mainLoopContext.imageScale)), targetPosition.y);
+                            playerPosition = new Position(playerPosition.x + 1, playerPosition.y);
+                            save.map.playerMovedOffset.x++;
+                        }
                     }
                 }
 
@@ -199,7 +270,7 @@
                     ctx.fillRect(0, 0, 160, 60);
 
                     ctx.fillStyle = 'white';
-                    ctx.fillText(`Player position: ${positionOnMap.x}, ${positionOnMap.y}`, 10, 10);
+                    ctx.fillText(`Player position: ${playerPosition.x}, ${playerPosition.y}`, 10, 10);
                     ctx.fillText(`Player moving: ${save.player.moving}`, 10, 20);
                     ctx.fillText(`Player direction: ${save.player.direction}`, 10, 30);
                     ctx.fillText(`Player offset: ${save.map.playerMovedOffset.x}, ${save.map.playerMovedOffset.y}`, 10, 40);

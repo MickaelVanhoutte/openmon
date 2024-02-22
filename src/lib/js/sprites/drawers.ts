@@ -25,32 +25,32 @@ export class WoldSpriteDrawer {
         }
     }
 
-    draw(ctx: CanvasRenderingContext2D, map: OpenMap, scale: number, debug: boolean = true) {
+    draw(ctx: CanvasRenderingContext2D, map: OpenMap, scale: number, playerPosition: Position, debug: boolean = true) {
         let image = this.images[map.background];
         if (image && image.complete) {
-            this.drawImage(ctx, image, map, scale, debug);
+            this.drawImage(ctx, image, map, scale, playerPosition, debug);
         } else {
             image = new Image();
             image.src = map.background;
             image.onload = () => {
                 this.images[map.background] = image;
-                this.drawImage(ctx, image, map, scale, debug);
+                this.drawImage(ctx, image, map, scale, playerPosition, debug);
             }
         }
     }
 
-    drawFG(ctx: CanvasRenderingContext2D, map: OpenMap, scale: number, debug: boolean = true) {
+    drawFG(ctx: CanvasRenderingContext2D, map: OpenMap, scale: number, playerPosition: Position, debug: boolean = true) {
         if (map.foreground !== undefined) {
             let image = this.images[map.foreground];
             if (image && image.complete) {
-                this.drawImage(ctx, image, map, scale, debug);
+                this.drawImage(ctx, image, map, scale, playerPosition, debug);
             } else {
                 image = new Image();
                 image.src = map.foreground;
                 image.onload = () => {
                     if (map.foreground) {
                         this.images[map.foreground] = image;
-                        this.drawImage(ctx, image, map, scale, debug);
+                        this.drawImage(ctx, image, map, scale, playerPosition, debug);
                     }
                 }
             }
@@ -58,13 +58,7 @@ export class WoldSpriteDrawer {
     }
 
 
-    private drawImage(ctx: CanvasRenderingContext2D, image: HTMLImageElement, map: OpenMap, scale: number, debug: boolean = false) {
-
-        // initial on map = 11, 11
-        let initialPosition = new Position(
-            (16 * scale) * map.playerInitialPosition.x,
-            (16 * scale) * map.playerInitialPosition.y
-        )
+    private drawImage(ctx: CanvasRenderingContext2D, image: HTMLImageElement, map: OpenMap, scale: number, playerPosition: Position, debug: boolean = false) {
 
         // canvas half - half character width scaled
         let centerX = ctx.canvas.width / 2 - (16) * scale / 2;
@@ -72,13 +66,9 @@ export class WoldSpriteDrawer {
         let centerY = ctx.canvas.height / 2 - (20) * scale / 2;
 
         // movedOffset
-        let offsetInPx = new Position(
-            map.playerMovedOffset.x * (16 * scale),
-            map.playerMovedOffset.y * (16 * scale)
-        )
-        ctx.save();
 
-        ctx.translate(centerX - offsetInPx.x - initialPosition.x, centerY - offsetInPx.y - initialPosition.y);
+        ctx.save();
+        ctx.translate(centerX - playerPosition.x, centerY - playerPosition.y);
 
 
         ctx.drawImage(image,
@@ -125,6 +115,7 @@ export class WoldSpriteDrawer {
 
 
         ctx.restore();
+
     }
 
     drawArrow(ctx: CanvasRenderingContext2D, direction: 'down' | 'up' | 'right' | 'left', positionOnMap: Position, imageScale: number) {
@@ -168,14 +159,14 @@ export class WoldSpriteDrawer {
         ctx.save();
 
         // move to the center of the canvas
-        ctx.translate(ctx.canvas.width/2,ctx.canvas.height/2);
+        ctx.translate(ctx.canvas.width / 2, ctx.canvas.height / 2);
 
         // rotate the canvas to the specified degrees
         ctx.rotate(angle);
 
         // draw the image
         // since the context is rotated, the image will be rotated also
-        ctx.drawImage(image,-image.width/2 + x,-image.width/2 + y);
+        ctx.drawImage(image, -image.width / 2 + x, -image.width / 2 + y);
 
         // we’re done with the rotating so restore the unrotated context
         ctx.restore();
