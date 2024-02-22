@@ -2,13 +2,13 @@
 
     <div class="name-lvl">
         <div class="status">
-            {#if battleState?.playerCurrentMonster?.status}
-                {battleState?.playerCurrentMonster?.status?.abr}
+            {#if battleState?.cPlayerMons?.status}
+                {battleState?.cPlayerMons?.status?.abr}
             {/if}
         </div>
         <div>
-            <span>{battleState.playerCurrentMonster?.name}</span>
-            <span>Lv.{battleState.playerCurrentMonster.level}</span>
+            <span>{battleState.cPlayerMons?.name}</span>
+            <span>Lv.{battleState.cPlayerMons.level}</span>
         </div>
     </div>
 
@@ -19,7 +19,7 @@
         <div class="hp">
             <span>HP</span>
             <div class="progressbar-wrapper">
-                <span class="hp-value">{currentHp} / {battleState.playerCurrentMonster.currentStats.hp}</span>
+                <span class="hp-value">{currentHp} / {battleState.cPlayerMons.currentStats.hp}</span>
                 <div class="progressbar" class:warning={percent <= 50} class:danger={percent < 15 }
                      style="--width:{percent + '%'}">
                 </div>
@@ -53,9 +53,9 @@
 
     BATTLE_STATE.subscribe(value => {
         battleState = value.state;
-        currentHp = battleState?.playerCurrentMonster?.currentHp || 0;
-        percent = Math.floor(currentHp * 100 / battleState?.playerCurrentMonster?.currentStats.hp);
-        expPercent = Math.floor(battleState?.playerCurrentMonster?.currentXp * 100 / battleState?.playerCurrentMonster?.xpToNextLevel);
+        currentHp = battleState?.cPlayerMons?.currentHp || 0;
+        percent = Math.floor(currentHp * 100 / battleState?.cPlayerMons?.currentStats.hp);
+        expPercent = Math.floor(battleState?.cPlayerMons?.currentXp * 100 / battleState?.cPlayerMons?.xpToNextLevel);
     });
 
 

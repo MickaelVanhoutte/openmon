@@ -20,6 +20,7 @@ export const MAP_DRAWER = new WoldSpriteDrawer();
 export const CHARACTER_SPRITES = new SpritesHolder(charactersJson);
 
 export const BATTLE_STATE = writable(new BattleContext());
+export const BATTLE_ACTX = writable(null);
 
 export const MOVE_EFFECT_APPLIER = container.resolve(MoveEffectApplier);
 
