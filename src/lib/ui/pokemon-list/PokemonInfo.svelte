@@ -147,7 +147,7 @@
       width: 60%;
       padding: 2%;
       box-sizing: border-box;
-      background-color: rgba(44, 56, 69, 0.5);
+      background-color: rgba(44, 56, 69, 0.3);
 
       table {
         width: 100%;

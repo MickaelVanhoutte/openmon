@@ -386,19 +386,19 @@
 
       @keyframes shake {
         0% {
-          transform: rotate(0deg) translate(-50%, -50%) translatez(0);
+          transform: rotate(0deg) translate(-50%, -50%);
         }
         25% {
-          transform: rotate(10deg) translate(-50%, -50%) translatez(0);
+          transform: rotate(10deg) translate(-50%, -50%);
         }
         50% {
-          transform: rotate(0) translate(-50%, -50%) translatez(0);
+          transform: rotate(0) translate(-50%, -50%);
         }
         75% {
-          transform: rotate(-10deg) translate(-50%, -50%) translatez(0);
+          transform: rotate(-10deg) translate(-50%, -50%);
         }
         100% {
-          transform: rotate(0deg) translate(-50%, -50%) translatez(0);
+          transform: rotate(0deg) translate(-50%, -50%);
         }
       }
 

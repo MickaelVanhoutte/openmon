@@ -645,9 +645,9 @@ export class PokemonInstance extends PokedexEntry {
         }
     }
 
-    public revive(percentHp: number){
+    public revive(hp: number){
         this.fainted = false;
-        this.currentHp = Math.floor(this.currentStats.hp * percentHp / 100);
+        this.currentHp =  hp;
     }
 
     public howMuchXpWon(opponent: PokemonInstance, participated: number = 1, fromTrainer: boolean = false, xpShare: boolean): number {

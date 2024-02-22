@@ -92,14 +92,14 @@
     let tab = 0;
     const tabs = {
         0: 'HEALING',
-        1: 'POKEBALLS',
-        2: 'REVIVE'
+        1: 'REVIVE',
+        2: 'POKEBALLS',
     };
 
     const categories = {
         0: 'potions',
-        1: 'balls',
-        2: 'revives'
+        1: 'revives',
+        2: 'balls',
     };
 
     $:pocket = Object.keys(save.player.bag[categories[tab]]).map(id => [id, save.player.bag[categories[tab]][id]]);
@@ -175,6 +175,7 @@
                 back();
             }
         } else {
+            e.preventDefault();
             if (e.key === "ArrowUp") {
                 optionSelected = optionSelected === 0 ? 1 : optionSelected - 1;
             } else if (e.key === "ArrowDown") {
@@ -209,6 +210,7 @@
     left: 0;
     width: 100dvw;
     height: 100dvh;
+    background-image: url("src/assets/menus/p-sum.jpg");
     z-index: var(--zIndex, 8);
 
     .tabs {
@@ -350,8 +352,7 @@
       height: calc(100% - 46px);
       width: 100%;
       box-sizing: border-box;
-      background-color: #0e2742f0;
-      background-image: url("src/assets/menus/p-sum.jpg");
+      background-color: rgba(0, 0, 0, 0.3);
       background-blend-mode: soft-light;
 
       display: flex;
@@ -360,7 +361,7 @@
       .item-desc {
         height: 100%;
         width: 50%;
-        padding: 2%;
+        padding: 1%;
         box-sizing: border-box;
         font-size: 32px;
         color: white;
@@ -372,9 +373,10 @@
           height: 100%;
           align-items: center;
           justify-content: center;
-
+          padding: 4%;
+          box-sizing: border-box;
           background: rgba(0, 0, 0, 0.5);
-          border-radius: 16px;
+          border-radius: 8px;
         }
       }
 

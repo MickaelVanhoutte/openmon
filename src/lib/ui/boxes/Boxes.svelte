@@ -4,7 +4,7 @@
             <button class="cancel" on:click={() => boxOpened = false}>BACK</button>
         </div>
         <div class="entries">
-            {#each save.player.monsters as pokemon, i}
+            {#each teamSlot as pokemon, i}
                 <div class="entry"
                      tabindex="1"
                      class:over={selectZone === 'party' && over === i }
@@ -16,13 +16,14 @@
                              src={firstSelection.selected.sprites[firstSelection.selected?.gender]?.front.frame1 || firstSelection.selected.sprites.male?.front?.frame1}
                              alt="moving pokemon"/>
                     {/if}
-                    <div>
-                        <span>{pokemon.name}</span>
-                        <span>Lv. {pokemon.level}</span>
-                    </div>
-                    <img src={pokemon.sprites[pokemon?.gender]?.front.frame1 || pokemon.sprites.male?.front?.frame1}
-                         alt={pokemon.name}/>
-
+                    {#if !!pokemon }
+                        <div>
+                            <span>{pokemon?.name}</span>
+                            <span>Lv. {pokemon?.level}</span>
+                        </div>
+                        <img src={pokemon?.sprites[pokemon?.gender]?.front.frame1 || pokemon?.sprites.male?.front?.frame1}
+                             alt={pokemon?.name}/>
+                    {/if}
                 </div>
             {/each}
         </div>
@@ -32,7 +33,7 @@
 
     <div class="box">
         <div class="box-change" class:over={selectZone === 'box-change'}>
-            <button on:click={() => prevBox()}>
+            <button on:click={() => prevBox()} class:hover={changeLeftHover}>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M4.83578 12L11.0429 18.2071L12.4571 16.7929L7.66421 12L12.4571 7.20712L11.0429 5.79291L4.83578 12ZM10.4857 12L16.6928 18.2071L18.107 16.7929L13.3141 12L18.107 7.20712L16.6928 5.79291L10.4857 12Z"></path>
                 </svg>
@@ -42,8 +43,10 @@
                      src={firstSelection.selected.sprites[firstSelection.selected?.gender]?.front.frame1 || firstSelection.selected.sprites.male?.front?.frame1}
                      alt="moving pokemon"/>
             {/if}
-            <span> {box.name} </span>
-            <button on:click={() => nextBox()}>
+            <span class:hover={selectZone === 'box-change'}>
+                {box.name}
+            </span>
+            <button on:click={() => nextBox()} class:hover={changeRightHover}>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M19.1642 12L12.9571 5.79291L11.5429 7.20712L16.3358 12L11.5429 16.7929L12.9571 18.2071L19.1642 12ZM13.5143 12L7.30722 5.79291L5.89301 7.20712L10.6859 12L5.89301 16.7929L7.30722 18.2071L13.5143 12Z"></path>
                 </svg>
@@ -113,16 +116,17 @@
     let over: number = 0;
 
     $:box = save.boxes[selectedBox];
+    $:teamSlot = save.player.monsters.concat(new Array(6 - save.player.monsters.length).fill(undefined))
     $:pkmnList = selectZone === 'box' ? box.values.filter(p => p instanceof PokemonInstance) : save.player.monsters;
     let isBattle = false;
     let zIndexNext = 10;
     let openSummary = false;
-
+    let changeLeftHover = false;
+    let changeRightHover = false;
     let previewOpened: boolean = false;
     let optionsOpened: boolean = false;
     let selectedOption: number = 0;
     let firstSelection: BoxSelection | undefined;
-    let secondSelection: BoxSelection | undefined;
     export let pkmnListSelectedIndex: number = 0;
 
     function openOptions(selection: BoxSelection) {
@@ -133,8 +137,7 @@
             optionsOpened = true;
             firstSelection = selection;
         } else if (firstSelection && firstSelection.selected instanceof PokemonInstance && firstSelection.moving) {
-            secondSelection = selection;
-            swapPokemon(firstSelection, secondSelection);
+            swapPokemon(firstSelection, selection);
             optionsOpened = false;
             over = selection.index
             selectZone = selection.zone;
@@ -145,14 +148,12 @@
                 selectZone = selection.zone;
                 selectedOption = 0;
                 firstSelection = selection;
-                secondSelection = undefined;
                 optionsOpened = true;
             }, 200);
 
         } else {
             optionsOpened = false;
             firstSelection = undefined;
-            secondSelection = undefined
             selectZone = selection.zone;
             over = selection.index;
         }
@@ -168,21 +169,29 @@
     }
 
     function prevBox() {
-        selectedBox = selectedBox - 1;
-        if (selectedBox < 0) {
-            selectedBox = save.boxes.length - 1;
-        }
-        selectZone = "box-change";
-        over = 0;
+        changeLeftHover = true;
+        setTimeout(() => {
+            changeLeftHover = false;
+            selectedBox = selectedBox - 1;
+            if (selectedBox < 0) {
+                selectedBox = save.boxes.length - 1;
+            }
+            selectZone = "box-change";
+            over = 0;
+        }, 200);
     }
 
     function nextBox() {
-        selectedBox = selectedBox + 1;
-        if (selectedBox > save.boxes.length - 1) {
-            selectedBox = 0;
-        }
-        selectZone = "box-change";
-        over = 0;
+        changeRightHover = true;
+        setTimeout(() => {
+            changeRightHover = false;
+            selectedBox = selectedBox + 1;
+            if (selectedBox > save.boxes.length - 1) {
+                selectedBox = 0;
+            }
+            selectZone = "box-change";
+            over = 0;
+        }, 200);
     }
 
     function swapPokemon(select1: BoxSelection, select2: BoxSelection) {
@@ -196,8 +205,9 @@
         sourceList[sourceIndex] = targetList[targetIndex];
         targetList[targetIndex] = temp;
 
+        save.player.monsters = save.player.monsters.filter(p => !!p);
+
         firstSelection = undefined;
-        secondSelection = undefined;
     }
 
     function openSum() {
@@ -207,138 +217,131 @@
         openSummary = true;
     }
 
+    function cancel() {
+        firstSelection = undefined;
+        optionsOpened = false;
+    }
+
     const listener = (e) => {
-        if (!openSummary) {
-            if (!optionsOpened) {
-                if (e.key === 'Escape') {
-                    boxOpened = false;
+        if (openSummary) {
+            return;
+        }
+        if (!optionsOpened) {
+            if (e.key === 'Escape') {
+                boxOpened = false;
+            }
+
+            // LEFT
+            if (e.key === 'ArrowLeft') {
+
+                if (selectZone === 'box') {
+                    if (over === 0 || over % 6 === 0) {
+                        selectZone = 'party';
+                        over = over / 6;
+                    } else {
+                        over--;
+                    }
+                } else if (selectZone === 'party') {
+                    selectZone = 'box';
+                    over = ((over + 1) * 6 - 1);
+                } else if (selectZone === 'box-change') {
+                    prevBox();
                 }
 
-                // LEFT
-                if (e.key === 'ArrowLeft') {
-                    if (selectZone === 'box') {
-                        if (over === 0 || over % 6 === 0) {
-                            selectZone = 'party';
-                            over = over / 6;
-                        } else {
-                            over--;
-                        }
-                    } else if (selectZone === 'party') {
-                        selectZone = 'box';
-                        over = ((over + 1) * 6 - 1);
-                    } else if (selectZone === 'box-change') {
-                        prevBox();
+                // RIGHT
+            } else if (e.key === 'ArrowRight') {
+                if (selectZone === 'box') {
+                    if (over === 5 || over % 6 === 5) {
+                        selectZone = 'party';
+                        over = ((over + 1) / 6 - 1);
+                    } else {
+                        over++;
                     }
+                } else if (selectZone === 'party') {
+                    selectZone = 'box';
+                    over = over * 6;
+                } else if (selectZone === 'box-change') {
+                    nextBox();
+                }
 
-                    // RIGHT
-                } else if (e.key === 'ArrowRight') {
-                    if (selectZone === 'box') {
-                        if (over === 5 || over % 6 === 5) {
-                            selectZone = 'party';
-                            over = ((over + 1) / 6 - 1);
-                        } else {
-                            over++;
-                        }
-                    } else if (selectZone === 'party') {
-                        selectZone = 'box';
-                        over = over * 6;
-                    } else if (selectZone === 'box-change') {
-                        nextBox();
+                // UP
+            } else if (e.key === 'ArrowUp') {
+                if (selectZone === 'box') {
+                    if (over - 6 >= 0) {
+                        over -= 6;
+                    } else {
+                        selectZone = 'box-change';
                     }
-
-                    // UP
-                } else if (e.key === 'ArrowUp') {
-                    if (selectZone === 'box') {
-                        if (over - 6 >= 0) {
-                            over -= 6;
-                        } else {
-                            selectZone = 'box-change';
-                        }
-                    } else if (selectZone === 'party') {
-                        if (over - 1 >= 0) {
-                            over--;
-                        } else {
-                            over = save.player.monsters.length;
-                        }
-                    } else if (selectZone === 'box-change') {
-                        selectZone = 'box';
-                        over = box.values.length - 1;
+                } else if (selectZone === 'party') {
+                    if (over - 1 >= 0) {
+                        over--;
+                    } else {
+                        over = teamSlot.length;
                     }
+                } else if (selectZone === 'box-change') {
+                    selectZone = 'box';
+                    over = box.values.length - 1;
+                }
 
-                    // DOWN
-                } else if (e.key === 'ArrowDown') {
-                    if (selectZone === 'box') {
-                        if (over + 6 < box.values.length) {
-                            over += 6;
-                        } else {
-                            selectZone = 'box-change';
-                        }
-                    } else if (selectZone === 'party') {
-                        if (over + 1 < save.player.monsters.length) {
-                            over++;
-                        } else {
-                            over = 0;
-                        }
-                    } else if (selectZone === 'box-change') {
-                        selectZone = 'box';
+                // DOWN
+            } else if (e.key === 'ArrowDown') {
+                if (selectZone === 'box') {
+                    if (over + 6 < box.values.length) {
+                        over += 6;
+                    } else {
+                        selectZone = 'box-change';
+                    }
+                } else if (selectZone === 'party') {
+                    if (over + 1 < teamSlot.length) {
+                        over++;
+                    } else {
                         over = 0;
                     }
-
-                    // ENTER
-                } else if (e.key === 'Enter') {
-
-                    if (!firstSelection) {
-                        if (selectZone === 'box') {
-                            if (box.values[over] instanceof PokemonInstance) {
-                                openOptions(new BoxSelection('box', over, selectedBox, box.values[over]));
-                            }
-                        } else if (selectZone === 'party') {
-                            if (save.player.monsters[over] instanceof PokemonInstance) {
-                                openOptions(new BoxSelection('party', over));
-                            }
-                        }
-                    } else if (!secondSelection) {
-                        if (selectZone === 'box') {
-                            secondSelection = new BoxSelection('box', over, selectedBox, box.values[over]);
-                            swapPokemon(firstSelection, secondSelection);
-                        } else if (selectZone === 'party') {
-                            secondSelection = new BoxSelection('party', over);
-                            swapPokemon(firstSelection, secondSelection);
-                        }
-                    }
+                } else if (selectZone === 'box-change') {
+                    selectZone = 'box';
+                    over = 0;
                 }
-            } else {
-                if (e.key === 'ArrowDown') {
-                    selectedOption = selectedOption + 1;
-                    if (selectedOption > 3) {
-                        selectedOption = 0;
-                    }
-                } else if (e.key === 'ArrowUp') {
-                    selectedOption = selectedOption - 1;
-                    if (selectedOption < 0) {
-                        selectedOption = 3;
-                    }
-                } else if (e.key === 'Enter') {
-                    if (selectedOption === 0 && firstSelection) {
-                        setMoving()
-                    } else if (selectedOption === 1) {
-                        openSum();
-                    } /*else if (selectedOption === 2) {
+
+                // ENTER
+            } else if (e.key === 'Enter') {
+
+                if (selectZone === 'box') {
+                    openOptions(new BoxSelection('box', over, selectedBox, box.values[over]));
+                } else if (selectZone === 'party') {
+                    openOptions(new BoxSelection('party', over, undefined, save.player.monsters[over]));
+                }
+            }
+        } else {
+            // OPTIONS
+            if (e.key === 'ArrowDown') {
+                selectedOption = selectedOption + 1;
+                if (selectedOption > 3) {
+                    selectedOption = 0;
+                }
+            } else if (e.key === 'ArrowUp') {
+                selectedOption = selectedOption - 1;
+                if (selectedOption < 0) {
+                    selectedOption = 3;
+                }
+            } else if (e.key === 'Enter') {
+                if (selectedOption === 0 && firstSelection) {
+                    setMoving()
+                } else if (selectedOption === 1) {
+                    openSum();
+                } /*else if (selectedOption === 2) {
                         //save.releasePokemon(firstSelection);
                         //optionsOpened = false;
                     } */
-                    else if (selectedOption === 2) {
-                        firstSelection = undefined;
-                        secondSelection = undefined;
-                        optionsOpened = false;
-                    }
-                } else if (e.key === 'Escape') {
+                else if (selectedOption === 2) {
                     firstSelection = undefined;
-                    secondSelection = undefined;
                     optionsOpened = false;
                 }
+            } else if (e.key === 'Escape') {
+                firstSelection = undefined;
+                optionsOpened = false;
             }
         }
+
     }
 
     onMount(() => {
@@ -347,12 +350,6 @@
             window.removeEventListener('keydown', listener);
         }
     });
-
-    function cancel() {
-        firstSelection = undefined;
-        secondSelection = undefined;
-        optionsOpened = false;
-    }
 
 
 </script>
@@ -523,6 +520,13 @@
           height: 100%;
         }
 
+        span {
+
+          &.hover {
+            text-decoration: underline;
+            color: white;
+          }
+        }
 
         button {
           min-width: 10%;
@@ -535,6 +539,10 @@
           background-color: #5c438966;
           border-radius: 4px;
           border: 2px solid rgba(0, 0, 0, 0.7);
+
+          &.hover {
+            background-color: rgba(0, 0, 0, 0.66);
+          }
 
           svg {
             height: 100%;

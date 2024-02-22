@@ -130,7 +130,7 @@
       height: 100%;
       box-sizing: border-box;
       padding: 1%;
-      background-color: rgba(44, 56, 69, 0.5);
+      background-color: rgba(44, 56, 69, 0.3);
 
       .__wrapper {
 
