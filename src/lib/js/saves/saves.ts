@@ -35,7 +35,7 @@ export class Save {
     }
 
     public setPrototypes(): Save {
-        Object.setPrototypeOf(this.date, Date.prototype);
+        this.date = new Date(this.date);
         Object.setPrototypeOf(this.player, Character.prototype);
         this.player.setPrototypes();
         Object.setPrototypeOf(this.map, OpenMap.prototype);
