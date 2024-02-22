@@ -1,14 +1,14 @@
 <div class="enemy-info">
 
     <div class="name-lvl">
-        <span>{battleState?.opponentCurrentMonster?.name}</span>
-        <span>Lv.{battleState?.opponentCurrentMonster.level}</span>
+        <span>{battleState?.cOpponentMons?.name}</span>
+        <span>Lv.{battleState?.cOpponentMons.level}</span>
     </div>
 
     <div class="hp-status">
         <div class="status">
-            {#if battleState?.opponentCurrentMonster?.status}
-                {battleState?.opponentCurrentMonster?.status?.abr}
+            {#if battleState?.cOpponentMons?.status}
+                {battleState?.cOpponentMons?.status?.abr}
             {/if}
         </div>
 
@@ -37,8 +37,8 @@
 
     BATTLE_STATE.subscribe(value => {
         battleState = value.state;
-        currentHp = battleState?.opponentCurrentMonster?.currentHp || 0;
-        percent = Math.floor(currentHp * 100 / battleState?.opponentCurrentMonster?.currentStats.hp);
+        currentHp = battleState?.cOpponentMons?.currentHp || 0;
+        percent = Math.floor(currentHp * 100 / battleState?.cOpponentMons?.currentStats.hp);
     });
 
 </script>
