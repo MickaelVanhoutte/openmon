@@ -4,6 +4,11 @@
     <Menu bind:menuOpened bind:pokemonListOpened bind:bagOpened bind:openSummary bind:boxOpened
           bind:save bind:saveContext/>
 
+
+    {#if mainLoopContext.dialog}
+        <Dialog bind:context={mainLoopContext}/>
+    {/if}
+
     {#if !pokemonListOpened && !bagOpened}
         <button on:click={() => menuOpened = !menuOpened} class="start">start</button>
     {/if}
@@ -34,6 +39,8 @@
     import {OpenMap} from "../js/mapping/maps.js";
     import type {Jonction} from "../js/mapping/collisions";
     import {Settings} from "../js/player/settings";
+    import {WorldContext} from "../js/common/context";
+    import Dialog from "../ui/common/Dialog.svelte";
 
     export let canvas: HTMLCanvasElement;
     export let wrapper: HTMLDivElement;
@@ -43,13 +50,7 @@
     export let save: SelectedSave;
 
     let ctx;
-
     let battleState: BattleState | undefined;
-
-    BATTLE_STATE.subscribe(value => {
-        battleState = value.state;
-    });
-
     let menuOpened = false;
     let pokemonListOpened = false;
     let bagOpened = false;
@@ -57,16 +58,12 @@
     let boxOpened = false;
     let igTime: any;
 
-    let mainLoopContext = {
-        id: 0,
-        then: Date.now(),
-        fpsInterval: 1000 / 16,
-        imageScale: 2,
-        playerScale: .66,
-        debug: false,
-        displayChangingMap: false,
-        changingMap: false,
-    }
+    BATTLE_STATE.subscribe(value => {
+        battleState = value.state;
+    });
+
+
+    let mainLoopContext = new WorldContext();
 
     let playerPosition = new Position(
         save.map.playerMovedOffset.x + save.map.playerInitialPosition.x,
@@ -104,7 +101,6 @@
 
         if (elapsed > mainLoopContext.fpsInterval && !mainLoopContext.displayChangingMap) {
             mainLoopContext.then = now - (elapsed % mainLoopContext.fpsInterval);
-
 
             //  day night  cycle
             igTime = Math.floor(now / 1000 / 60);
@@ -145,8 +141,6 @@
                 }
 
 
-                //console.log(playerPosition, playerPositionInPx, targetPosition);
-
                 MAP_DRAWER.draw(ctx, save.map, mainLoopContext.imageScale, playerPositionInPx, mainLoopContext.debug);
                 save.player.draw(ctx, "overworld", mainLoopContext.playerScale);
                 if (save.map.foreground !== undefined) {
@@ -173,7 +167,6 @@
                     return;
                 }
 
-                // if (!menuOpened) {
                 // Check for battle
                 if (keys.down.pressed || keys.up.pressed || keys.left.pressed || keys.right.pressed) {
 

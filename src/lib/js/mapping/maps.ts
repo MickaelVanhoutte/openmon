@@ -1,7 +1,6 @@
 import {Boundary, Jonction} from "./collisions";
 import {Position} from "../sprites/drawers";
-
-export const tileSize = 16;
+import type {Script} from "../common/scripts";
 
 
 export class OpenMap {
@@ -25,7 +24,9 @@ export class OpenMap {
     public battleTile: number;
     public collisionTile: number;
 
-    public jonctions: Jonction[] = []
+    public jonctions: Jonction[] = [];
+
+    public scripts?: Script[];
 
 
     constructor(background: string, width: number, height: number,
@@ -34,7 +35,7 @@ export class OpenMap {
                 playerMovedOffset: Position = new Position(),
                 levelRange: number[] = [1, 100],
                 jonctions: Jonction[] = [],
-                foreground?: string, battleTile?: number, collisionTile?: number) {
+                foreground?: string, battleTile?: number, collisionTile?: number, scripts?: Script[]) {
         this.background = background;
         this.foreground = foreground;
         this.playerInitialPosition = playerInitialPosition;
@@ -50,6 +51,7 @@ export class OpenMap {
         this.monsters = monsters;
         this.levelRange = levelRange;
         this.jonctions = jonctions;
+        this.scripts = scripts;
     }
 
     public static fromScratch(background: string, width: number, height: number,
