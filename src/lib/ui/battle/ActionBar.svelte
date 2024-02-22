@@ -287,6 +287,7 @@
 
     transition: color 0.3s ease-in-out, opacity 0.3s ease-in-out;
     flex: 48%;
+    max-height: 49%;
     max-width: 48%;
 
     -webkit-box-shadow: 4px 6px 21px 2px #000000;

@@ -81,7 +81,6 @@
 
     $:selectedMons = pkmnList[selected];
     $:evs = selectedMons.evs;
-    console.log(pkmnList, selected, selectedMons);
 
     function back() {
         if (statEdit) {

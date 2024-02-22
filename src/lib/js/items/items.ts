@@ -112,7 +112,7 @@ export class ReviveItem extends AItem {
     }
     apply(target: PokemonInstance): ItemUsageResult {
         if (target.fainted) {
-            target.revive(this.power === -1 ? target.currentStats.hp : target.currentStats.hp * this.power / 100);
+            target.revive(this.power === -1 ? target.currentStats.hp : Math.floor(target.currentStats.hp * this.power / 100));
             return new ItemUsageResult(true);
         } else {
             throw new Error("This item can only be used on fainted pokemon");
