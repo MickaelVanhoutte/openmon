@@ -252,16 +252,7 @@ export class PokedexEntry {
     public experienceGrowth: number;
     public percentageMale: number;
     public evolution: Evolution[];
-    public sprites?: {
-        male: {
-            front: SpriteGroup,
-            back: SpriteGroup,
-        },
-        female?: {
-            front: SpriteGroup,
-            back: SpriteGroup,
-        }
-    }
+    public sprites?: Sprites;
 
     constructor(
         id: number,
@@ -279,16 +270,7 @@ export class PokedexEntry {
         baseXp: number,
         percentageMale: number,
         evolution: Evolution[],
-        sprites?: {
-            male: {
-                front: SpriteGroup,
-                back: SpriteGroup,
-            },
-            female?: {
-                front: SpriteGroup,
-                back: SpriteGroup,
-            }
-        }
+        sprites?: Sprites
     ) {
         this.id = id;
         this.name = name;
@@ -612,10 +594,12 @@ export class PokemonInstance extends PokedexEntry {
             let matchTargetTypes = target?.types.length === 2 ?
                 this.moves.find((move: Move) => move.type === target.types[0] && move.power > 0) :
                 this.moves.find((move: Move) => (move.type === target.types[0] || move.type === target.types[1]) && move.power > 0);
-            if (matchTargetTypes) {
+            if (matchTargetTypes && matchTargetTypes.power > 0) {
                 return move;
             }
         }
+
+        // TODO hard IA should include switching, using items, setup before attacking...
         return move;
     }
 
