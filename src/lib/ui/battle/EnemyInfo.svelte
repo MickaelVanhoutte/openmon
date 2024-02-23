@@ -1,14 +1,14 @@
 <div class="enemy-info">
 
     <div class="name-lvl">
-        <span>{battleState?.cOpponentMons?.name}</span>
-        <span>Lv.{battleState?.cOpponentMons.level}</span>
+        <span>{actCtx?.cOpponentMons?.name}</span>
+        <span>Lv.{actCtx?.cOpponentMons.level}</span>
     </div>
 
     <div class="hp-status">
         <div class="status">
-            {#if battleState?.cOpponentMons?.status}
-                {battleState?.cOpponentMons?.status?.abr}
+            {#if actCtx?.cOpponentMons?.status}
+                {actCtx?.cOpponentMons?.status?.abr}
             {/if}
         </div>
 
@@ -26,19 +26,25 @@
 
 <script lang="ts">
 
-    import {BattleState} from "../../js/battle/battle";
-    import {BATTLE_STATE} from "../../js/const";
+    import {ActionsContext, BattleState} from "../../js/battle/battle";
+    import {BATTLE_ACTX, BATTLE_STATE} from "../../js/const";
 
     let battleState: BattleState | undefined;
+    let actCtx: ActionsContext | undefined;
 
     let currentHp = 0;
     let percent = 0;
 
-
     BATTLE_STATE.subscribe(value => {
         battleState = value.state;
-        currentHp = battleState?.cOpponentMons?.currentHp || 0;
-        percent = Math.floor(currentHp * 100 / battleState?.cOpponentMons?.currentStats.hp);
+    });
+
+    BATTLE_ACTX.subscribe(value => {
+        actCtx = value;
+        if (value) {
+            currentHp = value.cOpponentMons?.currentHp || 0;
+            percent = Math.floor(currentHp * 100 / value.cOpponentMons?.currentStats.hp);
+        }
     });
 
 </script>
