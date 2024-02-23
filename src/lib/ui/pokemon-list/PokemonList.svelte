@@ -130,8 +130,8 @@
     import {onMount} from "svelte";
     import {backInOut} from "svelte/easing";
     import {slide, fade} from 'svelte/transition';
-    import {BattleState} from "../../js/battle/battle";
-    import {BATTLE_STATE, ITEMS} from "../../js/const";
+    import {ActionsContext, BattleState} from "../../js/battle/battle";
+    import {BATTLE_ACTX, BATTLE_STATE, ITEMS} from "../../js/const";
     import Bag from "../bag/Bag.svelte";
     import {Character} from "../../js/player/player";
 
@@ -157,6 +157,7 @@
     $:zIndexNext = zIndex + 1;
 
     let battleState: BattleState | undefined;
+    let actCtx: ActionsContext | undefined;
 
     let numberOfOptions = !!itemToUse ? 2 : isBattle ? 3 : 4;
 
@@ -164,7 +165,11 @@
         battleState = value.state;
     });
 
-    $:first = isBattle ? battleState?.playerCurrentMonster : save.player.monsters.at(0);
+    BATTLE_ACTX.subscribe(value => {
+        actCtx = value;
+    });
+
+    $:first = isBattle ? actCtx?.cPlayerMons : save.player.monsters.at(0);
     $:others = isBattle ? save.player.monsters.filter((pkmn => pkmn !== first)) : save.player.monsters.slice(1);
 
     let switchToIdx = undefined;
