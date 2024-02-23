@@ -25,19 +25,19 @@
 </div>
 <script lang="ts">
 
-    import {BagObject, BattleContext, BattleResult, BattleState, SwitchAction} from "../js/battle/battle";
+    import {ActionsContext, BattleContext, BattleResult, BattleState} from "../js/battle/battle";
     import {Position} from "../js/sprites/drawers";
     import {onMount} from "svelte";
     import ActionBar from "../ui/battle/ActionBar.svelte";
     import EnemyInfo from "../ui/battle/EnemyInfo.svelte";
     import AllyInfo from "../ui/battle/AllyInfo.svelte";
     import type {SelectedSave} from "../js/saves/saves";
-    import {BATTLE_STATE, ITEMS} from "../js/const";
+    import {BATTLE_ACTX, BATTLE_STATE, ITEMS} from "../js/const";
     import PokemonList from "../ui/pokemon-list/PokemonList.svelte";
     import type {PokemonInstance} from "../js/pokemons/pokedex";
     import Bag from "../ui/bag/Bag.svelte";
-    import type {AItem} from "../js/items/items";
     import {Pokeball} from "../js/items/items";
+    import {BagObject, SwitchAction} from "../js/battle/actions";
 
     export let gifsWrapper: HTMLDivElement;
     export let save: SelectedSave;
@@ -53,11 +53,16 @@
     export let isBattle = true;
 
     let battleState: BattleState | undefined;
+    let actCtx: ActionsContext | undefined;
 
     $:changePokemon = battleState?.changePokemon;
 
     BATTLE_STATE.subscribe(value => {
         battleState = value.state;
+    });
+
+    BATTLE_ACTX.subscribe(value => {
+        actCtx = value;
     });
 
     if (battleState) {
@@ -124,7 +129,7 @@
 
                     opponent = document.createElement('img') as HTMLImageElement;
                     opponent.classList.add('opponent-sprite');
-                    opponent.src = battleState?.opponentCurrentMonster.sprites?.male?.front.frame1 || 'src/assets/monsters/bw/0.png';
+                    opponent.src = actCtx?.cOpponentMons.sprites?.male?.front.frame1 || 'src/assets/monsters/bw/0.png';
                     opponent.onload = () => {
 
                         opponent.style.setProperty('--width', opponent.naturalWidth + 'px');
@@ -140,7 +145,7 @@
                         ally.classList.add('ally-sprite');
                     }
                     if (ally) {
-                        ally.src = battleState?.playerCurrentMonster.sprites?.male?.back.frame1 || 'src/assets/monsters/bw/0.png';
+                        ally.src = actCtx?.cPlayerMons.sprites?.male?.back.frame1 || 'src/assets/monsters/bw/0.png';
                         ally.onload = () => {
                             ally.style.setProperty('--width', ally.naturalWidth + 'px');
                             ally.style.setProperty('--height', ally.naturalHeight + 'px');
@@ -155,21 +160,21 @@
     }
 
     function sendSwitchAction(newMonster: PokemonInstance) {
-        if (battleState?.playerCurrentMonster) {
+        if (actCtx?.cPlayerMons) {
             battleState?.selectAction(new SwitchAction(newMonster));
         }
     }
 
     function send(pokemon: PokemonInstance) {
         // TODO this code should be in the battle state
-        if (battleState?.playerCurrentMonster) {
-            let pkmnIndex = battleState.player.monsters.indexOf(pokemon);
+        if (battleState && actCtx?.cPlayerMons) {
+            let pkmnIndex = actCtx.player.monsters.indexOf(pokemon);
             // exchange 0 and pkmnIndex in the array
-            [battleState.player.monsters[0], battleState.player.monsters[pkmnIndex]] = [battleState.player.monsters[pkmnIndex], battleState.player.monsters[0]];
-            battleState.playerCurrentMonster = battleState.player.monsters[0];
-            battleState.participants.add(battleState.playerCurrentMonster);
+            [actCtx.player.monsters[0], actCtx.player.monsters[pkmnIndex]] = [actCtx.player.monsters[pkmnIndex], actCtx.player.monsters[0]];
+            actCtx.cPlayerMons = actCtx.player.monsters[0];
+            actCtx.participants.add(actCtx.cPlayerMons);
             battleState.changePokemon = false;
-            battleState.currentMessageV = `What should ${battleState.playerCurrentMonster.name} do?`;
+            actCtx.currentMessage = `What should ${actCtx.cPlayerMons.name} do?`;
             BATTLE_STATE.set(new BattleContext(battleState));
             battleLoopContext.allydrawn = false;
         }
@@ -177,17 +182,16 @@
 
     function sendObjectAction(result: { item: number, target?: PokemonInstance }) {
         let itm = ITEMS.getItem(result.item)?.instanciate();
-        if (result.target) {
-            if (itm && battleState && itm.doesApply(result.target, battleState.playerCurrentMonster, battleState)) {
-                battleState?.selectAction(new BagObject(result.item, result.target, battleState.playerCurrentMonster, battleState.player));
+        if (result.target && actCtx) {
+            if (itm && battleState && itm.doesApply(result.target, actCtx?.cPlayerMons, actCtx)) {
+                battleState?.selectAction(new BagObject(result.item, result.target, actCtx.cPlayerMons, actCtx.player));
                 bagOpened = false;
             } else {
                 //TODO message
                 alert('This item cannot be used here');
             }
-        } else if (itm instanceof Pokeball && battleState && itm.doesApply(battleState.opponentCurrentMonster, battleState.playerCurrentMonster, battleState)) {
-            console.log(battleState);
-            battleState?.selectAction(new BagObject(result.item, battleState.opponentCurrentMonster, battleState.playerCurrentMonster, battleState.player));
+        } else if (itm instanceof Pokeball && battleState && actCtx && itm.doesApply(actCtx.cOpponentMons, actCtx.cPlayerMons, actCtx)) {
+            battleState?.selectAction(new BagObject(result.item, actCtx.cOpponentMons, actCtx.cPlayerMons, actCtx.player));
             bagOpened = false;
         } else {
             //TODO message
