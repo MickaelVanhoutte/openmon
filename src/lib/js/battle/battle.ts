@@ -134,44 +134,6 @@ export class BattleState {
     public onPokemonChange: () => void = () => {
     };
 
-
-    // Accessors
-    get player(): Character {
-        return this.actCTx.player;
-    }
-
-    get opponent(): Character | PokemonInstance {
-        return this.actCTx.opponent;
-    }
-
-    get cPlayerMons(): PokemonInstance {
-        return this.actCTx.cPlayerMons;
-    }
-
-    set cPlayerMons(monster: PokemonInstance) {
-        this.actCTx.cPlayerMons = monster;
-    }
-
-    get cOpponentMons(): PokemonInstance {
-        return this.actCTx.cOpponentMons;
-    }
-
-    get currentMessage(): string {
-        return this.actCTx.currentMessage;
-    }
-
-    set currentMessage(message: string) {
-        this.actCTx.currentMessage = message;
-    }
-
-    get participants(): Set<PokemonInstance> {
-        return this.actCTx.participants;
-    }
-
-    get isPlayerTurn(): boolean {
-        return this.actCTx.isPlayerTurn;
-    }
-
     constructor(player: Character, opponent: Character | PokemonInstance, settings: Settings) {
 
         let opponentCurrentMonster = opponent instanceof PokemonInstance ? opponent as PokemonInstance : (opponent as Character).monsters[0];
@@ -202,6 +164,12 @@ export class BattleState {
 
         // First action to be executed, either attack if faster (TODO: check priority moves) or switch, item, flee
         // Note actions are reversed since we pop actions out of the stack
+
+        this.actCTx.addToStack(new EndTurn(action.initiator));
+
+        this.actCTx.addToStack(new EndTurnChecks(this.actCTx.cOpponentMons));
+        this.actCTx.addToStack(new EndTurnChecks(this.actCTx.cPlayerMons));
+
         if (action instanceof Attack && this.actCTx.cPlayerMons.battleStats.speed > this.actCTx.cOpponentMons.battleStats.speed
             || action instanceof RunAway
             || action instanceof SwitchAction
@@ -212,10 +180,6 @@ export class BattleState {
             this.actCTx.addToStack(action);
             this.selectOpponentAction();
         }
-
-        this.actCTx.addToStack(new EndTurnChecks(this.actCTx.cPlayerMons));
-        this.actCTx.addToStack(new EndTurnChecks(this.actCTx.cOpponentMons));
-        this.actCTx.addToStack(new EndTurn(action.initiator));
 
         this.executeAction(this.actCTx.turnStack?.pop());
     }
@@ -234,7 +198,6 @@ export class BattleState {
             action.execute(this.actCTx);
 
             // Update state for view
-            this.actCTx = Object.assign({}, this.actCTx);
             BATTLE_STATE.set(new BattleContext(this));
 
             // TODO wait for input ? (or settings, auto/manual)

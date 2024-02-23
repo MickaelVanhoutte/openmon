@@ -9,20 +9,20 @@
                     <div class="_desc">
                         <p>
                             {
-                                battleState?.cPlayerMons?.moves[selectedMoveIdx].description
-                                    .replace("$effect_chance", battleState?.cPlayerMons?.moves[selectedMoveIdx].effectChance)
+                                actCtx?.cPlayerMons?.moves[selectedMoveIdx].description
+                                    .replace("$effect_chance", actCtx?.cPlayerMons?.moves[selectedMoveIdx].effectChance)
                             }
                         </p>
                     </div>
                     <div class="stats">
                         <p> PP :
-                            {battleState?.cPlayerMons?.moves[selectedMoveIdx].currentPp}
-                            / {battleState?.cPlayerMons?.moves[selectedMoveIdx].pp}
+                            {actCtx?.cPlayerMons?.moves[selectedMoveIdx].currentPp}
+                            / {actCtx?.cPlayerMons?.moves[selectedMoveIdx].pp}
                         </p>
-                        <p> Type : {battleState?.cPlayerMons?.moves[selectedMoveIdx].category}</p>
+                        <p> Type : {actCtx?.cPlayerMons?.moves[selectedMoveIdx].category}</p>
                         <p> Power/ACC
-                            {battleState?.cPlayerMons?.moves[selectedMoveIdx].power}
-                            / {battleState?.cPlayerMons?.moves[selectedMoveIdx].accuracy} %
+                            {actCtx?.cPlayerMons?.moves[selectedMoveIdx].power}
+                            / {actCtx?.cPlayerMons?.moves[selectedMoveIdx].accuracy} %
                         </p>
                     </div>
                 </div>
@@ -33,7 +33,7 @@
 
     {#if moveOpened}
         <div class="moves">
-            {#each battleState?.cPlayerMons?.moves as move, index}
+            {#each actCtx?.cPlayerMons?.moves as move, index}
                 <button class="action-btn" style="--color:{typeChart[move.type].color}" {disabled}
                         class:selected={selectedMoveIdx === index}
                         on:mouseover={() => selectMove(index)}
@@ -75,11 +75,11 @@
 <script lang="ts">
 
     import {onMount} from "svelte";
-    import {BATTLE_STATE} from "../../js/const";
+    import {BATTLE_ACTX, BATTLE_STATE} from "../../js/const";
     import type {MoveInstance} from "../../js/pokemons/pokedex";
     import type {BattleState} from "../../js/battle/battle";
     import {Attack, RunAway} from "../../js/battle/actions";
-    import {typeChart} from "../../js/battle/battle";
+    import {ActionsContext, typeChart} from "../../js/battle/battle";
 
     export let switchOpened: boolean;
 
@@ -89,14 +89,19 @@
     let show = false;
 
     let battleState: BattleState | undefined;
+    let actCtx: ActionsContext | undefined;
     let currentMessage = '';
     let disabled = false;
 
     BATTLE_STATE.subscribe(value => {
         battleState = value.state;
-        if (value.state) {
-            currentMessage = value.state.currentMessage;
-            disabled = !value.state.isPlayerTurn;
+    });
+
+    BATTLE_ACTX.subscribe(value => {
+        actCtx = value;
+        if (value) {
+            currentMessage = value.currentMessage;
+            disabled = !value.isPlayerTurn;
         }
     });
 
@@ -105,8 +110,8 @@
 
 
     function escape() {
-        if (battleState) {
-            battleState.selectAction(new RunAway(battleState.cPlayerMons));
+        if (battleState && actCtx) {
+            battleState.selectAction(new RunAway(actCtx.cPlayerMons));
         }
     }
 
@@ -125,33 +130,33 @@
     function launchMove(idx: number, move: MoveInstance) {
         if (idx != selectedMoveIdx) {
             selectedMoveIdx = idx;
-        } else if (battleState) {
-            battleState.selectAction(new Attack(move, 'opponent', battleState.cPlayerMons));
+        } else if (battleState && actCtx) {
+            battleState.selectAction(new Attack(move, 'opponent', actCtx.cPlayerMons));
             moveOpened = false;
         }
     }
 
     window.addEventListener('keydown', (e) => {
-        if (!battleState) {
+        if (!battleState || !actCtx) {
             return;
         }
         if (!bagOpened && !switchOpened && !disabled) {
 
             if (e.key === 'ArrowUp') {
                 if (moveOpened) {
-                    selectedMoveIdx = selectedMoveIdx === 0 ? battleState.cPlayerMons.moves.length - 1 : selectedMoveIdx - 1;
+                    selectedMoveIdx = selectedMoveIdx === 0 ? actCtx.cPlayerMons.moves.length - 1 : selectedMoveIdx - 1;
                 } else {
                     selectedOptionIdx = selectedOptionIdx === 0 ? 3 : selectedOptionIdx - 1;
                 }
             } else if (e.key === 'ArrowDown') {
                 if (moveOpened) {
-                    selectedMoveIdx = selectedMoveIdx === battleState.cPlayerMons.moves.length - 1 ? 0 : selectedMoveIdx + 1;
+                    selectedMoveIdx = selectedMoveIdx === actCtx.cPlayerMons.moves.length - 1 ? 0 : selectedMoveIdx + 1;
                 } else {
                     selectedOptionIdx = selectedOptionIdx === 3 ? 0 : selectedOptionIdx + 1;
                 }
             } else if (e.key === 'Enter') {
                 if (moveOpened) {
-                    launchMove(selectedMoveIdx, battleState.cPlayerMons.moves[selectedMoveIdx]);
+                    launchMove(selectedMoveIdx, actCtx.cPlayerMons.moves[selectedMoveIdx]);
                 } else {
                     if (selectedOptionIdx === 0) {
                         moveOpened = true;

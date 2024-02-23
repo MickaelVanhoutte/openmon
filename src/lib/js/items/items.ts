@@ -1,6 +1,6 @@
 import type {PokemonInstance} from "../pokemons/pokedex";
 import itemsJson from "../../../assets/data/final/usable-items.json";
-import type {BattleState} from "../battle/battle";
+import {ActionsContext} from "../battle/battle";
 import {Character} from "../player/player";
 
 export class ItemUsageResult {
@@ -28,7 +28,7 @@ export abstract class AItem {
 
     abstract instanciate(instance?: AItem): AItem;
 
-    abstract doesApply(target: PokemonInstance, current?: PokemonInstance, battleState?: BattleState): boolean;
+    abstract doesApply(target: PokemonInstance, current?: PokemonInstance, actCtx?: ActionsContext): boolean;
 
     abstract apply(target: PokemonInstance, current?: PokemonInstance): ItemUsageResult;
 }
@@ -44,8 +44,8 @@ export class Pokeball extends AItem {
         return new Pokeball(this.id, this.categoryId, this.name, this.description, this.power);
     }
 
-    doesApply(target: PokemonInstance, current?: PokemonInstance, battleState?: BattleState): boolean {
-        return !(!battleState || battleState.opponent instanceof Character);
+    doesApply(target: PokemonInstance, current?: PokemonInstance, actCtx?: ActionsContext): boolean {
+        return !(!actCtx || actCtx.opponent instanceof Character);
     }
 
     apply(target: PokemonInstance, current: PokemonInstance): ItemUsageResult {
@@ -84,7 +84,7 @@ export class HealingItem extends AItem {
         return new HealingItem(this.id, this.categoryId, this.name, this.description, this.power);
     }
 
-    doesApply(target: PokemonInstance, current?: PokemonInstance, battleState?: BattleState): boolean {
+    doesApply(target: PokemonInstance, current?: PokemonInstance, actCtx?: ActionsContext): boolean {
         return !(!target.fainted && target.currentHp === target.currentStats.hp);
     }
 
@@ -107,7 +107,7 @@ export class ReviveItem extends AItem {
         return new ReviveItem(this.id, this.categoryId, this.name, this.description, this.power);
     }
 
-    doesApply(target: PokemonInstance, current?: PokemonInstance, battleState?: BattleState): boolean {
+    doesApply(target: PokemonInstance, current?: PokemonInstance, actCtx?: ActionsContext): boolean {
         return target.fainted;
     }
     apply(target: PokemonInstance): ItemUsageResult {

@@ -2,13 +2,13 @@
 
     <div class="name-lvl">
         <div class="status">
-            {#if battleState?.cPlayerMons?.status}
-                {battleState?.cPlayerMons?.status?.abr}
+            {#if actCtx?.cPlayerMons?.status}
+                {actCtx?.cPlayerMons?.status?.abr}
             {/if}
         </div>
         <div>
-            <span>{battleState.cPlayerMons?.name}</span>
-            <span>Lv.{battleState.cPlayerMons.level}</span>
+            <span>{actCtx.cPlayerMons?.name}</span>
+            <span>Lv.{actCtx.cPlayerMons.level}</span>
         </div>
     </div>
 
@@ -19,7 +19,7 @@
         <div class="hp">
             <span>HP</span>
             <div class="progressbar-wrapper">
-                <span class="hp-value">{currentHp} / {battleState.cPlayerMons.currentStats.hp}</span>
+                <span class="hp-value">{currentHp} / {actCtx.cPlayerMons.currentStats.hp}</span>
                 <div class="progressbar" class:warning={percent <= 50} class:danger={percent < 15 }
                      style="--width:{percent + '%'}">
                 </div>
@@ -41,10 +41,11 @@
 
 <script lang="ts">
 
-    import {BattleState} from "../../js/battle/battle";
-    import {BATTLE_STATE} from "../../js/const";
+    import {ActionsContext, BattleState} from "../../js/battle/battle";
+    import {BATTLE_ACTX, BATTLE_STATE} from "../../js/const";
 
     let battleState: BattleState | undefined;
+    let actCtx: ActionsContext | undefined;
 
     let currentHp = 0;
     let percent = 0;
@@ -53,9 +54,15 @@
 
     BATTLE_STATE.subscribe(value => {
         battleState = value.state;
-        currentHp = battleState?.cPlayerMons?.currentHp || 0;
-        percent = Math.floor(currentHp * 100 / battleState?.cPlayerMons?.currentStats.hp);
-        expPercent = Math.floor(battleState?.cPlayerMons?.currentXp * 100 / battleState?.cPlayerMons?.xpToNextLevel);
+    });
+
+    BATTLE_ACTX.subscribe(value => {
+        actCtx = value;
+        if (value) {
+            currentHp = value.cPlayerMons?.currentHp || 0;
+            percent = Math.floor(currentHp * 100 / value.cPlayerMons?.currentStats.hp);
+            expPercent = Math.floor(value.cPlayerMons?.currentXp * 100 / value.cPlayerMons?.xpToNextLevel);
+        }
     });
 
 
