@@ -1,0 +1,36 @@
+import type {Character} from "../player/player";
+import type {Script} from "./scripts";
+import type {OpenMap} from "../mapping/maps";
+
+export class WorldContext {
+    id: number = 0;
+
+    map?: OpenMap;
+
+    then: number = Date.now();
+    fpsInterval: number = 1000 / 16;
+    imageScale: number = 2;
+    playerScale: number = .66;
+    debug: boolean = false;
+    displayChangingMap: boolean = false;
+    changingMap: boolean = false;
+
+    player: Character;
+    playingScript?: Script;
+
+    // change background color
+    constructor(player: Character) {
+        this.player = player;
+    }
+
+    playScript(script: Script) {
+        this.playingScript = script;
+        script.play(this);
+        const unsubscriber = script.running.subscribe((running) => {
+            if (!running) {
+                this.playingScript = undefined;
+                unsubscriber();
+            }
+        });
+    }
+}

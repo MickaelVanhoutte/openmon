@@ -1,6 +1,7 @@
-import { OpenMap} from "../maps";
+import {OpenMap} from "../maps";
 import {Position} from "../../sprites/drawers";
 import {Jonction} from "../collisions";
+import {Script, StepBack, Dialog, Message} from "../../common/scripts";
 
 const monsters = Array.from({length: 251}, (v, k) => k + 1);
 
@@ -158,4 +159,39 @@ const jonction: Jonction = new Jonction(
     new Position(71, 1),
 )
 
-export const start = OpenMap.fromScratch('src/assets/maps/start.png', 100, 60, collisions, battles, monsters, new Position(18, 52), new Position(0, 0), [3, 6], [jonction], undefined, 2239, 4295);
+const scripts: Script[] = [
+   /* new Script(
+        'onEnter',
+        [
+            new Dialog(
+                [
+                    new Message('This is an event triggered at map enter !', 'System')
+                ]
+            )
+        ],
+    ),
+    new Script(
+        'onStep',
+        [
+            new Dialog(
+                [
+                    new Message('This is a step in triggered event !', 'System'),
+                ]
+            ),
+            new StepBack(),
+            new Dialog(
+                [
+                    new Message('I should probably explore before leaving...', 'System'),
+                ]
+            ),
+        ],
+        new Position(33, 34),
+        false
+    )*/
+];
+
+export const start = OpenMap.fromScratch('src/assets/maps/start.png', 100, 60,
+    collisions, battles, monsters,
+    new Position(18, 52), new Position(0, 0),
+    [3, 6], [jonction], undefined, 2239, 4295,
+    scripts);
