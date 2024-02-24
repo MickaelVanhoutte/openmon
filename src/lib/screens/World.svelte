@@ -32,7 +32,7 @@
     import {Character} from "../js/player/player";
     import {onDestroy, onMount} from "svelte";
     import Menu from "../ui/Menu.svelte";
-    import {BATTLE_STATE, MAP_DRAWER, MAPS, POKEDEX} from "../js/const";
+    import {BATTLE_STATE, MAP_DRAWER, MAPS, POKE_WALKER, POKEDEX} from "../js/const";
     import {SaveContext, SelectedSave} from "../js/saves/saves";
     import JoystickController from 'joystick-controller';
     import {OpenMap} from "../js/mapping/maps.js";
@@ -58,9 +58,13 @@
     let openSummary = false;
     let boxOpened = false;
     let mainLoopContext = new WorldContext(save.player);
+    let pokedirection: 'up' | 'down' | 'left' | 'right' = 'down';
     let playerPosition: Position = new Position();
+    let pokePosition: Position = new Position();
     let playerPositionInPx: Position = new Position();
+    let pokePositionInPx: Position = new Position();
     let targetPosition: Position = new Position();
+    let pokeTargetPosition: Position = new Position();
     let abButtons;
     let joystick;
 
@@ -86,11 +90,21 @@
             map.playerMovedOffset.x + map.playerInitialPosition.x,
             map.playerMovedOffset.y + map.playerInitialPosition.y);
 
+        pokePosition = new Position(
+            map.playerMovedOffset.x + map.playerInitialPosition.x,
+            map.playerMovedOffset.y + map.playerInitialPosition.y);
+
         playerPositionInPx = new Position(
-            Math.floor(playerPosition.x * (16 * mainLoopContext.imageScale)),
-            Math.floor(playerPosition.y * (16 * mainLoopContext.imageScale)));
+            playerPosition.x,
+            playerPosition.y
+        );
+        pokePositionInPx = new Position(
+            playerPositionInPx.x,
+            playerPositionInPx.y
+        );
 
         targetPosition = new Position(playerPositionInPx.x, playerPositionInPx.y);
+        pokeTargetPosition = new Position(playerPositionInPx.x, playerPositionInPx.y);
 
         mainLoopContext.changingMap = true;
         mainLoopContext.displayChangingMap = true;
@@ -144,9 +158,6 @@
         ctx.imageSmoothingQuality = 'high';
 
 
-
-
-
         let now = Date.now();
         let elapsed = now - mainLoopContext.then;
 
@@ -159,6 +170,7 @@
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
                 updatePosition();
+                updatePokePosition();
                 drawMap();
 
                 if (elapsed > mainLoopContext.fpsInterval / 2) {
@@ -168,10 +180,10 @@
                 // Move player
                 let moved = move();
 
-                if(moved){
+                if (moved) {
                     checkForStepInScript();
-                        checkForFunction();
-                        checkForBattle();
+                    checkForFunction();
+                    checkForBattle();
                 }
             }
             if (mainLoopContext.debug) {
@@ -195,9 +207,11 @@
         if (mainLoopContext.map === undefined) return;
 
         // Background
-        let mapDDimensions = MAP_DRAWER.draw(ctx, mainLoopContext.map, mainLoopContext.imageScale, playerPositionInPx, mainLoopContext.debug);
+        let mapDimensions = MAP_DRAWER.draw(ctx, mainLoopContext.map, mainLoopContext.imageScale, playerPositionInPx, mainLoopContext.debug);
         // Player
-        mainLoopContext.player.draw(ctx, 'overworld', mainLoopContext.playerScale, playerPositionInPx, mapDDimensions);
+        mainLoopContext.player.draw(ctx, 'overworld', mainLoopContext.playerScale, playerPositionInPx, mapDimensions);
+
+        POKE_WALKER.draw(ctx, pokedirection, .66, mainLoopContext.player.moving, pokePositionInPx, mainLoopContext.player.monsters.at(0), mapDimensions);
 
         // Foreground
         /* if (mainLoopContext.map?.foreground !== undefined) {
@@ -222,8 +236,27 @@
         }
     }
 
+    function updatePokePosition() {
+        const deltaX = pokeTargetPosition.x - pokePositionInPx.x;
+        const deltaY = pokeTargetPosition.y - pokePositionInPx.y;
+        const speed = .66;
+
+        if (Math.abs(deltaX * speed) > 1 || Math.abs(deltaY * speed) > 1) {
+            // Update player position gradually
+            pokePositionInPx.x += deltaX * speed;
+            pokePositionInPx.y += deltaY * speed;
+        } else {
+            // Snap to the target position if movement is small
+            mainLoopContext.player.moving = false;
+            pokePositionInPx.x = targetPosition.x;
+            pokePositionInPx.y = targetPosition.y;
+        }
+    }
+
     function move(): boolean {
         let direction = mainLoopContext.player.direction;
+        pokedirection = direction;
+
         let move = false;
         if (keys.down.pressed && lastKey.key === 'ArrowDown') {
             direction = 'down';
@@ -243,8 +276,21 @@
         }
 
         if (move) {
+
             const xChanger = (x) => direction === 'left' ? x - 1 : direction === 'right' ? x + 1 : x;
             const yChanger = (y) => direction === 'up' ? y - 1 : direction === 'down' ? y + 1 : y;
+
+            pokeTargetPosition = new Position(
+                Math.floor(pokeTargetPosition.x + (xChanger(0) * 16 * mainLoopContext.imageScale)),
+                Math.floor(pokeTargetPosition.y + (yChanger(0) * 16 * mainLoopContext.imageScale))
+            )
+
+            pokePosition = new Position(
+                playerPosition.x,
+                playerPosition.y,
+            )
+
+
 
             const futureX = xChanger(playerPosition.x);
             const futureY = yChanger(playerPosition.y);

@@ -236,30 +236,92 @@ export class WoldSpriteDrawer {
 export class PokeWalkerSpriteDrawer {
     private images: Record<string, HTMLImageElement> = {};
 
+    private frames = {max: 6, val: 0, elapsed: 0};
+
+
     constructor() {
     }
 
-    draw(ctx: CanvasRenderingContext2D, map: OpenMap, orientation: 'up' | 'down' | 'left' | 'right',
-         scale: number, moving: boolean, playerPosition: Position, pokemon: PokemonInstance) {
+    draw(ctx: CanvasRenderingContext2D, orientation: 'up' | 'down' | 'left' | 'right',
+         scale: number, moving: boolean, pokePosition: Position, pokemon: PokemonInstance, mapDim: { width: number, height: number }) {
 
         let id = ("00" + pokemon.id).slice(-3);
         id = pokemon.isShiny ? id + 's' : id;
         let source = `src/assets/monsters/walking/${id}.png`;
         let image = this.images[source];
         if (image && image.complete) {
-            this.drawImage(ctx, image, map, orientation, scale, moving, playerPosition);
+            this.drawImage(ctx, image, orientation, scale, moving, pokePosition, mapDim);
         } else {
             image = new Image();
-            image.src = map.background;
+            image.src = source;
             image.onload = () => {
-                this.images[map.background] = image;
-                this.drawImage(ctx, image, map, orientation, scale, moving, playerPosition);
+                this.images[source] = image;
+                this.drawImage(ctx, image, orientation, scale, moving, pokePosition, mapDim);
             }
         }
     }
 
-    private drawImage(ctx: CanvasRenderingContext2D, image: HTMLImageElement, map: OpenMap, orientation: 'up' | 'down' | 'left' | 'right',
-                      scale: number, moving: boolean, playerPosition: Position) {
+    private drawImage(ctx: CanvasRenderingContext2D, image: HTMLImageElement, orientation: 'up' | 'down' | 'left' | 'right',
+                      scale: number, moving: boolean, pokePosition: Position, mapDim: { width: number, height: number }) {
+
+        if (moving) {
+
+            if (this.frames.max > 1) {
+                this.frames.elapsed += 1;
+            }
+            this.frames.val += 1
+            if (this.frames.val > this.frames.max - 1) {
+                this.frames.val = 0;
+            }
+        } else {
+            this.frames.val = 0;
+        }
+
+        // 40 * 40 sprites
+        let sY = OrientationIndexes[orientation] * 40;
+
+        let centerX = ctx.canvas.width / 2 - (16) * scale / 2;
+        // canvas half - half character height scaled
+        let centerY = ctx.canvas.height / 2 - (20) * scale / 2;
+
+        let offsetX = 0;
+        let offsetY = 0;
+
+        let leftThreshold = pokePosition.x < Math.min(centerX, window.innerWidth / 2 - (16 * .66 / 2));
+        let topThreshold = pokePosition.y < Math.min(centerY, window.innerHeight / 2 - (16 * .66 / 2));
+        let rightThreshold = pokePosition.x > mapDim.width - Math.min(centerX, window.innerWidth / 2 - (16 * .66 / 2));
+        let bottomThreshold = pokePosition.y > mapDim.height - Math.min(centerY, window.innerHeight / 2 - (16 * .66 / 2));
+
+        if (leftThreshold) {
+            offsetX =  Math.min(centerX, window.innerWidth / 2 - (16 * .66 / 2)) - pokePosition.x;
+        }
+        if (topThreshold) {
+            offsetY = Math.min(centerY, window.innerHeight / 2 - (16 * .66 / 2)) - pokePosition.y;
+        }
+
+        if (rightThreshold) {
+            offsetX = mapDim.width - Math.min(centerX, window.innerWidth / 2 - (16 * .66 / 2)) - pokePosition.x;
+        }
+        if (bottomThreshold) {
+            offsetY = mapDim.height - Math.min(centerY, window.innerHeight / 2 - (16 * .66 / 2)) - pokePosition.y;
+        }
+
+
+        //ctx.save();
+        //ctx.translate(centerX - offsetX, centerY - offsetY);
+
+        ctx.drawImage(
+            image,
+            this.frames.val * (40),
+            sY,
+            40,
+            40,
+            0,
+            0,
+            40 * scale,
+            40 * scale
+        );
+        ctx.restore();
 
     }
 }
@@ -351,7 +413,7 @@ export class PlayerSprite {
             sprite.width * scale,
             sprite.height * scale
         );
-        canvas.restore();
+        //canvas.restore();
     }
 }
 
@@ -360,6 +422,13 @@ export const OrientationIndexes = {
     "left": 1,
     "right": 2,
     "up": 3,
+}
+
+export const pokeOrientationIndexes = {
+    "down": 0,
+    "left": 6,
+    "right": 2,
+    "up": 4,
 }
 
 export class SpriteFromSheet {
