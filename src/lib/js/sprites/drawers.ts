@@ -1,4 +1,5 @@
 import type {OpenMap} from "../mapping/maps";
+import type {PokemonInstance} from "../pokemons/pokedex";
 
 
 export class Position {
@@ -229,6 +230,37 @@ export class WoldSpriteDrawer {
 
         // we’re done with the rotating so restore the unrotated context
         ctx.restore();
+    }
+}
+
+export class PokeWalkerSpriteDrawer {
+    private images: Record<string, HTMLImageElement> = {};
+
+    constructor() {
+    }
+
+    draw(ctx: CanvasRenderingContext2D, map: OpenMap, orientation: 'up' | 'down' | 'left' | 'right',
+         scale: number, moving: boolean, playerPosition: Position, pokemon: PokemonInstance) {
+
+        let id = ("00" + pokemon.id).slice(-3);
+        id = pokemon.isShiny ? id + 's' : id;
+        let source = `src/assets/monsters/walking/${id}.png`;
+        let image = this.images[source];
+        if (image && image.complete) {
+            this.drawImage(ctx, image, map, orientation, scale, moving, playerPosition);
+        } else {
+            image = new Image();
+            image.src = map.background;
+            image.onload = () => {
+                this.images[map.background] = image;
+                this.drawImage(ctx, image, map, orientation, scale, moving, playerPosition);
+            }
+        }
+    }
+
+    private drawImage(ctx: CanvasRenderingContext2D, image: HTMLImageElement, map: OpenMap, orientation: 'up' | 'down' | 'left' | 'right',
+                      scale: number, moving: boolean, playerPosition: Position) {
+
     }
 }
 
