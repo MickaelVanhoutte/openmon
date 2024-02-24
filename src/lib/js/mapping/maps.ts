@@ -1,7 +1,6 @@
 import {Boundary, Jonction} from "./collisions";
 import {Position} from "../sprites/drawers";
-import type {Script} from "../common/scripts";
-
+import {Script} from "../common/scripts";
 
 export class OpenMap {
     public background: string;
@@ -59,7 +58,7 @@ export class OpenMap {
                               playerInitialPosition: Position = new Position(), playerMovedOffset: Position = new Position(),
                               levelRange: number[] = [1, 100],
                               jonctions: Jonction[] = [],
-                              foreground?: string, battleTile?: number, collisionTile?: number): OpenMap {
+                              foreground?: string, battleTile?: number, collisionTile?: number, scripts?: Script[]): OpenMap {
 
 
         return new OpenMap(
@@ -75,7 +74,8 @@ export class OpenMap {
             jonctions,
             foreground,
             battleTile,
-            collisionTile
+            collisionTile,
+            scripts
         )
     }
 
@@ -92,6 +92,9 @@ export class OpenMap {
             map.levelRange,
             map.jonctions,
             map?.foreground,
+            map?.battleTile,
+            map?.collisionTile,
+            map?.scripts
         )
     }
 
@@ -111,6 +114,7 @@ export class OpenMap {
                 Object.setPrototypeOf(position, Position.prototype);
             });
         });
+        this.scripts = this.scripts?.map((script) => new Script(script.triggerType, script.actions, script.stepPosition, script.replayable));
 
         return this;
     }
@@ -179,5 +183,6 @@ export class OpenMap {
                 }
             }
         }
+        return undefined;
     }
 }

@@ -1,11 +1,12 @@
-
-import {Dialog} from "./dialog";
-import {Message} from "./dialog";
 import type {Character} from "../player/player";
 import type {Script} from "./scripts";
+import type {OpenMap} from "../mapping/maps";
 
 export class WorldContext {
     id: number = 0;
+
+    map?: OpenMap;
+
     then: number = Date.now();
     fpsInterval: number = 1000 / 16;
     imageScale: number = 2;
@@ -16,18 +17,20 @@ export class WorldContext {
 
     player: Character;
     playingScript?: Script;
-    dialog?: Dialog;
 
     // change background color
     constructor(player: Character) {
         this.player = player;
-        this.dialog = new Dialog(messages);
+    }
+
+    playScript(script: Script) {
+        this.playingScript = script;
+        script.play(this);
+        const unsubscriber = script.running.subscribe((running) => {
+            if (!running) {
+                this.playingScript = undefined;
+                unsubscriber();
+            }
+        });
     }
 }
-
-
-export const messages: Message[] = [
-    new Message('...', 'Ethan'),
-    new Message('Ah...', 'Ethan'),
-    new Message('My head... Where am I ?', 'Ethan'),
-]

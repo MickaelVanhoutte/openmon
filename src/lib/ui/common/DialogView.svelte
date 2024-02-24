@@ -13,14 +13,27 @@
 
     import {onMount} from "svelte";
     import type {WorldContext} from "../../js/common/context";
+    import type {Dialog} from "../../js/common/scripts";
 
     export let context: WorldContext;
+    export let dialog: Dialog;
     export let text: HTMLDivElement;
 
-    let current = context.dialog?.current?.text || '';
+    let current = dialog?.current.text || '';
+
 
     function next() {
-        if (!context.dialog?.next()) {
+        if (dialog?.next()) {
+            text.classList.remove("animate");
+            current = '';
+            setTimeout(() => {
+                current = dialog?.current?.text || '';
+                text.classList.add("animate");
+            }, 100);
+        }
+
+        //context.playingScript?.stopCurrentAction();
+        /*if (!context.dialog?.next()) {
             context.dialog = undefined;
         } else {
             text.classList.remove("animate");
@@ -29,7 +42,7 @@
                 current = context.dialog?.current?.text || '';
                 text.classList.add("animate");
             }, 100);
-        }
+        }*/
     }
 
     const listener = (e: KeyboardEvent) => {
@@ -82,7 +95,6 @@
           overflow: hidden;
           border-right: .15em solid orange;
           white-space: nowrap;
-          font-size: 1.6rem;
 
 
           /*overflow: hidden;

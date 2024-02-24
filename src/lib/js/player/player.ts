@@ -1,6 +1,7 @@
 import {PokemonInstance} from "../pokemons/pokedex";
 import {CHARACTER_SPRITES} from "../const";
 import {Bag} from "../items/bag";
+import type {Position} from "../sprites/drawers";
 
 export class Character {
     public spriteId: number;
@@ -58,8 +59,8 @@ export class Character {
         return this;
     }
 
-    public draw(ctx: CanvasRenderingContext2D, type: 'front' | 'overworld', scale: number) {
-        CHARACTER_SPRITES.draw(this.spriteId, ctx, type, this.direction, scale, this.moving);
+    public draw(ctx: CanvasRenderingContext2D, type: 'front' | 'overworld', scale: number, playerPosition: Position, mapDim: {width: number, height: number}) {
+        CHARACTER_SPRITES.draw(this.spriteId, ctx, type, this.direction, scale, this.moving, playerPosition, mapDim);
     }
 }
 

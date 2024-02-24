@@ -25,18 +25,22 @@ export class WoldSpriteDrawer {
         }
     }
 
-    draw(ctx: CanvasRenderingContext2D, map: OpenMap, scale: number, playerPosition: Position, debug: boolean = true) {
+    draw(ctx: CanvasRenderingContext2D, map: OpenMap, scale: number, playerPosition: Position, debug: boolean = true): {
+        width: number,
+        height: number
+    } {
         let image = this.images[map.background];
         if (image && image.complete) {
-            this.drawImage(ctx, image, map, scale, playerPosition, debug);
+            return this.drawImage(ctx, image, map, scale, playerPosition, debug);
         } else {
             image = new Image();
             image.src = map.background;
             image.onload = () => {
                 this.images[map.background] = image;
-                this.drawImage(ctx, image, map, scale, playerPosition, debug);
+                return this.drawImage(ctx, image, map, scale, playerPosition, debug);
             }
         }
+        return {width: 0, height: 0};
     }
 
     drawFG(ctx: CanvasRenderingContext2D, map: OpenMap, scale: number, playerPosition: Position, debug: boolean = true) {
@@ -58,17 +62,70 @@ export class WoldSpriteDrawer {
     }
 
 
-    private drawImage(ctx: CanvasRenderingContext2D, image: HTMLImageElement, map: OpenMap, scale: number, playerPosition: Position, debug: boolean = false) {
+    private drawImage(ctx: CanvasRenderingContext2D, image: HTMLImageElement, map: OpenMap, scale: number, playerPosition: Position, debug: boolean = false): {
+        width: number,
+        height: number
+    } {
 
         // canvas half - half character width scaled
-        let centerX = ctx.canvas.width / 2 - (16) * scale / 2;
-        // canvas half - half character height scaled
-        let centerY = ctx.canvas.height / 2 - (20) * scale / 2;
 
-        // movedOffset
+
+        /*if(offsetX < ctx.canvas.width / 3){
+            offsetX = ctx.canvas.width / 3;
+        }
+        if(offsetX > map.width * scale - ctx.canvas.width / 3){
+            offsetX = map.width * scale - ctx.canvas.width / 3;
+        }
+        if(offsetY < ctx.canvas.height / 3){
+            offsetY = ctx.canvas.height / 3;
+        }
+        if(offsetY > map.height * scale - ctx.canvas.height / 3){
+            offsetY = map.height * scale - ctx.canvas.height / 3;
+        }*/
+
+        // translation must be bordered to avoid seeing ouutside the map
+        //console.log(playerPosition.x, window.innerWidth / 2 - (16 * .66 / 2), image.width * scale)
+        // console.log(playerPosition.x,  map.width * scale - window.innerWidth / 2)
+//console.log({offsetX}, {centerX}, {offsetY}, {centerY}, image.width * scale, image.height * scale);
+
+        let screenDimensions = {
+            width: ctx.canvas.width,
+            height: ctx.canvas.height,
+        }
+
+        let centerX = screenDimensions.width / 2;
+        // canvas half - half character height scaled
+        let centerY = screenDimensions.height / 2;
+
+        let offsetX = playerPosition.x;
+        let offsetY = playerPosition.y;
+
+        let leftThreshold = playerPosition.x < Math.min(centerX, window.innerWidth / 2 - (16 * .66 / 2));
+        let topThreshold = playerPosition.y < Math.min(centerY, window.innerHeight / 2 - (16 * .66 / 2));
+        let rightThreshold = playerPosition.x > image.width * scale - Math.min(centerX, window.innerWidth / 2 - (16 * .66 / 2));
+        let bottomThreshold = playerPosition.y > image.height * scale - Math.min(centerY, window.innerHeight / 2 - (16 * .66 / 2));
+
+        console.log(leftThreshold, topThreshold, rightThreshold, bottomThreshold);
+
+        if (leftThreshold) {
+            offsetX = Math.min(centerX, window.innerWidth / 2 - (16 * .66 / 2));
+        }
+        if (topThreshold) {
+            offsetY = Math.min(centerY, window.innerHeight / 2 - (16 * .66 / 2));
+        }
+        if (rightThreshold) {
+            offsetX = image.width * scale - Math.min(centerX, window.innerWidth / 2 - (16 * .66 / 2));
+        }
+        if (bottomThreshold) {
+            offsetY = image.height * scale - Math.min(centerY, window.innerHeight / 2 - (16 * .66 / 2));
+        }
+
+
+
+        //console.log('map:', offsetX, offsetY);
 
         ctx.save();
-        ctx.translate(centerX - playerPosition.x, centerY - playerPosition.y);
+        ctx.translate(centerX - offsetX, centerY - offsetY);
 
 
         ctx.drawImage(image,
@@ -83,6 +140,7 @@ export class WoldSpriteDrawer {
         );
 
         if (debug) {
+            ctx.font = "8px Arial";
             for (let i = 0; i < map.width; i++) {
                 for (let j = 0; j < map.height; j++) {
                     if (map.hasBoundaryAt(new Position(i, j))) {
@@ -116,6 +174,7 @@ export class WoldSpriteDrawer {
 
         ctx.restore();
 
+        return {width: image.width * scale, height: image.height * scale};
     }
 
     drawArrow(ctx: CanvasRenderingContext2D, direction: 'down' | 'up' | 'right' | 'left', positionOnMap: Position, imageScale: number) {
@@ -199,7 +258,7 @@ export class PlayerSprite {
 
     public draw(canvas: CanvasRenderingContext2D, type: 'front' | 'overworld',
                 orientation: 'up' | 'down' | 'left' | 'right',
-                scale: number, moving: boolean) {
+                scale: number, moving: boolean, playerPosition: Position, mapDim: { width: number, height: number }) {
         let sprite = this[type];
         let img = type === 'front' ? this.frontImg : this.worldImg;
         if (img.complete)
@@ -219,18 +278,48 @@ export class PlayerSprite {
         let sY = OrientationIndexes[orientation] * sprite.height;
 
 
+        let centerX = canvas.canvas.width / 2 - (16) * scale / 2;
+        // canvas half - half character height scaled
+        let centerY = canvas.canvas.height / 2 - (20) * scale / 2;
+
+        let offsetX = 0;
+        let offsetY = 0;
+
+        let leftThreshold = playerPosition.x < Math.min(centerX, window.innerWidth / 2 - (16 * .66 / 2));
+        let topThreshold = playerPosition.y < Math.min(centerY, window.innerHeight / 2 - (16 * .66 / 2));
+        let rightThreshold = playerPosition.x > mapDim.width - Math.min(centerX, window.innerWidth / 2 - (16 * .66 / 2));
+        let bottomThreshold = playerPosition.y > mapDim.height - Math.min(centerY, window.innerHeight / 2 - (16 * .66 / 2));
+
+        if (leftThreshold) {
+            offsetX =  Math.min(centerX, window.innerWidth / 2 - (16 * .66 / 2)) - playerPosition.x;
+        }
+        if (topThreshold) {
+            offsetY = Math.min(centerY, window.innerHeight / 2 - (16 * .66 / 2)) - playerPosition.y;
+        }
+
+        if (rightThreshold) {
+            offsetX = mapDim.width - Math.min(centerX, window.innerWidth / 2 - (16 * .66 / 2)) - playerPosition.x;
+        }
+        if (bottomThreshold) {
+            offsetY = mapDim.height - Math.min(centerY, window.innerHeight / 2 - (16 * .66 / 2)) - playerPosition.y;
+        }
+
+
+        canvas.save();
+        canvas.translate(centerX - offsetX, centerY - offsetY);
+
         canvas.drawImage(
             img,
             this.frames.val * (sprite.width),
             sY,
             sprite.width,
             sprite.height,
-            canvas.canvas.width / 2 - (sprite.width) * scale / 2,
-            canvas.canvas.height / 2 - (sprite.height) * scale / 2 - sprite.height * scale / 4,
+            0,
+            0,
             sprite.width * scale,
             sprite.height * scale
         );
-
+        canvas.restore();
     }
 }
 
@@ -295,8 +384,8 @@ export class SpritesHolder {
 
     public draw(spriteId: number, canvas: CanvasRenderingContext2D, type: 'front' | 'overworld',
                 orientation: 'up' | 'down' | 'left' | 'right',
-                scale: number, moving: boolean) {
-        this.spritesByCharacter[spriteId].draw(canvas, type, orientation, scale, moving);
+                scale: number, moving: boolean, playerPosition: Position, mapDim: { width: number, height: number }) {
+        this.spritesByCharacter[spriteId].draw(canvas, type, orientation, scale, moving, playerPosition, mapDim);
     }
 }
 
