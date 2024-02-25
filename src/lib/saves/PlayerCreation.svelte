@@ -25,6 +25,11 @@
     import {POKEDEX} from "../js/const";
     import {start} from "../js/mapping/maps/start";
 
+    /**
+     * Player creation component
+     * lots todo here (design, classes, etc)
+     */
+
     let playerName = 'Ethan';
     let playerClasses = [
         'conqueror',

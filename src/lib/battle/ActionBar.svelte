@@ -74,12 +74,12 @@
 
 <script lang="ts">
 
-    import {onMount} from "svelte";
-    import {BATTLE_ACTX, BATTLE_STATE} from "../../js/const";
-    import type {MoveInstance} from "../../js/pokemons/pokedex";
-    import type {BattleState} from "../../js/battle/battle";
-    import {Attack, RunAway} from "../../js/battle/actions";
-    import {ActionsContext, typeChart} from "../../js/battle/battle";
+    import {onDestroy, onMount} from "svelte";
+    import {BATTLE_ACTX, BATTLE_STATE} from "../js/const";
+    import type {MoveInstance} from "../js/pokemons/pokedex";
+    import type {BattleState} from "../js/battle/battle";
+    import {Attack, RunAway} from "../js/battle/actions";
+    import {ActionsContext, typeChart} from "../js/battle/battle";
 
     export let switchOpened: boolean;
 
@@ -92,6 +92,9 @@
     let actCtx: ActionsContext | undefined;
     let currentMessage = '';
     let disabled = false;
+    let selectedMoveIdx = 0;
+    let selectedOptionIdx = 0;
+
 
     BATTLE_STATE.subscribe(value => {
         battleState = value.state;
@@ -104,9 +107,6 @@
             disabled = !value.isPlayerTurn;
         }
     });
-
-    let selectedMoveIdx = 0;
-    let selectedOptionIdx = 0;
 
 
     function escape() {
@@ -136,7 +136,7 @@
         }
     }
 
-    window.addEventListener('keydown', (e) => {
+    const listener = (e) => {
         if (!battleState || !actCtx) {
             return;
         }
@@ -173,10 +173,15 @@
 
             }
         }
-    })
+    };
 
     onMount(() => {
         show = true;
+        window.addEventListener('keydown', listener);
+    });
+
+    onDestroy(() => {
+        window.removeEventListener('keydown', listener);
     });
 </script>
 

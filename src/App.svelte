@@ -24,10 +24,10 @@
 
 <script lang="ts">
     import "@abraham/reflection";
-    import LoadSave from "./lib/screens/LoadSave.svelte";
-    import World from "./lib/screens/World.svelte";
-    import Battle from "./lib/screens/Battle.svelte";
-    import PlayerCreation from "./lib/screens/PlayerCreation.svelte";
+    import LoadSave from "./lib/saves/LoadSave.svelte";
+    import World from "./lib/World.svelte";
+    import Battle from "./lib/battle/Battle.svelte";
+    import PlayerCreation from "./lib/saves/PlayerCreation.svelte";
     import {BattleState} from "./lib/js/battle/battle";
     import {SaveContext} from "./lib/js/saves/saves";
     import {BATTLE_STATE} from "./lib/js/const";

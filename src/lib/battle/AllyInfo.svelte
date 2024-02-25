@@ -12,7 +12,6 @@
         </div>
     </div>
 
-    <!--<div class="status">-->
     <div class="hp-status">
 
 
@@ -35,14 +34,17 @@
         </div>
     </div>
 
-    <!--</div>-->
-
 </div>
 
 <script lang="ts">
 
-    import {ActionsContext, BattleState} from "../../js/battle/battle";
-    import {BATTLE_ACTX, BATTLE_STATE} from "../../js/const";
+    /**
+     * Ally HP bar
+     * TODO : status style, team pokeballs;
+     */
+
+    import {ActionsContext, BattleState} from "../js/battle/battle";
+    import {BATTLE_ACTX, BATTLE_STATE} from "../js/const";
 
     let battleState: BattleState | undefined;
     let actCtx: ActionsContext | undefined;

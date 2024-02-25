@@ -42,6 +42,11 @@
     import {onMount} from "svelte";
     import {CHARACTER_SPRITES} from "../js/const";
 
+    /**
+     * Saves loading  component
+     * lots todo here (design, bugs - team preview not updated-, etc.)
+     */
+
     export let saveContext: SaveContext;
 
     export let preview: HTMLDivElement;
@@ -156,9 +161,6 @@
           gap: 8px;
 
           .go {
-            /* position: absolute;
-             right: 1%;
-             top: 1%;*/
             background: #262626;
             color: #ececec;
             border: none;
@@ -170,9 +172,6 @@
           }
 
           .erase {
-            /*position: absolute;
-            right: 1%;
-            top: calc(6% + 32px);*/
             background: #dc5959;
             color: #ececec;
             border: none;

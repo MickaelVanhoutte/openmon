@@ -8,6 +8,7 @@
     <AllyInfo/>
     <ActionBar bind:switchOpened={switchOpened} bind:bagOpened={bagOpened}/>
 
+    <!-- Menus -->
     {#if switchOpened}
         <PokemonList {save} {isBattle} bind:switchOpened={switchOpened} zIndex={zIndexNext}
                      onChange={(pkm) => !!pkm && pkm !==0 && sendSwitchAction(pkm)}/>
@@ -28,70 +29,32 @@
     import {ActionsContext, BattleContext, BattleResult, BattleState} from "../js/battle/battle";
     import {Position} from "../js/sprites/drawers";
     import {onMount} from "svelte";
-    import ActionBar from "../ui/battle/ActionBar.svelte";
-    import EnemyInfo from "../ui/battle/EnemyInfo.svelte";
-    import AllyInfo from "../ui/battle/AllyInfo.svelte";
+    import ActionBar from "./ActionBar.svelte";
+    import EnemyInfo from "./EnemyInfo.svelte";
+    import AllyInfo from "./AllyInfo.svelte";
     import type {SelectedSave} from "../js/saves/saves";
     import {BATTLE_ACTX, BATTLE_STATE, ITEMS} from "../js/const";
-    import PokemonList from "../ui/pokemon-list/PokemonList.svelte";
+    import PokemonList from "../menus/pokemon-list/PokemonList.svelte";
     import type {PokemonInstance} from "../js/pokemons/pokedex";
-    import Bag from "../ui/bag/Bag.svelte";
+    import Bag from "../menus/bag/Bag.svelte";
     import {Pokeball} from "../js/items/items";
     import {BagObject, SwitchAction} from "../js/battle/actions";
 
+    /**
+     * Battle screen component, handles pokemons display.
+     *
+     */
+
     export let gifsWrapper: HTMLDivElement;
     export let save: SelectedSave;
-
     export let switched = false;
-
-    let switchOpened = false;
-
-    let bagOpened = false;
-
-    let zIndexNext = 8;
-
     export let isBattle = true;
-
-    let battleState: BattleState | undefined;
-    let actCtx: ActionsContext | undefined;
-
-    $:changePokemon = battleState?.changePokemon;
-
-    BATTLE_STATE.subscribe(value => {
-        battleState = value.state;
-    });
-
-    BATTLE_ACTX.subscribe(value => {
-        actCtx = value;
-    });
-
-    if (battleState) {
-        battleState.onPokemonChange = () => {
-            battleLoopContext.allydrawn = false;
-        }
-
-        battleState.onClose = (result: BattleResult) => {
-            if (!result.win) {
-                // tp back to the start
-                this.save.map.playerMovedOffset = new Position(0, 0);
-            } else if (result.caught) {
-                // add caught pokemon to team if space or in the box
-                if (save.player.monsters.length < 6) {
-                    save.player.monsters.push(result.caught);
-                } else {
-                    // first available space in boxes
-
-                    save.boxes[save.boxes.indexOf(save.boxes.find(box => !box.isFull()))].add(result.caught);
-                }
-            }
-            setTimeout(() => {
-                // animate the battle closing
-                battleState = undefined;
-                BATTLE_STATE.set({state: undefined});
-                //window.cancelAnimationFrame(battleLoopContext.id);
-            }, 2000);
-        }
-    }
+    /*
+    Menus state
+     */
+    let switchOpened = false;
+    let bagOpened = false;
+    let zIndexNext = 8;
 
     let battleLoopContext = {
         then: Date.now(),
@@ -108,7 +71,48 @@
     let ally: HTMLImageElement;
     let opponent: HTMLImageElement;
 
-    function battle() {
+    let battleState: BattleState | undefined;
+    let actCtx: ActionsContext | undefined;
+
+    $:changePokemon = battleState?.changePokemon;
+
+    BATTLE_STATE.subscribe(value => {
+        battleState = value.state;
+    });
+
+    BATTLE_ACTX.subscribe(value => {
+        actCtx = value;
+    });
+
+    if (battleState) {
+        battleState.onPokemonChange = () => {
+            // Redraw
+            battleLoopContext.allydrawn = false;
+        }
+
+        battleState.onClose = (result: BattleResult) => {
+            if (!result.win) {
+                // tp back to the start
+                this.save.map.playerMovedOffset = new Position(0, 0);
+            } else if (result.caught) {
+                // add caught pokemon to team if space or in the box
+                if (save.player.monsters.length < 6) {
+                    save.player.monsters.push(result.caught);
+                } else {
+                    // first available space in boxes
+                    save.boxes[save.boxes.indexOf(save.boxes.find(box => !box.isFull()))].add(result.caught);
+                }
+            }
+            setTimeout(() => {
+                // animate the battle closing
+                battleState = undefined;
+                BATTLE_STATE.set({state: undefined});
+            }, 2000);
+        }
+    }
+
+
+    function draw() {
 
         setInterval(() => {
             if (!battleLoopContext.bgDrawn) {
@@ -159,6 +163,10 @@
         }, 200);
     }
 
+    /*
+    Handle actions from menus (bag, switch)
+     */
+
     function sendSwitchAction(newMonster: PokemonInstance) {
         if (actCtx?.cPlayerMons) {
             battleState?.selectAction(new SwitchAction(newMonster));
@@ -201,21 +209,8 @@
     }
 
 
-    /**
-     * From battle
-     * Battle -> Bag (item) -> PokemonList (pokemon)
-     *           onchange(pokemon, item)  <- onchange(pokemont)
-     *
-     * From world
-     * World -> Bag (item) -> PokemonList (pokemon) : use
-     *
-     * World -> PokemonList (pokemon) -> bag (item) : use
-     *
-     *
-     */
-
     onMount(() => {
-        battle();
+        draw();
         window.addEventListener('keydown', (e) => {
             if (e.key === 'x') {
                 battleLoopContext.debug = !battleLoopContext.debug;
@@ -255,24 +250,5 @@
     position: absolute;
     top: 0;
     left: 0;
-    //border-radius: 0 0 5% 20% ;
   }
-
-  /*  @media screen and (max-width: 1100px) {
-      .wrapper :global(.ally-sprite) {
-        width: calc(var(--width) * .75);
-        height: calc(var(--height) * .75);
-        bottom: 30%;
-      }
-
-      .wrapper :global(.opponent-sprite) {
-        width: var(--width);
-        height: var(--height);
-        bottom: 57%;
-      }
-
-      .wrapper :global(.battle-bg) {
-        height: 70%;
-      }
-    }*/
 </style>

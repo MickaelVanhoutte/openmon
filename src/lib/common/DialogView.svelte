@@ -12,8 +12,8 @@
 <script lang="ts">
 
     import {onMount} from "svelte";
-    import type {WorldContext} from "../../js/common/context";
-    import type {Dialog} from "../../js/common/scripts";
+    import type {WorldContext} from "../js/common/context";
+    import type {Dialog} from "../js/common/scripts";
 
     export let context: WorldContext;
     export let dialog: Dialog;
@@ -31,18 +31,6 @@
                 text.classList.add("animate");
             }, 100);
         }
-
-        //context.playingScript?.stopCurrentAction();
-        /*if (!context.dialog?.next()) {
-            context.dialog = undefined;
-        } else {
-            text.classList.remove("animate");
-            current = '';
-            setTimeout(() => {
-                current = context.dialog?.current?.text || '';
-                text.classList.add("animate");
-            }, 100);
-        }*/
     }
 
     const listener = (e: KeyboardEvent) => {

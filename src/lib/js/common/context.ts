@@ -8,7 +8,7 @@ export class WorldContext {
     map?: OpenMap;
 
     then: number = Date.now();
-    fpsInterval: number = 1000 / 12;
+    fpsInterval: number = 1000 / 16;
     imageScale: number = 2.5;
     playerScale: number = .83;
     debug: boolean = false;

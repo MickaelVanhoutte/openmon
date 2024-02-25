@@ -3,7 +3,6 @@
     <div class="grid">
         <ul id="hexGrid">
 
-
             <li class="hex">
                 <div class="hexIn" class:selected={selected === 1}>
                     <button class="hexLink" on:click={() => openBoxes()} tabindex="1">
@@ -74,16 +73,6 @@
             </li>
 
 
-            <!-- <li class="hex">
-                 <div class="hexIn" class:selected={selected === 6}>
-                     <button class="hexLink" on:click={()=> settings()} tabindex="1">
-                         <img src="src/assets/menus/settings.png" alt="settings">
-                         <span class="title">Settings</span>
-                         <span class='img'></span>
-                     </button>
-                 </div>
-             </li>-->
-
             <li class="hex">
                 <div class="hexIn" class:selected={selected === 6}>
                     <button class="hexLink" on:click={() => close()} tabindex="1">
@@ -151,10 +140,6 @@
         bagOpened = true;
     }
 
-    function settings() {
-        // TODO
-    }
-
     function openBoxes() {
         menuOpened = false;
         boxOpened = true
@@ -188,12 +173,10 @@
                 } else if (selected === 3) {
                     pokedex();
                 } else if (selected === 4) {
-                    trainer(); // merge with settings ?
+                    trainer();
                 } else if (selected === 5) {
                     saveCurrent();
-                } /*else if (selected === 6) {
-                    settings();
-                } */ else if (selected === 6) {
+                } else if (selected === 6) {
                     close();
                 }
             }
@@ -340,8 +323,6 @@
         font-family: pokemon, serif;
         opacity: 1;
         z-index: 1;
-        // color: rgba(0, 0, 0, .65);
-        //text-shadow: 1px 1px 6px white;
         color: white;
         text-shadow: none;
         position: absolute;
@@ -357,7 +338,6 @@
         right: 0;
         bottom: 0;
         left: 0;
-        //background: rgba(255, 255, 255, .6);
         background: rgba(53, 156, 196, .8);
         background-size: cover;
         overflow: hidden;
