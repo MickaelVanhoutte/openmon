@@ -309,6 +309,12 @@ export class XPWin implements Action {
     execute(ctx: ActionsContext): void {
         let result = this.initiator.addXpResult(this.xp, ctx.opponent instanceof Character ? 3 : 1);
 
+        if (result.newMove?.length > 0) {
+            result.newMove.forEach((move: string) => {
+                ctx.addToStack(new Message(`${this.initiator.name} can now learn ${move}!`, this.initiator));
+            });
+        }
+
         if (result.levelup) {
             ctx.addToStack(new LvlUp(this.initiator, result.xpLeft));
         }

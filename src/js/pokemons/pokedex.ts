@@ -1,5 +1,6 @@
 import {EXPERIENCE_CHART} from "./experience";
 import type {Effect} from "./move-effects";
+import {POKEDEX} from "../const";
 
 export class Nature {
     public id: number;
@@ -518,6 +519,10 @@ export class PokemonInstance extends PokedexEntry {
         return this.evs.attack + this.evs.defense + this.evs.specialAttack + this.evs.specialDefense + this.evs.speed + this.evs.hp;
     }
 
+    get availableMoves(): Move[] {
+        return POKEDEX.findById(this.id)?.result?.moves?.filter((move) => move.level <= this.level) || [];
+    }
+
     get battleStats(): Stats {
         return new Stats(
             this.currentStats.hp,
@@ -622,45 +627,46 @@ export class PokemonInstance extends PokedexEntry {
         }
     }
 
-    public heal(hp: number){
+    public heal(hp: number) {
         this.currentHp += hp;
         if (this.currentHp > this.currentStats.hp) {
             this.currentHp = this.currentStats.hp;
         }
     }
 
-    public revive(hp: number){
+    public revive(hp: number) {
         this.fainted = false;
-        this.currentHp =  hp;
+        this.currentHp = hp;
     }
 
     public howMuchXpWon(opponent: PokemonInstance, participated: number = 1, fromTrainer: boolean = false, xpShare: boolean): number {
         return EXPERIENCE_CHART.howMuchIGet(this, opponent, participated, fromTrainer, xpShare);
     }
 
-    public addXpResult(totalXp: number, evs: number): { levelup: boolean, xpLeft: number } {
+    public addXpResult(totalXp: number, evs: number): { levelup: boolean, xpLeft: number, newMove: string[] } {
         this.evsToDistribute += (this.totalEvs + evs <= 510) ? evs : (this.totalEvs + evs) - 510;
-        if (this.level >= 100) {
-            return {levelup: false, xpLeft: 0};
+        if (this.level < 100) {
+            let xpLeft = 0;
+            if (this.xpToNextLevel < this.currentXp + totalXp) {
+                xpLeft = totalXp - (this.xpToNextLevel - this.currentXp);
+                const xpToAddNow = totalXp - xpLeft;
+                this.currentXp += xpToAddNow;
+
+                return {
+                    levelup: true,
+                    xpLeft: xpLeft,
+                    newMove: POKEDEX.findById(this.id).result?.moves.filter((move) => move.level === this.level + 1).map((move) => move.name) || []
+                }
+            } else {
+                this.currentXp += totalXp;
+            }
         }
 
-        let result = {
+        return {
             levelup: false,
-            xpLeft: 0
+            xpLeft: 0,
+            newMove: []
         }
-
-        let xpLeft = 0;
-        if (this.xpToNextLevel < this.currentXp + totalXp) {
-            xpLeft = totalXp - (this.xpToNextLevel - this.currentXp);
-            const xpToAddNow = totalXp - xpLeft;
-            this.currentXp += xpToAddNow;
-            result.xpLeft = xpLeft
-            result.levelup = true;
-        } else {
-            this.currentXp += totalXp;
-        }
-
-        return result;
     }
 
     public addEv(ev: 'hp' | 'attack' | 'defense' | 'specialAttack' | 'specialDefense' | 'speed', value: number) {
