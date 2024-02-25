@@ -68,27 +68,6 @@ export class WoldSpriteDrawer {
         height: number
     } {
 
-        // canvas half - half character width scaled
-
-
-        /*if(offsetX < ctx.canvas.width / 3){
-            offsetX = ctx.canvas.width / 3;
-        }
-        if(offsetX > map.width * scale - ctx.canvas.width / 3){
-            offsetX = map.width * scale - ctx.canvas.width / 3;
-        }
-        if(offsetY < ctx.canvas.height / 3){
-            offsetY = ctx.canvas.height / 3;
-        }
-        if(offsetY > map.height * scale - ctx.canvas.height / 3){
-            offsetY = map.height * scale - ctx.canvas.height / 3;
-        }*/
-
-        // translation must be bordered to avoid seeing ouutside the map
-        //console.log(playerPosition.x, window.innerWidth / 2 - (16 * .66 / 2), image.width * scale)
-        // console.log(playerPosition.x,  map.width * scale - window.innerWidth / 2)
-//console.log({offsetX}, {centerX}, {offsetY}, {centerY}, image.width * scale, image.height * scale);
-
         let screenDimensions = {
             width: ctx.canvas.width,
             height: ctx.canvas.height,
@@ -101,29 +80,23 @@ export class WoldSpriteDrawer {
         let offsetX = playerPosition.x;
         let offsetY = playerPosition.y;
 
-        let leftThreshold = playerPosition.x < Math.min(centerX, window.innerWidth / 2 - (16 * .66 / 2));
-        let topThreshold = playerPosition.y < Math.min(centerY, window.innerHeight / 2 - (16 * .66 / 2));
-        let rightThreshold = playerPosition.x > image.width * scale - Math.min(centerX, window.innerWidth / 2 - (16 * .66 / 2));
-        let bottomThreshold = playerPosition.y > image.height * scale - Math.min(centerY, window.innerHeight / 2 - (16 * .66 / 2));
-
-        console.log(leftThreshold, topThreshold, rightThreshold, bottomThreshold);
+        let leftThreshold = playerPosition.x < Math.min(centerX, window.innerWidth / 2 - (16 * .83 / 2));
+        let topThreshold = playerPosition.y < Math.min(centerY, window.innerHeight / 2 - (16 * .83 / 2));
+        let rightThreshold = playerPosition.x > image.width * scale - Math.min(centerX, window.innerWidth / 2 - (16 * .83 / 2));
+        let bottomThreshold = playerPosition.y > image.height * scale - Math.min(centerY, window.innerHeight / 2 - (16 * .83 / 2));
 
         if (leftThreshold) {
-            offsetX = Math.min(centerX, window.innerWidth / 2 - (16 * .66 / 2));
+            offsetX = Math.min(centerX, window.innerWidth / 2 - (16 * .83 / 2));
         }
         if (topThreshold) {
-            offsetY = Math.min(centerY, window.innerHeight / 2 - (16 * .66 / 2));
+            offsetY = Math.min(centerY, window.innerHeight / 2 - (16 * .83 / 2));
         }
         if (rightThreshold) {
-            offsetX = image.width * scale - Math.min(centerX, window.innerWidth / 2 - (16 * .66 / 2));
+            offsetX = image.width * scale - Math.min(centerX, window.innerWidth / 2 - (16 * .83 / 2));
         }
         if (bottomThreshold) {
-            offsetY = image.height * scale - Math.min(centerY, window.innerHeight / 2 - (16 * .66 / 2));
+            offsetY = image.height * scale - Math.min(centerY, window.innerHeight / 2 - (16 * .83 / 2));
         }
-
-
-
-        //console.log('map:', offsetX, offsetY);
 
         ctx.save();
         ctx.translate(centerX - offsetX, centerY - offsetY);
@@ -236,33 +209,39 @@ export class WoldSpriteDrawer {
 export class PokeWalkerSpriteDrawer {
     private images: Record<string, HTMLImageElement> = {};
 
-    private frames = {max: 6, val: 0, elapsed: 0};
+    private frames = {max: 4, val: 0, elapsed: 0};
 
 
     constructor() {
     }
 
-    draw(ctx: CanvasRenderingContext2D, orientation: 'up' | 'down' | 'left' | 'right',
-         scale: number, moving: boolean, pokePosition: Position, pokemon: PokemonInstance, mapDim: { width: number, height: number }) {
+    draw(ctx: CanvasRenderingContext2D, playerPosition: Position, orientation: 'up' | 'down' | 'left' | 'right',
+         scale: number, moving: boolean, walkerPosition: Position, pokemon: PokemonInstance, mapDim: {
+            width: number,
+            height: number
+        }) {
 
         let id = ("00" + pokemon.id).slice(-3);
         id = pokemon.isShiny ? id + 's' : id;
         let source = `src/assets/monsters/walking/${id}.png`;
         let image = this.images[source];
         if (image && image.complete) {
-            this.drawImage(ctx, image, orientation, scale, moving, pokePosition, mapDim);
+            this.drawImage(ctx, image, playerPosition, orientation, scale, moving, walkerPosition, mapDim);
         } else {
             image = new Image();
             image.src = source;
             image.onload = () => {
                 this.images[source] = image;
-                this.drawImage(ctx, image, orientation, scale, moving, pokePosition, mapDim);
+                this.drawImage(ctx, image, playerPosition, orientation, scale, moving, walkerPosition, mapDim);
             }
         }
     }
 
-    private drawImage(ctx: CanvasRenderingContext2D, image: HTMLImageElement, orientation: 'up' | 'down' | 'left' | 'right',
-                      scale: number, moving: boolean, pokePosition: Position, mapDim: { width: number, height: number }) {
+    private drawImage(ctx: CanvasRenderingContext2D, image: HTMLImageElement, playerPosition: Position, orientation: 'up' | 'down' | 'left' | 'right',
+                      scale: number, moving: boolean, walkerPosition: Position, mapDim: {
+            width: number,
+            height: number
+        }) {
 
         if (moving) {
 
@@ -277,54 +256,35 @@ export class PokeWalkerSpriteDrawer {
             this.frames.val = 0;
         }
 
-        // 40 * 40 sprites
-        let sY = OrientationIndexes[orientation] * 40;
+        let sY = OrientationIndexes[orientation] * 64;
 
-        let centerX = ctx.canvas.width / 2 - (16) * scale / 2;
-        // canvas half - half character height scaled
-        let centerY = ctx.canvas.height / 2 - (20) * scale / 2;
+        // Calculate the position of the NPC relative to the player
+        const relativeX = walkerPosition.x - playerPosition.x;
+        const relativeY = walkerPosition.y - playerPosition.y;
 
-        let offsetX = 0;
-        let offsetY = 0;
+        let {centerX, centerY, offsetX, offsetY} = centerObject(ctx, scale, playerPosition, 16, mapDim);
+        offsetY -= relativeY -6;
+        offsetX -= relativeX;
 
-        let leftThreshold = pokePosition.x < Math.min(centerX, window.innerWidth / 2 - (16 * .66 / 2));
-        let topThreshold = pokePosition.y < Math.min(centerY, window.innerHeight / 2 - (16 * .66 / 2));
-        let rightThreshold = pokePosition.x > mapDim.width - Math.min(centerX, window.innerWidth / 2 - (16 * .66 / 2));
-        let bottomThreshold = pokePosition.y > mapDim.height - Math.min(centerY, window.innerHeight / 2 - (16 * .66 / 2));
-
-        if (leftThreshold) {
-            offsetX =  Math.min(centerX, window.innerWidth / 2 - (16 * .66 / 2)) - pokePosition.x;
-        }
-        if (topThreshold) {
-            offsetY = Math.min(centerY, window.innerHeight / 2 - (16 * .66 / 2)) - pokePosition.y;
-        }
-
-        if (rightThreshold) {
-            offsetX = mapDim.width - Math.min(centerX, window.innerWidth / 2 - (16 * .66 / 2)) - pokePosition.x;
-        }
-        if (bottomThreshold) {
-            offsetY = mapDim.height - Math.min(centerY, window.innerHeight / 2 - (16 * .66 / 2)) - pokePosition.y;
-        }
-
-
-        //ctx.save();
-        //ctx.translate(centerX - offsetX, centerY - offsetY);
+        ctx.save();
+        ctx.translate(centerX - offsetX, centerY - offsetY);
 
         ctx.drawImage(
             image,
-            this.frames.val * (40),
+            this.frames.val * (64),
             sY,
-            40,
-            40,
+            64,
+            64,
             0,
             0,
-            40 * scale,
-            40 * scale
+            64 * scale,
+            64 * scale
         );
         ctx.restore();
 
     }
 }
+
 
 export class PlayerSprite {
 
@@ -370,34 +330,8 @@ export class PlayerSprite {
                 this.frames.val = 0;
             }
         let sY = OrientationIndexes[orientation] * sprite.height;
-
-
-        let centerX = canvas.canvas.width / 2 - (16) * scale / 2;
-        // canvas half - half character height scaled
-        let centerY = canvas.canvas.height / 2 - (20) * scale / 2;
-
-        let offsetX = 0;
-        let offsetY = 0;
-
-        let leftThreshold = playerPosition.x < Math.min(centerX, window.innerWidth / 2 - (16 * .66 / 2));
-        let topThreshold = playerPosition.y < Math.min(centerY, window.innerHeight / 2 - (16 * .66 / 2));
-        let rightThreshold = playerPosition.x > mapDim.width - Math.min(centerX, window.innerWidth / 2 - (16 * .66 / 2));
-        let bottomThreshold = playerPosition.y > mapDim.height - Math.min(centerY, window.innerHeight / 2 - (16 * .66 / 2));
-
-        if (leftThreshold) {
-            offsetX =  Math.min(centerX, window.innerWidth / 2 - (16 * .66 / 2)) - playerPosition.x;
-        }
-        if (topThreshold) {
-            offsetY = Math.min(centerY, window.innerHeight / 2 - (16 * .66 / 2)) - playerPosition.y;
-        }
-
-        if (rightThreshold) {
-            offsetX = mapDim.width - Math.min(centerX, window.innerWidth / 2 - (16 * .66 / 2)) - playerPosition.x;
-        }
-        if (bottomThreshold) {
-            offsetY = mapDim.height - Math.min(centerY, window.innerHeight / 2 - (16 * .66 / 2)) - playerPosition.y;
-        }
-
+        let {centerX, centerY, offsetX, offsetY} = centerObject(canvas, scale, playerPosition, 16, mapDim);
+        offsetY+= 6;
 
         canvas.save();
         canvas.translate(centerX - offsetX, centerY - offsetY);
@@ -413,7 +347,7 @@ export class PlayerSprite {
             sprite.width * scale,
             sprite.height * scale
         );
-        //canvas.restore();
+        canvas.restore();
     }
 }
 
@@ -422,13 +356,6 @@ export const OrientationIndexes = {
     "left": 1,
     "right": 2,
     "up": 3,
-}
-
-export const pokeOrientationIndexes = {
-    "down": 0,
-    "left": 6,
-    "right": 2,
-    "up": 4,
 }
 
 export class SpriteFromSheet {
@@ -490,3 +417,36 @@ export class SpritesHolder {
     }
 }
 
+
+function centerObject(canvas: CanvasRenderingContext2D, scale: number, objectPosition: Position, objectWidth: number, mapDim: {
+    width: number;
+    height: number
+}) {
+    let centerX = canvas.canvas.width / 2 - objectWidth * scale / 2;
+    // canvas half - half character height scaled
+    let centerY = canvas.canvas.height / 2 - objectWidth * scale / 2;
+
+    let offsetX = 0;
+    let offsetY = 0;
+
+    // translate near the edges
+    let leftThreshold = objectPosition.x < Math.min(centerX, window.innerWidth / 2 - (objectWidth * scale / 2));
+    let topThreshold = objectPosition.y < Math.min(centerY, window.innerHeight / 2 - (objectWidth * scale / 2));
+    let rightThreshold = objectPosition.x > mapDim.width - Math.min(centerX, window.innerWidth / 2 - (objectWidth * scale / 2));
+    let bottomThreshold = objectPosition.y > mapDim.height - Math.min(centerY, window.innerHeight / 2 - (objectWidth * scale / 2));
+
+    if (leftThreshold) {
+        offsetX = Math.min(centerX, window.innerWidth / 2 - (objectWidth * scale / 2)) - objectPosition.x;
+    }
+    if (topThreshold) {
+        offsetY = Math.min(centerY, window.innerHeight / 2 - (objectWidth * scale / 2)) - objectPosition.y;
+    }
+
+    if (rightThreshold) {
+        offsetX = mapDim.width - Math.min(centerX, window.innerWidth / 2 - (objectWidth * scale / 2)) - objectPosition.x;
+    }
+    if (bottomThreshold) {
+        offsetY = mapDim.height - Math.min(centerY, window.innerHeight / 2 - (objectWidth * scale / 2)) - objectPosition.y;
+    }
+    return {centerX, centerY, offsetX, offsetY};
+}
