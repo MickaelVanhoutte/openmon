@@ -58,13 +58,14 @@
     let openSummary = false;
     let boxOpened = false;
     let mainLoopContext = new WorldContext(save.player);
-    let pokedirection: 'up' | 'down' | 'left' | 'right' = 'down';
     let playerPosition: Position = new Position();
-    let pokePosition: Position = new Position();
     let playerPositionInPx: Position = new Position();
-    let pokePositionInPx: Position = new Position();
     let targetPosition: Position = new Position();
-    let pokeTargetPosition: Position = new Position();
+
+    let walkerPositionInPx: Position = new Position();
+    let walkerTargetPosition: Position = new Position();
+    let walkerDirection: 'down' | 'up' | 'left' | 'right' = 'down';
+
     let abButtons;
     let joystick;
 
@@ -90,21 +91,15 @@
             map.playerMovedOffset.x + map.playerInitialPosition.x,
             map.playerMovedOffset.y + map.playerInitialPosition.y);
 
-        pokePosition = new Position(
-            map.playerMovedOffset.x + map.playerInitialPosition.x,
-            map.playerMovedOffset.y + map.playerInitialPosition.y);
-
         playerPositionInPx = new Position(
-            playerPosition.x,
-            playerPosition.y
-        );
-        pokePositionInPx = new Position(
-            playerPositionInPx.x,
-            playerPositionInPx.y
-        );
-
+            Math.floor(playerPosition.x * (16 * mainLoopContext.imageScale)),
+            Math.floor(playerPosition.y * (16 * mainLoopContext.imageScale)));
         targetPosition = new Position(playerPositionInPx.x, playerPositionInPx.y);
-        pokeTargetPosition = new Position(playerPositionInPx.x, playerPositionInPx.y);
+
+        walkerPositionInPx = new Position(
+            Math.floor(playerPosition.x * (16 * mainLoopContext.imageScale)),
+            Math.floor((playerPosition.y - 1) * (16 * mainLoopContext.imageScale)));
+        walkerTargetPosition = new Position(walkerPositionInPx.x, walkerPositionInPx.y);
 
         mainLoopContext.changingMap = true;
         mainLoopContext.displayChangingMap = true;
@@ -169,8 +164,8 @@
                 ctx.fillStyle = 'black';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-                updatePosition();
-                updatePokePosition();
+                updatePosition(playerPositionInPx, targetPosition);
+                updatePosition(walkerPositionInPx, walkerTargetPosition);
                 drawMap();
 
                 if (elapsed > mainLoopContext.fpsInterval / 2) {
@@ -208,10 +203,15 @@
 
         // Background
         let mapDimensions = MAP_DRAWER.draw(ctx, mainLoopContext.map, mainLoopContext.imageScale, playerPositionInPx, mainLoopContext.debug);
-        // Player
-        mainLoopContext.player.draw(ctx, 'overworld', mainLoopContext.playerScale, playerPositionInPx, mapDimensions);
+        // Player & walker
+        if (mainLoopContext.player.direction === 'up') {
+            mainLoopContext.player.draw(ctx, 'overworld', mainLoopContext.playerScale, playerPositionInPx, mapDimensions);
+            POKE_WALKER.draw(ctx, playerPositionInPx, walkerDirection, mainLoopContext.playerScale, mainLoopContext.player.moving, walkerPositionInPx, mainLoopContext.player.monsters.at(0), mapDimensions);
+        } else {
+            POKE_WALKER.draw(ctx,playerPositionInPx, walkerDirection, mainLoopContext.playerScale, mainLoopContext.player.moving, walkerPositionInPx, mainLoopContext.player.monsters.at(0), mapDimensions);
+            mainLoopContext.player.draw(ctx, 'overworld', mainLoopContext.playerScale, playerPositionInPx, mapDimensions);
+        }
 
-        POKE_WALKER.draw(ctx, pokedirection, .66, mainLoopContext.player.moving, pokePositionInPx, mainLoopContext.player.monsters.at(0), mapDimensions);
 
         // Foreground
         /* if (mainLoopContext.map?.foreground !== undefined) {
@@ -219,43 +219,34 @@
          }*/
     }
 
-    function updatePosition() {
-        const deltaX = targetPosition.x - playerPositionInPx.x;
-        const deltaY = targetPosition.y - playerPositionInPx.y;
-        const speed = .66;
-
-        if (Math.abs(deltaX * speed) > 1 || Math.abs(deltaY * speed) > 1) {
-            // Update player position gradually
-            playerPositionInPx.x += deltaX * speed;
-            playerPositionInPx.y += deltaY * speed;
-        } else {
-            // Snap to the target position if movement is small
-            mainLoopContext.player.moving = false;
-            playerPositionInPx.x = targetPosition.x;
-            playerPositionInPx.y = targetPosition.y;
-        }
+    function easeInOutQuad(t) {
+        return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
     }
 
-    function updatePokePosition() {
-        const deltaX = pokeTargetPosition.x - pokePositionInPx.x;
-        const deltaY = pokeTargetPosition.y - pokePositionInPx.y;
-        const speed = .66;
+    // Update player position with easing
+    function updatePosition(positionInPx: Position, targetPosition: Position) {
+        const deltaX = targetPosition.x - positionInPx.x;
+        const deltaY = targetPosition.y - positionInPx.y;
+        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        const speed = 0.45; // Adjust speed as needed
 
-        if (Math.abs(deltaX * speed) > 1 || Math.abs(deltaY * speed) > 1) {
-            // Update player position gradually
-            pokePositionInPx.x += deltaX * speed;
-            pokePositionInPx.y += deltaY * speed;
+        if (distance > 6) {
+            const easedDistance = easeInOutQuad(Math.min(1, distance / 12)); // Adjust the divisor based on your needs
+
+            // Interpolate between current and target positions with eased distance
+            positionInPx.x += deltaX * easedDistance * speed;
+            positionInPx.y += deltaY * easedDistance * speed;
         } else {
             // Snap to the target position if movement is small
             mainLoopContext.player.moving = false;
-            pokePositionInPx.x = targetPosition.x;
-            pokePositionInPx.y = targetPosition.y;
+            positionInPx.x = targetPosition.x;
+            positionInPx.y = targetPosition.y;
         }
     }
 
     function move(): boolean {
         let direction = mainLoopContext.player.direction;
-        pokedirection = direction;
+        let tmpSave = direction;
 
         let move = false;
         if (keys.down.pressed && lastKey.key === 'ArrowDown') {
@@ -275,22 +266,11 @@
             move = true;
         }
 
+
         if (move) {
 
             const xChanger = (x) => direction === 'left' ? x - 1 : direction === 'right' ? x + 1 : x;
             const yChanger = (y) => direction === 'up' ? y - 1 : direction === 'down' ? y + 1 : y;
-
-            pokeTargetPosition = new Position(
-                Math.floor(pokeTargetPosition.x + (xChanger(0) * 16 * mainLoopContext.imageScale)),
-                Math.floor(pokeTargetPosition.y + (yChanger(0) * 16 * mainLoopContext.imageScale))
-            )
-
-            pokePosition = new Position(
-                playerPosition.x,
-                playerPosition.y,
-            )
-
-
 
             const futureX = xChanger(playerPosition.x);
             const futureY = yChanger(playerPosition.y);
@@ -301,12 +281,19 @@
             } else if (mainLoopContext.map && !mainLoopContext.map.hasBoundaryAt(new Position(futureX, futureY))) {
                 mainLoopContext.player.moving = true;
 
+                walkerDirection = tmpSave;
+                walkerTargetPosition = new Position(
+                    targetPosition.x,
+                    targetPosition.y
+                );
+
                 targetPosition = new Position(
                     Math.floor(targetPosition.x + (xChanger(0) * 16 * mainLoopContext.imageScale)),
                     Math.floor(targetPosition.y + (yChanger(0) * 16 * mainLoopContext.imageScale))
                 );
+                console.log('target', targetPosition, 'walker', walkerTargetPosition);
                 playerPosition = new Position(futureX, futureY);
-                console.log(playerPosition);
+                //console.log(playerPosition);
 
                 mainLoopContext.map.playerMovedOffset.x = xChanger(mainLoopContext.map.playerMovedOffset.x);
                 mainLoopContext.map.playerMovedOffset.y = yChanger(mainLoopContext.map.playerMovedOffset.y);
