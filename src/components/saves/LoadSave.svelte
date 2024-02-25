@@ -38,9 +38,9 @@
 
 
 <script lang="ts">
-    import {Save, SaveContext} from "../js/saves/saves";
+    import {Save, SaveContext} from "../../js/saves/saves";
     import {onMount} from "svelte";
-    import {CHARACTER_SPRITES} from "../js/const";
+    import {CHARACTER_SPRITES} from "../../js/const";
 
     /**
      * Saves loading  component

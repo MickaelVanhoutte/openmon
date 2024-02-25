@@ -104,10 +104,10 @@
 </div>
 
 <script lang="ts">
-    import {SelectedSave} from "../../js/saves/saves.js";
+    import {SelectedSave} from "../../../js/saves/saves.js";
     import Chart from 'chart.js/auto';
     import abilities from "../../../assets/data/final/abilities.json";
-    import {Nature, PokemonInstance} from "../../js/pokemons/pokedex";
+    import {Nature, PokemonInstance} from "../../../js/pokemons/pokedex";
     import {slide, fade} from 'svelte/transition';
     import {backInOut} from "svelte/easing";
 

@@ -27,23 +27,23 @@
 
 <script lang="ts">
 
-    import {ABButtons, keys, lastKey, resetKeys} from "./js/commands/keyboard";
-    import {Position} from "./js/sprites/drawers";
-    import {BattleContext, BattleState} from "./js/battle/battle";
-    import {PokemonInstance} from "./js/pokemons/pokedex";
-    import {Character} from "./js/player/player";
+    import {ABButtons, keys, lastKey, resetKeys} from "../js/commands/keyboard";
+    import {Position} from "../js/sprites/drawers";
+    import {BattleContext, BattleState} from "../js/battle/battle";
+    import {PokemonInstance} from "../js/pokemons/pokedex";
+    import {Character} from "../js/player/player";
     import {onDestroy, onMount} from "svelte";
     import Menu from "./menus/Menu.svelte";
-    import {BATTLE_STATE, MAP_DRAWER, MAPS, POKE_WALKER, POKEDEX} from "./js/const";
-    import {SaveContext, SelectedSave} from "./js/saves/saves";
+    import {BATTLE_STATE, MAP_DRAWER, MAPS, POKE_WALKER, POKEDEX} from "../js/const";
+    import {SaveContext, SelectedSave} from "../js/saves/saves";
     import JoystickController from 'joystick-controller';
-    import {OpenMap} from "./js/mapping/maps.js";
-    import type {Jonction} from "./js/mapping/collisions";
-    import {Settings} from "./js/player/settings";
-    import {WorldContext} from "./js/common/context";
+    import {OpenMap} from "../js/mapping/maps.js";
+    import type {Jonction} from "../js/mapping/collisions";
+    import {Settings} from "../js/player/settings";
+    import {WorldContext} from "../js/common/context";
     import DialogView from "./common/DialogView.svelte";
-    import type {Script} from "./js/common/scripts";
-    import {Dialog} from "./js/common/scripts";
+    import type {Script} from "../js/common/scripts";
+    import {Dialog} from "../js/common/scripts";
 
     /**
      * Overworld component.

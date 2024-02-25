@@ -51,11 +51,11 @@
 
 <script lang="ts">
     import {onMount} from "svelte";
-    import {SelectedSave} from "../../js/saves/saves";
+    import {SelectedSave} from "../../../js/saves/saves";
     import PokemonInfo from "./PokemonInfo.svelte";
     import PokemonStats from "./PokemonStats.svelte";
     import PokemonSkills from "./PokemonSkills.svelte";
-    import type {PokemonInstance} from "../../js/pokemons/pokedex";
+    import type {PokemonInstance} from "../../../js/pokemons/pokedex";
     import {slide, fade} from 'svelte/transition';
     import {backInOut} from "svelte/easing";
 

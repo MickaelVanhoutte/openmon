@@ -12,8 +12,8 @@
 <script lang="ts">
 
     import {onMount} from "svelte";
-    import type {WorldContext} from "../js/common/context";
-    import type {Dialog} from "../js/common/scripts";
+    import type {WorldContext} from "../../js/common/context";
+    import type {Dialog} from "../../js/common/scripts";
 
     export let context: WorldContext;
     export let dialog: Dialog;

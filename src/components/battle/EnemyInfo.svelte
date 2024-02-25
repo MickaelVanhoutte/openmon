@@ -26,8 +26,8 @@
 
 <script lang="ts">
 
-    import {ActionsContext, BattleState} from "../js/battle/battle";
-    import {BATTLE_ACTX, BATTLE_STATE} from "../js/const";
+    import {ActionsContext, BattleState} from "../../js/battle/battle";
+    import {BATTLE_ACTX, BATTLE_STATE} from "../../js/const";
 
     /**
      * Opponent HP bar

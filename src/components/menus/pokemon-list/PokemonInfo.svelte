@@ -77,11 +77,11 @@
 </div>
 
 <script lang="ts">
-    import {typeChart} from "../../js/battle/battle.js";
-    import {SelectedSave} from "../../js/saves/saves.js";
+    import {typeChart} from "../../../js/battle/battle.js";
+    import {SelectedSave} from "../../../js/saves/saves.js";
     import { slide, fade } from 'svelte/transition';
     import {backInOut} from "svelte/easing";
-    import {PokemonInstance} from "../../js/pokemons/pokedex";
+    import {PokemonInstance} from "../../../js/pokemons/pokedex";
 
     export let save: SelectedSave;
     export let selected: number;
