@@ -72,7 +72,7 @@
     display: flex;
     flex-direction: row;
     background-color: #0e2742f0;
-    background-image: url("p-sum.jpg");
+    background-image: url("src/assets/menus/p-sum.jpg");
 
     text-shadow: 1px 1px 1px black;
     z-index: var(--zIndex, 11);

@@ -33,6 +33,9 @@
 
     {#if moveOpened}
         <div class="moves">
+            <button class="back" on:click={() => moveOpened = false}>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19.0001 10.0001L19.0003 19L17.0003 19L17.0002 12.0001L9.41409 12V17.4142L2.99988 11L9.41409 4.58578L9.41409 10L19.0001 10.0001Z"></path></svg>
+            </button>
             {#each actCtx?.cPlayerMons?.moves as move, index}
                 <button class="action-btn" style="--color:{typeChart[move.type].color}" {disabled}
                         class:selected={selectedMoveIdx === index}
@@ -273,6 +276,7 @@
     }
 
     .actions, .moves {
+      position: relative;
       width: 50%;
       height: 100%;
       display: flex;
@@ -283,6 +287,18 @@
 
       flex-wrap: wrap;
       gap: 8px;
+
+      .back {
+        position: absolute;
+        top: -9.5dvh;
+        left: 2dvw;
+        height: 8.25dvh;
+        width: 6dvw;
+        background-color: rgba(44, 56, 69, 0.84);;
+        border-radius: 6px;
+        color: white;
+
+      }
 
     }
   }
