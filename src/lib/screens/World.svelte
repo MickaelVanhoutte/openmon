@@ -96,6 +96,24 @@
         loadMap(save.map);
     }
 
+
+    // TODO day night  cycle
+    /*
+    let igTime = Math.floor(now / 1000 / 60);
+
+    let hour =  Math.floor(igTime / 60 % 24) ;
+    console.log(hour)
+    let filter = 'brightness(1)';
+    if (hour > 22 || hour < 4) {
+        filter = 'brightness(.35)';
+    }else if( hour > 19 || hour < 6) {
+        filter = 'brightness(.6)';
+    } else if(hour > 17 || hour < 8) {
+        filter = 'brightness(.8) hue-rotate(-56deg)';
+    }
+    wrapper.style.filter = filter;*/
+
+
     /*
     Game loop
      */
