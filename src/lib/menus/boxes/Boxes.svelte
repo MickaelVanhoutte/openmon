@@ -85,7 +85,7 @@
         <ul>
             <li class:selected={selectedOption === 0} on:click={() => setMoving()}>MOVE</li>
             <li class:selected={selectedOption === 1} on:click={() => openSum()}>SUMMARY</li>
-            <!--<li class:selected={selectedOption === 2}>RELEASE</li>-->
+            <!--TODO <li class:selected={selectedOption === 2}>RELEASE</li>-->
             <li class:selected={selectedOption === 2} on:click={() => cancel()}>CANCEL</li>
         </ul>
     </div>
@@ -361,7 +361,7 @@
     left: 0;
     width: 100dvw;
     height: 100dvh;
-    background-image: url("src/assets/menus/p-sum.jpg");
+    background-image: url("p-sum.jpg");
     background-size: cover;
     background-position: top left;
     background-repeat: round;

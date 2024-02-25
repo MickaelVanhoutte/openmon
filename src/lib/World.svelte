@@ -27,23 +27,23 @@
 
 <script lang="ts">
 
-    import {ABButtons, keys, lastKey, resetKeys} from "../js/commands/keyboard";
-    import {Position} from "../js/sprites/drawers";
-    import {BattleContext, BattleState} from "../js/battle/battle";
-    import {PokemonInstance} from "../js/pokemons/pokedex";
-    import {Character} from "../js/player/player";
+    import {ABButtons, keys, lastKey, resetKeys} from "./js/commands/keyboard";
+    import {Position} from "./js/sprites/drawers";
+    import {BattleContext, BattleState} from "./js/battle/battle";
+    import {PokemonInstance} from "./js/pokemons/pokedex";
+    import {Character} from "./js/player/player";
     import {onDestroy, onMount} from "svelte";
-    import Menu from "../ui/Menu.svelte";
-    import {BATTLE_STATE, MAP_DRAWER, MAPS, POKE_WALKER, POKEDEX} from "../js/const";
-    import {SaveContext, SelectedSave} from "../js/saves/saves";
+    import Menu from "./menus/Menu.svelte";
+    import {BATTLE_STATE, MAP_DRAWER, MAPS, POKE_WALKER, POKEDEX} from "./js/const";
+    import {SaveContext, SelectedSave} from "./js/saves/saves";
     import JoystickController from 'joystick-controller';
-    import {OpenMap} from "../js/mapping/maps.js";
-    import type {Jonction} from "../js/mapping/collisions";
-    import {Settings} from "../js/player/settings";
-    import {WorldContext} from "../js/common/context";
-    import DialogView from "../ui/common/DialogView.svelte";
-    import type {Script} from "../js/common/scripts";
-    import {Dialog} from "../js/common/scripts";
+    import {OpenMap} from "./js/mapping/maps.js";
+    import type {Jonction} from "./js/mapping/collisions";
+    import {Settings} from "./js/player/settings";
+    import {WorldContext} from "./js/common/context";
+    import DialogView from "./common/DialogView.svelte";
+    import type {Script} from "./js/common/scripts";
+    import {Dialog} from "./js/common/scripts";
 
     /**
      * Overworld component.
@@ -109,26 +109,27 @@
         let now = Date.now();
         let elapsed = now - mainLoopContext.then;
 
-        if (elapsed > mainLoopContext.fpsInterval && !mainLoopContext.displayChangingMap && mainLoopContext?.map && !battleState?.starting && !mainLoopContext.playingScript) {
+        if (elapsed > mainLoopContext.fpsInterval && mainLoopContext?.map && !battleState?.ending && !mainLoopContext.displayChangingMap) {
             mainLoopContext.then = now - (elapsed % mainLoopContext.fpsInterval);
 
+            ctx.fillStyle = 'black';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            /*
+            Update & draw
+             */
+            updatePosition(playerPositionInPx, targetPosition);
+            updatePosition(walkerPositionInPx, walkerTargetPosition);
+            drawElements();
+
+
             if (canMove()) {
-
-                ctx.fillStyle = 'black';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                updatePosition(playerPositionInPx, targetPosition);
-                updatePosition(walkerPositionInPx, walkerTargetPosition);
-                drawElements();
-
-                if (elapsed > mainLoopContext.fpsInterval / 2) {
-                    drawJunctionArrow();
-                }
-
-                // Move player
                 let moved = move();
-
                 if (moved) {
+
+                    /*
+                        Positioon checks
+                    */
                     checkForStepInScript();
                     checkForFunction();
                     checkForBattle();
@@ -179,7 +180,7 @@
 
 
     /*
-    Map change (looad and junctions)
+    Map change (load and junctions)
      */
     function checkForFunction() {
 
@@ -205,7 +206,6 @@
     }
 
     function loadMap(map: OpenMap) {
-        console.log('load map ', map)
 
         playerPosition = new Position(
             map.playerMovedOffset.x + map.playerInitialPosition.x,
@@ -253,7 +253,14 @@
     Positions update
      */
     function canMove(): boolean {
-        return !menuOpened && !pokemonListOpened && !openSummary && !bagOpened && !boxOpened && mainLoopContext.playingScript === undefined;
+        return !menuOpened &&
+            !pokemonListOpened &&
+            !openSummary &&
+            !bagOpened &&
+            !boxOpened &&
+            !mainLoopContext.playingScript &&
+            !mainLoopContext.displayChangingMap &&
+            !battleState?.starting;
     }
 
     function move(): boolean {
@@ -277,7 +284,6 @@
             direction = 'right';
             move = true;
         }
-
 
         if (move) {
 
@@ -303,9 +309,7 @@
                     Math.floor(targetPosition.x + (xChanger(0) * 16 * mainLoopContext.imageScale)),
                     Math.floor(targetPosition.y + (yChanger(0) * 16 * mainLoopContext.imageScale))
                 );
-                console.log('target', targetPosition, 'walker', walkerTargetPosition);
                 playerPosition = new Position(futureX, futureY);
-                //console.log(playerPosition);
 
                 mainLoopContext.map.playerMovedOffset.x = xChanger(mainLoopContext.map.playerMovedOffset.x);
                 mainLoopContext.map.playerMovedOffset.y = yChanger(mainLoopContext.map.playerMovedOffset.y);
@@ -322,11 +326,9 @@
         const deltaX = targetPosition.x - positionInPx.x;
         const deltaY = targetPosition.y - positionInPx.y;
         const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-        const speed = 0.45; // Adjust speed as needed
-
-        if (distance > 6) {
-            const easedDistance = easeInOutQuad(Math.min(1, distance / 12)); // Adjust the divisor based on your needs
-
+        const speed = 0.45;
+        if (distance > 8) {
+            const easedDistance = easeInOutQuad(Math.min(1, distance / 5));
             // Interpolate between current and target positions with eased distance
             positionInPx.x += deltaX * easedDistance * speed;
             positionInPx.y += deltaY * easedDistance * speed;
@@ -343,6 +345,9 @@
 
         // Background
         let mapDimensions = MAP_DRAWER.draw(ctx, mainLoopContext.map, mainLoopContext.imageScale, playerPositionInPx, mainLoopContext.debug);
+
+        drawJunctionArrow();
+
         // Player & walker
         if (mainLoopContext.player.direction === 'up') {
             mainLoopContext.player.draw(ctx, 'overworld', mainLoopContext.playerScale, playerPositionInPx, mapDimensions);
@@ -352,11 +357,10 @@
             mainLoopContext.player.draw(ctx, 'overworld', mainLoopContext.playerScale, playerPositionInPx, mapDimensions);
         }
 
-
         // Foreground
-        /* if (mainLoopContext.map?.foreground !== undefined) {
-             MAP_DRAWER.drawFG(ctx, mainLoopContext.map, mainLoopContext.imageScale, playerPositionInPx, mainLoopContext.debug);
-         }*/
+        if (mainLoopContext.map?.foreground !== undefined) {
+            MAP_DRAWER.drawFG(ctx, mainLoopContext.map, mainLoopContext.imageScale, playerPositionInPx, mainLoopContext.debug);
+        }
     }
 
     /*
@@ -365,7 +369,6 @@
     function checkForBattle() {
         if (mainLoopContext.map && mainLoopContext.map.hasBattleZoneAt(playerPosition) && Math.random() < 0.07) {
             let monster = mainLoopContext.map.randomMonster();
-            window.cancelAnimationFrame(mainLoopContext.id);
             initiateBattle(POKEDEX.findById(monster.id).result.instanciate(monster.level));
         }
     }
@@ -464,7 +467,6 @@
         if (!menuOpened && !pokemonListOpened) {
             resetKeys();
             if (data.angle) {
-                let direction;
                 let degrees = data.angle * (180 / Math.PI);
 
                 if (degrees < 0) {
@@ -472,19 +474,15 @@
                 }
 
                 if (degrees > 45 && degrees < 135) {
-                    direction = 'bottom';
                     keys.down.pressed = true;
                     lastKey.key = 'ArrowDown';
                 } else if (degrees > 135 && degrees < 225) {
-                    direction = 'left';
                     keys.left.pressed = true;
                     lastKey.key = 'ArrowLeft';
                 } else if (degrees > 225 && degrees < 315) {
-                    direction = 'top';
                     keys.up.pressed = true;
                     lastKey.key = 'ArrowUp';
                 } else {
-                    direction = 'right';
                     keys.right.pressed = true;
                     lastKey.key = 'ArrowRight';
                 }
@@ -507,11 +505,15 @@
         window.addEventListener('keyup', keyUpListener);
         initContext();
 
+        /*
+        unused for now (keybooard/mouse or touch is enough
         abButtons = new ABButtons(abButtonsC, (a, b) => {
             keys.a.pressed = a;
             keys.b.pressed = b;
             console.log('a', a, 'b', b);
         });
+        */
+
         joystick = new JoystickController({
             dynamicPosition: true,
             dynamicPositionTarget: joysticks,
@@ -560,14 +562,12 @@
     bottom: 5dvh;
     left: calc(50% - 25px);
     width: 60px;
-    /* height: 24px; */
     box-sizing: border-box;
     padding: 2px 0;
     display: flex;
     border-radius: 8px;
     background-color: rgba(44, 56, 69, 0.95);
     outline: none;
-    /* background-size: cover; */
     z-index: 8;
     font-size: 18px;
     border: 1px solid #000000;

@@ -210,7 +210,7 @@
     left: 0;
     width: 100dvw;
     height: 100dvh;
-    background-image: url("src/assets/menus/p-sum.jpg");
+    background-image: url("p-sum.jpg");
     z-index: var(--zIndex, 8);
 
     .tabs {
