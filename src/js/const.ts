@@ -1,6 +1,6 @@
 import {Pokedex} from "./pokemons/pokedex";
-import pokedexJson from "../../assets/data/final/pokedexBW-animated2.json";
-import charactersJson from "../../assets/characts/characts.json";
+import pokedexJson from "../assets/data/final/pokedexBW-animated2.json";
+import charactersJson from "../assets/characts/characts.json";
 import {PokeWalkerSpriteDrawer, SpritesHolder, WoldSpriteDrawer} from "./sprites/drawers";
 import {writable} from "svelte/store";
 import type {Writable} from "svelte/store";

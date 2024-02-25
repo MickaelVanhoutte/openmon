@@ -124,16 +124,16 @@
 
 <script lang="ts">
 
-    import {SelectedSave} from "../../js/saves/saves";
-    import {PokemonInstance} from "../../js/pokemons/pokedex";
+    import {SelectedSave} from "../../../js/saves/saves";
+    import {PokemonInstance} from "../../../js/pokemons/pokedex";
     import PokemonSummary from "./PokemonSummary.svelte";
     import {onMount} from "svelte";
     import {backInOut} from "svelte/easing";
     import {slide, fade} from 'svelte/transition';
-    import {ActionsContext, BattleState} from "../../js/battle/battle";
-    import {BATTLE_ACTX, BATTLE_STATE, ITEMS} from "../../js/const";
+    import {ActionsContext, BattleState} from "../../../js/battle/battle";
+    import {BATTLE_ACTX, BATTLE_STATE, ITEMS} from "../../../js/const";
     import Bag from "../bag/Bag.svelte";
-    import {Character} from "../../js/player/player";
+    import {Character} from "../../../js/player/player";
 
     export let pokemonListOpened: boolean;
     export let switchOpened: boolean;

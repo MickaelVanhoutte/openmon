@@ -75,11 +75,11 @@
 <script lang="ts">
 
     import {onDestroy, onMount} from "svelte";
-    import {BATTLE_ACTX, BATTLE_STATE} from "../js/const";
-    import type {MoveInstance} from "../js/pokemons/pokedex";
-    import type {BattleState} from "../js/battle/battle";
-    import {Attack, RunAway} from "../js/battle/actions";
-    import {ActionsContext, typeChart} from "../js/battle/battle";
+    import {BATTLE_ACTX, BATTLE_STATE} from "../../js/const";
+    import type {MoveInstance} from "../../js/pokemons/pokedex";
+    import type {BattleState} from "../../js/battle/battle";
+    import {Attack, RunAway} from "../../js/battle/actions";
+    import {ActionsContext, typeChart} from "../../js/battle/battle";
 
     export let switchOpened: boolean;
 

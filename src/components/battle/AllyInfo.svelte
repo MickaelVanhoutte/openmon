@@ -43,8 +43,8 @@
      * TODO : status style, team pokeballs;
      */
 
-    import {ActionsContext, BattleState} from "../js/battle/battle";
-    import {BATTLE_ACTX, BATTLE_STATE} from "../js/const";
+    import {ActionsContext, BattleState} from "../../js/battle/battle";
+    import {BATTLE_ACTX, BATTLE_STATE} from "../../js/const";
 
     let battleState: BattleState | undefined;
     let actCtx: ActionsContext | undefined;

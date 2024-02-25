@@ -20,10 +20,10 @@
 
 
 <script lang="ts">
-    import {Save, SaveContext} from "../js/saves/saves";
-    import {Character} from "../js/player/player";
-    import {POKEDEX} from "../js/const";
-    import {start} from "../js/mapping/maps/start";
+    import {Save, SaveContext} from "../../js/saves/saves";
+    import {Character} from "../../js/player/player";
+    import {POKEDEX} from "../../js/const";
+    import {start} from "../../js/mapping/maps/start";
 
     /**
      * Player creation component

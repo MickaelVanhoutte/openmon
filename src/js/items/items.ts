@@ -1,5 +1,5 @@
 import type {PokemonInstance} from "../pokemons/pokedex";
-import itemsJson from "../../../assets/data/final/usable-items.json";
+import itemsJson from "../../assets/data/final/usable-items.json";
 import {ActionsContext} from "../battle/battle";
 import {Character} from "../player/player";
 

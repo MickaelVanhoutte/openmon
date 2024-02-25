@@ -26,19 +26,19 @@
 </div>
 <script lang="ts">
 
-    import {ActionsContext, BattleContext, BattleResult, BattleState} from "../js/battle/battle";
-    import {Position} from "../js/sprites/drawers";
+    import {ActionsContext, BattleContext, BattleResult, BattleState} from "../../js/battle/battle";
+    import {Position} from "../../js/sprites/drawers";
     import {onMount} from "svelte";
     import ActionBar from "./ActionBar.svelte";
     import EnemyInfo from "./EnemyInfo.svelte";
     import AllyInfo from "./AllyInfo.svelte";
-    import type {SelectedSave} from "../js/saves/saves";
-    import {BATTLE_ACTX, BATTLE_STATE, ITEMS} from "../js/const";
+    import type {SelectedSave} from "../../js/saves/saves";
+    import {BATTLE_ACTX, BATTLE_STATE, ITEMS} from "../../js/const";
     import PokemonList from "../menus/pokemon-list/PokemonList.svelte";
-    import type {PokemonInstance} from "../js/pokemons/pokedex";
+    import type {PokemonInstance} from "../../js/pokemons/pokedex";
     import Bag from "../menus/bag/Bag.svelte";
-    import {Pokeball} from "../js/items/items";
-    import {BagObject, SwitchAction} from "../js/battle/actions";
+    import {Pokeball} from "../../js/items/items";
+    import {BagObject, SwitchAction} from "../../js/battle/actions";
 
     /**
      * Battle screen component, handles pokemons display.

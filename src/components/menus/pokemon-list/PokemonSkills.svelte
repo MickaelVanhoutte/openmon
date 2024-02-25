@@ -41,11 +41,11 @@
 
 <script lang="ts">
 
-    import {typeChart} from "../../js/battle/battle";
-    import {SelectedSave} from "../../js/saves/saves";
+    import {typeChart} from "../../../js/battle/battle";
+    import {SelectedSave} from "../../../js/saves/saves";
     import { slide, fade } from 'svelte/transition';
     import {backInOut} from "svelte/easing";
-    import {PokemonInstance} from "../../js/pokemons/pokedex";
+    import {PokemonInstance} from "../../../js/pokemons/pokedex";
 
     export let save: SelectedSave;
     export let selected: number

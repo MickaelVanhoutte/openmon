@@ -22,9 +22,8 @@ The front-end is made with [Svelte](https://svelte.dev/), which is a simple and 
 Directory structure:
 - `src` contains the source code
   - `App.svelte` is the main component serves the purpose of a router to display either player creation, save loading or world/battle.
-  - `/lib/js` contains the game logic
-  - `/lib/ui` contains UI elements and menus
-  - `/lib/screens` contains the main components (world, battle, player creation, save loading)
+  - `/js` contains the game logic & model
+  - `/components` contains screens, UI elements and menus
   - `/assets` contains images, json data...
 
 ### Run locally

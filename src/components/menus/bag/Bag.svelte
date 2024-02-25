@@ -63,15 +63,15 @@
 {/if}
 <script lang="ts">
 
-    import {SelectedSave} from "../../js/saves/saves";
+    import {SelectedSave} from "../../../js/saves/saves";
     import {onMount} from "svelte";
     import {backInOut} from "svelte/easing";
     import {fade, slide} from 'svelte/transition';
-    import {ITEMS} from "../../js/const";
+    import {ITEMS} from "../../../js/const";
     import PokemonList from "../pokemon-list/PokemonList.svelte";
-    import {PokemonInstance} from "../../js/pokemons/pokedex";
-    import {Bag} from "../../js/items/bag";
-    import {Pokeball} from "../../js/items/items";
+    import {PokemonInstance} from "../../../js/pokemons/pokedex";
+    import {Bag} from "../../../js/items/bag";
+    import {Pokeball} from "../../../js/items/items";
 
 
     export let bagOpened: boolean;

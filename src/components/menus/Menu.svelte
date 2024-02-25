@@ -103,8 +103,8 @@
 
 <script lang="ts">
 
-    import type {SaveContext} from "../js/saves/saves";
-    import {SelectedSave} from "../js/saves/saves";
+    import type {SaveContext} from "../../js/saves/saves";
+    import {SelectedSave} from "../../js/saves/saves";
     import PokemonList from "./pokemon-list/PokemonList.svelte";
     import {onMount} from "svelte";
     import Bag from "./bag/Bag.svelte";

@@ -103,9 +103,9 @@
 <script lang="ts">
 
     import {onMount} from "svelte";
-    import {SelectedSave} from "../../js/saves/saves";
-    import {BoxSelection} from "../../js/pokemons/boxes";
-    import {PokemonInstance} from "../../js/pokemons/pokedex";
+    import {SelectedSave} from "../../../js/saves/saves";
+    import {BoxSelection} from "../../../js/pokemons/boxes";
+    import {PokemonInstance} from "../../../js/pokemons/pokedex";
     import PokemonSummary from "../pokemon-list/PokemonSummary.svelte";
 
     let selectZone: 'party' | 'box' | 'box-change' = 'box';
