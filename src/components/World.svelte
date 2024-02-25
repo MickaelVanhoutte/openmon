@@ -59,6 +59,7 @@
 
     let ctx;
     let battleState: BattleState | undefined;
+    $:evolutions = mainLoopContext?.player?.monsters?.filter(p => p.canEvolve());
 
     /*
     Menus states

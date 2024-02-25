@@ -45,20 +45,20 @@ function exportPokemons() {
         let thirdSource = pokeWithXp.find((p) => p.id === pokemon.pokedex_number);
         let fourthSource = pokeWithCatchRate.pokemon.find((p) => p.id === pokemon.pokedex_number);
 
-        if (secondSource && thirdSource) {
-
-            let evolution = {};
-            if (secondSource.evolution?.next?.length) {
-                evolution = secondSource.evolution?.next?.at(0)?.at(0)?.includes('Level') ?
-                    {
-                        id: secondSource.evolution?.next?.at(0)?.at(0),
-                        level: Number.parseInt(secondSource?.evolution?.next?.at(0)?.at(1)?.replace('Level ', '') || '40')
-                    } :
-                    {
-                        id: secondSource.evolution?.next?.at(0)?.at(0),
-                        level: 40 // TODO : evolutionnary stone...
-                    };
-            }
+        if (secondSource && thirdSource && fourthSource) {
+            let evolutions = secondSource.evolution?.next?.length ? secondSource.evolution?.next?.filter(evo => evo[0] <= 251).map((evo) => {
+                if(evo[0]?.includes('Level')){
+                    return {
+                        id: evo[0],
+                        level:  Number.parseInt(evo[1]?.replace('Level ', '') || '40')[1]
+                    }
+                }else{
+                    return {
+                        id: evo[0],
+                        level: 40
+                    }
+                }
+            }) : [];
 
             let pokedexNumber = pokemon.pokedex_number < 10 ? `00${pokemon.pokedex_number}` : pokemon.pokedex_number < 100 ? `0${pokemon.pokedex_number}` : pokemon.pokedex_number;
             pokedexArray.push({
@@ -97,7 +97,7 @@ function exportPokemons() {
                 captureRate: fourthSource.catchRate,
                 experienceGrowth: pokemon.experience_growth,
                 percentageMale: pokemon.percentage_male,
-                evolution: evolution,
+                evolution: evolutions,
                 sprites: {
                     male: {
                         front :{
@@ -117,7 +117,7 @@ function exportPokemons() {
     });
 
     console.log(pokedexArray.length);
-    console.log(pokedexArray[250]);
+    console.log(pokedexArray[132]);
 
     fs.writeFile("./pokedexBW-animated2.json", JSON.stringify(pokedexArray), (error) => {
         // throwing the error
