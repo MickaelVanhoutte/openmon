@@ -16,6 +16,12 @@
     {/if}
 {/if}
 
+{#if rotate}
+    <div class="rotate">
+        <img src="src/assets/common/rotate.gif" alt="Please rotate your device"/>
+    </div>
+{/if}
+
 <script lang="ts">
     import "@abraham/reflection";
     import LoadSave from "./lib/screens/LoadSave.svelte";
@@ -25,12 +31,15 @@
     import {BattleState} from "./lib/js/battle/battle";
     import {SaveContext} from "./lib/js/saves/saves";
     import {BATTLE_STATE} from "./lib/js/const";
+    import {onMount} from "svelte";
 
     export let saveContext = new SaveContext();
 
     let battling: boolean;
     let battleState: BattleState | undefined;
     let endingBattle = false;
+
+    let rotate = false;
 
     BATTLE_STATE.subscribe(value => {
         battleState = value.state;
@@ -45,7 +54,7 @@
     // ios zoom fix
     if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
         window.document.addEventListener('touchmove', e => {
-            if(e.scale !== 1) {
+            if (e.scale !== 1) {
                 e.preventDefault();
             }
         }, {passive: false});
@@ -55,6 +64,18 @@
         event.preventDefault();
 
         event.returnValue = 'Leaving already ?';
+    });
+
+    function checkOrientation() {
+        rotate = (!window.matchMedia("(orientation: landscape)").matches || window.innerWidth < window.innerHeight);
+    }
+
+    window.addEventListener('resize', () => {
+        checkOrientation();
+    });
+
+    onMount(() => {
+        checkOrientation();
     });
 
 </script>
@@ -75,6 +96,7 @@
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
+
     * {
       box-sizing: border-box;
       touch-action: none;
@@ -89,6 +111,23 @@
       -webkit-appearance: none;
       -moz-appearance: none;
       appearance: none;
+    }
+  }
+
+  .rotate {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100dvw;
+    height: 100svh;
+    background-color: rgba(0, 0, 0, 1);
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    img {
+      width: 100dvw;
     }
   }
 
