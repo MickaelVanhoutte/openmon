@@ -20,7 +20,9 @@
         <div class="battleEnd" class:active={battleState && battleState?.ending || mainLoopContext.changingMap}></div>
     {/if}
     <div class="joysticks" bind:this={joysticks}></div>
-    <div class="ab-buttons" bind:this={abButtonsC}></div>
+
+    <!-- unused for now (keybooard/mouse or touch is enough -->
+    <!--<div class="ab-buttons" bind:this={abButtonsC}></div>-->
 </div>
 
 <script lang="ts">
@@ -43,6 +45,11 @@
     import type {Script} from "../js/common/scripts";
     import {Dialog} from "../js/common/scripts";
 
+    /**
+     * Overworld component.
+     * Main game loop, menus, battle starting...
+     */
+
     export let canvas: HTMLCanvasElement;
     export let wrapper: HTMLDivElement;
     export let abButtonsC: HTMLDivElement;
@@ -52,12 +59,22 @@
 
     let ctx;
     let battleState: BattleState | undefined;
+
+    /*
+    Menus states
+     */
     let menuOpened = false;
     let pokemonListOpened = false;
     let bagOpened = false;
     let openSummary = false;
     let boxOpened = false;
+
+
     let mainLoopContext = new WorldContext(save.player);
+
+    /*
+    Positions (put that in context ?
+     */
     let playerPosition: Position = new Position();
     let playerPositionInPx: Position = new Position();
     let targetPosition: Position = new Position();
@@ -69,10 +86,6 @@
     let abButtons;
     let joystick;
 
-    $:playingScript = mainLoopContext?.playingScript;
-    $:currentAction = playingScript && playingScript?.currentAction;
-    $:hasDialog = currentAction && currentAction instanceof Dialog;
-
     BATTLE_STATE.subscribe(value => {
         battleState = value.state;
     });
@@ -83,6 +96,113 @@
         loadMap(save.map);
     }
 
+    /*
+    Game loop
+     */
+    function mainLoop() {
+        mainLoopContext.id = window.requestAnimationFrame(mainLoop);
+
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+
+
+        let now = Date.now();
+        let elapsed = now - mainLoopContext.then;
+
+        if (elapsed > mainLoopContext.fpsInterval && !mainLoopContext.displayChangingMap && mainLoopContext?.map && !battleState?.starting && !mainLoopContext.playingScript) {
+            mainLoopContext.then = now - (elapsed % mainLoopContext.fpsInterval);
+
+            if (canMove()) {
+
+                ctx.fillStyle = 'black';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                updatePosition(playerPositionInPx, targetPosition);
+                updatePosition(walkerPositionInPx, walkerTargetPosition);
+                drawElements();
+
+                if (elapsed > mainLoopContext.fpsInterval / 2) {
+                    drawJunctionArrow();
+                }
+
+                // Move player
+                let moved = move();
+
+                if (moved) {
+                    checkForStepInScript();
+                    checkForFunction();
+                    checkForBattle();
+                }
+            }
+
+            /*
+            use "x" to display debug info
+             */
+            if (mainLoopContext.debug) {
+                ctx.font = "12px Arial";
+                let fps = Math.round(1 / elapsed * 1000);
+
+                ctx.fillStyle = 'black';
+                ctx.fillRect(0, 0, 160, 60);
+
+                ctx.fillStyle = 'white';
+                ctx.fillText(`Player position: ${playerPosition.x}, ${playerPosition.y}`, 10, 10);
+                ctx.fillText(`Player moving: ${mainLoopContext.player.moving}`, 10, 20);
+                ctx.fillText(`Player direction: ${mainLoopContext.player.direction}`, 10, 30);
+                ctx.fillText(`Player offset: ${mainLoopContext.map.playerMovedOffset.x}, ${mainLoopContext.map.playerMovedOffset.y}`, 10, 40);
+                ctx.fillText(`fps: ${fps}`, 10, 50);
+            }
+        }
+    }
+
+
+    /*
+    Scripts
+     */
+    $:playingScript = mainLoopContext?.playingScript;
+    $:currentAction = playingScript && playingScript?.currentAction;
+    $:hasDialog = currentAction && currentAction instanceof Dialog;
+
+    function checkForStepInScript() {
+        let stepScript: Script | undefined;
+        if (mainLoopContext.map?.scripts && mainLoopContext.map.scripts?.length > 0 && !mainLoopContext.playingScript) {
+            // TODO allow range of positions
+            stepScript = mainLoopContext.map.scripts.find(s => s.triggerType === 'onStep' && s.stepPosition?.x === playerPosition.x && s.stepPosition?.y === playerPosition.y);
+        }
+
+        if (stepScript !== undefined && !stepScript?.played || stepScript?.replayable) {
+            mainLoopContext.playScript(stepScript);
+        }
+
+        return stepScript;
+    }
+
+
+    /*
+    Map change (looad and junctions)
+     */
+    function checkForFunction() {
+
+        if (mainLoopContext.map === undefined) return;
+        let jonction = mainLoopContext.map.jonctionAt(playerPosition);
+        if (jonction !== undefined) {
+            changeMap(jonction);
+        }
+    }
+
+    function drawJunctionArrow() {
+        if (mainLoopContext.map) {
+            if (mainLoopContext.player.direction === 'down' && mainLoopContext.map.jonctionAt(new Position(playerPosition.x, playerPosition.y + 1))) {
+                MAP_DRAWER.drawArrow(ctx, "down", playerPosition, mainLoopContext.imageScale);
+            } else if (mainLoopContext.player.direction === 'up' && mainLoopContext.map.jonctionAt(new Position(playerPosition.x, playerPosition.y - 1))) {
+                MAP_DRAWER.drawArrow(ctx, "up", playerPosition, mainLoopContext.imageScale);
+            } else if (mainLoopContext.player.direction === 'right' && mainLoopContext.map.jonctionAt(new Position(playerPosition.x + 1, playerPosition.y))) {
+                MAP_DRAWER.drawArrow(ctx, "right", playerPosition, mainLoopContext.imageScale);
+            } else if (mainLoopContext.player.direction === 'left' && mainLoopContext.map.jonctionAt(new Position(playerPosition.x - 1, playerPosition.y))) {
+                MAP_DRAWER.drawArrow(ctx, "left", playerPosition, mainLoopContext.imageScale);
+            }
+        }
+    }
 
     function loadMap(map: OpenMap) {
         console.log('load map ', map)
@@ -129,119 +249,11 @@
         loadMap(map);
     }
 
-    // TODO day night  cycle
     /*
-    let igTime = Math.floor(now / 1000 / 60);
-
-    let hour =  Math.floor(igTime / 60 % 24) ;
-    console.log(hour)
-    let filter = 'brightness(1)';
-    if (hour > 22 || hour < 4) {
-        filter = 'brightness(.35)';
-    }else if( hour > 19 || hour < 6) {
-        filter = 'brightness(.6)';
-    } else if(hour > 17 || hour < 8) {
-        filter = 'brightness(.8) hue-rotate(-56deg)';
-    }
-    wrapper.style.filter = filter;*/
-
-
-    function mainLoop() {
-        mainLoopContext.id = window.requestAnimationFrame(mainLoop);
-
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'high';
-
-
-        let now = Date.now();
-        let elapsed = now - mainLoopContext.then;
-
-        if (elapsed > mainLoopContext.fpsInterval && !mainLoopContext.displayChangingMap && mainLoopContext?.map && !battleState?.starting && !mainLoopContext.playingScript) {
-            mainLoopContext.then = now - (elapsed % mainLoopContext.fpsInterval);
-
-            if (canMove()) {
-
-                ctx.fillStyle = 'black';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                updatePosition(playerPositionInPx, targetPosition);
-                updatePosition(walkerPositionInPx, walkerTargetPosition);
-                drawMap();
-
-                if (elapsed > mainLoopContext.fpsInterval / 2) {
-                    //drawJunctionArrow();
-                }
-
-                // Move player
-                let moved = move();
-
-                if (moved) {
-                    checkForStepInScript();
-                    checkForFunction();
-                    checkForBattle();
-                }
-            }
-            if (mainLoopContext.debug) {
-                ctx.font = "12px Arial";
-                let fps = Math.round(1 / elapsed * 1000);
-
-                ctx.fillStyle = 'black';
-                ctx.fillRect(0, 0, 160, 60);
-
-                ctx.fillStyle = 'white';
-                ctx.fillText(`Player position: ${playerPosition.x}, ${playerPosition.y}`, 10, 10);
-                ctx.fillText(`Player moving: ${mainLoopContext.player.moving}`, 10, 20);
-                ctx.fillText(`Player direction: ${mainLoopContext.player.direction}`, 10, 30);
-                ctx.fillText(`Player offset: ${mainLoopContext.map.playerMovedOffset.x}, ${mainLoopContext.map.playerMovedOffset.y}`, 10, 40);
-                ctx.fillText(`fps: ${fps}`, 10, 50);
-            }
-        }
-    }
-
-    function drawMap() {
-        if (mainLoopContext.map === undefined) return;
-
-        // Background
-        let mapDimensions = MAP_DRAWER.draw(ctx, mainLoopContext.map, mainLoopContext.imageScale, playerPositionInPx, mainLoopContext.debug);
-        // Player & walker
-        if (mainLoopContext.player.direction === 'up') {
-            mainLoopContext.player.draw(ctx, 'overworld', mainLoopContext.playerScale, playerPositionInPx, mapDimensions);
-            POKE_WALKER.draw(ctx, playerPositionInPx, walkerDirection, mainLoopContext.playerScale, mainLoopContext.player.moving, walkerPositionInPx, mainLoopContext.player.monsters.at(0), mapDimensions);
-        } else {
-            POKE_WALKER.draw(ctx,playerPositionInPx, walkerDirection, mainLoopContext.playerScale, mainLoopContext.player.moving, walkerPositionInPx, mainLoopContext.player.monsters.at(0), mapDimensions);
-            mainLoopContext.player.draw(ctx, 'overworld', mainLoopContext.playerScale, playerPositionInPx, mapDimensions);
-        }
-
-
-        // Foreground
-        /* if (mainLoopContext.map?.foreground !== undefined) {
-             MAP_DRAWER.drawFG(ctx, mainLoopContext.map, mainLoopContext.imageScale, playerPositionInPx, mainLoopContext.debug);
-         }*/
-    }
-
-    function easeInOutQuad(t) {
-        return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-    }
-
-    // Update player position with easing
-    function updatePosition(positionInPx: Position, targetPosition: Position) {
-        const deltaX = targetPosition.x - positionInPx.x;
-        const deltaY = targetPosition.y - positionInPx.y;
-        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-        const speed = 0.45; // Adjust speed as needed
-
-        if (distance > 6) {
-            const easedDistance = easeInOutQuad(Math.min(1, distance / 12)); // Adjust the divisor based on your needs
-
-            // Interpolate between current and target positions with eased distance
-            positionInPx.x += deltaX * easedDistance * speed;
-            positionInPx.y += deltaY * easedDistance * speed;
-        } else {
-            // Snap to the target position if movement is small
-            mainLoopContext.player.moving = false;
-            positionInPx.x = targetPosition.x;
-            positionInPx.y = targetPosition.y;
-        }
+    Positions update
+     */
+    function canMove(): boolean {
+        return !menuOpened && !pokemonListOpened && !openSummary && !bagOpened && !boxOpened && mainLoopContext.playingScript === undefined;
     }
 
     function move(): boolean {
@@ -302,20 +314,54 @@
         return move;
     }
 
-    function checkForStepInScript() {
-        let stepScript: Script | undefined;
-        if (mainLoopContext.map?.scripts && mainLoopContext.map.scripts?.length > 0 && !mainLoopContext.playingScript) {
-            // TODO allow range of positions
-            stepScript = mainLoopContext.map.scripts.find(s => s.triggerType === 'onStep' && s.stepPosition?.x === playerPosition.x && s.stepPosition?.y === playerPosition.y);
+    function updatePosition(positionInPx: Position, targetPosition: Position) {
+        function easeInOutQuad(t) {
+            return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
         }
 
-        if (stepScript !== undefined && !stepScript?.played || stepScript?.replayable) {
-            mainLoopContext.playScript(stepScript);
-        }
+        const deltaX = targetPosition.x - positionInPx.x;
+        const deltaY = targetPosition.y - positionInPx.y;
+        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        const speed = 0.45; // Adjust speed as needed
 
-        return stepScript;
+        if (distance > 6) {
+            const easedDistance = easeInOutQuad(Math.min(1, distance / 12)); // Adjust the divisor based on your needs
+
+            // Interpolate between current and target positions with eased distance
+            positionInPx.x += deltaX * easedDistance * speed;
+            positionInPx.y += deltaY * easedDistance * speed;
+        } else {
+            // Snap to the target position if movement is small
+            mainLoopContext.player.moving = false;
+            positionInPx.x = targetPosition.x;
+            positionInPx.y = targetPosition.y;
+        }
     }
 
+    function drawElements() {
+        if (mainLoopContext.map === undefined) return;
+
+        // Background
+        let mapDimensions = MAP_DRAWER.draw(ctx, mainLoopContext.map, mainLoopContext.imageScale, playerPositionInPx, mainLoopContext.debug);
+        // Player & walker
+        if (mainLoopContext.player.direction === 'up') {
+            mainLoopContext.player.draw(ctx, 'overworld', mainLoopContext.playerScale, playerPositionInPx, mapDimensions);
+            POKE_WALKER.draw(ctx, playerPositionInPx, walkerDirection, mainLoopContext.playerScale, mainLoopContext.player.moving, walkerPositionInPx, mainLoopContext.player.monsters.at(0), mapDimensions);
+        } else {
+            POKE_WALKER.draw(ctx, playerPositionInPx, walkerDirection, mainLoopContext.playerScale, mainLoopContext.player.moving, walkerPositionInPx, mainLoopContext.player.monsters.at(0), mapDimensions);
+            mainLoopContext.player.draw(ctx, 'overworld', mainLoopContext.playerScale, playerPositionInPx, mapDimensions);
+        }
+
+
+        // Foreground
+        /* if (mainLoopContext.map?.foreground !== undefined) {
+             MAP_DRAWER.drawFG(ctx, mainLoopContext.map, mainLoopContext.imageScale, playerPositionInPx, mainLoopContext.debug);
+         }*/
+    }
+
+    /*
+    Battle start
+     */
     function checkForBattle() {
         if (mainLoopContext.map && mainLoopContext.map.hasBattleZoneAt(playerPosition) && Math.random() < 0.07) {
             let monster = mainLoopContext.map.randomMonster();
@@ -324,33 +370,35 @@
         }
     }
 
-    function checkForFunction() {
+    function initiateBattle(opponent: PokemonInstance | Character) {
 
-        if (mainLoopContext.map === undefined) return;
-        let jonction = mainLoopContext.map.jonctionAt(playerPosition);
-        if (jonction !== undefined) {
-            changeMap(jonction);
-        }
+        let bContext = new BattleContext();
+        bContext.state = new BattleState(save.player, opponent, save.settings || new Settings())
+        BATTLE_STATE.set(bContext);
+
+        setTimeout(() => {
+            BATTLE_STATE.update(value => {
+                if (value.state) {
+                    value.state.starting = false;
+                    value.state.pokemonsAppearing = true;
+                }
+                return value;
+            });
+        }, 2000);
+
+        setTimeout(() => {
+            BATTLE_STATE.update(value => {
+                if (value.state) {
+                    value.state.pokemonsAppearing = false;
+                }
+                return value;
+            });
+        }, 3500);
     }
 
-    function drawJunctionArrow() {
-        if (mainLoopContext.map) {
-            if (mainLoopContext.player.direction === 'down' && mainLoopContext.map.jonctionAt(new Position(playerPosition.x, playerPosition.y + 1))) {
-                MAP_DRAWER.drawArrow(ctx, "down", playerPosition, mainLoopContext.imageScale);
-            } else if (mainLoopContext.player.direction === 'up' && mainLoopContext.map.jonctionAt(new Position(playerPosition.x, playerPosition.y - 1))) {
-                MAP_DRAWER.drawArrow(ctx, "up", playerPosition, mainLoopContext.imageScale);
-            } else if (mainLoopContext.player.direction === 'right' && mainLoopContext.map.jonctionAt(new Position(playerPosition.x + 1, playerPosition.y))) {
-                MAP_DRAWER.drawArrow(ctx, "right", playerPosition, mainLoopContext.imageScale);
-            } else if (mainLoopContext.player.direction === 'left' && mainLoopContext.map.jonctionAt(new Position(playerPosition.x - 1, playerPosition.y))) {
-                MAP_DRAWER.drawArrow(ctx, "left", playerPosition, mainLoopContext.imageScale);
-            }
-        }
-    }
-
-
-    function canMove(): boolean {
-        return !menuOpened && !pokemonListOpened && !openSummary && !bagOpened && !boxOpened && mainLoopContext.playingScript === undefined;
-    }
+    /*
+    Controls
+     */
 
     const keyUpListener = (e) => {
         if (canMove()) {
@@ -374,7 +422,6 @@
             }
         }
     };
-
     const keyDownListener = (e) => {
         if (canMove()) {
             switch (e.key) {
@@ -412,44 +459,6 @@
         }
     };
 
-    function initiateBattle(opponent: PokemonInstance | Character) {
-
-        let bContext = new BattleContext();
-        bContext.state = new BattleState(save.player, opponent, save.settings || new Settings())
-        BATTLE_STATE.set(bContext);
-
-        setTimeout(() => {
-            BATTLE_STATE.update(value => {
-                if (value.state) {
-                    value.state.starting = false;
-                    value.state.pokemonsAppearing = true;
-                }
-                return value;
-            });
-        }, 2000);
-
-        setTimeout(() => {
-            BATTLE_STATE.update(value => {
-                if (value.state) {
-                    value.state.pokemonsAppearing = false;
-                }
-                return value;
-            });
-        }, 3500);
-
-        unbindKeyboard();
-    }
-
-    function bindKeyboard() {
-        window.addEventListener('keydown', keyDownListener);
-        window.addEventListener('keyup', keyUpListener);
-    }
-
-    function unbindKeyboard() {
-        window.removeEventListener('keydown', keyDownListener);
-        window.removeEventListener('keyup', keyUpListener);
-    }
-
     const jsCallback = (data) => {
         // convert data.angle (radian) to a direction (top, bottom, left, right)
         if (!menuOpened && !pokemonListOpened) {
@@ -486,14 +495,16 @@
     onDestroy(() => {
         ctx?.clearRect(0, 0, canvas.width, canvas.height);
         window.cancelAnimationFrame(mainLoopContext.id);
-        unbindKeyboard();
+        window.removeEventListener('keydown', keyDownListener);
+        window.removeEventListener('keyup', keyUpListener);
         joystick?.destroy();
         abButtons?.destroy();
     });
 
     onMount(() => {
         ctx = canvas.getContext('2d');
-        bindKeyboard();
+        window.addEventListener('keydown', keyDownListener);
+        window.addEventListener('keyup', keyUpListener);
         initContext();
 
         abButtons = new ABButtons(abButtonsC, (a, b) => {

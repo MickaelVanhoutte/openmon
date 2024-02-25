@@ -33,8 +33,12 @@
     import {BATTLE_STATE} from "./lib/js/const";
     import {onMount} from "svelte";
 
-    export let saveContext = new SaveContext();
+    /**
+     * Main component, handling screens transitions
+     */
 
+    export let saveContext = new SaveContext();
+    // TODO : should be in the World component (battle fade)
     let battling: boolean;
     let battleState: BattleState | undefined;
     let endingBattle = false;
@@ -51,21 +55,24 @@
         }
     });
 
-    // ios zoom fix
+    // Avoid IOS zoom on double tap
     if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
         window.document.addEventListener('touchmove', e => {
+            // @ts-ignore
             if (e.scale !== 1) {
                 e.preventDefault();
             }
         }, {passive: false});
     }
 
+    // Avoid leaving game by error
     window.addEventListener('beforeunload', function (event) {
         event.preventDefault();
-
+        // todo custom popin, ask for saving
         event.returnValue = 'Leaving already ?';
     });
 
+    // Screen orientation checks
     function checkOrientation() {
         rotate = (!window.matchMedia("(orientation: landscape)").matches || window.innerWidth < window.innerHeight);
     }
