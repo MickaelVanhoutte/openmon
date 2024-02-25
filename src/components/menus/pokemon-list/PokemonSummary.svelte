@@ -294,7 +294,7 @@
       width: 100%;
       box-sizing: border-box;
       background-color: #0e2742f0;
-      background-image: url("p-sum.jpg");
+      background-image: url("src/assets/menus/p-sum.jpg");
       background-blend-mode: soft-light;
     }
 
