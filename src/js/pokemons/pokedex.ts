@@ -1,6 +1,5 @@
 import {EXPERIENCE_CHART} from "./experience";
 import type {Effect} from "./move-effects";
-import {POKEDEX} from "../const";
 
 export class Nature {
     public id: number;
@@ -519,9 +518,9 @@ export class PokemonInstance extends PokedexEntry {
         return this.evs.attack + this.evs.defense + this.evs.specialAttack + this.evs.specialDefense + this.evs.speed + this.evs.hp;
     }
 
-    get availableMoves(): Move[] {
+   /* get availableMoves(): Move[] {
         return POKEDEX.findById(this.id)?.result?.moves?.filter((move) => move.level <= this.level) || [];
-    }
+    }*/
 
     get battleStats(): Stats {
         return new Stats(
@@ -619,6 +618,11 @@ export class PokemonInstance extends PokedexEntry {
         )
     }
 
+
+    public canEvolve(){
+        return this.evolution?.filter((evo) => evo.level === this.level)?.length > 0;
+    }
+
     public removeHp(hp: number) {
         this.currentHp -= hp;
         if (this.currentHp <= 0) {
@@ -655,7 +659,8 @@ export class PokemonInstance extends PokedexEntry {
                 return {
                     levelup: true,
                     xpLeft: xpLeft,
-                    newMove: POKEDEX.findById(this.id).result?.moves.filter((move) => move.level === this.level + 1).map((move) => move.name) || []
+                    newMove: []
+                    //newMove: POKEDEX.findById(this.id).result?.moves.filter((move) => move.level === this.level + 1).map((move) => move.name) || []
                 }
             } else {
                 this.currentXp += totalXp;
@@ -700,15 +705,6 @@ export class PokemonInstance extends PokedexEntry {
     private checkForNewMoves() {
         let newMoves = this.moves.filter((move) => move.level === this.level);
     }
-
-    // TODO
-    /*    private checkForEvolutions() {
-            let evolution = this.evolution?.find((evo) => evo.level === this.level);
-
-            if (evolution) {
-                this.evolve(evolution.id);
-            }
-        }*/
 
     private evolve(id: number, future: PokedexSearchResult) {
         if (future.found && future.result) {

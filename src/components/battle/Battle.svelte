@@ -223,6 +223,11 @@
 
   .battle {
     z-index: 7;
+    width: 100dvw;
+    height: 100dvh;
+    overflow: hidden;
+    position: relative;
+    margin: auto;
   }
 
   .wrapper {

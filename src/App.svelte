@@ -8,9 +8,7 @@
 {/if}
 {#if saveContext?.selected}
     {#if battleState && !battleState.starting}
-        <div class="battle-wrapper">
-            <Battle bind:save={saveContext.selected}/>
-        </div>
+        <Battle bind:save={saveContext.selected}/>
     {:else}
         <World bind:save={saveContext.selected} bind:saveContext/>
     {/if}
@@ -41,18 +39,11 @@
     // TODO : should be in the World component (battle fade)
     let battling: boolean;
     let battleState: BattleState | undefined;
-    let endingBattle = false;
 
     let rotate = false;
 
     BATTLE_STATE.subscribe(value => {
         battleState = value.state;
-        if (value.state && value.state.ending) {
-            endingBattle = true;
-            setTimeout(() => {
-                endingBattle = false;
-            }, 4000);
-        }
     });
 
     // Avoid IOS zoom on double tap
@@ -137,35 +128,5 @@
       width: 100dvw;
     }
   }
-
-  .battle-wrapper {
-    z-index: 1;
-    width: auto;
-    max-width: 100dvh;
-    height: 100dvh;
-    overflow: hidden;
-    position: relative;
-    margin: auto;
-  }
-
-  @media screen and (orientation: landscape) {
-    .battle-wrapper {
-      width: 100dvw;
-      max-width: 100dvw;
-      height: 100dvh;
-      overflow: hidden;
-    }
-  }
-
-  @media screen and (orientation: landscape) and (min-width: 1680px) {
-    .battle-wrapper {
-      width: auto;
-      max-width: 1024px;
-      height: 100dvh;
-      overflow: hidden;
-    }
-
-  }
-
 
 </style>

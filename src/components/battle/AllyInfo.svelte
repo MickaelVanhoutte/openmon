@@ -7,8 +7,8 @@
             {/if}
         </div>
         <div>
-            <span>{actCtx.cPlayerMons?.name}</span>
-            <span>Lv.{actCtx.cPlayerMons.level}</span>
+            <span>{actCtx?.cPlayerMons?.name}</span>
+            <span>Lv.{actCtx?.cPlayerMons.level}</span>
         </div>
     </div>
 
@@ -18,7 +18,7 @@
         <div class="hp">
             <span>HP</span>
             <div class="progressbar-wrapper">
-                <span class="hp-value">{currentHp} / {actCtx.cPlayerMons.currentStats.hp}</span>
+                <span class="hp-value">{currentHp} / {actCtx?.cPlayerMons.currentStats.hp}</span>
                 <div class="progressbar" class:warning={percent <= 50} class:danger={percent < 15 }
                      style="--width:{percent + '%'}">
                 </div>
