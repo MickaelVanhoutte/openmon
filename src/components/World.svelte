@@ -8,6 +8,10 @@
         <DialogView bind:context={mainLoopContext} bind:dialog={currentAction}/>
     {/if}
 
+    {#if evolutions?.length > 0}
+        <Evolution bind:context={mainLoopContext}/>
+    {/if}
+
     {#if !pokemonListOpened && !bagOpened}
         <button on:click={() => menuOpened = !menuOpened} class="start">start</button>
     {/if}
@@ -44,6 +48,7 @@
     import DialogView from "./common/DialogView.svelte";
     import type {Script} from "../js/common/scripts";
     import {Dialog} from "../js/common/scripts";
+    import Evolution from "./Evolution.svelte";
 
     /**
      * Overworld component.
