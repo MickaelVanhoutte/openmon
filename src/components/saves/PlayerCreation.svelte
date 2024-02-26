@@ -63,7 +63,11 @@
         player.monsters.push(POKEDEX.findById(6).result.instanciate(100));
         player.monsters.push(POKEDEX.findById(9).result.instanciate(5));
         player.monsters.push(POKEDEX.findById(143).result.instanciate(5));
-        player.monsters.push(POKEDEX.findById(145).result.instanciate(5));
+
+        let chenipan = POKEDEX.findById(10).result.instanciate(6)
+        console.log(chenipan);
+        chenipan.currentXp = chenipan.xpToNextLevel - 1;
+        player.monsters.push(chenipan);
 
         console.log(player);
         saveContext = saveContext.createSave(new Save(player, start));
