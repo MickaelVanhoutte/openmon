@@ -432,10 +432,12 @@ export class Stats {
 export class Evolution {
     public id: number;
     public level: number;
+    public method: string;
 
-    constructor(nextId: number, level: number) {
+    constructor(nextId: number, level: number, method: string) {
         this.id = nextId;
         this.level = level;
+        this.method = method;
     }
 }
 
