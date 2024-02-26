@@ -8,9 +8,7 @@
 {/if}
 {#if saveContext?.selected}
     {#if battleState && !battleState.starting}
-        <div class="battle-wrapper">
-            <Battle bind:save={saveContext.selected}/>
-        </div>
+        <Battle bind:save={saveContext.selected}/>
     {:else}
         <World bind:save={saveContext.selected} bind:saveContext/>
     {/if}
@@ -24,13 +22,13 @@
 
 <script lang="ts">
     import "@abraham/reflection";
-    import LoadSave from "./lib/saves/LoadSave.svelte";
-    import World from "./lib/World.svelte";
-    import Battle from "./lib/battle/Battle.svelte";
-    import PlayerCreation from "./lib/saves/PlayerCreation.svelte";
-    import {BattleState} from "./lib/js/battle/battle";
-    import {SaveContext} from "./lib/js/saves/saves";
-    import {BATTLE_STATE} from "./lib/js/const";
+    import LoadSave from "./components/saves/LoadSave.svelte";
+    import World from "./components/World.svelte";
+    import Battle from "./components/battle/Battle.svelte";
+    import PlayerCreation from "./components/saves/PlayerCreation.svelte";
+    import {BattleState} from "./js/battle/battle";
+    import {SaveContext} from "./js/saves/saves";
+    import {BATTLE_STATE} from "./js/const";
     import {onMount} from "svelte";
 
     /**
@@ -41,18 +39,11 @@
     // TODO : should be in the World component (battle fade)
     let battling: boolean;
     let battleState: BattleState | undefined;
-    let endingBattle = false;
 
     let rotate = false;
 
     BATTLE_STATE.subscribe(value => {
         battleState = value.state;
-        if (value.state && value.state.ending) {
-            endingBattle = true;
-            setTimeout(() => {
-                endingBattle = false;
-            }, 4000);
-        }
     });
 
     // Avoid IOS zoom on double tap
@@ -137,35 +128,5 @@
       width: 100dvw;
     }
   }
-
-  .battle-wrapper {
-    z-index: 1;
-    width: auto;
-    max-width: 100dvh;
-    height: 100dvh;
-    overflow: hidden;
-    position: relative;
-    margin: auto;
-  }
-
-  @media screen and (orientation: landscape) {
-    .battle-wrapper {
-      width: 100dvw;
-      max-width: 100dvw;
-      height: 100dvh;
-      overflow: hidden;
-    }
-  }
-
-  @media screen and (orientation: landscape) and (min-width: 1680px) {
-    .battle-wrapper {
-      width: auto;
-      max-width: 1024px;
-      height: 100dvh;
-      overflow: hidden;
-    }
-
-  }
-
 
 </style>
