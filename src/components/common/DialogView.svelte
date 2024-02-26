@@ -1,11 +1,13 @@
 <div class="dialog">
     <div class="dialog-content">
-        <div class="dialog-text animate" bind:this={text}>
+        <div class="dialog-text" class:animate={animate} bind:this={text}>
             <div>{current}</div>
         </div>
-        <div class="dialog-buttons">
-            <button on:click={() => next()}>OK</button>
-        </div>
+        {#if animate}
+            <div class="dialog-buttons">
+                <button on:click={() => next()}>OK</button>
+            </div>
+        {/if}
     </div>
 </div>
 
@@ -17,24 +19,24 @@
 
     export let context: WorldContext;
     export let dialog: Dialog;
+
+    export let animate: boolean = true;
     export let text: HTMLDivElement;
 
-    let current = dialog?.current.text || '';
+    $:current = dialog?.current.text || '';
 
 
     function next() {
         if (dialog?.next()) {
             text.classList.remove("animate");
-            current = '';
             setTimeout(() => {
-                current = dialog?.current?.text || '';
-                text.classList.add("animate");
+                if(animate) text.classList.add("animate");
             }, 100);
         }
     }
 
     const listener = (e: KeyboardEvent) => {
-        if (e.key === "Enter") {
+        if (e.key === "Enter" && animate) {
             next();
         }
     };
@@ -76,22 +78,13 @@
         display: inline-block;
 
         &.animate div {
+          border-right: .15em solid orange;
           animation: typing 1s steps(20, end) forwards, blink-caret .5s step-end infinite;
         }
 
         div {
           overflow: hidden;
-          border-right: .15em solid orange;
           white-space: nowrap;
-
-
-          /*overflow: hidden;
-          border-right: .15em solid orange;
-          white-space: nowrap;
-          letter-spacing: .15em;
-          animation: typing 3.5s steps(30, end),
-          blink-caret .5s step-end infinite;
-          width: fit-content;*/
         }
       }
 

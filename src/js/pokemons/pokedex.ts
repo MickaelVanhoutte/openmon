@@ -502,7 +502,7 @@ export class PokemonInstance extends PokedexEntry {
     public moves: MoveInstance[] = [];
     public ivs: Stats = new Stats();
     public evs: Stats = new Stats();
-    public nature: Nature; // TODO
+    public nature: Nature;
     public gender: 'male' | 'female' | 'unknown';
     public heldItem: any = {}; // TODO
 
@@ -546,17 +546,16 @@ export class PokemonInstance extends PokedexEntry {
             // keep currentStats
             this.evs = fromInstance.evs;
             this.ivs = fromInstance.ivs;
-            this.updateCurrentStats();
+            this.nature = fromInstance.nature;
             this.level = fromInstance.level;
             this.currentXp = fromInstance.currentXp;
             this.currentHp = fromInstance.currentHp;
+            this.updateCurrentStats();
             this.moves = fromInstance.moves;
             this.isShiny = fromInstance.isShiny;
             this.gender = fromInstance.gender;
             this.evsToDistribute = fromInstance.evsToDistribute;
             this.heldItem = fromInstance.heldItem;
-            this.nature = fromInstance.nature;
-
         } else {
             this.currentAbility = this.abilities[Math.floor(Math.random() * this.abilities.length)];
             this.evs = new Stats();
@@ -706,7 +705,7 @@ export class PokemonInstance extends PokedexEntry {
         let newMoves = this.moves.filter((move) => move.level === this.level);
     }
 
-    private evolve(id: number, future: PokedexSearchResult) {
+    evolve(future: PokedexSearchResult) {
         if (future.found && future.result) {
             Object.assign(this, new PokemonInstance(future.result, this.level, this.nature, this));
             this.checkForNewMoves();
