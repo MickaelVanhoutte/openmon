@@ -345,7 +345,7 @@
           img {
             transition-delay: .2s;
             width: auto;
-            height: 80%;
+            max-height: 80%;
             margin: auto;
           }
         }

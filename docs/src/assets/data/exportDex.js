@@ -47,15 +47,17 @@ function exportPokemons() {
 
         if (secondSource && thirdSource && fourthSource) {
             let evolutions = secondSource.evolution?.next?.length ? secondSource.evolution?.next?.filter(evo => evo[0] <= 251).map((evo) => {
-                if(evo[0]?.includes('Level')){
+                if(evo[1]?.includes('Level')){
                     return {
-                        id: evo[0],
-                        level:  Number.parseInt(evo[1]?.replace('Level ', '') || '40')[1]
+                        id: parseInt(evo[0]),
+                        level:  Number.parseInt(evo[1]?.replace('Level ', '') || '40'),
+                        method: 'level'
                     }
                 }else{
                     return {
-                        id: evo[0],
-                        level: 40
+                        id: parseInt(evo[0]),
+                        level:null,
+                        method: evo[1]
                     }
                 }
             }) : [];

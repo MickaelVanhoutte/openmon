@@ -125,7 +125,7 @@
 
         img {
           width: auto;
-          height: 80%;
+          max-height: 80%;
           margin: auto;
         }
       }

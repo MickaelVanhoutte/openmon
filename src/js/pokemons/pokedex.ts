@@ -520,9 +520,9 @@ export class PokemonInstance extends PokedexEntry {
         return this.evs.attack + this.evs.defense + this.evs.specialAttack + this.evs.specialDefense + this.evs.speed + this.evs.hp;
     }
 
-   /* get availableMoves(): Move[] {
-        return POKEDEX.findById(this.id)?.result?.moves?.filter((move) => move.level <= this.level) || [];
-    }*/
+    /* get availableMoves(): Move[] {
+         return POKEDEX.findById(this.id)?.result?.moves?.filter((move) => move.level <= this.level) || [];
+     }*/
 
     get battleStats(): Stats {
         return new Stats(
@@ -620,8 +620,8 @@ export class PokemonInstance extends PokedexEntry {
     }
 
 
-    public canEvolve(){
-        return this.evolution?.filter((evo) => evo.level === this.level)?.length > 0;
+    public canEvolve() {
+        return this.evolution?.filter((evo) => evo.method === 'level' && evo.level <= this.level)?.length > 0;
     }
 
     public removeHp(hp: number) {
@@ -707,11 +707,12 @@ export class PokemonInstance extends PokedexEntry {
         let newMoves = this.moves.filter((move) => move.level === this.level);
     }
 
-    evolve(future: PokedexSearchResult) {
+    evolve(future: PokedexSearchResult): PokemonInstance {
         if (future.found && future.result) {
-            Object.assign(this, new PokemonInstance(future.result, this.level, this.nature, this));
-            this.checkForNewMoves();
+            return new PokemonInstance(future.result, this.level, this.nature, this);
+            //this.checkForNewMoves();
         }
+        return this
     }
 
     public updateCurrentStats() {
