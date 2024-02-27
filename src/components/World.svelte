@@ -115,7 +115,7 @@
         let now = Date.now();
         let elapsed = now - mainLoopContext.then;
 
-        if (elapsed > mainLoopContext.fpsInterval && mainLoopContext?.map && !battleState?.ending && !mainLoopContext.displayChangingMap) {
+        if (elapsed > mainLoopContext.fpsInterval && mainLoopContext?.map && !battleState?.ending && !mainLoopContext.displayChangingMap && evolutions?.length === 0) {
             mainLoopContext.then = now - (elapsed % mainLoopContext.fpsInterval);
 
             ctx.fillStyle = 'black';

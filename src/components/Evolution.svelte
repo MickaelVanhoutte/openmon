@@ -1,10 +1,8 @@
-<div class="evolution">
+<div class="evolution" in:fade="{{duration: 500, delay: 2000}}" out:fade="{{duration: 500, delay: 2000}}">
 
     <div class="evolve">
-        <img src={current} alt="evolve" class="pokemon" class:current={mainCurrent} bind:this={currentImg}
-             style="animation: {mainAnimation};"/>
-        <img src={next} alt="evolve" class="pokemon" class:current={nextCurrent} bind:this={nextImg}
-             style="animation: {nextAnimation};"/>
+        <img src="" alt="evolve" class="pokemon" bind:this={currentImg}/>
+        <img src="" alt="evolve" class="pokemon" bind:this={nextImg}/>
     </div>
     <div class="circle-wrap" bind:this={circlesWrap}>
         <div class="circle c1"></div>
@@ -43,7 +41,6 @@
 </div>
 
 
-
 <script lang="ts">
     import type {PokemonInstance} from "../js/pokemons/pokedex";
     import {POKEDEX} from "../js/const";
@@ -51,10 +48,9 @@
     import type {WorldContext} from "../js/common/context";
     import DialogView from "./common/DialogView.svelte";
     import {Dialog, Message} from "../js/common/scripts";
+    import {fade} from 'svelte/transition';
 
     export let context: WorldContext;
-
-    let evolve: PokemonInstance = context?.player?.monsters?.find(p => p.canEvolve());
 
     export let currentImg: HTMLImageElement;
     export let nextImg: HTMLImageElement;
@@ -62,47 +58,98 @@
     export let circlesWrap: HTMLDivElement;
     export let bubblesWrap: HTMLDivElement;
 
-    let current = evolve?.sprites && evolve?.sprites[evolve?.gender]?.front?.frame1 || evolve?.sprites?.male?.front?.frame1;
-    let nextPoke = POKEDEX.findById(parseInt(evolve?.evolution[0]?.id+'' || '0'))?.result;
-    let next = nextPoke?.sprites && nextPoke?.sprites[evolve?.gender]?.front?.frame1 || nextPoke?.sprites?.male?.front?.frame1
-    const animationTime = 12;
 
-    let dialog = new Dialog([
-        new Message(`What ? ${evolve?.name} is evolving!`, 'System'),
-    ]);
+    const animationTime = 13;
+
     let animateD = false;
+    let dialog: Dialog;
 
-    let timedout = false;
-    $: mainAnimation = timedout ? `evolve-out ${animationTime}s forwards` : '';
-    $: nextAnimation = timedout ? `evolve-in ${animationTime}s forwards` : '';
-    $: mainCurrent = timedout ? '' : 'current';
-    $: nextCurrent = timedout ? 'current' : '';
-
-    function evolveAnimation() {
+    let currentSprite: string | undefined;
+    let nextSprite: string | undefined;
 
 
-        let circles = [...circlesWrap.children];
-        let bubbles = [...bubblesWrap.children];
+    function evolveAnimation(poke?: PokemonInstance) {
+        if (poke) {
 
-        timedout = false;
+
+            let circles = [...circlesWrap.children];
+            let bubbles = [...bubblesWrap.children];
+
+
+            currentSprite = poke?.sprites && poke?.sprites[poke?.gender]?.front?.frame1 || poke?.sprites?.male?.front?.frame1;
+            let nextResult = poke?.evolution[0]?.id && POKEDEX.findById(poke?.evolution[0]?.id)?.result;
+            nextSprite = nextResult && nextResult?.sprites && nextResult?.sprites[poke?.gender]?.front?.frame1 || nextResult?.sprites?.male?.front?.frame1
+
+
+            console.log(`evolving ${poke.name} into ${nextResult?.name}`)
+
+            if (currentSprite && nextSprite) {
+                console.log('setting classes')
+
+                currentImg.src = currentSprite;
+                currentImg.classList.remove('current');
+                currentImg.style.animation = `evolve-out ${animationTime}s forwards`;
+                nextImg.src = nextSprite;
+                nextImg.classList.add('current');
+                nextImg.style.animation = `evolve-in ${animationTime}s forwards`;
+            }
+
+            circles.map((el, i) => el.style.animation = `tunnel ${animationTime}s linear ${i * .1}s`);
+            bubbles.map((el, i) => el.style.animation = `bubble .4s reverse ${(animationTime - 2) + i * .05}s`);
+
+
+            dialog = new Dialog([
+                new Message(`What ? ${poke?.name} is evolving!`, 'System'),
+            ]);
+
+            setTimeout(() => {
+                dialog = new Dialog(
+                    [new Message(`Congratulations! Your ${poke?.name} has evolved into ${nextResult?.name}!`, 'System')]
+                );
+                context.player.monsters[context.player.monsters.indexOf(poke)] = poke.evolve(POKEDEX.findById(parseInt(poke?.evolution[0]?.id + '' || '0')));
+
+                setTimeout(() => {
+                    circles.map((el, i) => el.style.animation = ``);
+                    bubbles.map((el, i) => el.style.animation = ``);
+
+                    currentImg.style.animation = '';
+                    currentImg.classList.add('current');
+                    currentImg.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs=";
+                    nextImg.style.animation = '';
+                    nextImg.classList.remove('current');
+                    nextImg.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs=";
+                }, 2000);
+
+            }, 500 + animationTime * 1000);
+
+
+        } else {
+            return;
+        }
+
+    }
+
+    async function iteration(toEvolve: PokemonInstance[]) {
+
+        let i = 1;
+        evolveAnimation(toEvolve[0])
         setTimeout(() => {
-            dialog = new Dialog(
-                [new Message(`Congratulations! Your ${evolve?.name} has evolved into ${nextPoke?.name}!`, 'System')]
-            );
-            evolve.evolve(POKEDEX.findById(parseInt(evolve?.evolution[0]?.id +'' || '0')));
-        }, 500 + animationTime * 1000);
+        }, 16000);
+        if(toEvolve.length === 1) return;
+        const interval = setInterval(() => {
 
-        timedout = true
-        circles.map((el, i) => el.style.animation = `tunnel ${animationTime}s linear ${i * .1}s`);
-        bubbles.map((el, i) => el.style.animation = `bubble .4s reverse ${(animationTime - 2) + i * .05}s`);
+            if (i === toEvolve.length) {
+                clearInterval(interval);
+            } else {
+                console.log(i);
+                evolveAnimation(toEvolve[i++])
+            }
+        }, 16000);
 
     }
 
     onMount(() => {
-
-        setTimeout(() => {
-            evolveAnimation();
-        }, 1000);
+        iteration(context.player.monsters.filter(p => p.canEvolve()));
     });
 </script>
 
@@ -206,7 +253,7 @@
       img.pokemon {
 
         width: auto;
-        height: 60%;
+        max-height: 60%;
         display: block;
         margin: auto;
         user-select: none;
@@ -259,7 +306,7 @@
       .bubble {
         position: absolute;
         left: 50%;
-        top: 10%;
+        top: 6%;
         opacity: 0;
         border-radius: 50%;
       }
