@@ -1,6 +1,6 @@
 <div class="skills" style="--zIndex:{zIndex}"
      in:slide="{{duration: 500, delay: 100, axis: 'x', easing: backInOut}}" out:fade>
-    <div class="img-skillDesc">
+    <div class="img-skillDesc" class:enlarge={moveEdit}>
         <div class="img-wrapper">
 
             <div class="img-bg">
@@ -47,13 +47,77 @@
     </div>
 </div>
 
+<div class="moveEdit" style="--zIndex:{zIndex+1}" class:open={moveEdit}>
+
+    <div class="all-moves">
+        <div class="__wrapper" id="sourceMoves"
+             use:dndzone={{ items: allMoves, dropFromOthersDisabled: true, flipDurationMs: flipDurationMs, }}>
+            {#each allMoves as move, index (move.id)}
+                <div class="move draggable"
+                     animate:flip={{duration:flipDurationMs}}
+                >
+                                <span style="--bg:{typeChart[move.type].color}"
+                                      class="type">{move.type.toUpperCase()}</span>
+
+                    <div class="flex-row">
+                        <div class="flex-col">
+                            <span class="name">{move.name}</span>
+                            <span>{move.category === 'no-damage' ? 'status' : move.category }</span>
+                        </div>
+
+                        <div class="flex-col">
+                            <span>power {move.power ? move.power : '/'}</span>
+                            <span class="pp">PP {move.pp}</span>
+                        </div>
+                    </div>
+                </div>
+            {/each}
+        </div>
+    </div>
+
+    <div class="monsterMoves">
+        <div class="__wrapper" id="targetMoves"
+             use:dndzone={{ items: monstMoves, flipDurationMs: flipDurationMs, dragDisabled: true, dropFromOthersDisabled: monstMoves.length === 4}}
+             on:consider={onConsider} on:finalize={handleDndFinalize}>
+            {#each monstMoves as move, index (move.id)}
+                <div class="move" animate:flip={{duration:flipDurationMs}}>
+                <span style="--bg:{typeChart[move.type].color}"
+                      class="type">{move.type.toUpperCase()}</span>
+
+                    <div class="flex-row">
+                        <div class="flex-col">
+                            <span class="name">{move.name}</span>
+                            <span>{move.category === 'no-damage' ? 'status' : move.category }</span>
+                        </div>
+
+                        <div class="flex-col">
+                            <span>power {move.power ? move.power : '/'}</span>
+                            <span class="pp">PP {move.currentPp}/{move.pp}</span>
+                        </div>
+                    </div>
+                    <button class="remove" on:click={()=>remove(index)}>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM12 10.5858L9.17157 7.75736L7.75736 9.17157L10.5858 12L7.75736 14.8284L9.17157 16.2426L12 13.4142L14.8284 16.2426L16.2426 14.8284L13.4142 12L16.2426 9.17157L14.8284 7.75736L12 10.5858Z"></path>
+                        </svg>
+                    </button>
+                </div>
+            {/each}
+        </div>
+    </div>
+</div>
+
 <script lang="ts">
 
     import {typeChart} from "../../../js/battle/battle";
     import {SelectedSave} from "../../../js/saves/saves";
     import {slide, fade} from 'svelte/transition';
     import {backInOut} from "svelte/easing";
-    import {PokemonInstance} from "../../../js/pokemons/pokedex";
+    import {MoveInstance, PokemonInstance} from "../../../js/pokemons/pokedex";
+    import {POKEDEX} from "../../../js/const";
+    import {dndzone} from "svelte-dnd-action";
+    import {flip} from 'svelte/animate';
+
+    const flipDurationMs = 200;
 
     export let save: SelectedSave;
     export let selected: number
@@ -62,7 +126,7 @@
     export let selectedMove: number;
     export let pkmnList: PokemonInstance[];
 
-    let moveEdit = false;
+    export let moveEdit: boolean;
 
     let mechanicRegex = /{[^}]*}/g;
 
@@ -70,6 +134,47 @@
     $:description = selectedMons.moves[selectedMove].description
         ?.replace("$effect_chance", selectedMons?.moves[selectedMove]?.effectChance)
         ?.replace(mechanicRegex, "");
+
+    let monstMoves = [];
+    let allMoves = [];
+    $: {
+        if (selectedMons) {
+            monstMoves = selectedMons.moves;
+            let tmp = POKEDEX.findById(selectedMons.id)?.result?.moves?.filter(move => move.level <= selectedMons.level);
+            let tmpUnique = [...new Map(tmp.map(item => [item.id, item])).values()];
+            if (!allMoves || allMoves?.length !== tmpUnique?.length){
+                console.log('update')
+                allMoves = [...tmpUnique];
+            }
+        }
+    }
+
+    //$:allMoves = selectedMons && POKEDEX.findById(selectedMons.id)?.result?.moves?.filter(move => move.level <= selectedMons.level).filter(move => !selectedMons.moves.find(m => m.id === move.id));
+    //$:currentMoves = selectedMons.moves;
+
+    function handleDndConsider(e) {
+        //items = e.detail.items;
+        //console.log(e);
+    }
+
+    // TODO add only if length < 4 -> remove first
+    function handleDndFinalize(e) {
+        // items = e.detail.items;
+        if (e.target.id === "targetMoves" && monstMoves.length < 4) {
+            console.log(e);
+            monstMoves = e.detail.items
+        }
+
+    }
+
+    function onConsider(e) {
+        console.log(e);
+    }
+
+    function remove(index) {
+        if (monstMoves?.length === 1) return;
+        monstMoves = monstMoves.filter((_, i) => i !== index);
+    }
 
 </script>
 
@@ -93,6 +198,19 @@
       width: 40%;
       height: 100%;
 
+      &.enlarge {
+
+        .skillDesc {
+          height: 0;
+          opacity: 0;
+          padding: 0;
+        }
+
+        .img-wrapper {
+          height: 100%;
+        }
+      }
+
       .img-wrapper {
         height: 50%;
         width: 100%;
@@ -100,6 +218,8 @@
         flex-direction: column;
         background-color: rgba(44, 56, 69, 0.65);
         justify-content: space-between;
+
+        transition: all 0.5s ease-in-out;
 
         .img-bg {
           display: flex;
@@ -190,71 +310,163 @@
           }
         }
 
+      }
+    }
+
+  }
+
+  .moveEdit {
+    background: rgba(84, 80, 108, .85);
+    height: calc(100% - 46px);
+    width: 100%;
+    box-sizing: border-box;
+    position: absolute;
+
+    z-index: var(--zIndex, 11);
+    left: 0;
+    bottom: -100%;
+    transition: bottom 0.5s ease-in-out;
+
+    display: flex;
+    flex-direction: row;
+    gap: 10%;
+    text-shadow: 1px 1px 1px black;
+
+    &.open {
+      bottom: 0;
+    }
+
+    .all-moves {
+      width: 40%;
+      height: 100%;
+      box-sizing: border-box;
+      padding: 1%;
+      background-color: rgba(44, 56, 69, 0.3);
+
+      .__wrapper {
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        gap: 4%;
+        padding: 1% 3%;
+        height: 100%;
+        box-sizing: border-box;
+        align-items: flex-end;
+        overflow-y: auto;
+
+        scrollbar-width: thin;
+        scrollbar-color: #68c0c8 #0e2742f0;
+
         .move {
-          background: rgb(220, 231, 233);
-          background: linear-gradient(180deg, rgba(220, 231, 233, 1) 0%, rgba(255, 255, 255, 1) 50%, rgba(220, 231, 233, 0.713344712885154) 100%);
-          color: #54506c;
-          padding: 12px;
-          border-radius: 8px;
-          position: relative;
-          height: calc((100% - 4 * 4%) / 4);
-          box-sizing: border-box;
-          text-shadow: none;
-          width: 80%;
+          width: 100%;
+          height: calc((100dvh - 46px) * .21);
+          font-size: 22px;
 
-          .flex-row {
-            gap: 10%;
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: center;
-            height: 100%;
-            width: 100%;
-            padding-left: 20%;
-            box-sizing: border-box;
-          }
-
-          .flex-col {
-            display: flex;
-            flex-direction: column;
-          }
-
-          &.selected {
-            border: 3px solid #54506c;
-          }
-
-          .type {
-            color: white;
-            text-shadow: 1px 1px 1px black;
-            background-color: var(--bg);
-            border-radius: 8px;
-            padding: 4px;
-            font-size: 26px;
-            position: absolute;
-            top: -4px;
-            left: -10px;
-          }
-
-          .name {
-            font-size: 26px;
-            text-transform: uppercase;
-            /*position: absolute;
-            left: 50%;
-            top: 10%;
-            transform: translateX(-50%);*/
-          }
-
-          .pp {
-            font-size: 26px;
-            text-transform: uppercase;
-            /* position: absolute;
-             right: 2%;
-             bottom: 10%;*/
+          .name, .pp, .type {
+            font-size: 22px;
           }
         }
       }
     }
 
+    .monsterMoves {
+      width: 50%;
+      height: 100%;
+      box-sizing: border-box;
+      padding: 1%;
+      background-color: rgba(44, 56, 69, 0.3);
+
+      .__wrapper {
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        gap: 4%;
+        padding: 1% 3%;
+        height: 100%;
+        box-sizing: border-box;
+        align-items: flex-end;
+
+        .move {
+          width: 100%;
+          height: calc((100dvh - 46px) * .21);
+          font-size: 22px;
+
+          .name, .pp, .type {
+            font-size: 22px;
+          }
+        }
+
+        .remove {
+          position: absolute;
+          top: -10px;
+          right: -10px;
+          width: 30px;
+          height: 30px;
+          padding: 0;
+          border: none;
+          background: rgb(220, 231, 233);
+          color: #bd4040;
+          border-radius: 50%;
+        }
+      }
+    }
   }
+
+  .move {
+    background: rgb(220, 231, 233);
+    background: linear-gradient(180deg, rgba(220, 231, 233, 1) 0%, rgba(255, 255, 255, 1) 50%, rgba(220, 231, 233, 0.713344712885154) 100%);
+    color: #54506c;
+    padding: 12px;
+    border-radius: 8px;
+    position: relative;
+    height: calc((100% - 4 * 4%) / 4);
+    box-sizing: border-box;
+    text-shadow: none;
+    width: 80%;
+
+    .flex-row {
+      gap: 6%;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      height: 100%;
+      width: 100%;
+      padding-left: 20%;
+      box-sizing: border-box;
+    }
+
+    .flex-col {
+      display: flex;
+      flex-direction: column;
+    }
+
+    &.selected {
+      border: 3px solid #54506c;
+    }
+
+    .type {
+      color: white;
+      text-shadow: 1px 1px 1px black;
+      background-color: var(--bg);
+      border-radius: 8px;
+      padding: 4px;
+      font-size: 22px;
+      position: absolute;
+      top: -4px;
+      left: -10px;
+    }
+
+    .name {
+      font-size: 22px;
+      text-transform: uppercase;
+    }
+
+    .pp {
+      font-size: 22px;
+      text-transform: uppercase;
+    }
+  }
+
 
 </style>

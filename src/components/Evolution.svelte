@@ -71,17 +71,12 @@
     function evolveAnimation(poke?: PokemonInstance) {
         if (poke) {
 
-
             let circles = [...circlesWrap.children];
             let bubbles = [...bubblesWrap.children];
-
 
             currentSprite = poke?.sprites && poke?.sprites[poke?.gender]?.front?.frame1 || poke?.sprites?.male?.front?.frame1;
             let nextResult = poke?.evolution[0]?.id && POKEDEX.findById(poke?.evolution[0]?.id)?.result;
             nextSprite = nextResult && nextResult?.sprites && nextResult?.sprites[poke?.gender]?.front?.frame1 || nextResult?.sprites?.male?.front?.frame1
-
-
-            console.log(`evolving ${poke.name} into ${nextResult?.name}`)
 
             if (currentSprite && nextSprite) {
                 console.log('setting classes')
@@ -122,7 +117,6 @@
 
             }, 500 + animationTime * 1000);
 
-
         } else {
             return;
         }
@@ -141,11 +135,9 @@
             if (i === toEvolve.length) {
                 clearInterval(interval);
             } else {
-                console.log(i);
                 evolveAnimation(toEvolve[i++])
             }
         }, 16000);
-
     }
 
     onMount(() => {
