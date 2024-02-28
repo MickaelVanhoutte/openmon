@@ -71,6 +71,7 @@ function exportPokemons() {
                 baseXp: thirdSource.base_experience,
                 moves: moves.map((move) => {
                     return {
+                        id: move.move.id,
                         name: move.move.name,
                         type: move.move.type,
                         category: move.move.category,

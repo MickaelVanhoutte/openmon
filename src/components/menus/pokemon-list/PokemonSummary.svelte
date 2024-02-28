@@ -41,7 +41,7 @@
                           bind:pkmnList
                           bind:zIndex={zIndexNext}/>
         {:else if tab === 2}
-            <PokemonSkills bind:save bind:selected bind:selectedMove
+            <PokemonSkills bind:save bind:selected bind:selectedMove bind:moveEdit
                            bind:pkmnList
                            bind:zIndex={zIndexNext}/>
         {/if}
@@ -64,12 +64,14 @@
     export let openSummary: boolean;
     export let selectedMove = 0;
     export let statEdit = false;
+
+    export let moveEdit = false;
     export let isBattle: boolean;
 
     export let pkmnList: PokemonInstance[];
 
     export let zIndex;
-    $:zIndexNext = zIndex+1;
+    $:zIndexNext = zIndex + 1;
 
     let tab = 0;
 
@@ -86,12 +88,15 @@
         if (statEdit) {
             statEdit = false;
             return;
+        } else if (moveEdit) {
+            moveEdit = false;
+            return;
+        } else {
+            openSummary = false;
         }
-        openSummary = false;
     }
 
     const listener = (e: KeyboardEvent) => {
-        console.log(openSummary, e.key, tab);
         if (openSummary) {
             if (e.key === "ArrowRight") {
                 tab = (tab + 1) % 3;

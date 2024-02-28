@@ -402,7 +402,6 @@
           padding: 2%;
           box-sizing: border-box;
 
-          //todo scrolllbar
           scrollbar-width: thin;
           scrollbar-color: #68c0c8 #0e2742f0;
 

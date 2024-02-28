@@ -84,6 +84,7 @@ function exportMoves() {
                 movesAssociationArray.push({
                     pokemon_id: move.pokemon_id,
                     move: {
+                        id: moveFound.id,
                         name: moveFound.identifier,
                         type: typeById[moveFound.type_id],
                         category: moveFound.damage_class_id === 1 ? 'no-damage' : moveFound.damage_class_id === 2 ? 'physical' : 'special',
