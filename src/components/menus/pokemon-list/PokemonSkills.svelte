@@ -47,64 +47,10 @@
     </div>
 </div>
 
-<div class="moveEdit" style="--zIndex:{zIndex+1}" class:open={moveEdit}>
+{#if moveEdit}
+    <PokemonSkillsEdit bind:selectedMons bind:moveEdit bind:zIndex={zIndexNext}/>
+{/if}
 
-    <div class="all-moves">
-        <div class="__wrapper" id="sourceMoves"
-             use:dndzone={{ items: allMoves, dropFromOthersDisabled: true, flipDurationMs: flipDurationMs, }}>
-            {#each allMoves as move, index (move.id)}
-                <div class="move draggable"
-                     animate:flip={{duration:flipDurationMs}}
-                >
-                                <span style="--bg:{typeChart[move.type].color}"
-                                      class="type">{move.type.toUpperCase()}</span>
-
-                    <div class="flex-row">
-                        <div class="flex-col">
-                            <span class="name">{move.name}</span>
-                            <span>{move.category === 'no-damage' ? 'status' : move.category }</span>
-                        </div>
-
-                        <div class="flex-col">
-                            <span>power {move.power ? move.power : '/'}</span>
-                            <span class="pp">PP {move.pp}</span>
-                        </div>
-                    </div>
-                </div>
-            {/each}
-        </div>
-    </div>
-
-    <div class="monsterMoves">
-        <div class="__wrapper" id="targetMoves"
-             use:dndzone={{ items: monstMoves, flipDurationMs: flipDurationMs, dragDisabled: true, dropFromOthersDisabled: monstMoves.length === 4}}
-             on:consider={onConsider} on:finalize={handleDndFinalize}>
-            {#each monstMoves as move, index (move.id)}
-                <div class="move" animate:flip={{duration:flipDurationMs}}>
-                <span style="--bg:{typeChart[move.type].color}"
-                      class="type">{move.type.toUpperCase()}</span>
-
-                    <div class="flex-row">
-                        <div class="flex-col">
-                            <span class="name">{move.name}</span>
-                            <span>{move.category === 'no-damage' ? 'status' : move.category }</span>
-                        </div>
-
-                        <div class="flex-col">
-                            <span>power {move.power ? move.power : '/'}</span>
-                            <span class="pp">PP {move.currentPp}/{move.pp}</span>
-                        </div>
-                    </div>
-                    <button class="remove" on:click={()=>remove(index)}>
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM12 10.5858L9.17157 7.75736L7.75736 9.17157L10.5858 12L7.75736 14.8284L9.17157 16.2426L12 13.4142L14.8284 16.2426L16.2426 14.8284L13.4142 12L16.2426 9.17157L14.8284 7.75736L12 10.5858Z"></path>
-                        </svg>
-                    </button>
-                </div>
-            {/each}
-        </div>
-    </div>
-</div>
 
 <script lang="ts">
 
@@ -114,8 +60,8 @@
     import {backInOut} from "svelte/easing";
     import {MoveInstance, PokemonInstance} from "../../../js/pokemons/pokedex";
     import {POKEDEX} from "../../../js/const";
-    import {dndzone} from "svelte-dnd-action";
-    import {flip} from 'svelte/animate';
+    import { dropzone, draggable } from '../../../js/common/dnd';
+    import PokemonSkillsEdit from "./PokemonSkillsEdit.svelte";
 
     const flipDurationMs = 200;
 
@@ -123,6 +69,7 @@
     export let selected: number
 
     export let zIndex;
+    $:zIndexNext = zIndex + 1;
     export let selectedMove: number;
     export let pkmnList: PokemonInstance[];
 
@@ -136,15 +83,17 @@
         ?.replace(mechanicRegex, "");
 
     let monstMoves = [];
+    $:monstMoveIds = monstMoves.map(move => move.id);
     let allMoves = [];
     $: {
         if (selectedMons) {
-            monstMoves = selectedMons.moves;
-            let tmp = POKEDEX.findById(selectedMons.id)?.result?.moves?.filter(move => move.level <= selectedMons.level);
+
+            let tmp = POKEDEX.findById(selectedMons.id)?.result?.moves?.filter(move => move.level <= selectedMons.level).filter(move => !selectedMons.moves.find(m => m.id === move.id));
             let tmpUnique = [...new Map(tmp.map(item => [item.id, item])).values()];
-            if (!allMoves || allMoves?.length !== tmpUnique?.length){
+            if (!allMoves || allMoves?.length !== tmpUnique?.length) {
                 console.log('update')
                 allMoves = [...tmpUnique];
+                monstMoves = [...selectedMons.moves];
             }
         }
     }
@@ -152,29 +101,9 @@
     //$:allMoves = selectedMons && POKEDEX.findById(selectedMons.id)?.result?.moves?.filter(move => move.level <= selectedMons.level).filter(move => !selectedMons.moves.find(m => m.id === move.id));
     //$:currentMoves = selectedMons.moves;
 
-    function handleDndConsider(e) {
-        //items = e.detail.items;
-        //console.log(e);
-    }
 
-    // TODO add only if length < 4 -> remove first
-    function handleDndFinalize(e) {
-        // items = e.detail.items;
-        if (e.target.id === "targetMoves" && monstMoves.length < 4) {
-            console.log(e);
-            monstMoves = e.detail.items
-        }
 
-    }
 
-    function onConsider(e) {
-        console.log(e);
-    }
-
-    function remove(index) {
-        if (monstMoves?.length === 1) return;
-        monstMoves = monstMoves.filter((_, i) => i !== index);
-    }
 
 </script>
 
@@ -361,6 +290,11 @@
           width: 100%;
           height: calc((100dvh - 46px) * .21);
           font-size: 22px;
+
+          &.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+          }
 
           .name, .pp, .type {
             font-size: 22px;
