@@ -26,7 +26,7 @@
     <div class="joysticks" bind:this={joysticks}></div>
 
     <!-- unused for now (keybooard/mouse or touch is enough -->
-    <!--<div class="ab-buttons" bind:this={abButtonsC}></div>-->
+    <div class="ab-buttons" bind:this={abButtonsC}></div>
 </div>
 
 <script lang="ts">
@@ -517,14 +517,14 @@
         window.addEventListener('keyup', keyUpListener);
         initContext();
 
-        /*
-        unused for now (keybooard/mouse or touch is enough
         abButtons = new ABButtons(abButtonsC, (a, b) => {
-            keys.a.pressed = a;
+           /* keys.a.pressed = a;
             keys.b.pressed = b;
-            console.log('a', a, 'b', b);
+            console.log('a', a, 'b', b);*/
+            if(!mainLoopContext.playingScript){
+                mainLoopContext.running = b;
+            }
         });
-        */
 
         joystick = new JoystickController({
             dynamicPosition: true,
