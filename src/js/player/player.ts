@@ -11,7 +11,6 @@ export class Character {
     public bag = new Bag();
     public lvl: number = 1;
     public moving: boolean = false;
-    public running: boolean = false;
     public direction: 'up' | 'down' | 'left' | 'right' = 'down';
 
     constructor(spriteId: number, name: string, gender: 'MALE' | 'FEMALE', monsters: PokemonInstance[], bag: Bag, lvl: number, moving: boolean, direction: 'up' | 'down' | 'left' | 'right') {

@@ -79,7 +79,7 @@
     let mainLoopContext = new WorldContext(save.player);
 
     /*
-    Positions (put that in context ?
+    Positions (put that in context ?)
      */
     let playerPosition: Position = new Position();
     let playerPositionInPx: Position = new Position();
@@ -270,8 +270,13 @@
     }
 
     function move(): boolean {
+        const deltaX = targetPosition.x - playerPositionInPx.x;
+        const deltaY = targetPosition.y - playerPositionInPx.y;
+        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
         let direction = mainLoopContext.player.direction;
         let tmpSave = direction;
+
 
         let move = false;
         if (keys.down.pressed && lastKey.key === 'ArrowDown') {
@@ -290,6 +295,9 @@
             direction = 'right';
             move = true;
         }
+
+
+        move = move && distance < 16;
 
         if (move) {
 
@@ -332,8 +340,8 @@
         const deltaX = targetPosition.x - positionInPx.x;
         const deltaY = targetPosition.y - positionInPx.y;
         const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-        const speed = 0.45;
-        if (distance > 8) {
+        const speed = mainLoopContext.running ? mainLoopContext.run : mainLoopContext.walk;
+        if (distance > 6) {
             const easedDistance = easeInOutQuad(Math.min(1, distance / 5));
             // Interpolate between current and target positions with eased distance
             positionInPx.x += deltaX * easedDistance * speed;
@@ -424,10 +432,9 @@
                 case 'ArrowLeft' :
                     keys.left.pressed = false;
                     break;
-                /* case 'Shift':
-                     save.player.running = false;
-                     mainLoopContext.fpsInterval = 1000 / 10;
-                     break;*/
+                 case 'Shift':
+                     mainLoopContext.running = false;
+                     break;
             }
         }
     };
@@ -450,10 +457,9 @@
                     lastKey.key = 'ArrowLeft';
                     keys.left.pressed = true;
                     break;
-                /* case 'Shift':
-                     save.player.running = true;
-                     mainLoopContext.fpsInterval = 1000 / 24;
-                     break;*/
+                 case 'Shift':
+                     mainLoopContext.running = true;
+                     break;
                 case 'x':
                     mainLoopContext.debug = !mainLoopContext.debug;
                     break;
