@@ -190,6 +190,8 @@ const scripts: Script[] = [
     )*/
 ];
 
+//const npc1 = new NPC(1, 'NPC1', new SpriteFromSheet('src/assets/sprites/npc1.png', 32, 32), new Position(33, 34), 'down', scripts);
+
 export const start = OpenMap.fromScratch('src/assets/maps/start.png', 100, 60,
     collisions, battles, monsters,
     new Position(18, 52), new Position(0, 0),

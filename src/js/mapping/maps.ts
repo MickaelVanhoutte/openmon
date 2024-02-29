@@ -1,6 +1,7 @@
 import {Boundary, Jonction} from "./collisions";
 import {Position} from "../sprites/drawers";
 import {Script} from "../common/scripts";
+import type {NPC} from "../npc";
 
 export class OpenMap {
     public background: string;
@@ -25,6 +26,7 @@ export class OpenMap {
 
     public jonctions: Jonction[] = [];
 
+    public npcs?: NPC[] = [];
     public scripts?: Script[];
 
 
@@ -34,7 +36,7 @@ export class OpenMap {
                 playerMovedOffset: Position = new Position(),
                 levelRange: number[] = [1, 100],
                 jonctions: Jonction[] = [],
-                foreground?: string, battleTile?: number, collisionTile?: number, scripts?: Script[]) {
+                foreground?: string, battleTile?: number, collisionTile?: number, npcs?:NPC[], scripts?: Script[]) {
         this.background = background;
         this.foreground = foreground;
         this.playerInitialPosition = playerInitialPosition;
@@ -50,6 +52,7 @@ export class OpenMap {
         this.monsters = monsters;
         this.levelRange = levelRange;
         this.jonctions = jonctions;
+        this.npcs = npcs;
         this.scripts = scripts;
     }
 
@@ -58,7 +61,7 @@ export class OpenMap {
                               playerInitialPosition: Position = new Position(), playerMovedOffset: Position = new Position(),
                               levelRange: number[] = [1, 100],
                               jonctions: Jonction[] = [],
-                              foreground?: string, battleTile?: number, collisionTile?: number, scripts?: Script[]): OpenMap {
+                              foreground?: string, battleTile?: number, collisionTile?: number, npcs?:NPC[], scripts?: Script[]): OpenMap {
 
 
         return new OpenMap(
@@ -75,6 +78,7 @@ export class OpenMap {
             foreground,
             battleTile,
             collisionTile,
+            npcs,
             scripts
         )
     }
@@ -94,6 +98,7 @@ export class OpenMap {
             map?.foreground,
             map?.battleTile,
             map?.collisionTile,
+            map?.npcs,
             map?.scripts
         )
     }
