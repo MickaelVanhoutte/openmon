@@ -29,7 +29,6 @@
     "chart.js": "^4.4.1",
     "joystick-controller": "^1.0.15",
     "svelte-dnd-action": "^0.9.40",
-    "svelte-sortable-flat-list-view": "^1.0.0",
     "tsyringe": "^4.8.0"
   }
 }
