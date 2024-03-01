@@ -5,10 +5,9 @@ import {writable} from "svelte/store";
 import type {NPC} from "../npc";
 
 export abstract class Scriptable {
-    running: Writable<boolean> = writable(false);
     type: string = 'scriptable';
 
-    abstract play(context: WorldContext): any;
+    abstract play(context: WorldContext, onEnd: () => void): any;
 }
 
 export class StepBack extends Scriptable {
@@ -17,11 +16,13 @@ export class StepBack extends Scriptable {
         this.type = 'StepBack';
     }
 
-    play(context: WorldContext): any {
+    play(context: WorldContext, onEnd: () => void): any {
         context.player.moving = false;
         context.player.direction = context.player.direction === 'up' ? 'down' : context.player.direction === 'down' ? 'up' : context.player.direction === 'left' ? 'right' : 'left';
 
-        this.running.set(false);
+        setTimeout(() => {
+            onEnd();
+        }, 300);
     }
 }
 
@@ -38,6 +39,8 @@ export class Message {
 export class Dialog extends Scriptable {
     messages: Message[] = [];
     current: Message;
+    onEnd: () => void = () => {
+    }
 
     constructor(messages: Message[]) {
         super();
@@ -46,20 +49,21 @@ export class Dialog extends Scriptable {
         this.current = messages[0];
     }
 
-    next(): boolean {
+    next(): string | undefined {
         if (this.messages.indexOf(this.current) < this.messages.length - 1) {
             this.current = this.messages[this.messages.indexOf(this.current) + 1];
-            return true;
+            return this.current.text;
         } else {
-            this.running.set(false);
-            return false;
+            console.log('end of dialog', this);
+            this.onEnd();
+            return;
         }
 
     }
 
-    play(context: WorldContext): any {
+    play(context: WorldContext, onEnd: () => void): any {
+        this.onEnd = onEnd;
         this.current = this.messages[0];
-        this.running.set(true);
     }
 }
 
@@ -74,7 +78,7 @@ export class Move extends Scriptable {
         this.direction = direction;
     }
 
-    play(context: WorldContext): any {
+    play(context: WorldContext, onEnd: () => void): any {
         let npc = context.map?.npcs?.find(npc => npc.id === this.npcId);
         if (npc) {
             npc.moving = true;
@@ -94,13 +98,17 @@ export class Move extends Scriptable {
                     npc.position.x += 1;
                     break;
             }
-
             setTimeout(() => {
                 if (npc) {
                     npc.moving = false;
                 }
+                onEnd();
             }, 300);
+        } else {
+            onEnd();
         }
+
+
     }
 }
 
@@ -115,8 +123,12 @@ export class GiveItem extends Scriptable {
         this.qty = qty;
     }
 
-    play(context: WorldContext): any {
+    play(context: WorldContext, onEnd: () => void): any {
         context.player.bag.addItems(this.itemId, this.qty);
+        setTimeout(() => {
+            console.log('end of give item', this);
+            onEnd();
+        }, 300);
     }
 }
 
@@ -124,8 +136,9 @@ export class Script {
     triggerType: 'onEnter' | 'onStep' | 'onInteract';
     stepPosition?: Position;
     actions: Scriptable[];
+    onEnd: () => void = () => {
+    };
     currentAction?: Scriptable;
-    running: Writable<boolean>;
 
     replayable: boolean = false;
     played: boolean = false;
@@ -137,7 +150,6 @@ export class Script {
         this.actions = actions;
         this.stepPosition = stepPosition;
         this.replayable = replayable;
-        this.running = writable(false);
         this.setActionsPrototype();
     }
 
@@ -148,7 +160,7 @@ export class Script {
                     return new Dialog((action as Dialog).messages);
                 case 'StepBack':
                     return new StepBack();
-                    case 'Move':
+                case 'Move':
                     return new Move((action as Move).npcId, (action as Move).direction);
                 case 'GiveItem':
                     return new GiveItem((action as GiveItem).itemId, (action as GiveItem).qty);
@@ -159,27 +171,18 @@ export class Script {
     }
 
     play(context: WorldContext, index: number = 0) {
-        context.playingScript = this;
-        this.running.set(true);
         this.currentAction = this.actions[index];
-
+        console.log(this.currentAction);
         if (this.currentAction) {
-            this.currentAction.play(context);
-            this.actionSubscription = this.currentAction.running.subscribe((running) => {
-                if (!running && this.actionSubscription) {
-                    this.actionSubscription();
-                    this.play(context, index + 1);
-                }
+            this.currentAction.play(context, () => {
+                console.log('playing next action');
+                this.play(context, index + 1);
             });
         } else {
+            console.log('end of script');
             this.played = true;
-            this.running.set(false);
-            context.playingScript = undefined;
+            this.onEnd();
         }
-    }
-
-    stopCurrentAction() {
-        this.currentAction?.running.set(false);
     }
 }
 

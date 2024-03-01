@@ -161,34 +161,34 @@ const jonction: Jonction = new Jonction(
 )
 
 const scripts: Script[] = [
-   /* new Script(
-        'onEnter',
-        [
-            new Dialog(
-                [
-                    new Message('This is an event triggered at map enter !', 'System')
-                ]
-            )
-        ],
-    ),
-    new Script(
-        'onStep',
-        [
-            new Dialog(
-                [
-                    new Message('This is a step in triggered event !', 'System'),
-                ]
-            ),
-            new StepBack(),
-            new Dialog(
-                [
-                    new Message('I should probably explore before leaving...', 'System'),
-                ]
-            ),
-        ],
-        new Position(33, 34),
-        false
-    )*/
+    /* new Script(
+         'onEnter',
+         [
+             new Dialog(
+                 [
+                     new Message('This is an event triggered at map enter !', 'System')
+                 ]
+             )
+         ],
+     ),
+     new Script(
+         'onStep',
+         [
+             new Dialog(
+                 [
+                     new Message('This is a step in triggered event !', 'System'),
+                 ]
+             ),
+             new StepBack(),
+             new Dialog(
+                 [
+                     new Message('I should probably explore before leaving...', 'System'),
+                 ]
+             ),
+         ],
+         new Position(33, 34),
+         false
+     )*/
 ];
 
 const npcScript: Script = new Script('onInteract', [
@@ -198,13 +198,15 @@ const npcScript: Script = new Script('onInteract', [
         new Message('Take this with you.', 'System'),
     ]),
     new GiveItem(17, 5),
-    new GiveItem(4, 5),
     new Dialog([
         new Message('You received 5 Potions', 'System'),
+    ]),
+    new GiveItem(4, 5),
+    new Dialog([
         new Message('You received 5 Pokeballs', 'System'),
         new Message('Take care.', 'System'),
     ]),
-], undefined, false);
+], undefined, true);
 
 const dialogsScripts = [
     new Script('onInteract', [new Dialog([
@@ -212,9 +214,9 @@ const dialogsScripts = [
     ])]),
 
     new Script('onInteract', [
-    new Dialog([
-        new Message('You should head north to the village', 'System'),
-    ])])
+        new Dialog([
+            new Message('You should head north to the village', 'System'),
+        ])])
 ];
 
 const npc1 = new NPC(2, 'NPC1', 2, new Position(32, 43), 'down', npcScript, dialogsScripts);
