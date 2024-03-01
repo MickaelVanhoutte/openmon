@@ -3,11 +3,6 @@
         <div class="dialog-text" class:animate={animate} bind:this={text}>
             <div>{current}</div>
         </div>
-        {#if animate}
-            <div class="dialog-buttons">
-                <button on:click={() => next()}>OK</button>
-            </div>
-        {/if}
     </div>
 </div>
 
@@ -16,6 +11,7 @@
     import {onMount} from "svelte";
     import type {WorldContext} from "../../js/common/context";
     import type {Dialog} from "../../js/common/scripts";
+    import type {Writable} from "svelte/store";
 
     export let context: WorldContext;
     export let dialog: Dialog;
@@ -23,14 +19,23 @@
     export let animate: boolean = true;
     export let text: HTMLDivElement;
 
-    $:current = dialog?.current.text || '';
+    export let aButton: Writable<boolean>;
 
+    let current: string = dialog?.current?.text || '';
+
+    aButton?.subscribe((value) => {
+        if (value && text) {
+            next();
+        }
+    });
 
     function next() {
-        if (dialog?.next()) {
+        let tmp = dialog?.next();
+        if (tmp) {
+            current = tmp;
             text.classList.remove("animate");
             setTimeout(() => {
-                if(animate) text.classList.add("animate");
+                if (animate) text.classList.add("animate");
             }, 100);
         }
     }
@@ -57,10 +62,9 @@
     left: 1dvw;
     width: 98dvw;
     height: 25dvh;
-    z-index: 20;
+    z-index: 8;
 
     background: rgb(220, 231, 233);
-    background: linear-gradient(180deg, rgba(220, 231, 233, 1) 0%, rgba(255, 255, 255, 1) 50%, rgba(220, 231, 233, 0.713344712885154) 100%);
     border: 2px solid #54506c;
     border-radius: 8px;
     box-sizing: border-box;
@@ -77,12 +81,15 @@
       .dialog-text {
         display: inline-block;
 
+
         &.animate div {
+          opacity: 1;
           border-right: .15em solid orange;
           animation: typing 1s steps(20, end) forwards, blink-caret .5s step-end infinite;
         }
 
         div {
+          opacity: 0;
           overflow: hidden;
           white-space: nowrap;
         }

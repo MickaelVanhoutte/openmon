@@ -5,7 +5,7 @@
           bind:save bind:saveContext/>
 
     {#if hasDialog}
-        <DialogView bind:context={mainLoopContext} bind:dialog={currentAction}/>
+        <DialogView bind:context={mainLoopContext} bind:dialog={currentAction} bind:aButton={aButtonValue}/>
     {/if}
 
     {#if evolutions?.length > 0}
@@ -32,13 +32,18 @@
 
     <div class="run-toggle">
         {#if mainLoopContext.running}
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M9.82986 8.78986L7.99998 9.45588V13H5.99998V8.05H6.015L11.2834 6.13247C11.5274 6.03855 11.7922 5.99162 12.0648 6.0008C13.1762 6.02813 14.1522 6.75668 14.4917 7.82036C14.678 8.40431 14.848 8.79836 15.0015 9.0025C15.9138 10.2155 17.3653 11 19 11V13C16.8253 13 14.8823 12.0083 13.5984 10.4526L12.9008 14.4085L15 16.17V23H13V17.1025L10.7307 15.1984L10.003 19.3253L3.10938 18.1098L3.45667 16.1401L8.38071 17.0084L9.82986 8.78986ZM13.5 5.5C12.3954 5.5 11.5 4.60457 11.5 3.5C11.5 2.39543 12.3954 1.5 13.5 1.5C14.6046 1.5 15.5 2.39543 15.5 3.5C15.5 4.60457 14.6046 5.5 13.5 5.5Z"></path></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M9.82986 8.78986L7.99998 9.45588V13H5.99998V8.05H6.015L11.2834 6.13247C11.5274 6.03855 11.7922 5.99162 12.0648 6.0008C13.1762 6.02813 14.1522 6.75668 14.4917 7.82036C14.678 8.40431 14.848 8.79836 15.0015 9.0025C15.9138 10.2155 17.3653 11 19 11V13C16.8253 13 14.8823 12.0083 13.5984 10.4526L12.9008 14.4085L15 16.17V23H13V17.1025L10.7307 15.1984L10.003 19.3253L3.10938 18.1098L3.45667 16.1401L8.38071 17.0084L9.82986 8.78986ZM13.5 5.5C12.3954 5.5 11.5 4.60457 11.5 3.5C11.5 2.39543 12.3954 1.5 13.5 1.5C14.6046 1.5 15.5 2.39543 15.5 3.5C15.5 4.60457 14.6046 5.5 13.5 5.5Z"></path>
+            </svg>
         {:else}
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M7.61713 8.71233L10.8222 6.38373C11.174 6.12735 11.6087 5.98543 12.065 6.0008C13.1764 6.02813 14.1524 6.75668 14.4919 7.82036C14.6782 8.40431 14.8481 8.79836 15.0017 9.0025C15.914 10.2155 17.3655 11 19.0002 11V13C16.8255 13 14.8825 12.0083 13.5986 10.4526L12.901 14.4085L14.9621 16.138L17.1853 22.246L15.3059 22.93L13.266 17.3256L9.87576 14.4808C9.32821 14.0382 9.03139 13.3192 9.16231 12.5767L9.67091 9.6923L8.99407 10.1841L6.86706 13.1116L5.24902 11.9361L7.60016 8.7L7.61713 8.71233ZM13.5002 5.5C12.3956 5.5 11.5002 4.60457 11.5002 3.5C11.5002 2.39543 12.3956 1.5 13.5002 1.5C14.6047 1.5 15.5002 2.39543 15.5002 3.5C15.5002 4.60457 14.6047 5.5 13.5002 5.5ZM10.5286 18.6813L7.31465 22.5116L5.78257 21.226L8.75774 17.6803L9.50426 15.5L11.2954 17L10.5286 18.6813Z"></path></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M7.61713 8.71233L10.8222 6.38373C11.174 6.12735 11.6087 5.98543 12.065 6.0008C13.1764 6.02813 14.1524 6.75668 14.4919 7.82036C14.6782 8.40431 14.8481 8.79836 15.0017 9.0025C15.914 10.2155 17.3655 11 19.0002 11V13C16.8255 13 14.8825 12.0083 13.5986 10.4526L12.901 14.4085L14.9621 16.138L17.1853 22.246L15.3059 22.93L13.266 17.3256L9.87576 14.4808C9.32821 14.0382 9.03139 13.3192 9.16231 12.5767L9.67091 9.6923L8.99407 10.1841L6.86706 13.1116L5.24902 11.9361L7.60016 8.7L7.61713 8.71233ZM13.5002 5.5C12.3956 5.5 11.5002 4.60457 11.5002 3.5C11.5002 2.39543 12.3956 1.5 13.5002 1.5C14.6047 1.5 15.5002 2.39543 15.5002 3.5C15.5002 4.60457 14.6047 5.5 13.5002 5.5ZM10.5286 18.6813L7.31465 22.5116L5.78257 21.226L8.75774 17.6803L9.50426 15.5L11.2954 17L10.5286 18.6813Z"></path>
+            </svg>
         {/if}
 
         <label class="switch">
-            <input type="checkbox" on:change={mainLoopContext.running = !mainLoopContext.running}>
+            <input type="checkbox" checked="{mainLoopContext.running ? 'checked' : ''}"
+                   on:change={mainLoopContext.running = !mainLoopContext.running}>
             <span>
             </span>
         </label>
@@ -54,7 +59,7 @@
     import {Character} from "../js/player/player";
     import {onDestroy, onMount} from "svelte";
     import Menu from "./menus/Menu.svelte";
-    import {BATTLE_STATE, MAP_DRAWER, MAPS, POKE_WALKER, POKEDEX} from "../js/const";
+    import {BATTLE_STATE, MAP_DRAWER, MAPS, NPC_DRAWER, POKE_WALKER, POKEDEX} from "../js/const";
     import {SaveContext, SelectedSave} from "../js/saves/saves";
     import JoystickController from 'joystick-controller';
     import {OpenMap} from "../js/mapping/maps.js";
@@ -63,8 +68,10 @@
     import {WorldContext} from "../js/common/context";
     import DialogView from "./common/DialogView.svelte";
     import type {Script} from "../js/common/scripts";
-    import {Dialog} from "../js/common/scripts";
+    import {Dialog, Scriptable} from "../js/common/scripts";
     import Evolution from "./Evolution.svelte";
+    import type {Writable} from "svelte/store";
+    import {writable} from "svelte/store";
 
     /**
      * Overworld component.
@@ -123,7 +130,6 @@
      */
     function mainLoop() {
         mainLoopContext.id = window.requestAnimationFrame(mainLoop);
-        console.log(mainLoopContext.running)
 
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
@@ -183,9 +189,21 @@
     /*
     Scripts
      */
-    $:playingScript = mainLoopContext?.playingScript;
-    $:currentAction = playingScript && playingScript?.currentAction;
-    $:hasDialog = currentAction && currentAction instanceof Dialog;
+
+    $:currentScript = mainLoopContext.playingScript;
+    $:currentAction = currentScript?.currentAction;
+    $:hasDialog = currentAction?.type === 'Dialog';
+
+    let aButtonValue: Writable<boolean> = writable(false);
+    aButtonValue.subscribe(value => {
+        keys.a.pressed = value;
+        if(value){
+            let interactive = mainLoopContext.map?.elementInFront(playerPosition, mainLoopContext.player.direction);
+            let script = interactive?.interact(mainLoopContext, playerPosition);
+            console.log(script);
+            mainLoopContext.playScript(script);
+        }
+    })
 
     function checkForStepInScript() {
         let stepScript: Script | undefined;
@@ -388,6 +406,12 @@
             mainLoopContext.player.draw(ctx, 'overworld', mainLoopContext.playerScale, playerPositionInPx, mapDimensions);
         }
 
+        mainLoopContext.map.npcs.forEach(npc => {
+            NPC_DRAWER.draw(ctx, playerPositionInPx, npc.direction, mainLoopContext.playerScale, npc.moving, new Position(
+                Math.floor(npc.position.x * (16 * mainLoopContext.imageScale)),
+                Math.floor(npc.position.y * (16 * mainLoopContext.imageScale))), npc.spriteId, mapDimensions);
+        });
+
         // Foreground
         if (mainLoopContext.map?.foreground !== undefined) {
             MAP_DRAWER.drawFG(ctx, mainLoopContext.map, mainLoopContext.imageScale, playerPositionInPx, mainLoopContext.debug);
@@ -471,6 +495,9 @@
                     lastKey.key = 'ArrowLeft';
                     keys.left.pressed = true;
                     break;
+                case 'Shift':
+                    mainLoopContext.running = !mainLoopContext.running;
+                    break;
                 case 'x':
                     mainLoopContext.debug = !mainLoopContext.debug;
                     break;
@@ -535,6 +562,7 @@
             /*if (!mainLoopContext.playingScript) {
                 mainLoopContext.running = b;
             }*/
+            aButtonValue.set(a);
         });
 
         joystick = new JoystickController({
@@ -561,7 +589,7 @@
     .joysticks {
       height: 100dvh;
       width: calc(99dvw - 130px);
-      z-index: 7;
+      z-index: 6;
       position: absolute;
       left: 0;
       top: 0;
@@ -592,7 +620,7 @@
     border-radius: 12px;
     background-color: rgba(44, 56, 69, 0.95);
     outline: none;
-    z-index: 8;
+    z-index: 7;
     font-size: 18px;
     border: none;
     color: white;
@@ -667,7 +695,7 @@
     position: absolute;
     bottom: 2dvh;
     left: 1dvw;
-    z-index: 8;
+    z-index: 7;
 
     display: flex;
 

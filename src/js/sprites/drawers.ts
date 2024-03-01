@@ -1,5 +1,6 @@
 import type {OpenMap} from "../mapping/maps";
 import type {PokemonInstance} from "../pokemons/pokedex";
+import {CHARACTER_SPRITES} from "../const";
 
 
 export class Position {
@@ -282,6 +283,81 @@ export class PokeWalkerSpriteDrawer {
         );
         ctx.restore();
 
+    }
+}
+
+export class NPCSpriteDrawer {
+    private images: Record<string, HTMLImageElement> = {};
+
+    private frames = {max: 4, val: 0, elapsed: 0};
+
+    constructor() {
+    }
+
+    draw(ctx: CanvasRenderingContext2D, playerPosition: Position, orientation: 'up' | 'down' | 'left' | 'right',
+         scale: number, moving: boolean, npcPosition: Position, spriteId: number, mapDim: {
+            width: number,
+            height: number
+        }) {
+
+        let image = this.images[spriteId];
+        if (image && image.complete) {
+            this.drawImage(ctx, image, playerPosition, orientation, scale, moving, npcPosition, mapDim);
+        } else {
+            image = new Image();
+            image.src = CHARACTER_SPRITES.getSprite(spriteId).overworld.source;
+            image.onload = () => {
+                this.images[spriteId] = image;
+                this.drawImage(ctx, image, playerPosition, orientation, scale, moving, npcPosition, mapDim);
+            }
+        }
+    }
+
+    private drawImage(ctx: CanvasRenderingContext2D, image: HTMLImageElement, playerPosition: Position, orientation: 'up' | 'down' | 'left' | 'right',
+                      scale: number, moving: boolean, npcPosition: Position, mapDim: {
+            width: number,
+            height: number
+        }) {
+
+        if (moving) {
+
+            if (this.frames.max > 1) {
+                this.frames.elapsed += 1;
+            }
+            this.frames.val += 1
+            if (this.frames.val > this.frames.max - 1) {
+                this.frames.val = 0;
+            }
+        } else {
+            this.frames.val = 0;
+        }
+
+        let sY = OrientationIndexes[orientation] * 64;
+
+        // Calculate the position of the NPC relative to the player
+        const relativeX = npcPosition.x - playerPosition.x;
+        const relativeY = npcPosition.y - playerPosition.y;
+
+        let {centerX, centerY, offsetX, offsetY} = centerObject(ctx, scale, playerPosition, 16, mapDim);
+        offsetY -= relativeY;
+        offsetX -= relativeX;
+
+        ctx.save();
+        ctx.translate(centerX - offsetX, centerY - offsetY);
+
+        ctx.drawImage(
+            image,
+            this.frames.val * (64),
+            sY,
+            64,
+            64,
+            0,
+            0,
+            64 * scale,
+            64 * scale
+        );
+
+        ctx.restore();
     }
 }
 

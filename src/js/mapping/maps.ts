@@ -1,6 +1,8 @@
 import {Boundary, Jonction} from "./collisions";
 import {Position} from "../sprites/drawers";
 import {Script} from "../common/scripts";
+import type {Interactive} from "../npc";
+import {NPC} from "../npc";
 
 export class OpenMap {
     public background: string;
@@ -25,6 +27,7 @@ export class OpenMap {
 
     public jonctions: Jonction[] = [];
 
+    public npcs?: NPC[] = [];
     public scripts?: Script[];
 
 
@@ -34,7 +37,7 @@ export class OpenMap {
                 playerMovedOffset: Position = new Position(),
                 levelRange: number[] = [1, 100],
                 jonctions: Jonction[] = [],
-                foreground?: string, battleTile?: number, collisionTile?: number, scripts?: Script[]) {
+                foreground?: string, battleTile?: number, collisionTile?: number, npcs?:NPC[], scripts?: Script[]) {
         this.background = background;
         this.foreground = foreground;
         this.playerInitialPosition = playerInitialPosition;
@@ -50,6 +53,7 @@ export class OpenMap {
         this.monsters = monsters;
         this.levelRange = levelRange;
         this.jonctions = jonctions;
+        this.npcs = npcs;
         this.scripts = scripts;
     }
 
@@ -58,7 +62,7 @@ export class OpenMap {
                               playerInitialPosition: Position = new Position(), playerMovedOffset: Position = new Position(),
                               levelRange: number[] = [1, 100],
                               jonctions: Jonction[] = [],
-                              foreground?: string, battleTile?: number, collisionTile?: number, scripts?: Script[]): OpenMap {
+                              foreground?: string, battleTile?: number, collisionTile?: number, npcs?:NPC[], scripts?: Script[]): OpenMap {
 
 
         return new OpenMap(
@@ -75,6 +79,7 @@ export class OpenMap {
             foreground,
             battleTile,
             collisionTile,
+            npcs,
             scripts
         )
     }
@@ -94,6 +99,7 @@ export class OpenMap {
             map?.foreground,
             map?.battleTile,
             map?.collisionTile,
+            map?.npcs,
             map?.scripts
         )
     }
@@ -114,6 +120,7 @@ export class OpenMap {
                 Object.setPrototypeOf(position, Position.prototype);
             });
         });
+        this.npcs = this.npcs?.map((npc) => new NPC(npc.id, npc.name, npc.spriteId, npc.position, npc.direction, npc.mainScript, npc.dialogScripts, npc.movingScripts));
         this.scripts = this.scripts?.map((script) => new Script(script.triggerType, script.actions, script.stepPosition, script.replayable));
 
         return this;
@@ -173,6 +180,7 @@ export class OpenMap {
         return this.collisionsZones.some((boundary) => {
             return boundary.position.x === position.x && boundary.position.y === position.y;
         }) || position.x < 0 || position.y < 0 || position.x > this.width - 1 || position.y > this.height - 1
+        || this.npcAt(position);
     }
 
     jonctionAt(position: Position): Jonction | undefined {
@@ -184,5 +192,37 @@ export class OpenMap {
             }
         }
         return undefined;
+    }
+
+    public npcAt(position: Position) {
+        return this.npcs?.some((npc) => {
+            return npc.position.x === position.x && npc.position.y === position.y;
+        });
+    }
+
+    public elementInFront (position: Position, direction: 'up' | 'down' | 'left' | 'right') {
+        let elementPosition = new Position(position.x, position.y);
+        switch (direction) {
+            case 'up':
+                elementPosition.y -= 1;
+                break;
+            case 'down':
+                elementPosition.y += 1;
+                break;
+            case 'left':
+                elementPosition.x -= 1;
+                break;
+            case 'right':
+                elementPosition.x += 1;
+                break;
+        }
+        console.log(elementPosition, this.npcs);
+        return this.elementAt(elementPosition);
+    }
+
+    private elementAt(elementPosition: Position): Interactive | undefined {
+        return this.npcs?.find((npc) => {
+            return npc.position.x === elementPosition.x && npc.position.y === elementPosition.y;
+        });
     }
 }

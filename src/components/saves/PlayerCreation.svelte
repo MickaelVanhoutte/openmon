@@ -40,7 +40,7 @@
 
     function handleSubmit() {
         let player = Character.fromScratch(1, playerName, 'MALE');
-        player.bag.addItems(4, 5); // pokeball
+        /*player.bag.addItems(4, 5); // pokeball
         player.bag.addItems(17, 5); // potion
 
         player.bag.addItems(1, 5);
@@ -56,7 +56,7 @@
         player.bag.addItems(33, 5);
         player.bag.addItems(28, 5);
         player.bag.addItems(29, 5);
-
+*/
         player.monsters.push(POKEDEX.findById(3).result.instanciate(36));
         player.monsters.push(POKEDEX.findById(25).result.instanciate(5));
 
