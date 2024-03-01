@@ -2,6 +2,7 @@ import {Position} from "../sprites/drawers";
 import type {WorldContext} from "./context";
 import type {Unsubscriber, Writable} from "svelte/store";
 import {writable} from "svelte/store";
+import type {NPC} from "../npc";
 
 export abstract class Scriptable {
     running: Writable<boolean> = writable(false);
@@ -62,9 +63,65 @@ export class Dialog extends Scriptable {
     }
 }
 
+export class Move extends Scriptable {
+    npcId: number;
+    direction: 'up' | 'down' | 'left' | 'right';
+
+    constructor(npcId: number, direction: 'up' | 'down' | 'left' | 'right') {
+        super();
+        this.type = 'Move';
+        this.npcId = npcId;
+        this.direction = direction;
+    }
+
+    play(context: WorldContext): any {
+        let npc = context.map?.npcs?.find(npc => npc.id === this.npcId);
+        if (npc) {
+            npc.moving = true;
+            npc.direction = this.direction;
+
+            switch (this.direction) {
+                case 'up':
+                    npc.position.y -= 1;
+                    break;
+                case 'down':
+                    npc.position.y += 1;
+                    break;
+                case 'left':
+                    npc.position.x -= 1;
+                    break;
+                case 'right':
+                    npc.position.x += 1;
+                    break;
+            }
+
+            setTimeout(() => {
+                if (npc) {
+                    npc.moving = false;
+                }
+            }, 300);
+        }
+    }
+}
+
+export class GiveItem extends Scriptable {
+    itemId: number;
+    qty: number;
+
+    constructor(itemId: number, qty: number = 1) {
+        super();
+        this.type = 'GiveItem';
+        this.itemId = itemId;
+        this.qty = qty;
+    }
+
+    play(context: WorldContext): any {
+        context.player.bag.addItems(this.itemId, this.qty);
+    }
+}
 
 export class Script {
-    triggerType: 'onEnter' | 'onStep';
+    triggerType: 'onEnter' | 'onStep' | 'onInteract';
     stepPosition?: Position;
     actions: Scriptable[];
     currentAction?: Scriptable;
@@ -75,7 +132,7 @@ export class Script {
 
     actionSubscription: Unsubscriber | undefined;
 
-    constructor(triggerType: 'onEnter' | 'onStep', actions: Scriptable[], stepPosition?: Position, replayable: boolean = false) {
+    constructor(triggerType: 'onEnter' | 'onStep' | 'onInteract', actions: Scriptable[], stepPosition?: Position, replayable: boolean = false) {
         this.triggerType = triggerType;
         this.actions = actions;
         this.stepPosition = stepPosition;
@@ -91,6 +148,10 @@ export class Script {
                     return new Dialog((action as Dialog).messages);
                 case 'StepBack':
                     return new StepBack();
+                    case 'Move':
+                    return new Move((action as Move).npcId, (action as Move).direction);
+                case 'GiveItem':
+                    return new GiveItem((action as GiveItem).itemId, (action as GiveItem).qty);
                 default:
                     return action;
             }
@@ -101,7 +162,7 @@ export class Script {
         context.playingScript = this;
         this.running.set(true);
         this.currentAction = this.actions[index];
-        
+
         if (this.currentAction) {
             this.currentAction.play(context);
             this.actionSubscription = this.currentAction.running.subscribe((running) => {
@@ -113,6 +174,7 @@ export class Script {
         } else {
             this.played = true;
             this.running.set(false);
+            context.playingScript = undefined;
         }
     }
 

@@ -27,8 +27,8 @@
 
 
     function next() {
+        text.classList.remove("animate");
         if (dialog?.next()) {
-            text.classList.remove("animate");
             setTimeout(() => {
                 if(animate) text.classList.add("animate");
             }, 100);
@@ -77,12 +77,15 @@
       .dialog-text {
         display: inline-block;
 
+
         &.animate div {
+          opacity: 1;
           border-right: .15em solid orange;
           animation: typing 1s steps(20, end) forwards, blink-caret .5s step-end infinite;
         }
 
         div {
+          opacity: 0;
           overflow: hidden;
           white-space: nowrap;
         }

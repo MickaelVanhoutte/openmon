@@ -1,7 +1,8 @@
 import {OpenMap} from "../maps";
 import {Position} from "../../sprites/drawers";
 import {Jonction} from "../collisions";
-import {Script, StepBack, Dialog, Message} from "../../common/scripts";
+import {Script, StepBack, Dialog, Message, GiveItem} from "../../common/scripts";
+import {NPC} from "../../npc";
 
 const monsters = Array.from({length: 251}, (v, k) => k + 1);
 
@@ -190,10 +191,36 @@ const scripts: Script[] = [
     )*/
 ];
 
-//const npc1 = new NPC(1, 'NPC1', new SpriteFromSheet('src/assets/sprites/npc1.png', 32, 32), new Position(33, 34), 'down', scripts);
+const npcScript: Script = new Script('onInteract', [
+    new Dialog([
+        new Message('Hey ! Are you ok ?', 'System'),
+        new Message('I saw you faint', 'System'),
+        new Message('Take this with you.', 'System'),
+    ]),
+    new GiveItem(17, 5),
+    new GiveItem(4, 5),
+    new Dialog([
+        new Message('You received 5 Potions', 'System'),
+        new Message('You received 5 Pokeballs', 'System'),
+        new Message('Take care.', 'System'),
+    ]),
+], undefined, false);
+
+const dialogsScripts = [
+    new Script('onInteract', [new Dialog([
+        new Message('Something feel strange...', 'System')
+    ])]),
+
+    new Script('onInteract', [
+    new Dialog([
+        new Message('You should head north to the village', 'System'),
+    ])])
+];
+
+const npc1 = new NPC(2, 'NPC1', 2, new Position(32, 43), 'down', npcScript, dialogsScripts);
 
 export const start = OpenMap.fromScratch('src/assets/maps/start.png', 100, 60,
     collisions, battles, monsters,
     new Position(18, 52), new Position(0, 0),
-    [3, 6], [jonction], undefined, 2239, 4295,
+    [3, 6], [jonction], undefined, 2239, 4295, [npc1],
     scripts);

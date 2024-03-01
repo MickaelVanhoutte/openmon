@@ -54,7 +54,7 @@
     import {Character} from "../js/player/player";
     import {onDestroy, onMount} from "svelte";
     import Menu from "./menus/Menu.svelte";
-    import {BATTLE_STATE, MAP_DRAWER, MAPS, POKE_WALKER, POKEDEX} from "../js/const";
+    import {BATTLE_STATE, MAP_DRAWER, MAPS, NPC_DRAWER, POKE_WALKER, POKEDEX} from "../js/const";
     import {SaveContext, SelectedSave} from "../js/saves/saves";
     import JoystickController from 'joystick-controller';
     import {OpenMap} from "../js/mapping/maps.js";
@@ -123,7 +123,6 @@
      */
     function mainLoop() {
         mainLoopContext.id = window.requestAnimationFrame(mainLoop);
-        console.log(mainLoopContext.running)
 
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
@@ -185,7 +184,7 @@
      */
     $:playingScript = mainLoopContext?.playingScript;
     $:currentAction = playingScript && playingScript?.currentAction;
-    $:hasDialog = currentAction && currentAction instanceof Dialog;
+    $:hasDialog = currentAction && currentAction.running && currentAction instanceof Dialog;
 
     function checkForStepInScript() {
         let stepScript: Script | undefined;
@@ -388,6 +387,12 @@
             mainLoopContext.player.draw(ctx, 'overworld', mainLoopContext.playerScale, playerPositionInPx, mapDimensions);
         }
 
+        mainLoopContext.map.npcs.forEach(npc => {
+            NPC_DRAWER.draw(ctx, playerPositionInPx, npc.direction, mainLoopContext.playerScale, npc.moving, new Position(
+                Math.floor(npc.position.x * (16 * mainLoopContext.imageScale)),
+                Math.floor(npc.position.y * (16 * mainLoopContext.imageScale))), npc.spriteId, mapDimensions);
+        });
+
         // Foreground
         if (mainLoopContext.map?.foreground !== undefined) {
             MAP_DRAWER.drawFG(ctx, mainLoopContext.map, mainLoopContext.imageScale, playerPositionInPx, mainLoopContext.debug);
@@ -535,6 +540,12 @@
             /*if (!mainLoopContext.playingScript) {
                 mainLoopContext.running = b;
             }*/
+
+            if(a){
+               let interactive = mainLoopContext.map?.elementInFront(playerPosition, mainLoopContext.player.direction);
+               console.log(interactive);
+                interactive?.interact(mainLoopContext)
+            }
         });
 
         joystick = new JoystickController({
