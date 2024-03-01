@@ -214,7 +214,7 @@
       position: absolute;
       top: 50%;
       left: 50%;
-      transform: translate(-58%, -51%);
+      transform: translate(-51%, -45%);
 
 
       #hexGrid {
@@ -291,6 +291,8 @@
 
       .hex img {
         position: absolute;
+        height: 20px;
+        width: 20px;
         scale: 2;
         top: 50%;
         left: 50%;

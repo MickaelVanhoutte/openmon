@@ -3,15 +3,15 @@ import {Script} from "./common/scripts";
 import type {WorldContext} from "./common/context";
 
 export interface Interactive {
-    interact(context: WorldContext): void;
+    interact(context: WorldContext, playerPosition: Position): Script | undefined;
 }
 
-export class NPC implements Interactive{
+export class NPC implements Interactive {
     id: number;
     name: string;
     spriteId: number;
     position: Position;
-    direction: 'up' | 'down' | 'left' | 'right'= 'down';
+    direction: 'up' | 'down' | 'left' | 'right' = 'down';
     moving: boolean = false;
 
     mainScript?: Script;
@@ -24,20 +24,28 @@ export class NPC implements Interactive{
         this.spriteId = spriteId;
         this.position = position;
         this.direction = direction;
-        this.mainScript = mainScript ?new Script(mainScript?.triggerType, mainScript?.actions, mainScript?.stepPosition, mainScript?.replayable): undefined;
+        this.mainScript = mainScript ? new Script(mainScript?.triggerType, mainScript?.actions, mainScript?.stepPosition, mainScript?.replayable) : undefined;
         this.dialogScripts = dialogScripts?.map((script) => new Script(script.triggerType, script.actions, script.stepPosition, script.replayable));
         this.movingScripts = movingScripts?.map((script) => new Script(script.triggerType, script.actions, script.stepPosition, script.replayable));
     }
 
-    interact(context: WorldContext){
-        if (context.playingScript) return;
-        if (this.mainScript && (!this.mainScript?.played || this.mainScript?.replayable)){
-            this.mainScript.play(context, 0);
-        }else if (this.dialogScripts){
-            // random dialog play :
+    interact(context: WorldContext, playerPosition: Position): Script | undefined {
+        // change direction toward player
+        if (this.position.x > playerPosition.x) {
+            this.direction = 'left';
+        } else if (this.position.x < playerPosition.x) {
+            this.direction = 'right';
+        } else if (this.position.y > playerPosition.y) {
+            this.direction = 'up';
+        } else if (this.position.y < playerPosition.y) {
+            this.direction = 'down';
+        }
+
+        if (this.mainScript && (!this.mainScript?.played || this.mainScript?.replayable)) {
+            return this.mainScript;
+        } else if (this.dialogScripts) {
             const randomIndex = Math.floor(Math.random() * this.dialogScripts.length);
-            console.log(this.dialogScripts[randomIndex]);
-            this.dialogScripts[randomIndex].play(context, 0);
+            return this.dialogScripts[randomIndex];
         }
         return;
     }

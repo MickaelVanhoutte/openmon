@@ -89,7 +89,7 @@ export class ABButtons {
         this.container.style.flexDirection = "column";
         this.container.style.justifyContent = "space-between";
         this.container.style.alignItems = "center";
-        this.container.style.zIndex = "7";
+        this.container.style.zIndex = "8";
 
         let buttonA = document.createElement("button");
         buttonA.style.fontFamily= "pokemon, serif";
