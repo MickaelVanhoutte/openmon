@@ -28,8 +28,8 @@
 
         <div class="item-desc">
             <div class="content">
-                <p>{ITEMS.getItem(pocket[selected][0])?.name}</p>
-                <p>{ITEMS.getItem(pocket[selected][0])?.description}</p>
+                <p>{ITEMS.getItem(itemToUse)?.name || ''}</p>
+                <p>{ITEMS.getItem(itemToUse)?.description || ''}</p>
             </div>
         </div>
 
@@ -51,7 +51,7 @@
 
     <div class="options" class:hidden={!openOptions}>
         <ul>
-            <li class:selected={optionSelected === 0} on:click={() => use(undefined)}>USE</li>
+            <li class:selected={optionSelected === 0} on:click={() => use()}>USE</li>
             <li class:selected={optionSelected === 1} on:click={() => openOptions = false}>CANCEL</li>
         </ul>
     </div>
@@ -102,9 +102,11 @@
         2: 'balls',
     };
 
-    $:pocket = Object.keys(save.player.bag[categories[tab]]).map(id => [id, save.player.bag[categories[tab]][id]]);
-    $:itemToUse = pocket[selected][0];
+
     let selected = 0;
+    $:pocket = Object.keys(save.player.bag[categories[tab]])?.map(id => [id, save.player.bag[categories[tab]][id]]);
+    $:itemToUse = pocket && pocket[selected]?.[0] || undefined;
+
 
     export let onChange;
 
@@ -182,7 +184,7 @@
                 optionSelected = optionSelected === 1 ? 0 : optionSelected + 1;
             } else if (e.key === "Enter") {
                 if (optionSelected === 0) {
-                    use(undefined);
+                    use();
                 } else if (optionSelected === 1) {
                     openOptions = false;
                 }

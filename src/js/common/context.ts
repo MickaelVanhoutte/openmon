@@ -26,14 +26,13 @@ export class WorldContext {
         this.player = player;
     }
 
-    playScript(script: Script) {
-        this.playingScript = script;
-        script.play(this);
-        const unsubscriber = script.running.subscribe((running) => {
-            if (!running) {
+    playScript(script?: Script) {
+        if (script && !this.playingScript) {
+            this.playingScript = script;
+            script.onEnd = () => {
                 this.playingScript = undefined;
-                unsubscriber();
-            }
-        });
+            };
+            script.play(this);
+        }
     }
 }
