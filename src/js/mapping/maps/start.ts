@@ -206,7 +206,7 @@ const npcScript: Script = new Script('onInteract', [
         new Message('You received 5 Pokeballs', 'System'),
         new Message('Take care.', 'System'),
     ]),
-], undefined, true);
+], undefined, false);
 
 const dialogsScripts = [
     new Script('onInteract', [new Dialog([
