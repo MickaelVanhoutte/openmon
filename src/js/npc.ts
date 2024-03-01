@@ -1,20 +1,44 @@
 import type {Position} from "./sprites/drawers";
-import type {Script} from "./common/scripts";
+import {Script} from "./common/scripts";
+import type {WorldContext} from "./common/context";
 
-export class NPC {
+export interface Interactive {
+    interact(context: WorldContext): void;
+}
+
+export class NPC implements Interactive{
     id: number;
     name: string;
     spriteId: number;
     position: Position;
-    direction: string;
-    scripts: Script[];
+    direction: 'up' | 'down' | 'left' | 'right'= 'down';
+    moving: boolean = false;
 
-    constructor(id: number, name: string, spriteId: number, position: Position, direction: string, scripts: Script[]) {
+    mainScript?: Script;
+    dialogScripts?: Script[];
+    movingScripts?: Script[];
+
+    constructor(id: number, name: string, spriteId: number, position: Position, direction: 'up' | 'down' | 'left' | 'right', mainScript?: Script, dialogScripts?: Script[], movingScripts?: Script[]) {
         this.id = id;
         this.name = name;
         this.spriteId = spriteId;
         this.position = position;
         this.direction = direction;
-        this.scripts = scripts;
+        this.mainScript = mainScript ?new Script(mainScript?.triggerType, mainScript?.actions, mainScript?.stepPosition, mainScript?.replayable): undefined;
+        this.dialogScripts = dialogScripts?.map((script) => new Script(script.triggerType, script.actions, script.stepPosition, script.replayable));
+        this.movingScripts = movingScripts?.map((script) => new Script(script.triggerType, script.actions, script.stepPosition, script.replayable));
+    }
+
+    interact(context: WorldContext){
+        if (context.playingScript) return;
+        if (this.mainScript && (!this.mainScript?.played || this.mainScript?.replayable)){
+            this.mainScript.play(context, 0);
+        }else if (this.dialogScripts){
+            // random dialog play :
+            const randomIndex = Math.floor(Math.random() * this.dialogScripts.length);
+            console.log(this.dialogScripts[randomIndex]);
+            this.dialogScripts[randomIndex].play(context, 0);
+        }
+        return;
     }
 }
