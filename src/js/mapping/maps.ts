@@ -84,6 +84,10 @@ export class OpenMap {
         )
     }
 
+    get  playerPosition() {
+        return new Position(this.playerInitialPosition.x + this.playerMovedOffset.x, this.playerInitialPosition.y + this.playerMovedOffset.y);
+    }
+
     public static fromInstance(map: OpenMap): OpenMap {
         return new OpenMap(
             map.background,
@@ -120,7 +124,7 @@ export class OpenMap {
                 Object.setPrototypeOf(position, Position.prototype);
             });
         });
-        this.npcs = this.npcs?.map((npc) => new NPC(npc.id, npc.name, npc.spriteId, npc.position, npc.direction, npc.mainScript, npc.dialogScripts, npc.movingScripts));
+        this.npcs = this.npcs?.map((npc) => new NPC(npc.id, npc.name, npc.spriteId, npc.position, npc.direction, npc.mainScript, npc.dialogScripts, npc.movingScript));
         this.scripts = this.scripts?.map((script) => new Script(script.triggerType, script.actions, script.stepPosition, script.replayable));
 
         return this;

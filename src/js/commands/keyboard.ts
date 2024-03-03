@@ -104,26 +104,31 @@ export class ABButtons {
         buttonA.style.fontWeight = "bold";
         buttonA.style.marginLeft = "50%";
         buttonA.textContent = "A";
-        buttonA.addEventListener("mousedown", () => {
-            this.a = true;
-            buttonA.style.backgroundColor = "rgba(224, 248, 248, 0.64)";
-            this.onChange(this.a, this.b);
-        });
-        buttonA.addEventListener("touchstart", () => {
-            this.a = true;
-            buttonA.style.backgroundColor = "rgba(224, 248, 248, 0.64)";
-            this.onChange(this.a, this.b);
-        });
-        buttonA.addEventListener("mouseup", () => {
-            this.a = false;
-            buttonA.style.backgroundColor = "rgba(44, 56, 69, 0.95)";
-            this.onChange(this.a, this.b);
-        });
-        buttonA.addEventListener("touchend", () => {
-            this.a = false;
-            buttonA.style.backgroundColor = "rgba(44, 56, 69, 0.95)";
-            this.onChange(this.a, this.b);
-        });
+        if(!buttonA.ontouchstart) {
+            buttonA.addEventListener("mousedown", () => {
+                this.a = true;
+                buttonA.style.backgroundColor = "rgba(224, 248, 248, 0.64)";
+                this.onChange(this.a, this.b);
+            });
+            buttonA.addEventListener("mouseup", () => {
+                this.a = false;
+                buttonA.style.backgroundColor = "rgba(44, 56, 69, 0.95)";
+                this.onChange(this.a, this.b);
+            });
+        }else {
+            buttonA.addEventListener("touchstart", () => {
+                this.a = true;
+                buttonA.style.backgroundColor = "rgba(224, 248, 248, 0.64)";
+                this.onChange(this.a, this.b);
+            });
+
+            buttonA.addEventListener("touchend", () => {
+                this.a = false;
+                buttonA.style.backgroundColor = "rgba(44, 56, 69, 0.95)";
+                this.onChange(this.a, this.b);
+            });
+        }
+
 
         this.buttonA = buttonA;
         this.container.appendChild(buttonA);
@@ -141,26 +146,32 @@ export class ABButtons {
         buttonB.style.fontWeight = "bold";
         buttonB.style.marginRight = "50%";
         buttonB.textContent = "B";
-        buttonB.addEventListener("mousedown", () => {
-            this.b = true;
-            buttonB.style.backgroundColor = "rgba(224, 248, 248, 0.64)";
-            this.onChange(this.a, this.b);
-        });
-        buttonB.addEventListener("touchstart", () => {
-            this.b = true;
-            buttonB.style.backgroundColor = "rgba(224, 248, 248, 0.64)";
-            this.onChange(this.a, this.b);
-        });
-        buttonB.addEventListener("mouseup", () => {
-            this.b = false;
-            buttonB.style.backgroundColor = "rgba(84, 80, 108, 0.64)";
-            this.onChange(this.a, this.b);
-        });
-        buttonB.addEventListener("touchend", () => {
-            this.b = false;
-            buttonB.style.backgroundColor = "rgba(84, 80, 108, 0.64)";
-            this.onChange(this.a, this.b);
-        });
+
+        if(!buttonB.ontouchstart) {
+            buttonB.addEventListener("mousedown", () => {
+                this.b = true;
+                buttonB.style.backgroundColor = "rgba(224, 248, 248, 0.64)";
+                this.onChange(this.a, this.b);
+            });
+            buttonB.addEventListener("mouseup", () => {
+                this.b = false;
+                buttonB.style.backgroundColor = "rgba(84, 80, 108, 0.64)";
+                this.onChange(this.a, this.b);
+            });
+        }else {
+            buttonB.addEventListener("touchstart", () => {
+                this.b = true;
+                buttonB.style.backgroundColor = "rgba(224, 248, 248, 0.64)";
+                this.onChange(this.a, this.b);
+            });
+
+            buttonB.addEventListener("touchend", () => {
+                this.b = false;
+                buttonB.style.backgroundColor = "rgba(84, 80, 108, 0.64)";
+                this.onChange(this.a, this.b);
+            });
+        }
+
         this.buttonB = buttonB;
         this.container.appendChild(buttonB);
 

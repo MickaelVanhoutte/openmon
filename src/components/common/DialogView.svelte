@@ -23,11 +23,7 @@
 
     let current: string = dialog?.current?.text || '';
 
-    aButton?.subscribe((value) => {
-        if (value && text) {
-            next();
-        }
-    });
+   let unsubscribe;
 
     function next() {
         let tmp = dialog?.next();
@@ -48,8 +44,17 @@
 
     onMount(() => {
         window.addEventListener("keydown", listener);
+        setTimeout(() => {
+            unsubscribe = aButton?.subscribe((value) => {
+                if (value && text) {
+                    next();
+                }
+            });
+        }, 1000);
+
         return () => {
             window.removeEventListener("keydown", listener);
+            unsubscribe && unsubscribe();
         }
     });
 </script>

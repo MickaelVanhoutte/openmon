@@ -1,6 +1,8 @@
 import type {Character} from "../player/player";
 import type {Script} from "./scripts";
 import type {OpenMap} from "../mapping/maps";
+import type {NPC} from "../npc";
+import {Position} from "../sprites/drawers";
 
 export class WorldContext {
     id: number = 0;
@@ -26,13 +28,41 @@ export class WorldContext {
         this.player = player;
     }
 
-    playScript(script?: Script) {
+    playScript(script?: Script, previous?: Script) {
         if (script && !this.playingScript) {
-            this.playingScript = script;
             script.onEnd = () => {
                 this.playingScript = undefined;
+                previous?.resume(this);
             };
-            script.play(this);
+            this.playingScript = script;
+            script.start(this);
+        }
+    }
+
+    playMvts(npcs: (NPC | undefined)[]) {
+        npcs.forEach((npc) => {
+            npc?.movingScript?.start(this);
+        });
+    }
+
+    followerAt(position: Position): boolean {
+       return this.behindPlayerPosition()?.x === position.x && this.behindPlayerPosition()?.y === position.y;
+    }
+
+    behindPlayerPosition() {
+        let playerPosition = this.map?.playerPosition;
+        if(playerPosition) {
+            let direction = this.player.direction;
+            switch (direction) {
+                case 'up':
+                    return new Position(playerPosition.x, playerPosition.y + 1);
+                case 'down':
+                    return new Position(playerPosition.x, playerPosition.y - 1);
+                case 'left':
+                    return new Position(playerPosition.x + 1, playerPosition.y);
+                case 'right':
+                    return new Position(playerPosition.x - 1, playerPosition.y);
+            }
         }
     }
 }
