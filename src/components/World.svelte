@@ -59,7 +59,7 @@
     import {Character} from "../js/player/player";
     import {onDestroy, onMount} from "svelte";
     import Menu from "./menus/Menu.svelte";
-    import {BATTLE_STATE, MAP_DRAWER, MAPS, NPC_DRAWER, POKE_WALKER, POKEDEX} from "../js/const";
+    import {BATTLE_STATE, MAP_DRAWER, MAPS, POKE_WALKER, POKEDEX} from "../js/const";
     import {SaveContext, SelectedSave} from "../js/saves/saves";
     import JoystickController from 'joystick-controller';
     import {OpenMap} from "../js/mapping/maps.js";
@@ -72,6 +72,7 @@
     import Evolution from "./Evolution.svelte";
     import type {Writable} from "svelte/store";
     import {writable} from "svelte/store";
+    import type {NPC} from "../js/npc";
 
     /**
      * Overworld component.
@@ -149,6 +150,9 @@
              */
             updatePosition(playerPositionInPx, targetPosition);
             updatePosition(walkerPositionInPx, walkerTargetPosition);
+            mainLoopContext.map.npcs.forEach(npc => {
+                updateNPCPosition(npc);
+            });
             drawElements();
 
 
@@ -197,11 +201,18 @@
     let aButtonValue: Writable<boolean> = writable(false);
     aButtonValue.subscribe(value => {
         keys.a.pressed = value;
-        if(value){
+        if (value && !mainLoopContext.playingScript) {
+            console.log('interact')
             let interactive = mainLoopContext.map?.elementInFront(playerPosition, mainLoopContext.player.direction);
-            let script = interactive?.interact(mainLoopContext, playerPosition);
-            console.log(script);
-            mainLoopContext.playScript(script);
+            let scripts = interactive?.interact(mainLoopContext, playerPosition);
+            let newScript  = scripts?.[0];
+            let previous = scripts?.[1];
+            if(newScript){
+                mainLoopContext.playScript(newScript, previous);
+            }else {
+                previous?.resume(mainLoopContext);
+            }
+
         }
     })
 
@@ -262,6 +273,13 @@
             Math.floor((playerPosition.y - 1) * (16 * mainLoopContext.imageScale)));
         walkerTargetPosition = new Position(walkerPositionInPx.x, walkerPositionInPx.y);
 
+        map.npcs?.forEach(npc => {
+            npc.positionInPx = new Position(
+                Math.floor(npc.position.x * (16 * mainLoopContext.imageScale)),
+                Math.floor(npc.position.y * (16 * mainLoopContext.imageScale)));
+            npc.targetPositionInPx = new Position(npc.positionInPx.x, npc.positionInPx.y);
+        });
+
         mainLoopContext.changingMap = true;
         mainLoopContext.displayChangingMap = true;
 
@@ -270,12 +288,18 @@
             onEnterScript = map.scripts?.find(s => s.triggerType === 'onEnter');
         }
 
+        let npcOnEnter = map.npcs.filter(npc => npc.movingScript);
+
         save.save.map = map;
         mainLoopContext.map = map;
+        
         setTimeout(() => {
             mainLoopContext.changingMap = false;
             if (onEnterScript) {
                 mainLoopContext.playScript(onEnterScript)
+            }
+            if (npcOnEnter?.length > 0) {
+                mainLoopContext.playMvts(npcOnEnter);
             }
 
         }, 4000);
@@ -367,10 +391,38 @@
         return move;
     }
 
-    function updatePosition(positionInPx: Position, targetPosition: Position) {
-        function easeInOutQuad(t) {
-            return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+    function easeInOutQuad(t) {
+        return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+    }
+
+    function updateNPCPosition(npc: NPC) {
+
+        if (!npc.positionInPx || !npc.targetPositionInPx) return;
+        npc.targetPositionInPx = new Position(
+            Math.floor(npc.targetPosition.x * (16 * mainLoopContext.imageScale)),
+            Math.floor(npc.targetPosition.y * (16 * mainLoopContext.imageScale)));
+
+
+        const deltaX = npc.targetPositionInPx.x - npc.positionInPx.x;
+        const deltaY = npc.targetPositionInPx.y - npc.positionInPx.y;
+        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        const speed = mainLoopContext.walk;
+        if (distance > 6) {
+
+            const easedDistance = easeInOutQuad(Math.min(1, distance / 5));
+            // Interpolate between current and target positions with eased distance
+            npc.positionInPx.x += deltaX * easedDistance * speed;
+            npc.positionInPx.y += deltaY * easedDistance * speed;
+        } else {
+            // Snap to the target position if movement is small
+            npc.positionInPx.x = npc.targetPositionInPx.x;
+            npc.positionInPx.y = npc.targetPositionInPx.y;
+            //npc.moving = false;
+            npc.position = new Position(npc.targetPosition.x, npc.targetPosition.y);
         }
+    }
+
+    function updatePosition(positionInPx: Position, targetPosition: Position) {
 
         const deltaX = targetPosition.x - positionInPx.x;
         const deltaY = targetPosition.y - positionInPx.y;
@@ -395,7 +447,7 @@
         // Background
         let mapDimensions = MAP_DRAWER.draw(ctx, mainLoopContext.map, mainLoopContext.imageScale, playerPositionInPx, mainLoopContext.debug);
 
-        drawJunctionArrow();
+        //drawJunctionArrow();
 
         // Player & walker
         if (mainLoopContext.player.direction === 'up') {
@@ -407,9 +459,7 @@
         }
 
         mainLoopContext.map.npcs.forEach(npc => {
-            NPC_DRAWER.draw(ctx, playerPositionInPx, npc.direction, mainLoopContext.playerScale, npc.moving, new Position(
-                Math.floor(npc.position.x * (16 * mainLoopContext.imageScale)),
-                Math.floor(npc.position.y * (16 * mainLoopContext.imageScale))), npc.spriteId, mapDimensions);
+            npc.drawer.draw(ctx, playerPositionInPx, npc, mainLoopContext.playerScale, mapDimensions);
         });
 
         // Foreground

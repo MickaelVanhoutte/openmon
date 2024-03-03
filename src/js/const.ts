@@ -1,7 +1,7 @@
 import {Pokedex} from "./pokemons/pokedex";
 import pokedexJson from "../assets/data/final/pokedexBW-animated2.json";
 import charactersJson from "../assets/characts/characts.json";
-import {NPCSpriteDrawer, PokeWalkerSpriteDrawer, SpritesHolder, WoldSpriteDrawer} from "./sprites/drawers";
+import {PokeWalkerSpriteDrawer, SpritesHolder, WoldSpriteDrawer} from "./sprites/drawers";
 import {writable} from "svelte/store";
 import type {Writable} from "svelte/store";
 import {ActionsContext, BattleContext} from "./battle/battle";
@@ -21,7 +21,6 @@ export const MAP_DRAWER = new WoldSpriteDrawer();
 
 export const POKE_WALKER = new PokeWalkerSpriteDrawer();
 
-export const NPC_DRAWER= new NPCSpriteDrawer();
 export const CHARACTER_SPRITES = new SpritesHolder(charactersJson);
 
 export const BATTLE_STATE = writable(new BattleContext());

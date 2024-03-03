@@ -1,6 +1,7 @@
 import type {OpenMap} from "../mapping/maps";
 import type {PokemonInstance} from "../pokemons/pokedex";
 import {CHARACTER_SPRITES} from "../const";
+import type {NPC} from "../npc";
 
 
 export class Position {
@@ -294,21 +295,26 @@ export class NPCSpriteDrawer {
     constructor() {
     }
 
-    draw(ctx: CanvasRenderingContext2D, playerPosition: Position, orientation: 'up' | 'down' | 'left' | 'right',
-         scale: number, moving: boolean, npcPosition: Position, spriteId: number, mapDim: {
+    draw(ctx: CanvasRenderingContext2D, playerPosition: Position ,npc: NPC, scale: number, mapDim: {
             width: number,
             height: number
         }) {
+       if (npc.positionInPx === undefined) {
+           return;
+       }
 
-        let image = this.images[spriteId];
+        let image = this.images[npc.spriteId];
         if (image && image.complete) {
-            this.drawImage(ctx, image, playerPosition, orientation, scale, moving, npcPosition, mapDim);
+            this.drawImage(ctx, image, playerPosition, npc.direction, scale, npc.moving, npc.positionInPx, mapDim);
         } else {
             image = new Image();
-            image.src = CHARACTER_SPRITES.getSprite(spriteId).overworld.source;
+            image.src = CHARACTER_SPRITES.getSprite(npc.spriteId).overworld.source;
             image.onload = () => {
-                this.images[spriteId] = image;
-                this.drawImage(ctx, image, playerPosition, orientation, scale, moving, npcPosition, mapDim);
+                if (npc.positionInPx === undefined) {
+                    return;
+                }
+                this.images[npc.spriteId] = image;
+                this.drawImage(ctx, image, playerPosition, npc.direction, scale, npc.moving, npc.positionInPx, mapDim);
             }
         }
     }
@@ -324,7 +330,9 @@ export class NPCSpriteDrawer {
             if (this.frames.max > 1) {
                 this.frames.elapsed += 1;
             }
-            this.frames.val += 1
+            if(this.frames.elapsed %2 === 0) {
+                this.frames.val += 1
+            }
             if (this.frames.val > this.frames.max - 1) {
                 this.frames.val = 0;
             }
@@ -339,7 +347,7 @@ export class NPCSpriteDrawer {
         const relativeY = npcPosition.y - playerPosition.y;
 
         let {centerX, centerY, offsetX, offsetY} = centerObject(ctx, scale, playerPosition, 16, mapDim);
-        offsetY -= relativeY;
+        offsetY -= relativeY - 6;
         offsetX -= relativeX;
 
         ctx.save();
