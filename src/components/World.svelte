@@ -68,11 +68,11 @@
     import {WorldContext} from "../js/common/context";
     import DialogView from "./common/DialogView.svelte";
     import type {Script} from "../js/common/scripts";
-    import {Dialog, Scriptable} from "../js/common/scripts";
-    import Evolution from "./Evolution.svelte";
+    import {Dialog} from "../js/common/scripts";
     import type {Writable} from "svelte/store";
     import {writable} from "svelte/store";
     import type {NPC} from "../js/npc";
+    import Evolution from "./common/Evolution.svelte";
 
     /**
      * Overworld component.
