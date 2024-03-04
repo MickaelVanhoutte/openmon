@@ -23,7 +23,6 @@ export class WorldContext {
     player: Character;
     playingScript?: Script;
 
-    // change background color
     constructor(player: Character) {
         this.player = player;
     }
