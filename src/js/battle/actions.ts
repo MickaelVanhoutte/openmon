@@ -1,9 +1,10 @@
 import {Move, MoveInstance, PokemonInstance} from "../pokemons/pokedex";
 import {MOVE_EFFECT_APPLIER} from "../const";
-import {Character} from "../player/player";
+import {Player} from "../characters/player";
 import {Pokeball} from "../items/items";
 import {EXPERIENCE_CHART} from "../pokemons/experience";
 import {ActionsContext, DamageResults, fromTypeChart} from "./battle";
+import {NPC} from "../characters/npc";
 
 export interface Action {
     name: string;
@@ -307,7 +308,7 @@ export class XPWin implements Action {
     }
 
     execute(ctx: ActionsContext): void {
-        let result = this.initiator.addXpResult(this.xp, ctx.opponent instanceof Character ? 3 : 1);
+        let result = this.initiator.addXpResult(this.xp, ctx.opponent instanceof Player ? 3 : 1);
 
         if (result.newMove?.length > 0) {
             result.newMove.forEach((move: string) => {
@@ -354,9 +355,9 @@ export class BagObject implements Action {
     public itemId: number;
     public target: PokemonInstance;
     public initiator: PokemonInstance;
-    public player: Character;
+    public player: Player;
 
-    constructor(itemId: number, target: PokemonInstance, initiator: PokemonInstance, player: Character) {
+    constructor(itemId: number, target: PokemonInstance, initiator: PokemonInstance, player: Player) {
         this.name = 'Bag Object';
         this.description = 'Use a bag object';
         this.itemId = itemId;
@@ -417,7 +418,7 @@ export class EndTurnChecks implements Action {
         }
 
         if ((ctx.isWild && ctx.opponent instanceof PokemonInstance && ctx.opponent.fainted) ||
-            (ctx.opponent instanceof Character && ctx.opponent.monsters.every((monster: PokemonInstance) => monster.fainted))) {
+            (ctx.opponent instanceof NPC && ctx.opponent.monsters.every((monster: PokemonInstance) => monster.fainted))) {
             //remove end turn action from stack
             ctx.turnStack = ctx.turnStack.filter((action: Action) => {
                 return !(action instanceof EndTurn) && (!(action instanceof Message) && action?.description.startsWith('What should'));
@@ -433,9 +434,27 @@ export class EndTurnChecks implements Action {
             ctx.battleResult.win = false;
             ctx.addToStack(new EndBattle(this.initiator));
             ctx.addToStack(new Message('You lose the battle...', this.initiator));
+        } else if (ctx.cOpponentMons.fainted && ctx.opponent instanceof NPC) {
+            if (ctx.settings?.difficulty === 1) {
+                // random non fainted
+                let nonFainted = ctx.opponent.monsters.filter((monster: PokemonInstance) => !monster.fainted);
+                ctx.cOpponentMons = nonFainted[Math.floor(Math.random() * nonFainted.length)];
+                ctx.addToStack(new Message(`${ctx.opponent.name} sent out ${ctx.cOpponentMons.name}!`, ctx.cOpponentMons));
+                ctx.opponentSwitch = true;
+            } else {
+                // non fainted with best type advantage
+                let nonFainted = ctx.opponent.monsters.filter((monster: PokemonInstance) => !monster.fainted);
+                let bestTypeAdvantage = nonFainted.reduce((acc: PokemonInstance | undefined, monster: PokemonInstance) => {
+                    let typeEffectiveness = this.initiator.types.reduce((acc: number, type: string) => {
+                        return acc * fromTypeChart(type, monster.types[0]);
+                    }, 1);
+                    return typeEffectiveness > 1 ? monster : acc;
+                }, undefined);
+                ctx.cOpponentMons = bestTypeAdvantage || nonFainted[Math.floor(Math.random() * nonFainted.length)];
+                ctx.addToStack(new Message(`${ctx.opponent.name} sent out ${ctx.cOpponentMons.name}!`, ctx.cOpponentMons));
+                ctx.opponentSwitch = true;
+            }
         } else if (ctx.cPlayerMons.fainted) {
-            console.log('change pokemon (TODO)');
-            //TODO
             ctx.forceChangePokemon();
         }
     }

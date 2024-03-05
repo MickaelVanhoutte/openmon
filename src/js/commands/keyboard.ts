@@ -1,4 +1,4 @@
-import {Character} from "../player/player";
+import {Player} from "../characters/player";
 
 
 export const keys = {

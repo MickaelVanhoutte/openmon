@@ -1,7 +1,7 @@
 import type {PokemonInstance} from "../pokemons/pokedex";
 import itemsJson from "../../assets/data/final/usable-items.json";
 import {ActionsContext} from "../battle/battle";
-import {Character} from "../player/player";
+import {Player} from "../characters/player";
 
 export class ItemUsageResult {
     public success: boolean;
@@ -45,7 +45,7 @@ export class Pokeball extends AItem {
     }
 
     doesApply(target: PokemonInstance, current?: PokemonInstance, actCtx?: ActionsContext): boolean {
-        return !(!actCtx || actCtx.opponent instanceof Character);
+        return !(!actCtx || actCtx.opponent instanceof Player);
     }
 
     apply(target: PokemonInstance, current: PokemonInstance): ItemUsageResult {

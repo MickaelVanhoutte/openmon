@@ -133,7 +133,7 @@
     import {ActionsContext, BattleState} from "../../../js/battle/battle";
     import {BATTLE_ACTX, BATTLE_STATE, ITEMS} from "../../../js/const";
     import Bag from "../bag/Bag.svelte";
-    import {Character} from "../../../js/player/player";
+    import {Player} from "../../../js/characters/player";
 
     export let pokemonListOpened: boolean;
     export let switchOpened: boolean;

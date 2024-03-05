@@ -1,8 +1,9 @@
 import "@abraham/reflection";
-import {Character} from "../player/player";
+import type {Character} from "../characters/player";
+import {Player} from "../characters/player";
 import {PokemonInstance} from "../pokemons/pokedex";
 import {BATTLE_STATE} from "../const";
-import type {Settings} from "../player/settings";
+import type {Settings} from "../characters/settings";
 import type {Action} from "./actions";
 import {Attack, BagObject, EndTurn, EndTurnChecks, Message, RunAway, SwitchAction, XPWin} from "./actions";
 import {EXPERIENCE_CHART} from "../pokemons/experience";
@@ -29,7 +30,7 @@ export class BattleResult {
 
 export class ActionsContext {
     turnStack: Action[];
-    player: Character;
+    player: Player;
     settings: Settings;
     cPlayerMons: PokemonInstance;
     opponent: Character | PokemonInstance;
@@ -39,9 +40,13 @@ export class ActionsContext {
     currentMessage: string;
     isPlayerTurn: boolean = true;
 
+    // Events
+    public changePokemon: boolean = false;
+    public opponentSwitch: boolean = false;
+
     public battleResult: BattleResult = new BattleResult(false);
 
-    constructor(turnStack: Action[], player: Character, settings: Settings, cPlayerMons: PokemonInstance, opponent: Character | PokemonInstance, cOpponentMons: PokemonInstance) {
+    constructor(turnStack: Action[], player: Player, settings: Settings, cPlayerMons: PokemonInstance, opponent: Character | PokemonInstance, cOpponentMons: PokemonInstance) {
         this.turnStack = turnStack;
         this.player = player;
         this.settings = settings;
@@ -82,12 +87,14 @@ export class ActionsContext {
                 if (this.settings.xpShare) {
                     let nonParticipants = this.player.monsters.filter((monster: PokemonInstance) => !this.participants.has(monster));
 
-                    let npXp = Math.floor(xp / 2);
-                    for (let nParticipant of nonParticipants) {
-                        if (!nParticipant.fainted) {
-                            this.addToStack(new XPWin(nParticipant, npXp));
-                            this.addToStack(new Message(`${nParticipant.name} gets ${npXp} experience via XP-Share!`, nParticipant));
+                    if(nonParticipants.length > 0) {
+                        let npXp = Math.floor(xp / 2);
+                        for (let nParticipant of nonParticipants) {
+                            if (!nParticipant.fainted) {
+                                this.addToStack(new XPWin(nParticipant, npXp));
+                            }
                         }
+                        this.addToStack(new Message(`The others received ${xp/2} experience via XP-Share!`, initiator));
                     }
                 }
 
@@ -111,6 +118,7 @@ export class ActionsContext {
     };
 
     public forceChangePokemon: () => void = () => {
+        this.changePokemon = true;
     };
 
 }
@@ -125,18 +133,15 @@ export class BattleState {
 
     public actCTx: ActionsContext;
 
-
-    // Events
-    public changePokemon: boolean = false;
     public onClose: (result: BattleResult) => void = () => {
     };
 
     public onPokemonChange: () => void = () => {
     };
 
-    constructor(player: Character, opponent: Character | PokemonInstance, settings: Settings) {
+    constructor(player: Player, opponent: Character | PokemonInstance, settings: Settings) {
 
-        let opponentCurrentMonster = opponent instanceof PokemonInstance ? opponent as PokemonInstance : (opponent as Character).monsters[0];
+        let opponentCurrentMonster = opponent instanceof PokemonInstance ? opponent as PokemonInstance : (opponent as Player).monsters[0];
         let playerCurrentMonster = player.monsters.find((monster: PokemonInstance) => !monster.fainted) || player.monsters[0];
 
         this.actCTx = new ActionsContext([], player, settings, playerCurrentMonster, opponent, opponentCurrentMonster);
@@ -147,10 +152,6 @@ export class BattleState {
         };
         this.actCTx.onPokemonChange = () => {
             this.onPokemonChange();
-        }
-
-        this.actCTx.forceChangePokemon = () => {
-            this.changePokemon = true;
         }
 
     }

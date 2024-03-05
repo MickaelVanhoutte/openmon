@@ -1,7 +1,7 @@
 import type {OpenMap} from "../mapping/maps";
 import type {PokemonInstance} from "../pokemons/pokedex";
 import {CHARACTER_SPRITES} from "../const";
-import type {NPC} from "../npc";
+import type {NPC} from "../characters/npc";
 
 
 export class Position {

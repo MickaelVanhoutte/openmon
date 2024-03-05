@@ -3,7 +3,17 @@ import {CHARACTER_SPRITES} from "../const";
 import {Bag} from "../items/bag";
 import type {Position} from "../sprites/drawers";
 
-export class Character {
+export interface Character {
+    spriteId: number;
+    name: string;
+    gender: 'MALE' | 'FEMALE';
+    monsters: PokemonInstance[];
+    bag: Bag;
+    moving: boolean;
+    direction: 'up' | 'down' | 'left' | 'right';
+}
+
+export class Player  implements Character{
     public spriteId: number;
     public name: string;
     public gender: 'MALE' | 'FEMALE';
@@ -14,7 +24,7 @@ export class Character {
     public direction: 'up' | 'down' | 'left' | 'right' = 'down';
 
     constructor(spriteId: number, name: string, gender: 'MALE' | 'FEMALE', monsters: PokemonInstance[], bag: Bag, lvl: number, moving: boolean, direction: 'up' | 'down' | 'left' | 'right') {
-        this.spriteId = 1;
+        this.spriteId = spriteId;
         this.name = name;
         this.gender = gender;
         this.monsters = monsters;
@@ -24,8 +34,8 @@ export class Character {
         this.direction = direction;
     }
 
-    public static fromScratch(spriteId: number, name: string, gender: 'MALE' | 'FEMALE'): Character {
-        return new Character(
+    public static fromScratch(spriteId: number, name: string, gender: 'MALE' | 'FEMALE'): Player {
+        return new Player(
             spriteId,
             name,
             gender,
@@ -37,8 +47,8 @@ export class Character {
         )
     }
 
-    public static fromInstance(character: Character): Character {
-        return new Character(
+    public static fromInstance(character: Player): Player {
+        return new Player(
             character.spriteId,
             character.name,
             character.gender,
@@ -50,7 +60,7 @@ export class Character {
         );
     }
 
-    public setPrototypes(): Character {
+    public setPrototypes(): Player {
         this.monsters.forEach((monster) => {
             Object.setPrototypeOf(monster, PokemonInstance.prototype);
         });
@@ -58,7 +68,10 @@ export class Character {
         return this;
     }
 
-    public draw(ctx: CanvasRenderingContext2D, type: 'front' | 'overworld', scale: number, playerPosition: Position, mapDim: {width: number, height: number}) {
+    public draw(ctx: CanvasRenderingContext2D, type: 'front' | 'overworld', scale: number, playerPosition: Position, mapDim: {
+        width: number,
+        height: number
+    }) {
         CHARACTER_SPRITES.draw(this.spriteId, ctx, type, this.direction, scale, this.moving, playerPosition, mapDim);
     }
 }

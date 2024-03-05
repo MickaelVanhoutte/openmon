@@ -7,6 +7,14 @@
     "expandedProjectPaths": [
     ],
     "fileStates": {
+        "Capital-city.tmx": {
+            "scale": 0.32,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 1281.25,
+                "y": 1281.25
+            }
+        },
         "Desert.tmx": {
             "scale": 0.355,
             "selectedLayer": 0,
@@ -19,8 +27,8 @@
             "scale": 0.5207,
             "selectedLayer": 4,
             "viewCenter": {
-                "x": 2106.77933550989,
-                "y": 1647.78183214903
+                "x": 1709.237564816593,
+                "y": 1645.8613405031688
             }
         },
         "Forest.tmx": {
