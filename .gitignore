@@ -12,3 +12,4 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 /src/assets/monsters/bw/
 /src/assets/monsters/heartgold-soulsilver/
+/tiled/beta/openmon.tiled-session
