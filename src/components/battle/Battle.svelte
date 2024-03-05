@@ -74,7 +74,13 @@
     let battleState: BattleState | undefined;
     let actCtx: ActionsContext | undefined;
 
-    $:changePokemon = battleState?.changePokemon;
+    $:changePokemon = actCtx?.changePokemon;
+    $:{
+        if (actCtx?.opponentSwitch) {
+            battleLoopContext.opponentdrawn = false;
+            actCtx.opponentSwitch = false;
+        }
+    }
 
     BATTLE_STATE.subscribe(value => {
         battleState = value.state;
@@ -129,17 +135,21 @@
             if (!battleState?.pokemonsAppearing) {
 
                 // animated gifs, handle them outside the canvas
+                // TODO : handle gender/shinys
                 if (!battleLoopContext.opponentdrawn) {
+                    if(!opponent){
+                        opponent = document.createElement('img') as HTMLImageElement;
+                        opponent.classList.add('opponent-sprite');
+                    }
+                    if(opponent) {
+                        opponent.src = actCtx?.cOpponentMons.sprites?.male?.front.frame1 || 'src/assets/monsters/bw/0.png';
+                        opponent.onload = () => {
 
-                    opponent = document.createElement('img') as HTMLImageElement;
-                    opponent.classList.add('opponent-sprite');
-                    opponent.src = actCtx?.cOpponentMons.sprites?.male?.front.frame1 || 'src/assets/monsters/bw/0.png';
-                    opponent.onload = () => {
-
-                        opponent.style.setProperty('--width', opponent.naturalWidth + 'px');
-                        opponent.style.setProperty('--height', opponent.naturalHeight + 'px');
-                        gifsWrapper.appendChild(opponent);
-                        battleLoopContext.opponentdrawn = true;
+                            opponent.style.setProperty('--width', opponent.naturalWidth + 'px');
+                            opponent.style.setProperty('--height', opponent.naturalHeight + 'px');
+                            gifsWrapper.appendChild(opponent);
+                            battleLoopContext.opponentdrawn = true;
+                        }
                     }
                 }
                 if (!battleLoopContext.allydrawn) {
@@ -181,7 +191,7 @@
             [actCtx.player.monsters[0], actCtx.player.monsters[pkmnIndex]] = [actCtx.player.monsters[pkmnIndex], actCtx.player.monsters[0]];
             actCtx.cPlayerMons = actCtx.player.monsters[0];
             actCtx.participants.add(actCtx.cPlayerMons);
-            battleState.changePokemon = false;
+            actCtx.changePokemon = false;
             actCtx.currentMessage = `What should ${actCtx.cPlayerMons.name} do?`;
             BATTLE_STATE.set(new BattleContext(battleState));
             battleLoopContext.allydrawn = false;

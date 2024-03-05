@@ -1,8 +1,8 @@
 import {Boundary, Jonction} from "./collisions";
 import {Position} from "../sprites/drawers";
 import {Script} from "../common/scripts";
-import type {Interactive} from "../npc";
-import {NPC} from "../npc";
+import type {Interactive} from "../characters/npc";
+import {NPC} from "../characters/npc";
 
 export class OpenMap {
     public background: string;
@@ -124,7 +124,7 @@ export class OpenMap {
                 Object.setPrototypeOf(position, Position.prototype);
             });
         });
-        this.npcs = this.npcs?.map((npc) => new NPC(npc.id, npc.name, npc.spriteId, npc.position, npc.direction, npc.mainScript, npc.dialogScripts, npc.movingScript));
+        this.npcs = this.npcs?.map((npc) => new NPC(npc.id, npc.name, npc.spriteId, npc.position, npc.direction, npc.gender, npc.monsterIds, npc.bag, npc.mainScript, npc.dialogScripts, npc.movingScript));
         this.scripts = this.scripts?.map((script) => new Script(script.triggerType, script.actions, script.stepPosition, script.replayable));
 
         return this;

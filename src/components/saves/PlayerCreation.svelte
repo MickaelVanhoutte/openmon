@@ -21,7 +21,7 @@
 
 <script lang="ts">
     import {Save, SaveContext} from "../../js/saves/saves";
-    import {Character} from "../../js/player/player";
+    import {Player} from "../../js/characters/player";
     import {POKEDEX} from "../../js/const";
     import {start} from "../../js/mapping/maps/start";
 
@@ -39,7 +39,7 @@
     export let saveContext: SaveContext;
 
     function handleSubmit() {
-        let player = Character.fromScratch(1, playerName, 'MALE');
+        let player = Player.fromScratch(1, playerName, 'MALE');
         /*player.bag.addItems(4, 5); // pokeball
         player.bag.addItems(17, 5); // potion
 

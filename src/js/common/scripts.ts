@@ -1,8 +1,6 @@
 import {Position} from "../sprites/drawers";
 import type {WorldContext} from "./context";
-import type {Unsubscriber} from "svelte/store";
-import type {NPC} from "../npc";
-import {unclipArea} from "chart.js/helpers";
+import type {NPC} from "../characters/npc";
 
 export abstract class Scriptable {
     type: string = 'scriptable';
@@ -88,7 +86,6 @@ export class MoveTo extends Scriptable {
             npc.moving = true;
             npc.direction = npc.position.x > this.position.x ? 'left' : npc.position.x < this.position.x ? 'right' : npc.position.y > this.position.y ? 'up' : 'down';
 
-            //console.log(this.position, context.map?.followerPosition);
             if (this.moveAllowed(context, this.position)) {
                 npc.targetPosition = this.position;
 
@@ -158,8 +155,84 @@ export class GiveItem extends Scriptable {
     }
 }
 
+export class MoveToPlayer extends Scriptable {
+    npcId: number;
+
+
+    constructor(npcId: number) {
+        super();
+        this.type = 'MoveToPlayer';
+        this.npcId = npcId;
+    }
+
+    play(context: WorldContext, onEnd: () => void): any {
+        let npc = context.map?.npcs?.find(npc => npc.id === this.npcId);
+        let playerPosition = context.map?.playerPosition;
+        if (npc && playerPosition) {
+            npc.moving = true;
+            npc.direction = npc.position.x > playerPosition.x ? 'left' : npc.position.x < playerPosition.x ? 'right' : npc.position.y > playerPosition.y ? 'up' : 'down';
+
+            // should move to the case before the player, depending the direction
+            let futurePosition: Position;
+            switch (npc.direction) {
+                case 'up':
+                    futurePosition = new Position(playerPosition.x, playerPosition.y + 1);
+                    break;
+                case 'down':
+                    futurePosition = new Position(playerPosition.x, playerPosition.y - 1);
+                    break;
+                case 'left':
+                    futurePosition = new Position(playerPosition.x + 1, playerPosition.y);
+                    break;
+                case 'right':
+                    futurePosition = new Position(playerPosition.x - 1, playerPosition.y);
+                    break;
+            }
+
+            npc.targetPosition = futurePosition;
+            this.waitMvtEnds(context, npc, onEnd);
+        } else {
+            this.finished = true;
+            onEnd();
+        }
+    }
+
+    private waitMvtEnds(context: WorldContext, npc: NPC, onEnd: () => void) {
+        let unsubscribe = setInterval(() => {
+            if (npc && npc.position.x === npc.targetPosition.x && npc.position.y === npc.targetPosition.y) {
+                clearInterval(unsubscribe);
+                npc.moving = false;
+                this.finished = true;
+                onEnd();
+            }
+        }, 200);
+    }
+}
+
+export class StartBattle extends Scriptable {
+
+    npcId: number;
+
+    constructor(npcId: number) {
+        super();
+        this.type = 'StartBattle';
+        this.npcId = npcId;
+    }
+
+    play(context: WorldContext, onEnd: () => void): any {
+        let npc = context.map?.npcs?.find(npc => npc.id === this.npcId);
+        if (npc) {
+
+            context.initiateBattle(npc);
+            //context.map?.startBattle(npc);
+        }
+        this.finished = true;
+        onEnd();
+    }
+}
+
 export class Script {
-    triggerType: 'onEnter' | 'onStep' | 'onInteract';
+    triggerType: 'onEnter' | 'onStep' | 'onInteract' | 'onSight';
     stepPosition?: Position;
     actions: Scriptable[];
     onEnd: () => void = () => {
@@ -171,9 +244,8 @@ export class Script {
 
     playing: boolean = false;
 
-    actionSubscription: Unsubscriber | undefined;
 
-    constructor(triggerType: 'onEnter' | 'onStep' | 'onInteract', actions: Scriptable[], stepPosition?: Position, replayable: boolean = false) {
+    constructor(triggerType: 'onEnter' | 'onStep' | 'onInteract' | 'onSight', actions: Scriptable[], stepPosition?: Position, replayable: boolean = false) {
         this.triggerType = triggerType;
         this.actions = actions;
         this.stepPosition = stepPosition;
@@ -192,6 +264,10 @@ export class Script {
                     return new MoveTo((action as MoveTo).npcId, (action as MoveTo).position);
                 case 'GiveItem':
                     return new GiveItem((action as GiveItem).itemId, (action as GiveItem).qty);
+                case 'StartBattle':
+                    return new StartBattle((action as StartBattle).npcId);
+                case 'MoveToPlayer':
+                    return new MoveToPlayer((action as MoveToPlayer).npcId);
                 default:
                     return action;
             }
@@ -225,7 +301,6 @@ export class Script {
     }
 
     interrupt(): Script {
-        console.log('interrupt');
         if (this.currentAction) this.currentAction.canceled = true;
         this.playing = false;
         return this;
@@ -233,11 +308,9 @@ export class Script {
 
     resume(context: WorldContext) {
         if (!this.currentAction?.finished) {
-            console.log('resuming to latest');
             this.playing = true;
             this.play(context, this.actions.indexOf(this.currentAction as Scriptable));
         } else {
-            console.log('resuming to next')
             this.playing = true;
             this.play(context, this.actions.indexOf(this.currentAction as Scriptable) + 1);
         }

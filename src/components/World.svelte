@@ -56,7 +56,7 @@
     import {Position} from "../js/sprites/drawers";
     import {BattleContext, BattleState} from "../js/battle/battle";
     import {PokemonInstance} from "../js/pokemons/pokedex";
-    import {Character} from "../js/player/player";
+    import {Player} from "../js/characters/player";
     import {onDestroy, onMount} from "svelte";
     import Menu from "./menus/Menu.svelte";
     import {BATTLE_STATE, MAP_DRAWER, MAPS, POKE_WALKER, POKEDEX} from "../js/const";
@@ -64,14 +64,14 @@
     import JoystickController from 'joystick-controller';
     import {OpenMap} from "../js/mapping/maps.js";
     import type {Jonction} from "../js/mapping/collisions";
-    import {Settings} from "../js/player/settings";
+    import {Settings} from "../js/characters/settings";
     import {WorldContext} from "../js/common/context";
     import DialogView from "./common/DialogView.svelte";
     import type {Script} from "../js/common/scripts";
     import {Dialog} from "../js/common/scripts";
     import type {Writable} from "svelte/store";
     import {writable} from "svelte/store";
-    import type {NPC} from "../js/npc";
+    import type {NPC} from "../js/characters/npc";
     import Evolution from "./common/Evolution.svelte";
 
     /**
@@ -100,7 +100,7 @@
     let boxOpened = false;
 
 
-    let mainLoopContext = new WorldContext(save.player);
+    let mainLoopContext = new WorldContext(save.player, save.settings);
 
     /*
     Positions (put that in context ?)
@@ -166,6 +166,7 @@
                     checkForStepInScript();
                     checkForFunction();
                     checkForBattle();
+                    checkForInSight();
                 }
             }
 
@@ -205,11 +206,11 @@
             console.log('interact')
             let interactive = mainLoopContext.map?.elementInFront(playerPosition, mainLoopContext.player.direction);
             let scripts = interactive?.interact(mainLoopContext, playerPosition);
-            let newScript  = scripts?.[0];
+            let newScript = scripts?.[0];
             let previous = scripts?.[1];
-            if(newScript){
+            if (newScript) {
                 mainLoopContext.playScript(newScript, previous);
-            }else {
+            } else {
                 previous?.resume(mainLoopContext);
             }
 
@@ -292,7 +293,7 @@
 
         save.save.map = map;
         mainLoopContext.map = map;
-        
+
         setTimeout(() => {
             mainLoopContext.changingMap = false;
             if (onEnterScript) {
@@ -474,34 +475,40 @@
     function checkForBattle() {
         if (mainLoopContext.map && mainLoopContext.map.hasBattleZoneAt(playerPosition) && Math.random() < 0.07) {
             let monster = mainLoopContext.map.randomMonster();
-            initiateBattle(POKEDEX.findById(monster.id).result.instanciate(monster.level));
+            mainLoopContext.initiateBattle(POKEDEX.findById(monster.id).result.instanciate(monster.level));
         }
     }
 
-    function initiateBattle(opponent: PokemonInstance | Character) {
+    function checkForInSight() {
+        if (mainLoopContext.map?.npcs && mainLoopContext.map?.npcs?.length > 0) {
+            let npcsWithInSightScript: NPC[] = mainLoopContext.map.npcs.filter(npc =>
+                npc.mainScript &&
+                (!npc.mainScript.played || npc.mainScript.replayable) &&
+                npc.mainScript.triggerType === 'onSight'
+            );
 
-        let bContext = new BattleContext();
-        bContext.state = new BattleState(save.player, opponent, save.settings || new Settings())
-        BATTLE_STATE.set(bContext);
-
-        setTimeout(() => {
-            BATTLE_STATE.update(value => {
-                if (value.state) {
-                    value.state.starting = false;
-                    value.state.pokemonsAppearing = true;
+            npcsWithInSightScript.forEach(npc => {
+                //let inSight = npc.isInSight(playerPosition);
+                // player is in sight if the npc looks in his direction and is within 3 tiles
+                //get 3 tiles in front of the npc  :
+                let positionsInFront: Position[];
+                if (npc.direction === 'down') {
+                    positionsInFront = [new Position(npc.position.x, npc.position.y + 1), new Position(npc.position.x, npc.position.y + 2), new Position(npc.position.x, npc.position.y + 3)];
+                } else if (npc.direction === 'up') {
+                    positionsInFront = [new Position(npc.position.x, npc.position.y - 1), new Position(npc.position.x, npc.position.y - 2), new Position(npc.position.x, npc.position.y - 3)];
+                } else if (npc.direction === 'left') {
+                    positionsInFront = [new Position(npc.position.x - 1, npc.position.y), new Position(npc.position.x - 2, npc.position.y), new Position(npc.position.x - 3, npc.position.y)];
+                } else {
+                    positionsInFront = [new Position(npc.position.x + 1, npc.position.y), new Position(npc.position.x + 2, npc.position.y), new Position(npc.position.x + 3, npc.position.y)];
                 }
-                return value;
-            });
-        }, 2000);
+                let inSight = positionsInFront.some(p => p.x === playerPosition.x && p.y === playerPosition.y);
 
-        setTimeout(() => {
-            BATTLE_STATE.update(value => {
-                if (value.state) {
-                    value.state.pokemonsAppearing = false;
+                if (inSight) {
+                    console.log('in sight !');
+                    mainLoopContext.playScript(npc.mainScript);
                 }
-                return value;
             });
-        }, 3500);
+        }
     }
 
     /*

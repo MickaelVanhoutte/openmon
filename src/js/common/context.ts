@@ -1,8 +1,12 @@
-import type {Character} from "../player/player";
+import type {Character, Player} from "../characters/player";
 import type {Script} from "./scripts";
 import type {OpenMap} from "../mapping/maps";
-import type {NPC} from "../npc";
+import {NPC} from "../characters/npc";
 import {Position} from "../sprites/drawers";
+import {PokemonInstance} from "../pokemons/pokedex";
+import {BattleContext, BattleState} from "../battle/battle";
+import {Settings} from "../characters/settings";
+import {BATTLE_STATE, POKEDEX} from "../const";
 
 export class WorldContext {
     id: number = 0;
@@ -20,11 +24,14 @@ export class WorldContext {
     displayChangingMap: boolean = false;
     changingMap: boolean = false;
 
-    player: Character;
+    player: Player;
     playingScript?: Script;
 
-    constructor(player: Character) {
+    settings?: Settings;
+
+    constructor(player: Player, settings?: Settings) {
         this.player = player;
+        this.settings = settings;
     }
 
     playScript(script?: Script, previous?: Script) {
@@ -45,12 +52,12 @@ export class WorldContext {
     }
 
     followerAt(position: Position): boolean {
-       return this.behindPlayerPosition()?.x === position.x && this.behindPlayerPosition()?.y === position.y;
+        return this.behindPlayerPosition()?.x === position.x && this.behindPlayerPosition()?.y === position.y;
     }
 
     behindPlayerPosition() {
         let playerPosition = this.map?.playerPosition;
-        if(playerPosition) {
+        if (playerPosition) {
             let direction = this.player.direction;
             switch (direction) {
                 case 'up':
@@ -63,5 +70,38 @@ export class WorldContext {
                     return new Position(playerPosition.x - 1, playerPosition.y);
             }
         }
+    }
+
+    initiateBattle(opponent: PokemonInstance | Character) {
+
+        if (opponent instanceof NPC && opponent?.monsterIds?.length > 0) {
+            opponent.monsters = opponent.monsterIds.map((id) => {
+                return POKEDEX.findById(id).result.instanciate(6);
+            });
+        }
+
+
+        let bContext = new BattleContext();
+        bContext.state = new BattleState(this.player, opponent, this.settings || new Settings())
+        BATTLE_STATE.set(bContext);
+
+        setTimeout(() => {
+            BATTLE_STATE.update(value => {
+                if (value.state) {
+                    value.state.starting = false;
+                    value.state.pokemonsAppearing = true;
+                }
+                return value;
+            });
+        }, 2000);
+
+        setTimeout(() => {
+            BATTLE_STATE.update(value => {
+                if (value.state) {
+                    value.state.pokemonsAppearing = false;
+                }
+                return value;
+            });
+        }, 3500);
     }
 }

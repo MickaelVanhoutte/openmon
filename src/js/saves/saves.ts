@@ -1,6 +1,6 @@
-import {Character} from "../player/player";
+import {Player} from "../characters/player";
 import {OpenMap} from "../mapping/maps";
-import {Settings} from "../player/settings";
+import {Settings} from "../characters/settings";
 import {PokemonInstance} from "../pokemons/pokedex";
 import {PokemonBox} from "../pokemons/boxes";
 
@@ -10,13 +10,13 @@ export class Save {
 
     public id: number;
     public name: string;
-    public player: Character;
+    public player: Player;
     public map: OpenMap;
     public settings: Settings;
     public date: Date;
     public pkmnBoxes: Array<PokemonBox>
 
-    constructor(player: Character, map: OpenMap) {
+    constructor(player: Player, map: OpenMap) {
         this.name = player.name;
         this.player = player;
         this.map = map;
@@ -36,7 +36,7 @@ export class Save {
 
     public setPrototypes(): Save {
         this.date = new Date(this.date);
-        Object.setPrototypeOf(this.player, Character.prototype);
+        Object.setPrototypeOf(this.player, Player.prototype);
         this.player.setPrototypes();
         Object.setPrototypeOf(this.map, OpenMap.prototype);
         this.map.setPrototypes();

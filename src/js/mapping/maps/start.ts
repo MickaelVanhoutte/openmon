@@ -1,8 +1,9 @@
 import {OpenMap} from "../maps";
 import {Position} from "../../sprites/drawers";
 import {Jonction} from "../collisions";
-import {Dialog, GiveItem, Message, MoveTo, Script} from "../../common/scripts";
-import {NPC} from "../../npc";
+import {Dialog, GiveItem, Message, MoveTo, MoveToPlayer, Script, StartBattle} from "../../common/scripts";
+import {NPC} from "../../characters/npc";
+import {POKEDEX} from "../../const";
 
 const monsters = Array.from({length: 251}, (v, k) => k + 1);
 
@@ -219,7 +220,7 @@ const dialogsScripts = [
         ])])
 ];
 
-const npc1 = new NPC(1, 'NPC1', 2, new Position(32, 43), 'down', npcScript, dialogsScripts);
+const npc1 = new NPC(1, 'NPC1', 2, new Position(32, 43), 'down', 'MALE', [], undefined, npcScript, dialogsScripts);
 
 const npc2MvtScript = new Script('onEnter', [
     new MoveTo(2, new Position(31, 53)),
@@ -233,10 +234,24 @@ const npc2MvtScript = new Script('onEnter', [
 const npc2Dialogs = new Script('onInteract', [
     new Dialog([new Message('I am moving !', 'System')]),
 ]);
-const npc2 = new NPC(2, 'NPC2', 2, new Position(30, 53), 'right', undefined, [npc2Dialogs], npc2MvtScript);
+const npc2 = new NPC(2, 'NPC2', 2, new Position(30, 53), 'right', 'MALE', [], undefined, undefined, [npc2Dialogs], npc2MvtScript);
+
+
+const npc3 = new NPC(3, 'NPC3', 2, new Position(28, 48), 'down', 'MALE',
+    [43, 27],
+    undefined, new Script(
+        'onSight',
+        [
+            new MoveToPlayer(3),
+            new Dialog([
+                new Message('I am a trainer !', 'System')
+            ]),
+            new StartBattle(3)
+        ]
+    ), undefined);
 
 export const start = OpenMap.fromScratch('src/assets/maps/start.png', 100, 60,
     collisions, battles, monsters,
     new Position(18, 52), new Position(0, 0),
-    [3, 6], [jonction], undefined, 2239, 4295, [npc1, npc2],
+    [3, 6], [jonction], undefined, 2239, 4295, [npc1, npc2, npc3],
     scripts);
