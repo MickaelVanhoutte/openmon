@@ -7,12 +7,76 @@
     "expandedProjectPaths": [
     ],
     "fileStates": {
+        "Desert.tmx": {
+            "scale": 0.355,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 1402.8169014084508,
+                "y": 1214.0845070422536
+            }
+        },
         "First-beach.tmx": {
-            "scale": 0.8366,
+            "scale": 0.5207,
             "selectedLayer": 4,
             "viewCenter": {
-                "x": 1329.1895768587137,
-                "y": 683.719818312216
+                "x": 2106.77933550989,
+                "y": 1647.78183214903
+            }
+        },
+        "Forest.tmx": {
+            "scale": 0.328046875,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 1173.612764944034,
+                "y": 1999.714217670874
+            }
+        },
+        "Glacier.tmx": {
+            "scale": 0.237975,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 2000.2101061035826,
+                "y": 1201.806912490808
+            }
+        },
+        "Harbour-city.tmx": {
+            "scale": 0.40375,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 881.7337461300308,
+                "y": 1040.2476780185757
+            }
+        },
+        "Mountains.tmx": {
+            "scale": 0.29746874999999995,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 1600.1680848828662,
+                "y": 1200.1260636621498
+            }
+        },
+        "Pllains.tmx": {
+            "scale": 0.29746874999999995,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 1600.1680848828662,
+                "y": 1042.1262737682532
+            }
+        },
+        "Snd-Beach-Ligue.tmx": {
+            "scale": 0.1388,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 2305.475504322766,
+                "y": 1945.2449567723338
+            }
+        },
+        "Volcano.tmx": {
+            "scale": 0.39662499999999995,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 1225.3387960920268,
+                "y": 1061.4560352978256
             }
         },
         "bigmap.tmx": {
@@ -26,11 +90,11 @@
                 12,
                 6
             ],
-            "scale": 0.0875,
+            "scale": 0.0704,
             "selectedLayer": 15,
             "viewCenter": {
-                "x": 4114.285714285714,
-                "y": 4388.571428571428
+                "x": 11193.181818181816,
+                "y": 6349.431818181817
             }
         },
         "first-beach.tmx": {
@@ -77,11 +141,11 @@
         }
     },
     "last.imagePath": "/Users/mika/workspace/projects-perso/openmon/tileset",
-    "map.height": 120,
+    "map.height": 160,
     "map.lastUsedFormat": "tmx",
     "map.tileHeight": 16,
     "map.tileWidth": 16,
-    "map.width": 150,
+    "map.width": 160,
     "openFiles": [
         "tilleset-5g.tsx",
         "tileset-5g-interior.tsx",
