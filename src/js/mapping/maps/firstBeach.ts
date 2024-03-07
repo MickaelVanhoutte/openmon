@@ -494,7 +494,7 @@ export const firstBeach = OpenMap.fromScratch('src/assets/maps/First-beach.png',
     new Position(78, 57), new Position(0, 0),
     [3, 6], [], 'src/assets/maps/First-beach-foreground.png', 39951, 40104, 40111, npcs,
     [
-        new Script('onGameStart', [
+       /* new Script('onGameStart', [
             new Dialog([
                 new Message('... Uh...'),
                 new Message('...What happened ?...'),
@@ -506,5 +506,5 @@ export const firstBeach = OpenMap.fromScratch('src/assets/maps/First-beach.png',
                 new Message('Wait! My Pokemon !'),
                 new Message('Which one is it already ?')
             ])
-        ])
+        ])*/
     ]);

@@ -24,13 +24,15 @@
         <div class="battleEnd" class:active={battleState && battleState?.ending || mainLoopContext.changingMap}></div>
     {/if}
 
-    {#if wakeUp}
+    <!--{#if wakeUp}
         <div class="wakeUp">
             <div class="top"></div>
             <div class="bot"></div>
         </div>
+    {/if}-->
+    {#if starterSelection}
+        <StarterSelection bind:canvasWidth={canvasWidth}/>
     {/if}
-
 
     <div class="joysticks" bind:this={joysticks}></div>
 
@@ -80,6 +82,7 @@
     import {writable} from "svelte/store";
     import type {NPC} from "../js/characters/npc";
     import Evolution from "./common/Evolution.svelte";
+    import StarterSelection from "./common/StarterSelection.svelte";
 
     /**
      * Overworld component.
@@ -92,6 +95,8 @@
     export let joysticks: HTMLDivElement;
     export let saveContext: SaveContext;
     export let save: SelectedSave;
+
+    let canvasWidth: number;
 
     let ctx;
     let battleState: BattleState | undefined;
@@ -106,6 +111,7 @@
     let openSummary = false;
     let boxOpened = false;
     let wakeUp = false;
+    let starterSelection = false;
 
 
     let mainLoopContext = new WorldContext(save);
@@ -147,7 +153,11 @@
         let now = Date.now();
         let elapsed = now - mainLoopContext.then;
 
-        if (elapsed > mainLoopContext.fpsInterval && mainLoopContext?.map && !battleState?.ending && !mainLoopContext.displayChangingMap && evolutions?.length === 0) {
+        if (elapsed > mainLoopContext.fpsInterval &&
+            mainLoopContext?.map &&
+            !battleState?.ending &&
+            !mainLoopContext.displayChangingMap &&
+            evolutions?.length === 0) {
             mainLoopContext.then = now - (elapsed % mainLoopContext.fpsInterval);
 
             ctx.fillStyle = 'black';
@@ -350,7 +360,8 @@
             !boxOpened &&
             !mainLoopContext.playingScript &&
             !mainLoopContext.displayChangingMap &&
-            !battleState?.starting;
+            !battleState?.starting &&
+            !starterSelection;
     }
 
     function move(): boolean {
@@ -640,6 +651,9 @@
         window.addEventListener('keydown', keyDownListener);
         window.addEventListener('keyup', keyUpListener);
         initContext();
+
+        canvasWidth = Math.min(window.innerWidth,canvas.width);
+        starterSelection = true;
 
         abButtons = new ABButtons(abButtonsC, (a, b) => {
             /* keys.a.pressed = a;
