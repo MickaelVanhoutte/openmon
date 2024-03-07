@@ -221,7 +221,7 @@ export class PokeWalkerSpriteDrawer {
          scale: number, moving: boolean, walkerPosition: Position, pokemon: PokemonInstance, mapDim: {
             width: number,
             height: number
-        }) {
+        }, drawGrass: boolean = true) {
 
         let id = ("00" + pokemon.id).slice(-3);
         id = pokemon.isShiny ? id + 's' : id;
@@ -265,7 +265,7 @@ export class PokeWalkerSpriteDrawer {
         const relativeY = walkerPosition.y - playerPosition.y;
 
         let {centerX, centerY, offsetX, offsetY} = centerObject(ctx, scale, playerPosition, 16, mapDim);
-        offsetY -= relativeY -6;
+        offsetY -= relativeY - 6;
         offsetX -= relativeX;
 
         ctx.save();
@@ -295,13 +295,13 @@ export class NPCSpriteDrawer {
     constructor() {
     }
 
-    draw(ctx: CanvasRenderingContext2D, playerPosition: Position ,npc: NPC, scale: number, mapDim: {
-            width: number,
-            height: number
-        }) {
-       if (npc.positionInPx === undefined) {
-           return;
-       }
+    draw(ctx: CanvasRenderingContext2D, playerPosition: Position, npc: NPC, scale: number, mapDim: {
+        width: number,
+        height: number
+    }) {
+        if (npc.positionInPx === undefined) {
+            return;
+        }
 
         let image = this.images[npc.spriteId];
         if (image && image.complete) {
@@ -330,7 +330,7 @@ export class NPCSpriteDrawer {
             if (this.frames.max > 1) {
                 this.frames.elapsed += 1;
             }
-            if(this.frames.elapsed %2 === 0) {
+            if (this.frames.elapsed % 2 === 0) {
                 this.frames.val += 1
             }
             if (this.frames.val > this.frames.max - 1) {
@@ -396,7 +396,10 @@ export class PlayerSprite {
 
     public draw(canvas: CanvasRenderingContext2D, type: 'front' | 'overworld',
                 orientation: 'up' | 'down' | 'left' | 'right',
-                scale: number, moving: boolean, playerPosition: Position, mapDim: { width: number, height: number }) {
+                scale: number, moving: boolean, playerPosition: Position, mapDim: {
+            width: number,
+            height: number
+        }, drawGrass: boolean) {
         let sprite = this[type];
         let img = type === 'front' ? this.frontImg : this.worldImg;
         if (img.complete)
@@ -415,7 +418,7 @@ export class PlayerSprite {
             }
         let sY = OrientationIndexes[orientation] * sprite.height;
         let {centerX, centerY, offsetX, offsetY} = centerObject(canvas, scale, playerPosition, 16, mapDim);
-        offsetY+= 6;
+        offsetY += 6;
 
         canvas.save();
         canvas.translate(centerX - offsetX, centerY - offsetY);
@@ -425,11 +428,11 @@ export class PlayerSprite {
             this.frames.val * (sprite.width),
             sY,
             sprite.width,
-            sprite.height,
+            drawGrass ? sprite.height - sprite.height * .20 : sprite.height,
             0,
             0,
             sprite.width * scale,
-            sprite.height * scale
+            drawGrass? sprite.height * scale *.80 : sprite.height * scale
         );
         canvas.restore();
     }
@@ -496,8 +499,11 @@ export class SpritesHolder {
 
     public draw(spriteId: number, canvas: CanvasRenderingContext2D, type: 'front' | 'overworld',
                 orientation: 'up' | 'down' | 'left' | 'right',
-                scale: number, moving: boolean, playerPosition: Position, mapDim: { width: number, height: number }) {
-        this.spritesByCharacter[spriteId].draw(canvas, type, orientation, scale, moving, playerPosition, mapDim);
+                scale: number, moving: boolean, playerPosition: Position, mapDim: {
+            width: number,
+            height: number
+        }, drawGrass: boolean) {
+        this.spritesByCharacter[spriteId].draw(canvas, type, orientation, scale, moving, playerPosition, mapDim, drawGrass);
     }
 }
 

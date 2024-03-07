@@ -31,9 +31,9 @@ export class Message {
     text: string;
     speaker: string;
 
-    constructor(text: string, speaker: string) {
+    constructor(text: string, speaker?: string) {
         this.text = text;
-        this.speaker = speaker;
+        this.speaker = speaker || 'System';
     }
 }
 
@@ -232,7 +232,7 @@ export class StartBattle extends Scriptable {
 }
 
 export class Script {
-    triggerType: 'onEnter' | 'onStep' | 'onInteract' | 'onSight';
+    triggerType: 'onEnter' | 'onStep' | 'onInteract' | 'onSight' | 'onGameStart';
     stepPosition?: Position;
     actions: Scriptable[];
     onEnd: () => void = () => {
@@ -245,7 +245,7 @@ export class Script {
     playing: boolean = false;
 
 
-    constructor(triggerType: 'onEnter' | 'onStep' | 'onInteract' | 'onSight', actions: Scriptable[], stepPosition?: Position, replayable: boolean = false) {
+    constructor(triggerType: 'onEnter' | 'onStep' | 'onInteract' | 'onSight' | 'onGameStart', actions: Scriptable[], stepPosition?: Position, replayable: boolean = false) {
         this.triggerType = triggerType;
         this.actions = actions;
         this.stepPosition = stepPosition;
