@@ -250,8 +250,10 @@ const npc3 = new NPC(3, 'NPC3', 2, new Position(28, 48), 'down', 'MALE',
         ]
     ), undefined);
 
-export const start = OpenMap.fromScratch('src/assets/maps/start.png', 100, 60,
+/*
+export const start = OpenMap.fromScratch('src/assets/maps/alphas/start.png', 100, 60,
     collisions, battles, monsters,
     new Position(18, 52), new Position(0, 0),
     [3, 6], [jonction], undefined, 2239, 4295, [npc1, npc2, npc3],
     scripts);
+*/

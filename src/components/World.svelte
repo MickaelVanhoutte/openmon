@@ -1,4 +1,4 @@
-<div class="world-wrapper" bind:this={wrapper}>
+<div class="world-wrapper" bind:this={wrapper} class:blur={wakeUp}>
     <canvas bind:this={canvas} id="main" width="1024" height="1024"></canvas>
 
     <Menu bind:menuOpened bind:pokemonListOpened bind:bagOpened bind:openSummary bind:boxOpened
@@ -22,6 +22,13 @@
 
     {#if !pokemonListOpened && !bagOpened}
         <div class="battleEnd" class:active={battleState && battleState?.ending || mainLoopContext.changingMap}></div>
+    {/if}
+
+    {#if wakeUp}
+        <div class="wakeUp">
+            <div class="top"></div>
+            <div class="bot"></div>
+        </div>
     {/if}
 
 
@@ -98,9 +105,10 @@
     let bagOpened = false;
     let openSummary = false;
     let boxOpened = false;
+    let wakeUp = false;
 
 
-    let mainLoopContext = new WorldContext(save.player, save.settings);
+    let mainLoopContext = new WorldContext(save);
 
     /*
     Positions (put that in context ?)
@@ -157,6 +165,8 @@
 
 
             if (canMove()) {
+                checkForGameStart();
+
                 let moved = move();
                 if (moved) {
 
@@ -203,7 +213,6 @@
     aButtonValue.subscribe(value => {
         keys.a.pressed = value;
         if (value && !mainLoopContext.playingScript) {
-            console.log('interact')
             let interactive = mainLoopContext.map?.elementInFront(playerPosition, mainLoopContext.player.direction);
             let scripts = interactive?.interact(mainLoopContext, playerPosition);
             let newScript = scripts?.[0];
@@ -216,6 +225,21 @@
 
         }
     })
+
+    function checkForGameStart() {
+        if (mainLoopContext.gameStarted() && !wakeUp) {
+            let script = mainLoopContext.scriptsByTrigger.get('onGameStart')?.at(0);
+            wakeUp = true;
+
+            setTimeout(() => {
+                mainLoopContext.contextCreation = Date.now();
+                wakeUp = false;
+                if (script) {
+                    mainLoopContext.playScript(script);
+                }
+            }, 5000);
+        }
+    }
 
     function checkForStepInScript() {
         let stepScript: Script | undefined;
@@ -452,12 +476,17 @@
 
         // Player & walker
         if (mainLoopContext.player.direction === 'up') {
-            mainLoopContext.player.draw(ctx, 'overworld', mainLoopContext.playerScale, playerPositionInPx, mapDimensions);
-            POKE_WALKER.draw(ctx, playerPositionInPx, walkerDirection, mainLoopContext.playerScale, mainLoopContext.player.moving, walkerPositionInPx, mainLoopContext.player.monsters.at(0), mapDimensions);
+            mainLoopContext.player.draw(ctx, 'overworld', mainLoopContext.playerScale, playerPositionInPx, mapDimensions, mainLoopContext.map.hasBattleZoneAt(playerPosition));
+            if (mainLoopContext.player.monsters?.length > 0) {
+                POKE_WALKER.draw(ctx, playerPositionInPx, walkerDirection, mainLoopContext.playerScale, mainLoopContext.player.moving, walkerPositionInPx, mainLoopContext.player.monsters.at(0), mapDimensions, mainLoopContext.map.hasBattleZoneAt(playerPosition));
+            }
         } else {
-            POKE_WALKER.draw(ctx, playerPositionInPx, walkerDirection, mainLoopContext.playerScale, mainLoopContext.player.moving, walkerPositionInPx, mainLoopContext.player.monsters.at(0), mapDimensions);
-            mainLoopContext.player.draw(ctx, 'overworld', mainLoopContext.playerScale, playerPositionInPx, mapDimensions);
+            if (mainLoopContext.player.monsters?.length > 0) {
+                POKE_WALKER.draw(ctx, playerPositionInPx, walkerDirection, mainLoopContext.playerScale, mainLoopContext.player.moving, walkerPositionInPx, mainLoopContext.player.monsters.at(0), mapDimensions, mainLoopContext.map.hasBattleZoneAt(playerPosition));
+            }
+            mainLoopContext.player.draw(ctx, 'overworld', mainLoopContext.playerScale, playerPositionInPx, mapDimensions, mainLoopContext.map.hasBattleZoneAt(playerPosition));
         }
+
 
         mainLoopContext.map.npcs.forEach(npc => {
             npc.drawer.draw(ctx, playerPositionInPx, npc, mainLoopContext.playerScale, mapDimensions);
@@ -642,6 +671,10 @@
     left: 0;
     right: 0;
     bottom: 0;
+
+    &.blur {
+      animation: blurry 5s linear infinite;
+    }
 
     .joysticks {
       height: 100dvh;
@@ -828,4 +861,96 @@
     }
 
   }
+
+  .wakeUp {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100dvw;
+    height: 100dvh;
+    z-index: 10;
+    pointer-events: none;
+
+    .top, .bot {
+      position: absolute;
+      width: 100%;
+      height: 50dvh;
+      background: black;
+      z-index: 11;
+      pointer-events: none;
+    }
+
+    .top {
+      top: 0;
+      animation: blinkingDown 5s forwards;
+    }
+
+    .bot {
+      bottom: 0;
+
+      animation: blinkingTop 5s forwards;
+    }
+
+  }
+
+  @keyframes -global-blinkingDown {
+    20% {
+      top: -50%;
+    }
+    25% {
+      top: 0;
+    }
+
+    40% {
+      top: -50%;
+    }
+    50% {
+      top: 0;
+    }
+    65% {
+      top: -50%;
+    }
+    75% {
+      top: 0;
+    }
+    100% {
+      top: -50%
+    }
+  }
+
+  @keyframes -global-blinkingTop {
+    20% {
+      bottom: -50%;
+    }
+    25% {
+      bottom: 0;
+    }
+    40% {
+      bottom: -50%;
+    }
+    50% {
+      bottom: 0;
+    }
+    65% {
+      bottom: -50%;
+    }
+    75% {
+      bottom: 0;
+    }
+    100% {
+      bottom: -50%
+    }
+  }
+
+  @keyframes -global-blurry {
+    0% {
+      filter: blur(3px) brightness(1.5);
+      -webkit-filter: blur(3px) brightness(1.5);
+    }
+    100% {
+      filter: blur(0) brightness(1);
+      -webkit-filter: blur(0) brightness(1);
+    }
+  }
+
 </style>

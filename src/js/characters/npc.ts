@@ -21,7 +21,7 @@ export class NPC implements Character, Interactive {
     direction: 'up' | 'down' | 'left' | 'right' = 'down';
 
     mainScript?: Script;
-    dialogScripts?: Script[];
+    dialogScripts: Script[];
     movingScript?: Script;
 
     position: Position;
@@ -47,7 +47,7 @@ export class NPC implements Character, Interactive {
         this.monsters = [];
         this.bag = bag || new Bag();
         this.mainScript = mainScript ? new Script(mainScript?.triggerType, mainScript?.actions, mainScript?.stepPosition, mainScript?.replayable) : undefined;
-        this.dialogScripts = dialogScripts?.map((script) => new Script(script.triggerType, script.actions, script.stepPosition, script.replayable));
+        this.dialogScripts = dialogScripts?.map((script) => new Script(script.triggerType, script.actions, script.stepPosition, script.replayable)) || [];
         this.movingScript = movingScript ? new Script(movingScript?.triggerType, movingScript?.actions, movingScript?.stepPosition, movingScript?.replayable) : undefined;
         this.drawer = new NPCSpriteDrawer();
     }
