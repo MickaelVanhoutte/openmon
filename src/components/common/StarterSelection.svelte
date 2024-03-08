@@ -31,8 +31,15 @@
     import DialogView from "./DialogView.svelte";
     import {POKEDEX} from "../../js/const";
     import {Dialog, Message} from "../../js/common/scripts";
+    import type {Writable} from "svelte/store";
+    import type {WorldContext} from "../../js/common/context";
 
+    export let context: WorldContext;
     export let canvasWidth;
+    export let starterSelection: boolean;
+
+    export let aButton: Writable<boolean>;
+
     let translateZ = canvasWidth * .4;
 
     let monsters = [
@@ -63,6 +70,11 @@
         currentPokemon = monsters[currentIndex];
     }
 
+    function select() {
+        context.player.monsters.push(currentPokemon.instanciate(5));
+        starterSelection = false;
+    }
+
     const keyDownListener = (e) => {
         switch (e.key) {
             case 'ArrowRight' :
@@ -71,11 +83,22 @@
             case 'ArrowLeft' :
                 prev();
                 break;
+            case 'Enter' :
+                select();
         }
     };
+    let unsubscribe;
 
     onMount(() => {
         window.addEventListener('keydown', keyDownListener);
+        setTimeout(() => {
+            unsubscribe = aButton?.subscribe((value) => {
+                if (value) {
+                    select();
+                }
+            });
+        }, 1000);
+
         return () => window.removeEventListener('keydown', keyDownListener);
     });
 
