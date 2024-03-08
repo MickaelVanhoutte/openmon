@@ -7,6 +7,7 @@ import {PokemonInstance} from "../pokemons/pokedex";
 import {BattleContext, BattleState} from "../battle/battle";
 import {Settings} from "../characters/settings";
 import {BATTLE_STATE, POKEDEX} from "../const";
+import {SelectedSave} from "../saves/saves";
 
 export class WorldContext {
     id: number = 0;
@@ -28,18 +29,59 @@ export class WorldContext {
     playingScript?: Script;
 
     settings?: Settings;
+    save: SelectedSave;
 
-    constructor(player: Player, settings?: Settings) {
-        this.player = player;
-        this.settings = settings;
+    contextCreation: number = Date.now();
+
+
+    scriptsByTrigger: Map<string, Script[]> = new Map<string, Script[]>();
+
+    constructor(save: SelectedSave) {
+        this.save = save;
+        this.player = save.player;
+        this.settings = save.settings;
+        this.contextCreation = Date.now();
+
+        let allScripts: Script[] = save.map.scripts
+            .concat(save.map.npcs.map((npc) => npc.mainScript).filter((script) => script !== undefined) as Script[])
+            .concat(save.map.npcs.map((npc) => npc.dialogScripts).flat().filter((script) => script !== undefined) as Script[])
+            .concat(save.map.npcs.map((npc) => npc.movingScript).filter((script) => script !== undefined) as Script[]);
+        allScripts.forEach((script) => {
+            if (this.scriptsByTrigger.has(script.triggerType)) {
+                this.scriptsByTrigger.get(script.triggerType)?.push(script);
+            } else {
+                this.scriptsByTrigger.set(script.triggerType, [script]);
+            }
+        });
+        console.log(this.scriptsByTrigger);
     }
 
-    playScript(script?: Script, previous?: Script) {
+    gameStarted() {
+        console.log(this.contextCreation - this.save.save.date);
+        // less than 3 seconds passed since the context creation and save date
+        return this.contextCreation - this.save.save.date < 5000 ||
+            (this.scriptsByTrigger.get('onGameStart') !== undefined &&
+                this.scriptsByTrigger.get('onGameStart')?.at(0) !== undefined &&
+                !this.scriptsByTrigger?.get('onGameStart')?.at(0)?.played);
+    }
+
+    playScript(script?: Script, previous?: Script, onEnd?: () => void) {
         if (script && !this.playingScript) {
             script.onEnd = () => {
                 this.playingScript = undefined;
-                previous?.resume(this);
+                if (previous) {
+                    if (onEnd) {
+                        previous.onEnd = onEnd;
+                    }
+                    previous?.resume(this);
+                } else {
+                    if (onEnd) {
+                        onEnd();
+                    }
+                }
+
             };
+            console.log(this, script);
             this.playingScript = script;
             script.start(this);
         }

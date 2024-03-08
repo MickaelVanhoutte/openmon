@@ -12,8 +12,10 @@ export class OpenMap {
     public height: number;
 
     public collisions: number[];
+    public water: number[];
     public battles: number[];
     public collisionsZones: Boundary[];
+    public waterZones: Boundary[];
     public battleZones: Boundary[];
 
     public monsters: number[];
@@ -24,20 +26,21 @@ export class OpenMap {
 
     public battleTile: number;
     public collisionTile: number;
+    public waterTile: number;
 
     public jonctions: Jonction[] = [];
 
-    public npcs?: NPC[] = [];
-    public scripts?: Script[];
+    public npcs: NPC[] = [];
+    public scripts: Script[];
 
 
     constructor(background: string, width: number, height: number,
-                collisions: number[], battles: number[], monsters: number[],
+                collisions: number[], waterCollisions: number[], battles: number[], monsters: number[],
                 playerInitialPosition: Position,
                 playerMovedOffset: Position = new Position(),
                 levelRange: number[] = [1, 100],
                 jonctions: Jonction[] = [],
-                foreground?: string, battleTile?: number, collisionTile?: number, npcs?:NPC[], scripts?: Script[]) {
+                foreground?: string, battleTile?: number, collisionTile?: number, waterTile?: number, npcs?: NPC[], scripts?: Script[]) {
         this.background = background;
         this.foreground = foreground;
         this.playerInitialPosition = playerInitialPosition;
@@ -46,23 +49,26 @@ export class OpenMap {
         this.height = height;
         this.battleTile = battleTile || 2239;
         this.collisionTile = collisionTile || 4295;
+        this.waterTile = waterTile || 40111;
         this.collisions = collisions;
+        this.water = waterCollisions;
         this.battles = battles;
-        this.collisionsZones = this.initBoundaries(collisions, width);
-        this.battleZones = this.initBattlesZones(battles, width);
+        this.collisionsZones = this.initBoundaries(this.collisions, width, this.collisionTile);
+        this.waterZones = this.initBoundaries(this.water, width, this.waterTile);
+        this.battleZones = this.initBattlesZones(this.battles, width, this.battleTile);
         this.monsters = monsters;
         this.levelRange = levelRange;
         this.jonctions = jonctions;
-        this.npcs = npcs;
-        this.scripts = scripts;
+        this.npcs = npcs || []
+        this.scripts = scripts || [];
     }
 
     public static fromScratch(background: string, width: number, height: number,
-                              collisions: number[], battles: number[], monsters: number[],
+                              collisions: number[], waterCollisions: number[], battles: number[], monsters: number[],
                               playerInitialPosition: Position = new Position(), playerMovedOffset: Position = new Position(),
                               levelRange: number[] = [1, 100],
                               jonctions: Jonction[] = [],
-                              foreground?: string, battleTile?: number, collisionTile?: number, npcs?:NPC[], scripts?: Script[]): OpenMap {
+                              foreground?: string, battleTile?: number, collisionTile?: number, waterTile?: number, npcs?: NPC[], scripts?: Script[]): OpenMap {
 
 
         return new OpenMap(
@@ -70,6 +76,7 @@ export class OpenMap {
             width,
             height,
             collisions,
+            waterCollisions,
             battles,
             monsters,
             playerInitialPosition,
@@ -79,12 +86,13 @@ export class OpenMap {
             foreground,
             battleTile,
             collisionTile,
+            waterTile,
             npcs,
             scripts
         )
     }
 
-    get  playerPosition() {
+    get playerPosition() {
         return new Position(this.playerInitialPosition.x + this.playerMovedOffset.x, this.playerInitialPosition.y + this.playerMovedOffset.y);
     }
 
@@ -94,6 +102,7 @@ export class OpenMap {
             map.width,
             map.height,
             map.collisions,
+            map.water,
             map.battles,
             map.monsters,
             map.playerInitialPosition,
@@ -103,6 +112,7 @@ export class OpenMap {
             map?.foreground,
             map?.battleTile,
             map?.collisionTile,
+            map?.waterTile,
             map?.npcs,
             map?.scripts
         )
@@ -136,7 +146,7 @@ export class OpenMap {
         return {id: monsterId, level: level};
     }
 
-    public initBattlesZones(battles: number [], width: number) {
+    public initBattlesZones(battles: number [], width: number, tileId: number) {
         const battle_map = [];
         for (let i = 0; i < battles.length; i += width) {
             battle_map.push(battles.slice(i, width + i));
@@ -145,7 +155,7 @@ export class OpenMap {
         const boundariesTmp: Boundary[] = [];
         battle_map.forEach((row, y) => {
             row.forEach((col, x) => {
-                if (col === this.battleTile) {
+                if (col === tileId) {
                     const boundary = new Boundary(
                         new Position(x, y)
                     );
@@ -156,7 +166,7 @@ export class OpenMap {
         return boundariesTmp;
     }
 
-    public initBoundaries(collisions: number[], width: number) {
+    public initBoundaries(collisions: number[], width: number, tileId: number) {console.log(tileId);
         const collision_map = [];
         for (let i = 0; i < collisions.length; i += width) {
             collision_map.push(collisions.slice(i, width + i));
@@ -165,7 +175,7 @@ export class OpenMap {
         const boundariesTmp: Boundary[] = [];
         collision_map.forEach((row, y) => {
             row.forEach((col, x) => {
-                if (col === this.collisionTile) {
+                if (col === tileId) {
                     const boundary = new Boundary(new Position(x, y));
                     boundariesTmp.push(boundary);
                 }
@@ -182,9 +192,13 @@ export class OpenMap {
 
     hasBoundaryAt(position: Position) {
         return this.collisionsZones.some((boundary) => {
-            return boundary.position.x === position.x && boundary.position.y === position.y;
-        }) || position.x < 0 || position.y < 0 || position.x > this.width - 1 || position.y > this.height - 1
-        || this.npcAt(position);
+                return boundary.position.x === position.x && boundary.position.y === position.y;
+            }) ||
+            position.x < 0 || position.y < 0 || position.x > this.width - 1 || position.y > this.height - 1 ||
+            this.npcAt(position) ||
+            this.waterZones.some((boundary) => {
+                return boundary.position.x === position.x && boundary.position.y === position.y; // && TODO : trigger surf ?
+            });
     }
 
     jonctionAt(position: Position): Jonction | undefined {
@@ -204,7 +218,7 @@ export class OpenMap {
         });
     }
 
-    public elementInFront (position: Position, direction: 'up' | 'down' | 'left' | 'right') {
+    public elementInFront(position: Position, direction: 'up' | 'down' | 'left' | 'right') {
         let elementPosition = new Position(position.x, position.y);
         switch (direction) {
             case 'up':
@@ -220,7 +234,6 @@ export class OpenMap {
                 elementPosition.x += 1;
                 break;
         }
-        console.log(elementPosition, this.npcs);
         return this.elementAt(elementPosition);
     }
 

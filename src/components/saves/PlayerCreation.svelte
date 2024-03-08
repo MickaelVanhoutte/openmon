@@ -23,7 +23,7 @@
     import {Save, SaveContext} from "../../js/saves/saves";
     import {Player} from "../../js/characters/player";
     import {POKEDEX} from "../../js/const";
-    import {start} from "../../js/mapping/maps/start";
+    import {firstBeach} from "../../js/mapping/maps/firstBeach";
 
     /**
      * Player creation component
@@ -57,20 +57,18 @@
         player.bag.addItems(28, 5);
         player.bag.addItems(29, 5);
 */
-        player.monsters.push(POKEDEX.findById(3).result.instanciate(36));
+       /* player.monsters.push(POKEDEX.findById(3).result.instanciate(36));
         player.monsters.push(POKEDEX.findById(25).result.instanciate(5));
 
         player.monsters.push(POKEDEX.findById(6).result.instanciate(100));
         player.monsters.push(POKEDEX.findById(9).result.instanciate(5));
         player.monsters.push(POKEDEX.findById(143).result.instanciate(5));
 
-        let chenipan = POKEDEX.findById(10).result.instanciate(6)
-        console.log(chenipan);
+        let chenipan = POKEDEX.findById(10).result.instanciate(6);
         chenipan.currentXp = chenipan.xpToNextLevel - 1;
-        player.monsters.push(chenipan);
+        player.monsters.push(chenipan);*/
 
-        console.log(player);
-        saveContext = saveContext.createSave(new Save(player, start));
+        saveContext = saveContext.createSave(new Save(player, firstBeach));
     }
 
 </script>
