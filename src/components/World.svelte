@@ -5,7 +5,7 @@
           bind:save bind:saveContext/>
 
     {#if hasDialog}
-        <DialogView bind:context={mainLoopContext} bind:dialog={currentAction} bind:aButton={aButtonValue}/>
+        <DialogView bind:dialog={currentAction} bind:aButton={aButtonValue}/>
     {/if}
 
     {#if evolutions?.length > 0}
@@ -21,17 +21,17 @@
     {/if}
 
     {#if !pokemonListOpened && !bagOpened}
-        <div class="battleEnd" class:active={battleState && battleState?.ending || mainLoopContext.changingMap}></div>
+        <div class="battleEnd" class:active={battleState && battleState?.ending || mainLoopContext?.changingMap}></div>
     {/if}
 
-    <!--{#if wakeUp}
+    {#if wakeUp}
         <div class="wakeUp">
             <div class="top"></div>
             <div class="bot"></div>
         </div>
-    {/if}-->
+    {/if}
     {#if starterSelection}
-        <StarterSelection bind:canvasWidth={canvasWidth}/>
+        <StarterSelection bind:context={mainLoopContext} bind:starterSelection={starterSelection} bind:canvasWidth={canvasWidth} bind:aButton={aButtonValue}/>
     {/if}
 
     <div class="joysticks" bind:this={joysticks}></div>
@@ -40,7 +40,7 @@
     <div class="ab-buttons" bind:this={abButtonsC}></div>
 
     <div class="run-toggle">
-        {#if mainLoopContext.running}
+        {#if mainLoopContext?.running}
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M9.82986 8.78986L7.99998 9.45588V13H5.99998V8.05H6.015L11.2834 6.13247C11.5274 6.03855 11.7922 5.99162 12.0648 6.0008C13.1762 6.02813 14.1522 6.75668 14.4917 7.82036C14.678 8.40431 14.848 8.79836 15.0015 9.0025C15.9138 10.2155 17.3653 11 19 11V13C16.8253 13 14.8823 12.0083 13.5984 10.4526L12.9008 14.4085L15 16.17V23H13V17.1025L10.7307 15.1984L10.003 19.3253L3.10938 18.1098L3.45667 16.1401L8.38071 17.0084L9.82986 8.78986ZM13.5 5.5C12.3954 5.5 11.5 4.60457 11.5 3.5C11.5 2.39543 12.3954 1.5 13.5 1.5C14.6046 1.5 15.5 2.39543 15.5 3.5C15.5 4.60457 14.6046 5.5 13.5 5.5Z"></path>
             </svg>
@@ -51,8 +51,8 @@
         {/if}
 
         <label class="switch">
-            <input type="checkbox" checked="{mainLoopContext.running ? 'checked' : ''}"
-                   on:change={mainLoopContext.running = !mainLoopContext.running}>
+            <input type="checkbox" checked="{mainLoopContext?.running ? 'checked' : ''}"
+                   on:change={mainLoopContext.running = !mainLoopContext?.running}>
             <span>
             </span>
         </label>
@@ -63,9 +63,7 @@
 
     import {ABButtons, keys, lastKey, resetKeys} from "../js/commands/keyboard";
     import {Position} from "../js/sprites/drawers";
-    import {BattleContext, BattleState} from "../js/battle/battle";
-    import {PokemonInstance} from "../js/pokemons/pokedex";
-    import {Player} from "../js/characters/player";
+    import {BattleState} from "../js/battle/battle";
     import {onDestroy, onMount} from "svelte";
     import Menu from "./menus/Menu.svelte";
     import {BATTLE_STATE, MAP_DRAWER, MAPS, POKE_WALKER, POKEDEX} from "../js/const";
@@ -73,7 +71,6 @@
     import JoystickController from 'joystick-controller';
     import {OpenMap} from "../js/mapping/maps.js";
     import type {Jonction} from "../js/mapping/collisions";
-    import {Settings} from "../js/characters/settings";
     import {WorldContext} from "../js/common/context";
     import DialogView from "./common/DialogView.svelte";
     import type {Script} from "../js/common/scripts";
@@ -114,7 +111,7 @@
     let starterSelection = false;
 
 
-    let mainLoopContext = new WorldContext(save);
+    let mainLoopContext: WorldContext;
 
     /*
     Positions (put that in context ?)
@@ -136,6 +133,7 @@
 
 
     function initContext() {
+        mainLoopContext = new WorldContext(save);
         mainLoop();
         loadMap(save.map);
     }
@@ -175,14 +173,11 @@
 
 
             if (canMove()) {
-                checkForGameStart();
 
                 let moved = move();
                 if (moved) {
 
-                    /*
-                        Positioon checks
-                    */
+                    /*Position checks*/
                     checkForStepInScript();
                     checkForFunction();
                     checkForBattle();
@@ -215,7 +210,7 @@
     Scripts
      */
 
-    $:currentScript = mainLoopContext.playingScript;
+    $:currentScript = mainLoopContext?.playingScript;
     $:currentAction = currentScript?.currentAction;
     $:hasDialog = currentAction?.type === 'Dialog';
 
@@ -236,19 +231,21 @@
         }
     })
 
-    function checkForGameStart() {
+    function checkForGameStart(): boolean {
         if (mainLoopContext.gameStarted() && !wakeUp) {
             let script = mainLoopContext.scriptsByTrigger.get('onGameStart')?.at(0);
             wakeUp = true;
-
             setTimeout(() => {
                 mainLoopContext.contextCreation = Date.now();
                 wakeUp = false;
                 if (script) {
-                    mainLoopContext.playScript(script);
+                    console.log(script)
+                    mainLoopContext.playScript(script, undefined, () => starterSelection = true);
                 }
             }, 5000);
+            return true;
         }
+        return false;
     }
 
     function checkForStepInScript() {
@@ -319,7 +316,7 @@
         mainLoopContext.displayChangingMap = true;
 
         let onEnterScript: Script | undefined;
-        if (map.scripts !== undefined && map.scripts?.length > 0) {
+        if (map.scripts && map.scripts?.length > 0) {
             onEnterScript = map.scripts?.find(s => s.triggerType === 'onEnter');
         }
 
@@ -330,6 +327,7 @@
 
         setTimeout(() => {
             mainLoopContext.changingMap = false;
+
             if (onEnterScript) {
                 mainLoopContext.playScript(onEnterScript)
             }
@@ -340,6 +338,7 @@
         }, 4000);
         setTimeout(() => {
             mainLoopContext.displayChangingMap = false;
+            checkForGameStart();
         }, 2000);
     }
 
@@ -652,8 +651,7 @@
         window.addEventListener('keyup', keyUpListener);
         initContext();
 
-        canvasWidth = Math.min(window.innerWidth,canvas.width);
-        starterSelection = true;
+        canvasWidth = Math.min(window.innerWidth, canvas.width);
 
         abButtons = new ABButtons(abButtonsC, (a, b) => {
             /* keys.a.pressed = a;

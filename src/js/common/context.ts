@@ -58,19 +58,30 @@ export class WorldContext {
 
     gameStarted() {
         console.log(this.contextCreation - this.save.save.date);
-       // less than 3 seconds passed since the context creation and save date
+        // less than 3 seconds passed since the context creation and save date
         return this.contextCreation - this.save.save.date < 5000 ||
-            ( this.scriptsByTrigger.get('onGameStart') !== undefined &&
-            this.scriptsByTrigger.get('onGameStart')?.at(0) !== undefined &&
-            !this.scriptsByTrigger?.get('onGameStart')?.at(0)?.played);
+            (this.scriptsByTrigger.get('onGameStart') !== undefined &&
+                this.scriptsByTrigger.get('onGameStart')?.at(0) !== undefined &&
+                !this.scriptsByTrigger?.get('onGameStart')?.at(0)?.played);
     }
 
-    playScript(script?: Script, previous?: Script) {
+    playScript(script?: Script, previous?: Script, onEnd?: () => void) {
         if (script && !this.playingScript) {
             script.onEnd = () => {
                 this.playingScript = undefined;
-                previous?.resume(this);
+                if (previous) {
+                    if (onEnd) {
+                        previous.onEnd = onEnd;
+                    }
+                    previous?.resume(this);
+                } else {
+                    if (onEnd) {
+                        onEnd();
+                    }
+                }
+
             };
+            console.log(this, script);
             this.playingScript = script;
             script.start(this);
         }
