@@ -13,7 +13,6 @@
     import type {Dialog} from "../../js/common/scripts";
     import type {Writable} from "svelte/store";
 
-    export let context: WorldContext;
     export let dialog: Dialog;
 
     export let animate: boolean = true;
@@ -21,7 +20,7 @@
 
     export let aButton: Writable<boolean>;
 
-    let current: string = dialog?.current?.text || '';
+    $:current = dialog?.current?.text || '';
 
    let unsubscribe;
 

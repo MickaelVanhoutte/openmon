@@ -2,15 +2,14 @@ import {Pokedex} from "./pokemons/pokedex";
 import pokedexJson from "../assets/data/final/pokedexBW-animated2.json";
 import charactersJson from "../assets/characts/characts.json";
 import {PokeWalkerSpriteDrawer, SpritesHolder, WoldSpriteDrawer} from "./sprites/drawers";
-import {writable} from "svelte/store";
 import type {Writable} from "svelte/store";
+import {writable} from "svelte/store";
 import {ActionsContext, BattleContext} from "./battle/battle";
 import "@abraham/reflection";
 import {container} from "tsyringe";
 import {MoveEffectApplier} from "./pokemons/move-effects";
-import {start} from "./mapping/maps/start";
-import {startVillage} from "./mapping/maps/start-village";
 import {ItemsReferences} from "./items/items";
+import {firstBeach} from "./mapping/maps/firstBeach";
 
 export const ITEMS = new ItemsReferences();
 export let POKEDEX = new Pokedex(pokedexJson);
@@ -36,6 +35,5 @@ BATTLE_STATE.subscribe((state) => {
 export const MOVE_EFFECT_APPLIER = container.resolve(MoveEffectApplier);
 
 export const MAPS = {
-    0: start,
-    1: startVillage,
+    0: firstBeach,
 }

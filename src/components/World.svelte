@@ -1,11 +1,11 @@
-<div class="world-wrapper" bind:this={wrapper}>
+<div class="world-wrapper" bind:this={wrapper} class:blur={wakeUp}>
     <canvas bind:this={canvas} id="main" width="1024" height="1024"></canvas>
 
     <Menu bind:menuOpened bind:pokemonListOpened bind:bagOpened bind:openSummary bind:boxOpened
           bind:save bind:saveContext/>
 
     {#if hasDialog}
-        <DialogView bind:context={mainLoopContext} bind:dialog={currentAction} bind:aButton={aButtonValue}/>
+        <DialogView bind:dialog={currentAction} bind:aButton={aButtonValue}/>
     {/if}
 
     {#if evolutions?.length > 0}
@@ -21,9 +21,18 @@
     {/if}
 
     {#if !pokemonListOpened && !bagOpened}
-        <div class="battleEnd" class:active={battleState && battleState?.ending || mainLoopContext.changingMap}></div>
+        <div class="battleEnd" class:active={battleState && battleState?.ending || mainLoopContext?.changingMap}></div>
     {/if}
 
+    {#if wakeUp}
+        <div class="wakeUp">
+            <div class="top"></div>
+            <div class="bot"></div>
+        </div>
+    {/if}
+    {#if starterSelection}
+        <StarterSelection bind:context={mainLoopContext} bind:starterSelection={starterSelection} bind:canvasWidth={canvasWidth} bind:aButton={aButtonValue}/>
+    {/if}
 
     <div class="joysticks" bind:this={joysticks}></div>
 
@@ -31,7 +40,7 @@
     <div class="ab-buttons" bind:this={abButtonsC}></div>
 
     <div class="run-toggle">
-        {#if mainLoopContext.running}
+        {#if mainLoopContext?.running}
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M9.82986 8.78986L7.99998 9.45588V13H5.99998V8.05H6.015L11.2834 6.13247C11.5274 6.03855 11.7922 5.99162 12.0648 6.0008C13.1762 6.02813 14.1522 6.75668 14.4917 7.82036C14.678 8.40431 14.848 8.79836 15.0015 9.0025C15.9138 10.2155 17.3653 11 19 11V13C16.8253 13 14.8823 12.0083 13.5984 10.4526L12.9008 14.4085L15 16.17V23H13V17.1025L10.7307 15.1984L10.003 19.3253L3.10938 18.1098L3.45667 16.1401L8.38071 17.0084L9.82986 8.78986ZM13.5 5.5C12.3954 5.5 11.5 4.60457 11.5 3.5C11.5 2.39543 12.3954 1.5 13.5 1.5C14.6046 1.5 15.5 2.39543 15.5 3.5C15.5 4.60457 14.6046 5.5 13.5 5.5Z"></path>
             </svg>
@@ -42,8 +51,8 @@
         {/if}
 
         <label class="switch">
-            <input type="checkbox" checked="{mainLoopContext.running ? 'checked' : ''}"
-                   on:change={mainLoopContext.running = !mainLoopContext.running}>
+            <input type="checkbox" checked="{mainLoopContext?.running ? 'checked' : ''}"
+                   on:change={mainLoopContext.running = !mainLoopContext?.running}>
             <span>
             </span>
         </label>
@@ -54,9 +63,7 @@
 
     import {ABButtons, keys, lastKey, resetKeys} from "../js/commands/keyboard";
     import {Position} from "../js/sprites/drawers";
-    import {BattleContext, BattleState} from "../js/battle/battle";
-    import {PokemonInstance} from "../js/pokemons/pokedex";
-    import {Player} from "../js/characters/player";
+    import {BattleState} from "../js/battle/battle";
     import {onDestroy, onMount} from "svelte";
     import Menu from "./menus/Menu.svelte";
     import {BATTLE_STATE, MAP_DRAWER, MAPS, POKE_WALKER, POKEDEX} from "../js/const";
@@ -64,7 +71,6 @@
     import JoystickController from 'joystick-controller';
     import {OpenMap} from "../js/mapping/maps.js";
     import type {Jonction} from "../js/mapping/collisions";
-    import {Settings} from "../js/characters/settings";
     import {WorldContext} from "../js/common/context";
     import DialogView from "./common/DialogView.svelte";
     import type {Script} from "../js/common/scripts";
@@ -73,6 +79,7 @@
     import {writable} from "svelte/store";
     import type {NPC} from "../js/characters/npc";
     import Evolution from "./common/Evolution.svelte";
+    import StarterSelection from "./common/StarterSelection.svelte";
 
     /**
      * Overworld component.
@@ -86,6 +93,8 @@
     export let saveContext: SaveContext;
     export let save: SelectedSave;
 
+    let canvasWidth: number;
+
     let ctx;
     let battleState: BattleState | undefined;
     $:evolutions = mainLoopContext?.player?.monsters?.filter(p => p.canEvolve());
@@ -98,9 +107,11 @@
     let bagOpened = false;
     let openSummary = false;
     let boxOpened = false;
+    let wakeUp = false;
+    let starterSelection = false;
 
 
-    let mainLoopContext = new WorldContext(save.player, save.settings);
+    let mainLoopContext: WorldContext;
 
     /*
     Positions (put that in context ?)
@@ -122,6 +133,7 @@
 
 
     function initContext() {
+        mainLoopContext = new WorldContext(save);
         mainLoop();
         loadMap(save.map);
     }
@@ -139,7 +151,11 @@
         let now = Date.now();
         let elapsed = now - mainLoopContext.then;
 
-        if (elapsed > mainLoopContext.fpsInterval && mainLoopContext?.map && !battleState?.ending && !mainLoopContext.displayChangingMap && evolutions?.length === 0) {
+        if (elapsed > mainLoopContext.fpsInterval &&
+            mainLoopContext?.map &&
+            !battleState?.ending &&
+            !mainLoopContext.displayChangingMap &&
+            evolutions?.length === 0) {
             mainLoopContext.then = now - (elapsed % mainLoopContext.fpsInterval);
 
             ctx.fillStyle = 'black';
@@ -157,12 +173,11 @@
 
 
             if (canMove()) {
+
                 let moved = move();
                 if (moved) {
 
-                    /*
-                        Positioon checks
-                    */
+                    /*Position checks*/
                     checkForStepInScript();
                     checkForFunction();
                     checkForBattle();
@@ -195,7 +210,7 @@
     Scripts
      */
 
-    $:currentScript = mainLoopContext.playingScript;
+    $:currentScript = mainLoopContext?.playingScript;
     $:currentAction = currentScript?.currentAction;
     $:hasDialog = currentAction?.type === 'Dialog';
 
@@ -203,7 +218,6 @@
     aButtonValue.subscribe(value => {
         keys.a.pressed = value;
         if (value && !mainLoopContext.playingScript) {
-            console.log('interact')
             let interactive = mainLoopContext.map?.elementInFront(playerPosition, mainLoopContext.player.direction);
             let scripts = interactive?.interact(mainLoopContext, playerPosition);
             let newScript = scripts?.[0];
@@ -216,6 +230,23 @@
 
         }
     })
+
+    function checkForGameStart(): boolean {
+        if (mainLoopContext.gameStarted() && !wakeUp) {
+            let script = mainLoopContext.scriptsByTrigger.get('onGameStart')?.at(0);
+            wakeUp = true;
+            setTimeout(() => {
+                mainLoopContext.contextCreation = Date.now();
+                wakeUp = false;
+                if (script) {
+                    console.log(script)
+                    mainLoopContext.playScript(script, undefined, () => starterSelection = true);
+                }
+            }, 5000);
+            return true;
+        }
+        return false;
+    }
 
     function checkForStepInScript() {
         let stepScript: Script | undefined;
@@ -285,7 +316,7 @@
         mainLoopContext.displayChangingMap = true;
 
         let onEnterScript: Script | undefined;
-        if (map.scripts !== undefined && map.scripts?.length > 0) {
+        if (map.scripts && map.scripts?.length > 0) {
             onEnterScript = map.scripts?.find(s => s.triggerType === 'onEnter');
         }
 
@@ -296,6 +327,7 @@
 
         setTimeout(() => {
             mainLoopContext.changingMap = false;
+
             if (onEnterScript) {
                 mainLoopContext.playScript(onEnterScript)
             }
@@ -306,6 +338,7 @@
         }, 4000);
         setTimeout(() => {
             mainLoopContext.displayChangingMap = false;
+            checkForGameStart();
         }, 2000);
     }
 
@@ -326,7 +359,8 @@
             !boxOpened &&
             !mainLoopContext.playingScript &&
             !mainLoopContext.displayChangingMap &&
-            !battleState?.starting;
+            !battleState?.starting &&
+            !starterSelection;
     }
 
     function move(): boolean {
@@ -452,12 +486,17 @@
 
         // Player & walker
         if (mainLoopContext.player.direction === 'up') {
-            mainLoopContext.player.draw(ctx, 'overworld', mainLoopContext.playerScale, playerPositionInPx, mapDimensions);
-            POKE_WALKER.draw(ctx, playerPositionInPx, walkerDirection, mainLoopContext.playerScale, mainLoopContext.player.moving, walkerPositionInPx, mainLoopContext.player.monsters.at(0), mapDimensions);
+            mainLoopContext.player.draw(ctx, 'overworld', mainLoopContext.playerScale, playerPositionInPx, mapDimensions, mainLoopContext.map.hasBattleZoneAt(playerPosition));
+            if (mainLoopContext.player.monsters?.length > 0) {
+                POKE_WALKER.draw(ctx, playerPositionInPx, walkerDirection, mainLoopContext.playerScale, mainLoopContext.player.moving, walkerPositionInPx, mainLoopContext.player.monsters.at(0), mapDimensions, mainLoopContext.map.hasBattleZoneAt(playerPosition));
+            }
         } else {
-            POKE_WALKER.draw(ctx, playerPositionInPx, walkerDirection, mainLoopContext.playerScale, mainLoopContext.player.moving, walkerPositionInPx, mainLoopContext.player.monsters.at(0), mapDimensions);
-            mainLoopContext.player.draw(ctx, 'overworld', mainLoopContext.playerScale, playerPositionInPx, mapDimensions);
+            if (mainLoopContext.player.monsters?.length > 0) {
+                POKE_WALKER.draw(ctx, playerPositionInPx, walkerDirection, mainLoopContext.playerScale, mainLoopContext.player.moving, walkerPositionInPx, mainLoopContext.player.monsters.at(0), mapDimensions, mainLoopContext.map.hasBattleZoneAt(playerPosition));
+            }
+            mainLoopContext.player.draw(ctx, 'overworld', mainLoopContext.playerScale, playerPositionInPx, mapDimensions, mainLoopContext.map.hasBattleZoneAt(playerPosition));
         }
+
 
         mainLoopContext.map.npcs.forEach(npc => {
             npc.drawer.draw(ctx, playerPositionInPx, npc, mainLoopContext.playerScale, mapDimensions);
@@ -612,6 +651,8 @@
         window.addEventListener('keyup', keyUpListener);
         initContext();
 
+        canvasWidth = Math.min(window.innerWidth, canvas.width);
+
         abButtons = new ABButtons(abButtonsC, (a, b) => {
             /* keys.a.pressed = a;
              keys.b.pressed = b;
@@ -642,6 +683,10 @@
     left: 0;
     right: 0;
     bottom: 0;
+
+    &.blur {
+      animation: blurry 5s linear infinite;
+    }
 
     .joysticks {
       height: 100dvh;
@@ -828,4 +873,96 @@
     }
 
   }
+
+  .wakeUp {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100dvw;
+    height: 100dvh;
+    z-index: 10;
+    pointer-events: none;
+
+    .top, .bot {
+      position: absolute;
+      width: 100%;
+      height: 50dvh;
+      background: black;
+      z-index: 11;
+      pointer-events: none;
+    }
+
+    .top {
+      top: 0;
+      animation: blinkingDown 5s forwards;
+    }
+
+    .bot {
+      bottom: 0;
+
+      animation: blinkingTop 5s forwards;
+    }
+
+  }
+
+  @keyframes -global-blinkingDown {
+    20% {
+      top: -50%;
+    }
+    25% {
+      top: 0;
+    }
+
+    40% {
+      top: -50%;
+    }
+    50% {
+      top: 0;
+    }
+    65% {
+      top: -50%;
+    }
+    75% {
+      top: 0;
+    }
+    100% {
+      top: -50%
+    }
+  }
+
+  @keyframes -global-blinkingTop {
+    20% {
+      bottom: -50%;
+    }
+    25% {
+      bottom: 0;
+    }
+    40% {
+      bottom: -50%;
+    }
+    50% {
+      bottom: 0;
+    }
+    65% {
+      bottom: -50%;
+    }
+    75% {
+      bottom: 0;
+    }
+    100% {
+      bottom: -50%
+    }
+  }
+
+  @keyframes -global-blurry {
+    0% {
+      filter: blur(3px) brightness(1.5);
+      -webkit-filter: blur(3px) brightness(1.5);
+    }
+    100% {
+      filter: blur(0) brightness(1);
+      -webkit-filter: blur(0) brightness(1);
+    }
+  }
+
 </style>

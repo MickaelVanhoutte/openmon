@@ -71,8 +71,8 @@ export class Player  implements Character{
     public draw(ctx: CanvasRenderingContext2D, type: 'front' | 'overworld', scale: number, playerPosition: Position, mapDim: {
         width: number,
         height: number
-    }) {
-        CHARACTER_SPRITES.draw(this.spriteId, ctx, type, this.direction, scale, this.moving, playerPosition, mapDim);
+    }, drawGrass:boolean) {
+        CHARACTER_SPRITES.draw(this.spriteId, ctx, type, this.direction, scale, this.moving, playerPosition, mapDim, drawGrass);
     }
 }
 

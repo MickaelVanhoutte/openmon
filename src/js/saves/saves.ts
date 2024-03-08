@@ -13,7 +13,7 @@ export class Save {
     public player: Player;
     public map: OpenMap;
     public settings: Settings;
-    public date: Date;
+    public date: number;
     public pkmnBoxes: Array<PokemonBox>
 
     constructor(player: Player, map: OpenMap) {
@@ -22,8 +22,8 @@ export class Save {
         this.map = map;
         this.settings = new Settings();
         this.pkmnBoxes = this.initEmptyBoxes();
-        this.date = new Date();
-        this.id = this.date.getMilliseconds();
+        this.date = Date.now();
+        this.id = this.date;
     }
 
     private initEmptyBoxes(): Array<PokemonBox> {
@@ -35,7 +35,6 @@ export class Save {
     }
 
     public setPrototypes(): Save {
-        this.date = new Date(this.date);
         Object.setPrototypeOf(this.player, Player.prototype);
         this.player.setPrototypes();
         Object.setPrototypeOf(this.map, OpenMap.prototype);
