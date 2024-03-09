@@ -10,6 +10,7 @@ import {container} from "tsyringe";
 import {MoveEffectApplier} from "./pokemons/move-effects";
 import {ItemsReferences} from "./items/items";
 import {firstBeach} from "./mapping/maps/firstBeach";
+import type {OpenMap} from "./mapping/maps";
 
 export const ITEMS = new ItemsReferences();
 export let POKEDEX = new Pokedex(pokedexJson);
@@ -34,6 +35,6 @@ BATTLE_STATE.subscribe((state) => {
 
 export const MOVE_EFFECT_APPLIER = container.resolve(MoveEffectApplier);
 
-export const MAPS = {
+export const MAPS: Record<number, OpenMap> = {
     0: firstBeach,
 }

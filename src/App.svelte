@@ -56,12 +56,12 @@
         }, {passive: false});
     }
 
+    // todo uncomment
     // Avoid leaving game by error
-    window.addEventListener('beforeunload', function (event) {
+   /* window.addEventListener('beforeunload', function (event) {
         event.preventDefault();
-        // todo custom popin, ask for saving
         event.returnValue = 'Leaving already ?';
-    });
+    });*/
 
     // Screen orientation checks
     function checkOrientation() {
