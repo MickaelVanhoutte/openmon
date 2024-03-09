@@ -11,6 +11,7 @@ import {MoveEffectApplier} from "./pokemons/move-effects";
 import {ItemsReferences} from "./items/items";
 import {firstBeach} from "./mapping/maps/firstBeach";
 import type {OpenMap} from "./mapping/maps";
+import {SavesHolder} from "./common/contextV2";
 
 export const ITEMS = new ItemsReferences();
 export let POKEDEX = new Pokedex(pokedexJson);
@@ -38,3 +39,5 @@ export const MOVE_EFFECT_APPLIER = container.resolve(MoveEffectApplier);
 export const MAPS: Record<number, OpenMap> = {
     0: firstBeach,
 }
+
+export const SAVES_HOLDER = new SavesHolder();
