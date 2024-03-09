@@ -1,4 +1,4 @@
-<div class="starter-select" style="--cnv-width: {canvasWidth}px">
+<div class="starter-select" style="--cnv-width: {canvasWidth}px" bind:this={pokeballs}>
 
     <div class="pokeballs" style="--ang:{angle}">
 
@@ -8,19 +8,9 @@
                  --rotateY: {index * (360/monsters?.length)}deg;">
                 <img class="image" alt="poke-{monster.id}" src="{monster.sprites?.male?.front?.frame1}"
                      class:current={monster.id === currentPokemon.id}/>
-
-                <!--<div class="image" style="background-image: url({monster.sprites?.male?.front?.frame1})"
-                     class:current={monster.id === currentPokemon.id}>
-                </div>-->
             </div>
         {/each}
-        <div class="fade"></div>
     </div>
-</div>
-
-<div class="pagination">
-    <button on:click={() => prev()}>←</button>
-    <button on:click={() => next()}>→</button>
 </div>
 
 <DialogView {dialog}/>
@@ -31,7 +21,7 @@
     import DialogView from "./DialogView.svelte";
     import {POKEDEX} from "../../js/const";
     import {Dialog, Message} from "../../js/common/scripts";
-    import type {Writable} from "svelte/store";
+    import type {Unsubscriber, Writable} from "svelte/store";
     import type {WorldContext} from "../../js/common/context";
 
     export let context: WorldContext;
@@ -39,8 +29,14 @@
     export let starterSelection: boolean;
 
     export let aButton: Writable<boolean>;
+    let aUnsubscribe: Unsubscriber;
+    export let bButton: Writable<boolean>;
+    let bUnsubscribe: Unsubscriber;
 
-    let translateZ = canvasWidth * .4;
+    let pokeballs: HTMLDivElement;
+
+
+    let translateZ = canvasWidth * .33;
 
     let monsters = [
         POKEDEX.findById(1).result,
@@ -87,19 +83,50 @@
                 select();
         }
     };
-    let unsubscribe;
+
+
+    let ts: number;
+    const touchDown = (e:TouchEvent) => {
+        ts = e.touches[0].clientX;
+    };
+
+    const touchUp = (e:TouchEvent) => {
+        let te = e.changedTouches[0].clientX;
+        if (Math.abs(ts - te) < 30) {
+            return;
+        }
+        if (ts > te) {
+            prev();
+        } else {
+            next();
+        }
+    };
+
 
     onMount(() => {
         window.addEventListener('keydown', keyDownListener);
+        pokeballs.addEventListener('touchstart', touchDown);
+        pokeballs.addEventListener('touchend', touchUp);
         setTimeout(() => {
-            unsubscribe = aButton?.subscribe((value) => {
+            aUnsubscribe = aButton?.subscribe((value) => {
                 if (value) {
                     select();
                 }
             });
+            bUnsubscribe = bButton?.subscribe((value) => {
+                if (value) {
+                    next();
+                }
+            });
         }, 1000);
 
-        return () => window.removeEventListener('keydown', keyDownListener);
+        return () => {
+            window.removeEventListener('keydown', keyDownListener);
+            pokeballs.removeEventListener('touchmove', touchDown);
+            pokeballs.removeEventListener('touchend', touchUp);
+            aUnsubscribe?.();
+            bUnsubscribe?.();
+        };
     });
 
 </script>
@@ -116,7 +143,7 @@
     height: 100dvh;
     width: var(--cnv-width, 100dvw);
     z-index: 8;
-
+    background: rgba(0, 0, 0, 0.6);
     perspective: 700px;
     perspective-origin: center;
 
@@ -126,11 +153,13 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      height: 75dvh;
+      width: var(--cnv-width, 100dvw);
       transform: rotateY(calc(var(--ang, 0) * 1deg)) translateY(-7dvh);
       transition: all 0.5s ease-in-out;
 
       .pokeball {
-        border-radius: 20%;
+        border-radius: 50%;
         width: 25dvh;
         height: 25dvh;
         position: absolute;
@@ -144,7 +173,7 @@
           width: 100%;
           opacity: .4;
           z-index: -1;
-          border-radius: 20%;
+          border-radius: 50%;
           border: 4px solid black;
           box-sizing: border-box;
           background: url(src/assets/common/squared-ball.png);
@@ -179,40 +208,5 @@
       }
     }
 
-    .fade {
-      background: rgba(0, 0, 0, 0.6);
-      width: 100dvw;
-      height: 100dvh;
-      position: absolute;
-      left: -50dvw;
-      top: -40dvh;
-      transform: rotateY(calc(var(--ang) * -1deg)) translateZ(110px);
-      transition: all 0.5s ease-in-out;
-    }
-
-  }
-
-  .pagination {
-
-    position: absolute;
-    bottom: 30%;
-    left: 50%;
-    transform: translate(-50%, 0);
-    z-index: 13;
-
-    button {
-      padding: 0;
-      border: none;
-      cursor: pointer;
-      width: 44px;
-      color: black;
-      background: #fffa;
-      height: 44px;
-      margin: 0 10px;
-      font-family: "Roboto", sans-serif;
-      font-size: 20px;
-      border-radius: 100%;
-      transition: all 0.2s ease-in-out;
-    }
   }
 </style>
