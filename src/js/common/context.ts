@@ -16,8 +16,10 @@ export class WorldContext {
 
     then: number = Date.now();
     fpsInterval: number = 1000 / 18;
+
     imageScale: number = 2.5;
     playerScale: number = .83;
+
     running: boolean = false;
     walk: number = .3;
     run: number = .6;
