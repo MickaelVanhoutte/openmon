@@ -31,7 +31,7 @@
         </div>
     {/if}
     {#if starterSelection}
-        <StarterSelection bind:context={mainLoopContext} bind:starterSelection={starterSelection} bind:canvasWidth={canvasWidth} bind:aButton={aButtonValue}/>
+        <StarterSelection bind:context={mainLoopContext} bind:starterSelection={starterSelection} bind:canvasWidth={canvasWidth} bind:aButton={aButtonValue} bind:bButton={bButtonValue}/>
     {/if}
 
     <div class="joysticks" bind:this={joysticks}></div>
@@ -215,6 +215,7 @@
     $:hasDialog = currentAction?.type === 'Dialog';
 
     let aButtonValue: Writable<boolean> = writable(false);
+    let bButtonValue: Writable<boolean> = writable(false);
     aButtonValue.subscribe(value => {
         keys.a.pressed = value;
         if (value && !mainLoopContext.playingScript) {
@@ -343,7 +344,7 @@
     }
 
     function changeMap(jonction: Jonction) {
-        let map = OpenMap.fromInstance(MAPS[jonction.mapIdx]);
+        let map = OpenMap.fromInstance(MAPS[jonction.mapIdx], new Position(0, 0));
         map.playerInitialPosition = map.jonctions.find(j => j.id === jonction.id)?.start || new Position(0, 0);
         loadMap(map);
     }
@@ -661,6 +662,7 @@
                 mainLoopContext.running = b;
             }*/
             aButtonValue.set(a);
+            bButtonValue.set(b);
         });
 
         joystick = new JoystickController({

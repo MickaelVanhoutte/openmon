@@ -4,7 +4,19 @@ import {Script} from "../common/scripts";
 import type {Interactive} from "../characters/npc";
 import {NPC} from "../characters/npc";
 
+export class MapSave {
+    mapId: number;
+    playerPosition: Position;
+    //scriptsStates
+
+    constructor(mapId: number, playerPosition: Position) {
+        this.mapId = mapId;
+        this.playerPosition = playerPosition;
+    }
+}
+
 export class OpenMap {
+    public mapId: number;
     public background: string;
     public foreground?: string;
 
@@ -22,7 +34,7 @@ export class OpenMap {
     public levelRange: number[] = [1, 100];
 
     public playerInitialPosition: Position = new Position(11, 11);
-    public playerMovedOffset: Position = new Position(0, 0);
+    public playerMovedOffset: Position = new Position(0, 0); // keep in save
 
     public battleTile: number;
     public collisionTile: number;
@@ -34,13 +46,15 @@ export class OpenMap {
     public scripts: Script[];
 
 
-    constructor(background: string, width: number, height: number,
+    constructor(mapId: number,
+                background: string, width: number, height: number,
                 collisions: number[], waterCollisions: number[], battles: number[], monsters: number[],
                 playerInitialPosition: Position,
                 playerMovedOffset: Position = new Position(),
                 levelRange: number[] = [1, 100],
                 jonctions: Jonction[] = [],
                 foreground?: string, battleTile?: number, collisionTile?: number, waterTile?: number, npcs?: NPC[], scripts?: Script[]) {
+        this.mapId = mapId;
         this.background = background;
         this.foreground = foreground;
         this.playerInitialPosition = playerInitialPosition;
@@ -63,7 +77,7 @@ export class OpenMap {
         this.scripts = scripts || [];
     }
 
-    public static fromScratch(background: string, width: number, height: number,
+    public static fromScratch(mapId: number, background: string, width: number, height: number,
                               collisions: number[], waterCollisions: number[], battles: number[], monsters: number[],
                               playerInitialPosition: Position = new Position(), playerMovedOffset: Position = new Position(),
                               levelRange: number[] = [1, 100],
@@ -72,6 +86,7 @@ export class OpenMap {
 
 
         return new OpenMap(
+            mapId,
             background,
             width,
             height,
@@ -96,8 +111,10 @@ export class OpenMap {
         return new Position(this.playerInitialPosition.x + this.playerMovedOffset.x, this.playerInitialPosition.y + this.playerMovedOffset.y);
     }
 
-    public static fromInstance(map: OpenMap): OpenMap {
+    // TODO : scripts/npc states
+    public static fromInstance(map: OpenMap, playerPosition: Position): OpenMap {
         return new OpenMap(
+            map.mapId,
             map.background,
             map.width,
             map.height,
@@ -106,7 +123,7 @@ export class OpenMap {
             map.battles,
             map.monsters,
             map.playerInitialPosition,
-            map.playerMovedOffset,
+            playerPosition,
             map.levelRange,
             map.jonctions,
             map?.foreground,
