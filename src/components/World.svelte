@@ -343,7 +343,7 @@
     }
 
     function changeMap(jonction: Jonction) {
-        let map = OpenMap.fromInstance(MAPS[jonction.mapIdx]);
+        let map = OpenMap.fromInstance(MAPS[jonction.mapIdx], new Position(0, 0));
         map.playerInitialPosition = map.jonctions.find(j => j.id === jonction.id)?.start || new Position(0, 0);
         loadMap(map);
     }
