@@ -55,6 +55,7 @@
     let switchOpened = false;
     let bagOpened = false;
     let zIndexNext = 8;
+    let drawInterval: number;
 
     let battleLoopContext = {
         then: Date.now(),
@@ -120,7 +121,7 @@
 
     function draw() {
 
-        setInterval(() => {
+        drawInterval = setInterval(() => {
             if (!battleLoopContext.bgDrawn) {
                 let bg = document.createElement('img') as HTMLImageElement;
                 bg.src = 'src/assets/battle/battle-grass.png';
@@ -226,6 +227,9 @@
                 battleLoopContext.debug = !battleLoopContext.debug;
             }
         });
+        return () => {
+            clearInterval(drawInterval);
+        }
     });
 </script>
 
