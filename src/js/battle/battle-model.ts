@@ -1,22 +1,33 @@
 import "@abraham/reflection";
-import type {Character} from "../characters/player";
-import {Player} from "../characters/player";
 import {PokemonInstance} from "../pokemons/pokedex";
-import {BATTLE_STATE} from "../const";
-import type {Settings} from "../characters/settings";
-import type {Action} from "./actions";
-import {Attack, BagObject, EndTurn, EndTurnChecks, Message, RunAway, SwitchAction, XPWin} from "./actions";
-import {EXPERIENCE_CHART} from "../pokemons/experience";
+import {container} from "tsyringe";
+import {MoveEffectApplier} from "../pokemons/move-effects";
+import type {Character} from "../characters/player";
 
+export class BattleEvents {
+    onEnd: (result: BattleResult) => void = () => {
+    };
 
-export class BattleContext {
-    public state?: BattleState;
+    onPokemonChange: (pokemon: PokemonInstance, owner: Character) => void = () => {
+    };
 
-    constructor(state?: BattleState) {
-        this.state = state;
-    }
+    onPlayerPokemonFaint : (pokemon: PokemonInstance) => void = () => {
+    };
 }
 
+export class TurnHistory {
+    turn: number;
+    initiator: PokemonInstance | Character;
+    actionType: string;
+    move?: string;
+
+    constructor(turn: number, initiator: PokemonInstance | Character, actionType: string, move?: string) {
+        this.turn = turn;
+        this.initiator = initiator;
+        this.actionType = actionType;
+        this.move = move;
+    }
+}
 export class BattleResult {
     public win: boolean;
     public caught: PokemonInstance | undefined;
@@ -26,195 +37,6 @@ export class BattleResult {
         this.caught = caught;
     }
 
-}
-
-export class ActionsContext {
-    turnStack: Action[];
-    player: Player;
-    settings: Settings;
-    cPlayerMons: PokemonInstance;
-    opponent: Character | PokemonInstance;
-    cOpponentMons: PokemonInstance;
-    escapeAttempts: number = 0;
-    participants: Set<PokemonInstance> = new Set<PokemonInstance>();
-    currentMessage: string;
-    isPlayerTurn: boolean = true;
-
-    // Events
-    public changePokemon: boolean = false;
-    public opponentSwitch: boolean = false;
-
-    public battleResult: BattleResult = new BattleResult(false);
-
-    constructor(turnStack: Action[], player: Player, settings: Settings, cPlayerMons: PokemonInstance, opponent: Character | PokemonInstance, cOpponentMons: PokemonInstance) {
-        this.turnStack = turnStack;
-        this.player = player;
-        this.settings = settings;
-        this.cPlayerMons = cPlayerMons;
-        this.opponent = opponent;
-        this.cOpponentMons = cOpponentMons;
-        this.participants.add(this.cPlayerMons);
-        this.currentMessage = `What should ${this.cPlayerMons.name} do ?`;
-    }
-
-    get isWild(): boolean {
-        return this.opponent instanceof PokemonInstance;
-    }
-
-    public addToStack(action: Action) {
-        this.turnStack.push(action);
-    }
-
-    public clearStack() {
-        this.turnStack = [];
-    }
-
-    public checkFainted(target: PokemonInstance, initiator: PokemonInstance) {
-        if (target.currentHp <= 0) {
-            target.currentHp = 0;
-            target.fainted = true;
-            target.status = undefined;
-            target.resetBattleStats();
-
-            // remove target attack from stack
-            this.turnStack = this.turnStack.filter((action: Action) => {
-                return !(action instanceof Attack && action.initiator === target);
-            });
-
-            if (target === this.cOpponentMons) {
-                let xp = EXPERIENCE_CHART.howMuchIGet(initiator, target, this.participants.size, !this.isWild, this.settings.xpShare);
-
-                if (this.settings.xpShare) {
-                    let nonParticipants = this.player.monsters.filter((monster: PokemonInstance) => !this.participants.has(monster));
-
-                    if(nonParticipants.length > 0) {
-                        let npXp = Math.floor(xp / 2);
-                        for (let nParticipant of nonParticipants) {
-                            if (!nParticipant.fainted) {
-                                this.addToStack(new XPWin(nParticipant, npXp));
-                            }
-                        }
-                        this.addToStack(new Message(`The others received ${xp/2} experience via XP-Share!`, initiator));
-                    }
-                }
-
-                for (let participant of this.participants) {
-                    if (!participant.fainted) {
-                        this.addToStack(new XPWin(participant, xp));
-                        this.addToStack(new Message(`${participant.name} gets ${xp} experience!`, participant));
-                    }
-                }
-
-            }
-
-            this.addToStack(new Message(target.name + ' fainted!', initiator));
-        }
-    }
-
-    public onClose: (result: BattleResult) => void = () => {
-    };
-
-    public onPokemonChange: () => void = () => {
-    };
-
-    public forceChangePokemon: () => void = () => {
-        this.changePokemon = true;
-    };
-
-}
-
-export class BattleState {
-
-
-    // for transition animation
-    public starting = true;
-    public ending = false;
-    public pokemonsAppearing = false;
-
-    public actCTx: ActionsContext;
-
-    public onClose: (result: BattleResult) => void = () => {
-    };
-
-    public onPokemonChange: () => void = () => {
-    };
-
-    constructor(player: Player, opponent: Character | PokemonInstance, settings: Settings) {
-
-        let opponentCurrentMonster = opponent instanceof PokemonInstance ? opponent as PokemonInstance : (opponent as Player).monsters[0];
-        let playerCurrentMonster = player.monsters.find((monster: PokemonInstance) => !monster.fainted) || player.monsters[0];
-
-        this.actCTx = new ActionsContext([], player, settings, playerCurrentMonster, opponent, opponentCurrentMonster);
-
-        this.actCTx.onClose = (result: BattleResult) => {
-            this.ending = true;
-            this.onClose(result);
-        };
-        this.actCTx.onPokemonChange = () => {
-            this.onPokemonChange();
-        }
-
-    }
-
-    /**
-     * Turn start
-     * @param action the user selected action
-     */
-    public selectAction(action: Action) {
-        this.actCTx.isPlayerTurn = false;
-
-        // First action to be executed, either attack if faster (TODO: check priority moves) or switch, item, flee
-        // Note actions are reversed since we pop actions out of the stack
-
-        this.actCTx.addToStack(new EndTurn(action.initiator));
-
-        this.actCTx.addToStack(new EndTurnChecks(this.actCTx.cOpponentMons));
-        this.actCTx.addToStack(new EndTurnChecks(this.actCTx.cPlayerMons));
-
-        if (action instanceof Attack && this.actCTx.cPlayerMons.battleStats.speed > this.actCTx.cOpponentMons.battleStats.speed
-            || action instanceof RunAway
-            || action instanceof SwitchAction
-            || action instanceof BagObject) {
-            this.selectOpponentAction();
-            this.actCTx.addToStack(action);
-        } else {
-            this.actCTx.addToStack(action);
-            this.selectOpponentAction();
-        }
-
-        this.executeAction(this.actCTx.turnStack?.pop());
-    }
-
-    sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
-
-    /**
-     * Action executions, recursive, until stack is empty
-     * @param action an action to execute
-     */
-    private executeAction(action?: Action) {
-        if (action !== undefined) {
-
-            console.log('executing ' + action?.name, action)
-
-            action.execute(this.actCTx);
-
-            // Update state for view
-            BATTLE_STATE.set(new BattleContext(this));
-
-            // TODO wait for input ? (or settings, auto/manual)
-            this.sleep(1000).then(
-                () => {
-                    this.executeAction(this.actCTx.turnStack?.pop());
-                }
-            );
-        }
-    }
-
-    private selectOpponentAction() {
-        // TODO set IA from settings
-        const move = this.actCTx.cOpponentMons.selectMove('Easy');
-        this.actCTx.addToStack(new Attack(move, 'ally', this.actCTx.cOpponentMons));
-    }
 }
 
 export class DamageResults {
@@ -228,12 +50,6 @@ export class DamageResults {
 
     constructor() {
     }
-}
-
-
-export function fromTypeChart(type1: string, type2: string): number {
-    // @ts-ignore
-    return typeChart[type1.toLowerCase()][type2.toLowerCase()] as number;
 }
 
 export const typeChart = {
@@ -615,3 +431,5 @@ export const typeChart = {
         "color": '#ee99ac'
     }
 }
+
+export const MOVE_EFFECT_APPLIER = container.resolve(MoveEffectApplier);

@@ -9,20 +9,20 @@
                     <div class="_desc">
                         <p>
                             {
-                                actCtx?.cPlayerMons?.moves[selectedMoveIdx].description
-                                    .replace("$effect_chance", actCtx?.cPlayerMons?.moves[selectedMoveIdx].effectChance)
+                                battleCtx?.playerPokemon?.moves[selectedMoveIdx].description
+                                    .replace("$effect_chance", battleCtx?.playerPokemon?.moves[selectedMoveIdx].effectChance + '%')
                             }
                         </p>
                     </div>
                     <div class="stats">
                         <p> PP :
-                            {actCtx?.cPlayerMons?.moves[selectedMoveIdx].currentPp}
-                            / {actCtx?.cPlayerMons?.moves[selectedMoveIdx].pp}
+                            {battleCtx?.playerPokemon?.moves[selectedMoveIdx].currentPp}
+                            / {battleCtx?.playerPokemon?.moves[selectedMoveIdx].pp}
                         </p>
-                        <p> Type : {actCtx?.cPlayerMons?.moves[selectedMoveIdx].category}</p>
+                        <p> Type : {battleCtx?.playerPokemon?.moves[selectedMoveIdx].category}</p>
                         <p> Power/ACC
-                            {actCtx?.cPlayerMons?.moves[selectedMoveIdx].power}
-                            / {actCtx?.cPlayerMons?.moves[selectedMoveIdx].accuracy} %
+                            {battleCtx?.playerPokemon?.moves[selectedMoveIdx].power}
+                            / {battleCtx?.playerPokemon?.moves[selectedMoveIdx].accuracy} %
                         </p>
                     </div>
                 </div>
@@ -36,7 +36,7 @@
             <button class="back" on:click={() => moveOpened = false}>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19.0001 10.0001L19.0003 19L17.0003 19L17.0002 12.0001L9.41409 12V17.4142L2.99988 11L9.41409 4.58578L9.41409 10L19.0001 10.0001Z"></path></svg>
             </button>
-            {#each actCtx?.cPlayerMons?.moves as move, index}
+            {#each battleCtx?.playerPokemon?.moves as move, index}
                 <button class="action-btn" style="--color:{typeChart[move.type].color}" {disabled}
                         class:selected={selectedMoveIdx === index}
                         on:mouseover={() => selectMove(index)}
@@ -78,52 +78,38 @@
 <script lang="ts">
 
     import {onDestroy, onMount} from "svelte";
-    import {BATTLE_ACTX, BATTLE_STATE} from "../../js/const";
     import type {MoveInstance} from "../../js/pokemons/pokedex";
-    import type {BattleState} from "../../js/battle/battle";
-    import {Attack, RunAway} from "../../js/battle/actions";
-    import {ActionsContext, typeChart} from "../../js/battle/battle";
+    import type {GameContext} from "../../js/context/gameContext";
+    import {typeChart} from "../../js/battle/battle-model";
+    import {BattleContext} from "../../js/context/battleContext";
+    import {Attack, RunAway} from "../../js/battle/actions/actions-selectable";
 
-    export let switchOpened: boolean;
-
-    export let bagOpened: boolean;
+    export let context: GameContext;
+    export let battleCtx: BattleContext;
 
     let moveOpened = false;
     let show = false;
 
-    let battleState: BattleState | undefined;
-    let actCtx: ActionsContext | undefined;
     let currentMessage = '';
     let disabled = false;
     let selectedMoveIdx = 0;
     let selectedOptionIdx = 0;
 
 
-    BATTLE_STATE.subscribe(value => {
-        battleState = value.state;
-    });
-
-    BATTLE_ACTX.subscribe(value => {
-        actCtx = value;
-        if (value) {
-            currentMessage = value.currentMessage;
-            disabled = !value.isPlayerTurn;
-        }
-    });
 
 
     function escape() {
-        if (battleState && actCtx) {
-            battleState.selectAction(new RunAway(actCtx.cPlayerMons));
+        if (battleCtx) {
+            battleCtx.startTurn(new RunAway(battleCtx.playerPokemon));
         }
     }
 
     function switchOpen() {
-        switchOpened = true;
+        context.overWorldContext.menus.switchOpened = true;
     }
 
     function openBag() {
-        bagOpened = true;
+        context.overWorldContext.menus.bagOpened = true;
     }
 
     function selectMove(idx: number) {
@@ -133,33 +119,33 @@
     function launchMove(idx: number, move: MoveInstance) {
         if (idx != selectedMoveIdx) {
             selectedMoveIdx = idx;
-        } else if (battleState && actCtx) {
-            battleState.selectAction(new Attack(move, 'opponent', actCtx.cPlayerMons));
+        } else if (battleCtx) {
+            battleCtx.startTurn(new Attack(move, 'opponent', battleCtx.playerPokemon));
             moveOpened = false;
         }
     }
 
     const listener = (e) => {
-        if (!battleState || !actCtx) {
+        if (!battleCtx) {
             return;
         }
-        if (!bagOpened && !switchOpened && !disabled) {
+        if (!context.overWorldContext.menus.bagOpened && !context.overWorldContext.menus.switchOpened && !disabled) {
 
             if (e.key === 'ArrowUp') {
                 if (moveOpened) {
-                    selectedMoveIdx = selectedMoveIdx === 0 ? actCtx.cPlayerMons.moves.length - 1 : selectedMoveIdx - 1;
+                    selectedMoveIdx = selectedMoveIdx === 0 ? battleCtx.playerPokemon.moves.length - 1 : selectedMoveIdx - 1;
                 } else {
                     selectedOptionIdx = selectedOptionIdx === 0 ? 3 : selectedOptionIdx - 1;
                 }
             } else if (e.key === 'ArrowDown') {
                 if (moveOpened) {
-                    selectedMoveIdx = selectedMoveIdx === actCtx.cPlayerMons.moves.length - 1 ? 0 : selectedMoveIdx + 1;
+                    selectedMoveIdx = selectedMoveIdx === battleCtx.playerPokemon.moves.length - 1 ? 0 : selectedMoveIdx + 1;
                 } else {
                     selectedOptionIdx = selectedOptionIdx === 3 ? 0 : selectedOptionIdx + 1;
                 }
             } else if (e.key === 'Enter') {
                 if (moveOpened) {
-                    launchMove(selectedMoveIdx, actCtx.cPlayerMons.moves[selectedMoveIdx]);
+                    launchMove(selectedMoveIdx, battleCtx.playerPokemon.moves[selectedMoveIdx]);
                 } else {
                     if (selectedOptionIdx === 0) {
                         moveOpened = true;

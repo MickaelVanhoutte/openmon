@@ -1,5 +1,3 @@
-import {Player} from "../characters/player";
-
 
 export const keys = {
     up: {

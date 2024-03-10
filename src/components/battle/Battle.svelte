@@ -4,56 +4,54 @@
     </div>
 
     <!-- UI -->
-    <EnemyInfo/>
-    <AllyInfo/>
-    <ActionBar bind:switchOpened={switchOpened} bind:bagOpened={bagOpened}/>
+    <EnemyInfo {context} {battleCtx}/>
+    <AllyInfo {context} {battleCtx}/>
+    <ActionBar {context} {battleCtx}/>
 
     <!-- Menus -->
-    {#if switchOpened}
-        <PokemonList {save} {isBattle} bind:switchOpened={switchOpened} zIndex={zIndexNext}
+    {#if context.overWorldContext.menus.switchOpened}
+        <PokemonList {context} {isBattle} zIndex={zIndexNext}
                      onChange={(pkm) => !!pkm && pkm !==0 && sendSwitchAction(pkm)}/>
     {/if}
 
     {#if changePokemon}
-        <PokemonList {save} {isBattle} bind:forceChange={changePokemon} bind:switchOpened={switchOpened}
+        <PokemonList {context} {isBattle} bind:forceChange={changePokemon}
                      zIndex={zIndexNext}
                      onChange={(pkm) => !!pkm && pkm !==0 && send(pkm)}/>
     {/if}
 
-    {#if bagOpened}
-        <Bag {save} {isBattle} bind:bagOpened zIndex={zIndexNext} onChange="{(result) => sendObjectAction(result)}"/>
+    {#if context.overWorldContext.menus.bagOpened}
+        <Bag {context} {isBattle} zIndex={zIndexNext} onChange="{(result) => sendObjectAction(result)}"/>
     {/if}
 </div>
 <script lang="ts">
 
-    import {ActionsContext, BattleContext, BattleResult, BattleState} from "../../js/battle/battle";
-    import {Position} from "../../js/sprites/drawers";
     import {onMount} from "svelte";
     import ActionBar from "./ActionBar.svelte";
     import EnemyInfo from "./EnemyInfo.svelte";
     import AllyInfo from "./AllyInfo.svelte";
-    import type {SelectedSave} from "../../js/saves/saves";
-    import {BATTLE_ACTX, BATTLE_STATE, ITEMS} from "../../js/const";
     import PokemonList from "../menus/pokemon-list/PokemonList.svelte";
     import type {PokemonInstance} from "../../js/pokemons/pokedex";
     import Bag from "../menus/bag/Bag.svelte";
     import {Pokeball} from "../../js/items/items";
-    import {BagObject, SwitchAction} from "../../js/battle/actions";
+    import {Position} from "../../js/mapping/positions";
+    import {BattleResult} from "../../js/battle/battle-model";
+    import {BattleContext} from "../../js/context/battleContext";
+    import type {GameContext} from "../../js/context/gameContext";
+    import {Switch, UseItem} from "../../js/battle/actions/actions-selectable";
+    import type {Character} from "../../js/characters/player";
 
     /**
      * Battle screen component, handles pokemons display.
      *
      */
+    export let context: GameContext;
+    export let battleCtx: BattleContext;
 
-    export let gifsWrapper: HTMLDivElement;
-    export let save: SelectedSave;
-    export let switched = false;
+    let gifsWrapper: HTMLDivElement;
+
     export let isBattle = true;
-    /*
-    Menus state
-     */
-    let switchOpened = false;
-    let bagOpened = false;
+
     let zIndexNext = 8;
     let drawInterval: number;
 
@@ -72,52 +70,8 @@
     let ally: HTMLImageElement;
     let opponent: HTMLImageElement;
 
-    let battleState: BattleState | undefined;
-    let actCtx: ActionsContext | undefined;
 
-    $:changePokemon = actCtx?.changePokemon;
-    $:{
-        if (actCtx?.opponentSwitch) {
-            battleLoopContext.opponentdrawn = false;
-            actCtx.opponentSwitch = false;
-        }
-    }
-
-    BATTLE_STATE.subscribe(value => {
-        battleState = value.state;
-    });
-
-    BATTLE_ACTX.subscribe(value => {
-        actCtx = value;
-    });
-
-    if (battleState) {
-        battleState.onPokemonChange = () => {
-            // Redraw
-            battleLoopContext.allydrawn = false;
-        }
-
-        battleState.onClose = (result: BattleResult) => {
-            if (!result.win) {
-                // tp back to the start
-                this.save.map.playerMovedOffset = new Position(0, 0);
-            } else if (result.caught) {
-                // add caught pokemon to team if space or in the box
-                if (save.player.monsters.length < 6) {
-                    save.player.monsters.push(result.caught);
-                } else {
-                    // first available space in boxes
-                    save.boxes[save.boxes.indexOf(save.boxes.find(box => !box.isFull()))].add(result.caught);
-                }
-            }
-            setTimeout(() => {
-                // animate the battle closing
-                battleState = undefined;
-                BATTLE_STATE.set({state: undefined});
-            }, 2000);
-        }
-    }
-
+    let changePokemon = false;
 
     function draw() {
 
@@ -132,18 +86,18 @@
                 }
             }
 
-
-            if (!battleState?.pokemonsAppearing) {
+// TODO : animation
+            //if (!battleState?.pokemonsAppearing) {
 
                 // animated gifs, handle them outside the canvas
                 // TODO : handle gender/shinys
                 if (!battleLoopContext.opponentdrawn) {
-                    if(!opponent){
+                    if (!opponent) {
                         opponent = document.createElement('img') as HTMLImageElement;
                         opponent.classList.add('opponent-sprite');
                     }
-                    if(opponent) {
-                        opponent.src = actCtx?.cOpponentMons.sprites?.male?.front.frame1 || 'src/assets/monsters/bw/0.png';
+                    if (opponent) {
+                        opponent.src = battleCtx?.opponentPokemon.sprites?.male?.front.frame1 || 'src/assets/monsters/bw/0.png';
                         opponent.onload = () => {
 
                             opponent.style.setProperty('--width', opponent.naturalWidth + 'px');
@@ -154,13 +108,12 @@
                     }
                 }
                 if (!battleLoopContext.allydrawn) {
-                    console.log('redraw');
                     if (!ally) {
                         ally = document.createElement('img') as HTMLImageElement;
                         ally.classList.add('ally-sprite');
                     }
                     if (ally) {
-                        ally.src = actCtx?.cPlayerMons.sprites?.male?.back.frame1 || 'src/assets/monsters/bw/0.png';
+                        ally.src = battleCtx?.playerPokemon.sprites?.male?.back.frame1 || 'src/assets/monsters/bw/0.png';
                         ally.onload = () => {
                             ally.style.setProperty('--width', ally.naturalWidth + 'px');
                             ally.style.setProperty('--height', ally.naturalHeight + 'px');
@@ -170,7 +123,7 @@
                     }
                 }
 
-            }
+           // }
         }, 200);
     }
 
@@ -179,39 +132,39 @@
      */
 
     function sendSwitchAction(newMonster: PokemonInstance) {
-        if (actCtx?.cPlayerMons) {
-            battleState?.selectAction(new SwitchAction(newMonster));
+        if (battleCtx?.playerPokemon) {
+            battleCtx?.startTurn(new Switch(newMonster, battleCtx.player));
         }
     }
 
     function send(pokemon: PokemonInstance) {
         // TODO this code should be in the battle state
-        if (battleState && actCtx?.cPlayerMons) {
-            let pkmnIndex = actCtx.player.monsters.indexOf(pokemon);
+        if (battleCtx && battleCtx?.playerPokemon) {
+            let pkmnIndex = battleCtx.player.monsters.indexOf(pokemon);
             // exchange 0 and pkmnIndex in the array
-            [actCtx.player.monsters[0], actCtx.player.monsters[pkmnIndex]] = [actCtx.player.monsters[pkmnIndex], actCtx.player.monsters[0]];
-            actCtx.cPlayerMons = actCtx.player.monsters[0];
-            actCtx.participants.add(actCtx.cPlayerMons);
-            actCtx.changePokemon = false;
-            actCtx.currentMessage = `What should ${actCtx.cPlayerMons.name} do?`;
-            BATTLE_STATE.set(new BattleContext(battleState));
+            [battleCtx.player.monsters[0], battleCtx.player.monsters[pkmnIndex]] = [battleCtx.player.monsters[pkmnIndex], battleCtx.player.monsters[0]];
+            battleCtx.playerPokemon = battleCtx.player.monsters[0];
+            battleCtx.participants.add(battleCtx.playerPokemon);
+            changePokemon = false;
+            battleCtx.currentMessage.set(`What should ${battleCtx.playerPokemon.name} do?`);
+            //BATTLE_STATE.set(new BattleContext(battleState));
             battleLoopContext.allydrawn = false;
         }
     }
 
     function sendObjectAction(result: { item: number, target?: PokemonInstance }) {
-        let itm = ITEMS.getItem(result.item)?.instanciate();
-        if (result.target && actCtx) {
-            if (itm && battleState && itm.doesApply(result.target, actCtx?.cPlayerMons, actCtx)) {
-                battleState?.selectAction(new BagObject(result.item, result.target, actCtx.cPlayerMons, actCtx.player));
-                bagOpened = false;
+        let itm = context.ITEMS.getItem(result.item)?.instanciate();
+        if (result.target && battleCtx) {
+            if (itm && battleCtx && itm.doesApply(result.target, battleCtx?.playerPokemon, battleCtx)) {
+                battleCtx?.startTurn(new UseItem(result.item, result.target, battleCtx.playerPokemon, battleCtx.player));
+                context.overWorldContext.menus.bagOpened = false;
             } else {
                 //TODO message
                 alert('This item cannot be used here');
             }
-        } else if (itm instanceof Pokeball && battleState && actCtx && itm.doesApply(actCtx.cOpponentMons, actCtx.cPlayerMons, actCtx)) {
-            battleState?.selectAction(new BagObject(result.item, actCtx.cOpponentMons, actCtx.cPlayerMons, actCtx.player));
-            bagOpened = false;
+        } else if (itm instanceof Pokeball && battleCtx && itm.doesApply(battleCtx.opponentPokemon, battleCtx.playerPokemon, battleCtx)) {
+            battleCtx?.startTurn(new UseItem(result.item, battleCtx.opponentPokemon, battleCtx.playerPokemon, battleCtx.player));
+            context.overWorldContext.menus.bagOpened = false;
         } else {
             //TODO message
             alert('This item cannot be used here');
@@ -221,6 +174,19 @@
 
 
     onMount(() => {
+        // set events
+
+        battleCtx.events.onPokemonChange = ((pokemon: PokemonInstance, owner: Character) => {
+            // Redraw
+            battleLoopContext.allydrawn = false;
+            battleLoopContext.opponentdrawn = false;
+        });
+
+        battleCtx.events.onPlayerPokemonFaint = ((pokemon: PokemonInstance) => {
+            changePokemon = true;
+        });
+
+
         draw();
         window.addEventListener('keydown', (e) => {
             if (e.key === 'x') {

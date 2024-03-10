@@ -6,22 +6,22 @@
     </div>
 
     <div class="save-list">
-        {#each saveContext.saves as save}
+        {#each savesHolder.saves as save}
             <div class="save-wrapper">
                 <button class="save" tabindex="1"
                      on:click={() =>  selected = save}
                      on:mouseover={() =>  selected = save}
                      on:focus={() =>  selected = save}
                 >
-                    <p>{new Date(save.date).toUTCString()}</p>
-                    <p>{save.name} - lvl {save.player.level || 1}</p>
+                    <p>{new Date(save.updated).toUTCString()}</p>
+                    <p>{save.id} - {save.player.name}</p>
                 </button>
                 {#if selected === save}
                     <div class="actions">
-                        <button class="go" on:click={handleSubmit} tabindex="1">
+                        <button class="go" on:click={() => handleSubmit(save)} tabindex="1">
                             Continue
                         </button>
-                        <button class="erase" on:click={removeSelected} tabindex="1">
+                        <button class="erase" on:click={() => remove(save)} tabindex="1">
                             Erase
                         </button>
                     </div>
@@ -38,28 +38,27 @@
 
 
 <script lang="ts">
-    import {Save, SaveContext} from "../../js/saves/saves";
     import {onMount} from "svelte";
-    import {CHARACTER_SPRITES} from "../../js/const";
+    import {SaveContext, SavesHolder} from "../../js/context/savesHolder";
 
     /**
      * Saves loading  component
      * lots todo here (design, bugs - team preview not updated-, etc.)
      */
 
-    export let saveContext: SaveContext;
+    export let savesHolder: SavesHolder;
 
-    export let preview: HTMLDivElement;
+    let preview: HTMLDivElement;
 
-    let selected: Save;
+    let selected: SaveContext;
 
-    function drawPreview() {
+    function drawPreview(selected: SaveContext) {
         preview.innerHTML = '';
 
-        let sprite = CHARACTER_SPRITES.getSprite(selected.player.spriteId);
+        //let sprite = CHARACTER_SPRITES.getSprite(selected.player.spriteId);
         let playerImg = new Image();
         playerImg.classList.add('player');
-        playerImg.src = sprite.front.source;
+        playerImg.src = selected.player.sprite.front.source;
         playerImg.style.maxHeight = '-webkit-fill-available';
         preview.appendChild(playerImg);
 
@@ -72,22 +71,22 @@
         });
     }
 
-    function handleSubmit() {
-        saveContext = saveContext.selectSave(selected);
+    function handleSubmit(save: SaveContext) {
+        savesHolder.selectSave(savesHolder.saves.indexOf(save));
     }
 
-    function removeSelected() {
-        saveContext = saveContext.deleteSave(selected);
-        this.selected = saveContext.saves[0] || null;
+    function remove(save: SaveContext) {
+        savesHolder.removeSave(savesHolder.saves.indexOf(save));
+        selected = savesHolder.saves[0] || null;
     }
 
     function startNew() {
-        saveContext = saveContext.requestNewGame();
+        //saveContext = saveContext.requestNewGame();
     }
 
     onMount(() => {
-        selected = saveContext.saves[0];
-        drawPreview();
+        selected = savesHolder.saves[0] || null;
+        drawPreview(selected);
     })
 </script>
 

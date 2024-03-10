@@ -81,12 +81,6 @@
         {/if}
     </div>
 
-    <!--<div class="context">
-        <div class="menu">
-            <p>Choose a Pokémon</p>
-        </div>
-    </div>-->
-
     <div class="options" class:hidden={!openOptions}>
         <ul>
             {#if !!itemToUse}
@@ -100,7 +94,7 @@
                     </li>
                 {/if}
                 {#if !isBattle}
-                    <li class:selected={optionSelected === 2} on:click={() => {openBag = true; openOptions = false}}>
+                    <li class:selected={optionSelected === 2} on:click={() => {context.menus.bagOpened = true; openOptions = false}}>
                         ITEM
                     </li>
                 {/if}
@@ -111,73 +105,52 @@
     </div>
 </div>
 
-{#if openSummary}
-    <PokemonSummary bind:save bind:selected bind:openSummary bind:isBattle
-                    bind:pkmnList={save.player.monsters}
+{#if context.overWorldContext.menus.openSummary}
+    <PokemonSummary bind:context bind:selected bind:isBattle
                     bind:zIndex={zIndexNext}/>
 {/if}
 
-{#if openBag}
-    <Bag bind:save bind:isBattle bind:selectedMons={selected} bind:bagOpened={openBag} bind:zIndex={zIndexNext}
-         onChange="{() => openBag = false}"/>
+{#if context.overWorldContext.menus.bagOpened}
+    <Bag bind:context bind:isBattle bind:selectedMons={selected} bind:zIndex={zIndexNext}
+         onChange="{() => context.overWorldContext.menus.bagOpened = false}"/>
 {/if}
 
 <script lang="ts">
 
-    import {SelectedSave} from "../../../js/saves/saves";
     import {PokemonInstance} from "../../../js/pokemons/pokedex";
     import PokemonSummary from "./PokemonSummary.svelte";
     import {onMount} from "svelte";
     import {backInOut} from "svelte/easing";
-    import {slide, fade} from 'svelte/transition';
-    import {ActionsContext, BattleState} from "../../../js/battle/battle";
-    import {BATTLE_ACTX, BATTLE_STATE, ITEMS} from "../../../js/const";
+    import {fade, slide} from 'svelte/transition';
     import Bag from "../bag/Bag.svelte";
-    import {Player} from "../../../js/characters/player";
+    import type {GameContext} from "../../../js/context/gameContext";
 
-    export let pokemonListOpened: boolean;
-    export let switchOpened: boolean;
-
-    export let openSummary: boolean;
-
-    export let openBag: boolean;
-    export let save: SelectedSave;
+    export let context: GameContext;
 
     export let isBattle: boolean;
 
     export let forceChange: boolean;
     export let selected = 0;
 
-    export let itemToUse;
+    export let itemToUse: number;
 
-    $:itemName = ITEMS.getItem(itemToUse)?.name;
+    $:itemName = context.ITEMS.getItem(itemToUse)?.name;
 
     export let zIndex;
 
     $:zIndexNext = zIndex + 1;
 
-    let battleState: BattleState | undefined;
-    let actCtx: ActionsContext | undefined;
-
     let numberOfOptions = !!itemToUse ? 2 : isBattle ? 3 : 4;
 
-    BATTLE_STATE.subscribe(value => {
-        battleState = value.state;
-    });
+    $:first = isBattle ? context.battleContext?.playerPokemon : context.player.monsters.at(0);
+    $:others = isBattle ? context.player.monsters.filter((pkmn => pkmn !== first)) : context.player.monsters.slice(1);
 
-    BATTLE_ACTX.subscribe(value => {
-        actCtx = value;
-    });
-
-    $:first = isBattle ? actCtx?.cPlayerMons : save.player.monsters.at(0);
-    $:others = isBattle ? save.player.monsters.filter((pkmn => pkmn !== first)) : save.player.monsters.slice(1);
-
-    let switchToIdx = undefined;
+    let switchToIdx: number | undefined = undefined;
     let openOptions = false;
     let optionSelected = 0;
 
 
-    let emptyslots = new Array(6 - save.player.monsters.length).fill(0);
+    let emptyslots = new Array(6 - context.player.monsters.length).fill(0);
 
     function getPercentage(monster: PokemonInstance) {
         return monster.currentHp / monster.currentStats.hp * 100;
@@ -213,9 +186,9 @@
 
     function switchTo() {
         if (switchToIdx != undefined && selected != undefined) {
-            swap(save.player.monsters, selected, switchToIdx);
-            first = save.player.monsters.at(0);
-            others = save.player.monsters.slice(1);
+            swap(context.player.monsters, selected, switchToIdx);
+            first = context.player.monsters.at(0);
+            others = context.player.monsters.slice(1);
             switchToIdx = undefined;
         }
     }
@@ -226,14 +199,14 @@
 
     function summarize() {
         openOptions = false;
-        openSummary = true;
+        context.overWorldContext.menus.openSummary = true;
     }
 
     function closeList() {
         if (isBattle && !itemToUse) {
-            switchOpened = false;
+            context.overWorldContext.menus.switchOpened = false;
         } else {
-            pokemonListOpened = false;
+            context.overWorldContext.menus.pokemonListOpened = false;
         }
 
     }
@@ -241,9 +214,9 @@
     function useItem() {
 
         if (!isBattle && itemToUse) {
-            let selectedMons = save.player.monsters.at(selected);
-            save.player.bag.use(itemToUse, selectedMons);
-            save.player.name = save.player.name;
+            let selectedMons = context.player.monsters.at(selected);
+            context.player.bag.use(itemToUse, selectedMons);
+            context.player.name = context.player.name;
         } else {
             let selectedMons = selected === 0 ? first : others[selected - 1];
             onChange(selectedMons);
@@ -255,7 +228,7 @@
     }
 
     const listener = (e) => {
-        if (openSummary) return;
+        if (context.overWorldContext.menus.openSummary) return;
         if (!openOptions) {
             if (e.key === "ArrowUp") {
                 selected = selected === 0 ? others.length : selected - 1;
@@ -292,7 +265,7 @@
                     } else if (optionSelected === 1 && !isBattle && !itemToUse) {
                         saveSwitch();
                     } else if (optionSelected === 2 && !isBattle) {
-                        openBag = true;
+                        context.overWorldContext.menus.bagOpened = true;
                     }
                 }
 
@@ -421,7 +394,7 @@
         align-items: center;
 
         border: 2px solid rgba(0, 0, 0, .7);
-        background-color: rgba(0,0,0, .5);
+        background-color: rgba(0, 0, 0, .5);
         //background-color: #4ba1de;
         //background-image: linear-gradient(0deg, #95cfe0 46%, #4ba1de 46%, #4ba1de 50%, #95cfe0 50%, #95CFE0 56%, #4BA1DE 56%, #4ba1de 100%);
         background-size: 100% 100%;

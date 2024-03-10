@@ -49,25 +49,25 @@
 
 <div class="edit" class:opened={moveEdit}>
     {#if moveEdit}
-        <PokemonSkillsEdit bind:moveEdit bind:selectedMons bind:zIndex={nextZIndex}/>
+        <PokemonSkillsEdit bind:context bind:moveEdit bind:selectedMons bind:zIndex={nextZIndex}/>
     {/if}
 </div>
 
 <script lang="ts">
 
-    import {typeChart} from "../../../js/battle/battle";
-    import {SelectedSave} from "../../../js/saves/saves";
     import {fade, slide} from 'svelte/transition';
     import {backInOut} from "svelte/easing";
     import {PokemonInstance} from "../../../js/pokemons/pokedex";
     import PokemonSkillsEdit from "./PokemonSkillsEdit.svelte";
+    import type {GameContext} from "../../../js/context/gameContext";
+    import {typeChart} from "../../../js/battle/battle-model";
 
-    export let save: SelectedSave;
+    export let context: GameContext;
     export let selected: number
 
     export let zIndex;
     export let selectedMove: number;
-    export let pkmnList: PokemonInstance[];
+    let pkmnList: PokemonInstance[] = context.player.monsters;
 
     export let moveEdit: boolean;
 
