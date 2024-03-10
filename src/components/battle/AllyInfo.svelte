@@ -2,13 +2,13 @@
 
     <div class="name-lvl">
         <div class="status">
-            {#if actCtx?.cPlayerMons?.status}
-                {actCtx?.cPlayerMons?.status?.abr}
+            {#if battleCtx?.playerPokemon?.status}
+                {battleCtx?.playerPokemon?.status?.abr}
             {/if}
         </div>
         <div>
-            <span>{actCtx?.cPlayerMons?.name}</span>
-            <span>Lv.{actCtx?.cPlayerMons.level}</span>
+            <span>{battleCtx?.playerPokemon?.name}</span>
+            <span>Lv.{battleCtx?.playerPokemon.level}</span>
         </div>
     </div>
 
@@ -18,7 +18,7 @@
         <div class="hp">
             <span>HP</span>
             <div class="progressbar-wrapper">
-                <span class="hp-value">{currentHp} / {actCtx?.cPlayerMons.currentStats.hp}</span>
+                <span class="hp-value">{currentHp} / {battleCtx?.playerPokemon.currentStats.hp}</span>
                 <div class="progressbar" class:warning={percent <= 50} class:danger={percent < 15 }
                      style="--width:{percent + '%'}">
                 </div>
@@ -43,29 +43,19 @@
      * TODO : status style, team pokeballs;
      */
 
-    import {ActionsContext, BattleState} from "../../js/battle/battle";
-    import {BATTLE_ACTX, BATTLE_STATE} from "../../js/const";
+    import type {GameContext} from "../../js/context/gameContext";
+    import {BattleContext} from "../../js/context/battleContext";
 
-    let battleState: BattleState | undefined;
-    let actCtx: ActionsContext | undefined;
+    export let context: GameContext;
+    export let battleCtx: BattleContext;
 
     let currentHp = 0;
     let percent = 0;
     let expPercent = 0;
 
-
-    BATTLE_STATE.subscribe(value => {
-        battleState = value.state;
-    });
-
-    BATTLE_ACTX.subscribe(value => {
-        actCtx = value;
-        if (value) {
-            currentHp = value.cPlayerMons?.currentHp || 0;
-            percent = Math.floor(currentHp * 100 / value.cPlayerMons?.currentStats.hp);
-            expPercent = Math.floor(value.cPlayerMons?.currentXp * 100 / value.cPlayerMons?.xpToNextLevel);
-        }
-    });
+    $:currentHp = battleCtx?.playerPokemon?.currentHp || 0;
+    $:percent = Math.floor(currentHp * 100 / currentHp);
+    $:expPercent = Math.floor(battleCtx?.playerPokemon?.currentXp * 100 / battleCtx?.playerPokemon?.xpToNextLevel);
 
 
 </script>

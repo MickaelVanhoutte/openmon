@@ -33,16 +33,13 @@
     <div class="tab-content">
 
         {#if tab === 0}
-            <PokemonInfo bind:save bind:selected
-                         bind:pkmnList
+            <PokemonInfo bind:context bind:selected
                          bind:zIndex={zIndexNext}/>
         {:else if tab === 1}
-            <PokemonStats bind:save bind:selected bind:statEdit bind:isBattle
-                          bind:pkmnList
+            <PokemonStats bind:context bind:selected bind:statEdit bind:isBattle
                           bind:zIndex={zIndexNext}/>
         {:else if tab === 2}
-            <PokemonSkills bind:save bind:selected bind:selectedMove bind:moveEdit
-                           bind:pkmnList
+            <PokemonSkills bind:context bind:selected bind:selectedMove bind:moveEdit
                            bind:zIndex={zIndexNext}/>
         {/if}
     </div>
@@ -51,31 +48,29 @@
 
 <script lang="ts">
     import {onMount} from "svelte";
-    import {SelectedSave} from "../../../js/saves/saves";
     import PokemonInfo from "./PokemonInfo.svelte";
     import PokemonStats from "./PokemonStats.svelte";
     import PokemonSkills from "./PokemonSkills.svelte";
     import type {PokemonInstance} from "../../../js/pokemons/pokedex";
-    import {slide, fade} from 'svelte/transition';
+    import {fade, slide} from 'svelte/transition';
     import {backInOut} from "svelte/easing";
+    import type {GameContext} from "../../../js/context/gameContext";
 
-    export let save: SelectedSave;
+    export let context: GameContext;
     export let selected: number;
-    export let openSummary: boolean;
     export let selectedMove = 0;
     export let statEdit = false;
 
     export let moveEdit = false;
     export let isBattle: boolean;
 
-    export let pkmnList: PokemonInstance[];
-
     export let zIndex;
     $:zIndexNext = zIndex + 1;
 
     let tab = 0;
+    let pkmnList: PokemonInstance[] = context.player.monsters;
 
-    const tabs = {
+    const tabs : Record<number, string> = {
         0: '$POKEMON INFO',
         1: '$POKEMON STATS',
         2: '$POKEMON SKILLS'
@@ -92,18 +87,18 @@
             moveEdit = false;
             return;
         } else {
-            openSummary = false;
+            context.overWorldContext.menus.openSummary = false;
         }
     }
 
     const listener = (e: KeyboardEvent) => {
-        if (openSummary) {
+        if (context.overWorldContext.menus.openSummary) {
             if (e.key === "ArrowRight") {
                 tab = (tab + 1) % 3;
             } else if (e.key === "ArrowLeft") {
                 tab = (tab + 2) % 3;
             } else if (e.key === "Escape") {
-                openSummary = false;
+                context.overWorldContext.menus.openSummary = false;
             }
 
             if (tab === 2) {
@@ -130,16 +125,12 @@
     })
 
     function previous() {
-        console.log(selected, pkmnList);
-        console.log(selectedMons);
         selectedMove = 0;
         statEdit = false;
         selected = selected === 0 ? pkmnList.length - 1 : selected - 1;
     }
 
     function next() {
-        console.log(selected, pkmnList);
-        console.log(selectedMons);
         selectedMove = 0;
         statEdit = false;
         selected = selected === pkmnList.length - 1 ? 0 : selected + 1;

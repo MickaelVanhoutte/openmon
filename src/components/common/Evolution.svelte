@@ -43,21 +43,19 @@
 
 <script lang="ts">
     import type {PokemonInstance} from "../../js/pokemons/pokedex";
-    import {POKEDEX} from "../../js/const";
     import {onMount} from "svelte";
-    import type {WorldContext} from "../../js/common/context";
     import DialogView from "./DialogView.svelte";
-    import {Dialog, Message} from "../../js/common/scripts";
+    import {Dialog, Message} from "../../js/scripting/scripts";
     import {fade} from 'svelte/transition';
+    import type {GameContext} from "../../js/context/gameContext";
 
-    export let context: WorldContext;
+    export let context: GameContext;
 
-    export let currentImg: HTMLImageElement;
-    export let nextImg: HTMLImageElement;
+    let currentImg: HTMLImageElement;
+    let nextImg: HTMLImageElement;
 
-    export let circlesWrap: HTMLDivElement;
-    export let bubblesWrap: HTMLDivElement;
-
+    let circlesWrap: HTMLDivElement;
+    let bubblesWrap: HTMLDivElement;
 
     const animationTime = 13;
 
@@ -75,7 +73,7 @@
             let bubbles = [...bubblesWrap.children];
 
             currentSprite = poke?.sprites && poke?.sprites[poke?.gender]?.front?.frame1 || poke?.sprites?.male?.front?.frame1;
-            let nextResult = poke?.evolution[0]?.id && POKEDEX.findById(poke?.evolution[0]?.id)?.result;
+            let nextResult = poke?.evolution[0]?.id && context.POKEDEX.findById(poke?.evolution[0]?.id)?.result;
             nextSprite = nextResult && nextResult?.sprites && nextResult?.sprites[poke?.gender]?.front?.frame1 || nextResult && nextResult?.sprites?.male?.front?.frame1 || '';
 
             if (currentSprite && nextSprite) {
@@ -104,7 +102,7 @@
                         [new Message(`Congratulations! Your ${poke?.name} has evolved into ${nextResult?.name}!`, 'System')]
                     );
                 }, 200);
-                context.player.monsters[context.player.monsters.indexOf(poke)] = poke.evolve(POKEDEX.findById(parseInt(poke?.evolution[0]?.id + '' || '0')));
+                context.player.monsters[context.player.monsters.indexOf(poke)] = poke.evolve(context.POKEDEX.findById(parseInt(poke?.evolution[0]?.id + '' || '0')));
 
                 setTimeout(() => {
                     circles.map((el, i) => el.style.animation = ``);
@@ -132,7 +130,7 @@
         evolveAnimation(toEvolve[0])
         setTimeout(() => {
         }, 16000);
-        if(toEvolve.length === 1) return;
+        if (toEvolve.length === 1) return;
         const interval = setInterval(() => {
 
             if (i === toEvolve.length) {

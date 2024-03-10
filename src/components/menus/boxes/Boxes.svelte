@@ -94,7 +94,7 @@
 
 
 {#if openSummary && firstSelection}
-    <PokemonSummary bind:save bind:pkmnList bind:selected={pkmnListSelectedIndex}
+    <PokemonSummary bind:context bind:selected={pkmnListSelectedIndex}
                     bind:openSummary bind:isBattle
                     bind:zIndex={zIndexNext}
     />
@@ -103,21 +103,21 @@
 <script lang="ts">
 
     import {onMount} from "svelte";
-    import {SelectedSave} from "../../../js/saves/saves";
     import {BoxSelection} from "../../../js/pokemons/boxes";
     import {PokemonInstance} from "../../../js/pokemons/pokedex";
     import PokemonSummary from "../pokemon-list/PokemonSummary.svelte";
+    import type {GameContext} from "../../../js/context/gameContext";
 
     let selectZone: 'party' | 'box' | 'box-change' = 'box';
     export let boxOpened: boolean;
-    export let save: SelectedSave;
+    export let context: GameContext;
 
     let selectedBox = 0;
     let over: number = 0;
 
-    $:box = save.boxes[selectedBox];
-    $:teamSlot = save.player.monsters.concat(new Array(6 - save.player.monsters.length).fill(undefined))
-    $:pkmnList = selectZone === 'box' ? box.values.filter(p => p instanceof PokemonInstance) : save.player.monsters;
+    $:box = context.boxes[selectedBox];
+    $:teamSlot = context.player.monsters.concat(new Array(6 - context.player.monsters.length).fill(undefined))
+    $:pkmnList = selectZone === 'box' ? box.values.filter(p => p instanceof PokemonInstance) : context.player.monsters;
     let isBattle = false;
     let zIndexNext = 10;
     let openSummary = false;
@@ -174,7 +174,7 @@
             changeLeftHover = false;
             selectedBox = selectedBox - 1;
             if (selectedBox < 0) {
-                selectedBox = save.boxes.length - 1;
+                selectedBox = context.boxes.length - 1;
             }
             selectZone = "box-change";
             over = 0;
@@ -186,7 +186,7 @@
         setTimeout(() => {
             changeRightHover = false;
             selectedBox = selectedBox + 1;
-            if (selectedBox > save.boxes.length - 1) {
+            if (selectedBox > context.boxes.length - 1) {
                 selectedBox = 0;
             }
             selectZone = "box-change";
@@ -195,8 +195,8 @@
     }
 
     function swapPokemon(select1: BoxSelection, select2: BoxSelection) {
-        let sourceList = select1.zone === 'party' ? save.player.monsters : save.boxes[select1.box].values;
-        let targetList = select2.zone === 'party' ? save.player.monsters : save.boxes[select2.box].values;
+        let sourceList = select1.zone === 'party' ? context.player.monsters : context.boxes[select1.box].values;
+        let targetList = select2.zone === 'party' ? context.player.monsters : context.boxes[select2.box].values;
         let sourceIndex = select1.index;
         let targetIndex = select2.index;
 
@@ -205,14 +205,14 @@
         sourceList[sourceIndex] = targetList[targetIndex];
         targetList[targetIndex] = temp;
 
-        save.player.monsters = save.player.monsters.filter(p => !!p);
+        context.player.monsters = context.player.monsters.filter(p => !!p);
 
         firstSelection = undefined;
     }
 
     function openSum() {
-        let box = save.boxes[selectedBox]
-        let list = selectZone === 'box' ? box.values.filter(p => p instanceof PokemonInstance) : save.player.monsters
+        let box = context.boxes[selectedBox]
+        let list = selectZone === 'box' ? box.values.filter(p => p instanceof PokemonInstance) : context.player.monsters
         pkmnListSelectedIndex = list.indexOf(firstSelection?.selected)
         openSummary = true;
     }
@@ -222,7 +222,7 @@
         optionsOpened = false;
     }
 
-    const listener = (e) => {
+    const listener = (e: KeyboardEvent) => {
         if (openSummary) {
             return;
         }
@@ -308,7 +308,7 @@
                 if (selectZone === 'box') {
                     openOptions(new BoxSelection('box', over, selectedBox, box.values[over]));
                 } else if (selectZone === 'party') {
-                    openOptions(new BoxSelection('party', over, undefined, save.player.monsters[over]));
+                    openOptions(new BoxSelection('party', over, undefined, context.player.monsters[over]));
                 }
             }
         } else {

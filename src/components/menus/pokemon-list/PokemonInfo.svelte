@@ -34,7 +34,7 @@
             </tr>
             <tr>
                 <td class="head">Original trainer</td>
-                <td>{save.player.name}</td>
+                <td>{context.player.name}</td>
             </tr>
             <tr>
                 <td class="head">Nature</td>
@@ -63,12 +63,12 @@
 
             <tr>
                 <td class="head">Held item</td>
-                <td>{selectedMons.item?.name || 'None'}</td>
+                <td>{selectedMons.heldItem?.name || 'None'}</td>
             </tr>
-            {#if selectedMons.item}
+            {#if selectedMons.heldItem}
                 <tr>
                     <td colspan="2">
-                        {selectedMons.item?.description}
+                        {selectedMons.heldItem?.description}
                     </td>
                 </tr>
             {/if}
@@ -77,18 +77,18 @@
 </div>
 
 <script lang="ts">
-    import {typeChart} from "../../../js/battle/battle.js";
-    import {SelectedSave} from "../../../js/saves/saves.js";
-    import { slide, fade } from 'svelte/transition';
+    import {fade, slide} from 'svelte/transition';
     import {backInOut} from "svelte/easing";
     import {PokemonInstance} from "../../../js/pokemons/pokedex";
+    import type {GameContext} from "../../../js/context/gameContext";
+    import {typeChart} from "../../../js/battle/battle-model";
 
-    export let save: SelectedSave;
+    export let context: GameContext;
     export let selected: number;
 
     export let zIndex;
 
-    export let pkmnList: PokemonInstance[];
+    let pkmnList: PokemonInstance[] = context.player.monsters;
 
     $:selectedMons = pkmnList[selected];
 

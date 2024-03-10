@@ -16,8 +16,10 @@
 
 <script lang="ts">
     import type {PokemonInstance} from "../../../js/pokemons/pokedex";
-    import {POKEDEX} from "../../../js/const";
     import MovesDraggableList from "./MovesDraggableList.svelte";
+    import type {GameContext} from "../../../js/context/gameContext";
+
+    export let context: GameContext;
 
     export let selectedMons: PokemonInstance;
     export let moveEdit: boolean;
@@ -25,7 +27,7 @@
     export let zIndex: number;
 
     let monstMoves = [...selectedMons.moves];
-    let tmp = POKEDEX.findById(selectedMons.id)?.result?.moves?.filter(move => move.level <= selectedMons.level)?.filter(move => !monstMoves.find(m => m.id === move.id)) || [];
+    let tmp = context.POKEDEX.findById(selectedMons.id)?.result?.moves?.filter(move => move.level <= selectedMons.level)?.filter(move => !monstMoves.find(m => m.id === move.id)) || [];
     let allMoves = [...new Map(tmp.map(item => [item.id, item])).values()];
 
 </script>

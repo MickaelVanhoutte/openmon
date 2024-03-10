@@ -1,8 +1,7 @@
 import {Boundary, Jonction} from "./collisions";
-import {Position} from "../sprites/drawers";
-import {Script} from "../common/scripts";
-import type {Interactive} from "../characters/npc";
-import {NPC} from "../characters/npc";
+import {Script} from "../scripting/scripts";
+import type {Interactive, NPC} from "../characters/npc";
+import {Position} from "./positions";
 
 export class MapSave {
     mapId: number;
@@ -135,28 +134,6 @@ export class OpenMap {
         )
     }
 
-    public setPrototypes(): OpenMap {
-        Object.setPrototypeOf(this.playerInitialPosition, Position.prototype);
-        this.collisionsZones.forEach((boundary) => {
-            Object.setPrototypeOf(boundary, Boundary.prototype);
-            Object.setPrototypeOf(boundary.position, Position.prototype);
-        });
-        this.battleZones.forEach((boundary) => {
-            Object.setPrototypeOf(boundary, Boundary.prototype);
-            Object.setPrototypeOf(boundary.position, Position.prototype);
-        });
-        this.jonctions.forEach((jonction) => {
-            Object.setPrototypeOf(jonction, Jonction.prototype);
-            jonction.positions.forEach((position) => {
-                Object.setPrototypeOf(position, Position.prototype);
-            });
-        });
-        this.npcs = this.npcs?.map((npc) => new NPC(npc.id, npc.name, npc.spriteId, npc.position, npc.direction, npc.gender, npc.monsterIds, npc.bag, npc.mainScript, npc.dialogScripts, npc.movingScript));
-        this.scripts = this.scripts?.map((script) => new Script(script.triggerType, script.actions, script.stepPosition, script.replayable));
-
-        return this;
-    }
-
     randomMonster(): { id: number, level: number } {
         const monsterId = this.monsters[Math.floor(Math.random() * this.monsters.length)];
         const level = Math.floor(Math.random() * (this.levelRange[1] - this.levelRange[0] + 1)) + this.levelRange[0];
@@ -258,5 +235,133 @@ export class OpenMap {
         return this.npcs?.find((npc) => {
             return npc.position.x === elementPosition.x && npc.position.y === elementPosition.y;
         });
+    }
+
+
+    private images: Record<string, HTMLImageElement> = {};
+
+    draw(ctx: CanvasRenderingContext2D, map: OpenMap, scale: number, playerPosition: Position, debug: boolean = true): {
+        width: number,
+        height: number
+    } {
+        let image = this.images[map.background];
+        if (image && image.complete) {
+            return this.drawImage(ctx, image, map, scale, playerPosition, debug);
+        } else {
+            image = new Image();
+            image.src = map.background;
+            image.onload = () => {
+                this.images[map.background] = image;
+                return this.drawImage(ctx, image, map, scale, playerPosition, debug);
+            }
+        }
+        return {width: 0, height: 0};
+    }
+
+    drawFG(ctx: CanvasRenderingContext2D, map: OpenMap, scale: number, playerPosition: Position, debug: boolean = true) {
+        if (map.foreground !== undefined) {
+            let image = this.images[map.foreground];
+            if (image && image.complete) {
+                this.drawImage(ctx, image, map, scale, playerPosition, debug);
+            } else {
+                image = new Image();
+                image.src = map.foreground;
+                image.onload = () => {
+                    if (map.foreground) {
+                        this.images[map.foreground] = image;
+                        this.drawImage(ctx, image, map, scale, playerPosition, debug);
+                    }
+                }
+            }
+        }
+    }
+
+
+    private drawImage(ctx: CanvasRenderingContext2D, image: HTMLImageElement, map: OpenMap, scale: number, playerPosition: Position, debug: boolean = false): {
+        width: number,
+        height: number
+    } {
+
+        let screenDimensions = {
+            width: ctx.canvas.width,
+            height: ctx.canvas.height,
+        }
+
+        let centerX = screenDimensions.width / 2;
+        // canvas half - half character height scaled
+        let centerY = screenDimensions.height / 2;
+
+        let offsetX = playerPosition.x;
+        let offsetY = playerPosition.y;
+
+        let leftThreshold = playerPosition.x < Math.min(centerX, window.innerWidth / 2 - (16 * .83 / 2));
+        let topThreshold = playerPosition.y < Math.min(centerY, window.innerHeight / 2 - (16 * .83 / 2));
+        let rightThreshold = playerPosition.x > image.width * scale - Math.min(centerX, window.innerWidth / 2 - (16 * .83 / 2));
+        let bottomThreshold = playerPosition.y > image.height * scale - Math.min(centerY, window.innerHeight / 2 - (16 * .83 / 2));
+
+        if (leftThreshold) {
+            offsetX = Math.min(centerX, window.innerWidth / 2 - (16 * .83 / 2));
+        }
+        if (topThreshold) {
+            offsetY = Math.min(centerY, window.innerHeight / 2 - (16 * .83 / 2));
+        }
+        if (rightThreshold) {
+            offsetX = image.width * scale - Math.min(centerX, window.innerWidth / 2 - (16 * .83 / 2));
+        }
+        if (bottomThreshold) {
+            offsetY = image.height * scale - Math.min(centerY, window.innerHeight / 2 - (16 * .83 / 2));
+        }
+
+        ctx.save();
+        ctx.translate(centerX - offsetX, centerY - offsetY);
+
+
+        ctx.drawImage(image,
+            0,
+            0,
+            image.width,
+            image.height,
+            0,
+            0,
+            image.width * scale,
+            image.height * scale,
+        );
+
+        if (debug) {
+            ctx.font = "8px Arial";
+            for (let i = 0; i < map.width; i++) {
+                for (let j = 0; j < map.height; j++) {
+                    if (map.hasBoundaryAt(new Position(i, j))) {
+                        ctx.fillStyle = 'rgba(0, 0, 255, 0.3)';
+                        ctx.fillRect(
+                            i * 16 * scale,
+                            j * 16 * scale,
+                            16 * scale,
+                            16 * scale);
+                    } else if (map.hasBattleZoneAt(new Position(i, j))) {
+                        ctx.fillStyle = 'rgba(0, 255, 0, 0.3)';
+                        ctx.fillRect(
+                            i * 16 * scale,
+                            j * 16 * scale,
+                            16 * scale,
+                            16 * scale);
+                    }
+                    ctx.strokeStyle = 'rgba(0, 0, 0, 0.8)';
+                    ctx.strokeRect(
+                        i * 16 * scale,
+                        j * 16 * scale,
+                        16 * scale,
+                        16 * scale);
+                    ctx.fillStyle = 'rgba(0, 0, 0, 1)';
+                    ctx.fillText(`[${i}, ${j}]`, i * 16 * scale + 4, j * 16 * scale + 12)
+                }
+            }
+
+        }
+
+
+        ctx.restore();
+
+        return {width: image.width * scale, height: image.height * scale};
     }
 }

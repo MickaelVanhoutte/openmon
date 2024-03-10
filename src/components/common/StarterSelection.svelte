@@ -19,14 +19,12 @@
 
     import {onMount} from "svelte";
     import DialogView from "./DialogView.svelte";
-    import {POKEDEX} from "../../js/const";
-    import {Dialog, Message} from "../../js/common/scripts";
+    import {Dialog, Message} from "../../js/scripting/scripts";
     import type {Unsubscriber, Writable} from "svelte/store";
-    import type {WorldContext} from "../../js/common/context";
+    import type {GameContext} from "../../js/context/gameContext";
 
-    export let context: WorldContext;
+    export let context: GameContext;
     export let canvasWidth;
-    export let starterSelection: boolean;
 
     export let aButton: Writable<boolean>;
     let aUnsubscribe: Unsubscriber;
@@ -39,12 +37,12 @@
     let translateZ = canvasWidth * .33;
 
     let monsters = [
-        POKEDEX.findById(1).result,
-        POKEDEX.findById(4).result,
-        POKEDEX.findById(7).result,
-        POKEDEX.findById(179).result,
-        POKEDEX.findById(183).result,
-        POKEDEX.findById(246).result,
+        context.POKEDEX.findById(1).result,
+        context.POKEDEX.findById(4).result,
+        context.POKEDEX.findById(7).result,
+        context.POKEDEX.findById(179).result,
+        context.POKEDEX.findById(183).result,
+        context.POKEDEX.findById(246).result,
     ];
 
     let angle = 0;
@@ -68,7 +66,7 @@
 
     function select() {
         context.player.monsters.push(currentPokemon.instanciate(5));
-        starterSelection = false;
+        context.overWorldContext.menus.starterSelection = false;
     }
 
     const keyDownListener = (e) => {

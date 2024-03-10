@@ -28,8 +28,8 @@
 
         <div class="item-desc">
             <div class="content">
-                <p>{ITEMS.getItem(itemToUse)?.name || ''}</p>
-                <p>{ITEMS.getItem(itemToUse)?.description || ''}</p>
+                <p>{context.ITEMS.getItem(itemToUse)?.name || ''}</p>
+                <p>{context.ITEMS.getItem(itemToUse)?.description || ''}</p>
             </div>
         </div>
 
@@ -39,7 +39,7 @@
                     <li>
                         <div class="item" class:selected={selected === idx}
                              on:click={() => {selected = idx; openOptions = true}}>
-                            <span>{ITEMS.getItem(id)?.name}</span>
+                            <span>{context.ITEMS.getItem(id)?.name}</span>
                             <span>x {qty}</span>
                         </div>
                     </li>
@@ -58,24 +58,22 @@
 </div>
 
 {#if openPokemonList}
-    <PokemonList bind:pokemonListOpened={openPokemonList} bind:save={save} bind:isBattle={isBattle}
+    <PokemonList bind:context={context} bind:isBattle={isBattle}
                  bind:itemToUse={itemToUse} onChange={(pkmn) => use(pkmn)} zIndex="{zIndex + 1}"/>
 {/if}
 <script lang="ts">
 
-    import {SelectedSave} from "../../../js/saves/saves";
     import {onMount} from "svelte";
     import {backInOut} from "svelte/easing";
     import {fade, slide} from 'svelte/transition';
-    import {ITEMS} from "../../../js/const";
     import PokemonList from "../pokemon-list/PokemonList.svelte";
     import {PokemonInstance} from "../../../js/pokemons/pokedex";
     import {Bag} from "../../../js/items/bag";
     import {Pokeball} from "../../../js/items/items";
+    import type {GameContext} from "../../../js/context/gameContext";
 
 
-    export let bagOpened: boolean;
-    export let save: SelectedSave;
+    export let context: GameContext;
     export let isBattle = false;
     export let selectedMons: number | undefined;
 
@@ -104,21 +102,21 @@
 
 
     let selected = 0;
-    $:pocket = Object.keys(save.player.bag[categories[tab]])?.map(id => [id, save.player.bag[categories[tab]][id]]);
+    $:pocket = Object.keys(context.player.bag[categories[tab]])?.map(id => [id, context.player.bag[categories[tab]][id]]);
     $:itemToUse = pocket && pocket[selected]?.[0] || undefined;
 
 
     export let onChange;
 
     function back() {
-        bagOpened = false;
+        context.overWorldContext.menus.bagOpened = false;
     }
 
     function use(pkmn?: PokemonInstance) {
         openOptions = false;
 
         let item = pocket[selected][0];
-        let instance = ITEMS.getItem(item)?.instanciate();
+        let instance = context.ITEMS.getItem(item)?.instanciate();
 
         if (isBattle && !(instance instanceof Pokeball) && !pkmn) {
             openPokemonList = true;
@@ -129,8 +127,8 @@
 
         } else if (!isBattle) {
             if (selectedMons !== undefined) {
-                save.player.bag.use(item, save.player.monsters[selectedMons]);
-                save.player.bag = new Bag(save.player.bag);
+                context.player.bag.use(item, context.player.monsters[selectedMons]);
+                context.player.bag = new Bag(context.player.bag);
                 back();
             } else {
                 openPokemonList = true;
@@ -146,9 +144,9 @@
     }
 
     function consumeItem() {
-        save.player.bag[categories[tab]][itemToUse]--;
-        if (save.player.bag[categories[tab]][itemToUse] === 0) {
-            delete save.player.bag[categories[tab]][itemToUse];
+        context.player.bag[categories[tab]][itemToUse]--;
+        if (context.player.bag[categories[tab]][itemToUse] === 0) {
+            delete context.player.bag[categories[tab]][itemToUse];
         }
         //openPokemonList = false;
     }

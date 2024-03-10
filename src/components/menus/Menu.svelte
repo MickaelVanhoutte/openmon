@@ -1,4 +1,4 @@
-<div class="menu-wrapper" class:open={menuOpened}>
+<div class="menu-wrapper" class:open={context.overWorldContext.menus.menuOpened}>
 
     <div class="grid">
         <ul id="hexGrid">
@@ -88,61 +88,53 @@
     </div>
 </div>
 
-{#if pokemonListOpened}
-    <PokemonList bind:save bind:pokemonListOpened bind:openSummary bind:isBattle onChange={() => 0} zIndex="{9}"/>
+{#if context.overWorldContext.menus.pokemonListOpened}
+    <PokemonList bind:context bind:isBattle onChange={() => 0} zIndex="{9}"/>
 {/if}
 
-{#if bagOpened}
-    <Bag bind:save bind:bagOpened bind:isBattle zIndex="{9}"/>
+{#if context.overWorldContext.menus.bagOpened}
+    <Bag bind:context bind:isBattle zIndex="{9}"/>
 {/if}
 
-{#if boxOpened}
-    <Boxes bind:save bind:boxOpened/>
+{#if context.overWorldContext.menus.boxOpened}
+    <Boxes bind:context/>
 {/if}
 
 
 <script lang="ts">
 
-    import type {SaveContext} from "../../js/saves/saves";
-    import {SelectedSave} from "../../js/saves/saves";
     import PokemonList from "./pokemon-list/PokemonList.svelte";
     import {onMount} from "svelte";
     import Bag from "./bag/Bag.svelte";
     import Boxes from "./boxes/Boxes.svelte";
+    import type {GameContext} from "../../js/context/gameContext";
 
     // todo check, export might not be needed for most of them
-    export let menuOpened: boolean;
-    export let pokemonListOpened: boolean;
-    export let bagOpened: boolean;
 
-    export let boxOpened: boolean;
-    export let openSummary;
-
-    export let saveContext: SaveContext;
-    export let save: SelectedSave;
+    export let context: GameContext
     export let isBattle = false;
 
     let selected = 0;
 
     function saveCurrent() {
-        // TODO confirm
-        menuOpened = false;
-        saveContext = saveContext.updateSave(save.save);
+        // TODO
+        context.overWorldContext.menus.menuOpened = false;
+        //saveContext = saveContext.updateSave(save.save);
     }
 
     function openList() {
-        menuOpened = false;
-        pokemonListOpened = true;
+        context.overWorldContext.menus.menuOpened = false;
+        context.overWorldContext.menus.pokemonListOpened = true;
     }
 
     function openBag() {
-        menuOpened = false;
-        bagOpened = true;
+        context.overWorldContext.menus.menuOpened = false;
+        context.overWorldContext.menus.bagOpened = true;
     }
 
     function openBoxes() {
-        menuOpened = false;
-        boxOpened = true
+        context.overWorldContext.menus.menuOpened = false;
+        context.overWorldContext.menus.boxOpened = true
     }
 
     function trainer() {
@@ -154,11 +146,11 @@
     }
 
     function close() {
-        menuOpened = false;
+        context.overWorldContext.menus.menuOpened = false;
     }
 
     const listener = (e: KeyboardEvent) => {
-        if (menuOpened) {
+        if (context.overWorldContext.menus.menuOpened) {
             if (e.key === "ArrowDown") {
                 selected = selected === 0 ? 6 : selected - 1;
             } else if (e.key === "ArrowUp") {

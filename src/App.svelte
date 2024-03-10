@@ -1,17 +1,21 @@
 <svelte:options customElement="open-mon"/>
 
-{#if saveContext?.saves.length === 0 || saveContext.newGame}
-    <PlayerCreation bind:saveContext/>
-{/if}
-{#if saveContext?.saves.length > 0 && !saveContext?.selected && !saveContext.newGame}
-    <LoadSave bind:saveContext/>
-{/if}
-{#if saveContext?.selected}
-    {#if battleState && !battleState.starting}
-        <Battle bind:save={saveContext.selected}/>
-    {:else}
-        <World bind:save={saveContext.selected} bind:saveContext/>
+{#if gameContext}
+    <!-- game started -->
+    {#if gameContext.isBattle && gameContext.battleContext !== undefined}
+        <Battle bind:context={gameContext} bind:battleCtx={gameContext.battleContext}/>
+    {:else if gameContext.overWorldContext !== undefined}
+        <World bind:context={gameContext} bind:overWorldCtx={gameContext.overWorldContext}/>
     {/if}
+{:else}
+    {#if savesHolder.saves?.length > 0}
+        <!-- select a save / start new -->
+        <LoadSave {savesHolder}/>
+    {:else}
+        <!-- create a new save -->
+        <PlayerCreation {savesHolder}/>
+    {/if}
+
 {/if}
 
 {#if rotate}
@@ -22,29 +26,26 @@
 
 <script lang="ts">
     import "@abraham/reflection";
-    import LoadSave from "./components/saves/LoadSave.svelte";
-    import World from "./components/World.svelte";
-    import Battle from "./components/battle/Battle.svelte";
-    import PlayerCreation from "./components/saves/PlayerCreation.svelte";
-    import {BattleState} from "./js/battle/battle";
-    import {SaveContext} from "./js/saves/saves";
-    import {BATTLE_STATE} from "./js/const";
     import {onMount} from "svelte";
+    import Battle from "./components/battle/Battle.svelte";
+    import World from "./components/World.svelte";
+    import LoadSave from "./components/saves/LoadSave.svelte";
+    import PlayerCreation from "./components/saves/PlayerCreation.svelte";
+    import {SaveContext, SavesHolder} from "./js/context/savesHolder";
+    import type {GameContext} from "./js/context/gameContext";
 
     /**
      * Main component, handling screens transitions
      */
-
-    export let saveContext = new SaveContext();
-    // TODO : should be in the World component (battle fade)
-    let battling: boolean;
-    let battleState: BattleState | undefined;
+    const savesHolder = new SavesHolder();
+    let gameContext:GameContext;
+    savesHolder.selectedSave.subscribe((value: SaveContext) => {
+        if (value) {
+            gameContext = value.toGameContext();
+        }
+    });
 
     let rotate = false;
-
-    BATTLE_STATE.subscribe(value => {
-        battleState = value.state;
-    });
 
     // Avoid IOS zoom on double tap
     if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
@@ -58,10 +59,10 @@
 
     // todo uncomment
     // Avoid leaving game by error
-   /* window.addEventListener('beforeunload', function (event) {
-        event.preventDefault();
-        event.returnValue = 'Leaving already ?';
-    });*/
+    /* window.addEventListener('beforeunload', function (event) {
+         event.preventDefault();
+         event.returnValue = 'Leaving already ?';
+     });*/
 
     // Screen orientation checks
     function checkOrientation() {

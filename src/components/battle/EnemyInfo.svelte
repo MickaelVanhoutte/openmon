@@ -1,14 +1,14 @@
 <div class="enemy-info">
 
     <div class="name-lvl">
-        <span>{actCtx?.cOpponentMons?.name}</span>
-        <span>Lv.{actCtx?.cOpponentMons.level}</span>
+        <span>{battleCtx?.opponentPokemon?.name}</span>
+        <span>Lv.{battleCtx?.opponentPokemon.level}</span>
     </div>
 
     <div class="hp-status">
         <div class="status">
-            {#if actCtx?.cOpponentMons?.status}
-                {actCtx?.cOpponentMons?.status?.abr}
+            {#if battleCtx?.opponentPokemon?.status}
+                {battleCtx?.opponentPokemon?.status?.abr}
             {/if}
         </div>
 
@@ -26,32 +26,23 @@
 
 <script lang="ts">
 
-    import {ActionsContext, BattleState} from "../../js/battle/battle";
-    import {BATTLE_ACTX, BATTLE_STATE} from "../../js/const";
+    import type {GameContext} from "../../js/context/gameContext";
+    import {BattleContext} from "../../js/context/battleContext";
 
     /**
      * Opponent HP bar
      * TODO : status style, team pokeballs;
-     * TODO: use the same component for player and opponent, handle positionin Battle.svelte
+     * TODO: use the same component for player and opponent, handle position in Battle.svelte ?
      */
 
-    let battleState: BattleState | undefined;
-    let actCtx: ActionsContext | undefined;
+    export let context: GameContext;
+    export let battleCtx: BattleContext;
 
     let currentHp = 0;
     let percent = 0;
 
-    BATTLE_STATE.subscribe(value => {
-        battleState = value.state;
-    });
-
-    BATTLE_ACTX.subscribe(value => {
-        actCtx = value;
-        if (value) {
-            currentHp = value.cOpponentMons?.currentHp || 0;
-            percent = Math.floor(currentHp * 100 / value.cOpponentMons?.currentStats.hp);
-        }
-    });
+    $:currentHp = battleCtx?.opponentPokemon?.currentHp || 0;
+    $:percent = Math.floor(currentHp * 100 / currentHp);
 
 </script>
 

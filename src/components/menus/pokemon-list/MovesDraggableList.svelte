@@ -26,10 +26,10 @@
 <script lang="ts">
 
     import type {Move} from "../../../js/pokemons/pokedex";
-    import {typeChart} from "../../../js/battle/battle";
+    import {MoveInstance} from "../../../js/pokemons/pokedex";
     import {flip} from 'svelte/animate';
     import {dndzone} from 'svelte-dnd-action';
-    import {MoveInstance} from "../../../js/pokemons/pokedex";
+    import {typeChart} from "../../../js/battle/battle-model";
 
     export let list: Move[];
 

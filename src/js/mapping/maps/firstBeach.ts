@@ -1,8 +1,7 @@
 import {OpenMap} from "../maps";
-import {Position} from "../../sprites/drawers";
-import {Jonction} from "../collisions";
 import {NPC} from "../../characters/npc";
-import {Dialog, GiveItem, Message, MoveToPlayer, Script} from "../../common/scripts";
+import {Dialog, GiveItem, Message, MoveToPlayer, Script} from "../../scripting/scripts";
+import {Position} from "../positions";
 
 const monsters = Array.from({length: 251}, (v, k) => k + 1);
 

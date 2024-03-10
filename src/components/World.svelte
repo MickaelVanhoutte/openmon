@@ -1,37 +1,37 @@
-<div class="world-wrapper" bind:this={wrapper} class:blur={wakeUp}>
+<div class="world-wrapper" bind:this={wrapper} class:blur={context.overWorldContext.menus.wakeUp}>
     <canvas bind:this={canvas} id="main" width="1024" height="1024"></canvas>
 
-    <Menu bind:menuOpened bind:pokemonListOpened bind:bagOpened bind:openSummary bind:boxOpened
-          bind:save bind:saveContext/>
+    <Menu bind:context={context}/>
 
     {#if hasDialog}
         <DialogView bind:dialog={currentAction} bind:aButton={aButtonValue}/>
     {/if}
 
     {#if evolutions?.length > 0}
-        <Evolution bind:context={mainLoopContext}/>
+        <Evolution bind:context={context}/>
     {/if}
 
-    {#if !pokemonListOpened && !bagOpened}
-        <button on:click={() => menuOpened = !menuOpened} class="start">start</button>
+    {#if !context.overWorldContext.menus.pokemonListOpened && !context.overWorldContext.menus.bagOpened}
+        <button on:click={() => context.overWorldContext.menus.menuOpened = !context.overWorldContext.menus.menuOpened} class="start">start</button>
     {/if}
 
-    {#if battleState && battleState?.starting && !pokemonListOpened && !bagOpened }
+   <!-- {#if battleState && battleState?.starting && !context.overWorldContext.menus.pokemonListOpened && !context.overWorldContext.menus.bagOpened }
         <div class="battleStart"></div>
     {/if}
 
-    {#if !pokemonListOpened && !bagOpened}
-        <div class="battleEnd" class:active={battleState && battleState?.ending || mainLoopContext?.changingMap}></div>
+    {#if !context.overWorldContext.menus.pokemonListOpened && !context.overWorldContext.menus.bagOpened}
+        <div class="battleEnd" class:active={battleState && battleState?.ending || context.overWorldContext?.changingMap}></div>
     {/if}
+-->
 
-    {#if wakeUp}
+    {#if context.overWorldContext.menus.wakeUp}
         <div class="wakeUp">
             <div class="top"></div>
             <div class="bot"></div>
         </div>
     {/if}
-    {#if starterSelection}
-        <StarterSelection bind:context={mainLoopContext} bind:starterSelection={starterSelection} bind:canvasWidth={canvasWidth} bind:aButton={aButtonValue} bind:bButton={bButtonValue}/>
+    {#if context.overWorldContext.menus.starterSelection}
+        <StarterSelection bind:context={context} bind:canvasWidth={canvasWidth} bind:aButton={aButtonValue} bind:bButton={bButtonValue}/>
     {/if}
 
     <div class="joysticks" bind:this={joysticks}></div>
@@ -40,7 +40,7 @@
     <div class="ab-buttons" bind:this={abButtonsC}></div>
 
     <div class="run-toggle">
-        {#if mainLoopContext?.running}
+        {#if context.overWorldContext?.running}
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M9.82986 8.78986L7.99998 9.45588V13H5.99998V8.05H6.015L11.2834 6.13247C11.5274 6.03855 11.7922 5.99162 12.0648 6.0008C13.1762 6.02813 14.1522 6.75668 14.4917 7.82036C14.678 8.40431 14.848 8.79836 15.0015 9.0025C15.9138 10.2155 17.3653 11 19 11V13C16.8253 13 14.8823 12.0083 13.5984 10.4526L12.9008 14.4085L15 16.17V23H13V17.1025L10.7307 15.1984L10.003 19.3253L3.10938 18.1098L3.45667 16.1401L8.38071 17.0084L9.82986 8.78986ZM13.5 5.5C12.3954 5.5 11.5 4.60457 11.5 3.5C11.5 2.39543 12.3954 1.5 13.5 1.5C14.6046 1.5 15.5 2.39543 15.5 3.5C15.5 4.60457 14.6046 5.5 13.5 5.5Z"></path>
             </svg>
@@ -51,8 +51,8 @@
         {/if}
 
         <label class="switch">
-            <input type="checkbox" checked="{mainLoopContext?.running ? 'checked' : ''}"
-                   on:change={mainLoopContext.running = !mainLoopContext?.running}>
+            <input type="checkbox" checked="{context.overWorldContext?.running ? true : undefined}"
+                   on:change={() => context.overWorldContext.running = !context.overWorldContext?.running}>
             <span>
             </span>
         </label>
@@ -62,56 +62,35 @@
 <script lang="ts">
 
     import {ABButtons, keys, lastKey, resetKeys} from "../js/commands/keyboard";
-    import {Position} from "../js/sprites/drawers";
-    import {BattleState} from "../js/battle/battle";
     import {onDestroy, onMount} from "svelte";
     import Menu from "./menus/Menu.svelte";
-    import {BATTLE_STATE, MAP_DRAWER, MAPS, POKE_WALKER, POKEDEX} from "../js/const";
-    import {SaveContext, SelectedSave} from "../js/saves/saves";
     import JoystickController from 'joystick-controller';
     import {OpenMap} from "../js/mapping/maps.js";
     import type {Jonction} from "../js/mapping/collisions";
-    import {WorldContext} from "../js/common/context";
     import DialogView from "./common/DialogView.svelte";
-    import type {Script} from "../js/common/scripts";
-    import {Dialog} from "../js/common/scripts";
-    import type {Writable} from "svelte/store";
-    import {writable} from "svelte/store";
+    import type {Script} from "../js/scripting/scripts";
+    import {type Writable, writable} from "svelte/store";
     import type {NPC} from "../js/characters/npc";
     import Evolution from "./common/Evolution.svelte";
     import StarterSelection from "./common/StarterSelection.svelte";
+    import {Position} from "../js/mapping/positions";
+    import type {GameContext} from "../js/context/gameContext";
 
     /**
      * Overworld component.
      * Main game loop, menus, battle starting...
      */
 
-    export let canvas: HTMLCanvasElement;
-    export let wrapper: HTMLDivElement;
-    export let abButtonsC: HTMLDivElement;
-    export let joysticks: HTMLDivElement;
-    export let saveContext: SaveContext;
-    export let save: SelectedSave;
+    export let context: GameContext;
 
+    let canvas: HTMLCanvasElement;
+    let wrapper: HTMLDivElement;
+    let abButtonsC: HTMLDivElement;
+    let joysticks: HTMLDivElement;
     let canvasWidth: number;
+    let canvasCtx: CanvasRenderingContext2D;
+    $:evolutions = context?.player?.monsters?.filter(p => p.canEvolve());
 
-    let ctx;
-    let battleState: BattleState | undefined;
-    $:evolutions = mainLoopContext?.player?.monsters?.filter(p => p.canEvolve());
-
-    /*
-    Menus states
-     */
-    let menuOpened = false;
-    let pokemonListOpened = false;
-    let bagOpened = false;
-    let openSummary = false;
-    let boxOpened = false;
-    let wakeUp = false;
-    let starterSelection = false;
-
-
-    let mainLoopContext: WorldContext;
 
     /*
     Positions (put that in context ?)
@@ -124,49 +103,45 @@
     let walkerTargetPosition: Position = new Position();
     let walkerDirection: 'down' | 'up' | 'left' | 'right' = 'down';
 
-    let abButtons;
-    let joystick;
-
-    BATTLE_STATE.subscribe(value => {
-        battleState = value.state;
-    });
+    let abButtons: ABButtons;
+    let joystick: JoystickController;
 
 
     function initContext() {
-        mainLoopContext = new WorldContext(save);
+       // overworldContext = new WorldContext(save);
         mainLoop();
-        loadMap(save.map);
+        loadMap(context.map);
     }
 
     /*
     Game loop
      */
     function mainLoop() {
-        mainLoopContext.id = window.requestAnimationFrame(mainLoop);
+        context.overWorldContext.frames.frameId = window.requestAnimationFrame(mainLoop);
 
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'high';
+        canvasCtx.imageSmoothingEnabled = true;
+        canvasCtx.imageSmoothingQuality = 'high';
 
 
         let now = Date.now();
-        let elapsed = now - mainLoopContext.then;
+        let elapsed = now - context.overWorldContext.frames.then;
 
-        if (elapsed > mainLoopContext.fpsInterval &&
-            mainLoopContext?.map &&
-            !battleState?.ending &&
-            !mainLoopContext.displayChangingMap &&
+        if (elapsed > context.overWorldContext.frames.fpsInterval &&
+            context?.map &&
+            //!battleState?.ending && // TODO ?
+            //!overworldContext.displayChangingMap &&
             evolutions?.length === 0) {
-            mainLoopContext.then = now - (elapsed % mainLoopContext.fpsInterval);
+            context.overWorldContext.frames.then = now - (elapsed % context.overWorldContext.frames.fpsInterval);
 
-            ctx.fillStyle = 'black';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            canvasCtx.fillStyle = 'black';
+            canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
 
             /*
             Update & draw
              */
             updatePosition(playerPositionInPx, targetPosition);
             updatePosition(walkerPositionInPx, walkerTargetPosition);
-            mainLoopContext.map.npcs.forEach(npc => {
+            context.map.npcs.forEach(npc => {
                 updateNPCPosition(npc);
             });
             drawElements();
@@ -188,19 +163,19 @@
             /*
             use "x" to display debug info
              */
-            if (mainLoopContext.debug) {
-                ctx.font = "12px Arial";
+            if (context.overWorldContext.frames.debug) {
+                canvasCtx.font = "12px Arial";
                 let fps = Math.round(1 / elapsed * 1000);
 
-                ctx.fillStyle = 'black';
-                ctx.fillRect(0, 0, 160, 60);
+                canvasCtx.fillStyle = 'black';
+                canvasCtx.fillRect(0, 0, 160, 60);
 
-                ctx.fillStyle = 'white';
-                ctx.fillText(`Player position: ${playerPosition.x}, ${playerPosition.y}`, 10, 10);
-                ctx.fillText(`Player moving: ${mainLoopContext.player.moving}`, 10, 20);
-                ctx.fillText(`Player direction: ${mainLoopContext.player.direction}`, 10, 30);
-                ctx.fillText(`Player offset: ${mainLoopContext.map.playerMovedOffset.x}, ${mainLoopContext.map.playerMovedOffset.y}`, 10, 40);
-                ctx.fillText(`fps: ${fps}`, 10, 50);
+                canvasCtx.fillStyle = 'white';
+                canvasCtx.fillText(`Player position: ${playerPosition.x}, ${playerPosition.y}`, 10, 10);
+                canvasCtx.fillText(`Player moving: ${context.player.moving}`, 10, 20);
+                canvasCtx.fillText(`Player direction: ${context.player.direction}`, 10, 30);
+                canvasCtx.fillText(`Player offset: ${context.map.playerMovedOffset.x}, ${context.map.playerMovedOffset.y}`, 10, 40);
+                canvasCtx.fillText(`fps: ${fps}`, 10, 50);
             }
         }
     }
@@ -210,7 +185,7 @@
     Scripts
      */
 
-    $:currentScript = mainLoopContext?.playingScript;
+    $:currentScript = context?.playingScript;
     $:currentAction = currentScript?.currentAction;
     $:hasDialog = currentAction?.type === 'Dialog';
 
@@ -218,30 +193,29 @@
     let bButtonValue: Writable<boolean> = writable(false);
     aButtonValue.subscribe(value => {
         keys.a.pressed = value;
-        if (value && !mainLoopContext.playingScript) {
-            let interactive = mainLoopContext.map?.elementInFront(playerPosition, mainLoopContext.player.direction);
-            let scripts = interactive?.interact(mainLoopContext, playerPosition);
+        if (value && !context.playingScript) {
+            let interactive = context.map?.elementInFront(playerPosition, context.player.direction);
+            let scripts = interactive?.interact(context, playerPosition);
             let newScript = scripts?.[0];
             let previous = scripts?.[1];
             if (newScript) {
-                mainLoopContext.playScript(newScript, previous);
+                context.playScript(newScript, previous);
             } else {
-                previous?.resume(mainLoopContext);
+                previous?.resume(context);
             }
 
         }
     })
 
     function checkForGameStart(): boolean {
-        if (mainLoopContext.gameStarted() && !wakeUp) {
-            let script = mainLoopContext.scriptsByTrigger.get('onGameStart')?.at(0);
-            wakeUp = true;
+        if (context.isNewGame && !context.overWorldContext.menus.wakeUp) {
+            let script = context.scriptsByTrigger.get('onGameStart')?.at(0);
+            context.overWorldContext.menus.wakeUp = true;
             setTimeout(() => {
-                mainLoopContext.contextCreation = Date.now();
-                wakeUp = false;
+                context.isNewGame = false;
+                context.overWorldContext.menus.wakeUp = false;
                 if (script) {
-                    console.log(script)
-                    mainLoopContext.playScript(script, undefined, () => starterSelection = true);
+                    context.playScript(script, undefined, () => context.overWorldContext.menus.starterSelection = true);
                 }
             }, 5000);
             return true;
@@ -251,13 +225,13 @@
 
     function checkForStepInScript() {
         let stepScript: Script | undefined;
-        if (mainLoopContext.map?.scripts && mainLoopContext.map.scripts?.length > 0 && !mainLoopContext.playingScript) {
+        if (context.map?.scripts && context.map.scripts?.length > 0 && !context.playingScript) {
             // TODO allow range of positions
-            stepScript = mainLoopContext.map.scripts.find(s => s.triggerType === 'onStep' && s.stepPosition?.x === playerPosition.x && s.stepPosition?.y === playerPosition.y);
+            stepScript = context.map.scripts.find(s => s.triggerType === 'onStep' && s.stepPosition?.x === playerPosition.x && s.stepPosition?.y === playerPosition.y);
         }
 
         if (stepScript !== undefined && !stepScript?.played || stepScript?.replayable) {
-            mainLoopContext.playScript(stepScript);
+            context.playScript(stepScript);
         }
 
         return stepScript;
@@ -268,53 +242,38 @@
     Map change (load and junctions)
      */
     function checkForFunction() {
-
-        if (mainLoopContext.map === undefined) return;
-        let jonction = mainLoopContext.map.jonctionAt(playerPosition);
+        if (context.map === undefined) return;
+        let jonction = context.map.jonctionAt(playerPosition);
         if (jonction !== undefined) {
             changeMap(jonction);
         }
     }
 
-    function drawJunctionArrow() {
-        if (mainLoopContext.map) {
-            if (mainLoopContext.player.direction === 'down' && mainLoopContext.map.jonctionAt(new Position(playerPosition.x, playerPosition.y + 1))) {
-                MAP_DRAWER.drawArrow(ctx, "down", playerPosition, mainLoopContext.imageScale);
-            } else if (mainLoopContext.player.direction === 'up' && mainLoopContext.map.jonctionAt(new Position(playerPosition.x, playerPosition.y - 1))) {
-                MAP_DRAWER.drawArrow(ctx, "up", playerPosition, mainLoopContext.imageScale);
-            } else if (mainLoopContext.player.direction === 'right' && mainLoopContext.map.jonctionAt(new Position(playerPosition.x + 1, playerPosition.y))) {
-                MAP_DRAWER.drawArrow(ctx, "right", playerPosition, mainLoopContext.imageScale);
-            } else if (mainLoopContext.player.direction === 'left' && mainLoopContext.map.jonctionAt(new Position(playerPosition.x - 1, playerPosition.y))) {
-                MAP_DRAWER.drawArrow(ctx, "left", playerPosition, mainLoopContext.imageScale);
-            }
-        }
-    }
-
     function loadMap(map: OpenMap) {
-
+// TODO all that should be in context
         playerPosition = new Position(
             map.playerMovedOffset.x + map.playerInitialPosition.x,
             map.playerMovedOffset.y + map.playerInitialPosition.y);
 
         playerPositionInPx = new Position(
-            Math.floor(playerPosition.x * (16 * mainLoopContext.imageScale)),
-            Math.floor(playerPosition.y * (16 * mainLoopContext.imageScale)));
+            Math.floor(playerPosition.x * (16 * context.overWorldContext.frames.imageScale)),
+            Math.floor(playerPosition.y * (16 * context.overWorldContext.frames.imageScale)));
         targetPosition = new Position(playerPositionInPx.x, playerPositionInPx.y);
 
         walkerPositionInPx = new Position(
-            Math.floor(playerPosition.x * (16 * mainLoopContext.imageScale)),
-            Math.floor((playerPosition.y - 1) * (16 * mainLoopContext.imageScale)));
+            Math.floor(playerPosition.x * (16 * context.overWorldContext.frames.imageScale)),
+            Math.floor((playerPosition.y - 1) * (16 * context.overWorldContext.frames.imageScale)));
         walkerTargetPosition = new Position(walkerPositionInPx.x, walkerPositionInPx.y);
 
         map.npcs?.forEach(npc => {
             npc.positionInPx = new Position(
-                Math.floor(npc.position.x * (16 * mainLoopContext.imageScale)),
-                Math.floor(npc.position.y * (16 * mainLoopContext.imageScale)));
+                Math.floor(npc.position.x * (16 * context.overWorldContext.frames.imageScale)),
+                Math.floor(npc.position.y * (16 * context.overWorldContext.frames.imageScale)));
             npc.targetPositionInPx = new Position(npc.positionInPx.x, npc.positionInPx.y);
         });
 
-        mainLoopContext.changingMap = true;
-        mainLoopContext.displayChangingMap = true;
+        context.overWorldContext.changingMap = true;
+        //overworldContext.displayChangingMap = true;
 
         let onEnterScript: Script | undefined;
         if (map.scripts && map.scripts?.length > 0) {
@@ -323,28 +282,27 @@
 
         let npcOnEnter = map.npcs.filter(npc => npc.movingScript);
 
-        save.save.map = map;
-        mainLoopContext.map = map;
+        context.map = map;
 
         setTimeout(() => {
-            mainLoopContext.changingMap = false;
+            context.overWorldContext.changingMap = false;
 
             if (onEnterScript) {
-                mainLoopContext.playScript(onEnterScript)
+                context.playScript(onEnterScript)
             }
             if (npcOnEnter?.length > 0) {
-                mainLoopContext.playMvts(npcOnEnter);
+               // overworldContext.playMvts(npcOnEnter);
             }
 
         }, 4000);
         setTimeout(() => {
-            mainLoopContext.displayChangingMap = false;
+            //overworldContext.displayChangingMap = false;
             checkForGameStart();
         }, 2000);
     }
 
     function changeMap(jonction: Jonction) {
-        let map = OpenMap.fromInstance(MAPS[jonction.mapIdx], new Position(0, 0));
+        let map = OpenMap.fromInstance(context.MAPS[jonction.mapIdx], new Position(0, 0));
         map.playerInitialPosition = map.jonctions.find(j => j.id === jonction.id)?.start || new Position(0, 0);
         loadMap(map);
     }
@@ -353,15 +311,18 @@
     Positions update
      */
     function canMove(): boolean {
-        return !menuOpened &&
+      /*  return !menuOpened &&
             !pokemonListOpened &&
             !openSummary &&
             !bagOpened &&
             !boxOpened &&
-            !mainLoopContext.playingScript &&
-            !mainLoopContext.displayChangingMap &&
+            !overworldContext.playingScript &&
+            !overworldContext.displayChangingMap &&
             !battleState?.starting &&
             !starterSelection;
+            */
+        // TODO: set pause
+       return !context.overWorldContext.isPaused;
     }
 
     function move(): boolean {
@@ -369,7 +330,7 @@
         const deltaY = targetPosition.y - playerPositionInPx.y;
         const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
-        let direction = mainLoopContext.player.direction;
+        let direction = context.player.direction;
         let tmpSave = direction;
 
 
@@ -396,17 +357,17 @@
 
         if (move) {
 
-            const xChanger = (x) => direction === 'left' ? x - 1 : direction === 'right' ? x + 1 : x;
-            const yChanger = (y) => direction === 'up' ? y - 1 : direction === 'down' ? y + 1 : y;
+            const xChanger = (x: number) => direction === 'left' ? x - 1 : direction === 'right' ? x + 1 : x;
+            const yChanger = (y: number) => direction === 'up' ? y - 1 : direction === 'down' ? y + 1 : y;
 
             const futureX = xChanger(playerPosition.x);
             const futureY = yChanger(playerPosition.y);
 
-            if (mainLoopContext.player.direction !== direction) {
-                mainLoopContext.player.direction = direction;
+            if (context.player.direction !== direction) {
+                context.player.direction = direction;
                 return false;
-            } else if (mainLoopContext.map && !mainLoopContext.map.hasBoundaryAt(new Position(futureX, futureY))) {
-                mainLoopContext.player.moving = true;
+            } else if (context.map && !context.map.hasBoundaryAt(new Position(futureX, futureY))) {
+                context.player.moving = true;
 
                 walkerDirection = tmpSave;
                 walkerTargetPosition = new Position(
@@ -415,19 +376,19 @@
                 );
 
                 targetPosition = new Position(
-                    Math.floor(targetPosition.x + (xChanger(0) * 16 * mainLoopContext.imageScale)),
-                    Math.floor(targetPosition.y + (yChanger(0) * 16 * mainLoopContext.imageScale))
+                    Math.floor(targetPosition.x + (xChanger(0) * 16 * context.overWorldContext.frames.imageScale)),
+                    Math.floor(targetPosition.y + (yChanger(0) * 16 * context.overWorldContext.frames.imageScale))
                 );
                 playerPosition = new Position(futureX, futureY);
 
-                mainLoopContext.map.playerMovedOffset.x = xChanger(mainLoopContext.map.playerMovedOffset.x);
-                mainLoopContext.map.playerMovedOffset.y = yChanger(mainLoopContext.map.playerMovedOffset.y);
+                context.map.playerMovedOffset.x = xChanger(context.map.playerMovedOffset.x);
+                context.map.playerMovedOffset.y = yChanger(context.map.playerMovedOffset.y);
             }
         }
         return move;
     }
 
-    function easeInOutQuad(t) {
+    function easeInOutQuad(t: number) {
         return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
     }
 
@@ -435,14 +396,14 @@
 
         if (!npc.positionInPx || !npc.targetPositionInPx) return;
         npc.targetPositionInPx = new Position(
-            Math.floor(npc.targetPosition.x * (16 * mainLoopContext.imageScale)),
-            Math.floor(npc.targetPosition.y * (16 * mainLoopContext.imageScale)));
+            Math.floor(npc.targetPosition.x * (16 * context.overWorldContext.frames.imageScale)),
+            Math.floor(npc.targetPosition.y * (16 * context.overWorldContext.frames.imageScale)));
 
 
         const deltaX = npc.targetPositionInPx.x - npc.positionInPx.x;
         const deltaY = npc.targetPositionInPx.y - npc.positionInPx.y;
         const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-        const speed = mainLoopContext.walk;
+        const speed = context.overWorldContext.frames.walk;
         if (distance > 6) {
 
             const easedDistance = easeInOutQuad(Math.min(1, distance / 5));
@@ -463,7 +424,7 @@
         const deltaX = targetPosition.x - positionInPx.x;
         const deltaY = targetPosition.y - positionInPx.y;
         const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-        const speed = mainLoopContext.running ? mainLoopContext.run : mainLoopContext.walk;
+        const speed = context.overWorldContext.running ? context.overWorldContext.frames.run : context.overWorldContext.frames.walk;
         if (distance > 6) {
             const easedDistance = easeInOutQuad(Math.min(1, distance / 5));
             // Interpolate between current and target positions with eased distance
@@ -471,41 +432,29 @@
             positionInPx.y += deltaY * easedDistance * speed;
         } else {
             // Snap to the target position if movement is small
-            mainLoopContext.player.moving = false;
+            context.player.moving = false;
             positionInPx.x = targetPosition.x;
             positionInPx.y = targetPosition.y;
         }
     }
 
     function drawElements() {
-        if (mainLoopContext.map === undefined) return;
+        if (context.map === undefined) return;
 
         // Background
-        let mapDimensions = MAP_DRAWER.draw(ctx, mainLoopContext.map, mainLoopContext.imageScale, playerPositionInPx, mainLoopContext.debug);
-
-        //drawJunctionArrow();
+        let mapDimensions = context.map.draw(canvasCtx, context.map, context.overWorldContext.frames.imageScale, playerPositionInPx, context.overWorldContext.frames.debug);
 
         // Player & walker
-        if (mainLoopContext.player.direction === 'up') {
-            mainLoopContext.player.draw(ctx, 'overworld', mainLoopContext.playerScale, playerPositionInPx, mapDimensions, mainLoopContext.map.hasBattleZoneAt(playerPosition));
-            if (mainLoopContext.player.monsters?.length > 0) {
-                POKE_WALKER.draw(ctx, playerPositionInPx, walkerDirection, mainLoopContext.playerScale, mainLoopContext.player.moving, walkerPositionInPx, mainLoopContext.player.monsters.at(0), mapDimensions, mainLoopContext.map.hasBattleZoneAt(playerPosition));
-            }
-        } else {
-            if (mainLoopContext.player.monsters?.length > 0) {
-                POKE_WALKER.draw(ctx, playerPositionInPx, walkerDirection, mainLoopContext.playerScale, mainLoopContext.player.moving, walkerPositionInPx, mainLoopContext.player.monsters.at(0), mapDimensions, mainLoopContext.map.hasBattleZoneAt(playerPosition));
-            }
-            mainLoopContext.player.draw(ctx, 'overworld', mainLoopContext.playerScale, playerPositionInPx, mapDimensions, mainLoopContext.map.hasBattleZoneAt(playerPosition));
-        }
+        context.player.draw(canvasCtx, 'overworld', context.overWorldContext.frames.playerScale, playerPositionInPx, mapDimensions, context.map.hasBattleZoneAt(playerPosition));
 
 
-        mainLoopContext.map.npcs.forEach(npc => {
-            npc.drawer.draw(ctx, playerPositionInPx, npc, mainLoopContext.playerScale, mapDimensions);
+        context.map.npcs.forEach(npc => {
+            npc.draw(canvasCtx, playerPositionInPx, npc, context.overWorldContext.frames.playerScale, mapDimensions);
         });
 
         // Foreground
-        if (mainLoopContext.map?.foreground !== undefined) {
-            MAP_DRAWER.drawFG(ctx, mainLoopContext.map, mainLoopContext.imageScale, playerPositionInPx, mainLoopContext.debug);
+        if (context.map?.foreground !== undefined) {
+            context.map.drawFG(canvasCtx, context.map, context.overWorldContext.frames.imageScale, playerPositionInPx, context.overWorldContext.frames.debug);
         }
     }
 
@@ -513,15 +462,15 @@
     Battle start
      */
     function checkForBattle() {
-        if (mainLoopContext.map && mainLoopContext.map.hasBattleZoneAt(playerPosition) && Math.random() < 0.07) {
-            let monster = mainLoopContext.map.randomMonster();
-            mainLoopContext.initiateBattle(POKEDEX.findById(monster.id).result.instanciate(monster.level));
+        if (context.map && context.map.hasBattleZoneAt(playerPosition) && Math.random() < 0.07) {
+            let monster = context.map.randomMonster();
+            context.startBattle(context.POKEDEX.findById(monster.id).result.instanciate(monster.level));
         }
     }
 
     function checkForInSight() {
-        if (mainLoopContext.map?.npcs && mainLoopContext.map?.npcs?.length > 0) {
-            let npcsWithInSightScript: NPC[] = mainLoopContext.map.npcs.filter(npc =>
+        if (context.map?.npcs && context.map?.npcs?.length > 0) {
+            let npcsWithInSightScript: NPC[] = context.map.npcs.filter(npc =>
                 npc.mainScript &&
                 (!npc.mainScript.played || npc.mainScript.replayable) &&
                 npc.mainScript.triggerType === 'onSight'
@@ -545,7 +494,7 @@
 
                 if (inSight) {
                     console.log('in sight !');
-                    mainLoopContext.playScript(npc.mainScript);
+                    context.playScript(npc.mainScript);
                 }
             });
         }
@@ -555,7 +504,7 @@
     Controls
      */
 
-    const keyUpListener = (e) => {
+    const keyUpListener = (e: KeyboardEvent) => {
         if (canMove()) {
             switch (e.key) {
                 case 'ArrowDown' :
@@ -573,7 +522,7 @@
             }
         }
     };
-    const keyDownListener = (e) => {
+    const keyDownListener = (e: KeyboardEvent) => {
         if (canMove()) {
             switch (e.key) {
                 case 'ArrowDown' :
@@ -593,25 +542,25 @@
                     keys.left.pressed = true;
                     break;
                 case 'Shift':
-                    mainLoopContext.running = !mainLoopContext.running;
+                    context.overWorldContext.running = !context.overWorldContext.running;
                     break;
                 case 'x':
-                    mainLoopContext.debug = !mainLoopContext.debug;
+                    context.overWorldContext.frames.debug = !context.overWorldContext.frames.debug;
                     break;
                 case 'Escape':
-                    menuOpened = !menuOpened;
+                    context.overWorldContext.menus.menuOpened = !context.overWorldContext.menus.menuOpened;
             }
         } else {
             switch (e.key) {
                 case 'Escape':
-                    menuOpened = false;
+                    context.overWorldContext.menus.menuOpened = false;
             }
         }
     };
 
-    const jsCallback = (data) => {
+    const jsCallback = (data: any) => {
         // convert data.angle (radian) to a direction (top, bottom, left, right)
-        if (!menuOpened && !pokemonListOpened) {
+        if (!context.overWorldContext.isPaused) {
             resetKeys();
             if (data.angle) {
                 let degrees = data.angle * (180 / Math.PI);
@@ -638,8 +587,8 @@
     }
 
     onDestroy(() => {
-        ctx?.clearRect(0, 0, canvas.width, canvas.height);
-        window.cancelAnimationFrame(mainLoopContext.id);
+        canvasCtx?.clearRect(0, 0, canvas.width, canvas.height);
+        window.cancelAnimationFrame(context.overWorldContext.frames.frameId);
         window.removeEventListener('keydown', keyDownListener);
         window.removeEventListener('keyup', keyUpListener);
         joystick?.destroy();
@@ -647,20 +596,17 @@
     });
 
     onMount(() => {
-        ctx = canvas.getContext('2d');
+        canvasCtx = canvas.getContext('2d');
         window.addEventListener('keydown', keyDownListener);
         window.addEventListener('keyup', keyUpListener);
+
+        console.log(context)
+
         initContext();
 
         canvasWidth = Math.min(window.innerWidth, canvas.width);
 
         abButtons = new ABButtons(abButtonsC, (a, b) => {
-            /* keys.a.pressed = a;
-             keys.b.pressed = b;
-             console.log('a', a, 'b', b);*/
-            /*if (!mainLoopContext.playingScript) {
-                mainLoopContext.running = b;
-            }*/
             aButtonValue.set(a);
             bButtonValue.set(b);
         });

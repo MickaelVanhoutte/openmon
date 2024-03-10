@@ -104,14 +104,14 @@
 </div>
 
 <script lang="ts">
-    import {SelectedSave} from "../../../js/saves/saves.js";
     import Chart from 'chart.js/auto';
     import abilities from "../../../assets/data/final/abilities.json";
     import {Nature, PokemonInstance} from "../../../js/pokemons/pokedex";
-    import {slide, fade} from 'svelte/transition';
+    import {fade, slide} from 'svelte/transition';
     import {backInOut} from "svelte/easing";
+    import type {GameContext} from "../../../js/context/gameContext";
 
-    export let save: SelectedSave;
+    export let context: GameContext;
     export let selected: number;
 
     export let statEdit: boolean;
@@ -122,7 +122,7 @@
 
     export let zIndex;
 
-    export let pkmnList: PokemonInstance[];
+    let pkmnList: PokemonInstance[] = context.player.monsters;
 
     $:selectedMons = pkmnList[selected];
     $:statsKeys = Object.keys(selectedMons.stats).filter(key => key !== 'total' && key !== 'accuracy' && key !== 'evasion');

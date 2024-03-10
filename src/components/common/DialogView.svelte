@@ -9,11 +9,10 @@
 <script lang="ts">
 
     import {onMount} from "svelte";
-    import type {WorldContext} from "../../js/common/context";
-    import type {Dialog} from "../../js/common/scripts";
-    import type {Writable} from "svelte/store";
+    import type {Dialog} from "../../js/scripting/scripts";
+    import type {Unsubscriber, Writable} from "svelte/store";
 
-    export let dialog: Dialog;
+    export let dialog: Dialog | undefined;
 
     export let animate: boolean = true;
     export let text: HTMLDivElement;
@@ -22,7 +21,7 @@
 
     $:current = dialog?.current?.text || '';
 
-   let unsubscribe;
+   let unsubscribe: Unsubscriber;
 
     function next() {
         let tmp = dialog?.next();
