@@ -108,6 +108,7 @@
     import Bag from "./bag/Bag.svelte";
     import Boxes from "./boxes/Boxes.svelte";
     import type {GameContext} from "../../js/context/gameContext";
+    import {MenuType} from "../../js/context/overworldContext";
 
     // todo check, export might not be needed for most of them
 
@@ -123,18 +124,15 @@
     }
 
     function openList() {
-        context.overWorldContext.menus.menuOpened = false;
-        context.overWorldContext.menus.pokemonListOpened = true;
+        context.overWorldContext.toggleMenu(MenuType.POKEMON_LIST);
     }
 
     function openBag() {
-        context.overWorldContext.menus.menuOpened = false;
-        context.overWorldContext.menus.bagOpened = true;
+        context.overWorldContext.toggleMenu(MenuType.BAG);
     }
 
     function openBoxes() {
-        context.overWorldContext.menus.menuOpened = false;
-        context.overWorldContext.menus.boxOpened = true
+        context.overWorldContext.toggleMenu(MenuType.BOX);
     }
 
     function trainer() {
@@ -146,7 +144,7 @@
     }
 
     function close() {
-        context.overWorldContext.menus.menuOpened = false;
+        context.overWorldContext.toggleMenu();
     }
 
     const listener = (e: KeyboardEvent) => {
