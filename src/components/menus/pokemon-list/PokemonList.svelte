@@ -124,6 +124,7 @@
     import {fade, slide} from 'svelte/transition';
     import Bag from "../bag/Bag.svelte";
     import type {GameContext} from "../../../js/context/gameContext";
+    import {MenuType} from "../../../js/context/overworldContext";
 
     export let context: GameContext;
 
@@ -198,15 +199,14 @@
     };
 
     function summarize() {
-        openOptions = false;
-        context.overWorldContext.menus.openSummary = true;
+        context.overWorldContext.toggleMenu(MenuType.SUMMARY);
     }
 
     function closeList() {
         if (isBattle && !itemToUse) {
-            context.overWorldContext.menus.switchOpened = false;
+            context.overWorldContext.toggleMenu(MenuType.SWITCH);
         } else {
-            context.overWorldContext.menus.pokemonListOpened = false;
+            context.overWorldContext.toggleMenu(MenuType.POKEMON_LIST);
         }
 
     }
@@ -215,7 +215,7 @@
 
         if (!isBattle && itemToUse) {
             let selectedMons = context.player.monsters.at(selected);
-            context.player.bag.use(itemToUse, selectedMons);
+            context.player.bag.use(itemToUse, context, selectedMons);
             context.player.name = context.player.name;
         } else {
             let selectedMons = selected === 0 ? first : others[selected - 1];
@@ -265,7 +265,7 @@
                     } else if (optionSelected === 1 && !isBattle && !itemToUse) {
                         saveSwitch();
                     } else if (optionSelected === 2 && !isBattle) {
-                        context.overWorldContext.menus.bagOpened = true;
+                        context.overWorldContext.toggleMenu(MenuType.BAG);
                     }
                 }
 

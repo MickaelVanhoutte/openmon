@@ -3,7 +3,7 @@
 {#if gameContext}
     <!-- game started -->
     {#if gameContext.isBattle && gameContext.battleContext !== undefined}
-        <Battle bind:context={gameContext} bind:battleCtx={gameContext.battleContext}/>
+        <Battle bind:context={gameContext} bind:battleCtx={gameContext.battleContext} />
     {:else if gameContext.overWorldContext !== undefined}
         <World bind:context={gameContext} bind:overWorldCtx={gameContext.overWorldContext}/>
     {/if}
@@ -33,6 +33,7 @@
     import PlayerCreation from "./components/saves/PlayerCreation.svelte";
     import {SaveContext, SavesHolder} from "./js/context/savesHolder";
     import type {GameContext} from "./js/context/gameContext";
+    import {fade} from 'svelte/transition';
 
     /**
      * Main component, handling screens transitions

@@ -1,4 +1,4 @@
-<div class="world-wrapper" bind:this={wrapper} class:blur={context.overWorldContext.menus.wakeUp}>
+<div class="world-wrapper" bind:this={wrapper} class:blur={overWorldCtx.scenes.wakeUp}>
     <canvas bind:this={canvas} id="main" width="1024" height="1024"></canvas>
 
     <Menu bind:context={context}/>
@@ -11,26 +11,26 @@
         <Evolution bind:context={context}/>
     {/if}
 
-    {#if !context.overWorldContext.menus.pokemonListOpened && !context.overWorldContext.menus.bagOpened}
-        <button on:click={() => context.overWorldContext.menus.menuOpened = !context.overWorldContext.menus.menuOpened} class="start">start</button>
+    {#if !overWorldCtx.menus.pokemonListOpened && !overWorldCtx.menus.bagOpened}
+        <button on:click={() => overWorldCtx.menus.menuOpened = !overWorldCtx.menus.menuOpened} class="start">start</button>
     {/if}
 
-   <!-- {#if battleState && battleState?.starting && !context.overWorldContext.menus.pokemonListOpened && !context.overWorldContext.menus.bagOpened }
+   <!-- {#if battleState && battleState?.starting && !overWorldCtx.menus.pokemonListOpened && !overWorldCtx.menus.bagOpened }
         <div class="battleStart"></div>
     {/if}
 
-    {#if !context.overWorldContext.menus.pokemonListOpened && !context.overWorldContext.menus.bagOpened}
-        <div class="battleEnd" class:active={battleState && battleState?.ending || context.overWorldContext?.changingMap}></div>
+    {#if !overWorldCtx.menus.pokemonListOpened && !overWorldCtx.menus.bagOpened}
+        <div class="battleEnd" class:active={battleState && battleState?.ending || overWorldCtx?.changingMap}></div>
     {/if}
 -->
 
-    {#if context.overWorldContext.menus.wakeUp}
+    {#if overWorldCtx.scenes.wakeUp}
         <div class="wakeUp">
             <div class="top"></div>
             <div class="bot"></div>
         </div>
     {/if}
-    {#if context.overWorldContext.menus.starterSelection}
+    {#if overWorldCtx.scenes.starterSelection}
         <StarterSelection bind:context={context} bind:canvasWidth={canvasWidth} bind:aButton={aButtonValue} bind:bButton={bButtonValue}/>
     {/if}
 
@@ -40,7 +40,7 @@
     <div class="ab-buttons" bind:this={abButtonsC}></div>
 
     <div class="run-toggle">
-        {#if context.overWorldContext?.running}
+        {#if overWorldCtx?.running}
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M9.82986 8.78986L7.99998 9.45588V13H5.99998V8.05H6.015L11.2834 6.13247C11.5274 6.03855 11.7922 5.99162 12.0648 6.0008C13.1762 6.02813 14.1522 6.75668 14.4917 7.82036C14.678 8.40431 14.848 8.79836 15.0015 9.0025C15.9138 10.2155 17.3653 11 19 11V13C16.8253 13 14.8823 12.0083 13.5984 10.4526L12.9008 14.4085L15 16.17V23H13V17.1025L10.7307 15.1984L10.003 19.3253L3.10938 18.1098L3.45667 16.1401L8.38071 17.0084L9.82986 8.78986ZM13.5 5.5C12.3954 5.5 11.5 4.60457 11.5 3.5C11.5 2.39543 12.3954 1.5 13.5 1.5C14.6046 1.5 15.5 2.39543 15.5 3.5C15.5 4.60457 14.6046 5.5 13.5 5.5Z"></path>
             </svg>
@@ -51,8 +51,8 @@
         {/if}
 
         <label class="switch">
-            <input type="checkbox" checked="{context.overWorldContext?.running ? true : undefined}"
-                   on:change={() => context.overWorldContext.running = !context.overWorldContext?.running}>
+            <input type="checkbox" checked="{overWorldCtx?.running ? true : undefined}"
+                   on:change={() => overWorldCtx.running = !overWorldCtx?.running}>
             <span>
             </span>
         </label>
@@ -75,6 +75,7 @@
     import StarterSelection from "./common/StarterSelection.svelte";
     import {Position} from "../js/mapping/positions";
     import type {GameContext} from "../js/context/gameContext";
+    import type {OverworldContext} from "../js/context/overworldContext";
 
     /**
      * Overworld component.
@@ -82,6 +83,7 @@
      */
 
     export let context: GameContext;
+    export let overWorldCtx: OverworldContext;
 
     let canvas: HTMLCanvasElement;
     let wrapper: HTMLDivElement;
@@ -108,7 +110,6 @@
 
 
     function initContext() {
-       // overworldContext = new WorldContext(save);
         mainLoop();
         loadMap(context.map);
     }
@@ -117,21 +118,21 @@
     Game loop
      */
     function mainLoop() {
-        context.overWorldContext.frames.frameId = window.requestAnimationFrame(mainLoop);
+        overWorldCtx.frames.frameId = window.requestAnimationFrame(mainLoop);
 
         canvasCtx.imageSmoothingEnabled = true;
         canvasCtx.imageSmoothingQuality = 'high';
 
 
         let now = Date.now();
-        let elapsed = now - context.overWorldContext.frames.then;
+        let elapsed = now - overWorldCtx.frames.then;
 
-        if (elapsed > context.overWorldContext.frames.fpsInterval &&
+        if (elapsed > overWorldCtx.frames.fpsInterval &&
             context?.map &&
             //!battleState?.ending && // TODO ?
             //!overworldContext.displayChangingMap &&
             evolutions?.length === 0) {
-            context.overWorldContext.frames.then = now - (elapsed % context.overWorldContext.frames.fpsInterval);
+            overWorldCtx.frames.then = now - (elapsed % overWorldCtx.frames.fpsInterval);
 
             canvasCtx.fillStyle = 'black';
             canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
@@ -163,7 +164,7 @@
             /*
             use "x" to display debug info
              */
-            if (context.overWorldContext.frames.debug) {
+            if (overWorldCtx.frames.debug) {
                 canvasCtx.font = "12px Arial";
                 let fps = Math.round(1 / elapsed * 1000);
 
@@ -195,7 +196,7 @@
         keys.a.pressed = value;
         if (value && !context.playingScript) {
             let interactive = context.map?.elementInFront(playerPosition, context.player.direction);
-            let scripts = interactive?.interact(context, playerPosition);
+            let scripts = interactive?.interact(playerPosition);
             let newScript = scripts?.[0];
             let previous = scripts?.[1];
             if (newScript) {
@@ -208,14 +209,15 @@
     })
 
     function checkForGameStart(): boolean {
-        if (context.isNewGame && !context.overWorldContext.menus.wakeUp) {
+        console.log('new game ? ', context.isNewGame && !overWorldCtx.scenes.wakeUp, context.scriptsByTrigger.get('onGameStart')?.at(0) )
+        if (context.isNewGame && !overWorldCtx.scenes.wakeUp) {
             let script = context.scriptsByTrigger.get('onGameStart')?.at(0);
-            context.overWorldContext.menus.wakeUp = true;
+            overWorldCtx.scenes.wakeUp = true;
             setTimeout(() => {
                 context.isNewGame = false;
-                context.overWorldContext.menus.wakeUp = false;
+                overWorldCtx.scenes.wakeUp = false;
                 if (script) {
-                    context.playScript(script, undefined, () => context.overWorldContext.menus.starterSelection = true);
+                    context.playScript(script, undefined, () => overWorldCtx.scenes.starterSelection = true);
                 }
             }, 5000);
             return true;
@@ -256,23 +258,23 @@
             map.playerMovedOffset.y + map.playerInitialPosition.y);
 
         playerPositionInPx = new Position(
-            Math.floor(playerPosition.x * (16 * context.overWorldContext.frames.imageScale)),
-            Math.floor(playerPosition.y * (16 * context.overWorldContext.frames.imageScale)));
+            Math.floor(playerPosition.x * (16 * overWorldCtx.frames.imageScale)),
+            Math.floor(playerPosition.y * (16 * overWorldCtx.frames.imageScale)));
         targetPosition = new Position(playerPositionInPx.x, playerPositionInPx.y);
 
         walkerPositionInPx = new Position(
-            Math.floor(playerPosition.x * (16 * context.overWorldContext.frames.imageScale)),
-            Math.floor((playerPosition.y - 1) * (16 * context.overWorldContext.frames.imageScale)));
+            Math.floor(playerPosition.x * (16 * overWorldCtx.frames.imageScale)),
+            Math.floor((playerPosition.y - 1) * (16 * overWorldCtx.frames.imageScale)));
         walkerTargetPosition = new Position(walkerPositionInPx.x, walkerPositionInPx.y);
 
         map.npcs?.forEach(npc => {
             npc.positionInPx = new Position(
-                Math.floor(npc.position.x * (16 * context.overWorldContext.frames.imageScale)),
-                Math.floor(npc.position.y * (16 * context.overWorldContext.frames.imageScale)));
+                Math.floor(npc.position.x * (16 * overWorldCtx.frames.imageScale)),
+                Math.floor(npc.position.y * (16 * overWorldCtx.frames.imageScale)));
             npc.targetPositionInPx = new Position(npc.positionInPx.x, npc.positionInPx.y);
         });
 
-        context.overWorldContext.changingMap = true;
+        overWorldCtx.changingMap = true;
         //overworldContext.displayChangingMap = true;
 
         let onEnterScript: Script | undefined;
@@ -285,13 +287,13 @@
         context.map = map;
 
         setTimeout(() => {
-            context.overWorldContext.changingMap = false;
+            overWorldCtx.changingMap = false;
 
             if (onEnterScript) {
                 context.playScript(onEnterScript)
             }
             if (npcOnEnter?.length > 0) {
-               // overworldContext.playMvts(npcOnEnter);
+                context.playMvts(npcOnEnter);
             }
 
         }, 4000);
@@ -322,7 +324,7 @@
             !starterSelection;
             */
         // TODO: set pause
-       return !context.overWorldContext.isPaused;
+       return !overWorldCtx.isPaused;
     }
 
     function move(): boolean {
@@ -376,8 +378,8 @@
                 );
 
                 targetPosition = new Position(
-                    Math.floor(targetPosition.x + (xChanger(0) * 16 * context.overWorldContext.frames.imageScale)),
-                    Math.floor(targetPosition.y + (yChanger(0) * 16 * context.overWorldContext.frames.imageScale))
+                    Math.floor(targetPosition.x + (xChanger(0) * 16 * overWorldCtx.frames.imageScale)),
+                    Math.floor(targetPosition.y + (yChanger(0) * 16 * overWorldCtx.frames.imageScale))
                 );
                 playerPosition = new Position(futureX, futureY);
 
@@ -396,14 +398,14 @@
 
         if (!npc.positionInPx || !npc.targetPositionInPx) return;
         npc.targetPositionInPx = new Position(
-            Math.floor(npc.targetPosition.x * (16 * context.overWorldContext.frames.imageScale)),
-            Math.floor(npc.targetPosition.y * (16 * context.overWorldContext.frames.imageScale)));
+            Math.floor(npc.targetPosition.x * (16 * overWorldCtx.frames.imageScale)),
+            Math.floor(npc.targetPosition.y * (16 * overWorldCtx.frames.imageScale)));
 
 
         const deltaX = npc.targetPositionInPx.x - npc.positionInPx.x;
         const deltaY = npc.targetPositionInPx.y - npc.positionInPx.y;
         const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-        const speed = context.overWorldContext.frames.walk;
+        const speed = overWorldCtx.frames.walk;
         if (distance > 6) {
 
             const easedDistance = easeInOutQuad(Math.min(1, distance / 5));
@@ -424,7 +426,7 @@
         const deltaX = targetPosition.x - positionInPx.x;
         const deltaY = targetPosition.y - positionInPx.y;
         const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-        const speed = context.overWorldContext.running ? context.overWorldContext.frames.run : context.overWorldContext.frames.walk;
+        const speed = overWorldCtx.running ? overWorldCtx.frames.run : overWorldCtx.frames.walk;
         if (distance > 6) {
             const easedDistance = easeInOutQuad(Math.min(1, distance / 5));
             // Interpolate between current and target positions with eased distance
@@ -442,19 +444,19 @@
         if (context.map === undefined) return;
 
         // Background
-        let mapDimensions = context.map.draw(canvasCtx, context.map, context.overWorldContext.frames.imageScale, playerPositionInPx, context.overWorldContext.frames.debug);
+        let mapDimensions = context.map.draw(canvasCtx, context.map, overWorldCtx.frames.imageScale, playerPositionInPx, overWorldCtx.frames.debug);
 
         // Player & walker
-        context.player.draw(canvasCtx, 'overworld', context.overWorldContext.frames.playerScale, playerPositionInPx, mapDimensions, context.map.hasBattleZoneAt(playerPosition));
+        context.player.draw(canvasCtx, 'overworld', overWorldCtx.frames.playerScale, playerPositionInPx, mapDimensions, context.map.hasBattleZoneAt(playerPosition));
 
 
         context.map.npcs.forEach(npc => {
-            npc.draw(canvasCtx, playerPositionInPx, npc, context.overWorldContext.frames.playerScale, mapDimensions);
+            npc.draw(canvasCtx, playerPositionInPx, npc, overWorldCtx.frames.playerScale, mapDimensions);
         });
 
         // Foreground
         if (context.map?.foreground !== undefined) {
-            context.map.drawFG(canvasCtx, context.map, context.overWorldContext.frames.imageScale, playerPositionInPx, context.overWorldContext.frames.debug);
+            context.map.drawFG(canvasCtx, context.map, overWorldCtx.frames.imageScale, playerPositionInPx, overWorldCtx.frames.debug);
         }
     }
 
@@ -542,25 +544,25 @@
                     keys.left.pressed = true;
                     break;
                 case 'Shift':
-                    context.overWorldContext.running = !context.overWorldContext.running;
+                    overWorldCtx.running = !overWorldCtx.running;
                     break;
                 case 'x':
-                    context.overWorldContext.frames.debug = !context.overWorldContext.frames.debug;
+                    overWorldCtx.frames.debug = !overWorldCtx.frames.debug;
                     break;
                 case 'Escape':
-                    context.overWorldContext.menus.menuOpened = !context.overWorldContext.menus.menuOpened;
+                    overWorldCtx.menus.menuOpened = !overWorldCtx.menus.menuOpened;
             }
         } else {
             switch (e.key) {
                 case 'Escape':
-                    context.overWorldContext.menus.menuOpened = false;
+                    overWorldCtx.menus.menuOpened = false;
             }
         }
     };
 
     const jsCallback = (data: any) => {
         // convert data.angle (radian) to a direction (top, bottom, left, right)
-        if (!context.overWorldContext.isPaused) {
+        if (!overWorldCtx.isPaused) {
             resetKeys();
             if (data.angle) {
                 let degrees = data.angle * (180 / Math.PI);
@@ -588,7 +590,7 @@
 
     onDestroy(() => {
         canvasCtx?.clearRect(0, 0, canvas.width, canvas.height);
-        window.cancelAnimationFrame(context.overWorldContext.frames.frameId);
+        window.cancelAnimationFrame(overWorldCtx.frames.frameId);
         window.removeEventListener('keydown', keyDownListener);
         window.removeEventListener('keyup', keyUpListener);
         joystick?.destroy();

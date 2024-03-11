@@ -37,14 +37,11 @@ export class GameContext {
     scriptsByTrigger: Map<string, Script[]> = new Map<string, Script[]>();
 
     constructor(player: Player, boxes: Array<PokemonBox>, map: MapSave, settings: Settings, isNewGame: boolean) {
-
         this.player = player;
         this.boxes = boxes;
         this.map = OpenMap.fromInstance(this.MAPS[map.mapId], map.playerPosition);
         this.settings = settings;
         this.isNewGame = isNewGame;
-        this.overWorldContext = new OverworldContext();
-
         let allScripts: Script[] = this.map.scripts
             .concat(this.map.npcs.map((npc) => npc.mainScript).filter((script) => script !== undefined) as Script[])
             .concat(this.map.npcs.map((npc) => npc.dialogScripts).flat().filter((script) => script !== undefined) as Script[])
@@ -56,8 +53,7 @@ export class GameContext {
                 this.scriptsByTrigger.set(script.triggerType, [script]);
             }
         });
-
-
+        this.overWorldContext = new OverworldContext();
     }
 
     startBattle(opponent: PokemonInstance | Character): BattleContext {
