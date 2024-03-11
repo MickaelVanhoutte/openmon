@@ -12,17 +12,18 @@
     {/if}
 
     {#if !overWorldCtx.menus.pokemonListOpened && !overWorldCtx.menus.bagOpened}
-        <button on:click={() => overWorldCtx.menus.menuOpened = !overWorldCtx.menus.menuOpened} class="start">start</button>
+        <button on:click={() => overWorldCtx.openMenu(MenuType.MAIN)} class="start">start
+        </button>
     {/if}
 
-   <!-- {#if battleState && battleState?.starting && !overWorldCtx.menus.pokemonListOpened && !overWorldCtx.menus.bagOpened }
-        <div class="battleStart"></div>
-    {/if}
+    <!-- {#if battleState && battleState?.starting && !overWorldCtx.menus.pokemonListOpened && !overWorldCtx.menus.bagOpened }
+         <div class="battleStart"></div>
+     {/if}
 
-    {#if !overWorldCtx.menus.pokemonListOpened && !overWorldCtx.menus.bagOpened}
-        <div class="battleEnd" class:active={battleState && battleState?.ending || overWorldCtx?.changingMap}></div>
-    {/if}
--->
+     {#if !overWorldCtx.menus.pokemonListOpened && !overWorldCtx.menus.bagOpened}
+         <div class="battleEnd" class:active={battleState && battleState?.ending || overWorldCtx?.changingMap}></div>
+     {/if}
+ -->
 
     {#if overWorldCtx.scenes.wakeUp}
         <div class="wakeUp">
@@ -31,7 +32,8 @@
         </div>
     {/if}
     {#if overWorldCtx.scenes.starterSelection}
-        <StarterSelection bind:context={context} bind:canvasWidth={canvasWidth} bind:aButton={aButtonValue} bind:bButton={bButtonValue}/>
+        <StarterSelection bind:context={context} bind:canvasWidth={canvasWidth} bind:aButton={aButtonValue}
+                          bind:bButton={bButtonValue}/>
     {/if}
 
     <div class="joysticks" bind:this={joysticks}></div>
@@ -75,7 +77,7 @@
     import StarterSelection from "./common/StarterSelection.svelte";
     import {Position} from "../js/mapping/positions";
     import type {GameContext} from "../js/context/gameContext";
-    import type {OverworldContext} from "../js/context/overworldContext";
+    import {MenuType, type OverworldContext, SceneType} from "../js/context/overworldContext";
 
     /**
      * Overworld component.
@@ -168,15 +170,18 @@
                 canvasCtx.font = "12px Arial";
                 let fps = Math.round(1 / elapsed * 1000);
 
+                let x = canvasWidth / 2 - window.innerWidth / 3.5;
+                let y = canvas.height / 2 - window.innerHeight / 3.5;
+
                 canvasCtx.fillStyle = 'black';
-                canvasCtx.fillRect(0, 0, 160, 60);
+                canvasCtx.fillRect(x, y, 200, 100);
 
                 canvasCtx.fillStyle = 'white';
-                canvasCtx.fillText(`Player position: ${playerPosition.x}, ${playerPosition.y}`, 10, 10);
-                canvasCtx.fillText(`Player moving: ${context.player.moving}`, 10, 20);
-                canvasCtx.fillText(`Player direction: ${context.player.direction}`, 10, 30);
-                canvasCtx.fillText(`Player offset: ${context.map.playerMovedOffset.x}, ${context.map.playerMovedOffset.y}`, 10, 40);
-                canvasCtx.fillText(`fps: ${fps}`, 10, 50);
+                canvasCtx.fillText(`fps: ${fps}`, x + 10, y + 10);
+                canvasCtx.fillText(`Player moving: ${context.player.moving}`, x + 10, y + 20);
+                canvasCtx.fillText(`Player offset: ${context.map.playerMovedOffset.x}, ${context.map.playerMovedOffset.y}`, x + 10, y + 30);
+                canvasCtx.fillText(`paused: ${context.overWorldContext.isPaused}`, x + 10, y + 40);
+
             }
         }
     }
@@ -209,15 +214,15 @@
     })
 
     function checkForGameStart(): boolean {
-        console.log('new game ? ', context.isNewGame && !overWorldCtx.scenes.wakeUp, context.scriptsByTrigger.get('onGameStart')?.at(0) )
+        console.log('new game ? ', context.isNewGame && !overWorldCtx.scenes.wakeUp, context.scriptsByTrigger.get('onGameStart')?.at(0))
         if (context.isNewGame && !overWorldCtx.scenes.wakeUp) {
             let script = context.scriptsByTrigger.get('onGameStart')?.at(0);
-            overWorldCtx.scenes.wakeUp = true;
+            overWorldCtx.startScene(SceneType.WAKE_UP);
             setTimeout(() => {
                 context.isNewGame = false;
-                overWorldCtx.scenes.wakeUp = false;
+                overWorldCtx.endScene(SceneType.WAKE_UP);
                 if (script) {
-                    context.playScript(script, undefined, () => overWorldCtx.scenes.starterSelection = true);
+                    context.playScript(script, undefined, () => overWorldCtx.startScene(SceneType.STARTER_SELECTION));
                 }
             }, 5000);
             return true;
@@ -313,18 +318,18 @@
     Positions update
      */
     function canMove(): boolean {
-      /*  return !menuOpened &&
-            !pokemonListOpened &&
-            !openSummary &&
-            !bagOpened &&
-            !boxOpened &&
-            !overworldContext.playingScript &&
-            !overworldContext.displayChangingMap &&
-            !battleState?.starting &&
-            !starterSelection;
-            */
+        /*  return !menuOpened &&
+              !pokemonListOpened &&
+              !openSummary &&
+              !bagOpened &&
+              !boxOpened &&
+              !overworldContext.playingScript &&
+              !overworldContext.displayChangingMap &&
+              !battleState?.starting &&
+              !starterSelection;
+              */
         // TODO: set pause
-       return !overWorldCtx.isPaused;
+        return !overWorldCtx.isPaused;
     }
 
     function move(): boolean {
@@ -550,12 +555,12 @@
                     overWorldCtx.frames.debug = !overWorldCtx.frames.debug;
                     break;
                 case 'Escape':
-                    overWorldCtx.menus.menuOpened = !overWorldCtx.menus.menuOpened;
+                    overWorldCtx.menus.menuOpened ? overWorldCtx.closeMenu(MenuType.MAIN) : overWorldCtx.openMenu(MenuType.MAIN);
             }
         } else {
             switch (e.key) {
                 case 'Escape':
-                    overWorldCtx.menus.menuOpened = false;
+                    overWorldCtx.closeMenu(MenuType.MAIN)
             }
         }
     };

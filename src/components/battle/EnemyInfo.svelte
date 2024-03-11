@@ -41,8 +41,10 @@
     let currentHp = 0;
     let percent = 0;
 
-    $:currentHp = battleCtx?.opponentPokemon?.currentHp || 0;
-    $:percent = Math.floor(currentHp * 100 / currentHp);
+    battleCtx.currentAction.subscribe((_value) => {
+        currentHp = battleCtx?.opponentPokemon?.currentHp || 0;
+        percent = Math.floor(currentHp * 100 / battleCtx.opponentPokemon.currentStats.hp);
+    });
 
 </script>
 
@@ -96,7 +98,7 @@
       text-shadow: 1px 1px 1px #787b7e;
     }
 
-    .hp-status{
+    .hp-status {
       display: flex;
       flex-direction: row;
       justify-content: space-between;

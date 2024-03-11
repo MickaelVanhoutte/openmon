@@ -40,7 +40,7 @@
      */
     const savesHolder = new SavesHolder();
     let gameContext:GameContext;
-    savesHolder.selectedSave.subscribe((value: SaveContext) => {
+    savesHolder.selectedSave.subscribe((value: SaveContext | undefined) => {
         if (value) {
             gameContext = value.toGameContext();
         }

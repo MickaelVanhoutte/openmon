@@ -83,6 +83,7 @@
     import {typeChart} from "../../js/battle/battle-model";
     import {BattleContext} from "../../js/context/battleContext";
     import {Attack, RunAway} from "../../js/battle/actions/actions-selectable";
+    import {MenuType} from "../../js/context/overworldContext";
 
     export let context: GameContext;
     export let battleCtx: BattleContext;
@@ -90,12 +91,17 @@
     let moveOpened = false;
     let show = false;
 
-    let currentMessage = '';
+    let currentMessage: String | undefined;
     let disabled = false;
     let selectedMoveIdx = 0;
     let selectedOptionIdx = 0;
 
-
+    battleCtx.currentMessage.subscribe((message) => {
+        currentMessage = message;
+    });
+    battleCtx.isPlayerTurn.subscribe((isPlayerTurn) => {
+        disabled = !isPlayerTurn;
+    });
 
 
     function escape() {
@@ -105,11 +111,11 @@
     }
 
     function switchOpen() {
-        context.overWorldContext.menus.switchOpened = true;
+        context.overWorldContext.openMenu(MenuType.SWITCH);
     }
 
     function openBag() {
-        context.overWorldContext.menus.bagOpened = true;
+        context.overWorldContext.openMenu(MenuType.BAG);
     }
 
     function selectMove(idx: number) {
@@ -284,6 +290,9 @@
         border-radius: 6px;
         color: white;
 
+        svg {
+          height: 30px;
+        }
       }
 
     }

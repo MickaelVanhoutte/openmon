@@ -22,6 +22,7 @@
     import {Dialog, Message} from "../../js/scripting/scripts";
     import type {Unsubscriber, Writable} from "svelte/store";
     import type {GameContext} from "../../js/context/gameContext";
+    import {SceneType} from "../../js/context/overworldContext";
 
     export let context: GameContext;
     export let canvasWidth;
@@ -66,7 +67,7 @@
 
     function select() {
         context.player.monsters.push(currentPokemon.instanciate(5));
-        context.overWorldContext.menus.starterSelection = false;
+        context.overWorldContext.endScene(SceneType.STARTER_SELECTION);
     }
 
     const keyDownListener = (e) => {

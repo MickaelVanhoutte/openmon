@@ -94,7 +94,7 @@
                     </li>
                 {/if}
                 {#if !isBattle}
-                    <li class:selected={optionSelected === 2} on:click={() => {context.menus.bagOpened = true; openOptions = false}}>
+                    <li class:selected={optionSelected === 2} on:click={() => {context.overWorldContext.openMenu(MenuType.BAG); openOptions = false}}>
                         ITEM
                     </li>
                 {/if}
@@ -112,7 +112,7 @@
 
 {#if context.overWorldContext.menus.bagOpened}
     <Bag bind:context bind:isBattle bind:selectedMons={selected} bind:zIndex={zIndexNext}
-         onChange="{() => context.overWorldContext.menus.bagOpened = false}"/>
+         onChange="{() => context.overWorldContext.closeMenu(MenuType.BAG)}"/>
 {/if}
 
 <script lang="ts">
@@ -199,14 +199,14 @@
     };
 
     function summarize() {
-        context.overWorldContext.toggleMenu(MenuType.SUMMARY);
+        context.overWorldContext.openMenu(MenuType.SUMMARY);
     }
 
     function closeList() {
         if (isBattle && !itemToUse) {
-            context.overWorldContext.toggleMenu(MenuType.SWITCH);
+            context.overWorldContext.closeMenu(MenuType.SWITCH);
         } else {
-            context.overWorldContext.toggleMenu(MenuType.POKEMON_LIST);
+            context.overWorldContext.closeMenu(MenuType.POKEMON_LIST);
         }
 
     }
@@ -265,7 +265,7 @@
                     } else if (optionSelected === 1 && !isBattle && !itemToUse) {
                         saveSwitch();
                     } else if (optionSelected === 2 && !isBattle) {
-                        context.overWorldContext.toggleMenu(MenuType.BAG);
+                        context.overWorldContext.openMenu(MenuType.BAG);
                     }
                 }
 
