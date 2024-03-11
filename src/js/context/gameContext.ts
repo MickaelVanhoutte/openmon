@@ -37,7 +37,7 @@ export class GameContext {
     scriptsByTrigger: Map<string, Script[]> = new Map<string, Script[]>();
 
     constructor(player: Player, boxes: Array<PokemonBox>, map: MapSave, settings: Settings, isNewGame: boolean) {
-        this.player = player;
+        this.player = Player.fromInstance(player);
         this.boxes = boxes;
         this.map = OpenMap.fromInstance(this.MAPS[map.mapId], map.playerPosition);
         this.settings = settings;

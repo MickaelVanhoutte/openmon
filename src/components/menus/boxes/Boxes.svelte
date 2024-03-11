@@ -1,7 +1,7 @@
 <div class="boxes">
     <div class="party">
         <div class="title">
-            <button class="cancel" on:click={() => boxOpened = false}>BACK</button>
+            <button class="cancel" on:click={() => context.overWorldContext.closeMenu(MenuType.BOX)}>BACK</button>
         </div>
         <div class="entries">
             {#each teamSlot as pokemon, i}
@@ -93,9 +93,9 @@
 </div>
 
 
-{#if openSummary && firstSelection}
+{#if context.overWorldContext.menus.openSummary && firstSelection}
     <PokemonSummary bind:context bind:selected={pkmnListSelectedIndex}
-                    bind:openSummary bind:isBattle
+                    bind:isBattle
                     bind:zIndex={zIndexNext}
     />
 {/if}
@@ -107,9 +107,9 @@
     import {PokemonInstance} from "../../../js/pokemons/pokedex";
     import PokemonSummary from "../pokemon-list/PokemonSummary.svelte";
     import type {GameContext} from "../../../js/context/gameContext";
+    import {MenuType} from "../../../js/context/overworldContext";
 
     let selectZone: 'party' | 'box' | 'box-change' = 'box';
-    export let boxOpened: boolean;
     export let context: GameContext;
 
     let selectedBox = 0;
@@ -120,7 +120,6 @@
     $:pkmnList = selectZone === 'box' ? box.values.filter(p => p instanceof PokemonInstance) : context.player.monsters;
     let isBattle = false;
     let zIndexNext = 10;
-    let openSummary = false;
     let changeLeftHover = false;
     let changeRightHover = false;
     let previewOpened: boolean = false;
@@ -214,7 +213,7 @@
         let box = context.boxes[selectedBox]
         let list = selectZone === 'box' ? box.values.filter(p => p instanceof PokemonInstance) : context.player.monsters
         pkmnListSelectedIndex = list.indexOf(firstSelection?.selected)
-        openSummary = true;
+        context.overWorldContext.openMenu(MenuType.SUMMARY);
     }
 
     function cancel() {
@@ -223,12 +222,12 @@
     }
 
     const listener = (e: KeyboardEvent) => {
-        if (openSummary) {
+        if (context.overWorldContext.menus.openSummary) {
             return;
         }
         if (!optionsOpened) {
             if (e.key === 'Escape') {
-                boxOpened = false;
+                context.overWorldContext.closeMenu(MenuType.BOX);
             }
 
             // LEFT

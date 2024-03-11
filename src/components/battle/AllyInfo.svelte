@@ -53,10 +53,11 @@
     let percent = 0;
     let expPercent = 0;
 
-    $:currentHp = battleCtx?.playerPokemon?.currentHp || 0;
-    $:percent = Math.floor(currentHp * 100 / currentHp);
-    $:expPercent = Math.floor(battleCtx?.playerPokemon?.currentXp * 100 / battleCtx?.playerPokemon?.xpToNextLevel);
-
+    battleCtx.currentAction.subscribe((_value) => {
+        currentHp = battleCtx?.playerPokemon?.currentHp || 0;
+        percent = Math.floor(currentHp * 100 / battleCtx.playerPokemon.currentStats.hp);
+        expPercent = Math.floor(battleCtx?.playerPokemon?.currentXp * 100 / battleCtx?.playerPokemon?.xpToNextLevel);
+    });
 
 </script>
 

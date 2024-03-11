@@ -137,6 +137,7 @@ export class Attack implements ActionV2Interface {
 
 
     private flushActions(ctx: BattleContext, actionsToPush: ActionV2Interface[]) {
+        console.log(actionsToPush);
         if (actionsToPush && actionsToPush.length > 0) {
             actionsToPush.reverse().forEach((action: ActionV2Interface) => ctx.addToStack(action));
         }

@@ -59,6 +59,7 @@ export class BattleContext {
     }
 
     startTurn(action: ActionV2Interface) {
+        this.isPlayerTurn.set(false);
         this.turnCount++;
         this.turnPhases.upkeep = true;
         this.turnPhases.main = false;
@@ -120,7 +121,7 @@ export class BattleContext {
             }
 
             console.log('executing ' + action?.type, action);
-
+            console.log(this.playerPokemon.currentHp);
             action.execute(this);
 
             // TODO wait for input ? (or settings, auto/manual)

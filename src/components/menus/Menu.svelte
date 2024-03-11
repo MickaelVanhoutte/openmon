@@ -89,11 +89,11 @@
 </div>
 
 {#if context.overWorldContext.menus.pokemonListOpened}
-    <PokemonList bind:context bind:isBattle onChange={() => 0} zIndex="{9}"/>
+    <PokemonList bind:context bind:isBattle onChange={() => 0} zIndex="{10}"/>
 {/if}
 
 {#if context.overWorldContext.menus.bagOpened}
-    <Bag bind:context bind:isBattle zIndex="{9}"/>
+    <Bag bind:context bind:isBattle zIndex="{10}"/>
 {/if}
 
 {#if context.overWorldContext.menus.boxOpened}
@@ -124,15 +124,15 @@
     }
 
     function openList() {
-        context.overWorldContext.toggleMenu(MenuType.POKEMON_LIST);
+        context.overWorldContext.openMenu(MenuType.POKEMON_LIST);
     }
 
     function openBag() {
-        context.overWorldContext.toggleMenu(MenuType.BAG);
+        context.overWorldContext.openMenu(MenuType.BAG);
     }
 
     function openBoxes() {
-        context.overWorldContext.toggleMenu(MenuType.BOX);
+        context.overWorldContext.openMenu(MenuType.BOX);
     }
 
     function trainer() {
@@ -144,7 +144,7 @@
     }
 
     function close() {
-        context.overWorldContext.toggleMenu();
+        context.overWorldContext.closeMenu(MenuType.MAIN);
     }
 
     const listener = (e: KeyboardEvent) => {
@@ -195,7 +195,7 @@
     transition: all .2s ease-in-out;
 
     &.open {
-      z-index: 10;
+      z-index: 9;
       opacity: 1;
     }
 

@@ -27,6 +27,11 @@ export enum MenuType {
     BOX = 5
 }
 
+export enum SceneType {
+    WAKE_UP = 0,
+    STARTER_SELECTION = 1
+}
+
 export class Scenes {
     wakeUp: boolean = false;
     starterSelection: boolean = false;
@@ -42,18 +47,70 @@ export class OverworldContext {
     running: boolean = false;
     isPaused: boolean = false;
 
-    togglePause() {
-        this.isPaused = !this.isPaused;
+    startScene(sceneType: SceneType) {
+        this.isPaused = true;
+        this.scenes.wakeUp = sceneType === SceneType.WAKE_UP;
+        this.scenes.starterSelection = sceneType === SceneType.STARTER_SELECTION;
     }
 
-    toggleMenu(menuType?: MenuType) {
-        this.togglePause();
-        this.menus.menuOpened = !this.menus.menuOpened;
-        this.menus.pokemonListOpened = menuType === MenuType.POKEMON_LIST;
-        this.menus.switchOpened = menuType === MenuType.SWITCH;
-        this.menus.bagOpened = menuType === MenuType.BAG;
-        this.menus.openSummary = menuType === MenuType.SUMMARY;
-        this.menus.boxOpened = menuType === MenuType.BOX;
+    endScene(sceneType: SceneType) {
+        this.isPaused = false;
+        switch (sceneType) {
+            case SceneType.WAKE_UP:
+                this.scenes.wakeUp = false;
+                break;
+            case SceneType.STARTER_SELECTION:
+                this.scenes.starterSelection = false;
+                break;
+        }
+    }
+
+    openMenu(menuType: MenuType) {
+        switch (menuType) {
+            case MenuType.MAIN:
+                this.isPaused = true;
+                this.menus.menuOpened = true;
+                break;
+            case MenuType.POKEMON_LIST:
+                this.menus.pokemonListOpened = true;
+                break;
+            case MenuType.SWITCH:
+                this.menus.switchOpened = true;
+                break;
+            case MenuType.BAG:
+                this.menus.bagOpened = true;
+                break;
+            case MenuType.SUMMARY:
+                this.menus.openSummary = true;
+                break;
+            case MenuType.BOX:
+                this.menus.boxOpened = true;
+                break;
+        }
+    }
+
+    closeMenu(menuType: MenuType) {
+        switch (menuType) {
+            case MenuType.MAIN:
+                this.isPaused = false;
+                this.menus.menuOpened = false;
+                break;
+            case MenuType.POKEMON_LIST:
+                this.menus.pokemonListOpened = false;
+                break;
+            case MenuType.SWITCH:
+                this.menus.switchOpened = false;
+                break;
+            case MenuType.BAG:
+                this.menus.bagOpened = false;
+                break;
+            case MenuType.SUMMARY:
+                this.menus.openSummary = false;
+                break;
+            case MenuType.BOX:
+                this.menus.boxOpened = false;
+                break;
+        }
     }
 
     constructor() {
