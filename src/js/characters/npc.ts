@@ -1,29 +1,29 @@
-import {Script} from "../scripting/scripts";
-import type {Character} from "./player";
-import {Bag} from "../items/bag";
-import type {PokemonInstance} from "../pokemons/pokedex";
-import {Position} from "../mapping/positions";
-import {centerObject, CHARACTER_SPRITES} from "../sprites/sprites";
+import { Script } from "../scripting/scripts";
+import { CharacterPosition, type Character, WALKING_SPEED } from "./characters-model";
+import { Bag } from "../items/bag";
+import type { PokemonInstance } from "../pokemons/pokedex";
+import { Position } from "../mapping/positions";
+import { centerObject, CHARACTER_SPRITES } from "../sprites/sprites";
 
 export interface Interactive {
-    interact(playerPosition: Position): (Script | undefined) [];
+    interact(playerPosition: Position): (Script | undefined)[];
 }
 
 // TODO
-export class Follower implements Character, Interactive {
-    spriteId: number = 0;
-    name: string = "Follower";
-    gender: "MALE" | "FEMALE" = "MALE";
-    monsters: PokemonInstance[] = [];
-    bag: Bag = new Bag();
-    moving: boolean = false;
-    direction: "up" | "down" | "left" | "right" = 'down';
+// export class Follower implements Character, Interactive {
+//     spriteId: number = 0;
+//     name: string = "Follower";
+//     gender: "MALE" | "FEMALE" = "MALE";
+//     monsters: PokemonInstance[] = [];
+//     bag: Bag = new Bag();
+//     moving: boolean = false;
+//     direction: "up" | "down" | "left" | "right" = 'down';
 
-    interact(playerPosition: Position): (Script | undefined)[] {
-        throw new Error("Method not implemented.");
-    }
+//     interact(playerPosition: Position): (Script | undefined)[] {
+//         throw new Error("Method not implemented.");
+//     }
 
-}
+// }
 
 export class NPC implements Character, Interactive {
     id: number;
@@ -40,23 +40,16 @@ export class NPC implements Character, Interactive {
     dialogScripts: Script[];
     movingScript?: Script;
 
-    position: Position;
-    positionInPx?: Position;
-
-    targetPosition: Position;
-    targetPositionInPx?: Position;
-
+    position: CharacterPosition;
 
     constructor(id: number, name: string, spriteId: number, position: Position,
-                direction: 'up' | 'down' | 'left' | 'right',
-                gender: 'MALE' | 'FEMALE', monstersIds?: number[], bag?: Bag,
-                mainScript?: Script, dialogScripts?: Script[], movingScript?: Script) {
+        direction: 'up' | 'down' | 'left' | 'right',
+        gender: 'MALE' | 'FEMALE', monstersIds?: number[], bag?: Bag,
+        mainScript?: Script, dialogScripts?: Script[], movingScript?: Script) {
         this.id = id;
         this.name = name;
         this.spriteId = spriteId;
-        this.position = position;
-        this.targetPosition = new Position(position.x, position.y);
-        this.direction = direction;
+        this.position = new CharacterPosition(position.x, position.y, direction);
         this.gender = gender;
         this.monsterIds = monstersIds || [];
         this.monsters = [];
@@ -66,18 +59,18 @@ export class NPC implements Character, Interactive {
         this.movingScript = movingScript ? new Script(movingScript?.triggerType, movingScript?.actions, movingScript?.stepPosition, movingScript?.replayable) : undefined;
     }
 
-    interact(playerPosition: Position): (Script | undefined) [] {
+    interact(playerPosition: Position): (Script | undefined)[] {
         let previous = this.movingScript?.interrupt();
         let newScript: Script | undefined;
 
         // change direction toward player
-        if (this.position.x > playerPosition.x) {
+        if (this.position.positionOnMap.x > playerPosition.x) {
             this.direction = 'left';
-        } else if (this.position.x < playerPosition.x) {
+        } else if (this.position.positionOnMap.x < playerPosition.x) {
             this.direction = 'right';
-        } else if (this.position.y > playerPosition.y) {
+        } else if (this.position.positionOnMap.y > playerPosition.y) {
             this.direction = 'up';
-        } else if (this.position.y < playerPosition.y) {
+        } else if (this.position.positionOnMap.y < playerPosition.y) {
             this.direction = 'down';
         }
 
@@ -90,46 +83,44 @@ export class NPC implements Character, Interactive {
         return [newScript, previous];
     }
 
-   private orientationIndexes = {
+    private orientationIndexes = {
         "down": 0,
         "left": 1,
         "right": 2,
         "up": 3,
     }
     private images: Record<string, HTMLImageElement> = {};
-    private frames = {max: 4, val: 0, elapsed: 0};
+    private frames = { max: 4, val: 0, elapsed: 0 };
 
     draw(ctx: CanvasRenderingContext2D, playerPosition: Position, npc: NPC, scale: number, mapDim: {
         width: number,
         height: number
     }) {
-        if (npc.positionInPx === undefined) {
-            return;
-        }
 
         let image = this.images[npc.spriteId];
         if (image && image.complete) {
-            this.drawImage(ctx, image, playerPosition, npc.direction, scale, npc.moving, npc.positionInPx, mapDim);
+            this.drawImage(ctx, image, playerPosition, npc.direction, scale, mapDim);
         } else {
             image = new Image();
             image.src = CHARACTER_SPRITES.getSprite(npc.spriteId).overworld.source;
             image.onload = () => {
-                if (npc.positionInPx === undefined) {
-                    return;
-                }
                 this.images[npc.spriteId] = image;
-                this.drawImage(ctx, image, playerPosition, npc.direction, scale, npc.moving, npc.positionInPx, mapDim);
+                this.drawImage(ctx, image, playerPosition, npc.direction, scale, mapDim);
             }
         }
     }
 
     private drawImage(ctx: CanvasRenderingContext2D, image: HTMLImageElement, playerPosition: Position, orientation: 'up' | 'down' | 'left' | 'right',
-                      scale: number, moving: boolean, npcPosition: Position, mapDim: {
+        scale: number, mapDim: {
             width: number,
             height: number
         }) {
 
-        if (moving) {
+        function easeInOutQuad(t: number) {
+            return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+        }
+
+        if (this.moving) {
 
             if (this.frames.max > 1) {
                 this.frames.elapsed += 1;
@@ -146,11 +137,34 @@ export class NPC implements Character, Interactive {
 
         let sY = this.orientationIndexes[orientation] * 64;
 
-        // Calculate the position of the NPC relative to the player
-        const relativeX = npcPosition.x - playerPosition.x;
-        const relativeY = npcPosition.y - playerPosition.y;
+        let npcPosition = { x: this.position.positionOnMap.x * 16 * scale, y: this.position.positionOnMap.y * 16 * scale };
+        let targetPosition = { x: this.position.targetPosition.x * 16 * scale, y: this.position.targetPosition.y * 16 * scale };
 
-        let {centerX, centerY, offsetX, offsetY} = centerObject(ctx, scale, playerPosition, 16, mapDim);
+        let deltaX = targetPosition.x - npcPosition.x;
+        let deltaY = targetPosition.y - npcPosition.y;
+
+        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        const speed = /*this.running ? RUNNING_SPEED :*/ WALKING_SPEED; // TODO impl running
+
+        if (distance > 6) {
+            const easedDistance = easeInOutQuad(Math.min(1, distance / 5));
+            // Interpolate between current and target positions with eased distance
+            npcPosition.x += deltaX * easedDistance * speed;
+            npcPosition.y += deltaY * easedDistance * speed;
+        } else {
+            // Snap to the target position if movement is small
+            this.moving = false;
+            npcPosition.x = targetPosition.x;
+            npcPosition.y = targetPosition.y;
+        }
+
+        let playerPositionInPx = { x: playerPosition.x * 16 * scale, y: playerPosition.y * 16 * scale };
+
+        // Calculate the position of the NPC relative to the player
+        const relativeX = npcPosition.x - playerPositionInPx.x;
+        const relativeY = npcPosition.y - playerPositionInPx.y;
+
+        let { centerX, centerY, offsetX, offsetY } = centerObject(ctx, scale, playerPositionInPx, 16, mapDim);
         offsetY -= relativeY - 6;
         offsetX -= relativeX;
 

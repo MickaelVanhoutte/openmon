@@ -1,556 +1,594 @@
-<div class="pokemon-list" style="--zIndex:{zIndex}"
-     in:slide="{{duration: 500, delay: 100, axis: 'x', easing: backInOut}}" out:fade>
+<script lang="ts">
+	import { PokemonInstance } from '../../../js/pokemons/pokedex';
+	import PokemonSummary from './PokemonSummary.svelte';
+	import { onMount } from 'svelte';
+	import { backInOut } from 'svelte/easing';
+	import { fade, slide } from 'svelte/transition';
+	import Bag from '../bag/Bag.svelte';
+	import type { GameContext } from '../../../js/context/gameContext';
+	import { MenuType } from '../../../js/context/overworldContext';
+	import type { BattleContext } from '../../../js/context/battleContext';
 
-    <div class="pokemons">
-        <div class="first">
-            <div class="poke-card big"
-                 class:selected={selected === 0}
-                 class:switching={switchToIdx === 0}
-                 on:click={()=> select(0)}>
-                <div class="header">
-                    <div class="img-wrapper">
-                        <img src="{first.sprites[first?.gender]?.front.frame1 || first.sprites.male?.front?.frame1}"
-                             alt="{first.name}"/>
-                    </div>
-                    <div>
-                        <span>{first.name}</span>
-                        <span>Lv{first.level}</span>
-                    </div>
-                    <!-- img, name, level, gender-->
-                </div>
+	export let context: GameContext;
+	export let isBattle: boolean;
+	export let forceChange: boolean;
+	export let selected = 0;
+	export let itemToUse: number;
+	export let zIndex: number;
 
-                <div class="footer">
-                    <div class="hp">
-                        <span>HP</span>
-                        <div class="progressbar-wrapper">
-                            <div class="progressbar" class:warning={getPercentage(first) <= 50}
-                                 class:danger={getPercentage(first) < 15 }
-                                 style="--width:{getPercentage(first) + '%'}">
-                            </div>
-                        </div>
-                    </div>
-                    <span class="hp-value">{first.currentHp} / {first.currentStats.hp}</span>
-                </div>
-            </div>
-        </div>
-        <div class="others">
+	let numberOfOptions = !!itemToUse ? 2 : isBattle ? 3 : 4;
+	let switchToIdx: number | undefined = undefined;
+	let openOptions = false;
+	let optionSelected = 0;
+	let emptyslots = new Array(6 - context.player.monsters.length).fill(0);
 
-            {#each others as monster, index}
-                <div class="poke-card"
-                     class:selected={selected === (index + 1)}
-                     class:switching={switchToIdx === (index + 1)}
-                     on:click={() => select(index + 1)}>
-                    <div class="header">
-                        <div class="img-wrapper">
-                            <img src="{monster.sprites[monster?.gender]?.front.frame1 || monster.sprites.male?.front?.frame1}"
-                                 alt="{monster.name}"/>
-                        </div>
-                        <div>
-                            <span>{monster.name}</span>
-                            <span>Lv{monster.level}</span>
-                        </div>
-                        <!-- img, name, level, gender-->
-                    </div>
+	let first: PokemonInstance | undefined = context.player.monsters.at(0);
+	let others: PokemonInstance[] = context.player.monsters.slice(1);
+	let battleContext: BattleContext | undefined = undefined;
 
-                    <div class="footer">
-                        <div class="hp">
-                            <span>HP</span>
-                            <div class="progressbar-wrapper">
-                                <div class="progressbar" class:warning={getPercentage(monster) <= 50}
-                                     class:danger={getPercentage(monster) < 15 }
-                                     style="--width:{getPercentage(monster) + '%'}">
-                                </div>
-                            </div>
-                        </div>
-                        <span class="hp-value">{monster.currentHp} / {monster.currentStats.hp}</span>
-                    </div>
-                </div>
-            {/each}
+	$: itemName = context.ITEMS.getItem(itemToUse)?.name;
+	$: zIndexNext = zIndex + 1;
 
-            {#each emptyslots as empty}
-                <div class="poke-card empty">
+	context.battleContext.subscribe((value) => {
+		battleContext = value;
+		first = battleContext?.playerPokemon;
+		others = context.player.monsters.filter((pkmn) => pkmn !== first);
+	});
 
-                </div>
-            {/each}
-        </div>
-    </div>
+	function getPercentage(monster: PokemonInstance) {
+		return (monster.currentHp / monster.currentStats.hp) * 100;
+	}
 
-    <div class="actions">
-        {#if !forceChange}
-            <button on:click={() => closeList()}>CANCEL</button>
-        {/if}
-    </div>
+	function select(index: number) {
+		if (index === selected) {
+			if (switchToIdx != undefined && selected != undefined) {
+				switchTo();
+			} else {
+				openOptions = !openOptions;
+			}
+		} else {
+			selected = index;
+			openOptions = false;
+		}
+	}
 
-    <div class="options" class:hidden={!openOptions}>
-        <ul>
-            {#if !!itemToUse}
-                <li class:selected={optionSelected === 0} on:click={() => useItem()}>USE ({itemName})</li>
-                <li class:selected={optionSelected === 1} on:click={() => openOptions = false}>CANCEL</li>
-            {:else}
-                <li class:selected={optionSelected === 0} on:click={() => summarize()}>SUMMARY</li>
-                {#if !isBattle || selected !== 0}
-                    <li class:selected={optionSelected === 1} on:click={() => isBattle ? switchNow() : saveSwitch()}>
-                        SWITCH
-                    </li>
-                {/if}
-                {#if !isBattle}
-                    <li class:selected={optionSelected === 2} on:click={() => {context.overWorldContext.openMenu(MenuType.BAG); openOptions = false}}>
-                        ITEM
-                    </li>
-                {/if}
-                <li class:selected={optionSelected === 3} on:click={() => openOptions = false}>CANCEL</li>
-            {/if}
+	let currentBattlePokemon: PokemonInstance | undefined = undefined;
+	export let onChange;
+	$: onChange(!!currentBattlePokemon && currentBattlePokemon);
 
-        </ul>
-    </div>
+	function switchNow() {
+		//swap(save.player.monsters, selected, 0);
+		closeList();
+		currentBattlePokemon = others[selected - 1];
+	}
+
+	function saveSwitch() {
+		switchToIdx = selected;
+		openOptions = false;
+	}
+
+	function switchTo() {
+		if (switchToIdx != undefined && selected != undefined) {
+			swap(context.player.monsters, selected, switchToIdx);
+			first = context.player.monsters.at(0);
+			others = context.player.monsters.slice(1);
+			switchToIdx = undefined;
+		}
+	}
+
+	const swap = (array: PokemonInstance[], index1: number, index2: number) => {
+		array[index1] = array.splice(index2, 1, array[index1])[0];
+	};
+
+	function summarize() {
+		context.overWorldContext.openMenu(MenuType.SUMMARY);
+	}
+
+	function closeList() {
+		if (isBattle && !itemToUse) {
+			context.overWorldContext.closeMenu(MenuType.SWITCH);
+		} else {
+			context.overWorldContext.closeMenu(MenuType.POKEMON_LIST);
+		}
+	}
+
+	function useItem() {
+		if (!isBattle && itemToUse) {
+			let selectedMons = context.player.monsters.at(selected);
+			context.player.bag.use(itemToUse, context, selectedMons);
+			context.player.name = context.player.name;
+		} else {
+			let selectedMons = selected === 0 ? first : others[selected - 1];
+			onChange(selectedMons);
+		}
+		setTimeout(() => {
+			closeList();
+		}, 1000);
+	}
+
+	const listener = (e) => {
+		if (context.overWorldContext.menus.openSummary) return;
+		if (!openOptions) {
+			if (e.key === 'ArrowUp') {
+				selected = selected === 0 ? others.length : selected - 1;
+			} else if (e.key === 'ArrowDown') {
+				selected = selected === others.length ? 0 : selected + 1;
+			} else if (e.key === 'Enter') {
+				if (switchToIdx != undefined && selected != undefined) {
+					switchTo();
+				} else {
+					openOptions = true;
+				}
+			} else if (e.key === 'Escape') {
+				closeList();
+			}
+		} else {
+			if (e.key === 'ArrowUp') {
+				optionSelected = optionSelected === 0 ? numberOfOptions : optionSelected - 1;
+			} else if (e.key === 'ArrowDown') {
+				optionSelected = optionSelected === numberOfOptions ? 0 : optionSelected + 1;
+			} else if (e.key === 'Enter') {
+				if (!!itemToUse) {
+					if (optionSelected === 0) {
+						useItem();
+					} else if (optionSelected === numberOfOptions) {
+						openOptions = false;
+					}
+				} else {
+					if (optionSelected === 0) {
+						summarize();
+					} else if (optionSelected === numberOfOptions) {
+						openOptions = false;
+					} else if (optionSelected === 1 && !isBattle && !itemToUse) {
+						saveSwitch();
+					} else if (optionSelected === 2 && !isBattle) {
+						context.overWorldContext.openMenu(MenuType.BAG);
+					}
+				}
+			} else if (e.key === 'Escape') {
+				openOptions = false;
+			}
+		}
+	};
+
+	onMount(() => {
+		window.addEventListener('keydown', listener);
+		return () => {
+			window.removeEventListener('keydown', listener);
+		};
+	});
+</script>
+
+<div
+	class="pokemon-list"
+	style="--zIndex:{zIndex}"
+	in:slide={{ duration: 500, delay: 100, axis: 'x', easing: backInOut }}
+	out:fade
+>
+	<div class="pokemons">
+		<div class="first">
+			<div
+				class="poke-card big"
+				class:selected={selected === 0}
+				class:switching={switchToIdx === 0}
+				on:click={() => select(0)}
+			>
+				<div class="header">
+					<div class="img-wrapper">
+						<img
+							src={first.sprites[first?.gender]?.front.frame1 || first.sprites.male?.front?.frame1}
+							alt={first.name}
+						/>
+					</div>
+					<div>
+						<span>{first.name}</span>
+						<span>Lv{first.level}</span>
+					</div>
+					<!-- img, name, level, gender-->
+				</div>
+
+				<div class="footer">
+					<div class="hp">
+						<span>HP</span>
+						<div class="progressbar-wrapper">
+							<div
+								class="progressbar"
+								class:warning={getPercentage(first) <= 50}
+								class:danger={getPercentage(first) < 15}
+								style="--width:{getPercentage(first) + '%'}"
+							></div>
+						</div>
+					</div>
+					<span class="hp-value">{first.currentHp} / {first.currentStats.hp}</span>
+				</div>
+			</div>
+		</div>
+		<div class="others">
+			{#each others as monster, index}
+				<div
+					class="poke-card"
+					class:selected={selected === index + 1}
+					class:switching={switchToIdx === index + 1}
+					on:click={() => select(index + 1)}
+				>
+					<div class="header">
+						<div class="img-wrapper">
+							<img
+								src={monster.sprites[monster?.gender]?.front.frame1 ||
+									monster.sprites.male?.front?.frame1}
+								alt={monster.name}
+							/>
+						</div>
+						<div>
+							<span>{monster.name}</span>
+							<span>Lv{monster.level}</span>
+						</div>
+						<!-- img, name, level, gender-->
+					</div>
+
+					<div class="footer">
+						<div class="hp">
+							<span>HP</span>
+							<div class="progressbar-wrapper">
+								<div
+									class="progressbar"
+									class:warning={getPercentage(monster) <= 50}
+									class:danger={getPercentage(monster) < 15}
+									style="--width:{getPercentage(monster) + '%'}"
+								></div>
+							</div>
+						</div>
+						<span class="hp-value">{monster.currentHp} / {monster.currentStats.hp}</span>
+					</div>
+				</div>
+			{/each}
+
+			{#each emptyslots as empty}
+				<div class="poke-card empty"></div>
+			{/each}
+		</div>
+	</div>
+
+	<div class="actions">
+		{#if !forceChange}
+			<button on:click={() => closeList()}>CANCEL</button>
+		{/if}
+	</div>
+
+	<div class="options" class:hidden={!openOptions}>
+		<ul>
+			{#if !!itemToUse}
+				<li class:selected={optionSelected === 0} on:click={() => useItem()}>USE ({itemName})</li>
+				<li class:selected={optionSelected === 1} on:click={() => (openOptions = false)}>CANCEL</li>
+			{:else}
+				<li class:selected={optionSelected === 0} on:click={() => summarize()}>SUMMARY</li>
+				{#if !isBattle || selected !== 0}
+					<li
+						class:selected={optionSelected === 1}
+						on:click={() => (isBattle ? switchNow() : saveSwitch())}
+					>
+						SWITCH
+					</li>
+				{/if}
+				{#if !isBattle}
+					<li
+						class:selected={optionSelected === 2}
+						on:click={() => {
+							context.overWorldContext.openMenu(MenuType.BAG);
+							openOptions = false;
+						}}
+					>
+						ITEM
+					</li>
+				{/if}
+				<li class:selected={optionSelected === 3} on:click={() => (openOptions = false)}>CANCEL</li>
+			{/if}
+		</ul>
+	</div>
 </div>
 
 {#if context.overWorldContext.menus.openSummary}
-    <PokemonSummary bind:context bind:selected bind:isBattle
-                    bind:zIndex={zIndexNext}/>
+	<PokemonSummary bind:context bind:selected bind:isBattle bind:zIndex={zIndexNext} />
 {/if}
 
 {#if context.overWorldContext.menus.bagOpened}
-    <Bag bind:context bind:isBattle bind:selectedMons={selected} bind:zIndex={zIndexNext}
-         onChange="{() => context.overWorldContext.closeMenu(MenuType.BAG)}"/>
+	<Bag
+		bind:context
+		bind:isBattle
+		bind:selectedMons={selected}
+		bind:zIndex={zIndexNext}
+		onChange={() => context.overWorldContext.closeMenu(MenuType.BAG)}
+	/>
 {/if}
 
-<script lang="ts">
-
-    import {PokemonInstance} from "../../../js/pokemons/pokedex";
-    import PokemonSummary from "./PokemonSummary.svelte";
-    import {onMount} from "svelte";
-    import {backInOut} from "svelte/easing";
-    import {fade, slide} from 'svelte/transition';
-    import Bag from "../bag/Bag.svelte";
-    import type {GameContext} from "../../../js/context/gameContext";
-    import {MenuType} from "../../../js/context/overworldContext";
-
-    export let context: GameContext;
-
-    export let isBattle: boolean;
-
-    export let forceChange: boolean;
-    export let selected = 0;
-
-    export let itemToUse: number;
-
-    $:itemName = context.ITEMS.getItem(itemToUse)?.name;
-
-    export let zIndex;
-
-    $:zIndexNext = zIndex + 1;
-
-    let numberOfOptions = !!itemToUse ? 2 : isBattle ? 3 : 4;
-
-    $:first = isBattle ? context.battleContext?.playerPokemon : context.player.monsters.at(0);
-    $:others = isBattle ? context.player.monsters.filter((pkmn => pkmn !== first)) : context.player.monsters.slice(1);
-
-    let switchToIdx: number | undefined = undefined;
-    let openOptions = false;
-    let optionSelected = 0;
-
-
-    let emptyslots = new Array(6 - context.player.monsters.length).fill(0);
-
-    function getPercentage(monster: PokemonInstance) {
-        return monster.currentHp / monster.currentStats.hp * 100;
-    }
-
-    function select(index: number) {
-        if (index === selected) {
-            if (switchToIdx != undefined && selected != undefined) {
-                switchTo();
-            } else {
-                openOptions = !openOptions
-            }
-        } else {
-            selected = index;
-            openOptions = false
-        }
-    }
-
-    let currentBattlePokemon: PokemonInstance | undefined = undefined;
-    export let onChange;
-    $:onChange(!!currentBattlePokemon && currentBattlePokemon);
-
-    function switchNow() {
-        //swap(save.player.monsters, selected, 0);
-        closeList();
-        currentBattlePokemon = others[selected - 1];
-    }
-
-    function saveSwitch() {
-        switchToIdx = selected;
-        openOptions = false;
-    }
-
-    function switchTo() {
-        if (switchToIdx != undefined && selected != undefined) {
-            swap(context.player.monsters, selected, switchToIdx);
-            first = context.player.monsters.at(0);
-            others = context.player.monsters.slice(1);
-            switchToIdx = undefined;
-        }
-    }
-
-    const swap = (array, index1, index2) => {
-        array[index1] = array.splice(index2, 1, array[index1])[0];
-    };
-
-    function summarize() {
-        context.overWorldContext.openMenu(MenuType.SUMMARY);
-    }
-
-    function closeList() {
-        if (isBattle && !itemToUse) {
-            context.overWorldContext.closeMenu(MenuType.SWITCH);
-        } else {
-            context.overWorldContext.closeMenu(MenuType.POKEMON_LIST);
-        }
-
-    }
-
-    function useItem() {
-
-        if (!isBattle && itemToUse) {
-            let selectedMons = context.player.monsters.at(selected);
-            context.player.bag.use(itemToUse, context, selectedMons);
-            context.player.name = context.player.name;
-        } else {
-            let selectedMons = selected === 0 ? first : others[selected - 1];
-            onChange(selectedMons);
-        }
-        setTimeout(() => {
-            closeList();
-        }, 1000);
-
-    }
-
-    const listener = (e) => {
-        if (context.overWorldContext.menus.openSummary) return;
-        if (!openOptions) {
-            if (e.key === "ArrowUp") {
-                selected = selected === 0 ? others.length : selected - 1;
-            } else if (e.key === "ArrowDown") {
-                selected = selected === others.length ? 0 : selected + 1;
-            } else if (e.key === "Enter") {
-                if (switchToIdx != undefined && selected != undefined) {
-                    switchTo();
-                } else {
-                    openOptions = true;
-                }
-            } else if (e.key === "Escape") {
-                closeList();
-            }
-
-        } else {
-            if (e.key === "ArrowUp") {
-                optionSelected = optionSelected === 0 ? numberOfOptions : optionSelected - 1;
-            } else if (e.key === "ArrowDown") {
-                optionSelected = optionSelected === numberOfOptions ? 0 : optionSelected + 1;
-            } else if (e.key === "Enter") {
-
-                if (!!itemToUse) {
-                    if (optionSelected === 0) {
-                        useItem();
-                    } else if (optionSelected === numberOfOptions) {
-                        openOptions = false;
-                    }
-                } else {
-                    if (optionSelected === 0) {
-                        summarize();
-                    } else if (optionSelected === numberOfOptions) {
-                        openOptions = false;
-                    } else if (optionSelected === 1 && !isBattle && !itemToUse) {
-                        saveSwitch();
-                    } else if (optionSelected === 2 && !isBattle) {
-                        context.overWorldContext.openMenu(MenuType.BAG);
-                    }
-                }
-
-            } else if (e.key === "Escape") {
-                openOptions = false;
-            }
-        }
-    }
-
-
-    onMount(() => {
-        window.addEventListener('keydown', listener);
-        return () => {
-            window.removeEventListener('keydown', listener);
-        }
-    });
-
-
-</script>
-
 <style lang="scss">
+	.options {
+		position: absolute;
+		font-size: 32px;
+		font-weight: 500;
+		text-align: left;
+		bottom: 1%;
+		right: 1%;
+		padding: 22px 36px 22px 36px;
+		background: rgb(220, 231, 233);
+		background: linear-gradient(
+			180deg,
+			rgba(220, 231, 233, 1) 0%,
+			rgba(255, 255, 255, 1) 50%,
+			rgba(220, 231, 233, 0.713344712885154) 100%
+		);
+		border: 2px solid #54506c;
+		border-radius: 8px;
+		box-sizing: border-box;
+		transition: bottom 0.3s ease-in-out;
 
-  .options {
-    position: absolute;
-    font-size: 32px;
-    font-weight: 500;
-    text-align: left;
-    bottom: 1%;
-    right: 1%;
-    padding: 22px 36px 22px 36px;
-    background: rgb(220, 231, 233);
-    background: linear-gradient(180deg, rgba(220, 231, 233, 1) 0%, rgba(255, 255, 255, 1) 50%, rgba(220, 231, 233, 0.713344712885154) 100%);
-    border: 2px solid #54506c;
-    border-radius: 8px;
-    box-sizing: border-box;
-    transition: bottom 0.3s ease-in-out;
+		&.hidden {
+			bottom: -100dvh;
+		}
 
-    &.hidden {
-      bottom: -100dvh;
-    }
+		ul {
+			margin: 0;
+			padding: 0;
+			list-style: none;
+			display: flex;
+			flex-direction: column;
+			gap: 16px;
 
-    ul {
-      margin: 0;
-      padding: 0;
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
+			li {
+				&.selected::before {
+					content: '';
+					width: 0;
+					height: 0;
+					border-top: 12px solid transparent;
+					border-bottom: 12px solid transparent;
+					border-left: 12px solid #262626;
+					position: absolute;
+					left: 5px;
+					margin-top: 2px;
+				}
+			}
+		}
+	}
 
-      li {
-        &.selected::before {
-          content: "";
-          width: 0;
-          height: 0;
-          border-top: 12px solid transparent;
-          border-bottom: 12px solid transparent;
-          border-left: 12px solid #262626;
-          position: absolute;
-          left: 5px;
-          margin-top: 2px;
-        }
+	.pokemon-list {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100dvw;
+		height: 100dvh;
+		background-image: url('src/assets/menus/p-sum.jpg');
+		background-size: cover;
+		background-position: top left;
+		background-repeat: round;
+		z-index: var(--zIndex, 8);
 
-      }
-    }
-  }
+		.pokemons {
+			height: 100%;
+			width: 100%;
+			display: flex;
+			background-color: rgba(44, 56, 69, 0.3);
 
-  .pokemon-list {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100dvw;
-    height: 100dvh;
-    background-image: url("src/assets/menus/p-sum.jpg");
-    background-size: cover;
-    background-position: top left;
-    background-repeat: round;
-    z-index: var(--zIndex, 8);
+			.first {
+				width: 40%;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+			}
 
-    .pokemons {
-      height: 100%;
-      width: 100%;
-      display: flex;
-      background-color: rgba(44, 56, 69, 0.3);
+			.others {
+				width: 60%;
+				padding: 1%;
+				display: flex;
+				flex-direction: column;
+				gap: 1%;
+				box-sizing: border-box;
+				align-items: flex-start;
+				justify-content: center;
 
-      .first {
-        width: 40%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-      }
+				.poke-card {
+					/*flex-grow: 1;*/
+					height: calc((100dvh - (4px * 6)) / 5);
 
-      .others {
-        width: 60%;
-        padding: 1%;
-        display: flex;
-        flex-direction: column;
-        gap: 1%;
-        box-sizing: border-box;
-        align-items: flex-start;
-        justify-content: center;
+					&.empty {
+						background: none;
+					}
+				}
+			}
 
-        .poke-card {
-          /*flex-grow: 1;*/
-          height: calc((100dvh - (4px * 6)) / 5);
+			.poke-card {
+				font-size: 32px;
+				color: white;
+				text-shadow: 1px 1px 1px black;
+				display: flex;
+				flex-direction: row;
+				gap: 5%;
+				width: 100%;
 
-          &.empty {
-            background: none;
-          }
-        }
-      }
+				padding: 0 2% 0 0;
+				box-sizing: border-box;
+				border-radius: 8px 8px 8px 8px;
+				justify-content: space-between;
+				align-items: center;
 
-      .poke-card {
-        font-size: 32px;
-        color: white;
-        text-shadow: 1px 1px 1px black;
-        display: flex;
-        flex-direction: row;
-        gap: 5%;
-        width: 100%;
+				border: 2px solid rgba(0, 0, 0, 0.7);
+				background-color: rgba(0, 0, 0, 0.5);
+				//background-color: #4ba1de;
+				//background-image: linear-gradient(0deg, #95cfe0 46%, #4ba1de 46%, #4ba1de 50%, #95cfe0 50%, #95CFE0 56%, #4BA1DE 56%, #4ba1de 100%);
+				background-size: 100% 100%;
 
-        padding: 0 2% 0 0;
-        box-sizing: border-box;
-        border-radius: 8px 8px 8px 8px;
-        justify-content: space-between;
-        align-items: center;
+				&.big {
+					flex-direction: column;
+					width: 86%;
+					padding: 4%;
+					align-items: normal;
 
-        border: 2px solid rgba(0, 0, 0, .7);
-        background-color: rgba(0, 0, 0, .5);
-        //background-color: #4ba1de;
-        //background-image: linear-gradient(0deg, #95cfe0 46%, #4ba1de 46%, #4ba1de 50%, #95cfe0 50%, #95CFE0 56%, #4BA1DE 56%, #4ba1de 100%);
-        background-size: 100% 100%;
+					.header {
+						padding-right: 2%;
+						width: 100%;
 
-        &.big {
-          flex-direction: column;
-          width: 86%;
-          padding: 4%;
-          align-items: normal;
+						.img-wrapper {
+							img {
+								max-width: 70%;
+								height: auto;
+							}
+						}
+					}
 
+					.footer {
+						width: 100%;
 
-          .header {
-            padding-right: 2%;
-            width: 100%;
+						.hp {
+							width: 60%;
+						}
+					}
+				}
 
-            .img-wrapper {
-              img {
-                max-width: 70%;
-                height: auto;
-              }
-            }
-          }
+				&.selected {
+					//border: 4px solid #f27241;
+					background-color: #8edeee;
+					background-image: linear-gradient(
+						0deg,
+						#bbf2fe 46%,
+						#8edeee 46%,
+						#8edeee 50%,
+						#bbf2fe 50%,
+						#bbf2fe 56%,
+						#8edeee 56%,
+						#8edeee 100%
+					);
+					background-size: 100% 100%;
+					color: #262626;
+					text-shadow: 1px 1px 1px white;
+				}
 
-          .footer {
-            width: 100%;
+				&.switching {
+					border: 6px solid greenyellow;
+				}
 
-            .hp {
-              width: 60%;
-            }
-          }
-        }
+				.header {
+					display: flex;
+					flex-direction: row;
+					position: relative;
+					justify-content: space-around;
+					//gap: 2%;
+					height: 100%;
+					width: 55%;
+					align-items: center;
 
-        &.selected {
-          //border: 4px solid #f27241;
-          background-color: #8edeee;
-          background-image: linear-gradient(0deg, #bbf2fe 46%, #8edeee 46%, #8edeee 50%, #bbf2fe 50%, #bbf2fe 56%, #8edeee 56%, #8edeee 100%);
-          background-size: 100% 100%;
-          color: #262626;
-          text-shadow: 1px 1px 1px white;
-        }
+					div {
+						display: flex;
+						flex-direction: column;
+						align-items: center;
+						//text-shadow: 2px 1px 1px black;
+					}
 
-        &.switching {
-          border: 6px solid greenyellow;
-        }
+					.img-wrapper {
+						img {
+							max-width: 50%;
+							height: auto;
+						}
+					}
+				}
 
-        .header {
-          display: flex;
-          flex-direction: row;
-          position: relative;
-          justify-content: space-around;
-          //gap: 2%;
-          height: 100%;
-          width: 55%;
-          align-items: center;
+				.footer {
+					display: flex;
+					flex-direction: column;
+					align-items: flex-end;
+					justify-content: center;
+					width: 45%;
+					/*background-color: #95cfe0;*/
 
-          div {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            //text-shadow: 2px 1px 1px black;
-          }
+					.hp {
+						width: 100%;
+						display: flex;
+						height: 18px;
+						//gap: 16px;
+						background-color: #262626;
+						font-size: 24px;
+						color: orange;
+						align-items: center;
+						justify-content: space-evenly;
+						border-radius: 8px;
+						padding: 3px;
 
-          .img-wrapper {
-            img {
-              max-width: 50%;
-              height: auto;
-            }
-          }
-        }
+						& > span {
+							padding: 0 12px;
+							font-weight: bold;
+						}
 
-        .footer {
-          display: flex;
-          flex-direction: column;
-          align-items: flex-end;
-          justify-content: center;
-          width: 45%;
-          /*background-color: #95cfe0;*/
+						.progressbar-wrapper {
+							height: 14px;
+							width: 100%;
+							background-color: #595b59;
+							border-radius: 4px;
+							border: 2px solid white;
 
-          .hp {
+							.hp-value {
+								text-shadow: 2px 1px 1px black;
+							}
 
-            width: 100%;
-            display: flex;
-            height: 18px;
-            //gap: 16px;
-            background-color: #262626;
-            font-size: 24px;
-            color: orange;
-            align-items: center;
-            justify-content: space-evenly;
-            border-radius: 8px;
-            padding: 3px;
+							.progressbar {
+								width: var(--width);
+								height: 100%;
+								background: rgb(184, 244, 166);
+								background: linear-gradient(
+									0deg,
+									rgb(86, 170, 58) 0%,
+									rgb(86, 170, 58) 50%,
+									rgb(86, 170, 58) 100%
+								);
+								text-align: center;
+								border-radius: 2px;
 
-            & > span {
-              padding: 0 12px;
-              font-weight: bold;
-            }
+								transition:
+									width 1s ease-in-out,
+									background 1s ease-in-out 1s;
 
-            .progressbar-wrapper {
+								&.warning {
+									background: rgb(255, 241, 164);
+									background: linear-gradient(
+										0deg,
+										rgba(255, 194, 16, 1) 0%,
+										rgba(255, 194, 16, 1) 50%,
+										rgba(255, 194, 16, 1) 100%
+									);
+								}
 
-              height: 14px;
-              width: 100%;
-              background-color: #595b59;
-              border-radius: 4px;
-              border: 2px solid white;
+								&.danger {
+									background: rgb(244, 177, 159);
+									background: linear-gradient(
+										0deg,
+										rgba(223, 85, 48, 1) 0%,
+										rgba(223, 85, 48, 1) 50%,
+										rgba(223, 85, 48, 1) 100%
+									);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 
-              .hp-value {
-                text-shadow: 2px 1px 1px black;
-              }
+		.actions {
+			position: absolute;
+			bottom: 4px;
+			left: 4px;
+			width: calc(100% / 5);
 
-              .progressbar {
-                width: var(--width);
-                height: 100%;
-                background: rgb(184, 244, 166);
-                background: linear-gradient(0deg, rgb(86, 170, 58) 0%, rgb(86, 170, 58) 50%, rgb(86, 170, 58) 100%);
-                text-align: center;
-                border-radius: 2px;
-
-                transition: width 1s ease-in-out, background 1s ease-in-out 1s;
-
-                &.warning {
-                  background: rgb(255, 241, 164);
-                  background: linear-gradient(0deg, rgba(255, 194, 16, 1) 0%, rgba(255, 194, 16, 1) 50%, rgba(255, 194, 16, 1) 100%);
-                }
-
-                &.danger {
-                  background: rgb(244, 177, 159);
-                  background: linear-gradient(0deg, rgba(223, 85, 48, 1) 0%, rgba(223, 85, 48, 1) 50%, rgba(223, 85, 48, 1) 100%);
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-
-    .actions {
-      position: absolute;
-      bottom: 4px;
-      left: 4px;
-      width: calc(100% / 5);
-
-      button {
-        width: 100%;
-        height: 42px;
-        font-size: 32px;
-        text-align: center;
-        font-family: pokemon, serif;
-        color: white;
-        text-shadow: 3px 1px 2px #54506c;
-        background-color: #5c438966;
-        border-radius: 4px;
-        border: 2px solid rgba(0, 0, 0, 0.7);
-      }
-    }
-
-  }
-
-
+			button {
+				width: 100%;
+				height: 42px;
+				font-size: 32px;
+				text-align: center;
+				font-family: pokemon, serif;
+				color: white;
+				text-shadow: 3px 1px 2px #54506c;
+				background-color: #5c438966;
+				border-radius: 4px;
+				border: 2px solid rgba(0, 0, 0, 0.7);
+			}
+		}
+	}
 </style>

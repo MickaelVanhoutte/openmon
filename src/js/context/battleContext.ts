@@ -1,6 +1,7 @@
-import {BattleEvents, BattleResult, TurnHistory, typeChart} from "../battle/battle-model";
+import {BattleEvents, BattleResult, TurnHistory, TurnPhase, typeChart} from "../battle/battle-model";
 import {Move, PokemonInstance} from "../pokemons/pokedex";
-import {type Character, Player} from "../characters/player";
+import {Player} from "../characters/player";
+import { type Character } from "../characters/characters-model";
 import type {Settings} from "../characters/settings";
 import {ActionStack} from "../battle/actions/action-stack";
 import {NPC} from "../characters/npc";
@@ -12,11 +13,7 @@ import {EndTurnChecks, Message, XPWin} from "../battle/actions/actions-derived";
 
 export class BattleContext {
 
-    turnPhases = {
-        upkeep: false,
-        main: false,
-        end: false,
-    }
+    turnPhases: Writable<TurnPhase> = writable(TurnPhase.UPKEEP);
 
     player: Player;
     opponent: PokemonInstance | Character;
@@ -45,11 +42,11 @@ export class BattleContext {
         return this.opponent instanceof PokemonInstance;
     }
 
-    constructor(player: Player, opponent: PokemonInstance | Character, settings: Settings, events: BattleEvents) {
+    constructor(player: Player, opponent: PokemonInstance | Character, settings: Settings) {
         this.player = player;
         this.opponent = opponent;
         this.settings = settings;
-        this.events = events;
+        this.events = new BattleEvents();
 
         this.playerPokemon = this.player.monsters.find(poke => !poke.fainted) || this.player.monsters[0];
         this.opponentPokemon = opponent instanceof PokemonInstance ? opponent : (opponent as Player).monsters.find(poke => !poke.fainted) || (opponent as Player).monsters[0];
@@ -61,9 +58,7 @@ export class BattleContext {
     startTurn(action: ActionV2Interface) {
         this.isPlayerTurn.set(false);
         this.turnCount++;
-        this.turnPhases.upkeep = true;
-        this.turnPhases.main = false;
-        this.turnPhases.end = false;
+        this.turnPhases.set(TurnPhase.UPKEEP);
 
         let opponentAction = this.selectOpponentAction();
 
@@ -101,8 +96,7 @@ export class BattleContext {
         this.turnHistory.push(new TurnHistory(this.turnCount, this.opponent, opponentAction.type, action.type === ActionType.ATTACK ?
             opponentAction?.move?.name : undefined));
 
-        this.turnPhases.upkeep = false;
-        this.turnPhases.main = true;
+        this.turnPhases.set(TurnPhase.MAIN);
 
         this.executeAction(this.actionStack.pop());
     }
@@ -115,9 +109,8 @@ export class BattleContext {
         this.currentAction.set(action);
         if (action !== undefined) {
 
-            if (!this.turnPhases.end && action.type === ActionType.END_CHECKS) {
-                this.turnPhases.main = false;
-                this.turnPhases.end = true;
+            if (action.type === ActionType.END_CHECKS) {
+               this.turnPhases.set(TurnPhase.END);
             }
 
             console.log('executing ' + action?.type, action);
@@ -137,9 +130,7 @@ export class BattleContext {
     }
 
     private prepareNewTurn() {
-        this.turnPhases.upkeep = false;
-        this.turnPhases.main = false;
-        this.turnPhases.end = false;
+        this.turnPhases.set(TurnPhase.UPKEEP);
         this.isPlayerTurn.set(true);
         this.currentMessage.set(`What should ${this.playerPokemon.name} do ?`);
     }

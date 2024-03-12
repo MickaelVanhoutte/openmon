@@ -1,211 +1,206 @@
+<script lang="ts">
+	import { onMount } from 'svelte';
+	import DialogView from './DialogView.svelte';
+	import { Dialog, Message } from '../../js/scripting/scripts';
+	import type { GameContext } from '../../js/context/gameContext';
+	import { SceneType } from '../../js/context/overworldContext';
+	import type { Unsubscriber } from 'svelte/motion';
+
+	export let context: GameContext;
+	export let canvasWidth: number;
+
+	let pokeballs: HTMLDivElement;
+	let aUnsubscribe: Unsubscriber;
+	let bUnsubscribe: Unsubscriber;
+
+	let translateZ = canvasWidth * 0.33;
+
+	let monsters = [
+		context.POKEDEX.findById(1).result,
+		context.POKEDEX.findById(4).result,
+		context.POKEDEX.findById(7).result,
+		context.POKEDEX.findById(179).result,
+		context.POKEDEX.findById(183).result,
+		context.POKEDEX.findById(246).result
+	];
+
+	let angle = 0;
+
+	let currentIndex = 0;
+	let currentPokemon = monsters[0];
+
+	$: dialog = new Dialog([new Message(`Is ${currentPokemon.name} your starter?`)]);
+
+	function prev() {
+		angle -= 360 / monsters?.length;
+		currentIndex = (currentIndex + 1) % monsters.length;
+		currentPokemon = monsters[currentIndex];
+	}
+
+	function next() {
+		angle += 360 / monsters?.length;
+		currentIndex = (currentIndex - 1 + monsters.length) % monsters.length;
+		currentPokemon = monsters[currentIndex];
+	}
+
+	function select() {
+		context.player.monsters.push(currentPokemon.instanciate(5));
+		context.overWorldContext.endScene(SceneType.STARTER_SELECTION);
+	}
+
+	const keyDownListener = (e: KeyboardEvent) => {
+		switch (e.key) {
+			case 'ArrowRight':
+				next();
+				break;
+			case 'ArrowLeft':
+				prev();
+				break;
+			case 'Enter':
+				select();
+		}
+	};
+
+	let ts: number;
+	const touchDown = (e: TouchEvent) => {
+		ts = e.touches[0].clientX;
+	};
+
+	const touchUp = (e: TouchEvent) => {
+		let te = e.changedTouches[0].clientX;
+		if (Math.abs(ts - te) < 30) {
+			return;
+		}
+		if (ts > te) {
+			prev();
+		} else {
+			next();
+		}
+	};
+
+	onMount(() => {
+		window.addEventListener('keydown', keyDownListener);
+		pokeballs.addEventListener('touchstart', touchDown);
+		pokeballs.addEventListener('touchend', touchUp);
+		setTimeout(() => {
+			aUnsubscribe = context.overWorldContext.keys.a?.subscribe((value) => {
+				if (value) {
+					select();
+				}
+			});
+			bUnsubscribe = context.overWorldContext.keys.b?.subscribe((value) => {
+				if (value) {
+					next();
+				}
+			});
+		}, 1000);
+
+		return () => {
+			window.removeEventListener('keydown', keyDownListener);
+			pokeballs.removeEventListener('touchmove', touchDown);
+			pokeballs.removeEventListener('touchend', touchUp);
+			aUnsubscribe?.();
+			bUnsubscribe?.();
+		};
+	});
+</script>
+
 <div class="starter-select" style="--cnv-width: {canvasWidth}px" bind:this={pokeballs}>
-
-    <div class="pokeballs" style="--ang:{angle}">
-
-        {#each monsters as monster, index}
-            <div class="pokeball"
-                 style="--translateZ:{translateZ}px;
-                 --rotateY: {index * (360/monsters?.length)}deg;">
-                <img class="image" alt="poke-{monster.id}" src="{monster.sprites?.male?.front?.frame1}"
-                     class:current={monster.id === currentPokemon.id}/>
-            </div>
-        {/each}
-    </div>
+	<div class="pokeballs" style="--ang:{angle}">
+		{#each monsters as monster, index}
+			<div
+				class="pokeball"
+				style="--translateZ:{translateZ}px;
+                 --rotateY: {index * (360 / monsters?.length)}deg;"
+			>
+				<img
+					class="image"
+					alt="poke-{monster.id}"
+					src={monster.sprites?.male?.front?.frame1}
+					class:current={monster.id === currentPokemon.id}
+				/>
+			</div>
+		{/each}
+	</div>
 </div>
 
-<DialogView {dialog}/>
+<DialogView {dialog} {context} />
 
-<script lang="ts">
-
-    import {onMount} from "svelte";
-    import DialogView from "./DialogView.svelte";
-    import {Dialog, Message} from "../../js/scripting/scripts";
-    import type {Unsubscriber, Writable} from "svelte/store";
-    import type {GameContext} from "../../js/context/gameContext";
-    import {SceneType} from "../../js/context/overworldContext";
-
-    export let context: GameContext;
-    export let canvasWidth;
-
-    export let aButton: Writable<boolean>;
-    let aUnsubscribe: Unsubscriber;
-    export let bButton: Writable<boolean>;
-    let bUnsubscribe: Unsubscriber;
-
-    let pokeballs: HTMLDivElement;
-
-
-    let translateZ = canvasWidth * .33;
-
-    let monsters = [
-        context.POKEDEX.findById(1).result,
-        context.POKEDEX.findById(4).result,
-        context.POKEDEX.findById(7).result,
-        context.POKEDEX.findById(179).result,
-        context.POKEDEX.findById(183).result,
-        context.POKEDEX.findById(246).result,
-    ];
-
-    let angle = 0;
-
-    let currentIndex = 0;
-    let currentPokemon = monsters[0];
-
-    $:dialog = new Dialog([new Message(`Is ${currentPokemon.name} your starter?`)]);
-
-    function prev() {
-        angle -= (360 / monsters?.length);
-        currentIndex = (currentIndex + 1) % monsters.length;
-        currentPokemon = monsters[currentIndex];
-    }
-
-    function next() {
-        angle += (360 / monsters?.length);
-        currentIndex = (currentIndex - 1 + monsters.length) % monsters.length;
-        currentPokemon = monsters[currentIndex];
-    }
-
-    function select() {
-        context.player.monsters.push(currentPokemon.instanciate(5));
-        context.overWorldContext.endScene(SceneType.STARTER_SELECTION);
-    }
-
-    const keyDownListener = (e) => {
-        switch (e.key) {
-            case 'ArrowRight' :
-                next();
-                break;
-            case 'ArrowLeft' :
-                prev();
-                break;
-            case 'Enter' :
-                select();
-        }
-    };
-
-
-    let ts: number;
-    const touchDown = (e:TouchEvent) => {
-        ts = e.touches[0].clientX;
-    };
-
-    const touchUp = (e:TouchEvent) => {
-        let te = e.changedTouches[0].clientX;
-        if (Math.abs(ts - te) < 30) {
-            return;
-        }
-        if (ts > te) {
-            prev();
-        } else {
-            next();
-        }
-    };
-
-
-    onMount(() => {
-        window.addEventListener('keydown', keyDownListener);
-        pokeballs.addEventListener('touchstart', touchDown);
-        pokeballs.addEventListener('touchend', touchUp);
-        setTimeout(() => {
-            aUnsubscribe = aButton?.subscribe((value) => {
-                if (value) {
-                    select();
-                }
-            });
-            bUnsubscribe = bButton?.subscribe((value) => {
-                if (value) {
-                    next();
-                }
-            });
-        }, 1000);
-
-        return () => {
-            window.removeEventListener('keydown', keyDownListener);
-            pokeballs.removeEventListener('touchmove', touchDown);
-            pokeballs.removeEventListener('touchend', touchUp);
-            aUnsubscribe?.();
-            bUnsubscribe?.();
-        };
-    });
-
-</script>
 <style lang="scss">
+	.starter-select {
+		position: absolute;
+		top: 0;
+		left: calc(50dvw - var(--cnv-width, 100dvw) / 2);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		height: 100dvh;
+		width: var(--cnv-width, 100dvw);
+		z-index: 8;
+		background: rgba(0, 0, 0, 0.6);
+		perspective: 700px;
+		perspective-origin: center;
 
-  .starter-select {
-    position: absolute;
-    top: 0;
-    left: calc(50dvw - var(--cnv-width, 100dvw) / 2);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100dvh;
-    width: var(--cnv-width, 100dvw);
-    z-index: 8;
-    background: rgba(0, 0, 0, 0.6);
-    perspective: 700px;
-    perspective-origin: center;
+		.pokeballs {
+			transform-style: preserve-3d;
+			position: relative;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			height: 75dvh;
+			width: var(--cnv-width, 100dvw);
+			transform: rotateY(calc(var(--ang, 0) * 1deg)) translateY(-7dvh);
+			transition: all 0.5s ease-in-out;
 
-    .pokeballs {
-      transform-style: preserve-3d;
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 75dvh;
-      width: var(--cnv-width, 100dvw);
-      transform: rotateY(calc(var(--ang, 0) * 1deg)) translateY(-7dvh);
-      transition: all 0.5s ease-in-out;
+			.pokeball {
+				border-radius: 50%;
+				width: 25dvh;
+				height: 25dvh;
+				position: absolute;
+				margin-top: -10dvh;
+				background: rgba(0, 0, 0, 0.6);
+				transform: rotateY(var(--rotateY, 0deg)) translateZ(var(--translateZ, 0px));
 
-      .pokeball {
-        border-radius: 50%;
-        width: 25dvh;
-        height: 25dvh;
-        position: absolute;
-        margin-top: -10dvh;
-        background: rgba(0, 0, 0, 0.6);
-        transform: rotateY(var(--rotateY, 0deg)) translateZ(var(--translateZ, 0px));
+				&::before {
+					content: '';
+					height: 100%;
+					width: 100%;
+					opacity: 0.4;
+					z-index: -1;
+					border-radius: 50%;
+					border: 4px solid black;
+					box-sizing: border-box;
+					background: url(src/assets/common/squared-ball.png);
+					background-repeat: no-repeat;
+					background-size: cover;
+					background-position: 50% 50%;
+					position: absolute;
+				}
 
-        &::before {
-          content: "";
-          height: 100%;
-          width: 100%;
-          opacity: .4;
-          z-index: -1;
-          border-radius: 50%;
-          border: 4px solid black;
-          box-sizing: border-box;
-          background: url(src/assets/common/squared-ball.png);
-          background-repeat: no-repeat;
-          background-size: cover;
-          background-position: 50% 50%;
-          position: absolute;
-        }
+				.image {
+					height: 60%;
 
-        .image {
-          height: 60%;
+					// center
+					position: absolute;
+					top: 50%;
+					left: 50%;
+					transform: translate(-50%, -50%);
 
-          // center
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
+					&:not(.current) {
+						filter: brightness(0);
+					}
+				}
+			}
+		}
 
-          &:not(.current) {
-            filter: brightness(0);
-          }
-        }
-      }
-    }
-
-    @keyframes spin {
-      0% {
-        transform: rotateY(0deg);
-      }
-      100% {
-        transform: rotateY(360deg);
-      }
-    }
-
-  }
+		@keyframes spin {
+			0% {
+				transform: rotateY(0deg);
+			}
+			100% {
+				transform: rotateY(360deg);
+			}
+		}
+	}
 </style>

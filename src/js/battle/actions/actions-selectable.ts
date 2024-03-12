@@ -1,7 +1,8 @@
 import {MoveInstance, PokemonInstance} from "../../pokemons/pokedex";
 import {ActionType, type ActionV2Interface} from "./actions-model";
 import type {BattleContext} from "../../context/battleContext";
-import {type Character, Player} from "../../characters/player";
+import {Player} from "../../characters/player";
+import { type Character } from "../../characters/characters-model";
 import {DamageResults, MOVE_EFFECT_APPLIER} from "../battle-model";
 import {ApplyEffect, ChangePokemon, EndBattle, Message, RemoveHP} from "./actions-derived";
 

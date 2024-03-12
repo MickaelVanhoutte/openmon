@@ -1,3 +1,7 @@
+import { writable, type Writable } from "svelte/store";
+import { Keys } from "../commands/controls";
+import type { OpenMap } from "../mapping/maps";
+
 export class FrameOptions {
     frameId: number = 0;
     then: number = Date.now();
@@ -5,8 +9,6 @@ export class FrameOptions {
     debug: boolean = false;
     imageScale: number = 2.5;
     playerScale: number = .83;
-    walk: number = .3;
-    run: number = .6;
 }
 
 export class Menus {
@@ -42,10 +44,14 @@ export class OverworldContext {
     frames: FrameOptions;
     menus: Menus;
     scenes: Scenes;
+    keys: Keys = new Keys();
 
     changingMap: boolean = false;
+    changingMap$: Writable<boolean> = writable(false);
     running: boolean = false;
     isPaused: boolean = false;
+
+    map: OpenMap;
 
     startScene(sceneType: SceneType) {
         this.isPaused = true;
@@ -113,9 +119,10 @@ export class OverworldContext {
         }
     }
 
-    constructor() {
+    constructor(map: OpenMap) {
         this.frames = new FrameOptions();
         this.menus = new Menus();
         this.scenes = new Scenes();
+        this.map = map;
     }
 }

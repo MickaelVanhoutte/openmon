@@ -1,35 +1,64 @@
+import { type Writable, writable } from "svelte/store";
 
-export const keys = {
-    up: {
-        pressed: false
-    },
-    down: {
-        pressed: false
-    },
-    left: {
-        pressed: false
-    },
-    right: {
-        pressed: false
-    },
-    a: {
-        pressed: false
-    },
-    b: {
-        pressed: false
+
+export enum KeyMap {
+    A = 'A',
+    B = 'B',
+    Up = 'ArrowUp',
+    Down = 'ArrowDown',
+    Left = 'ArrowLeft',
+    Right = 'ArrowRight',
+}
+
+export class Keys {
+    a: Writable<boolean> = writable(false);
+    b: Writable<boolean> = writable(false);
+    up: Writable<boolean> = writable(false);
+    down: Writable<boolean> = writable(false);
+    left: Writable<boolean> = writable(false);
+    right: Writable<boolean> = writable(false);
+
+    pressKey(key: KeyMap){
+        this.a.set(key === KeyMap.A);
+        this.b.set(key === KeyMap.B);
+        this.up.set(key === KeyMap.Up);
+        this.down.set(key === KeyMap.Down);
+        this.left.set(key === KeyMap.Left);
+        this.right.set(key === KeyMap.Right);
+    }
+
+    unpressKey(key: KeyMap){
+        switch(key){
+            case KeyMap.A:
+                this.a.set(false);
+                break;
+            case KeyMap.B:
+                this.b.set(false);
+                break;
+            case KeyMap.Up:
+                this.up.set(false);
+                break;
+            case KeyMap.Down:
+                this.down.set(false);
+                break;
+            case KeyMap.Left:
+                this.left.set(false);
+                break;
+            case KeyMap.Right:
+                this.right.set(false);
+                break;
+        }
+    }
+
+    resetAll(){
+        this.a.set(false);
+        this.b.set(false);
+        this.up.set(false);
+        this.down.set(false);
+        this.left.set(false);
+        this.right.set(false);
     }
 }
-
-export function resetKeys() {
-    keys.down.pressed = false;
-    keys.up.pressed = false;
-    keys.right.pressed = false;
-    keys.left.pressed = false;
-    keys.a.pressed = false;
-    keys.b.pressed = false;
-}
-
-//export let lastKey: string = '';
 
 export let lastKey = {
     key: ''
@@ -38,44 +67,46 @@ export let lastKey = {
 export class ABButtons {
     a: boolean;
     b: boolean;
+
+    aButtonValue: Writable<boolean> = writable(false);
+    bButtonValue: Writable<boolean> = writable(false);
+
     buttonA: HTMLButtonElement;
     buttonB: HTMLButtonElement;
     container: HTMLElement;
-    onChange: (a: boolean, b: boolean) => void;
+
     aKeyboardListener = (e: KeyboardEvent) => {
         if (e.key === "a") {
             this.a = true;
+            this.aButtonValue.set(true);
             this.buttonA.style.backgroundColor = "rgba(224, 248, 248, 0.64)";
-            this.onChange(this.a, this.b);
         }
     }
     bKeyboardListener = (e: KeyboardEvent) => {
         if (e.key === "b") {
             this.b = true;
+            this.bButtonValue.set(true);
             this.buttonB.style.backgroundColor = "rgba(224, 248, 248, 0.64)";
-            this.onChange(this.a, this.b);
         }
     }
     aKeyboardUpListener = (e: KeyboardEvent) => {
         if (e.key === "a") {
             this.a = false;
+            this.aButtonValue.set(false);
             this.buttonA.style.backgroundColor = "rgba(84, 80, 108, 0.64)";
-            this.onChange(this.a, this.b);
         }
     }
     bKeyboardUpListener = (e: KeyboardEvent) => {
         if (e.key === "b") {
             this.b = false;
+            this.bButtonValue.set(false);
             this.buttonB.style.backgroundColor = "rgba(84, 80, 108, 0.64)";
-            this.onChange(this.a, this.b);
         }
     }
 
-    constructor(container: HTMLElement ,onChange: (a: boolean, b: boolean) => void) {
+    constructor(container: HTMLElement) {
         this.a = false;
         this.b = false;
-        this.onChange = onChange;
-
         this.container = document.createElement("div");
         this.container.style.position = "fixed";
         this.container.style.bottom = "5dvh";
@@ -105,25 +136,25 @@ export class ABButtons {
         if(!buttonA.ontouchstart) {
             buttonA.addEventListener("mousedown", () => {
                 this.a = true;
+                this.aButtonValue.set(true);
                 buttonA.style.backgroundColor = "rgba(224, 248, 248, 0.64)";
-                this.onChange(this.a, this.b);
             });
             buttonA.addEventListener("mouseup", () => {
                 this.a = false;
-                buttonA.style.backgroundColor = "rgba(44, 56, 69, 0.95)";
-                this.onChange(this.a, this.b);
+                this.aButtonValue.set(false);
+                buttonA.style.backgroundColor = "rgba(44, 56, 69, 0.95)";  
             });
         }else {
             buttonA.addEventListener("touchstart", () => {
                 this.a = true;
+                this.aButtonValue.set(true);
                 buttonA.style.backgroundColor = "rgba(224, 248, 248, 0.64)";
-                this.onChange(this.a, this.b);
             });
 
             buttonA.addEventListener("touchend", () => {
                 this.a = false;
+                this.aButtonValue.set(false);
                 buttonA.style.backgroundColor = "rgba(44, 56, 69, 0.95)";
-                this.onChange(this.a, this.b);
             });
         }
 
@@ -148,25 +179,25 @@ export class ABButtons {
         if(!buttonB.ontouchstart) {
             buttonB.addEventListener("mousedown", () => {
                 this.b = true;
+                this.bButtonValue.set(true);
                 buttonB.style.backgroundColor = "rgba(224, 248, 248, 0.64)";
-                this.onChange(this.a, this.b);
             });
             buttonB.addEventListener("mouseup", () => {
                 this.b = false;
+                this.bButtonValue.set(false);
                 buttonB.style.backgroundColor = "rgba(84, 80, 108, 0.64)";
-                this.onChange(this.a, this.b);
             });
         }else {
             buttonB.addEventListener("touchstart", () => {
                 this.b = true;
+                this.bButtonValue.set(true);
                 buttonB.style.backgroundColor = "rgba(224, 248, 248, 0.64)";
-                this.onChange(this.a, this.b);
             });
 
             buttonB.addEventListener("touchend", () => {
                 this.b = false;
+                this.bButtonValue.set(false);
                 buttonB.style.backgroundColor = "rgba(84, 80, 108, 0.64)";
-                this.onChange(this.a, this.b);
             });
         }
 

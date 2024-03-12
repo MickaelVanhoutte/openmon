@@ -5,17 +5,16 @@ import {Position} from "./positions";
 
 export class MapSave {
     mapId: number;
-    playerPosition: Position;
     //scriptsStates
 
-    constructor(mapId: number, playerPosition: Position) {
+    constructor(mapId: number) {
         this.mapId = mapId;
-        this.playerPosition = playerPosition;
     }
 }
 
 export class OpenMap {
     public mapId: number;
+    public tileSize: number = 16;
     public background: string;
     public foreground?: string;
 
@@ -33,7 +32,6 @@ export class OpenMap {
     public levelRange: number[] = [1, 100];
 
     public playerInitialPosition: Position = new Position(11, 11);
-    public playerMovedOffset: Position = new Position(0, 0); // keep in save
 
     public battleTile: number;
     public collisionTile: number;
@@ -49,7 +47,6 @@ export class OpenMap {
                 background: string, width: number, height: number,
                 collisions: number[], waterCollisions: number[], battles: number[], monsters: number[],
                 playerInitialPosition: Position,
-                playerMovedOffset: Position = new Position(),
                 levelRange: number[] = [1, 100],
                 jonctions: Jonction[] = [],
                 foreground?: string, battleTile?: number, collisionTile?: number, waterTile?: number, npcs?: NPC[], scripts?: Script[]) {
@@ -57,7 +54,6 @@ export class OpenMap {
         this.background = background;
         this.foreground = foreground;
         this.playerInitialPosition = playerInitialPosition;
-        this.playerMovedOffset = playerMovedOffset;
         this.width = width;
         this.height = height;
         this.battleTile = battleTile || 2239;
@@ -78,7 +74,7 @@ export class OpenMap {
 
     public static fromScratch(mapId: number, background: string, width: number, height: number,
                               collisions: number[], waterCollisions: number[], battles: number[], monsters: number[],
-                              playerInitialPosition: Position = new Position(), playerMovedOffset: Position = new Position(),
+                              playerInitialPosition: Position = new Position(),
                               levelRange: number[] = [1, 100],
                               jonctions: Jonction[] = [],
                               foreground?: string, battleTile?: number, collisionTile?: number, waterTile?: number, npcs?: NPC[], scripts?: Script[]): OpenMap {
@@ -94,7 +90,6 @@ export class OpenMap {
             battles,
             monsters,
             playerInitialPosition,
-            playerMovedOffset,
             levelRange,
             jonctions,
             foreground,
@@ -104,10 +99,6 @@ export class OpenMap {
             npcs,
             scripts
         )
-    }
-
-    get playerPosition() {
-        return new Position(this.playerInitialPosition.x + this.playerMovedOffset.x, this.playerInitialPosition.y + this.playerMovedOffset.y);
     }
 
     // TODO : scripts/npc states
@@ -121,7 +112,6 @@ export class OpenMap {
             map.water,
             map.battles,
             map.monsters,
-            map.playerInitialPosition,
             playerPosition,
             map.levelRange,
             map.jonctions,
@@ -208,7 +198,7 @@ export class OpenMap {
 
     public npcAt(position: Position) {
         return this.npcs?.some((npc) => {
-            return npc.position.x === position.x && npc.position.y === position.y;
+            return npc.position.positionOnMap.x === position.x && npc.position.positionOnMap.y === position.y;
         });
     }
 
@@ -233,7 +223,7 @@ export class OpenMap {
 
     private elementAt(elementPosition: Position): Interactive | undefined {
         return this.npcs?.find((npc) => {
-            return npc.position.x === elementPosition.x && npc.position.y === elementPosition.y;
+            return npc.position.positionOnMap.x === elementPosition.x && npc.position.positionOnMap.y === elementPosition.y;
         });
     }
 
@@ -291,13 +281,15 @@ export class OpenMap {
         // canvas half - half character height scaled
         let centerY = screenDimensions.height / 2;
 
-        let offsetX = playerPosition.x;
-        let offsetY = playerPosition.y;
+        let playerPositionInPx = { x: playerPosition.x * 16 * scale, y: playerPosition.y * 16 * scale };
 
-        let leftThreshold = playerPosition.x < Math.min(centerX, window.innerWidth / 2 - (16 * .83 / 2));
-        let topThreshold = playerPosition.y < Math.min(centerY, window.innerHeight / 2 - (16 * .83 / 2));
-        let rightThreshold = playerPosition.x > image.width * scale - Math.min(centerX, window.innerWidth / 2 - (16 * .83 / 2));
-        let bottomThreshold = playerPosition.y > image.height * scale - Math.min(centerY, window.innerHeight / 2 - (16 * .83 / 2));
+        let offsetX = playerPositionInPx.x;
+        let offsetY = playerPositionInPx.y;
+
+        let leftThreshold = playerPositionInPx.x < Math.min(centerX, window.innerWidth / 2 - (16 * .83 / 2));
+        let topThreshold = playerPositionInPx.y < Math.min(centerY, window.innerHeight / 2 - (16 * .83 / 2));
+        let rightThreshold = playerPositionInPx.x > image.width * scale - Math.min(centerX, window.innerWidth / 2 - (16 * .83 / 2));
+        let bottomThreshold = playerPositionInPx.y > image.height * scale - Math.min(centerY, window.innerHeight / 2 - (16 * .83 / 2));
 
         if (leftThreshold) {
             offsetX = Math.min(centerX, window.innerWidth / 2 - (16 * .83 / 2));
