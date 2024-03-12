@@ -16,6 +16,7 @@
     "@tsconfig/svelte": "^5.0.2",
     "dependency-cruiser": "^16.2.3",
     "graphviz": "^0.0.9",
+    "joystick-controller": "^1.0.15",
     "node-graphviz": "^0.1.1",
     "sass": "^1.69.5",
     "svelte": "^4.2.8",
@@ -31,7 +32,6 @@
     "animejs": "^3.2.2",
     "canvas": "^2.11.2",
     "chart.js": "^4.4.1",
-    "joystick-controller": "^1.0.15",
     "svelte-dnd-action": "^0.9.40",
     "tsyringe": "^4.8.0"
   }

@@ -2,10 +2,10 @@
 
 {#if gameContext}
     <!-- game started -->
-    {#if gameContext.isBattle && gameContext.battleContext !== undefined}
-        <Battle bind:context={gameContext} bind:battleCtx={gameContext.battleContext} />
+    {#if battleCtx !== undefined}
+        <Battle bind:context={gameContext} bind:battleCtx={battleCtx} />
     {:else if gameContext.overWorldContext !== undefined}
-        <World bind:context={gameContext} bind:overWorldCtx={gameContext.overWorldContext}/>
+        <World bind:context={gameContext} bind:overWorldCtx={gameContext.overWorldContext} {savesHolder}/>
     {/if}
 {:else}
     {#if savesHolder.saves?.length > 0}
@@ -28,23 +28,33 @@
     import "@abraham/reflection";
     import {onMount} from "svelte";
     import Battle from "./components/battle/Battle.svelte";
-    import World from "./components/World.svelte";
+    import World from "./components/world/World.svelte";
     import LoadSave from "./components/saves/LoadSave.svelte";
     import PlayerCreation from "./components/saves/PlayerCreation.svelte";
     import {SaveContext, SavesHolder} from "./js/context/savesHolder";
     import type {GameContext} from "./js/context/gameContext";
     import {fade} from 'svelte/transition';
+    import type {BattleContext} from "./js/context/battleContext";
 
     /**
      * Main component, handling screens transitions
      */
+    console.log('init App.svelte');
+
     const savesHolder = new SavesHolder();
     let gameContext:GameContext;
-    savesHolder.selectedSave.subscribe((value: SaveContext | undefined) => {
+    savesHolder.selectedSave$.subscribe((value: SaveContext | undefined) => {
         if (value) {
             gameContext = value.toGameContext();
         }
     });
+
+    let battleCtx: BattleContext | undefined = undefined;
+    $: if (gameContext) {
+        gameContext.battleContext.subscribe((value) => {
+            battleCtx = value;
+        });
+    }
 
     let rotate = false;
 

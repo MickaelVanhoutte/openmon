@@ -1,16 +1,18 @@
-import {MapSave, OpenMap} from "../mapping/maps";
-import {type Character, Player} from "../characters/player";
-import {Settings} from "../characters/settings";
-import {Pokedex, PokemonInstance} from "../pokemons/pokedex";
-import {PokemonBox} from "../pokemons/boxes";
-import {Position} from "../mapping/positions";
-import {OverworldContext} from "./overworldContext";
-import {BattleContext} from "./battleContext";
-import type {Script} from "../scripting/scripts";
-import type {NPC} from "../characters/npc";
-import {ItemsReferences} from "../items/items";
-import {firstBeach} from "../mapping/maps/firstBeach";
-import {BattleEvents} from "../battle/battle-model";
+import { MapSave, OpenMap } from "../mapping/maps";
+import { Player } from "../characters/player";
+import { type Character } from "../characters/characters-model";
+import { Settings } from "../characters/settings";
+import { Pokedex, PokemonInstance } from "../pokemons/pokedex";
+import { PokemonBox } from "../pokemons/boxes";
+import { Position } from "../mapping/positions";
+import { OverworldContext } from "./overworldContext";
+import { BattleContext } from "./battleContext";
+import type { Script } from "../scripting/scripts";
+import type { NPC } from "../characters/npc";
+import { ItemsReferences } from "../items/items";
+import { firstBeach } from "../mapping/maps/firstBeach";
+import { writable, type Writable } from "svelte/store";
+import { SaveContext } from "./savesHolder";
 
 /**
  * The current game context
@@ -23,23 +25,26 @@ export class GameContext {
         0: firstBeach,
     }
 
+    id: number;
     isNewGame: boolean;
     player: Player;
     boxes: Array<PokemonBox>;
     map: OpenMap;
     settings: Settings;
 
-    isBattle: boolean = false;
     overWorldContext: OverworldContext;
-    battleContext?: BattleContext;
+    battleContext: Writable<BattleContext | undefined> = writable(undefined);
 
     playingScript?: Script;
     scriptsByTrigger: Map<string, Script[]> = new Map<string, Script[]>();
 
-    constructor(player: Player, boxes: Array<PokemonBox>, map: MapSave, settings: Settings, isNewGame: boolean) {
-        this.player = Player.fromInstance(player);
+    constructor(id: number, player: Player, boxes: Array<PokemonBox>, map: MapSave, settings: Settings, isNewGame: boolean) {
+        this.id = id;
+        this.player = Player.fromInstance(player);;
         this.boxes = boxes;
-        this.map = OpenMap.fromInstance(this.MAPS[map.mapId], map.playerPosition);
+        this.map = OpenMap.fromInstance(this.MAPS[map.mapId], isNewGame ? this.MAPS[map.mapId].playerInitialPosition :  player.position.positionOnMap);
+        this.player.position.positionOnMap = new Position(this.map.playerInitialPosition.x, this.map.playerInitialPosition.y);
+        console.log(this.player.position);
         this.settings = settings;
         this.isNewGame = isNewGame;
         let allScripts: Script[] = this.map.scripts
@@ -53,36 +58,119 @@ export class GameContext {
                 this.scriptsByTrigger.set(script.triggerType, [script]);
             }
         });
-        this.overWorldContext = new OverworldContext();
+
+        this.overWorldContext = new OverworldContext(this.map);
+
+        this.bindKeys();
+        this.checkPlayerMoving();
+    }
+    checkPlayerMoving() {
+        this.player.moving$.subscribe((value) => {
+            if (value) {
+
+                if (this.player.position.targetDirection !== this.player.position.direction) {
+                    this.player.position.direction = this.player.position.targetDirection;
+                    return;
+                }
+
+                const xChanger = (x: number) => this.player.position.direction === 'left' ? x - 1 : this.player.position.direction === 'right' ? x + 1 : x;
+                const yChanger = (y: number) => this.player.position.direction === 'up' ? y - 1 : this.player.position.direction === 'down' ? y + 1 : y;
+
+                const futureX = xChanger(this.player.position.positionOnMap.x);
+                const futureY = yChanger(this.player.position.positionOnMap.y);
+
+                const futurePosition = new Position(futureX, futureY);
+                if (!this.map.hasBoundaryAt(futurePosition)) {
+                    this.player.position.targetPosition = futurePosition;
+                }
+
+            }
+        });
     }
 
-    startBattle(opponent: PokemonInstance | Character): BattleContext {
-        let events = new BattleEvents();
-        events.onEnd = (result) => {
-            this.isBattle = false;
-            this.battleContext = undefined;
-
-            if (!result.win) {
-                // tp back to the start // TODO pokecenter position
-                this.map.playerMovedOffset = new Position(0, 0);
-            } else if (result.caught) {
-                // add caught pokemon to team if space or in the box
-                if (this.player.monsters.length < 6) {
-                    this.player.monsters.push(result.caught);
+    bindKeys() {
+        this.overWorldContext.keys.a.subscribe((value) => {
+            if (value && !this.overWorldContext.isPaused) {
+                let interactive = this.map?.elementInFront(this.player.position.positionOnMap, this.player.position.direction);
+                let scripts = interactive?.interact(this.player.position.positionOnMap);
+                let newScript = scripts?.[0];
+                let previous = scripts?.[1];
+                if (newScript) {
+                    this.playScript(newScript, previous);
                 } else {
-                    // first available space in boxes
-                    if (!this.boxes.every(box => box.isFull())) {
-                        // @ts-ignore
-                        this.boxes[this.boxes.indexOf(this.boxes.find(box => !box.isFull()))].add(result.caught);
-                    }
+                    previous?.resume(this);
                 }
             }
-        }
 
-        let battleContext = new BattleContext(this.player, opponent, this.settings, events);
-        this.isBattle = true;
-        this.battleContext = battleContext;
-        return battleContext;
+        });
+
+        this.overWorldContext.keys.up.subscribe((value) => {
+            if (value && !this.overWorldContext.isPaused) {
+                this.player.position.direction = 'up';
+                this.player.moving$.set(true);
+            }
+            if (!value) {
+                this.player.moving$.set(false);
+            }
+        });
+
+        this.overWorldContext.keys.down.subscribe((value) => {
+            if (value && !this.overWorldContext.isPaused) {
+                this.player.position.direction = 'down';
+                this.player.moving$.set(true);
+            }
+            if (!value) {
+                this.player.moving$.set(false);
+            }
+        });
+
+        this.overWorldContext.keys.left.subscribe((value) => {
+            if (value && !this.overWorldContext.isPaused) {
+                this.player.position.direction = 'left';
+                this.player.moving$.set(true);
+            }
+            if (!value) {
+                this.player.moving$.set(false);
+            }
+        });
+
+        this.overWorldContext.keys.right.subscribe((value) => {
+            if (value && !this.overWorldContext.isPaused) {
+                this.player.position.direction = 'right';
+                this.player.moving$.set(true);
+            }
+            if (!value) {
+                this.player.moving$.set(false);
+            }
+        });
+
+    }
+
+    startBattle(opponent: PokemonInstance | Character) {
+
+        let battleContext = new BattleContext(this.player, opponent, this.settings);
+        let unsubscribe = battleContext.events.end.subscribe((result) => {
+            if (result) {
+                unsubscribe();
+                if (!result.win) {
+                    // tp back to the start // TODO pokecenter position
+                    this.player.position.positionOnMap = this.map.playerInitialPosition;
+                } else if (result.caught) {
+                    // add caught pokemon to team if space or in the box
+                    if (this.player.monsters.length < 6) {
+                        this.player.monsters.push(result.caught);
+                    } else {
+                        // first available space in boxes
+                        if (!this.boxes.every(box => box.isFull())) {
+                            // @ts-ignore
+                            this.boxes[this.boxes.indexOf(this.boxes.find(box => !box.isFull()))].add(result.caught);
+                        }
+                    }
+                }
+                this.battleContext.set(undefined);
+            }
+        });
+        this.battleContext.set(battleContext);
     }
 
     playScript(script?: Script, previous?: Script, onEnd?: () => void) {
@@ -121,9 +209,9 @@ export class GameContext {
     }
 
     behindPlayerPosition() {
-        let playerPosition = this.map?.playerPosition;
+        let playerPosition = this.player.position.positionOnMap;
         if (playerPosition) {
-            let direction = this.player.direction;
+            let direction = this.player.position.direction;
             switch (direction) {
                 case 'up':
                     return new Position(playerPosition.x, playerPosition.y + 1);
@@ -137,8 +225,8 @@ export class GameContext {
         }
     }
 
-    /*toSaveContext(): SaveContext {
-        return new SaveContext(0, Date.now(), new MapSave(this.map.mapId, this.map.playerMovedOffset), this.player, this.boxes, this.settings);
-    }*/
+    toSaveContext(): SaveContext {
+        return new SaveContext(this.id, Date.now(), new MapSave(this.map.mapId), this.player, this.boxes, this.settings);
+    }
 }
 

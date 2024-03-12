@@ -3,7 +3,8 @@
 import {ActionType, type ActionV2Interface} from "./actions-model";
 import {Move, PokemonInstance} from "../../pokemons/pokedex";
 import type {BattleContext} from "../../context/battleContext";
-import {type Character, Player} from "../../characters/player";
+import {Player} from "../../characters/player";
+import { type Character } from "../../characters/characters-model";
 import {NPC} from "../../characters/npc";
 import {MOVE_EFFECT_APPLIER} from "../battle-model";
 
@@ -45,7 +46,7 @@ export class ChangePokemon implements ActionV2Interface {
             ctx.opponentPokemon = this.initiator;
         }
         // order to change sprite to component
-        ctx.events.onPokemonChange(ctx.playerPokemon, this.owner);
+        ctx.events.pokemonChange.set(this.owner);
     }
 }
 
@@ -212,9 +213,9 @@ export class EndTurnChecks implements ActionV2Interface {
                 ctx.opponentPokemon = bestTypeAdvantage || nonFainted[Math.floor(Math.random() * nonFainted.length)];
             }
             ctx.addToStack(new Message(`${ctx.opponent.name} sent out ${ctx.opponentPokemon.name}!`, ctx.opponentPokemon));
-            ctx.events.onPokemonChange(ctx.opponentPokemon, ctx.opponent);
+            ctx.events.pokemonChange.set(ctx.opponent);
         } else if (ctx.playerPokemon.fainted) {
-            ctx.events.onPlayerPokemonFaint(ctx.playerPokemon);
+            ctx.events.playerPokemonFaint.set(ctx.playerPokemon);
         }
     }
 }
@@ -232,6 +233,6 @@ export class EndBattle implements ActionV2Interface {
 
     execute(ctx: BattleContext): void {
         ctx.clearStack();
-        ctx.events.onEnd(ctx.battleResult);
+        ctx.events.end.set(ctx.battleResult);
     }
 }

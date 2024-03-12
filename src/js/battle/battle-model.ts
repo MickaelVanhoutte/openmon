@@ -2,17 +2,20 @@ import "@abraham/reflection";
 import {PokemonInstance} from "../pokemons/pokedex";
 import {container} from "tsyringe";
 import {MoveEffectApplier} from "../pokemons/move-effects";
-import type {Character} from "../characters/player";
+import type { Character } from "../characters/characters-model";
+import {writable, type Writable} from "svelte/store";
+
+export enum TurnPhase {
+    UPKEEP = 'UPKEEP',
+    MAIN = 'MAIN',
+    END = 'END'
+}
 
 export class BattleEvents {
-    onEnd: (result: BattleResult) => void = () => {
-    };
 
-    onPokemonChange: (pokemon: PokemonInstance, owner: Character) => void = () => {
-    };
-
-    onPlayerPokemonFaint : (pokemon: PokemonInstance) => void = () => {
-    };
+    end: Writable<BattleResult|undefined> = writable(undefined);
+    pokemonChange: Writable<Character|undefined> = writable(undefined);
+    playerPokemonFaint: Writable<PokemonInstance|undefined> = writable(undefined);
 }
 
 export class TurnHistory {

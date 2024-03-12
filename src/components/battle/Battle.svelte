@@ -4,20 +4,20 @@
     </div>
 
     <!-- UI -->
-    <EnemyInfo {context} {battleCtx}/>
-    <AllyInfo {context} {battleCtx}/>
+    <EnemyInfo {battleCtx}/>
+    <AllyInfo {battleCtx}/>
     <ActionBar {context} {battleCtx}/>
 
     <!-- Menus -->
     {#if context.overWorldContext.menus.switchOpened}
         <PokemonList {context} {isBattle} zIndex={zIndexNext}
-                     onChange={(pkm) => !!pkm && pkm !==0 && sendSwitchAction(pkm)}/>
+                     onChange={(pkm) => !!pkm && sendSwitchAction(pkm)}/>
     {/if}
 
     {#if changePokemon}
         <PokemonList {context} {isBattle} bind:forceChange={changePokemon}
                      zIndex={zIndexNext}
-                     onChange={(pkm) => !!pkm && pkm !==0 && send(pkm)}/>
+                     onChange={(pkm) => !!pkm && send(pkm)}/>
     {/if}
 
     {#if context.overWorldContext.menus.bagOpened}
@@ -34,12 +34,9 @@
     import type {PokemonInstance} from "../../js/pokemons/pokedex";
     import Bag from "../menus/bag/Bag.svelte";
     import {Pokeball} from "../../js/items/items";
-    import {Position} from "../../js/mapping/positions";
-    import {BattleResult} from "../../js/battle/battle-model";
     import {BattleContext} from "../../js/context/battleContext";
     import type {GameContext} from "../../js/context/gameContext";
     import {Switch, UseItem} from "../../js/battle/actions/actions-selectable";
-    import type {Character} from "../../js/characters/player";
 
     /**
      * Battle screen component, handles pokemons display.
@@ -52,7 +49,7 @@
 
     export let isBattle = true;
 
-    let zIndexNext = 8;
+    let zIndexNext = 10;
     let drawInterval: number;
 
     let battleLoopContext = {
@@ -175,17 +172,17 @@
 
     onMount(() => {
         // set events
-
-        battleCtx.events.onPokemonChange = ((pokemon: PokemonInstance, owner: Character) => {
-            // Redraw
-            battleLoopContext.allydrawn = false;
-            battleLoopContext.opponentdrawn = false;
+        battleCtx.events.pokemonChange.subscribe((owner) => {
+            if (owner) {
+                battleLoopContext.allydrawn = false;
+                battleLoopContext.opponentdrawn = false;
+            }
         });
-
-        battleCtx.events.onPlayerPokemonFaint = ((pokemon: PokemonInstance) => {
-            changePokemon = true;
+        battleCtx.events.playerPokemonFaint.subscribe((pkmn) => {
+            if(pkmn) {
+                changePokemon = true;
+            }
         });
-
 
         draw();
         window.addEventListener('keydown', (e) => {

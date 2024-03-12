@@ -40,6 +40,7 @@ export class SaveContext {
 
     toGameContext(): GameContext {
         return new GameContext(
+            this.id,
             this.player,
             this.boxes,
             this.currentMap,
@@ -55,12 +56,15 @@ export class SaveContext {
 export class SavesHolder {
 
     saves: SaveContext[] = [];
-    selectedSave: Writable<SaveContext | undefined> = writable(undefined);
+
+    _selectedSave: SaveContext | undefined = undefined;
+    selectedSave$: Writable<SaveContext | undefined> = writable(undefined);
 
     constructor() {
+        console.log('construct saves holder');
         this.saves = localStorage.getItem('saves-v2')?.length &&
             // @ts-ignore
-            JSON.parse(atob(localStorage.getItem('saves-v2')))
+            JSON.parse(localStorage.getItem('saves-v2')) // TODO decode
                 .map((save: string) => SaveContext.fromJSon(save))
             || [];
 
@@ -72,13 +76,14 @@ export class SavesHolder {
     }
 
     selectSave(index: number) {
-        this.selectedSave.set(this.saves[index]);
+        this._selectedSave = this.saves[index];
+        this.selectedSave$.set(this.saves[index]);
     }
 
     newGame(spriteId: number, name: string, gender: 'MALE' | 'FEMALE'): SaveContext {
         let newSave = new SaveContext(
             this.saves?.length || 0, Date.now(),
-            new MapSave(0, {x: 0, y: 0}),
+            new MapSave(0),
             Player.fromScratch(spriteId, name, gender),
             new Array<PokemonBox>(10).fill(new PokemonBox('Box', new Array<PokemonInstance | undefined>(36).fill(undefined))),
             new Settings(),
@@ -86,19 +91,18 @@ export class SavesHolder {
         );
         this.saves.push(newSave);
         this.persist();
-        this.selectedSave.set(newSave)
+        this._selectedSave = newSave;
+        this.selectedSave$.set(newSave)
         return newSave;
     }
 
-    persist() {
-        if (this.selectedSave !== undefined &&
-            this.saves?.length > 0 &&
+    persist(save?: SaveContext) {
+        if(save && this.saves.find(sv => sv.id === save.id)){
             // @ts-ignore
-            this.saves.find((save) => save.id === this.selectedSave.id)) {
-            // @ts-ignore
-            this.saves.find((save) => save.id === this.selectedSave.id).updated = Date.now();
+            this.saves[this.saves.indexOf(this.saves.find(sv => sv.id === save.id))] = save;
+            console.log(save.toJSon(), btoa(save.toJSon()));
         }
-        let encoded = btoa(JSON.stringify(this.saves.map((save) => save.toJSon())));
+        let encoded = JSON.stringify(this.saves); // todo encode
         localStorage.setItem('saves-v2', encoded);
     }
 

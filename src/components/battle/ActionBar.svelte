@@ -1,340 +1,369 @@
-<div class="action-bar" class:show={show}>
-
-    <div class="info">
-        <div class="_inner">
-            {#if !moveOpened}
-                {currentMessage?.toUpperCase()}
-            {:else}
-                <div class="move-desc">
-                    <div class="_desc">
-                        <p>
-                            {
-                                battleCtx?.playerPokemon?.moves[selectedMoveIdx].description
-                                    .replace("$effect_chance", battleCtx?.playerPokemon?.moves[selectedMoveIdx].effectChance + '%')
-                            }
-                        </p>
-                    </div>
-                    <div class="stats">
-                        <p> PP :
-                            {battleCtx?.playerPokemon?.moves[selectedMoveIdx].currentPp}
-                            / {battleCtx?.playerPokemon?.moves[selectedMoveIdx].pp}
-                        </p>
-                        <p> Type : {battleCtx?.playerPokemon?.moves[selectedMoveIdx].category}</p>
-                        <p> Power/ACC
-                            {battleCtx?.playerPokemon?.moves[selectedMoveIdx].power}
-                            / {battleCtx?.playerPokemon?.moves[selectedMoveIdx].accuracy} %
-                        </p>
-                    </div>
-                </div>
-            {/if}
-        </div>
-    </div>
-
-
-    {#if moveOpened}
-        <div class="moves">
-            <button class="back" on:click={() => moveOpened = false}>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19.0001 10.0001L19.0003 19L17.0003 19L17.0002 12.0001L9.41409 12V17.4142L2.99988 11L9.41409 4.58578L9.41409 10L19.0001 10.0001Z"></path></svg>
-            </button>
-            {#each battleCtx?.playerPokemon?.moves as move, index}
-                <button class="action-btn" style="--color:{typeChart[move.type].color}" {disabled}
-                        class:selected={selectedMoveIdx === index}
-                        on:mouseover={() => selectMove(index)}
-                        on:click={() => launchMove(index, move)}>
-                    {move.name.toUpperCase()}
-                </button>
-            {/each}
-        </div>
-
-    {:else}
-
-        <div class="actions">
-
-            <button class="action-btn" style="--color:#dc5959" {disabled}
-                    on:click={() => moveOpened=true} class:selected={ selectedOptionIdx === 0}>
-                FIGHT
-            </button>
-
-            <button class="action-btn" style="--color:#eca859" {disabled} class:selected={ selectedOptionIdx === 1}
-                    on:click={openBag}>
-                BAG
-            </button>
-
-            <button class="action-btn" style="--color:#7EAF53" {disabled} class:selected={ selectedOptionIdx === 2}
-                    on:click={switchOpen}>
-                POKEMONS
-            </button>
-
-            <button class="action-btn" style="--color:#599bdc" {disabled} class:selected={ selectedOptionIdx === 3}
-                    on:click={escape}>
-                RUN
-            </button>
-
-        </div>
-    {/if}
-
-</div>
-
 <script lang="ts">
+	import { onDestroy, onMount } from 'svelte';
+	import type { MoveInstance } from '../../js/pokemons/pokedex';
+	import type { GameContext } from '../../js/context/gameContext';
+	import { typeChart } from '../../js/battle/battle-model';
+	import { BattleContext } from '../../js/context/battleContext';
+	import { Attack, RunAway } from '../../js/battle/actions/actions-selectable';
+	import { MenuType } from '../../js/context/overworldContext';
 
-    import {onDestroy, onMount} from "svelte";
-    import type {MoveInstance} from "../../js/pokemons/pokedex";
-    import type {GameContext} from "../../js/context/gameContext";
-    import {typeChart} from "../../js/battle/battle-model";
-    import {BattleContext} from "../../js/context/battleContext";
-    import {Attack, RunAway} from "../../js/battle/actions/actions-selectable";
-    import {MenuType} from "../../js/context/overworldContext";
+	export let context: GameContext;
+	export let battleCtx: BattleContext;
 
-    export let context: GameContext;
-    export let battleCtx: BattleContext;
+	let moveOpened = false;
+	let show = false;
 
-    let moveOpened = false;
-    let show = false;
+	let currentMessage: String | undefined;
+	let disabled = false;
+	let selectedMoveIdx = 0;
+	let selectedOptionIdx = 0;
 
-    let currentMessage: String | undefined;
-    let disabled = false;
-    let selectedMoveIdx = 0;
-    let selectedOptionIdx = 0;
+	battleCtx.currentMessage.subscribe((message) => {
+		currentMessage = message;
+	});
+	battleCtx.isPlayerTurn.subscribe((isPlayerTurn) => {
+		disabled = !isPlayerTurn;
+	});
 
-    battleCtx.currentMessage.subscribe((message) => {
-        currentMessage = message;
-    });
-    battleCtx.isPlayerTurn.subscribe((isPlayerTurn) => {
-        disabled = !isPlayerTurn;
-    });
+	function escape() {
+		if (battleCtx) {
+			battleCtx.startTurn(new RunAway(battleCtx.playerPokemon));
+		}
+	}
 
+	function switchOpen() {
+		context.overWorldContext.openMenu(MenuType.SWITCH);
+	}
 
-    function escape() {
-        if (battleCtx) {
-            battleCtx.startTurn(new RunAway(battleCtx.playerPokemon));
-        }
-    }
+	function openBag() {
+		context.overWorldContext.openMenu(MenuType.BAG);
+	}
 
-    function switchOpen() {
-        context.overWorldContext.openMenu(MenuType.SWITCH);
-    }
+	function selectMove(idx: number) {
+		selectedMoveIdx = idx;
+	}
 
-    function openBag() {
-        context.overWorldContext.openMenu(MenuType.BAG);
-    }
+	function launchMove(idx: number, move: MoveInstance) {
+		if (idx != selectedMoveIdx) {
+			selectedMoveIdx = idx;
+		} else if (battleCtx) {
+			battleCtx.startTurn(new Attack(move, 'opponent', battleCtx.playerPokemon));
+			moveOpened = false;
+		}
+	}
 
-    function selectMove(idx: number) {
-        selectedMoveIdx = idx;
-    }
+	const listener = (e: KeyboardEvent) => {
+		if (!battleCtx) {
+			return;
+		}
+		if (
+			!context.overWorldContext.menus.bagOpened &&
+			!context.overWorldContext.menus.switchOpened &&
+			!disabled
+		) {
+			if (e.key === 'ArrowUp') {
+				if (moveOpened) {
+					selectedMoveIdx =
+						selectedMoveIdx === 0 ? battleCtx.playerPokemon.moves.length - 1 : selectedMoveIdx - 1;
+				} else {
+					selectedOptionIdx = selectedOptionIdx === 0 ? 3 : selectedOptionIdx - 1;
+				}
+			} else if (e.key === 'ArrowDown') {
+				if (moveOpened) {
+					selectedMoveIdx =
+						selectedMoveIdx === battleCtx.playerPokemon.moves.length - 1 ? 0 : selectedMoveIdx + 1;
+				} else {
+					selectedOptionIdx = selectedOptionIdx === 3 ? 0 : selectedOptionIdx + 1;
+				}
+			} else if (e.key === 'Enter') {
+				if (moveOpened) {
+					launchMove(selectedMoveIdx, battleCtx.playerPokemon.moves[selectedMoveIdx]);
+				} else {
+					if (selectedOptionIdx === 0) {
+						moveOpened = true;
+					} else if (selectedOptionIdx === 1) {
+						openBag();
+					} else if (selectedOptionIdx === 2) {
+						switchOpen();
+					} else if (selectedOptionIdx === 3) {
+						escape();
+					}
+				}
+			} else if (e.key === 'Escape') {
+				moveOpened = false;
+			}
+		}
+	};
 
-    function launchMove(idx: number, move: MoveInstance) {
-        if (idx != selectedMoveIdx) {
-            selectedMoveIdx = idx;
-        } else if (battleCtx) {
-            battleCtx.startTurn(new Attack(move, 'opponent', battleCtx.playerPokemon));
-            moveOpened = false;
-        }
-    }
+	onMount(() => {
+		show = true;
+		window.addEventListener('keydown', listener);
+	});
 
-    const listener = (e) => {
-        if (!battleCtx) {
-            return;
-        }
-        if (!context.overWorldContext.menus.bagOpened && !context.overWorldContext.menus.switchOpened && !disabled) {
-
-            if (e.key === 'ArrowUp') {
-                if (moveOpened) {
-                    selectedMoveIdx = selectedMoveIdx === 0 ? battleCtx.playerPokemon.moves.length - 1 : selectedMoveIdx - 1;
-                } else {
-                    selectedOptionIdx = selectedOptionIdx === 0 ? 3 : selectedOptionIdx - 1;
-                }
-            } else if (e.key === 'ArrowDown') {
-                if (moveOpened) {
-                    selectedMoveIdx = selectedMoveIdx === battleCtx.playerPokemon.moves.length - 1 ? 0 : selectedMoveIdx + 1;
-                } else {
-                    selectedOptionIdx = selectedOptionIdx === 3 ? 0 : selectedOptionIdx + 1;
-                }
-            } else if (e.key === 'Enter') {
-                if (moveOpened) {
-                    launchMove(selectedMoveIdx, battleCtx.playerPokemon.moves[selectedMoveIdx]);
-                } else {
-                    if (selectedOptionIdx === 0) {
-                        moveOpened = true;
-                    } else if (selectedOptionIdx === 1) {
-                        openBag();
-                    } else if (selectedOptionIdx === 2) {
-                        switchOpen();
-                    } else if (selectedOptionIdx === 3) {
-                        escape();
-                    }
-                }
-            } else if (e.key === 'Escape') {
-                moveOpened = false;
-
-            }
-        }
-    };
-
-    onMount(() => {
-        show = true;
-        window.addEventListener('keydown', listener);
-    });
-
-    onDestroy(() => {
-        window.removeEventListener('keydown', listener);
-    });
+	onDestroy(() => {
+		window.removeEventListener('keydown', listener);
+	});
 </script>
 
+<div class="action-bar" class:show>
+	<div class="info">
+		<div class="_inner">
+			{#if !moveOpened}
+				{currentMessage?.toUpperCase()}
+			{:else}
+				<div class="move-desc">
+					<div class="_desc">
+						<p>
+							{battleCtx?.playerPokemon?.moves[selectedMoveIdx].description.replace(
+								'$effect_chance',
+								battleCtx?.playerPokemon?.moves[selectedMoveIdx].effectChance + '%'
+							)}
+						</p>
+					</div>
+					<div class="stats">
+						<p>
+							PP :
+							{battleCtx?.playerPokemon?.moves[selectedMoveIdx].currentPp}
+							/ {battleCtx?.playerPokemon?.moves[selectedMoveIdx].pp}
+						</p>
+						<p>Type : {battleCtx?.playerPokemon?.moves[selectedMoveIdx].category}</p>
+						<p>
+							Power/ACC
+							{battleCtx?.playerPokemon?.moves[selectedMoveIdx].power}
+							/ {battleCtx?.playerPokemon?.moves[selectedMoveIdx].accuracy} %
+						</p>
+					</div>
+				</div>
+			{/if}
+		</div>
+	</div>
+
+	{#if moveOpened}
+		<div class="moves">
+			<button class="back" on:click={() => (moveOpened = false)}>
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+					><path
+						d="M19.0001 10.0001L19.0003 19L17.0003 19L17.0002 12.0001L9.41409 12V17.4142L2.99988 11L9.41409 4.58578L9.41409 10L19.0001 10.0001Z"
+					></path></svg
+				>
+			</button>
+			{#each battleCtx?.playerPokemon?.moves as move, index}
+				<button
+					class="action-btn"
+					style="--color:{typeChart[move.type].color}"
+					{disabled}
+					class:selected={selectedMoveIdx === index}
+					on:mouseover={() => selectMove(index)}
+					on:click={() => launchMove(index, move)}
+				>
+					{move.name.toUpperCase()}
+				</button>
+			{/each}
+		</div>
+	{:else}
+		<div class="actions">
+			<button
+				class="action-btn"
+				style="--color:#dc5959"
+				{disabled}
+				on:click={() => (moveOpened = true)}
+				class:selected={selectedOptionIdx === 0}
+			>
+				FIGHT
+			</button>
+
+			<button
+				class="action-btn"
+				style="--color:#eca859"
+				{disabled}
+				class:selected={selectedOptionIdx === 1}
+				on:click={openBag}
+			>
+				BAG
+			</button>
+
+			<button
+				class="action-btn"
+				style="--color:#7EAF53"
+				{disabled}
+				class:selected={selectedOptionIdx === 2}
+				on:click={switchOpen}
+			>
+				POKEMONS
+			</button>
+
+			<button
+				class="action-btn"
+				style="--color:#599bdc"
+				{disabled}
+				class:selected={selectedOptionIdx === 3}
+				on:click={escape}
+			>
+				RUN
+			</button>
+		</div>
+	{/if}
+</div>
+
 <style lang="scss">
+	@keyframes appear {
+		from {
+			bottom: -25%;
+		}
+		to {
+			bottom: 1%;
+		}
+	}
 
-  @keyframes appear {
-    from {
-      bottom: -25%;
-    }
-    to {
-      bottom: 1%;
-    }
-  }
+	.action-bar {
+		z-index: 7;
 
-  .action-bar {
-    z-index: 7;
+		height: 25%;
+		width: 98%;
+		position: absolute;
+		bottom: -25%;
+		left: 1%;
 
-    height: 25%;
-    width: 98%;
-    position: absolute;
-    bottom: -25%;
-    left: 1%;
+		transition: bottom 0.5s ease-in-out;
 
-    transition: bottom 0.5s ease-in-out;
+		text-shadow: 3px 3px 1px #bfecf7;
 
-    text-shadow: 3px 3px 1px #bfecf7;
+		display: flex;
 
-    display: flex;
+		font-size: 26px;
 
-    font-size: 26px;
+		animation: appear 0.5s ease-in forwards;
 
-    animation: appear 0.5s ease-in forwards;
+		.info {
+			width: 50%;
+			background: rgb(220, 231, 233);
+			background: linear-gradient(
+				180deg,
+				rgba(220, 231, 233, 1) 0%,
+				rgba(255, 255, 255, 1) 50%,
+				rgba(220, 231, 233, 0.713344712885154) 100%
+			);
+			border-radius: 12px;
+			display: flex;
+			align-items: center;
+			align-content: center;
+			justify-content: space-around;
+			position: relative;
+			box-sizing: border-box;
+			padding: 1%;
 
-    .info {
+			-webkit-box-shadow: 5px 10px 21px 7px #000000;
+			box-shadow: 5px 10px 21px 7px #000000;
 
-      width: 50%;
-      background: rgb(220, 231, 233);
-      background: linear-gradient(180deg, rgba(220, 231, 233, 1) 0%, rgba(255, 255, 255, 1) 50%, rgba(220, 231, 233, 0.713344712885154) 100%);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      align-content: center;
-      justify-content: space-around;
-      position: relative;
-      box-sizing: border-box;
-      padding: 1%;
+			._inner {
+				z-index: 1;
+				height: 100%;
 
-      -webkit-box-shadow: 5px 10px 21px 7px #000000;
-      box-shadow: 5px 10px 21px 7px #000000;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				width: 100%;
+				text-transform: capitalize;
+				text-align: center;
+				box-sizing: border-box;
 
+				.move-desc {
+					text-transform: initial;
+					text-align: left;
+					font-size: 20px;
+					word-break: break-word;
+					box-sizing: border-box;
+					padding: 0 1%;
 
-      ._inner {
-        z-index: 1;
-        height: 100%;
+					display: flex;
+					align-items: center;
+					gap: 1%;
 
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        text-transform: capitalize;
-        text-align: center;
-        box-sizing: border-box;
+					p {
+						margin: 0;
+					}
 
-        .move-desc {
-          text-transform: initial;
-          text-align: left;
-          font-size: 20px;
-          word-break: break-word;
-          box-sizing: border-box;
-          padding: 0 1%;
+					._desc {
+						width: 50%;
+					}
 
-          display: flex;
-          align-items: center;
-          gap: 1%;
+					.stats {
+						width: 50%;
+					}
+				}
+			}
+		}
 
-          p {
-            margin: 0;
-          }
+		.actions,
+		.moves {
+			position: relative;
+			width: 50%;
+			height: 100%;
+			display: flex;
+			border-radius: 8px;
+			box-sizing: border-box;
+			padding: 0 2%;
+			z-index: 2;
 
-          ._desc {
-            width: 50%;
-          }
+			flex-wrap: wrap;
+			gap: 8px;
 
-          .stats {
-            width: 50%;
-          }
-        }
-      }
-    }
+			.back {
+				position: absolute;
+				top: -9.5dvh;
+				left: 2dvw;
+				height: 8.25dvh;
+				width: 6dvw;
+				background-color: rgba(44, 56, 69, 0.84);
+				border-radius: 6px;
+				color: white;
 
-    .actions, .moves {
-      position: relative;
-      width: 50%;
-      height: 100%;
-      display: flex;
-      border-radius: 8px;
-      box-sizing: border-box;
-      padding: 0 2%;
-      z-index: 2;
+				svg {
+					height: 30px;
+				}
+			}
+		}
+	}
 
-      flex-wrap: wrap;
-      gap: 8px;
+	.action-btn {
+		border: 2px solid var(--color);
 
-      .back {
-        position: absolute;
-        top: -9.5dvh;
-        left: 2dvw;
-        height: 8.25dvh;
-        width: 6dvw;
-        background-color: rgba(44, 56, 69, 0.84);;
-        border-radius: 6px;
-        color: white;
+		font-size: 26px;
+		color: white;
+		text-shadow: 1px 1px 1px var(--color);
+		background-color: rgba(44, 56, 69, 0.84);
+		border-radius: 8px;
+		font-family: pokemon, serif;
 
-        svg {
-          height: 30px;
-        }
-      }
+		transition:
+			color 0.3s ease-in-out,
+			opacity 0.3s ease-in-out;
+		flex: 48%;
+		max-height: 49%;
+		max-width: 48%;
 
-    }
-  }
+		-webkit-box-shadow: 4px 6px 21px 2px #000000;
+		box-shadow: 4px 6px 21px 2px #000000;
 
-  .action-btn {
-    border: 2px solid var(--color);
+		&:hover,
+		&.selected {
+			cursor: pointer;
+			background-color: rgba(44, 56, 69, 0.5);
+			color: white;
+			text-shadow: none;
+		}
 
-    font-size: 26px;
-    color: white;
-    text-shadow: 1px 1px 1px var(--color);
-    background-color: rgba(44, 56, 69, 0.84);
-    border-radius: 8px;
-    font-family: pokemon, serif;
+		&[disabled] {
+			opacity: 0.5;
+			cursor: not-allowed;
+			pointer-events: none;
+		}
+	}
 
-    transition: color 0.3s ease-in-out, opacity 0.3s ease-in-out;
-    flex: 48%;
-    max-height: 49%;
-    max-width: 48%;
-
-    -webkit-box-shadow: 4px 6px 21px 2px #000000;
-    box-shadow: 4px 6px 21px 2px #000000;
-
-    &:hover, &.selected {
-      cursor: pointer;
-      background-color: rgba(44, 56, 69, 0.50);
-      color: white;
-      text-shadow: none;
-    }
-
-
-    &[disabled] {
-      opacity: .5;
-      cursor: not-allowed;
-      pointer-events: none;
-    }
-  }
-
-  .moves .action-btn {
-    font-size: 20px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-  }
+	.moves .action-btn {
+		font-size: 20px;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		overflow: hidden;
+	}
 </style>
