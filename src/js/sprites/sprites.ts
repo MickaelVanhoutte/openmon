@@ -7,7 +7,7 @@ export class SpriteFromSheet {
     startY: number;
     height: number;
     width: number;
-    frameNumber: number = 3;
+    frameNumber: number = 4;
 
     constructor(source: string, startX: number, startY: number, height: number, width: number, frameNumber: number = 4) {
         this.source = source;
@@ -36,14 +36,24 @@ export class SpritesHolder {
                     value.front.width,
                     value.front.frameNumber
                 ),
-                new SpriteFromSheet(
-                    value.overworld.source,
-                    value.overworld.startX,
-                    value.overworld.startY,
-                    value.overworld.height,
-                    value.overworld.width,
-                    value.overworld.frameNumber
-                )
+                {
+                    walking: new SpriteFromSheet(
+                        value.overworld.walking.source,
+                        value.overworld.walking.startX,
+                        value.overworld.walking.startY,
+                        value.overworld.walking.height,
+                        value.overworld.walking.width,
+                        value.overworld.walking.frameNumber
+                    ),
+                    running: value.overworld.running? new SpriteFromSheet(
+                        value.overworld.running.source,
+                        value.overworld.running.startX,
+                        value.overworld.running.startY,
+                        value.overworld.running.height,
+                        value.overworld.running.width,
+                        value.overworld.running.frameNumber
+                    ) : undefined
+                } 
             )
         });
     }
@@ -91,12 +101,16 @@ export class PlayerSprite {
     public id: number;
     public name: string;
     public front: SpriteFromSheet;
-    public overworld: SpriteFromSheet;
+    public overworld: {
+        walking: SpriteFromSheet,
+        running?: SpriteFromSheet
+    };
 
     public frontImg: HTMLImageElement;
-    public worldImg: HTMLImageElement;
+    public worldWalkingImg: HTMLImageElement;
+    public worldRunningImg?: HTMLImageElement;
 
-    public frames = {max: 3, val: 0, elapsed: 0};
+    public frames = {max: 4, val: 0, elapsed: 0};
 
     public orientationIndexes = {
         "down": 0,
@@ -105,7 +119,10 @@ export class PlayerSprite {
         "up": 3,
     }
 
-    constructor(id: number, name: string, front: SpriteFromSheet, overworld: SpriteFromSheet) {
+    constructor(id: number, name: string, front: SpriteFromSheet, overworld: {
+        walking: SpriteFromSheet,
+        running?: SpriteFromSheet
+    }) {
         this.id = id;
         this.name = name;
         this.front = front;
@@ -113,8 +130,14 @@ export class PlayerSprite {
 
         this.frontImg = new Image();
         this.frontImg.src = front.source;
-        this.worldImg = new Image();
-        this.worldImg.src = overworld.source;
+        this.worldWalkingImg = new Image();
+        this.worldWalkingImg.src = overworld.walking.source;
+
+        if(this.overworld.running?.source){
+            this.worldRunningImg = new Image();
+            // @ts-ignore
+            this.worldRunningImg.src = overworld.running.source;
+        }
     }
 }
 

@@ -65,27 +65,27 @@ export class Player implements Character {
     }
 
 
-    public draw(ctx: CanvasRenderingContext2D, type: 'front' | 'overworld', scale: number, mapDim: {
+    public draw(ctx: CanvasRenderingContext2D, scale: number, mapDim: {
         width: number,
         height: number
     }, drawGrass: boolean) {
 
         if (this.monsters.length > 0) {
             if (this.position.direction === "up") {
-                this.drawPlayer(type, ctx, scale, mapDim, drawGrass);
+                this.drawPlayer(ctx, scale, mapDim, drawGrass);
                 //this.walkerDrawer.draw(ctx, playerPosition, this.direction, scale, this.moving, playerPosition, this.monsters[0], mapDim, drawGrass);
             } else {
                 //this.walkerDrawer.draw(ctx, playerPosition, this.direction, scale, this.moving, playerPosition, this.monsters[0], mapDim, drawGrass);
-                this.drawPlayer(type, ctx, scale, mapDim, drawGrass);
+                this.drawPlayer(ctx, scale, mapDim, drawGrass);
             }
 
         } else {
-            this.drawPlayer(type, ctx, scale, mapDim, drawGrass);
+            this.drawPlayer(ctx, scale, mapDim, drawGrass);
         }
 
     }
 
-    private drawPlayer(type: "front" | "overworld", ctx: CanvasRenderingContext2D, scale: number, mapDim: {
+    private drawPlayer(ctx: CanvasRenderingContext2D, scale: number, mapDim: {
         width: number;
         height: number
     }, drawGrass: boolean) {
@@ -93,11 +93,12 @@ export class Player implements Character {
         function easeInOutQuad(t: number) {
             return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
         }
-    
 
-        let sprite = this.sprite[type];
-        let img = type === 'front' ? this.sprite.frontImg : this.sprite.worldImg;
-        if (img.complete)
+
+        let sprite = this.running && this.moving ? this.sprite.overworld.running : this.sprite.overworld.walking;
+        let img = this.running && this.moving ? this.sprite.worldRunningImg : this.sprite.worldWalkingImg;
+
+        if (img && img.complete) {
 
             if (this.moving) {
 
@@ -105,10 +106,10 @@ export class Player implements Character {
                     this.sprite.frames.elapsed += 1;
                 }
 
-                if(this.sprite.frames.elapsed % 2 === 0){
+                if (this.sprite.frames.elapsed % 2 === 0) {
                     this.sprite.frames.val += 1;
                 }
-        
+
                 if (this.sprite.frames.val > this.sprite.frames.max - 1) {
                     this.sprite.frames.val = 0;
                 }
@@ -117,54 +118,55 @@ export class Player implements Character {
             }
 
 
-        const sY = this.sprite.orientationIndexes[this.position.direction] * sprite.height;
-        const speed = this.running ? RUNNING_SPEED : WALKING_SPEED;
-        
-        const deltaX = this.position.targetPosition.x - this.position.positionOnMap.x;
-        const deltaY = this.position.targetPosition.y - this.position.positionOnMap.y;
+            const sY = this.sprite.orientationIndexes[this.position.direction] * (sprite?.height || 64);
+            const speed = this.running ? RUNNING_SPEED : WALKING_SPEED;
 
-        const deltaXPx = this.position.targetPositionInPx.x - this.position.positionInPx.x;
-        const deltaYPx = this.position.targetPositionInPx.y - this.position.positionInPx.y;
-        
+            const deltaX = this.position.targetPosition.x - this.position.positionOnMap.x;
+            const deltaY = this.position.targetPosition.y - this.position.positionOnMap.y;
 
-        const moveByX = Math.floor((16 * 2.5) / 2 * speed * deltaX);
-        const moveByY = Math.floor((16 * 2.5) / 2 * speed * deltaY);
+            const deltaXPx = this.position.targetPositionInPx.x - this.position.positionInPx.x;
+            const deltaYPx = this.position.targetPositionInPx.y - this.position.positionInPx.y;
 
-        const distance = Math.sqrt(deltaXPx * deltaXPx + deltaYPx * deltaYPx);
-        
-        console.log("distance", distance);
-        if(distance < ((16 * 2.5) / 2 * speed) + 1){
-            this.position.positionInPx.x = this.position.targetPositionInPx.x;
-            this.position.positionInPx.y = this.position.targetPositionInPx.y;
-            this.position.positionOnMap = this.position.targetPosition;
-            this.moving = false;
-        }else{
-            // Interpolate between current and target positions with eased distance
-            console.log("move by ", moveByX);
-            this.position.positionInPx.x += moveByX;
-            this.position.positionInPx.y += moveByY;
+
+            const moveByX = Math.floor((16 * 2.5) / 2 * speed * deltaX);
+            const moveByY = Math.floor((16 * 2.5) / 2 * speed * deltaY);
+
+            const distance = Math.sqrt(deltaXPx * deltaXPx + deltaYPx * deltaYPx);
+
+            console.log("distance", distance);
+            if (distance < ((16 * 2.5) / 2 * speed) + 1) {
+                this.position.positionInPx.x = this.position.targetPositionInPx.x;
+                this.position.positionInPx.y = this.position.targetPositionInPx.y;
+                this.position.positionOnMap = this.position.targetPosition;
+                this.moving = false;
+            } else {
+                // Interpolate between current and target positions with eased distance
+                console.log("move by ", moveByX);
+                this.position.positionInPx.x += moveByX;
+                this.position.positionInPx.y += moveByY;
+            }
+
+
+            let { centerX, centerY, offsetX, offsetY } = centerObject(ctx, scale, this.position.positionInPx, 16, mapDim);
+            offsetY += 6;
+
+            ctx.save();
+            ctx.translate(centerX - offsetX, centerY - offsetY);
+
+            ctx.drawImage(
+                img,
+                this.sprite.frames.val * (sprite?.width || 64),
+                sY,
+                (sprite?.width || 64),
+                drawGrass ? (sprite?.height || 64) - (sprite?.height || 64 * .20) : (sprite?.height || 64),
+                0,
+                0,
+                (sprite?.width || 64) * scale,
+                drawGrass ? (sprite?.height || 64) * scale * .80 : (sprite?.height || 64) * scale
+            );
+            ctx.restore();
+            return { sprite, img, sY };
         }
-    
-
-        let { centerX, centerY, offsetX, offsetY } = centerObject(ctx, scale, this.position.positionInPx, 16, mapDim);
-        offsetY += 6;
-
-        ctx.save();
-        ctx.translate(centerX - offsetX, centerY - offsetY);
-
-        ctx.drawImage(
-            img,
-            this.sprite.frames.val * (sprite.width),
-            sY,
-            sprite.width,
-            drawGrass ? sprite.height - sprite.height * .20 : sprite.height,
-            0,
-            0,
-            sprite.width * scale,
-            drawGrass ? sprite.height * scale * .80 : sprite.height * scale
-        );
-        ctx.restore();
-        return { sprite, img, sY };
     }
 }
 

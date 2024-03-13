@@ -102,7 +102,7 @@ export class NPC implements Character, Interactive {
             this.drawImage(ctx, image, playerPosition, npc.direction, scale, mapDim);
         } else {
             image = new Image();
-            image.src = CHARACTER_SPRITES.getSprite(npc.spriteId).overworld.source;
+            image.src = CHARACTER_SPRITES.getSprite(npc.spriteId).overworld.walking.source;
             image.onload = () => {
                 this.images[npc.spriteId] = image;
                 this.drawImage(ctx, image, playerPosition, npc.direction, scale, mapDim);
