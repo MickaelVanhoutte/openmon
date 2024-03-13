@@ -291,10 +291,12 @@ export class GameContext {
     }
 
     startBattle(opponent: PokemonInstance | Character) {
-
+        this.overWorldContext.isPaused = true;
         let battleContext = new BattleContext(this.player, opponent, this.settings);
         let unsubscribe = battleContext.events.end.subscribe((result) => {
             if (result) {
+                battleContext.events.ending.set(true);
+
                 unsubscribe();
                 if (!result.win) {
                     // tp back to the start // TODO pokecenter position
@@ -311,11 +313,16 @@ export class GameContext {
                         }
                     }
                 }
-                this.battleContext.set(undefined);
-                this.hasEvolutions = this.player.monsters.some(pkmn => pkmn.canEvolve());
+                setTimeout(() => {
+                    // End of battle, 2 sec later for fade out
+                    this.overWorldContext.isPaused = false;
+                    this.battleContext.set(undefined);
+                    this.hasEvolutions = this.player.monsters.some(pkmn => pkmn.canEvolve());
+                }, 2000);
             }
         });
         this.battleContext.set(battleContext);
+        battleContext.events.starting.set(true);
     }
 
     playScript(script?: Script, previous?: Script, onEnd?: () => void) {

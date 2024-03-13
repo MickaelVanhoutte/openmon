@@ -12,7 +12,9 @@ export enum TurnPhase {
 }
 
 export class BattleEvents {
-
+    starting: Writable<boolean> = writable(false);
+    ending: Writable<boolean> = writable(false);
+    
     end: Writable<BattleResult|undefined> = writable(undefined);
     pokemonChange: Writable<Character|undefined> = writable(undefined);
     playerPokemonFaint: Writable<PokemonInstance|undefined> = writable(undefined);
