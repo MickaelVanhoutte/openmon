@@ -150,7 +150,7 @@ export class OpenMap {
         return boundariesTmp;
     }
 
-    public initBoundaries(collisions: number[], width: number, tileId: number) {console.log(tileId);
+    public initBoundaries(collisions: number[], width: number, tileId: number) {
         const collision_map = [];
         for (let i = 0; i < collisions.length; i += width) {
             collision_map.push(collisions.slice(i, width + i));

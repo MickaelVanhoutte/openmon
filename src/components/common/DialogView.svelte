@@ -62,7 +62,7 @@
 		left: 1dvw;
 		width: 98dvw;
 		height: 25dvh;
-		z-index: 8;
+		z-index: 7;
 
 		background: rgb(220, 231, 233);
 		border: 2px solid #54506c;

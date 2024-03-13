@@ -116,10 +116,6 @@ export class NPC implements Character, Interactive {
             height: number
         }) {
 
-        function easeInOutQuad(t: number) {
-            return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-        }
-
         if (this.moving) {
 
             if (this.frames.max > 1) {
@@ -137,34 +133,37 @@ export class NPC implements Character, Interactive {
 
         let sY = this.orientationIndexes[orientation] * 64;
 
-        let npcPosition = { x: this.position.positionOnMap.x * 16 * scale, y: this.position.positionOnMap.y * 16 * scale };
-        let targetPosition = { x: this.position.targetPosition.x * 16 * scale, y: this.position.targetPosition.y * 16 * scale };
+        if (this.moving) {
+            const speed = WALKING_SPEED;
 
-        let deltaX = targetPosition.x - npcPosition.x;
-        let deltaY = targetPosition.y - npcPosition.y;
+            const deltaX = this.position.targetPosition.x - this.position.positionOnMap.x;
+            const deltaY = this.position.targetPosition.y - this.position.positionOnMap.y;
 
-        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-        const speed = /*this.running ? RUNNING_SPEED :*/ WALKING_SPEED; // TODO impl running
+            const deltaXPx = this.position.targetPositionInPx.x - this.position.positionInPx.x;
+            const deltaYPx = this.position.targetPositionInPx.y - this.position.positionInPx.y;
 
-        if (distance > 6) {
-            const easedDistance = easeInOutQuad(Math.min(1, distance / 5));
-            // Interpolate between current and target positions with eased distance
-            npcPosition.x += deltaX * easedDistance * speed;
-            npcPosition.y += deltaY * easedDistance * speed;
-        } else {
-            // Snap to the target position if movement is small
-            this.moving = false;
-            npcPosition.x = targetPosition.x;
-            npcPosition.y = targetPosition.y;
+
+            const moveByX = Math.floor((16 * 2.5) / 2 * speed * deltaX);
+            const moveByY = Math.floor((16 * 2.5) / 2 * speed * deltaY);
+
+            const distance = Math.sqrt(deltaXPx * deltaXPx + deltaYPx * deltaYPx);
+
+            if (distance < ((16 * 2.5) / 2 * speed) + 1) {
+                this.position.positionInPx.x = this.position.targetPositionInPx.x;
+                this.position.positionInPx.y = this.position.targetPositionInPx.y;
+                this.position.positionOnMap = this.position.targetPosition;
+                this.moving = false;
+            } else {
+                this.position.positionInPx.x += moveByX;
+                this.position.positionInPx.y += moveByY;
+            }
         }
 
-        let playerPositionInPx = { x: playerPosition.x * 16 * scale, y: playerPosition.y * 16 * scale };
-
         // Calculate the position of the NPC relative to the player
-        const relativeX = npcPosition.x - playerPositionInPx.x;
-        const relativeY = npcPosition.y - playerPositionInPx.y;
+        const relativeX = this.position.positionInPx.x - playerPosition.x;
+        const relativeY = this.position.positionInPx.y - playerPosition.y;
 
-        let { centerX, centerY, offsetX, offsetY } = centerObject(ctx, scale, playerPositionInPx, 16, mapDim);
+        let { centerX, centerY, offsetX, offsetY } = centerObject(ctx, scale, playerPosition, 16, mapDim);
         offsetY -= relativeY - 6;
         offsetX -= relativeX;
 

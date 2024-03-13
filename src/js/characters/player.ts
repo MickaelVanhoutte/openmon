@@ -119,31 +119,31 @@ export class Player implements Character {
 
 
             const sY = this.sprite.orientationIndexes[this.position.direction] * (sprite?.height || 64);
-            const speed = this.running ? RUNNING_SPEED : WALKING_SPEED;
 
-            const deltaX = this.position.targetPosition.x - this.position.positionOnMap.x;
-            const deltaY = this.position.targetPosition.y - this.position.positionOnMap.y;
+            if (this.moving) {
+                const speed = this.running ? RUNNING_SPEED : WALKING_SPEED;
 
-            const deltaXPx = this.position.targetPositionInPx.x - this.position.positionInPx.x;
-            const deltaYPx = this.position.targetPositionInPx.y - this.position.positionInPx.y;
+                const deltaX = this.position.targetPosition.x - this.position.positionOnMap.x;
+                const deltaY = this.position.targetPosition.y - this.position.positionOnMap.y;
+
+                const deltaXPx = this.position.targetPositionInPx.x - this.position.positionInPx.x;
+                const deltaYPx = this.position.targetPositionInPx.y - this.position.positionInPx.y;
 
 
-            const moveByX = Math.floor((16 * 2.5) / 2 * speed * deltaX);
-            const moveByY = Math.floor((16 * 2.5) / 2 * speed * deltaY);
+                const moveByX = Math.floor((16 * 2.5) / 2 * speed * deltaX);
+                const moveByY = Math.floor((16 * 2.5) / 2 * speed * deltaY);
 
-            const distance = Math.sqrt(deltaXPx * deltaXPx + deltaYPx * deltaYPx);
+                const distance = Math.sqrt(deltaXPx * deltaXPx + deltaYPx * deltaYPx);
 
-            console.log("distance", distance);
-            if (distance < ((16 * 2.5) / 2 * speed) + 1) {
-                this.position.positionInPx.x = this.position.targetPositionInPx.x;
-                this.position.positionInPx.y = this.position.targetPositionInPx.y;
-                this.position.positionOnMap = this.position.targetPosition;
-                this.moving = false;
-            } else {
-                // Interpolate between current and target positions with eased distance
-                console.log("move by ", moveByX);
-                this.position.positionInPx.x += moveByX;
-                this.position.positionInPx.y += moveByY;
+                if (distance < ((16 * 2.5) / 2 * speed) + 1) {
+                    this.position.positionInPx.x = this.position.targetPositionInPx.x;
+                    this.position.positionInPx.y = this.position.targetPositionInPx.y;
+                    this.position.positionOnMap = this.position.targetPosition;
+                    this.moving = false;
+                } else {
+                    this.position.positionInPx.x += moveByX;
+                    this.position.positionInPx.y += moveByY;
+                }
             }
 
 
@@ -153,12 +153,22 @@ export class Player implements Character {
             ctx.save();
             ctx.translate(centerX - offsetX, centerY - offsetY);
 
+
+            console.log(
+                (sprite?.width || 64),
+                drawGrass ? (sprite?.height || 64) * .20 : (sprite?.height || 64),
+                0,
+                0,
+                (sprite?.width || 64) * scale,
+                drawGrass ? (sprite?.height || 64) * scale * .80 : (sprite?.height || 64) * scale
+            )
+
             ctx.drawImage(
                 img,
                 this.sprite.frames.val * (sprite?.width || 64),
                 sY,
                 (sprite?.width || 64),
-                drawGrass ? (sprite?.height || 64) - (sprite?.height || 64 * .20) : (sprite?.height || 64),
+                drawGrass ? (sprite?.height || 64) * .80 : (sprite?.height || 64),
                 0,
                 0,
                 (sprite?.width || 64) * scale,

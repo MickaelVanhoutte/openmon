@@ -11,7 +11,7 @@
 
 	export let context: GameContext;
 	export let isBattle: boolean;
-	export let forceChange: boolean;
+	export let forceChange: boolean = false;
 	export let selected = 0;
 	export let itemToUse: number;
 	export let zIndex: number;
@@ -22,7 +22,8 @@
 	let optionSelected = 0;
 	let emptyslots = new Array(6 - context.player.monsters.length).fill(0);
 
-	let first: PokemonInstance | undefined = context.player.monsters.at(0);
+	console.log(context.player.monsters?.[0]);
+	let first: PokemonInstance | undefined = context.player.monsters?.[0];
 	let others: PokemonInstance[] = context.player.monsters.slice(1);
 	let battleContext: BattleContext | undefined = undefined;
 
@@ -31,12 +32,14 @@
 
 	context.battleContext.subscribe((value) => {
 		battleContext = value;
-		first = battleContext?.playerPokemon;
-		others = context.player.monsters.filter((pkmn) => pkmn !== first);
+		if (value) {
+			first = battleContext?.playerPokemon;
+			others = context.player.monsters.filter((pkmn) => pkmn !== first);
+		}
 	});
 
 	function getPercentage(monster: PokemonInstance) {
-		return (monster.currentHp / monster.currentStats.hp) * 100;
+		return (monster?.currentHp / monster?.currentStats.hp) * 100 || 0;
 	}
 
 	function select(index: number) {
@@ -53,8 +56,8 @@
 	}
 
 	let currentBattlePokemon: PokemonInstance | undefined = undefined;
-	export let onChange;
-	$: onChange(!!currentBattlePokemon && currentBattlePokemon);
+	export let onChange: (poke: PokemonInstance | undefined) => void;
+	$: onChange(currentBattlePokemon);
 
 	function switchNow() {
 		//swap(save.player.monsters, selected, 0);
@@ -70,7 +73,7 @@
 	function switchTo() {
 		if (switchToIdx != undefined && selected != undefined) {
 			swap(context.player.monsters, selected, switchToIdx);
-			first = context.player.monsters.at(0);
+			first = context.player.monsters?.[0];
 			others = context.player.monsters.slice(1);
 			switchToIdx = undefined;
 		}
@@ -106,7 +109,7 @@
 		}, 1000);
 	}
 
-	const listener = (e) => {
+	const listener = (e: KeyboardEvent) => {
 		if (context.overWorldContext.menus.openSummary) return;
 		if (!openOptions) {
 			if (e.key === 'ArrowUp') {
@@ -176,13 +179,14 @@
 				<div class="header">
 					<div class="img-wrapper">
 						<img
-							src={first.sprites[first?.gender]?.front.frame1 || first.sprites.male?.front?.frame1}
-							alt={first.name}
+							src={first?.sprites?.[first?.gender]?.front?.frame1 ||
+								first?.sprites?.male?.front?.frame1}
+							alt={first?.name}
 						/>
 					</div>
 					<div>
-						<span>{first.name}</span>
-						<span>Lv{first.level}</span>
+						<span>{first?.name}</span>
+						<span>Lv{first?.level}</span>
 					</div>
 					<!-- img, name, level, gender-->
 				</div>
@@ -199,7 +203,7 @@
 							></div>
 						</div>
 					</div>
-					<span class="hp-value">{first.currentHp} / {first.currentStats.hp}</span>
+					<span class="hp-value">{first?.currentHp} / {first?.currentStats?.hp}</span>
 				</div>
 			</div>
 		</div>
@@ -214,8 +218,8 @@
 					<div class="header">
 						<div class="img-wrapper">
 							<img
-								src={monster.sprites[monster?.gender]?.front.frame1 ||
-									monster.sprites.male?.front?.frame1}
+								src={monster?.sprites?.[monster?.gender]?.front?.frame1 ||
+									monster?.sprites?.male?.front?.frame1}
 								alt={monster.name}
 							/>
 						</div>
@@ -238,7 +242,7 @@
 								></div>
 							</div>
 						</div>
-						<span class="hp-value">{monster.currentHp} / {monster.currentStats.hp}</span>
+						<span class="hp-value">{monster?.currentHp} / {monster?.currentStats.hp}</span>
 					</div>
 				</div>
 			{/each}

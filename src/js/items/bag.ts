@@ -28,7 +28,7 @@ export class Bag {
     addItems(id: number, quantity: number, gameCtx: GameContext) {
         if (this.getPocketByItemId(id, gameCtx) !== undefined) {
             // @ts-ignore
-            this.getPocketByItemId(id)[id] = (this.getPocketByItemId(id)[id] || 0) + quantity;
+            this.getPocketByItemId(id, gameCtx)[id] = (this.getPocketByItemId(id, gameCtx)[id] || 0) + quantity;
         }
     }
 

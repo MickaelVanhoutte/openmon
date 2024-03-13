@@ -44,7 +44,7 @@
 	}
 
 	function select() {
-		context.player.monsters.push(currentPokemon.instanciate(5));
+		context.player.monsters[0]= currentPokemon.instanciate(5);
 		context.overWorldContext.endScene(SceneType.STARTER_SELECTION);
 	}
 
@@ -137,7 +137,7 @@
 		justify-content: center;
 		height: 100dvh;
 		width: var(--cnv-width, 100dvw);
-		z-index: 8;
+		z-index: 7;
 		background: rgba(0, 0, 0, 0.6);
 		perspective: 700px;
 		perspective-origin: center;
