@@ -57,6 +57,18 @@ export class SavesHolder {
             JSON.parse(localStorage.getItem('saves-v2')) || [];
         this.saves.forEach((save) => {
             Object.setPrototypeOf(save, SaveContext.prototype);
+            Object.setPrototypeOf(save.player, Player.prototype);
+            save.player.setPrototypes();
+            save.boxes = save.boxes.map((box) => {
+                Object.setPrototypeOf(box, PokemonBox.prototype);
+                box.values = box.values.map((pkmn) => {
+                    if (pkmn) {
+                        Object.setPrototypeOf(pkmn, PokemonInstance.prototype);
+                    }
+                    return pkmn;
+                });
+                return box;
+            });
         });
         this.saves = this.saves.sort((a, b) => b.updated - a.updated);
     }

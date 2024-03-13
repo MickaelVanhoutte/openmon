@@ -210,7 +210,7 @@
 		position: absolute;
 		bottom: 2dvh;
 		left: 1dvw;
-		z-index: 7;
+		z-index: 6;
 
 		display: flex;
 

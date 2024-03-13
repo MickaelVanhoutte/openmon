@@ -44,9 +44,19 @@ export class CharacterPosition {
         }
     }
 
-    public setFuturePosition(x: number, y: number, tileSize: number = 16, scale: number = 2.5) {
+    public setFuturePosition(x: number, y: number, onEnd?:() => void, tileSize: number = 16, scale: number = 2.5) {
         this.targetPosition = { x, y };
         this.targetPositionInPx = { x: x * tileSize * scale, y: y * tileSize * scale };
+
+        // callback when the character reaches the target position
+        if(onEnd){
+            let unsubscribe = setInterval(() => {
+                if(this.positionOnMap.x === x && this.positionOnMap.y === y){
+                    onEnd();
+                    clearInterval(unsubscribe);
+                }
+            });
+        }
     }
 
 }

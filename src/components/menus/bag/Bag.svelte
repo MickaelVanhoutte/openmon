@@ -11,10 +11,10 @@
 	export let context: GameContext;
 	export let isBattle = false;
 	export let selectedMons: number | undefined;
+	export let zIndex: number;
+	export let onChange: () => void;
 
-	export let list: HTMLUListElement;
-
-	export let zIndex;
+	let list: HTMLUListElement;
 
 	let openOptions = false;
 	let optionSelected = 0;
@@ -40,8 +40,6 @@
 		context.player.bag[categories[tab]][id]
 	]);
 	$: itemToUse = (pocket && pocket[selected]?.[0]) || undefined;
-
-	export let onChange;
 
 	function back() {
 		context.overWorldContext.menus.bagOpened = false;
