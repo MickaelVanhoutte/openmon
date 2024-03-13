@@ -144,8 +144,6 @@
 
 <div class="joysticks" bind:this={joysticks}></div>
 
-<div class="ab-buttons" bind:this={abButtonsC}></div>
-
 <div class="run-toggle">
 	{#if context.player?.running}
 		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
@@ -169,11 +167,13 @@
 		/>
 		<span> </span>
 	</label>
-
-	{#if !overWorldCtx.isPaused}
-		<button on:click={() => overWorldCtx.openMenu(MenuType.MAIN)} class="start">start </button>
-	{/if}
 </div>
+
+{#if !overWorldCtx.isPaused}
+	<button on:click={() => overWorldCtx.openMenu(MenuType.MAIN)} class="start">start </button>
+{/if}
+
+<div class="ab-buttons" bind:this={abButtonsC}></div>
 
 <style lang="scss">
 	.joysticks {
