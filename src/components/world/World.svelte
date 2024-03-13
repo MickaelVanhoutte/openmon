@@ -211,7 +211,6 @@
 		// Player & walker
 		context.player.draw(
 			canvasCtx,
-			'overworld',
 			overWorldCtx.frames.playerScale,
 			mapDimensions,
 			context.map.hasBattleZoneAt(context.player.position.positionOnMap)
