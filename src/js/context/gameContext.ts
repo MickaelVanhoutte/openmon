@@ -41,15 +41,13 @@ export class GameContext {
     constructor(id: number, player: Player, boxes: Array<PokemonBox>, map: MapSave, settings: Settings, isNewGame: boolean) {
         this.id = id;
         this.player = Player.fromInstance(player);
-        this.boxes = boxes;
+        this.boxes = boxes.map((box) => new PokemonBox(box.name, box.values.map((pkmn) => pkmn ? pkmn as PokemonInstance : undefined)));
         this.map = OpenMap.fromInstance(this.MAPS[map.mapId], isNewGame ? this.MAPS[map.mapId].playerInitialPosition :  player.position.positionOnMap);
         this.settings = settings;
         this.isNewGame = isNewGame;
         
         this.overWorldContext = new OverworldContext(this.map);
-
         this.player.position = new CharacterPosition(this.map.playerInitialPosition.x, this.map.playerInitialPosition.y);
-        
     
         let allScripts: Script[] = this.map.scripts
             .concat(this.map.npcs.map((npc) => npc.mainScript).filter((script) => script !== undefined) as Script[])
