@@ -2,7 +2,6 @@ import { PokemonInstance } from "../pokemons/pokedex";
 import { Bag } from "../items/bag";
 import { Position } from "../mapping/positions";
 import { centerObject, CHARACTER_SPRITES, PlayerSprite } from "../sprites/sprites";
-import { type Writable, writable } from "svelte/store";
 import { type Character, CharacterPosition, RUNNING_SPEED, WALKING_SPEED } from "./characters-model";
 
 export class Player implements Character {
@@ -14,7 +13,6 @@ export class Player implements Character {
     public lvl: number = 1;
     public moving: boolean = false;
     public running: boolean = false;
-    public moving$: Writable<boolean> = writable(false);
     public sprite: PlayerSprite;
     public walkerDrawer = new PokeWalkerSpriteDrawer();
 
@@ -106,7 +104,11 @@ export class Player implements Character {
                 if (this.sprite.frames.max > 1) {
                     this.sprite.frames.elapsed += 1;
                 }
-                this.sprite.frames.val += 1
+
+                if(this.sprite.frames.elapsed % 2 === 0){
+                    this.sprite.frames.val += 1;
+                }
+        
                 if (this.sprite.frames.val > this.sprite.frames.max - 1) {
                     this.sprite.frames.val = 0;
                 }
@@ -114,32 +116,37 @@ export class Player implements Character {
                 this.sprite.frames.val = 0;
             }
 
-            
 
-        let sY = this.sprite.orientationIndexes[this.position.direction] * sprite.height;
-        let playerPosition = { x: this.position.positionOnMap.x * 16 * scale, y: this.position.positionOnMap.y * 16 * scale };
-        let targetPosition = { x: this.position.targetPosition.x * 16 * scale, y: this.position.targetPosition.y * 16 * scale };
-
-        let deltaX = targetPosition.x - playerPosition.x;
-        let deltaY = targetPosition.y - playerPosition.y;
-        
-        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        const sY = this.sprite.orientationIndexes[this.position.direction] * sprite.height;
         const speed = this.running ? RUNNING_SPEED : WALKING_SPEED;
+        
+        const deltaX = this.position.targetPosition.x - this.position.positionOnMap.x;
+        const deltaY = this.position.targetPosition.y - this.position.positionOnMap.y;
 
-        if (distance > 6) {
-            const easedDistance = easeInOutQuad(Math.min(1, distance / 5));
-            // Interpolate between current and target positions with eased distance
-            playerPosition.x += deltaX * easedDistance * speed;
-            playerPosition.y += deltaY * easedDistance * speed;
-        } else {
-            // Snap to the target position if movement is small
+        const deltaXPx = this.position.targetPositionInPx.x - this.position.positionInPx.x;
+        const deltaYPx = this.position.targetPositionInPx.y - this.position.positionInPx.y;
+        
+
+        const moveByX = Math.floor((16 * 2.5) / 2 * speed * deltaX);
+        const moveByY = Math.floor((16 * 2.5) / 2 * speed * deltaY);
+
+        const distance = Math.sqrt(deltaXPx * deltaXPx + deltaYPx * deltaYPx);
+        
+        console.log("distance", distance);
+        if(distance < ((16 * 2.5) / 2 * speed) + 1){
+            this.position.positionInPx.x = this.position.targetPositionInPx.x;
+            this.position.positionInPx.y = this.position.targetPositionInPx.y;
+            this.position.positionOnMap = this.position.targetPosition;
             this.moving = false;
-            playerPosition.x = targetPosition.x;
-            playerPosition.y = targetPosition.y;
+        }else{
+            // Interpolate between current and target positions with eased distance
+            console.log("move by ", moveByX);
+            this.position.positionInPx.x += moveByX;
+            this.position.positionInPx.y += moveByY;
         }
+    
 
-
-        let { centerX, centerY, offsetX, offsetY } = centerObject(ctx, scale, playerPosition, 16, mapDim);
+        let { centerX, centerY, offsetX, offsetY } = centerObject(ctx, scale, this.position.positionInPx, 16, mapDim);
         offsetY += 6;
 
         ctx.save();

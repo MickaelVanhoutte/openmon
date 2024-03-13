@@ -248,18 +248,18 @@ export class OpenMap {
         return {width: 0, height: 0};
     }
 
-    drawFG(ctx: CanvasRenderingContext2D, map: OpenMap, scale: number, playerPosition: Position, debug: boolean = true) {
+    drawFG(ctx: CanvasRenderingContext2D, map: OpenMap, scale: number, playerPosition: Position) {
         if (map.foreground !== undefined) {
             let image = this.images[map.foreground];
             if (image && image.complete) {
-                this.drawImage(ctx, image, map, scale, playerPosition, debug);
+                this.drawImage(ctx, image, map, scale, playerPosition, false);
             } else {
                 image = new Image();
                 image.src = map.foreground;
                 image.onload = () => {
                     if (map.foreground) {
                         this.images[map.foreground] = image;
-                        this.drawImage(ctx, image, map, scale, playerPosition, debug);
+                        this.drawImage(ctx, image, map, scale, playerPosition, false);
                     }
                 }
             }
@@ -281,15 +281,13 @@ export class OpenMap {
         // canvas half - half character height scaled
         let centerY = screenDimensions.height / 2;
 
-        let playerPositionInPx = { x: playerPosition.x * 16 * scale, y: playerPosition.y * 16 * scale };
+        let offsetX = playerPosition.x;
+        let offsetY = playerPosition.y;
 
-        let offsetX = playerPositionInPx.x;
-        let offsetY = playerPositionInPx.y;
-
-        let leftThreshold = playerPositionInPx.x < Math.min(centerX, window.innerWidth / 2 - (16 * .83 / 2));
-        let topThreshold = playerPositionInPx.y < Math.min(centerY, window.innerHeight / 2 - (16 * .83 / 2));
-        let rightThreshold = playerPositionInPx.x > image.width * scale - Math.min(centerX, window.innerWidth / 2 - (16 * .83 / 2));
-        let bottomThreshold = playerPositionInPx.y > image.height * scale - Math.min(centerY, window.innerHeight / 2 - (16 * .83 / 2));
+        let leftThreshold = playerPosition.x < Math.min(centerX, window.innerWidth / 2 - (16 * .83 / 2));
+        let topThreshold = playerPosition.y < Math.min(centerY, window.innerHeight / 2 - (16 * .83 / 2));
+        let rightThreshold = playerPosition.x > image.width * scale - Math.min(centerX, window.innerWidth / 2 - (16 * .83 / 2));
+        let bottomThreshold = playerPosition.y > image.height * scale - Math.min(centerY, window.innerHeight / 2 - (16 * .83 / 2));
 
         if (leftThreshold) {
             offsetX = Math.min(centerX, window.innerWidth / 2 - (16 * .83 / 2));

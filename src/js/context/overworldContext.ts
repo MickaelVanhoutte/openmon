@@ -5,7 +5,7 @@ import type { OpenMap } from "../mapping/maps";
 export class FrameOptions {
     frameId: number = 0;
     then: number = Date.now();
-    fpsInterval: number = 1000 / 18;
+    fpsInterval: number = 1000 / 24;
     debug: boolean = false;
     imageScale: number = 2.5;
     playerScale: number = .83;
@@ -48,7 +48,6 @@ export class OverworldContext {
 
     changingMap: boolean = false;
     changingMap$: Writable<boolean> = writable(false);
-    running: boolean = false;
     isPaused: boolean = false;
 
     map: OpenMap;

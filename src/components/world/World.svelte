@@ -184,7 +184,7 @@
 		}, 4000);
 		setTimeout(() => {
 			//overworldContext.displayChangingMap = false;
-			checkForGameStart();
+			//checkForGameStart();
 		}, 2000);
 	}
 
@@ -204,7 +204,7 @@
 			canvasCtx,
 			context.map,
 			overWorldCtx.frames.imageScale,
-			context.player.position.positionOnMap,
+			context.player.position.positionInPx,
 			overWorldCtx.frames.debug
 		);
 
@@ -217,15 +217,15 @@
 			context.map.hasBattleZoneAt(context.player.position.positionOnMap)
 		);
 
-		context.map.npcs.forEach((npc) => {
-			npc.draw(
-				canvasCtx,
-				context.player.position.positionOnMap,
-				npc,
-				overWorldCtx.frames.playerScale,
-				mapDimensions
-			);
-		});
+		// context.map.npcs.forEach((npc) => {
+		// 	npc.draw(
+		// 		canvasCtx,
+		// 		context.player.position.positionOnMap,
+		// 		npc,
+		// 		overWorldCtx.frames.playerScale,
+		// 		mapDimensions
+		// 	);
+		// });
 
 		// Foreground
 		if (context.map?.foreground !== undefined) {
@@ -233,8 +233,7 @@
 				canvasCtx,
 				context.map,
 				overWorldCtx.frames.imageScale,
-				context.player.position.positionOnMap,
-				overWorldCtx.frames.debug
+				context.player.position.positionOnMap
 			);
 		}
 	}
@@ -341,9 +340,8 @@
      {/if}
  -->
 
-	<!--  TODO : Scene component -->
 
-	<Controls {overWorldCtx} />
+	<Controls {context} {overWorldCtx} />
 	<ScenesView {context} {canvasWidth} />
 </div>
 

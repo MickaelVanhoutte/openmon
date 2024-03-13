@@ -1,6 +1,6 @@
 import { MapSave, OpenMap } from "../mapping/maps";
 import { Player } from "../characters/player";
-import { type Character } from "../characters/characters-model";
+import { CharacterPosition, type Character } from "../characters/characters-model";
 import { Settings } from "../characters/settings";
 import { Pokedex, PokemonInstance } from "../pokemons/pokedex";
 import { PokemonBox } from "../pokemons/boxes";
@@ -40,13 +40,17 @@ export class GameContext {
 
     constructor(id: number, player: Player, boxes: Array<PokemonBox>, map: MapSave, settings: Settings, isNewGame: boolean) {
         this.id = id;
-        this.player = Player.fromInstance(player);;
+        this.player = Player.fromInstance(player);
         this.boxes = boxes;
         this.map = OpenMap.fromInstance(this.MAPS[map.mapId], isNewGame ? this.MAPS[map.mapId].playerInitialPosition :  player.position.positionOnMap);
-        this.player.position.positionOnMap = new Position(this.map.playerInitialPosition.x, this.map.playerInitialPosition.y);
-        console.log(this.player.position);
         this.settings = settings;
         this.isNewGame = isNewGame;
+        
+        this.overWorldContext = new OverworldContext(this.map);
+
+        this.player.position = new CharacterPosition(this.map.playerInitialPosition.x, this.map.playerInitialPosition.y);
+        
+    
         let allScripts: Script[] = this.map.scripts
             .concat(this.map.npcs.map((npc) => npc.mainScript).filter((script) => script !== undefined) as Script[])
             .concat(this.map.npcs.map((npc) => npc.dialogScripts).flat().filter((script) => script !== undefined) as Script[])
@@ -59,33 +63,9 @@ export class GameContext {
             }
         });
 
-        this.overWorldContext = new OverworldContext(this.map);
+        
 
         this.bindKeys();
-        this.checkPlayerMoving();
-    }
-    checkPlayerMoving() {
-        this.player.moving$.subscribe((value) => {
-            if (value) {
-
-                if (this.player.position.targetDirection !== this.player.position.direction) {
-                    this.player.position.direction = this.player.position.targetDirection;
-                    return;
-                }
-
-                const xChanger = (x: number) => this.player.position.direction === 'left' ? x - 1 : this.player.position.direction === 'right' ? x + 1 : x;
-                const yChanger = (y: number) => this.player.position.direction === 'up' ? y - 1 : this.player.position.direction === 'down' ? y + 1 : y;
-
-                const futureX = xChanger(this.player.position.positionOnMap.x);
-                const futureY = yChanger(this.player.position.positionOnMap.y);
-
-                const futurePosition = new Position(futureX, futureY);
-                if (!this.map.hasBoundaryAt(futurePosition)) {
-                    this.player.position.targetPosition = futurePosition;
-                }
-
-            }
-        });
     }
 
     bindKeys() {
@@ -105,45 +85,53 @@ export class GameContext {
         });
 
         this.overWorldContext.keys.up.subscribe((value) => {
-            if (value && !this.overWorldContext.isPaused) {
-                this.player.position.direction = 'up';
-                this.player.moving$.set(true);
-            }
-            if (!value) {
-                this.player.moving$.set(false);
-            }
+            this.handleDirectionKey(value, 'up');
         });
 
         this.overWorldContext.keys.down.subscribe((value) => {
-            if (value && !this.overWorldContext.isPaused) {
-                this.player.position.direction = 'down';
-                this.player.moving$.set(true);
-            }
-            if (!value) {
-                this.player.moving$.set(false);
-            }
+            this.handleDirectionKey(value, 'down');
         });
 
         this.overWorldContext.keys.left.subscribe((value) => {
-            if (value && !this.overWorldContext.isPaused) {
-                this.player.position.direction = 'left';
-                this.player.moving$.set(true);
-            }
-            if (!value) {
-                this.player.moving$.set(false);
-            }
+            this.handleDirectionKey(value, 'left');
         });
 
         this.overWorldContext.keys.right.subscribe((value) => {
-            if (value && !this.overWorldContext.isPaused) {
-                this.player.position.direction = 'right';
-                this.player.moving$.set(true);
-            }
-            if (!value) {
-                this.player.moving$.set(false);
-            }
+            this.handleDirectionKey(value, 'right');
         });
 
+        
+    }
+
+    handleDirectionKey(value: boolean, direction: 'up' | 'down' | 'left' | 'right') {
+        if(this.player.position.positionOnMap.x !== this.player.position.targetPosition.x || this.player.position.positionOnMap.y !== this.player.position.targetPosition.y){
+            return;
+        }
+
+        if (value && !this.overWorldContext.isPaused) {
+            this.player.position.targetDirection = direction;
+            if (this.player.position.targetDirection !== this.player.position.direction) {
+                this.player.position.direction = this.player.position.targetDirection;
+                return;
+            }
+
+            const xChanger = (x: number) => this.player.position.direction === 'left' ? x - 1 : this.player.position.direction === 'right' ? x + 1 : x;
+            const yChanger = (y: number) => this.player.position.direction === 'up' ? y - 1 : this.player.position.direction === 'down' ? y + 1 : y;
+
+            const futureX = xChanger(this.player.position.targetPosition.x);
+            const futureY = yChanger(this.player.position.targetPosition.y);
+
+            if(Math.abs(futureX - this.player.position.positionOnMap.x) > 1 || Math.abs(futureY - this.player.position.positionOnMap.y) > 1){
+                return;
+            }
+
+            const futurePosition = new Position(futureX, futureY);
+
+            if (!this.map.hasBoundaryAt(futurePosition)) {
+                this.player.moving = true;
+                this.player.position.setFuturePosition(futureX, futureY);
+            }
+        }
     }
 
     startBattle(opponent: PokemonInstance | Character) {
