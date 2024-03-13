@@ -19,6 +19,7 @@ export class Keys {
     right: Writable<boolean> = writable(false);
 
     pressKey(key: KeyMap){
+        console.log('press key', key);
         this.a.set(key === KeyMap.A);
         this.b.set(key === KeyMap.B);
         this.up.set(key === KeyMap.Up);
@@ -28,6 +29,7 @@ export class Keys {
     }
 
     unpressKey(key: KeyMap){
+        console.log('unpress key', key);
         switch(key){
             case KeyMap.A:
                 this.a.set(false);
