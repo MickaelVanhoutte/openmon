@@ -1,10 +1,10 @@
-import {MapSave} from "../mapping/maps";
-import {Player} from "../characters/player";
-import {PokemonBox} from "../pokemons/boxes";
-import {PokemonInstance} from "../pokemons/pokedex";
-import {Settings} from "../characters/settings";
-import {GameContext} from "./gameContext";
-import {writable, type Writable} from "svelte/store";
+import { MapSave } from "../mapping/maps";
+import { Player } from "../characters/player";
+import { PokemonBox } from "../pokemons/boxes";
+import { PokemonInstance } from "../pokemons/pokedex";
+import { Settings } from "../characters/settings";
+import { GameContext } from "./gameContext";
+import { writable, type Writable } from "svelte/store";
 
 /**
  * One save in storage
@@ -27,15 +27,6 @@ export class SaveContext {
         this.boxes = boxes;
         this.settings = settings;
         this.isNewGame = isNewGame;
-    }
-
-    toJSon() {
-        return JSON.stringify(this);
-    }
-
-    static fromJSon(json: string) {
-        let fromJson = JSON.parse(json);
-        return new SaveContext(fromJson.id, fromJson.updated, fromJson.currentMap, fromJson.player, fromJson.boxes, fromJson.settings);
     }
 
     toGameContext(): GameContext {
@@ -61,13 +52,12 @@ export class SavesHolder {
     selectedSave$: Writable<SaveContext | undefined> = writable(undefined);
 
     constructor() {
-        console.log('construct saves holder');
         this.saves = localStorage.getItem('saves-v2')?.length &&
             // @ts-ignore
-            JSON.parse(localStorage.getItem('saves-v2')) // TODO decode
-                .map((save: string) => SaveContext.fromJSon(save))
-            || [];
-
+            JSON.parse(localStorage.getItem('saves-v2')) || [];
+        this.saves.forEach((save) => {
+            Object.setPrototypeOf(save, SaveContext.prototype);
+        });
         this.saves = this.saves.sort((a, b) => b.updated - a.updated);
     }
 
@@ -97,10 +87,9 @@ export class SavesHolder {
     }
 
     persist(save?: SaveContext) {
-        if(save && this.saves.find(sv => sv.id === save.id)){
+        if (save && this.saves.find(sv => sv.id === save.id)) {
             // @ts-ignore
             this.saves[this.saves.indexOf(this.saves.find(sv => sv.id === save.id))] = save;
-            console.log(save.toJSon(), btoa(save.toJSon()));
         }
         let encoded = JSON.stringify(this.saves); // todo encode
         localStorage.setItem('saves-v2', encoded);
