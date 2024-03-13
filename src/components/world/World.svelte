@@ -3,7 +3,6 @@
 	import Menu from '../menus/Menu.svelte';
 	import DialogView from '../common/DialogView.svelte';
 	import type { Dialog } from '../../js/scripting/scripts';
-	import Evolution from '../common/Evolution.svelte';
 	import type { GameContext } from '../../js/context/gameContext';
 	import { type OverworldContext } from '../../js/context/overworldContext';
 	import { SavesHolder } from '../../js/context/savesHolder';
@@ -153,19 +152,6 @@
 		<DialogView bind:dialog={currentDialog} {context} />
 	{/if}
 
-	{#if context.hasEvolutions}
-		<Evolution bind:context />
-	{/if}
-
-	<!-- {#if battleState && battleState?.starting && !overWorldCtx.menus.pokemonListOpened && !overWorldCtx.menus.bagOpened }
-         <div class="battleStart"></div>
-     {/if}
-
-     {#if !overWorldCtx.menus.pokemonListOpened && !overWorldCtx.menus.bagOpened}
-         <div class="battleEnd" class:active={battleState && battleState?.ending || overWorldCtx?.changingMap}></div>
-     {/if}
- -->
-
 	<Controls {context} {overWorldCtx} />
 	<ScenesView {context} {canvasWidth} />
 </div>
@@ -195,66 +181,5 @@
 		left: 50%;
 		top: 50%;
 		transform: translate(-50%, -50%);
-	}
-
-	.battleStart {
-		opacity: 0;
-		background: #000000;
-		height: 100dvh;
-		width: 100dvw;
-		position: absolute;
-		top: 0;
-		left: 0;
-		transition: opacity 0.5s ease-in-out;
-		z-index: 2;
-		animation: blink 2s ease-in-out;
-	}
-
-	@keyframes blink {
-		0% {
-			opacity: 1;
-		}
-		20% {
-			opacity: 0;
-		}
-		40% {
-			opacity: 1;
-		}
-		60% {
-			opacity: 0;
-		}
-		80% {
-			opacity: 1;
-		}
-		100% {
-			opacity: 0;
-		}
-	}
-
-	.battleEnd {
-		opacity: 0;
-		background: #000000;
-		height: 100dvh;
-		width: 100dvw;
-		position: absolute;
-		top: 0;
-		left: 0;
-		z-index: 6;
-
-		&.active {
-			animation: fade-out 4s ease-in-out;
-		}
-	}
-
-	@keyframes fade-out {
-		0% {
-			opacity: 0;
-		}
-		50% {
-			opacity: 1;
-		}
-		100% {
-			opacity: 0;
-		}
 	}
 </style>

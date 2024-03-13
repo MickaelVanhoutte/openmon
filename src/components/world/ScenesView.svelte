@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { GameContext } from '../../js/context/gameContext';
+	import Evolution from '../common/Evolution.svelte';
 	import StarterSelection from '../common/StarterSelection.svelte';
 
 	export let context: GameContext;
@@ -16,6 +17,11 @@
 {#if context.overWorldContext.scenes.starterSelection}
 	<StarterSelection bind:context bind:canvasWidth />
 {/if}
+
+{#if context.hasEvolutions}
+	<Evolution bind:context />
+{/if}
+
 
 <style lang="scss">
 	.wakeUp {
