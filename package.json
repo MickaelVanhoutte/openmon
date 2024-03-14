@@ -6,6 +6,7 @@
     "dev": "vite",
     "build": "vite build && rm -rf docs && mkdir docs && mkdir docs/src && cp dist/openmon.js docs && cp -R src/assets docs/src && cp final/index.html docs && mkdir docs/static && cp -R static/* docs/static",
     "preview": "vite preview",
+    "graph": "npx depcruise src --include-only '^src' --no-config -T  dot | dot -T svg | npx depcruise-wrap-stream-in-html > dependency-graph.html && open dependency-graph.html",
     "check": "svelte-check --tsconfig ./tsconfig.json"
   },
   "devDependencies": {
