@@ -7,12 +7,14 @@
 	import { Bag } from '../../../js/items/bag';
 	import { Pokeball } from '../../../js/items/items';
 	import type { GameContext } from '../../../js/context/gameContext';
+	import { UseItemAction } from '../../../js/items/items-model';
+	import { MenuType } from '../../../js/context/overworldContext';
 
 	export let context: GameContext;
 	export let isBattle = false;
-	export let selectedMons: number | undefined;
+	export let selectedMons: number | undefined = undefined;
 	export let zIndex: number;
-	export let onChange: () => void;
+	export let onChange: (item: UseItemAction) => void = () => {};
 
 	let list: HTMLUListElement;
 
@@ -42,7 +44,7 @@
 	$: itemToUse = (pocket && pocket[selected]?.[0]) || undefined;
 
 	function back() {
-		context.overWorldContext.menus.bagOpened = false;
+		context.overWorldContext.closeMenu(MenuType.BAG);
 	}
 
 	function use(pkmn?: PokemonInstance) {
@@ -54,12 +56,12 @@
 		if (isBattle && !(instance instanceof Pokeball) && !pkmn) {
 			openPokemonList = true;
 		} else if (isBattle && instance instanceof Pokeball) {
-			onChange({ item: item });
+			onChange(new UseItemAction(item));
 		} else if (isBattle && pkmn !== undefined) {
-			onChange(!!item && { item: item, target: pkmn });
+			onChange(new UseItemAction(item, pkmn));
 		} else if (!isBattle) {
 			if (selectedMons !== undefined) {
-				context.player.bag.use(item, context.player.monsters[selectedMons]);
+				context.player.bag.use(item, context, context.player.monsters[selectedMons]);
 				context.player.bag = new Bag(context.player.bag);
 				back();
 			} else {

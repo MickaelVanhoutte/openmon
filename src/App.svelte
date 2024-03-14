@@ -95,7 +95,7 @@
 {#if gameContext}
 	<!-- game started -->
 	{#if battleCtx !== undefined && !battleStarting}
-		<Battle bind:context={gameContext} bind:battleCtx />
+		<Battle bind:context={gameContext} bind:overWorldCtx={gameContext.overWorldContext} bind:battleCtx />
 	{:else if gameContext.overWorldContext !== undefined}
 		<World
 			bind:context={gameContext}

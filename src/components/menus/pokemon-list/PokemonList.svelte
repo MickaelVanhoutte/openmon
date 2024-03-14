@@ -13,7 +13,7 @@
 	export let isBattle: boolean;
 	export let forceChange: boolean = false;
 	export let selected = 0;
-	export let itemToUse: number;
+	export let itemToUse: number | undefined = undefined;
 	export let zIndex: number;
 
 	let numberOfOptions = !!itemToUse ? 2 : isBattle ? 3 : 4;
@@ -22,12 +22,11 @@
 	let optionSelected = 0;
 	let emptyslots = new Array(6 - context.player.monsters.length).fill(0);
 
-	console.log(context.player.monsters?.[0]);
 	let first: PokemonInstance | undefined = context.player.monsters?.[0];
 	let others: PokemonInstance[] = context.player.monsters.slice(1);
 	let battleContext: BattleContext | undefined = undefined;
 
-	$: itemName = context.ITEMS.getItem(itemToUse)?.name;
+	$: itemName = itemToUse && context.ITEMS.getItem(itemToUse)?.name;
 	$: zIndexNext = zIndex + 1;
 
 	context.battleContext.subscribe((value) => {

@@ -153,16 +153,6 @@ export class Player implements Character {
             ctx.save();
             ctx.translate(centerX - offsetX, centerY - offsetY);
 
-
-            console.log(
-                (sprite?.width || 64),
-                drawGrass ? (sprite?.height || 64) * .20 : (sprite?.height || 64),
-                0,
-                0,
-                (sprite?.width || 64) * scale,
-                drawGrass ? (sprite?.height || 64) * scale * .80 : (sprite?.height || 64) * scale
-            )
-
             ctx.drawImage(
                 img,
                 this.sprite.frames.val * (sprite?.width || 64),
