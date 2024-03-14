@@ -1,8 +1,7 @@
 import {OpenMap} from "../maps";
-import {Position} from "../../sprites/drawers";
-import {Jonction} from "../collisions";
 import {NPC} from "../../characters/npc";
-import {Dialog, GiveItem, Message, MoveToPlayer, Script} from "../../common/scripts";
+import {Dialog, GiveItem, Message, MoveToPlayer, Script} from "../../scripting/scripts";
+import {Position} from "../positions";
 
 const monsters = Array.from({length: 251}, (v, k) => k + 1);
 
@@ -491,7 +490,7 @@ const npcs = [
 
 export const firstBeach = OpenMap.fromScratch(0,'src/assets/maps/First-beach.png', 150, 150,
     collisions, waterCollision, battle, monsters,
-    new Position(78, 57), new Position(0, 0),
+    new Position(78, 57),
     [3, 6], [], 'src/assets/maps/First-beach-foreground.png', 39951, 40104, 40111, npcs,
     [
         new Script('onGameStart', [

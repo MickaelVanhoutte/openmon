@@ -1,6 +1,6 @@
-import {AItem} from "./items";
-import {ITEMS} from "../const";
 import type {PokemonInstance} from "../pokemons/pokedex";
+import type {GameContext} from "../context/gameContext";
+import {AItem} from "./items-model";
 
 export class Bag {
     // Map<id, quantity>
@@ -25,32 +25,32 @@ export class Bag {
         }
     }
 
-    addItems(id: number, quantity: number) {
-        if (this.getPocketByItemId(id) !== undefined) {
+    addItems(id: number, quantity: number, gameCtx: GameContext) {
+        if (this.getPocketByItemId(id, gameCtx) !== undefined) {
             // @ts-ignore
-            this.getPocketByItemId(id)[id] = (this.getPocketByItemId(id)[id] || 0) + quantity;
+            this.getPocketByItemId(id, gameCtx)[id] = (this.getPocketByItemId(id, gameCtx)[id] || 0) + quantity;
         }
     }
 
-    getItem(itemId: number): AItem | undefined {
+    getItem(itemId: number, gameCtx: GameContext): AItem | undefined {
 
-        if (this.getPocketByItemId(itemId)?.[itemId] !== undefined && this.getPocketByItemId(itemId)?.[itemId] > 0) {
-            this.addItems(itemId, -1);
-            return ITEMS.getItem(itemId)?.instanciate();
+        if (this.getPocketByItemId(itemId,gameCtx)?.[itemId] !== undefined && this.getPocketByItemId(itemId, gameCtx)?.[itemId] > 0) {
+            this.addItems(itemId, -1, gameCtx);
+            return gameCtx.ITEMS.getItem(itemId)?.instanciate();
         }
 
         throw new Error("No item for this ID in the bag");
     }
 
-    private getPocketByItemId(itemId: number) {
-        let categoryId = ITEMS.getItem(itemId)?.categoryId;
+    private getPocketByItemId(itemId: number, gameCtx: GameContext) {
+        let categoryId = gameCtx.ITEMS.getItem(itemId)?.categoryId;
         if (categoryId !== undefined) {
             return this.getPocketByCategory(categoryId);
         }
         throw new Error("No category for this item");
     }
 
-    private getPocketByCategory(categoryId?: number) {
+    getPocketByCategory(categoryId?: number) {
         switch (categoryId) {
             case 34:
                 return this.balls;
@@ -63,8 +63,8 @@ export class Bag {
         }
     }
 
-    use(itemId: number, pokemonInstance?: PokemonInstance) {
-        let item = this.getItem(itemId);
+    use(itemId: number, gameCtx: GameContext, pokemonInstance?: PokemonInstance) {
+        let item = this.getItem(itemId, gameCtx);
         if (item !== undefined && pokemonInstance !== undefined) {
             return item.apply(pokemonInstance);
         }

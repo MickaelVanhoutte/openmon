@@ -1,0 +1,78 @@
+strict digraph "dependency-cruiser output"{
+    rankdir="LR" splines="true" overlap="false" nodesep="0.16" ranksep="0.18" fontname="Helvetica-bold" fontsize="9" style="rounded,bold,filled" fillcolor="#ffffff" compound="true"
+    node [shape="box" style="rounded, filled" height="0.2" color="black" fillcolor="#ffffcc" fontcolor="black" fontname="Helvetica" fontsize="9"]
+    edge [arrowhead="normal" arrowsize="0.6" penwidth="2.0" color="#00000033" fontname="Helvetica" fontsize="9"]
+
+    subgraph "cluster_src" {label="src" subgraph "cluster_src/assets" {label="assets" subgraph "cluster_src/assets/characts" {label="characts" "src/assets/characts/characts.json" [label=<characts.json> tooltip="characts.json" URL="src/assets/characts/characts.json" fillcolor="#ffee44"] } } }
+    subgraph "cluster_src" {label="src" subgraph "cluster_src/assets" {label="assets" subgraph "cluster_src/assets/data" {label="data" subgraph "cluster_src/assets/data/final" {label="final" "src/assets/data/final/pokedexBW-animated2.json" [label=<pokedexBW-animated2.json> tooltip="pokedexBW-animated2.json" URL="src/assets/data/final/pokedexBW-animated2.json" fillcolor="#ffee44"] } } } }
+    subgraph "cluster_src" {label="src" subgraph "cluster_src/assets" {label="assets" subgraph "cluster_src/assets/data" {label="data" subgraph "cluster_src/assets/data/final" {label="final" "src/assets/data/final/usable-items.json" [label=<usable-items.json> tooltip="usable-items.json" URL="src/assets/data/final/usable-items.json" fillcolor="#ffee44"] } } } }
+    subgraph "cluster_src" {label="src" subgraph "cluster_src/js" {label="js" subgraph "cluster_src/js/battle" {label="battle" "src/js/battle/actions.ts" [label=<actions.ts> tooltip="actions.ts" URL="src/js/battle/actions.ts" fillcolor="#ddfeff"] } } }
+    "src/js/battle/actions.ts" -> "src/js/characters/npc.ts" [arrowhead="normalnoneodot"]
+    "src/js/battle/actions.ts" -> "src/js/characters/player.ts" [arrowhead="normalnoneodot"]
+    "src/js/battle/actions.ts" -> "src/js/const.ts" [arrowhead="normalnoneodot"]
+    "src/js/battle/actions.ts" -> "src/js/items/items.ts" [arrowhead="normalnoneodot"]
+    "src/js/battle/actions.ts" -> "src/js/pokemons/pokedex.ts"
+    "src/js/battle/actions.ts" -> "src/js/battle/battle.ts" [arrowhead="normalnoneodot"]
+    "src/js/battle/actions.ts" -> "src/js/battle/battle-model.ts"
+    subgraph "cluster_src" {label="src" subgraph "cluster_src/js" {label="js" subgraph "cluster_src/js/battle" {label="battle" "src/js/battle/battle-model.ts" [label=<battle-model.ts> tooltip="battle-model.ts" URL="src/js/battle/battle-model.ts" fillcolor="#ddfeff"] } } }
+    subgraph "cluster_src" {label="src" subgraph "cluster_src/js" {label="js" subgraph "cluster_src/js/battle" {label="battle" "src/js/battle/battle.ts" [label=<battle.ts> tooltip="battle.ts" URL="src/js/battle/battle.ts" fillcolor="#ddfeff"] } } }
+    "src/js/battle/battle.ts" -> "src/js/const.ts" [arrowhead="normalnoneodot"]
+    "src/js/battle/battle.ts" -> "src/js/pokemons/experience.ts"
+    "src/js/battle/battle.ts" -> "src/js/pokemons/pokedex.ts"
+    "src/js/battle/battle.ts" -> "src/js/battle/actions.ts" [arrowhead="normalnoneodot"]
+    "src/js/battle/battle.ts" -> "src/js/battle/battle-model.ts"
+    subgraph "cluster_src" {label="src" subgraph "cluster_src/js" {label="js" subgraph "cluster_src/js/characters" {label="characters" "src/js/characters/npc.ts" [label=<npc.ts> tooltip="npc.ts" URL="src/js/characters/npc.ts" fillcolor="#ddfeff"] } } }
+    "src/js/characters/npc.ts" -> "src/js/items/bag.ts" [arrowhead="normalnoneodot"]
+    "src/js/characters/npc.ts" -> "src/js/mapping/positions.ts"
+    "src/js/characters/npc.ts" -> "src/js/scripting/scripts.ts"
+    "src/js/characters/npc.ts" -> "src/js/sprites/drawers.ts" [arrowhead="normalnoneodot"]
+    subgraph "cluster_src" {label="src" subgraph "cluster_src/js" {label="js" subgraph "cluster_src/js/characters" {label="characters" "src/js/characters/player.ts" [label=<player.ts> tooltip="player.ts" URL="src/js/characters/player.ts" fillcolor="#ddfeff"] } } }
+    "src/js/characters/player.ts" -> "src/js/const.ts" [arrowhead="normalnoneodot"]
+    "src/js/characters/player.ts" -> "src/js/items/bag.ts" [arrowhead="normalnoneodot"]
+    "src/js/characters/player.ts" -> "src/js/pokemons/pokedex.ts"
+    subgraph "cluster_src" {label="src" subgraph "cluster_src/js" {label="js" subgraph "cluster_src/js/characters" {label="characters" "src/js/characters/settings.ts" [label=<settings.ts> tooltip="settings.ts" URL="src/js/characters/settings.ts" fillcolor="#ddfeff"] } } }
+    subgraph "cluster_src" {label="src" subgraph "cluster_src/js" {label="js" "src/js/const.ts" [label=<const.ts> tooltip="const.ts" URL="src/js/const.ts" fillcolor="#ddfeff"] } }
+    "src/js/const.ts" -> "src/assets/characts/characts.json"
+    "src/js/const.ts" -> "src/assets/data/final/pokedexBW-animated2.json"
+    "src/js/const.ts" -> "src/js/battle/battle.ts" [arrowhead="normalnoneodot"]
+    "src/js/const.ts" -> "src/js/items/items.ts" [arrowhead="normalnoneodot"]
+    "src/js/const.ts" -> "src/js/mapping/maps/firstBeach.ts" [arrowhead="normalnoneodot"]
+    "src/js/const.ts" -> "src/js/pokemons/move-effects.ts"
+    "src/js/const.ts" -> "src/js/pokemons/pokedex.ts"
+    "src/js/const.ts" -> "src/js/sprites/drawers.ts" [arrowhead="normalnoneodot"]
+    subgraph "cluster_src" {label="src" subgraph "cluster_src/js" {label="js" subgraph "cluster_src/js/context" {label="context" "src/js/context/gameContext.ts" [label=<gameContext.ts> tooltip="gameContext.ts" URL="src/js/context/gameContext.ts" fillcolor="#ddfeff"] } } }
+    "src/js/context/gameContext.ts" -> "src/js/characters/player.ts"
+    "src/js/context/gameContext.ts" -> "src/js/characters/settings.ts"
+    "src/js/context/gameContext.ts" -> "src/js/const.ts"
+    "src/js/context/gameContext.ts" -> "src/js/mapping/maps.ts"
+    "src/js/context/gameContext.ts" -> "src/js/mapping/positions.ts"
+    "src/js/context/gameContext.ts" -> "src/js/pokemons/boxes.ts"
+    subgraph "cluster_src" {label="src" subgraph "cluster_src/js" {label="js" subgraph "cluster_src/js/items" {label="items" "src/js/items/bag.ts" [label=<bag.ts> tooltip="bag.ts" URL="src/js/items/bag.ts" fillcolor="#ddfeff"] } } }
+    "src/js/items/bag.ts" -> "src/js/const.ts" [arrowhead="normalnoneodot"]
+    subgraph "cluster_src" {label="src" subgraph "cluster_src/js" {label="js" subgraph "cluster_src/js/items" {label="items" "src/js/items/items.ts" [label=<items.ts> tooltip="items.ts" URL="src/js/items/items.ts" fillcolor="#ddfeff"] } } }
+    "src/js/items/items.ts" -> "src/assets/data/final/usable-items.json"
+    "src/js/items/items.ts" -> "src/js/characters/player.ts" [arrowhead="normalnoneodot"]
+    subgraph "cluster_src" {label="src" subgraph "cluster_src/js" {label="js" subgraph "cluster_src/js/mapping" {label="mapping" "src/js/mapping/collisions.ts" [label=<collisions.ts> tooltip="collisions.ts" URL="src/js/mapping/collisions.ts" fillcolor="#ddfeff"] } } }
+    subgraph "cluster_src" {label="src" subgraph "cluster_src/js" {label="js" subgraph "cluster_src/js/mapping" {label="mapping" "src/js/mapping/maps.ts" [label=<maps.ts> tooltip="maps.ts" URL="src/js/mapping/maps.ts" fillcolor="#ddfeff"] } } }
+    "src/js/mapping/maps.ts" -> "src/js/characters/npc.ts" [arrowhead="normalnoneodot"]
+    "src/js/mapping/maps.ts" -> "src/js/scripting/scripts.ts"
+    "src/js/mapping/maps.ts" -> "src/js/mapping/collisions.ts"
+    "src/js/mapping/maps.ts" -> "src/js/mapping/positions.ts"
+    subgraph "cluster_src" {label="src" subgraph "cluster_src/js" {label="js" subgraph "cluster_src/js/mapping" {label="mapping" subgraph "cluster_src/js/mapping/maps" {label="maps" "src/js/mapping/maps/firstBeach.ts" [label=<firstBeach.ts> tooltip="firstBeach.ts" URL="src/js/mapping/maps/firstBeach.ts" fillcolor="#ddfeff"] } } } }
+    "src/js/mapping/maps/firstBeach.ts" -> "src/js/characters/npc.ts" [arrowhead="normalnoneodot"]
+    "src/js/mapping/maps/firstBeach.ts" -> "src/js/scripting/scripts.ts"
+    "src/js/mapping/maps/firstBeach.ts" -> "src/js/mapping/maps.ts" [arrowhead="normalnoneodot"]
+    "src/js/mapping/maps/firstBeach.ts" -> "src/js/mapping/positions.ts"
+    subgraph "cluster_src" {label="src" subgraph "cluster_src/js" {label="js" subgraph "cluster_src/js/mapping" {label="mapping" "src/js/mapping/positions.ts" [label=<positions.ts> tooltip="positions.ts" URL="src/js/mapping/positions.ts" fillcolor="#ddfeff"] } } }
+    subgraph "cluster_src" {label="src" subgraph "cluster_src/js" {label="js" subgraph "cluster_src/js/pokemons" {label="pokemons" "src/js/pokemons/boxes.ts" [label=<boxes.ts> tooltip="boxes.ts" URL="src/js/pokemons/boxes.ts" fillcolor="#ddfeff"] } } }
+    "src/js/pokemons/boxes.ts" -> "src/js/pokemons/pokedex.ts"
+    subgraph "cluster_src" {label="src" subgraph "cluster_src/js" {label="js" subgraph "cluster_src/js/pokemons" {label="pokemons" "src/js/pokemons/experience.ts" [label=<experience.ts> tooltip="experience.ts" URL="src/js/pokemons/experience.ts" fillcolor="#ddfeff"] } } }
+    subgraph "cluster_src" {label="src" subgraph "cluster_src/js" {label="js" subgraph "cluster_src/js/pokemons" {label="pokemons" "src/js/pokemons/move-effects.ts" [label=<move-effects.ts> tooltip="move-effects.ts" URL="src/js/pokemons/move-effects.ts" fillcolor="#ddfeff"] } } }
+    subgraph "cluster_src" {label="src" subgraph "cluster_src/js" {label="js" subgraph "cluster_src/js/pokemons" {label="pokemons" "src/js/pokemons/pokedex.ts" [label=<pokedex.ts> tooltip="pokedex.ts" URL="src/js/pokemons/pokedex.ts" fillcolor="#ddfeff"] } } }
+    "src/js/pokemons/pokedex.ts" -> "src/js/pokemons/experience.ts"
+    subgraph "cluster_src" {label="src" subgraph "cluster_src/js" {label="js" subgraph "cluster_src/js/scripting" {label="scripting" "src/js/scripting/scripts.ts" [label=<scripts.ts> tooltip="scripts.ts" URL="src/js/scripting/scripts.ts" fillcolor="#ddfeff"] } } }
+    "src/js/scripting/scripts.ts" -> "src/js/mapping/positions.ts"
+    subgraph "cluster_src" {label="src" subgraph "cluster_src/js" {label="js" subgraph "cluster_src/js/sprites" {label="sprites" "src/js/sprites/drawers.ts" [label=<drawers.ts> tooltip="drawers.ts" URL="src/js/sprites/drawers.ts" fillcolor="#ddfeff"] } } }
+    "src/js/sprites/drawers.ts" -> "src/js/const.ts" [arrowhead="normalnoneodot"]
+    "src/js/sprites/drawers.ts" -> "src/js/mapping/positions.ts"
+}

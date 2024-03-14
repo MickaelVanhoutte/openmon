@@ -2,8 +2,8 @@
   {
     "id": 1,
     "name": "Ethan",
-    "front" : {
-      "source" : "src/assets/characts/1.png",
+    "front": {
+      "source": "src/assets/characts/1.png",
       "startX": 0,
       "startY": 0,
       "height": 80,
@@ -11,33 +11,44 @@
       "frameNumber": 1
     },
     "overworld": {
-      "source": "src/assets/characts/overworld/trchar000.png",
-      "startX": 0,
-      "startY": 0,
-      "height": 64,
-      "width": 64,
-      "frameNumber": 4
-    }
-  },
-    {
-        "id": 2,
-        "name": "Big man",
-        "front" : {
-        "source" : "src/assets/characts/2.png",
+      "running": {
+        "source": "src/assets/characts/overworld/boy_run.png",
         "startX": 0,
         "startY": 0,
-        "height": 80,
-        "width": 80,
-        "frameNumber": 1
-        },
-        "overworld": {
+        "height": 64,
+        "width": 64,
+        "frameNumber": 4
+      },
+      "walking": {
+        "source": "src/assets/characts/overworld/trchar000.png",
+        "startX": 0,
+        "startY": 0,
+        "height": 64,
+        "width": 64,
+        "frameNumber": 4
+      }
+    }
+  },
+  {
+    "id": 2,
+    "name": "Big man",
+    "front": {
+      "source": "src/assets/characts/2.png",
+      "startX": 0,
+      "startY": 0,
+      "height": 80,
+      "width": 80,
+      "frameNumber": 1
+    },
+    "overworld": {
+      "walking": {
         "source": "src/assets/characts/overworld/NPC 06.png",
         "startX": 0,
         "startY": 0,
         "height": 64,
         "width": 64,
         "frameNumber": 4
-        }
+      }
     }
+  }
 ]
-

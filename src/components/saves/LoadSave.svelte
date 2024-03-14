@@ -1,206 +1,193 @@
-<div class="load-screen">
-
-    <div class="preview" bind:this={preview}>
-        <!-- <div class="player-wrapper" bind:this={playerWrapper}></div>
-         <div class="monster-wrapper" bind:this={monsterWrapper}></div>-->
-    </div>
-
-    <div class="save-list">
-        {#each saveContext.saves as save}
-            <div class="save-wrapper">
-                <button class="save" tabindex="1"
-                     on:click={() =>  selected = save}
-                     on:mouseover={() =>  selected = save}
-                     on:focus={() =>  selected = save}
-                >
-                    <p>{new Date(save.date).toUTCString()}</p>
-                    <p>{save.name} - lvl {save.player.level || 1}</p>
-                </button>
-                {#if selected === save}
-                    <div class="actions">
-                        <button class="go" on:click={handleSubmit} tabindex="1">
-                            Continue
-                        </button>
-                        <button class="erase" on:click={removeSelected} tabindex="1">
-                            Erase
-                        </button>
-                    </div>
-                {/if}
-            </div>
-        {/each}
-    </div>
-    <form class="new-game" on:submit|preventDefault={startNew}>
-        <button type="submit">
-            Start a new game
-        </button>
-    </form>
-</div>
-
-
 <script lang="ts">
-    import {Save, SaveContext} from "../../js/saves/saves";
-    import {onMount} from "svelte";
-    import {CHARACTER_SPRITES} from "../../js/const";
+	import { onMount } from 'svelte';
+	import { SaveContext, SavesHolder } from '../../js/context/savesHolder';
 
-    /**
-     * Saves loading  component
-     * lots todo here (design, bugs - team preview not updated-, etc.)
-     */
+	/**
+	 * Saves loading  component
+	 * lots todo here (design, bugs - team preview not updated-, etc.)
+	 */
 
-    export let saveContext: SaveContext;
+	export let savesHolder: SavesHolder;
 
-    export let preview: HTMLDivElement;
+	let preview: HTMLDivElement;
 
-    let selected: Save;
+	let selected: SaveContext;
 
-    function drawPreview() {
-        preview.innerHTML = '';
+	function drawPreview(selected: SaveContext) {
+		preview.innerHTML = '';
 
-        let sprite = CHARACTER_SPRITES.getSprite(selected.player.spriteId);
-        let playerImg = new Image();
-        playerImg.classList.add('player');
-        playerImg.src = sprite.front.source;
-        playerImg.style.maxHeight = '-webkit-fill-available';
-        preview.appendChild(playerImg);
+		//let sprite = CHARACTER_SPRITES.getSprite(selected.player.spriteId);
+		let playerImg = new Image();
+		playerImg.classList.add('player');
+		playerImg.src = selected.player.sprite.front.source;
+		playerImg.style.maxHeight = '-webkit-fill-available';
+		preview.appendChild(playerImg);
 
-        selected.player.monsters.forEach(monster => {
-            let img = new Image();
-            img.src = monster.sprites?.male?.front?.frame1 || 'assets/monsters/bw-animated/000.png';
-            img.style.maxHeight = '-webkit-fill-available';
+		selected.player.monsters.forEach((monster) => {
+			let img = new Image();
+			img.src = monster.sprites?.male?.front?.frame1 || 'assets/monsters/bw-animated/000.png';
+			img.style.maxHeight = '-webkit-fill-available';
 
-            preview.appendChild(img);
-        });
-    }
+			preview.appendChild(img);
+		});
+	}
 
-    function handleSubmit() {
-        saveContext = saveContext.selectSave(selected);
-    }
+	function handleSubmit(save: SaveContext) {
+		savesHolder.selectSave(savesHolder.saves.indexOf(save));
+	}
 
-    function removeSelected() {
-        saveContext = saveContext.deleteSave(selected);
-        this.selected = saveContext.saves[0] || null;
-    }
+	function remove(save: SaveContext) {
+		savesHolder.removeSave(savesHolder.saves.indexOf(save));
+		selected = savesHolder.saves[0] || null;
+	}
 
-    function startNew() {
-        saveContext = saveContext.requestNewGame();
-    }
+	function startNew() {
+		//saveContext = saveContext.requestNewGame();
+	}
 
-    onMount(() => {
-        selected = saveContext.saves[0];
-        drawPreview();
-    })
+	onMount(() => {
+		selected = savesHolder.saves[0] || null;
+		drawPreview(selected);
+	});
 </script>
 
+<div class="load-screen">
+	<div class="preview" bind:this={preview}>
+		<!-- <div class="player-wrapper" bind:this={playerWrapper}></div>
+         <div class="monster-wrapper" bind:this={monsterWrapper}></div>-->
+	</div>
+
+	<div class="save-list">
+		{#each savesHolder.saves as save}
+			<div class="save-wrapper">
+				<button
+					class="save"
+					tabindex="1"
+					on:click={() => (selected = save)}
+					on:mouseover={() => (selected = save)}
+					on:focus={() => (selected = save)}
+				>
+					<p>{new Date(save.updated).toUTCString()}</p>
+					<p>{save.id} - {save.player.name}</p>
+				</button>
+				{#if selected === save}
+					<div class="actions">
+						<button class="go" on:click={() => handleSubmit(save)} tabindex="1"> Continue </button>
+						<button class="erase" on:click={() => remove(save)} tabindex="1"> Erase </button>
+					</div>
+				{/if}
+			</div>
+		{/each}
+	</div>
+	<form class="new-game" on:submit|preventDefault={startNew}>
+		<button type="submit"> Start a new game </button>
+	</form>
+</div>
+
 <style lang="scss">
+	.preview {
+		width: 100%;
+		height: 33%;
+		display: flex;
+		flex-direction: row;
+		gap: 8px;
+		box-sizing: border-box;
+		align-content: center;
+		align-items: center;
+		justify-content: flex-start;
 
-  .preview {
-    width: 100%;
-    height: 33%;
-    display: flex;
-    flex-direction: row;
-    gap: 8px;
-    box-sizing: border-box;
-    align-content: center;
-    align-items: center;
-    justify-content: flex-start;
+		:global(img) {
+			width: calc(100% / 7);
+			height: auto;
+		}
+	}
 
-    :global(img) {
-      width: calc(100% / 7);
-      height: auto;
-    }
-  }
+	.load-screen {
+		height: 100dvh;
+		width: 100dvw;
+		background: #ececec;
+		color: #262626;
+		box-sizing: border-box;
+		padding: 2%;
 
+		.new-game {
+			position: absolute;
+			bottom: 1%;
+			right: 1%;
 
-  .load-screen {
-    height: 100dvh;
-    width: 100dvw;
-    background: #ececec;
-    color: #262626;
-    box-sizing: border-box;
-    padding: 2%;
+			button {
+				background: #599bdc;
+				color: #ececec;
+				border: none;
+				padding: 8px;
+				border-radius: 8px;
+				width: 160px;
+				height: 32px;
+			}
+		}
 
+		.save-list {
+			height: 70%;
+			width: 100%;
 
-    .new-game {
-      position: absolute;
-      bottom: 1%;
-      right: 1%;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 8px;
 
-      button {
-        background: #599bdc;
-        color: #ececec;
-        border: none;
-        padding: 8px;
-        border-radius: 8px;
-        width: 160px;
-        height: 32px;
-      }
-    }
+			overflow-y: scroll;
 
-    .save-list {
-      height: 70%;
-      width: 100%;
+			.save-wrapper {
+				width: 100%;
+				display: flex;
+				flex-direction: row;
+				justify-content: flex-start;
+				align-items: center;
+				gap: 8px;
 
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
+				.actions {
+					display: flex;
+					flex-direction: column;
+					gap: 8px;
 
-      overflow-y: scroll;
+					.go {
+						background: #262626;
+						color: #ececec;
+						border: none;
+						padding: 8px;
+						border-radius: 8px;
+						cursor: pointer;
+						width: 160px;
+						height: 32px;
+					}
 
-      .save-wrapper {
-        width: 100%;
-        display: flex;
-        flex-direction: row;
-        justify-content: flex-start;
-        align-items: center;
-        gap: 8px;
+					.erase {
+						background: #dc5959;
+						color: #ececec;
+						border: none;
+						padding: 8px;
+						border-radius: 8px;
+						cursor: pointer;
+						width: 160px;
+						height: 32px;
+					}
+				}
 
-        .actions {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
+				.save {
+					border: 1px solid #262626;
+					border-radius: 8px;
+					padding: 8px;
+					cursor: pointer;
 
-          .go {
-            background: #262626;
-            color: #ececec;
-            border: none;
-            padding: 8px;
-            border-radius: 8px;
-            cursor: pointer;
-            width: 160px;
-            height: 32px;
-          }
+					display: flex;
+					flex-direction: column;
+					gap: 4px;
 
-          .erase {
-            background: #dc5959;
-            color: #ececec;
-            border: none;
-            padding: 8px;
-            border-radius: 8px;
-            cursor: pointer;
-            width: 160px;
-            height: 32px;
-          }
-        }
-
-
-        .save {
-          border: 1px solid #262626;
-          border-radius: 8px;
-          padding: 8px;
-          cursor: pointer;
-
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-
-          p {
-            margin: 0;
-          }
-
-        }
-      }
-
-    }
-  }
+					p {
+						margin: 0;
+					}
+				}
+			}
+		}
+	}
 </style>

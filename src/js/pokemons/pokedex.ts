@@ -1,5 +1,7 @@
 import {EXPERIENCE_CHART} from "./experience";
 import type {Effect} from "./move-effects";
+import pokedexJson from "../../assets/data/final/pokedexBW-animated2.json";
+import {typeChart} from "../battle/battle-model";
 
 export class Nature {
     public id: number;
@@ -174,8 +176,8 @@ export class Pokedex {
     public ready = false;
     public size = 251;
 
-    constructor(json: any) {
-        this.importFromJson(json);
+    constructor() {
+        this.importFromJson(pokedexJson);
     }
 
     private importFromJson(json: any) {
@@ -317,6 +319,45 @@ export class PokedexEntry {
                 this.growthRateId = 1;
                 break;
         }
+    }
+
+    get weaknesses(): string[] {
+        return Object.entries(typeChart)
+            .filter(([_key, value]) => {
+                if (this.types?.length === 1) {
+                    // @ts-ignore
+                    return value[this.types[0]] > 1;
+                } else {
+                    // @ts-ignore
+                    return value[this.types[0]] * value[this.types[1]] > 1
+                }
+
+            })
+            .map(([key, _value]) => key);
+    }
+
+    get weaknessValue() : {type: string, value: number}[]{
+        // @ts-ignore
+        return Object.entries(typeChart)
+            .filter(([_key, value]) => {
+                if (this.types?.length === 1) {
+                    // @ts-ignore
+                    return value[this.types[0]] > 1;
+                } else {
+                    // @ts-ignore
+                    return value[this.types[0]] * value[this.types[1]] > 1
+                }
+
+            })
+            .map(([key, value]) => {
+                if (this.types?.length === 1) {
+                    // @ts-ignore
+                    return {string: key, value: value[this.types[0]]};
+                } else {
+                    // @ts-ignore
+                    return {string: key, value: value[this.types[0]] * value[this.types[1]]};
+                }
+            });
     }
 
     public instanciate(level: number) {

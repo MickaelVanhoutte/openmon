@@ -1,37 +1,8 @@
 import type {PokemonInstance} from "../pokemons/pokedex";
 import itemsJson from "../../assets/data/final/usable-items.json";
-import {ActionsContext} from "../battle/battle";
 import {Player} from "../characters/player";
-
-export class ItemUsageResult {
-    public success: boolean;
-
-    constructor(success: boolean) {
-        this.success = success;
-    }
-}
-
-export abstract class AItem {
-    id: number;
-    categoryId: number;
-    name: string;
-    description: string;
-    power: number;
-
-    protected constructor(id: number, categoryId: number, name: string, description: string, power: number) {
-        this.id = id;
-        this.categoryId = categoryId;
-        this.name = name;
-        this.description = description;
-        this.power = power;
-    }
-
-    abstract instanciate(instance?: AItem): AItem;
-
-    abstract doesApply(target: PokemonInstance, current?: PokemonInstance, actCtx?: ActionsContext): boolean;
-
-    abstract apply(target: PokemonInstance, current?: PokemonInstance): ItemUsageResult;
-}
+import {AItem, ItemUsageResult} from "./items-model";
+import type {BattleContext} from "../context/battleContext";
 
 
 export class Pokeball extends AItem {
@@ -44,8 +15,8 @@ export class Pokeball extends AItem {
         return new Pokeball(this.id, this.categoryId, this.name, this.description, this.power);
     }
 
-    doesApply(target: PokemonInstance, current?: PokemonInstance, actCtx?: ActionsContext): boolean {
-        return !(!actCtx || actCtx.opponent instanceof Player);
+    doesApply(target: PokemonInstance, current?: PokemonInstance, ctx?: BattleContext): boolean {
+        return !(!ctx || ctx.opponent instanceof Player);
     }
 
     apply(target: PokemonInstance, current: PokemonInstance): ItemUsageResult {
@@ -84,7 +55,7 @@ export class HealingItem extends AItem {
         return new HealingItem(this.id, this.categoryId, this.name, this.description, this.power);
     }
 
-    doesApply(target: PokemonInstance, current?: PokemonInstance, actCtx?: ActionsContext): boolean {
+    doesApply(target: PokemonInstance, current?: PokemonInstance, ctx?: BattleContext): boolean {
         return !(!target.fainted && target.currentHp === target.currentStats.hp);
     }
 
@@ -107,7 +78,7 @@ export class ReviveItem extends AItem {
         return new ReviveItem(this.id, this.categoryId, this.name, this.description, this.power);
     }
 
-    doesApply(target: PokemonInstance, current?: PokemonInstance, actCtx?: ActionsContext): boolean {
+    doesApply(target: PokemonInstance, current?: PokemonInstance, ctx?: BattleContext): boolean {
         return target.fainted;
     }
     apply(target: PokemonInstance): ItemUsageResult {
@@ -130,13 +101,13 @@ export class ItemsReferences {
     constructor() {
         itemsJson.forEach((item: any) => {
             switch (item.categoryId) {
-                case 34:
+                case ItemsReferences.POKEBALL:
                     this.references[item.id] = new Pokeball(item.id, item.categoryId, item.name, item.description, item.power);
                     break;
-                case 27:
+                case ItemsReferences.POTION:
                     this.references[item.id] = new HealingItem(item.id, item.categoryId, item.name, item.description, item.power);
                     break;
-                case 29:
+                case ItemsReferences.REVIVE:
                     this.references[item.id] = new ReviveItem(item.id, item.categoryId, item.name, item.description, item.power);
                     break;
                 default:

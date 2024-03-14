@@ -1,19 +1,11 @@
-import {PokemonInstance} from "../pokemons/pokedex";
-import {CHARACTER_SPRITES} from "../const";
-import {Bag} from "../items/bag";
-import type {Position} from "../sprites/drawers";
+import { PokemonInstance } from "../pokemons/pokedex";
+import { Bag } from "../items/bag";
+import { Position } from "../mapping/positions";
+import { centerObject, CHARACTER_SPRITES, PlayerSprite } from "../sprites/sprites";
+import { type Character, CharacterPosition, RUNNING_SPEED, WALKING_SPEED } from "./characters-model";
+import { Follower } from "./follower";
 
-export interface Character {
-    spriteId: number;
-    name: string;
-    gender: 'MALE' | 'FEMALE';
-    monsters: PokemonInstance[];
-    bag: Bag;
-    moving: boolean;
-    direction: 'up' | 'down' | 'left' | 'right';
-}
-
-export class Player  implements Character{
+export class Player implements Character {
     public spriteId: number;
     public name: string;
     public gender: 'MALE' | 'FEMALE';
@@ -21,9 +13,14 @@ export class Player  implements Character{
     public bag = new Bag();
     public lvl: number = 1;
     public moving: boolean = false;
-    public direction: 'up' | 'down' | 'left' | 'right' = 'down';
+    public running: boolean = false;
+    public sprite: PlayerSprite;
+    public position: CharacterPosition = new CharacterPosition();
 
-    constructor(spriteId: number, name: string, gender: 'MALE' | 'FEMALE', monsters: PokemonInstance[], bag: Bag, lvl: number, moving: boolean, direction: 'up' | 'down' | 'left' | 'right') {
+    // followerIdx (chose a monster to follow you TODO)
+    public follower?: Follower;
+
+    constructor(spriteId: number, name: string, gender: 'MALE' | 'FEMALE', monsters: PokemonInstance[], bag: Bag, lvl: number, moving: boolean, follower?: Follower) {
         this.spriteId = spriteId;
         this.name = name;
         this.gender = gender;
@@ -31,7 +28,9 @@ export class Player  implements Character{
         this.bag = bag;
         this.lvl = lvl;
         this.moving = moving;
-        this.direction = direction;
+        this.position = new CharacterPosition();
+        this.sprite = CHARACTER_SPRITES.getSprite(spriteId);
+        this.follower = follower;
     }
 
     public static fromScratch(spriteId: number, name: string, gender: 'MALE' | 'FEMALE'): Player {
@@ -42,8 +41,7 @@ export class Player  implements Character{
             [],
             new Bag(),
             1,
-            false,
-            'down',
+            false
         )
     }
 
@@ -56,7 +54,7 @@ export class Player  implements Character{
             character.bag,
             character.lvl,
             character.moving,
-            character.direction,
+            character.follower,
         );
     }
 
@@ -65,14 +63,192 @@ export class Player  implements Character{
             Object.setPrototypeOf(monster, PokemonInstance.prototype);
         });
         this.bag = new Bag(this.bag);
+        if (this.follower) {
+            this.follower = Follower.fromInstance(this.follower);
+        }
         return this;
     }
 
-    public draw(ctx: CanvasRenderingContext2D, type: 'front' | 'overworld', scale: number, playerPosition: Position, mapDim: {
+    public setFollower(monster: PokemonInstance): Follower {
+        this.follower = new Follower(new CharacterPosition(this.behindPlayer(), this.position.direction), monster);
+        return this.follower;
+    }
+
+    public followerCharge() {
+        if (this.follower) {
+            let unsubscribe = setInterval(() => {
+                if (this.follower && !this.follower.moving) {
+                    this.follower.moving = true;
+                    this.follower.position.direction = this.position.direction;
+                    let playerSide = this.aroundPlayer(this.playerSide());
+                    this.follower.position.setFuturePosition(playerSide.x, playerSide.y, () => {
+                        if (this.follower) {
+                            let playerFront = this.aroundPlayer(this.position.direction);
+                            this.follower.moving = true;
+                            this.follower.position.setFuturePosition(playerFront.x, playerFront.y);
+                        }
+                    });
+                    clearInterval(unsubscribe);
+                }
+            }, 100);
+        }
+    }
+
+    public playerSide(): 'up' | 'down' | 'left' | 'right' {
+        switch (this.position.direction) {
+            case "up":
+                return "right";
+            case "down":
+                return "left";
+            case "left":
+                return "up";
+            case "right":
+                return "down";
+        }
+    }
+
+    public aroundPlayer(direction: 'up' | 'down' | 'left' | 'right'): Position {
+        let x = this.position.positionOnMap.x;
+        let y = this.position.positionOnMap.y;
+        switch (direction) {
+            case "up":
+                y -= 1;
+                break;
+            case "down":
+                y += 1;
+                break;
+            case "left":
+                x -= 1;
+                break;
+            case "right":
+                x += 1;
+                break;
+        }
+        return { x, y };
+    }
+
+    public behindPlayer(): Position {
+        let x = this.position.positionOnMap.x;
+        let y = this.position.positionOnMap.y;
+        switch (this.position.direction) {
+            case "up":
+                y += 1;
+                break;
+            case "down":
+                y -= 1;
+                break;
+            case "left":
+                x += 1;
+                break;
+            case "right":
+                x -= 1;
+                break;
+        }
+        return { x, y };
+    }
+
+
+    public draw(ctx: CanvasRenderingContext2D, scale: number, mapDim: {
         width: number,
         height: number
-    }, drawGrass:boolean) {
-        CHARACTER_SPRITES.draw(this.spriteId, ctx, type, this.direction, scale, this.moving, playerPosition, mapDim, drawGrass);
+    }, drawGrass: boolean) {
+
+        if (this.monsters.length > 0) {
+            if (this.position.direction === "up") {
+                this.drawPlayer(ctx, scale, mapDim, drawGrass);
+                //this.walkerDrawer.draw(ctx, playerPosition, this.direction, scale, this.moving, playerPosition, this.monsters[0], mapDim, drawGrass);
+            } else {
+                //this.walkerDrawer.draw(ctx, playerPosition, this.direction, scale, this.moving, playerPosition, this.monsters[0], mapDim, drawGrass);
+                this.drawPlayer(ctx, scale, mapDim, drawGrass);
+            }
+
+        } else {
+            this.drawPlayer(ctx, scale, mapDim, drawGrass);
+        }
+
+    }
+
+    private drawPlayer(ctx: CanvasRenderingContext2D, scale: number, mapDim: {
+        width: number;
+        height: number
+    }, drawGrass: boolean) {
+
+        function easeInOutQuad(t: number) {
+            return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+        }
+
+
+        let sprite = this.running && this.moving ? this.sprite.overworld.running : this.sprite.overworld.walking;
+        let img = this.running && this.moving ? this.sprite.worldRunningImg : this.sprite.worldWalkingImg;
+
+        if (img && img.complete) {
+
+            if (this.moving) {
+
+                if (this.sprite.frames.max > 1) {
+                    this.sprite.frames.elapsed += 1;
+                }
+
+                if (this.sprite.frames.elapsed % 2 === 0) {
+                    this.sprite.frames.val += 1;
+                }
+
+                if (this.sprite.frames.val > this.sprite.frames.max - 1) {
+                    this.sprite.frames.val = 0;
+                }
+            } else {
+                this.sprite.frames.val = 0;
+            }
+
+
+            const sY = this.sprite.orientationIndexes[this.position.direction] * (sprite?.height || 64);
+
+            if (this.moving) {
+                const speed = this.running ? RUNNING_SPEED : WALKING_SPEED;
+
+                const deltaX = this.position.targetPosition.x - this.position.positionOnMap.x;
+                const deltaY = this.position.targetPosition.y - this.position.positionOnMap.y;
+
+                const deltaXPx = this.position.targetPositionInPx.x - this.position.positionInPx.x;
+                const deltaYPx = this.position.targetPositionInPx.y - this.position.positionInPx.y;
+
+
+                const moveByX = Math.floor((16 * 2.5) / 2 * speed * deltaX);
+                const moveByY = Math.floor((16 * 2.5) / 2 * speed * deltaY);
+
+                const distance = Math.sqrt(deltaXPx * deltaXPx + deltaYPx * deltaYPx);
+
+                if (distance < ((16 * 2.5) / 2 * speed) + 1) {
+                    this.position.positionInPx.x = this.position.targetPositionInPx.x;
+                    this.position.positionInPx.y = this.position.targetPositionInPx.y;
+                    this.position.positionOnMap = this.position.targetPosition;
+                    this.moving = false;
+                } else {
+                    this.position.positionInPx.x += moveByX;
+                    this.position.positionInPx.y += moveByY;
+                }
+            }
+
+
+            let { centerX, centerY, offsetX, offsetY } = centerObject(ctx, scale, this.position.positionInPx, 16, mapDim);
+            offsetY += 6;
+
+            ctx.save();
+            ctx.translate(centerX - offsetX, centerY - offsetY);
+
+            ctx.drawImage(
+                img,
+                this.sprite.frames.val * (sprite?.width || 64),
+                sY,
+                (sprite?.width || 64),
+                drawGrass ? (sprite?.height || 64) * .80 : (sprite?.height || 64),
+                0,
+                0,
+                (sprite?.width || 64) * scale,
+                drawGrass ? (sprite?.height || 64) * scale * .80 : (sprite?.height || 64) * scale
+            );
+            ctx.restore();
+            return { sprite, img, sY };
+        }
     }
 }
-

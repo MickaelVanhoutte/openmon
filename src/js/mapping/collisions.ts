@@ -1,4 +1,4 @@
-import {Position} from "../sprites/drawers";
+import {Position} from "./positions";
 
 export class Jonction {
     public id: number;
