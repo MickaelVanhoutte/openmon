@@ -26,18 +26,6 @@
 	let isBattle = true;
 	let zIndexNext = 10;
 
-	let bagOpened = false;
-	let unsub1 = overWorldCtx.menus.bagOpened$.subscribe((value) => {
-		console.log('bagOpened', value);
-		bagOpened = value;
-	});
-
-	let PkmnListOpened = false;
-	let unsub2 = overWorldCtx.menus.switchOpened$.subscribe((value) => {
-		console.log('switchOpened', value);
-		PkmnListOpened = value;
-	});
-
 	battleCtx.currentMessage.subscribe((message) => {
 		currentMessage = message;
 	});
@@ -64,6 +52,7 @@
 	}
 
 	function launchMove(idx: number, move: MoveInstance) {
+		console.log(idx, selectedMoveIdx);
 		if (idx != selectedMoveIdx) {
 			selectedMoveIdx = idx;
 		} else if (battleCtx) {
@@ -188,8 +177,6 @@
 
 	onDestroy(() => {
 		window.removeEventListener('keydown', listener);
-		unsub1();
-		unsub2();
 	});
 </script>
 
@@ -241,10 +228,9 @@
 					style="--color:{typeChart[move.type].color}"
 					{disabled}
 					class:selected={selectedMoveIdx === index}
-					on:mouseover={() => selectMove(index)}
 					on:click={() => launchMove(index, move)}
 				>
-					{move.name.toUpperCase()}
+					{ move.name.toUpperCase()}
 				</button>
 			{/each}
 		</div>
@@ -294,7 +280,7 @@
 </div>
 
 <!-- Menus -->
-{#if PkmnListOpened}
+{#if overWorldCtx.menus.switchOpened}
 	<PokemonList
 		bind:context
 		{isBattle}
@@ -313,7 +299,7 @@
 	/>
 {/if}
 
-{#if bagOpened}
+{#if overWorldCtx.menus.bagOpened}
 	<Bag bind:context {isBattle} zIndex={zIndexNext} onChange={(result) => sendObjectAction(result)} />
 {/if}
 
