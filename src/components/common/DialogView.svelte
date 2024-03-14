@@ -1,124 +1,120 @@
-<div class="dialog">
-    <div class="dialog-content">
-        <div class="dialog-text" class:animate={animate} bind:this={text}>
-            <div>{current}</div>
-        </div>
-    </div>
-</div>
-
 <script lang="ts">
+	import { onMount } from 'svelte';
+	import type { Dialog } from '../../js/scripting/scripts';
+	import type { Unsubscriber } from 'svelte/store';
+	import type { GameContext } from '../../js/context/gameContext';
 
-    import {onMount} from "svelte";
-    import type {WorldContext} from "../../js/common/context";
-    import type {Dialog} from "../../js/common/scripts";
-    import type {Writable} from "svelte/store";
+	export let dialog: Dialog | undefined;
+	export let context: GameContext;
+	export let animate: boolean = true;
 
-    export let dialog: Dialog;
+	let text: HTMLDivElement;
+	let unsubscribe: Unsubscriber;
 
-    export let animate: boolean = true;
-    export let text: HTMLDivElement;
+	$: current = dialog?.current?.text || '';
 
-    export let aButton: Writable<boolean>;
+	function next() {
+		let tmp = dialog?.next();
+		if (tmp) {
+			current = tmp;
+			text.classList.remove('animate');
+			setTimeout(() => {
+				if (animate) text.classList.add('animate');
+			}, 100);
+		}
+	}
 
-    $:current = dialog?.current?.text || '';
+	const listener = (e: KeyboardEvent) => {
+		if (e.key === 'Enter' && animate) {
+			next();
+		}
+	};
 
-   let unsubscribe;
+	onMount(() => {
+		window.addEventListener('keydown', listener);
+		setTimeout(() => {
+			unsubscribe = context.overWorldContext.keys.a?.subscribe((value) => {
+				if (value && text) {
+					next();
+				}
+			});
+		}, 1000);
 
-    function next() {
-        let tmp = dialog?.next();
-        if (tmp) {
-            current = tmp;
-            text.classList.remove("animate");
-            setTimeout(() => {
-                if (animate) text.classList.add("animate");
-            }, 100);
-        }
-    }
-
-    const listener = (e: KeyboardEvent) => {
-        if (e.key === "Enter" && animate) {
-            next();
-        }
-    };
-
-    onMount(() => {
-        window.addEventListener("keydown", listener);
-        setTimeout(() => {
-            unsubscribe = aButton?.subscribe((value) => {
-                if (value && text) {
-                    next();
-                }
-            });
-        }, 1000);
-
-        return () => {
-            window.removeEventListener("keydown", listener);
-            unsubscribe && unsubscribe();
-        }
-    });
+		return () => {
+			window.removeEventListener('keydown', listener);
+			unsubscribe && unsubscribe();
+		};
+	});
 </script>
 
+<div class="dialog">
+	<div class="dialog-content">
+		<div class="dialog-text" class:animate bind:this={text}>
+			<div>{current}</div>
+		</div>
+	</div>
+</div>
+
 <style lang="scss">
+	.dialog {
+		position: absolute;
+		bottom: 1dvh;
+		left: 1dvw;
+		width: 98dvw;
+		height: 25dvh;
+		z-index: 7;
 
-  .dialog {
-    position: absolute;
-    bottom: 1dvh;
-    left: 1dvw;
-    width: 98dvw;
-    height: 25dvh;
-    z-index: 8;
+		background: rgb(220, 231, 233);
+		border: 2px solid #54506c;
+		border-radius: 8px;
+		box-sizing: border-box;
+		padding: 2%;
+		font-size: 32px;
+		font-weight: 500;
+		color: black;
 
-    background: rgb(220, 231, 233);
-    border: 2px solid #54506c;
-    border-radius: 8px;
-    box-sizing: border-box;
-    padding: 2%;
-    font-size: 32px;
-    font-weight: 500;
-    color: black;
+		.dialog-content {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
 
-    .dialog-content {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+			.dialog-text {
+				display: inline-block;
 
-      .dialog-text {
-        display: inline-block;
+				&.animate div {
+					opacity: 1;
+					border-right: 0.15em solid orange;
+					animation:
+						typing 1s steps(20, end) forwards,
+						blink-caret 0.5s step-end infinite;
+				}
 
+				div {
+					opacity: 0;
+					overflow: hidden;
+					white-space: nowrap;
+				}
+			}
 
-        &.animate div {
-          opacity: 1;
-          border-right: .15em solid orange;
-          animation: typing 1s steps(20, end) forwards, blink-caret .5s step-end infinite;
-        }
+			@keyframes typing {
+				from {
+					width: 0;
+				}
+				to {
+					width: 100%;
+				}
+			}
 
-        div {
-          opacity: 0;
-          overflow: hidden;
-          white-space: nowrap;
-        }
-      }
-
-      @keyframes typing {
-        from {
-          width: 0
-        }
-        to {
-          width: 100%
-        }
-      }
-
-      /* The typewriter cursor effect */
-      @keyframes blink-caret {
-        from, to {
-          border-color: transparent
-        }
-        50% {
-          border-color: orange
-        }
-      }
-    }
-
-  }
-
+			/* The typewriter cursor effect */
+			@keyframes blink-caret {
+				from,
+				to {
+					border-color: transparent;
+				}
+				50% {
+					border-color: orange;
+				}
+			}
+		}
+	}
 </style>

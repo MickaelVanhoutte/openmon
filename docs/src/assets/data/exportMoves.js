@@ -1,7 +1,7 @@
 import fs from "fs";
-import moves from "./moves.json" assert { type: "json" };
-import moveEffects from "./move-effects.json" assert { type: "json" };
-import movesAssFromJson from "./pokemon-moves.json" assert { type: "json" };
+import moves from "./moves.json" assert {type: "json"};
+import moveEffects from "./move-effects.json" assert {type: "json"};
+import movesAssFromJson from "./pokemon-moves.json" assert {type: "json"};
 
 
 const typeById = {
