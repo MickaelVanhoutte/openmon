@@ -15,11 +15,8 @@
 	let selected = 0;
 
 	function saveCurrent() {
-		// TODO
-
 		savesHolder.persist(context.toSaveContext());
-		context.overWorldContext.menus.menuOpened = false;
-		//saveContext = saveContext.updateSave(save.save);
+		context.overWorldContext.closeMenu(MenuType.MAIN);
 	}
 
 	function openList() {
@@ -344,6 +341,7 @@
 				img,
 				svg {
 					position: absolute;
+					backface-visibility: hidden;
 					-webkit-backface-visibility: hidden;
 					animation: shake 0.5s ease-in-out infinite;
 				}

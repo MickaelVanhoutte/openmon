@@ -1,5 +1,15 @@
-import type {PokemonInstance} from "../pokemons/pokedex";
-import type {BattleContext} from "../context/battleContext";
+import type { PokemonInstance } from "../pokemons/pokedex";
+import type { BattleContext } from "../context/battleContext";
+
+export class UseItemAction {
+    item: number;
+    target?: PokemonInstance;
+
+    constructor(item: number, target?: PokemonInstance) {
+        this.item = item;
+        this.target = target;
+    }
+}
 
 export class ItemUsageResult {
     public success: boolean;

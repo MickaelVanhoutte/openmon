@@ -5,7 +5,7 @@ import type { OpenMap } from "../mapping/maps";
 export class FrameOptions {
     frameId: number = 0;
     then: number = Date.now();
-    fpsInterval: number = 1000 / 24;
+    fpsInterval: number = 1000 / 2;
     debug: boolean = false;
     imageScale: number = 2.5;
     playerScale: number = .83;
@@ -13,11 +13,22 @@ export class FrameOptions {
 
 export class Menus {
     menuOpened: boolean = false;
+    menuOpened$: Writable<boolean> = writable(false);
+
     pokemonListOpened: boolean = false;
+    pokemonListOpened$: Writable<boolean> = writable(false);
+
     switchOpened: boolean = false;
+    switchOpened$: Writable<boolean> = writable(false);
+
     bagOpened: boolean = false;
+    bagOpened$: Writable<boolean> = writable(false);
+    
     openSummary: boolean = false;
+    openSummary$: Writable<boolean> = writable(false);
+
     boxOpened: boolean = false;
+    boxOpened$: Writable<boolean> = writable(false);
 }
 
 export enum MenuType {
@@ -47,7 +58,6 @@ export class OverworldContext {
     keys: Keys = new Keys();
 
     changingMap: boolean = false;
-    changingMap$: Writable<boolean> = writable(false);
     isPaused: boolean = false;
 
     map: OpenMap;
@@ -75,21 +85,27 @@ export class OverworldContext {
             case MenuType.MAIN:
                 this.isPaused = true;
                 this.menus.menuOpened = true;
+                this.menus.menuOpened$.set(true);
                 break;
             case MenuType.POKEMON_LIST:
                 this.menus.pokemonListOpened = true;
+                this.menus.pokemonListOpened$.set(true);
                 break;
             case MenuType.SWITCH:
                 this.menus.switchOpened = true;
+                this.menus.switchOpened$.set(true);
                 break;
             case MenuType.BAG:
                 this.menus.bagOpened = true;
+                this.menus.bagOpened$.set(true);
                 break;
             case MenuType.SUMMARY:
                 this.menus.openSummary = true;
+                this.menus.openSummary$.set(true);
                 break;
             case MenuType.BOX:
                 this.menus.boxOpened = true;
+                this.menus.boxOpened$.set(true);
                 break;
         }
     }
@@ -99,21 +115,27 @@ export class OverworldContext {
             case MenuType.MAIN:
                 this.isPaused = false;
                 this.menus.menuOpened = false;
+                this.menus.menuOpened$.set(false);
                 break;
             case MenuType.POKEMON_LIST:
                 this.menus.pokemonListOpened = false;
+                this.menus.pokemonListOpened$.set(false);
                 break;
             case MenuType.SWITCH:
                 this.menus.switchOpened = false;
+                this.menus.switchOpened$.set(false);
                 break;
             case MenuType.BAG:
                 this.menus.bagOpened = false;
+                this.menus.bagOpened$.set(false);
                 break;
             case MenuType.SUMMARY:
                 this.menus.openSummary = false;
+                this.menus.openSummary$.set(false);
                 break;
             case MenuType.BOX:
                 this.menus.boxOpened = false;
+                this.menus.boxOpened$.set(false);
                 break;
         }
     }

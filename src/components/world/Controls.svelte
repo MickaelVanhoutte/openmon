@@ -238,7 +238,6 @@
 					display: block;
 					color: $lightGrey;
 					position: relative;
-					vertical-align: middle;
 					white-space: nowrap;
 					transition: color 0.3s ease;
 

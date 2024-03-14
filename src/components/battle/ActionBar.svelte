@@ -1,15 +1,19 @@
 <script lang="ts">
 	import { onDestroy, onMount } from 'svelte';
-	import type { MoveInstance } from '../../js/pokemons/pokedex';
+	import type { MoveInstance, PokemonInstance } from '../../js/pokemons/pokedex';
 	import type { GameContext } from '../../js/context/gameContext';
 	import { typeChart } from '../../js/battle/battle-model';
 	import { BattleContext } from '../../js/context/battleContext';
-	import { Attack, RunAway } from '../../js/battle/actions/actions-selectable';
-	import { MenuType } from '../../js/context/overworldContext';
+	import { Attack, RunAway, Switch, UseItem } from '../../js/battle/actions/actions-selectable';
+	import PokemonList from '../menus/pokemon-list/PokemonList.svelte';
+	import Bag from '../menus/bag/Bag.svelte';
+	import { Pokeball } from '../../js/items/items';
+	import { MenuType, OverworldContext } from '../../js/context/overworldContext';
 
 	export let context: GameContext;
 	export let battleCtx: BattleContext;
-
+	export let overWorldCtx: OverworldContext;
+;
 	let moveOpened = false;
 	let show = false;
 
@@ -17,6 +21,22 @@
 	let disabled = false;
 	let selectedMoveIdx = 0;
 	let selectedOptionIdx = 0;
+
+	let changePokemon = false;
+	let isBattle = true;
+	let zIndexNext = 10;
+
+	let bagOpened = false;
+	let unsub1 = overWorldCtx.menus.bagOpened$.subscribe((value) => {
+		console.log('bagOpened', value);
+		bagOpened = value;
+	});
+
+	let PkmnListOpened = false;
+	let unsub2 = overWorldCtx.menus.switchOpened$.subscribe((value) => {
+		console.log('switchOpened', value);
+		PkmnListOpened = value;
+	});
 
 	battleCtx.currentMessage.subscribe((message) => {
 		currentMessage = message;
@@ -32,11 +52,11 @@
 	}
 
 	function switchOpen() {
-		context.overWorldContext.openMenu(MenuType.SWITCH);
+		overWorldCtx.openMenu(MenuType.SWITCH);
 	}
 
 	function openBag() {
-		context.overWorldContext.openMenu(MenuType.BAG);
+		overWorldCtx.openMenu(MenuType.BAG);
 	}
 
 	function selectMove(idx: number) {
@@ -49,6 +69,66 @@
 		} else if (battleCtx) {
 			battleCtx.startTurn(new Attack(move, 'opponent', battleCtx.playerPokemon));
 			moveOpened = false;
+		}
+	}
+
+	/*
+    Handle actions from menus (bag, switch)
+     */
+
+	function sendSwitchAction(newMonster: PokemonInstance) {
+		if (battleCtx?.playerPokemon) {
+			battleCtx?.startTurn(new Switch(newMonster, battleCtx.player));
+		}
+	}
+
+	function send(pokemon: PokemonInstance) {
+		// TODO this code should be in the battle state
+		if (battleCtx && battleCtx?.playerPokemon) {
+			let pkmnIndex = battleCtx.player.monsters.indexOf(pokemon);
+			// exchange 0 and pkmnIndex in the array
+			[battleCtx.player.monsters[0], battleCtx.player.monsters[pkmnIndex]] = [
+				battleCtx.player.monsters[pkmnIndex],
+				battleCtx.player.monsters[0]
+			];
+			battleCtx.playerPokemon = battleCtx.player.monsters[0];
+			battleCtx.participants.add(battleCtx.playerPokemon);
+			changePokemon = false;
+			battleCtx.currentMessage.set(`What should ${battleCtx.playerPokemon.name} do?`);
+			//BATTLE_STATE.set(new BattleContext(battleState));
+			//battleLoopContext.allydrawn = false;
+		}
+	}
+
+	function sendObjectAction(result: { item: number; target?: PokemonInstance }) {
+		let itm = context.ITEMS.getItem(result.item)?.instanciate();
+		if (result.target && battleCtx) {
+			if (itm && battleCtx && itm.doesApply(result.target, battleCtx?.playerPokemon, battleCtx)) {
+				battleCtx?.startTurn(
+					new UseItem(result.item, result.target, battleCtx.playerPokemon, battleCtx.player)
+				);
+				overWorldCtx.closeMenu(MenuType.BAG);
+			} else {
+				//TODO message
+				alert('This item cannot be used here');
+			}
+		} else if (
+			itm instanceof Pokeball &&
+			battleCtx &&
+			itm.doesApply(battleCtx.opponentPokemon, battleCtx.playerPokemon, battleCtx)
+		) {
+			battleCtx?.startTurn(
+				new UseItem(
+					result.item,
+					battleCtx.opponentPokemon,
+					battleCtx.playerPokemon,
+					battleCtx.player
+				)
+			);
+			overWorldCtx.closeMenu(MenuType.BAG);
+		} else {
+			//TODO message
+			alert('This item cannot be used here');
 		}
 	}
 
@@ -98,10 +178,18 @@
 	onMount(() => {
 		show = true;
 		window.addEventListener('keydown', listener);
+
+		battleCtx.events.playerPokemonFaint.subscribe((pkmn) => {
+			if (pkmn) {
+				changePokemon = true;
+			}
+		});
 	});
 
 	onDestroy(() => {
 		window.removeEventListener('keydown', listener);
+		unsub1();
+		unsub2();
 	});
 </script>
 
@@ -177,7 +265,7 @@
 				style="--color:#eca859"
 				{disabled}
 				class:selected={selectedOptionIdx === 1}
-				on:click={openBag}
+				on:click={() => openBag()}
 			>
 				BAG
 			</button>
@@ -187,7 +275,7 @@
 				style="--color:#7EAF53"
 				{disabled}
 				class:selected={selectedOptionIdx === 2}
-				on:click={switchOpen}
+				on:click={() => switchOpen()}
 			>
 				POKEMONS
 			</button>
@@ -197,13 +285,37 @@
 				style="--color:#599bdc"
 				{disabled}
 				class:selected={selectedOptionIdx === 3}
-				on:click={escape}
+				on:click={() => escape()}
 			>
 				RUN
 			</button>
 		</div>
 	{/if}
 </div>
+
+<!-- Menus -->
+{#if PkmnListOpened}
+	<PokemonList
+		bind:context
+		{isBattle}
+		zIndex={zIndexNext}
+		onChange={(pkm) => !!pkm && sendSwitchAction(pkm)}
+	/>
+{/if}
+
+{#if changePokemon}
+	<PokemonList
+		bind:context
+		{isBattle}
+		bind:forceChange={changePokemon}
+		zIndex={zIndexNext}
+		onChange={(pkm) => !!pkm && send(pkm)}
+	/>
+{/if}
+
+{#if bagOpened}
+	<Bag bind:context {isBattle} zIndex={zIndexNext} onChange={(result) => sendObjectAction(result)} />
+{/if}
 
 <style lang="scss">
 	@keyframes appear {
