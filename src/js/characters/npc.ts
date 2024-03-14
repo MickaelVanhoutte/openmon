@@ -1,29 +1,9 @@
 import { Script } from "../scripting/scripts";
-import { CharacterPosition, type Character, WALKING_SPEED } from "./characters-model";
+import { CharacterPosition, type Character, WALKING_SPEED, type Interactive } from "./characters-model";
 import { Bag } from "../items/bag";
 import type { PokemonInstance } from "../pokemons/pokedex";
 import { Position } from "../mapping/positions";
 import { centerObject, CHARACTER_SPRITES } from "../sprites/sprites";
-
-export interface Interactive {
-    interact(playerPosition: Position): (Script | undefined)[];
-}
-
-// TODO
-// export class Follower implements Character, Interactive {
-//     spriteId: number = 0;
-//     name: string = "Follower";
-//     gender: "MALE" | "FEMALE" = "MALE";
-//     monsters: PokemonInstance[] = [];
-//     bag: Bag = new Bag();
-//     moving: boolean = false;
-//     direction: "up" | "down" | "left" | "right" = 'down';
-
-//     interact(playerPosition: Position): (Script | undefined)[] {
-//         throw new Error("Method not implemented.");
-//     }
-
-// }
 
 export class NPC implements Character, Interactive {
     id: number;
@@ -49,7 +29,7 @@ export class NPC implements Character, Interactive {
         this.id = id;
         this.name = name;
         this.spriteId = spriteId;
-        this.position = new CharacterPosition(position.x, position.y, direction);
+        this.position = new CharacterPosition(position, direction);
         this.gender = gender;
         this.monsterIds = monstersIds || [];
         this.monsters = [];

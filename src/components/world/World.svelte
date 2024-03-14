@@ -87,6 +87,12 @@
 			}
 		}
 	}
+	
+	document.addEventListener("keydown", (e) => {
+		if (e.key === "c") {
+			context.player.followerCharge();
+		}
+	});
 
 	function drawElements() {
 		if (context.map === undefined) return;
@@ -111,6 +117,15 @@
 		});
 
 		// Player & walker
+		context.player?.follower?.draw(
+			canvasCtx,
+			context.player.position.positionInPx,
+			overWorldCtx.frames.playerScale,
+			mapDimensions,
+			context.map.hasBattleZoneAt(context.player.follower.position.positionOnMap),
+			context.player.running
+		);
+
 		context.player.draw(
 			canvasCtx,
 			overWorldCtx.frames.playerScale,
