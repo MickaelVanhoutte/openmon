@@ -45,6 +45,7 @@
 
 	function select() {
 		context.player.monsters[0]= currentPokemon.instanciate(5);
+		context.player.setFollower(context.player.monsters[0]);
 		context.overWorldContext.endScene(SceneType.STARTER_SELECTION);
 	}
 

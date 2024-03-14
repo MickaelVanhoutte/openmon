@@ -1,7 +1,8 @@
 import {Boundary, Jonction} from "./collisions";
 import {Script} from "../scripting/scripts";
-import type {Interactive, NPC} from "../characters/npc";
+import type {NPC} from "../characters/npc";
 import {Position} from "./positions";
+import type { Interactive } from "../characters/characters-model";
 
 export class MapSave {
     mapId: number;

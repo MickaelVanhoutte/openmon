@@ -49,7 +49,7 @@ export class GameContext {
         this.isNewGame = isNewGame;
 
         this.overWorldContext = new OverworldContext(this.map);
-        this.player.position = new CharacterPosition(this.map.playerInitialPosition.x, this.map.playerInitialPosition.y);
+        this.player.position = new CharacterPosition(this.map.playerInitialPosition);
 
         let allScripts: Script[] = this.map.scripts
             .concat(this.map.npcs.map((npc) => npc.mainScript).filter((script) => script !== undefined) as Script[])
@@ -126,8 +126,10 @@ export class GameContext {
             }
 
             const futurePosition = new Position(futureX, futureY);
+            const savedPosition = { ...this.player.position.positionOnMap };
 
             if (!this.map.hasBoundaryAt(futurePosition)) {
+
                 this.player.moving = true;
                 this.player.position.setFuturePosition(futureX, futureY, () => {
                     // on reach destination
@@ -135,95 +137,109 @@ export class GameContext {
                     this.checkForJunction();
                     this.checkForBattle();
                     this.checkForInSight();
+
+                    // wait for the follower to end it's movement before setting next
+
+                
+                        if (this.player.follower) {
+                            this.player.follower.position.direction = this.player.position.direction;
+                            this.player.follower.moving = true;
+                            this.player.follower.position.setFuturePosition(savedPosition.x, savedPosition.y);
+            
+                        }
+                
                 });
+
+
+
             }
         }
     }
 
     checkForGameStart(): boolean {
-	
-		if (this.isNewGame && !this.overWorldContext.scenes.wakeUp) {
-			let script = this.scriptsByTrigger.get('onGameStart')?.at(0);
-			this.overWorldContext.startScene(SceneType.WAKE_UP);
-			setTimeout(() => {
-				this.isNewGame = false;
-				this.overWorldContext.endScene(SceneType.WAKE_UP);
-				if (script) {
-					this.playScript(script, undefined, () =>
-                    this.overWorldContext.startScene(SceneType.STARTER_SELECTION)
-					);
-				}
-			}, 5000);
-			return true;
-		}
-		return false;
-	}
+
+        if (this.isNewGame && !this.overWorldContext.scenes.wakeUp) {
+            let script = this.scriptsByTrigger.get('onGameStart')?.at(0);
+            this.overWorldContext.startScene(SceneType.WAKE_UP);
+            setTimeout(() => {
+                this.isNewGame = false;
+                this.overWorldContext.endScene(SceneType.WAKE_UP);
+                if (script) {
+                    this.playScript(script, undefined, () =>
+                        this.overWorldContext.startScene(SceneType.STARTER_SELECTION)
+                    );
+                }
+            }, 5000);
+            return true;
+        }
+        return false;
+    }
 
     checkForJunction() {
-		if (this.map === undefined) return;
-		let jonction = this.map.jonctionAt(this.player.position.positionOnMap);
-		if (jonction !== undefined) {
-			this.changeMap(jonction);
-		}
-	}
+        if (this.map === undefined) return;
+        let jonction = this.map.jonctionAt(this.player.position.positionOnMap);
+        if (jonction !== undefined) {
+            this.changeMap(jonction);
+        }
+    }
 
     changeMap(jonction: Jonction) {
-		let map = OpenMap.fromInstance(this.MAPS[jonction.mapIdx], new Position(0, 0));
-		//map.playerInitialPosition = map.jonctions.find(j => j.id === jonction.id)?.start || new Position(0, 0);
-		this.player.position.positionOnMap =
-			map.jonctions.find((j) => j.id === jonction.id)?.start || new Position(0, 0);
+        let map = OpenMap.fromInstance(this.MAPS[jonction.mapIdx], new Position(0, 0));
+        //map.playerInitialPosition = map.jonctions.find(j => j.id === jonction.id)?.start || new Position(0, 0);
+        this.player.position.positionOnMap =
+            map.jonctions.find((j) => j.id === jonction.id)?.start || new Position(0, 0);
         this.loadMap(map);
-	}
+    }
 
     loadMap(map: OpenMap) {
-		this.overWorldContext.changingMap = true;
-		//overworldContext.displayChangingMap = true;
+        this.overWorldContext.changingMap = true;
+        //overworldContext.displayChangingMap = true;
 
-		let onEnterScript: Script | undefined;
-		if (map.scripts && map.scripts?.length > 0) {
-			onEnterScript = map.scripts?.find((s) => s.triggerType === 'onEnter');
-		}
+        let onEnterScript: Script | undefined;
+        if (map.scripts && map.scripts?.length > 0) {
+            onEnterScript = map.scripts?.find((s) => s.triggerType === 'onEnter');
+        }
 
-		let npcOnEnter = map.npcs.filter((npc) => npc.movingScript);
+        let npcOnEnter = map.npcs.filter((npc) => npc.movingScript);
 
-		// TODO set in overWorldCtx
-		this.map = map;
+        // TODO set in overWorldCtx
+        this.map = map;
 
-		setTimeout(() => {
-			this.overWorldContext.changingMap = false;
+        setTimeout(() => {
+            this.overWorldContext.changingMap = false;
 
-			if (onEnterScript) {
-				this.playScript(onEnterScript);
-			}
-			if (npcOnEnter?.length > 0) {
-				this.playMvts(npcOnEnter);
-			}
-		}, 4000);
-		setTimeout(() => {
-			//overworldContext.displayChangingMap = false;
-			//checkForGameStart();
-		}, 2000);
-	}
+            if (onEnterScript) {
+                this.playScript(onEnterScript);
+            }
+            if (npcOnEnter?.length > 0) {
+                this.playMvts(npcOnEnter);
+            }
+        }, 4000);
+        setTimeout(() => {
+            //overworldContext.displayChangingMap = false;
+            //checkForGameStart();
+        }, 2000);
+    }
 
 
     checkForStepInScript() {
-		let stepScript: Script | undefined;
-		if (this.map?.scripts && this.map.scripts?.length > 0 && !this.playingScript) {
-			// TODO allow range of positions
-			stepScript = this.map.scripts.find(
-				(s) =>
-					s.triggerType === 'onStep' &&
-					s.stepPosition?.x === this.player.position.positionOnMap.x &&
-					s.stepPosition?.y === this.player.position.positionOnMap.y
-			);
-		}
+        let stepScript: Script | undefined;
+        if (this.map?.scripts && this.map.scripts?.length > 0 && !this.playingScript) {
+            // TODO allow range of positions
+            stepScript = this.map.scripts.find(
+                (s) =>
+                    s.triggerType === 'onStep' &&
+                    s.stepPosition?.x === this.player.position.positionOnMap.x &&
+                    s.stepPosition?.y === this.player.position.positionOnMap.y
+            );
+        }
 
-		if ((stepScript !== undefined && !stepScript?.played) || stepScript?.replayable) {
-			this.playScript(stepScript);
-		}
+        if ((stepScript !== undefined && !stepScript?.played) || stepScript?.replayable) {
+            this.playScript(stepScript);
+        }
 
-		return stepScript;
-	}
+        return stepScript;
+    }
 
     /*
     Battle start
@@ -321,8 +337,15 @@ export class GameContext {
                 }, 2000);
             }
         });
-        this.battleContext.set(battleContext);
-        battleContext.events.starting.set(true);
+
+        let unsubscribe2 = setInterval(() => {
+            if (!this.player.moving) {
+                this.player.followerCharge();
+                this.battleContext.set(battleContext);
+                battleContext.events.starting.set(true);
+                clearInterval(unsubscribe2);
+            }
+        }, 200);
     }
 
     playScript(script?: Script, previous?: Script, onEnd?: () => void) {
