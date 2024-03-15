@@ -1,3 +1,7 @@
+<p align=”center”>
+  <img src="https://github.com/MickaelVanhoutte/openmon/assets/51904030/b32affff-a16d-49ee-817a-eff2c7d5e693" alt="banner-game-capture">
+</p>
+
 # Introduction
 
 OpenMon is an attempt to create a web pokemon game, solely for educational purpose. 
