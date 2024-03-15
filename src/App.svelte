@@ -11,8 +11,6 @@
 	import type { GameContext } from './js/context/gameContext';
 	import type { BattleContext } from './js/context/battleContext';
 
-	import '../node_modules/@sjmc11/tourguidejs/dist/css/tour.min.css';
-
 	/**
 	 * Main component, handling screens transitions
 	 */
