@@ -87,9 +87,10 @@
 		}
 	}
 	
+	// TEST -> TODO : smash rock, cut trees... using pkmn charge
 	document.addEventListener("keydown", (e) => {
 		if (e.key === "c") {
-			context.player.followerCharge();
+			context.player.followerCharge(overWorldCtx, false);
 		}
 	});
 
