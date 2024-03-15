@@ -4,6 +4,7 @@ import { Position } from "../mapping/positions";
 import { centerObject, CHARACTER_SPRITES, PlayerSprite } from "../sprites/sprites";
 import { type Character, CharacterPosition, RUNNING_SPEED, WALKING_SPEED } from "./characters-model";
 import { Follower } from "./follower";
+import type { OverworldContext } from "../context/overworldContext";
 
 export class Player implements Character {
     public spriteId: number;
@@ -74,24 +75,65 @@ export class Player implements Character {
         return this.follower;
     }
 
-    public followerCharge() {
+    public followerCharge(context: OverworldContext, battle: boolean = true) {
         if (this.follower) {
             let unsubscribe = setInterval(() => {
                 if (this.follower && !this.follower.moving) {
+                    //const savedSpeed = this.running;
+                    context.isPaused = true;
                     this.follower.moving = true;
                     this.follower.position.direction = this.position.direction;
                     let playerSide = this.aroundPlayer(this.playerSide());
+                    // Set the follower to the side of the player
                     this.follower.position.setFuturePosition(playerSide.x, playerSide.y, () => {
                         if (this.follower) {
                             let playerFront = this.aroundPlayer(this.position.direction);
+                            //this.running = true;
                             this.follower.moving = true;
-                            this.follower.position.setFuturePosition(playerFront.x, playerFront.y);
+                            // Set the follower to the front of the player
+                            this.follower.position.setFuturePosition(playerFront.x, playerFront.y, () => {
+                                setTimeout(() => {
+                                    if (this.follower && !this.moving) {
+                                        this.follower.position.direction = this.followerOpositeDirection();
+                                        this.follower.moving = true;
+                                        // Set the follower to the side of the player again
+                                        this.follower.position.setFuturePosition(playerSide.x, playerSide.y, () => {
+                                            if (this.follower && !this.moving) {
+                                                let playerBack = this.behindPlayer();
+                                                this.follower.moving = true;
+                                                // Set the follower to the back of the player
+                                                this.follower.position.setFuturePosition(playerBack.x, playerBack.y, () => {
+                                                    if (this.follower) {
+                                                        this.follower.position.direction = this.followerOpositeDirection();
+                                                        //this.running = savedSpeed;
+                                                        context.isPaused = false;
+                                                    }
+                                                });
+                                            }
+                                        });
+                                    }
+                                }, battle? 2000: 800);
+                            });
                         }
                     });
                     clearInterval(unsubscribe);
                 }
             }, 100);
         }
+    }
+
+    public followerOpositeDirection(): 'up' | 'down' | 'left' | 'right' {
+        switch (this.follower?.position.direction) {
+            case "up":
+                return "down";
+            case "down":
+                return "up";
+            case "left":
+                return "right";
+            case "right":
+                return "left";
+        }
+        return 'down';
     }
 
     public playerSide(): 'up' | 'down' | 'left' | 'right' {
