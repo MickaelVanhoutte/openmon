@@ -51,7 +51,7 @@
 				selected = selected === 0 ? 6 : selected - 1;
 			} else if (e.key === 'ArrowUp') {
 				selected = selected === 6 ? 0 : selected + 1;
-			} else if (e.key === 'Enter') {
+			} else if (e.key === 'Enter' || e.key === 'a') {
 				if (selected === 0) {
 					openList();
 				} else if (selected === 1) {
@@ -67,6 +67,8 @@
 				} else if (selected === 6) {
 					close();
 				}
+			}else if (e.key === 'Escape' || e.key === 'b') {
+				close();
 			}
 		}
 	};
@@ -78,6 +80,12 @@
 </script>
 
 <div class="menu-wrapper" class:open={context.overWorldContext.menus.menuOpened}>
+	<div class="helper">
+		<p>▲ ▼ to navigate</p>
+		<p>'A' or 'Enter' to validate</p>
+		<p>'B' or 'Escape' to close</p>
+	</div>
+
 	<div class="grid">
 		<ul id="hexGrid">
 			<li class="hex">
@@ -203,6 +211,15 @@
 		&.open {
 			z-index: 9;
 			opacity: 1;
+		}
+
+		.helper {
+			position: absolute;
+			left: 2%;
+			top: 1%;
+			color: white;
+			font-size: 18px;
+			opacity: 0.7;
 		}
 
 		.grid {
