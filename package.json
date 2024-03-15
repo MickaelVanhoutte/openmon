@@ -29,8 +29,8 @@
   "dependencies": {
     "@abraham/reflection": "^0.12.0",
     "@anatine/esbuild-decorators": "^0.2.19",
+    "@sjmc11/tourguidejs": "^0.0.16",
     "animejs": "^3.2.2",
-    
     "chart.js": "^4.4.1",
     "svelte-dnd-action": "^0.9.40",
     "tsyringe": "^4.8.0"

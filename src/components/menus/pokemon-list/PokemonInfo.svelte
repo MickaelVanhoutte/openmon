@@ -64,15 +64,15 @@
 				<td class="nature">
 					<span>{selectedMons.nature.identifier.toUpperCase()}</span>
 					<div>
-						<span
+						<span style="color: #fb607c"
 							>+ {selectedMons.nature.increasedStatId
 								.replace(/attack/i, 'atk')
 								.replace(/defense/i, 'def')
 								.replace('special', 'sp.')
 								.toUpperCase()}</span
 						>
-						<span
-							>- {selectedMons.nature.increasedStatId
+						<span style="color: #50aeff"
+							>- {selectedMons.nature.decreasedStatId
 								.replace(/attack/i, 'atk')
 								.replace(/defense/i, 'def')
 								.replace('special', 'sp.')
