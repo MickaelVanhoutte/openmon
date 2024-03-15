@@ -65,7 +65,6 @@ export class GameContext {
 
         this.bindKeys();
         this.checkForGameStart();
-        console.log(this.ITEMS);
     }
 
     bindKeys() {
@@ -147,7 +146,6 @@ export class GameContext {
                             this.player.follower.position.setFuturePosition(savedPosition.x, savedPosition.y);
             
                         }
-                
                 });
 
 

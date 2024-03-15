@@ -3,6 +3,8 @@
 	import { onMount } from 'svelte';
 	import Bag from './bag/Bag.svelte';
 	import Boxes from './boxes/Boxes.svelte';
+	import Trainer from './trainer/Trainer.svelte';
+	import Pokedex from './pokedex/Pokedex.svelte';
 	import type { GameContext } from '../../js/context/gameContext';
 	import { MenuType } from '../../js/context/overworldContext';
 	import { SavesHolder } from '../../js/context/savesHolder';
@@ -32,11 +34,11 @@
 	}
 
 	function trainer() {
-		// TODO
+		context.overWorldContext.openMenu(MenuType.TRAINER);
 	}
 
 	function pokedex() {
-		// TODO
+		context.overWorldContext.openMenu(MenuType.POKEDEX);
 	}
 
 	function close() {
@@ -169,6 +171,14 @@
 
 {#if context.overWorldContext.menus.boxOpened}
 	<Boxes bind:context />
+{/if}
+
+{#if context.overWorldContext.menus.trainerOpened}
+	<Trainer bind:context />
+{/if}
+
+{#if context.overWorldContext.menus.pokedexOpened}
+	<Pokedex bind:context />
 {/if}
 
 <style lang="scss">
