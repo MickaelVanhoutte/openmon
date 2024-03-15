@@ -17,6 +17,6 @@
 		"checkJs": true,
 		"isolatedModules": true,
 	},
-	"include": ["src/**/*.ts", "src/**/*.svelte"],
+	"include": ["src/**/*.ts", "src/**/*.svelte", "src/js/commands/joystick.js"],
 	"references": [{ "path": "./tsconfig.node.json" }]
 }

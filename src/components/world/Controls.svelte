@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { MenuType, type OverworldContext } from '../../js/context/overworldContext';
 	import { ABButtons, KeyMap, lastKey } from '../../js/commands/controls';
-	import JoystickController from 'joystick-controller';
+	import {JoystickController} from '../../js/commands/js-control';
 	import type { GameContext } from '../../js/context/gameContext';
 
 	export let context: GameContext;
@@ -12,12 +12,13 @@
 	let joysticks: HTMLDivElement;
 	let abButtons: ABButtons;
 	let joystick: JoystickController;
-
+	let i= 0;
 	// Joystick listener
 	const jsCallback = (data: any) => {
 		// convert data.angle (radian) to a direction (top, bottom, left, right)
+		
 		if (!overWorldCtx.isPaused) {
-			overWorldCtx.keys.resetAll();
+			
 			if (data.angle) {
 				let degrees = data.angle * (180 / Math.PI);
 
@@ -38,6 +39,7 @@
 					overWorldCtx.keys.pressKey(KeyMap.Right);
 					lastKey.key = 'ArrowRight';
 				}
+				overWorldCtx.keys.resetAll();
 			}
 		}
 	};

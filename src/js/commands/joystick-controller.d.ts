@@ -1,1 +1,1 @@
-declare module 'joystick-controller';
+// declare module 'joystick-controller';

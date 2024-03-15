@@ -119,7 +119,7 @@ export class Follower implements Character, Interactive {
         const relativeY = this.position.positionInPx.y - playerPosition.y;
 
         let { centerX, centerY, offsetX, offsetY } = centerObject(ctx, scale, playerPosition, 16, mapDim);
-        offsetY -= relativeY - 6;
+        offsetY -= relativeY - 8;
         offsetX -= relativeX;
 
         ctx.save();
