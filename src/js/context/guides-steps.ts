@@ -1,14 +1,17 @@
 export const GUIDES_STEPS = {
     JOYSTICK:  {
+        title: 'Navigation',
         content: 'Touch the screen to use the Joystick.',
         order: 0,
     },
     KEYBOARD_ARROWS: {
+        title: 'Navigation',
         content: 'If on desktop, use keyboard arrows ◄ ► ▲ ▼ to move.',
         order: 1,
     },
     KEYBOARD_AB: {
-        content: "Use buttons or keyboard 'A'/'Enter' to interact with the game, B to cancel.",
+        title: 'Navigation',
+        content: "Use A/B buttons or keyboard 'A'/'Enter' or 'B', to interact with the game.",
         order: 2,
     },
     EVS: {
