@@ -11,6 +11,8 @@
 	import type { GameContext } from './js/context/gameContext';
 	import type { BattleContext } from './js/context/battleContext';
 
+	import "../node_modules/@sjmc11/tourguidejs/dist/css/tour.min.css";
+
 	/**
 	 * Main component, handling screens transitions
 	 */
@@ -124,7 +126,7 @@
 	</div>
 {/if}
 
-<style lang="scss">
+<style lang="scss" global>
 	:root {
 		box-sizing: border-box;
 		touch-action: none;

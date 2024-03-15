@@ -1,10 +1,13 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import Chart from 'chart.js/auto';
 	import abilities from '../../../assets/data/final/abilities.json';
 	import { Nature, PokemonInstance } from '../../../js/pokemons/pokedex';
 	import { fade, slide } from 'svelte/transition';
 	import { backInOut } from 'svelte/easing';
 	import type { GameContext } from '../../../js/context/gameContext';
+	import { TourGuideClient } from '@sjmc11/tourguidejs/src/Tour';
+	import { GUIDES_STEPS } from '../../../js/context/guides-steps';
 
 	export let context: GameContext;
 	export let selected: number;
@@ -14,6 +17,8 @@
 
 	let graphWrapper: HTMLDivElement;
 	let graph: HTMLCanvasElement;
+	let editBtn: HTMLButtonElement;
+	let editLines: HTMLTableSectionElement;
 
 	let pkmnList: PokemonInstance[] = context.player.monsters;
 
@@ -38,9 +43,9 @@
 	let mechanicRegex = /\{mechanic:.*?\}/g;
 
 	function ivColor(value: number) {
-		if (value >= 26) {
+		if (value >= 21) {
 			return '#27d227';
-		} else if (value >= 16) {
+		} else if (value >= 11) {
 			return '#fbb841';
 		} else {
 			return '#fb607c';
@@ -51,12 +56,31 @@
 		if (nature.increasedStatId === nature.decreasedStatId) {
 			return 'white';
 		} else if (nature.increasedStatId === stat) {
-			return '#50aeff';
-		} else if (nature.decreasedStatId === stat) {
 			return '#fb607c';
+		} else if (nature.decreasedStatId === stat) {
+			return '#50aeff';
 		} else {
 			return 'white';
 		}
+	}
+
+	function openEdition() {
+		statEdit = !statEdit;
+		setTimeout(() => {
+			if (
+				statEdit &&
+				editLines?.rows?.length > 0 &&
+				!context.viewedGuides.includes(GUIDES_STEPS.EVS_EDIT.order)
+			) {
+				context.tg.setOptions({
+					steps: [GUIDES_STEPS.EVS_EDIT].map((step) => ({
+						...step,
+						target: editLines?.rows[1]
+					}))
+				});
+				context.tg.refresh();
+			}
+		}, 510);
 	}
 
 	function addEv(
@@ -202,6 +226,20 @@
 			}
 		};
 	}
+
+	onMount(() => {
+		setTimeout(() => {
+			if (editBtn && !context.viewedGuides.includes(GUIDES_STEPS.EVS.order)) {
+				context.tg.setOptions({
+					steps: [GUIDES_STEPS.EVS].map((step) => ({
+						...step,
+						target: editBtn
+					}))
+				});
+				context.tg.refresh();
+			}
+		}, 610);
+	});
 </script>
 
 <div
@@ -222,7 +260,7 @@
 		</div>
 
 		<div class="ability">
-			<span class="_name">{selectedMons.currentAbility}</span>
+			<span class="_name">ABILITY [ {selectedMons.currentAbility} ]</span>
 			<div class="_desc">
 				{abilities
 					.find((ability) => ability.names === selectedMons.currentAbility)
@@ -239,9 +277,10 @@
 					<th>
 						{#if !isBattle}
 							<button
+								bind:this={editBtn}
 								class="edit"
 								class:flash={selectedMons.evsToDistribute > 0}
-								on:click={() => (statEdit = !statEdit)}
+								on:click={() => openEdition()}
 							>
 								<span class="svg">
 									<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
@@ -296,7 +335,7 @@
 					<th width="40%">EV ({selectedMons.evsToDistribute})</th>
 				</tr>
 			</thead>
-			<tbody>
+			<tbody bind:this={editLines}>
 				{#each statsKeys as key}
 					<tr>
 						<td style="color:{natureColor(key, selectedMons.nature)}"

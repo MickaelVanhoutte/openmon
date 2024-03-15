@@ -18,8 +18,9 @@ export class SaveContext {
     boxes: Array<PokemonBox>;
     settings: Settings;
     isNewGame: boolean;
+    viewedGuides: number[];
 
-    constructor(id: number, updated: number, currentMap: MapSave, player: Player, boxes: Array<PokemonBox>, settings: Settings, isNewGame: boolean = false) {
+    constructor(id: number, updated: number, currentMap: MapSave, player: Player, boxes: Array<PokemonBox>, settings: Settings, isNewGame: boolean = false, viewedGuides: number[] = []) {
         this.id = id;
         this.updated = updated;
         this.currentMap = currentMap;
@@ -27,6 +28,7 @@ export class SaveContext {
         this.boxes = boxes;
         this.settings = settings;
         this.isNewGame = isNewGame;
+        this.viewedGuides = viewedGuides;
     }
 
     toGameContext(): GameContext {
@@ -36,7 +38,8 @@ export class SaveContext {
             this.boxes,
             this.currentMap,
             this.settings,
-            this.isNewGame
+            this.isNewGame,
+            this.viewedGuides
         );
     }
 }

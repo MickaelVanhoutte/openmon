@@ -14,6 +14,9 @@ import { firstBeach } from "../mapping/maps/firstBeach";
 import { writable, type Writable } from "svelte/store";
 import { SaveContext } from "./savesHolder";
 import type { Jonction } from "../mapping/collisions";
+import { TourGuideClient } from "@sjmc11/tourguidejs/src/Tour"
+import { GUIDES_STEPS } from "./guides-steps";
+
 
 /**
  * The current game context
@@ -40,7 +43,12 @@ export class GameContext {
     scriptsByTrigger: Map<string, Script[]> = new Map<string, Script[]>();
     hasEvolutions: boolean = false;
 
-    constructor(id: number, player: Player, boxes: Array<PokemonBox>, map: MapSave, settings: Settings, isNewGame: boolean) {
+    viewedGuides: number[];
+
+    // Guides
+    tg: TourGuideClient;
+
+    constructor(id: number, player: Player, boxes: Array<PokemonBox>, map: MapSave, settings: Settings, isNewGame: boolean, viewedGuides: number[] = []) {
         this.id = id;
         this.player = Player.fromInstance(player);
         this.boxes = boxes.map((box) => new PokemonBox(box.name, box.values.map((pkmn) => pkmn ? pkmn as PokemonInstance : undefined)));
@@ -50,6 +58,25 @@ export class GameContext {
 
         this.overWorldContext = new OverworldContext(this.map);
         this.player.position = new CharacterPosition(this.map.playerInitialPosition);
+
+        this.viewedGuides = viewedGuides;
+
+
+        this.tg = new TourGuideClient({
+            dialogClass: 'guide-dialog',
+            nextLabel: '►',
+            prevLabel: '◄',
+            finishLabel: '✔',
+            showStepProgress: false,
+            closeButton: false,
+            exitOnClickOutside: false,
+            exitOnEscape: false,
+            steps : [GUIDES_STEPS.JOYSTICK, GUIDES_STEPS.KEYBOARD_ARROWS, GUIDES_STEPS.KEYBOARD_AB].filter(step => !this.viewedGuides.includes(step.order || 0))
+        });
+
+        this.tg.onFinish(() => {
+            this.tg.tourSteps.map(step => step.order || 0).forEach(step => this.viewedGuides.push(step));
+        });
 
         let allScripts: Script[] = this.map.scripts
             .concat(this.map.npcs.map((npc) => npc.mainScript).filter((script) => script !== undefined) as Script[])
@@ -139,13 +166,13 @@ export class GameContext {
 
                     // wait for the follower to end it's movement before setting next
 
-                
-                        if (this.player.follower) {
-                            this.player.follower.position.direction = this.player.position.direction;
-                            this.player.follower.moving = true;
-                            this.player.follower.position.setFuturePosition(savedPosition.x, savedPosition.y);
-            
-                        }
+
+                    if (this.player.follower) {
+                        this.player.follower.position.direction = this.player.position.direction;
+                        this.player.follower.moving = true;
+                        this.player.follower.position.setFuturePosition(savedPosition.x, savedPosition.y);
+
+                    }
                 });
 
 
@@ -161,14 +188,25 @@ export class GameContext {
             this.overWorldContext.startScene(SceneType.WAKE_UP);
             setTimeout(() => {
                 this.isNewGame = false;
+
                 this.overWorldContext.endScene(SceneType.WAKE_UP);
                 if (script) {
-                    this.playScript(script, undefined, () =>
-                        this.overWorldContext.startScene(SceneType.STARTER_SELECTION)
-                    );
+                    this.playScript(script, undefined, () =>{
+                        this.overWorldContext.startScene(SceneType.STARTER_SELECTION);
+                        let unsub = setInterval(() => {
+                            if (!this.overWorldContext.scenes.starterSelection) {
+                                this.tg.start();
+                                clearInterval(unsub);
+                            }
+                        }, 2000);
+                    });
+
                 }
+
             }, 5000);
             return true;
+        } else {
+            this.tg.start();
         }
         return false;
     }
@@ -399,7 +437,7 @@ export class GameContext {
     }
 
     toSaveContext(): SaveContext {
-        return new SaveContext(this.id, Date.now(), new MapSave(this.map.mapId), this.player, this.boxes, this.settings);
+        return new SaveContext(this.id, Date.now(), new MapSave(this.map.mapId), this.player, this.boxes, this.settings, this.isNewGame, this.viewedGuides);
     }
 }
 

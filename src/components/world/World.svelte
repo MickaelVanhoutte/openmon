@@ -16,7 +16,6 @@
 
 	export let context: GameContext;
 	export let overWorldCtx: OverworldContext;
-
 	export let savesHolder: SavesHolder;
 
 	let canvas: HTMLCanvasElement;
