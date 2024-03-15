@@ -11,7 +11,7 @@
 	import type { GameContext } from './js/context/gameContext';
 	import type { BattleContext } from './js/context/battleContext';
 
-	import "../node_modules/@sjmc11/tourguidejs/dist/css/tour.min.css";
+	import '../node_modules/@sjmc11/tourguidejs/dist/css/tour.min.css';
 
 	/**
 	 * Main component, handling screens transitions
@@ -97,7 +97,11 @@
 {#if gameContext}
 	<!-- game started -->
 	{#if battleCtx !== undefined && !battleStarting}
-		<Battle bind:context={gameContext} bind:overWorldCtx={gameContext.overWorldContext} bind:battleCtx />
+		<Battle
+			bind:context={gameContext}
+			bind:overWorldCtx={gameContext.overWorldContext}
+			bind:battleCtx
+		/>
 	{:else if gameContext.overWorldContext !== undefined}
 		<World
 			bind:context={gameContext}
@@ -232,5 +236,14 @@
 		100% {
 			opacity: 0;
 		}
+	}
+
+	:global(.guide-dialog) {
+		font-family: pokemon, serif;
+		font-size: 28px !important;
+	}
+
+	:global(.guide-dialog .tg-dialog-title) {
+		font-size: 32px !important;
 	}
 </style>
