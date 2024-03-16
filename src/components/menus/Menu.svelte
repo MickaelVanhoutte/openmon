@@ -67,7 +67,7 @@
 				} else if (selected === 6) {
 					close();
 				}
-			}else if (e.key === 'Escape' || e.key === 'b') {
+			} else if (e.key === 'b') {
 				close();
 			}
 		}
