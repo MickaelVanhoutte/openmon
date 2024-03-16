@@ -2,7 +2,7 @@ import { MapSave, OpenMap } from "../mapping/maps";
 import { Player } from "../characters/player";
 import { CharacterPosition, type Character } from "../characters/characters-model";
 import { Settings } from "../characters/settings";
-import { Pokedex, PokemonInstance } from "../pokemons/pokedex";
+import { Pokedex, PokemonInstance, SavedEntry } from "../pokemons/pokedex";
 import { PokemonBox } from "../pokemons/boxes";
 import { Position } from "../mapping/positions";
 import { OverworldContext, SceneType } from "./overworldContext";
@@ -48,8 +48,9 @@ export class GameContext {
     // Guides
     tg: TourGuideClient;
 
-    constructor(id: number, player: Player, boxes: Array<PokemonBox>, map: MapSave, settings: Settings, isNewGame: boolean, viewedGuides: number[] = []) {
+    constructor(id: number, player: Player, boxes: Array<PokemonBox>, map: MapSave, settings: Settings, isNewGame: boolean, viewedGuides: number[] = [], savedEntry: SavedEntry[] = []) {
         this.id = id;
+        this.POKEDEX = new Pokedex(savedEntry);
         this.player = Player.fromInstance(player);
         this.boxes = boxes.map((box) => new PokemonBox(box.name, box.values.map((pkmn) => pkmn ? pkmn as PokemonInstance : undefined)));
         this.map = OpenMap.fromInstance(this.MAPS[map.mapId], isNewGame ? this.MAPS[map.mapId].playerInitialPosition : player.position.positionOnMap);
@@ -349,11 +350,18 @@ export class GameContext {
             if (result) {
                 battleContext.events.ending.set(true);
 
+                if(opponent instanceof PokemonInstance){
+                    this.POKEDEX.setViewed(opponent.id);
+                }else{
+                    opponent.monsters.forEach(pkmn => this.POKEDEX.setViewed(pkmn.id));
+                }
+
                 unsubscribe();
                 if (!result.win) {
                     // tp back to the start // TODO pokecenter position
                     this.player.position.positionOnMap = this.map.playerInitialPosition;
                 } else if (result.caught) {
+                    this.POKEDEX.setCaught(result.caught.id);
                     // add caught pokemon to team if space or in the box
                     if (this.player.monsters.length < 6) {
                         this.player.monsters.push(result.caught);
@@ -437,7 +445,7 @@ export class GameContext {
     }
 
     toSaveContext(): SaveContext {
-        return new SaveContext(this.id, Date.now(), new MapSave(this.map.mapId), this.player, this.boxes, this.settings, this.isNewGame, this.viewedGuides);
+        return new SaveContext(this.id, Date.now(), new MapSave(this.map.mapId), this.player, this.boxes, this.settings, this.isNewGame, this.viewedGuides, this.POKEDEX.exportForSave());
     }
 }
 

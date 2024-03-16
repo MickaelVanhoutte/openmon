@@ -29,6 +29,12 @@ export class Menus {
 
     boxOpened: boolean = false;
     boxOpened$: Writable<boolean> = writable(false);
+
+    pokedexOpened: boolean = false;
+    pokedexOpened$: Writable<boolean> = writable(false);
+
+    trainerOpened: boolean = false;
+    trainerOpened$: Writable<boolean> = writable(false);
 }
 
 export enum MenuType {
@@ -37,7 +43,9 @@ export enum MenuType {
     SWITCH = 2,
     BAG = 3,
     SUMMARY = 4,
-    BOX = 5
+    BOX = 5,
+    POKEDEX = 6,
+    TRAINER = 7
 }
 
 export enum SceneType {
@@ -107,6 +115,14 @@ export class OverworldContext {
                 this.menus.boxOpened = true;
                 this.menus.boxOpened$.set(true);
                 break;
+            case MenuType.POKEDEX:
+                this.menus.pokedexOpened = true;
+                this.menus.pokedexOpened$.set(true);
+                break;
+            case MenuType.TRAINER:
+                this.menus.trainerOpened = true;
+                this.menus.trainerOpened$.set(true);
+                break;
         }
     }
 
@@ -136,6 +152,14 @@ export class OverworldContext {
             case MenuType.BOX:
                 this.menus.boxOpened = false;
                 this.menus.boxOpened$.set(false);
+                break;
+            case MenuType.POKEDEX:
+                this.menus.pokedexOpened = false;
+                this.menus.pokedexOpened$.set(false);
+                break;
+            case MenuType.TRAINER:
+                this.menus.trainerOpened = false;
+                this.menus.trainerOpened$.set(false);
                 break;
         }
     }

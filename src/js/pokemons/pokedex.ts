@@ -1,7 +1,8 @@
-import {EXPERIENCE_CHART} from "./experience";
-import type {Effect} from "./move-effects";
+import { EXPERIENCE_CHART } from "./experience";
+import type { Effect } from "./move-effects";
 import pokedexJson from "../../assets/data/final/pokedexBW-animated2.json";
-import {typeChart} from "../battle/battle-model";
+import { typeChart } from "../battle/battle-model";
+import { each } from "chart.js/helpers";
 
 export class Nature {
     public id: number;
@@ -14,6 +15,18 @@ export class Nature {
         this.identifier = identifier;
         this.decreasedStatId = decreasedStatId;
         this.increasedStatId = increasedStatId;
+    }
+}
+
+export class SavedEntry {
+    public id: number;
+    public viewed: boolean;
+    public caught: boolean;
+
+    constructor(id: number, viewed: boolean, caught: boolean) {
+        this.id = id;
+        this.viewed = viewed;
+        this.caught = caught;
     }
 }
 
@@ -176,11 +189,11 @@ export class Pokedex {
     public ready = false;
     public size = 251;
 
-    constructor() {
-        this.importFromJson(pokedexJson);
+    constructor(savedEntries: SavedEntry[] = []) {
+        this.importFromJson(pokedexJson, savedEntries);
     }
 
-    private importFromJson(json: any) {
+    private importFromJson(json: any, savedEntries: SavedEntry[] = []) {
         if (this.entries?.length === 0) {
             // @ts-ignore
             json.forEach((pokemon) => {
@@ -200,7 +213,9 @@ export class Pokedex {
                     pokemon.baseXp,
                     pokemon.percentageMale,
                     pokemon.evolution,
-                    pokemon.sprites
+                    pokemon.sprites,
+                    savedEntries.find((entry) => entry.id === pokemon.id)?.viewed,
+                    savedEntries.find((entry) => entry.id === pokemon.id)?.caught
                 ));
             });
             if (this.entries.length === this.size) {
@@ -217,13 +232,36 @@ export class Pokedex {
         return entry?.id ? new PokedexSearchResult(entry) : new PokedexSearchResult(new UnknownMonster());
     }
 
-    findByName(name: string): PokedexSearchResult {
+    findByName(name: string): PokedexSearchResult[] {
         if (!this.ready || name === undefined || name === null || name === "") {
-            return new PokedexSearchResult(new UnknownMonster());
+            return [new PokedexSearchResult(new UnknownMonster())];
         }
-        let entry = this.entries.find((entry) => entry.name.toLowerCase() === name.toLowerCase());
-        return entry?.id ? new PokedexSearchResult(entry) : new PokedexSearchResult(new UnknownMonster());
+        let entries = this.entries.filter((entry) => entry.name.toLowerCase().includes(name.toLowerCase()));
+        return entries.map((entry) => entry.id ? new PokedexSearchResult(entry) : new PokedexSearchResult(new UnknownMonster()));
     }
+
+    setViewed(id: number) {
+        let entry = this.entries.find((entry) => entry.id === id)
+        if (entry) {
+            entry.viewed = true;
+        }  
+    }
+
+    setCaught(id: number) {
+        let entry = this.entries.find((entry) => entry.id === id)
+        if (entry) {
+            entry.caught = true;
+            entry.viewed = true;
+        }
+
+    }
+
+    exportForSave(): SavedEntry[] {
+        return this.entries.map((entry) => {
+            return new SavedEntry(entry.id, entry.viewed, entry.caught);
+        });
+    }
+
 }
 
 
@@ -256,6 +294,9 @@ export class PokedexEntry {
     public evolution: Evolution[];
     public sprites?: Sprites;
 
+    public viewed: boolean = false;
+    public caught: boolean = false;
+
     constructor(
         id: number,
         name: string,
@@ -272,7 +313,9 @@ export class PokedexEntry {
         baseXp: number,
         percentageMale: number,
         evolution: Evolution[],
-        sprites?: Sprites
+        sprites?: Sprites,
+        viewed: boolean = false,
+        caught: boolean = false
     ) {
         this.id = id;
         this.name = name;
@@ -290,6 +333,8 @@ export class PokedexEntry {
         this.percentageMale = percentageMale;
         this.evolution = evolution;
         this.sprites = sprites;
+        this.viewed = viewed;
+        this.caught = caught;
         switch (experienceGrowth) {
             case 600000:
                 // erratic
@@ -336,7 +381,7 @@ export class PokedexEntry {
             .map(([key, _value]) => key);
     }
 
-    get weaknessValue() : {type: string, value: number}[]{
+    get weaknessValue(): { type: string, value: number }[] {
         // @ts-ignore
         return Object.entries(typeChart)
             .filter(([_key, value]) => {
@@ -352,10 +397,10 @@ export class PokedexEntry {
             .map(([key, value]) => {
                 if (this.types?.length === 1) {
                     // @ts-ignore
-                    return {string: key, value: value[this.types[0]]};
+                    return { string: key, value: value[this.types[0]] };
                 } else {
                     // @ts-ignore
-                    return {string: key, value: value[this.types[0]] * value[this.types[1]]};
+                    return { string: key, value: value[this.types[0]] * value[this.types[1]] };
                 }
             });
     }
