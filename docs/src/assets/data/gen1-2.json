@@ -593,8 +593,8 @@
     "experience_growth": 1000000,
     "classfication": "Mouse Pokémon",
     "percentage_male": 50,
-    "height_m": "",
-    "weight_kg": "",
+    "height_m": 0.8,
+    "weight_kg": 30,
     "is_legendary": 0
   },
   {

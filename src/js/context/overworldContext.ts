@@ -23,7 +23,7 @@ export class Menus {
 
     bagOpened: boolean = false;
     bagOpened$: Writable<boolean> = writable(false);
-    
+
     openSummary: boolean = false;
     openSummary$: Writable<boolean> = writable(false);
 
@@ -96,30 +96,44 @@ export class OverworldContext {
                 this.menus.menuOpened$.set(true);
                 break;
             case MenuType.POKEMON_LIST:
+                this.menus.menuOpened = false;
+                this.menus.menuOpened$.set(false);
                 this.menus.pokemonListOpened = true;
                 this.menus.pokemonListOpened$.set(true);
                 break;
             case MenuType.SWITCH:
+                this.menus.menuOpened = false;
+                this.menus.menuOpened$.set(false);
                 this.menus.switchOpened = true;
                 this.menus.switchOpened$.set(true);
                 break;
             case MenuType.BAG:
+                this.menus.menuOpened = false;
+                this.menus.menuOpened$.set(false);
                 this.menus.bagOpened = true;
                 this.menus.bagOpened$.set(true);
                 break;
             case MenuType.SUMMARY:
+                this.menus.menuOpened = false;
+                this.menus.menuOpened$.set(false);
                 this.menus.openSummary = true;
                 this.menus.openSummary$.set(true);
                 break;
             case MenuType.BOX:
+                this.menus.menuOpened = false;
+                this.menus.menuOpened$.set(false);
                 this.menus.boxOpened = true;
                 this.menus.boxOpened$.set(true);
                 break;
             case MenuType.POKEDEX:
+                this.menus.menuOpened = false;
+                this.menus.menuOpened$.set(false);
                 this.menus.pokedexOpened = true;
                 this.menus.pokedexOpened$.set(true);
                 break;
             case MenuType.TRAINER:
+                this.menus.menuOpened = false;
+                this.menus.menuOpened$.set(false);
                 this.menus.trainerOpened = true;
                 this.menus.trainerOpened$.set(true);
                 break;
@@ -134,30 +148,37 @@ export class OverworldContext {
                 this.menus.menuOpened$.set(false);
                 break;
             case MenuType.POKEMON_LIST:
+                this.isPaused = false;
                 this.menus.pokemonListOpened = false;
                 this.menus.pokemonListOpened$.set(false);
                 break;
             case MenuType.SWITCH:
+                this.isPaused = false;
                 this.menus.switchOpened = false;
                 this.menus.switchOpened$.set(false);
                 break;
             case MenuType.BAG:
+                this.isPaused = false;
                 this.menus.bagOpened = false;
                 this.menus.bagOpened$.set(false);
                 break;
             case MenuType.SUMMARY:
+                this.isPaused = false;
                 this.menus.openSummary = false;
                 this.menus.openSummary$.set(false);
                 break;
             case MenuType.BOX:
+                this.isPaused = false;
                 this.menus.boxOpened = false;
                 this.menus.boxOpened$.set(false);
                 break;
             case MenuType.POKEDEX:
+                this.isPaused = false;
                 this.menus.pokedexOpened = false;
                 this.menus.pokedexOpened$.set(false);
                 break;
             case MenuType.TRAINER:
+                this.isPaused = false;
                 this.menus.trainerOpened = false;
                 this.menus.trainerOpened$.set(false);
                 break;
