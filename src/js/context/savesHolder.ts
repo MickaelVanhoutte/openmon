@@ -1,7 +1,7 @@
 import { MapSave } from "../mapping/maps";
 import { Player } from "../characters/player";
 import { PokemonBox } from "../pokemons/boxes";
-import { PokemonInstance } from "../pokemons/pokedex";
+import { PokemonInstance, SavedEntry } from "../pokemons/pokedex";
 import { Settings } from "../characters/settings";
 import { GameContext } from "./gameContext";
 import { writable, type Writable } from "svelte/store";
@@ -19,8 +19,9 @@ export class SaveContext {
     settings: Settings;
     isNewGame: boolean;
     viewedGuides: number[];
+    savedEntry: SavedEntry[];
 
-    constructor(id: number, updated: number, currentMap: MapSave, player: Player, boxes: Array<PokemonBox>, settings: Settings, isNewGame: boolean = false, viewedGuides: number[] = []) {
+    constructor(id: number, updated: number, currentMap: MapSave, player: Player, boxes: Array<PokemonBox>, settings: Settings, isNewGame: boolean = false, viewedGuides: number[] = [], savedEntry: SavedEntry[] = []) {
         this.id = id;
         this.updated = updated;
         this.currentMap = currentMap;
@@ -29,6 +30,7 @@ export class SaveContext {
         this.settings = settings;
         this.isNewGame = isNewGame;
         this.viewedGuides = viewedGuides;
+        this.savedEntry = savedEntry;
     }
 
     toGameContext(): GameContext {
@@ -39,7 +41,8 @@ export class SaveContext {
             this.currentMap,
             this.settings,
             this.isNewGame,
-            this.viewedGuides
+            this.viewedGuides,
+            this.savedEntry
         );
     }
 }
