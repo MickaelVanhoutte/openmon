@@ -10,8 +10,11 @@ import {ActionType, type ActionV2Interface} from "../battle/actions/actions-mode
 import {EXPERIENCE_CHART} from "../pokemons/experience";
 import {Attack, Switch, UseItem} from "../battle/actions/actions-selectable";
 import {EndTurnChecks, Message, XPWin} from "../battle/actions/actions-derived";
+import { ItemsReferences } from "../items/items";
 
 export class BattleContext {
+
+    ITEMS = new ItemsReferences();
 
     turnPhases: Writable<TurnPhase> = writable(TurnPhase.UPKEEP);
 

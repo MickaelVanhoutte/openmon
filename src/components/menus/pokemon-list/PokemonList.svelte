@@ -11,11 +11,13 @@
 
 	export let context: GameContext;
 	export let isBattle: boolean;
+	export let battleSwitchOpened: boolean = false;
 	export let forceChange: boolean = false;
 	export let selected = 0;
 	export let itemToUse: number | undefined = undefined;
 	export let zIndex: number;
 
+	let battleSummaryOpened = false;
 	let numberOfOptions = !!itemToUse ? 2 : isBattle ? 3 : 4;
 	let switchToIdx: number | undefined = undefined;
 	let openOptions = false;
@@ -83,12 +85,17 @@
 	};
 
 	function summarize() {
-		context.overWorldContext.openMenu(MenuType.SUMMARY);
+		if(isBattle){
+			battleSummaryOpened = true;
+		} else {
+			context.overWorldContext.openMenu(MenuType.SUMMARY);
+		}
 	}
 
 	function closeList() {
 		if (isBattle && !itemToUse) {
-			context.overWorldContext.closeMenu(MenuType.SWITCH);
+			//context.overWorldContext.closeMenu(MenuType.SWITCH);
+			battleSwitchOpened = false;
 		} else {
 			context.overWorldContext.closeMenu(MenuType.POKEMON_LIST);
 		}
@@ -97,7 +104,7 @@
 	function useItem() {
 		if (!isBattle && itemToUse) {
 			let selectedMons = context.player.monsters.at(selected);
-			context.player.bag.use(itemToUse, context, selectedMons);
+			context.player.bag.use(itemToUse, context.ITEMS, selectedMons);
 			context.player.name = context.player.name;
 		} else {
 			let selectedMons = selected === 0 ? first : others[selected - 1];
@@ -109,7 +116,7 @@
 	}
 
 	const listener = (e: KeyboardEvent) => {
-		if (context.overWorldContext.menus.openSummary) return;
+		if (context.overWorldContext.menus.openSummary || battleSummaryOpened) return;
 		if (!openOptions) {
 			if (e.key === 'ArrowUp') {
 				selected = selected === 0 ? others.length : selected - 1;
@@ -290,8 +297,11 @@
 	</div>
 </div>
 
-{#if context.overWorldContext.menus.openSummary}
-	<PokemonSummary bind:context bind:selected bind:isBattle bind:zIndex={zIndexNext} />
+{#if context.overWorldContext.menus.openSummary || battleSummaryOpened}
+	<PokemonSummary bind:context bind:selected 
+	bind:isBattle 
+	bind:battleSummaryOpened
+	bind:zIndex={zIndexNext} />
 {/if}
 
 {#if context.overWorldContext.menus.bagOpened}

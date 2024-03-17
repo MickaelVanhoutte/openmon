@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { GameContext } from '../../js/context/gameContext';
 	import { BattleContext } from '../../js/context/battleContext';
+	import type { PokemonInstance } from '../../js/pokemons/pokedex';
 
 	/**
 	 * Opponent HP bar
@@ -12,23 +12,25 @@
 
 	let currentHp = 0;
 	let percent = 0;
+	let pokemon: PokemonInstance;
 
 	battleCtx.currentAction.subscribe((_value) => {
-		currentHp = battleCtx?.opponentPokemon?.currentHp || 0;
-		percent = Math.floor((currentHp * 100) / battleCtx.opponentPokemon.currentStats.hp);
+		pokemon = battleCtx?.opponentPokemon;
+		currentHp = pokemon?.currentHp || 0;
+		percent = Math.floor((currentHp * 100) / pokemon.currentStats.hp);
 	});
 </script>
 
 <div class="enemy-info">
 	<div class="name-lvl">
-		<span>{battleCtx?.opponentPokemon?.name}</span>
-		<span>Lv.{battleCtx?.opponentPokemon.level}</span>
+		<span>{pokemon?.name}</span>
+		<span>Lv.{pokemon?.level}</span>
 	</div>
 
 	<div class="hp-status">
 		<div class="status">
-			{#if battleCtx?.opponentPokemon?.status}
-				{battleCtx?.opponentPokemon?.status?.abr}
+			{#if pokemon?.status}
+				{pokemon?.status?.abr}
 			{/if}
 		</div>
 

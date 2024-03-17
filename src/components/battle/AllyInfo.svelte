@@ -4,20 +4,22 @@
 	 * TODO : status style, team pokeballs;
 	 */
 
-	import type { GameContext } from '../../js/context/gameContext';
 	import { BattleContext } from '../../js/context/battleContext';
+	import type { PokemonInstance } from '../../js/pokemons/pokedex';
 
 	export let battleCtx: BattleContext;
 
 	let currentHp = 0;
 	let percent = 0;
 	let expPercent = 0;
+	let pokemon: PokemonInstance;
 
 	battleCtx.currentAction.subscribe((_value) => {
-		currentHp = battleCtx?.playerPokemon?.currentHp || 0;
-		percent = Math.floor((currentHp * 100) / battleCtx.playerPokemon.currentStats.hp);
+		pokemon = battleCtx?.playerPokemon;
+		currentHp = pokemon?.currentHp || 0;
+		percent = Math.floor((currentHp * 100) / pokemon.currentStats.hp);
 		expPercent = Math.floor(
-			(battleCtx?.playerPokemon?.currentXp * 100) / battleCtx?.playerPokemon?.xpToNextLevel
+			(pokemon?.currentXp * 100) / pokemon?.xpToNextLevel
 		);
 	});
 </script>
@@ -25,13 +27,13 @@
 <div class="ally-info">
 	<div class="name-lvl">
 		<div class="status">
-			{#if battleCtx?.playerPokemon?.status}
-				{battleCtx?.playerPokemon?.status?.abr}
+			{#if pokemon?.status}
+				{pokemon?.status?.abr}
 			{/if}
 		</div>
 		<div>
-			<span>{battleCtx?.playerPokemon?.name}</span>
-			<span>Lv.{battleCtx?.playerPokemon.level}</span>
+			<span>{pokemon?.name}</span>
+			<span>Lv.{pokemon?.level}</span>
 		</div>
 	</div>
 
@@ -39,7 +41,7 @@
 		<div class="hp">
 			<span>HP</span>
 			<div class="progressbar-wrapper">
-				<span class="hp-value">{currentHp} / {battleCtx?.playerPokemon.currentStats.hp}</span>
+				<span class="hp-value">{currentHp} / {pokemon?.currentStats.hp}</span>
 				<div
 					class="progressbar"
 					class:warning={percent <= 50}

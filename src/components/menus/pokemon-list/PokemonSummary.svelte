@@ -7,14 +7,15 @@
 	import { fade, slide } from 'svelte/transition';
 	import { backInOut } from 'svelte/easing';
 	import type { GameContext } from '../../../js/context/gameContext';
+	import { MenuType } from '../../../js/context/overworldContext';
 
 	export let context: GameContext;
 	export let selected: number;
 	export let selectedMove = 0;
 	export let statEdit = false;
-
 	export let moveEdit = false;
 	export let isBattle: boolean;
+	export let battleSummaryOpened = false;
 
 	export let zIndex: number;
 	$: zIndexNext = zIndex + 1;
@@ -39,18 +40,22 @@
 			moveEdit = false;
 			return;
 		} else {
-			context.overWorldContext.menus.openSummary = false;
+			if(isBattle){
+				battleSummaryOpened = false;
+			}else{
+				context.overWorldContext.closeMenu(MenuType.SUMMARY);
+			}
 		}
 	}
 
 	const listener = (e: KeyboardEvent) => {
-		if (context.overWorldContext.menus.openSummary) {
+		if (context.overWorldContext.menus.openSummary && battleSummaryOpened) {
 			if (e.key === 'ArrowRight') {
 				tab = (tab + 1) % 3;
 			} else if (e.key === 'ArrowLeft') {
 				tab = (tab + 2) % 3;
 			} else if (e.key === 'Escape') {
-				context.overWorldContext.menus.openSummary = false;
+				back();
 			}
 
 			if (tab === 2) {
