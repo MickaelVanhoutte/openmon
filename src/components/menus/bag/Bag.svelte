@@ -12,6 +12,7 @@
 
 	export let context: GameContext;
 	export let isBattle = false;
+	export let battleBagOpened: boolean = false;
 	export let selectedMons: number | undefined = undefined;
 	export let zIndex: number;
 	export let onChange: (item: UseItemAction) => void = () => {};
@@ -44,7 +45,11 @@
 	$: itemToUse = (pocket && pocket[selected]?.[0]) || undefined;
 
 	function back() {
-		context.overWorldContext.closeMenu(MenuType.BAG);
+		if(isBattle) {
+			battleBagOpened = false;
+		}else {
+			context.overWorldContext.closeMenu(MenuType.BAG);
+		}
 	}
 
 	function use(pkmn?: PokemonInstance) {
@@ -61,7 +66,7 @@
 			onChange(new UseItemAction(item, pkmn));
 		} else if (!isBattle) {
 			if (selectedMons !== undefined) {
-				context.player.bag.use(item, context, context.player.monsters[selectedMons]);
+				context.player.bag.use(item, context.ITEMS, context.player.monsters[selectedMons]);
 				context.player.bag = new Bag(context.player.bag);
 				back();
 			} else {

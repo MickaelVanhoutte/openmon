@@ -24,6 +24,8 @@
 
 	let changePokemon = false;
 	let isBattle = true;
+	let battleBagOpened = false;
+	let battleSwitchOpened = false;
 	let zIndexNext = 10;
 
 	battleCtx.currentMessage.subscribe((message) => {
@@ -40,11 +42,13 @@
 	}
 
 	function switchOpen() {
-		overWorldCtx.openMenu(MenuType.SWITCH);
+		//overWorldCtx.openMenu(MenuType.SWITCH);
+		battleSwitchOpened = true;
 	}
 
 	function openBag() {
-		overWorldCtx.openMenu(MenuType.BAG);
+		//overWorldCtx.openMenu(MenuType.BAG);
+		battleBagOpened = true;
 	}
 
 	function selectMove(idx: number) {
@@ -52,7 +56,6 @@
 	}
 
 	function launchMove(idx: number, move: MoveInstance) {
-		console.log(idx, selectedMoveIdx);
 		if (idx != selectedMoveIdx) {
 			selectedMoveIdx = idx;
 		} else if (battleCtx) {
@@ -66,6 +69,7 @@
      */
 
 	function sendSwitchAction(newMonster: PokemonInstance) {
+		battleSwitchOpened = false;
 		if (battleCtx?.playerPokemon) {
 			battleCtx?.startTurn(new Switch(newMonster, battleCtx.player));
 		}
@@ -90,6 +94,7 @@
 	}
 
 	function sendObjectAction(result: { item: number; target?: PokemonInstance }) {
+		battleBagOpened = false;
 		let itm = context.ITEMS.getItem(result.item)?.instanciate();
 		if (result.target && battleCtx) {
 			if (itm && battleCtx && itm.doesApply(result.target, battleCtx?.playerPokemon, battleCtx)) {
@@ -276,10 +281,11 @@
 </div>
 
 <!-- Menus -->
-{#if overWorldCtx.menus.switchOpened}
+{#if battleSwitchOpened}
 	<PokemonList
 		bind:context
 		{isBattle}
+		bind:battleSwitchOpened={battleSwitchOpened}
 		zIndex={zIndexNext}
 		onChange={(pkm) => !!pkm && sendSwitchAction(pkm)}
 	/>
@@ -295,8 +301,12 @@
 	/>
 {/if}
 
-{#if overWorldCtx.menus.bagOpened}
-	<Bag bind:context {isBattle} zIndex={zIndexNext} onChange={(result) => sendObjectAction(result)} />
+{#if battleBagOpened}
+	<Bag bind:context 
+	{isBattle} 
+	bind:battleBagOpened={battleBagOpened}
+	zIndex={zIndexNext}
+	 onChange={(result) => sendObjectAction(result)} />
 {/if}
 
 <style lang="scss">

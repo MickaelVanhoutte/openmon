@@ -5,6 +5,7 @@ import {Player} from "../../characters/player";
 import { type Character } from "../../characters/characters-model";
 import {DamageResults, MOVE_EFFECT_APPLIER} from "../battle-model";
 import {ApplyEffect, ChangePokemon, EndBattle, Message, RemoveHP} from "./actions-derived";
+import { Pokeball } from "../../items/items";
 
 // SELECTABLE ACTIONS
 export class RunAway implements ActionV2Interface {
@@ -216,8 +217,11 @@ export class UseItem implements ActionV2Interface {
     }
 
     execute(ctx: BattleContext): void {
-        // TODO : rework
-        /*let item = this.player.bag.getItem(this.itemId);
+        console.log('UseItem', this.itemId, this.target, this.initiator, this.owner);
+
+        let item = this.owner.bag.getItem(this.itemId, ctx.ITEMS);
+
+
         if (item && !(item instanceof Pokeball)) {
             let result = item.apply(this.target);
             if (!result.success) {
@@ -226,7 +230,7 @@ export class UseItem implements ActionV2Interface {
         }
 
         if (item instanceof Pokeball) {
-            let result = item.apply(this.target, ctx.cPlayerMons);
+            let result = item.apply(this.target, ctx.playerPokemon);
             if (result.success) {
                 ctx.battleResult.caught = this.target;
                 ctx.battleResult.win = true;
@@ -238,6 +242,6 @@ export class UseItem implements ActionV2Interface {
             }
         }
 
-        ctx.addToStack(new Message(`${this.player.name} used ${item?.name}!`, this.initiator));*/
+        ctx.addToStack(new Message(`${this.owner.name} used ${item?.name}!`, this.initiator));
     }
 }

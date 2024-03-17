@@ -1,6 +1,6 @@
 import type {PokemonInstance} from "../pokemons/pokedex";
-import type {GameContext} from "../context/gameContext";
 import {AItem} from "./items-model";
+import type { ItemsReferences } from "./items";
 
 export class Bag {
     // Map<id, quantity>
@@ -25,25 +25,25 @@ export class Bag {
         }
     }
 
-    addItems(id: number, quantity: number, gameCtx: GameContext) {
-        if (this.getPocketByItemId(id, gameCtx) !== undefined) {
+    addItems(id: number, quantity: number, items: ItemsReferences) {
+        if (this.getPocketByItemId(id, items) !== undefined) {
             // @ts-ignore
-            this.getPocketByItemId(id, gameCtx)[id] = (this.getPocketByItemId(id, gameCtx)[id] || 0) + quantity;
+            this.getPocketByItemId(id, items)[id] = (this.getPocketByItemId(id, items)[id] || 0) + quantity;
         }
     }
 
-    getItem(itemId: number, gameCtx: GameContext): AItem | undefined {
+    getItem(itemId: number, items: ItemsReferences): AItem | undefined {
 
-        if (this.getPocketByItemId(itemId,gameCtx)?.[itemId] !== undefined && this.getPocketByItemId(itemId, gameCtx)?.[itemId] > 0) {
-            this.addItems(itemId, -1, gameCtx);
-            return gameCtx.ITEMS.getItem(itemId)?.instanciate();
+        if (this.getPocketByItemId(itemId,items)?.[itemId] !== undefined && this.getPocketByItemId(itemId, items)?.[itemId] > 0) {
+            this.addItems(itemId, -1, items);
+            return items.getItem(itemId)?.instanciate();
         }
 
         throw new Error("No item for this ID in the bag");
     }
 
-    private getPocketByItemId(itemId: number, gameCtx: GameContext) {
-        let categoryId = gameCtx.ITEMS.getItem(itemId)?.categoryId;
+    private getPocketByItemId(itemId: number, items: ItemsReferences) {
+        let categoryId = items.getItem(itemId)?.categoryId;
         if (categoryId !== undefined) {
             return this.getPocketByCategory(categoryId);
         }
@@ -63,8 +63,8 @@ export class Bag {
         }
     }
 
-    use(itemId: number, gameCtx: GameContext, pokemonInstance?: PokemonInstance) {
-        let item = this.getItem(itemId, gameCtx);
+    use(itemId: number, items: ItemsReferences, pokemonInstance?: PokemonInstance) {
+        let item = this.getItem(itemId, items);
         if (item !== undefined && pokemonInstance !== undefined) {
             return item.apply(pokemonInstance);
         }
