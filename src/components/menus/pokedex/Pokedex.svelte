@@ -3,6 +3,7 @@
 	import type { GameContext } from '../../../js/context/gameContext';
 	import { MenuType } from '../../../js/context/overworldContext';
 	import type { PokedexEntry, PokedexSearchResult } from '../../../js/pokemons/pokedex';
+	import PokedexDetail from './PokedexDetail.svelte';
 
 	export let context: GameContext;
 	// viewed / caught
@@ -14,23 +15,12 @@
 	let selectedIdx = 0;
 	let searchTerm: string = '';
 	$: selectedPokemon = filtered[selectedIdx];
-
 	let filtered = context.POKEDEX.entries;
+	let detailOpened = false;
 
-	let minHeight = context.POKEDEX.entries.reduce(
-		(min: number, p: PokedexEntry) => (p.height < min ? p.height : min),
-		100
-	);
-	let maxHeight = context.POKEDEX.entries.reduce(
-		(max: number, p: PokedexEntry) => (p.height > max ? p.height : max),
-		0
-	);
-	// selectedPokemon Heigh in % based on min and max
-	$:selectedHeight = (selectedPokemon.height - minHeight) / (maxHeight - minHeight);
-
-
-	console.log('min: ', minHeight);
-	console.log('max: ', maxHeight);
+	const openDetail = () => {
+		detailOpened = true;
+	};
 
 	const search = () => {
 		selectedIdx = 0;
@@ -56,18 +46,17 @@
 	const listener = (e: KeyboardEvent) => {
 		if (e.key === 'Escape') {
 			context.overWorldContext.closeMenu(MenuType.POKEDEX);
-		}
-		if (e.key === 'ArrowDown') {
+		} else if (e.key === 'ArrowDown') {
 			if (selectedIdx < filtered.length - 1) {
 				select(selectedIdx + 1);
 			}
-		}
-		if (e.key === 'ArrowUp') {
+		} else if (e.key === 'ArrowUp') {
 			if (selectedIdx > 0) {
 				select(selectedIdx - 1);
 			}
+		} else if (e.key === 'Enter') {
+			openDetail();
 		}
-	
 	};
 
 	onMount(() => {
@@ -96,7 +85,7 @@
 				<h2>
 					{selectedPokemon?.id ? ('00' + (selectedIdx + 1)).slice(-3) : '???'}
 					-
-					{selectedPokemon?.viewed ? selectedPokemon?.name : '???'}
+					{selectedPokemon?.name}
 				</h2>
 			</div>
 		</div>
@@ -112,18 +101,26 @@
 						bind:this={elements[index]}
 						on:click={() => select(index)}
 					>
-						<span>
-							{('00' + pokemon.id).slice(-3)} - {pokemon.viewed ? pokemon.name : '???'}
-						</span>
 						{#if pokemon.caught}
 							<img src="src/assets/menus/pokeball.png" alt="pokemons" />
+						{:else}
+							<span style="height:28px; width:24px"></span>
 						{/if}
+						<span>
+							{('00' + pokemon.id).slice(-3)} - {pokemon.name}
+						</span>
+
+						<button on:click={() => openDetail()}>►</button>
 					</div>
 				{/each}
 			</div>
 		</div>
 	</div>
 </div>
+
+{#if detailOpened}
+	<PokedexDetail pokemon={selectedPokemon} />
+{/if}
 
 <style lang="scss">
 	.pokedex {
@@ -144,6 +141,7 @@
 			justify-content: space-between;
 			align-items: center;
 			height: 100%;
+			background-color: rgba(44, 56, 69, 0.3);
 
 			.preview {
 				width: 50%;
