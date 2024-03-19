@@ -183,7 +183,7 @@ export class Attack implements ActionV2Interface {
     }
 
     private calculateStab(attacker: PokemonInstance, move: MoveInstance) {
-        return attacker.types.includes(move.type) ? 1.5 : 1;
+        return attacker.types.includes(move.type) ? 1.5 : 1; // TODO wtf
     }
 
     private accuracyApplies(move: MoveInstance) {
