@@ -39,7 +39,10 @@
 		<button on:click={() => next()}>►</button>
 	</div>
 
-	<div class="column">
+	<div
+		class="column"
+		style="background-image: url({`src/assets/monsters/pokedex/${('00' + pokemon?.id).slice(-3)}.png`})"
+	>
 		<div class="main row">
 			<div class="desc">
 				<table>
@@ -47,28 +50,6 @@
 						<td>ID</td>
 						<td>#{('00' + pokemon?.id).slice(-3)}</td>
 					</tr>
-
-					<tr>
-						<td>Height</td>
-						<td>{pokemon.height}m</td>
-					</tr>
-
-					<tr>
-						<td>Weight</td>
-						<td>{pokemon.weight}kg</td>
-					</tr>
-
-					<tr>
-						<td>Abilities</td>
-						<td>
-							<div class="abilities">
-								{#each pokemon.abilities as ability}
-									<span class="ability">{ability}</span>
-								{/each}
-							</div>
-						</td>
-					</tr>
-
 					<tr>
 						<td>Type</td>
 						<td>
@@ -82,15 +63,34 @@
 							</div>
 						</td>
 					</tr>
+					<tr>
+						<td>Abilities</td>
+						<td>
+							<div class="abilities">
+								{#each pokemon.abilities as ability}
+									<span class="ability">{ability}</span>
+								{/each}
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td>Height</td>
+						<td>{pokemon.height}m</td>
+					</tr>
+
+					<tr>
+						<td>Weight</td>
+						<td>{pokemon.weight}kg</td>
+					</tr>
 				</table>
 			</div>
-			<div class="pkmn">
+			<!-- <div class="pkmn">
 				<img
 					src={`src/assets/monsters/pokedex/${('00' + pokemon?.id).slice(-3)}.png`}
 					class:hide={!pokemon?.viewed}
 					alt={pokemon?.name}
 				/>
-			</div>
+			</div> -->
 			<div class="stats">
 				<table>
 					<tr>
@@ -108,9 +108,10 @@
 								></div>
 							</div>
 						</td>
+						
 					</tr>
 					<tr>
-						<td>Attack</td>
+						<td>Atk</td>
 						<td>
 							<div class="progress">
 								<div
@@ -124,9 +125,10 @@
 								></div>
 							</div>
 						</td>
+						
 					</tr>
 					<tr>
-						<td>Defense</td>
+						<td>Def</td>
 						<td>
 							<div class="progress">
 								<div
@@ -140,9 +142,10 @@
 								></div>
 							</div>
 						</td>
+						
 					</tr>
 					<tr>
-						<td>Sp.Attack</td>
+						<td>Sp.A</td>
 						<td>
 							<div class="progress">
 								<div
@@ -156,9 +159,10 @@
 								></div>
 							</div>
 						</td>
+						
 					</tr>
 					<tr>
-						<td>Sp.Defense</td>
+						<td>Sp.D</td>
 						<td>
 							<div class="progress">
 								<div
@@ -172,6 +176,7 @@
 								></div>
 							</div>
 						</td>
+						
 					</tr>
 					<tr>
 						<td>Speed</td>
@@ -188,6 +193,7 @@
 								></div>
 							</div>
 						</td>
+						
 					</tr>
 					<tr>
 						<td>Total</td>
@@ -204,6 +210,7 @@
 								></div>
 							</div>
 						</td>
+
 					</tr>
 				</table>
 			</div>
@@ -273,6 +280,7 @@
 			gap: 16px;
 			padding: 0 1%;
 			box-sizing: border-box;
+			justify-content: center !important;
 
 			h1 {
 				font-size: 36px;
@@ -385,14 +393,18 @@
 			height: 80%;
 			width: 100%;
 			background-color: rgba(44, 56, 69, 0.3);
+			background-position: center;
+			background-size: contain;
+			background-repeat: no-repeat;
+			background-blend-mode: hard-light;
 
 			.main {
 				justify-content: space-between;
 				height: 100%;
 				.desc {
-					width: calc(72% / 2);
+					width: calc(76% / 2);
 					height: 100%;
-					perspective: calc(100dvw / 2);
+					perspective: calc(60dvw);
 					box-sizing: border-box;
 					display: flex;
 					align-items: center;
@@ -412,7 +424,7 @@
 
 						tr {
 							td {
-								padding: 2% 4%;
+								padding: 1% 0%;
 								box-sizing: border-box;
 
 								.types {
@@ -422,10 +434,11 @@
 									justify-content: flex-start;
 
 									.type {
+										font-size: 20px;
+										text-transform: uppercase;
 										border-radius: 4px;
 										height: 30px;
-										width: 100px;
-										max-width: 100px;
+										text-shadow: 0 0 3px #000;
 										filter: saturate(100%) brightness(110%);
 										transition: all 0.2s;
 										background: var(--tcolor);
@@ -436,7 +449,7 @@
 										align-content: center;
 										flex-wrap: nowrap;
 										gap: 8px;
-										padding: 2px 8px;
+										padding: 2px 6px;
 
 										span {
 											color: white;
@@ -456,8 +469,9 @@
 									flex-wrap: wrap;
 
 									.ability {
-										background-color: var(--color);
-										padding: 2px 8px;
+										font-size: 20px;
+										background-color: rgba(0, 0, 0, 0.4);
+										padding: 2px 6px;
 										word-break: keep-all;
 										display: flex;
 										justify-content: space-between;
@@ -473,32 +487,11 @@
 						}
 					}
 				}
-				.pkmn {
-					width: 28%;
-					height: 100%;
-					display: flex;
-					flex-direction: column;
-					justify-content: center;
-					align-items: flex-end;
-					align-items: center;
-
-					h1 {
-						margin: 0;
-					}
-
-					img {
-						max-height: 80%;
-						width: 100%;
-						object-fit: contain;
-						&.hide {
-							//display: none;
-						}
-					}
-				}
+				
 				.stats {
-					width: calc(72% / 2);
+					width: 33%;
 					height: 100%;
-					perspective: calc(100dvw / 2);
+					perspective: calc(60dvw);
 					box-sizing: border-box;
 					display: flex;
 					align-items: center;
@@ -510,15 +503,16 @@
 						width: 100%;
 						box-sizing: border-box;
 						table-layout: fixed;
-						padding: 0 4%;
+						padding: 0 2%;
+						direction: rtl;
 
 						tr td:first-child {
-							width: 40%;
+							width: 30%;
 						}
 
 						tr {
 							td {
-								padding: 2% 4%;
+								padding: 1% 0%;
 								box-sizing: border-box;
 
 								.progress {
@@ -546,7 +540,7 @@
 										content: attr(data-value);
 										position: absolute;
 										top: 0;
-										right: 0;
+										//right: 0;
 										left: 0;
 										bottom: 0;
 										padding: 0 4px;
@@ -568,11 +562,11 @@
 
 	.back {
 		position: absolute;
-		bottom: 2%;
+		top: 2%;
 		left: 1%;
 
 		button {
-			width: 130px;
+			padding: 4px 16px;
 			height: 28px;
 			position: relative;
 			z-index: 999;
