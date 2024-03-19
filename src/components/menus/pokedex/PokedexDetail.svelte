@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { typeChart } from '../../../js/battle/battle-model';
 	import { Stats, type PokedexEntry } from '../../../js/pokemons/pokedex';
 
 	export let pokemon: PokedexEntry;
@@ -6,12 +7,16 @@
 	console.log(pokemon);
 </script>
 
-<div class="pokedex-detail">
+<div class="pokedex-detail" style="--color:{typeChart[pokemon.types[0]].color}">
 	<div class="back">
 		<button class="pushable">
 			<span class="edge"></span>
 			<span class="front"> BACK </span>
 		</button>
+	</div>
+
+	<div class="row title">
+		<h1>{pokemon.name}</h1>
 	</div>
 
 	<div class="column">
@@ -20,7 +25,7 @@
 				<table>
 					<tr>
 						<td>ID</td>
-						<td>{('00' + pokemon?.id).slice(-3)}</td>
+						<td>#{('00' + pokemon?.id).slice(-3)}</td>
 					</tr>
 
 					<tr>
@@ -36,24 +41,30 @@
 					<tr>
 						<td>Abilities</td>
 						<td>
-							{#each pokemon.abilities as ability}
-								<span>{ability}</span>
-							{/each}
+							<div class="abilities">
+								{#each pokemon.abilities as ability}
+									<span class="ability">{ability}</span>
+								{/each}
+							</div>
 						</td>
 					</tr>
 
 					<tr>
 						<td>Type</td>
 						<td>
-							{#each pokemon.types as type}
-								<span>{type}</span>
-							{/each}
+							<div class="types">
+								{#each pokemon.types as type}
+									<div class="type" style="--tcolor:{typeChart[type].color}">
+										<span>{type}</span>
+										<img alt={type} src="src/assets/types/{type}.svg" />
+									</div>
+								{/each}
+							</div>
 						</td>
 					</tr>
 				</table>
 			</div>
 			<div class="pkmn">
-				<h1>{pokemon.name}</h1>
 				<img
 					src={`src/assets/monsters/pokedex/${('00' + pokemon?.id).slice(-3)}.png`}
 					class:hide={!pokemon?.viewed}
@@ -66,7 +77,11 @@
 						<td>HP</td>
 						<td>
 							<div class="progress">
-								<div class="determinate" style="width: {(pokemon.stats.hp / 255) * 100}%"></div>
+								<div
+									class="determinate"
+									data-value={pokemon.stats.hp}
+									style="width: {(pokemon.stats.hp / 255) * 100}%"
+								></div>
 							</div>
 						</td>
 					</tr>
@@ -74,7 +89,11 @@
 						<td>Attack</td>
 						<td>
 							<div class="progress">
-								<div class="determinate" style="width: {(pokemon.stats.attack / 255) * 100}%"></div>
+								<div
+									class="determinate"
+									data-value={pokemon.stats.attack}
+									style="width: {(pokemon.stats.attack / 255) * 100}%"
+								></div>
 							</div>
 						</td>
 					</tr>
@@ -84,6 +103,7 @@
 							<div class="progress">
 								<div
 									class="determinate"
+									data-value={pokemon.stats.defense}
 									style="width: {(pokemon.stats.defense / 255) * 100}%"
 								></div>
 							</div>
@@ -95,6 +115,7 @@
 							<div class="progress">
 								<div
 									class="determinate"
+									data-value={pokemon.stats.specialAttack}
 									style="width: {(pokemon.stats.specialAttack / 255) * 100}%"
 								></div>
 							</div>
@@ -106,6 +127,7 @@
 							<div class="progress">
 								<div
 									class="determinate"
+									data-value={pokemon.stats.specialDefense}
 									style="width: {(pokemon.stats.specialDefense / 255) * 100}%"
 								></div>
 							</div>
@@ -115,7 +137,11 @@
 						<td>Speed</td>
 						<td>
 							<div class="progress">
-								<div class="determinate" style="width: {(pokemon.stats.attack / 255) * 100}%"></div>
+								<div
+									class="determinate"
+									data-value={pokemon.stats.speed}
+									style="width: {(pokemon.stats.attack / 255) * 100}%"
+								></div>
 							</div>
 						</td>
 					</tr>
@@ -123,26 +149,31 @@
 						<td>Total</td>
 						<td>
 							<div class="progress">
-								<div class="determinate" style="width: {(pokemon.stats.total / 800) * 100}%"></div>
+								<div
+									class="determinate"
+									data-value={pokemon.stats.total}
+									style="width: {(pokemon.stats.total / 800) * 100}%"
+								></div>
 							</div>
 						</td>
 					</tr>
 				</table>
 			</div>
 		</div>
-		<div class="menu row">
-			<div class="wrapper">
-				<input type="radio" name="tab" id="tab1" class="tab tab--1" />
-				<label class="tab_label" for="tab1">Stats</label>
+	</div>
 
-				<input type="radio" name="tab" id="tab2" class="tab tab--2" />
-				<label class="tab_label" for="tab2">More</label>
+	<div class="menu row">
+		<div class="wrapper">
+			<input type="radio" name="tab" id="tab1" class="tab tab--1" />
+			<label class="tab_label" for="tab1">Stats</label>
 
-				<input type="radio" name="tab" id="tab3" class="tab tab--3" />
-				<label class="tab_label" for="tab3">Moves</label>
+			<input type="radio" name="tab" id="tab2" class="tab tab--2" />
+			<label class="tab_label" for="tab2">More</label>
 
-				<div class="indicator"></div>
-			</div>
+			<input type="radio" name="tab" id="tab3" class="tab tab--3" />
+			<label class="tab_label" for="tab3">Moves</label>
+
+			<div class="indicator"></div>
 		</div>
 	</div>
 </div>
@@ -154,33 +185,146 @@
 		left: 0;
 		width: 100dvw;
 		height: 100dvh;
-		background-image: url('src/assets/menus/p-sum.jpg');
-		background-size: cover;
-		background-position: top left;
-		background-repeat: round;
+		// background-image: url('src/assets/menus/p-sum.jpg');
+		// background-size: cover;
+		// background-position: top left;
+		// background-repeat: round;
+		background: rgb(0, 29, 43);
+		background: -moz-linear-gradient(
+			140deg,
+			rgba(0, 29, 43, 1) 0%,
+			rgba(3, 84, 142, 1) 42%,
+			rgba(0, 195, 230, 1) 100%
+		);
+		background: -webkit-linear-gradient(
+			140deg,
+			rgba(0, 29, 43, 1) 0%,
+			rgba(3, 84, 142, 1) 42%,
+			rgba(0, 195, 230, 1) 100%
+		);
+		background: linear-gradient(
+			140deg,
+			rgba(0, 29, 43, 1) 0%,
+			rgba(3, 84, 142, 1) 42%,
+			rgba(0, 195, 230, 1) 100%
+		);
+		color: #fff;
 		z-index: 9;
+
+		.row {
+			display: flex;
+			flex-direction: row;
+			justify-content: space-between;
+			align-items: center;
+			width: 100%;
+		}
+
+		.title {
+			height: 10%;
+			justify-content: center;
+			background-color: rgba(44, 56, 69, 0.3);
+			h1 {
+				font-size: 36px;
+				text-transform: uppercase;
+				margin: 0;
+				padding: 0;
+				text-align: center;
+			}
+		}
+
+		.menu {
+			align-items: center;
+			height: 10%;
+			width: 100%;
+			justify-content: center;
+			align-content: center;
+			flex-wrap: wrap;
+			background-color: rgba(44, 56, 69, 0.3);
+
+			.wrapper {
+				display: flex;
+				flex-direction: row;
+				align-items: flex-start;
+				padding: 3px;
+				border-radius: 9px;
+				position: relative;
+			}
+
+			.indicator {
+				content: '';
+				width: 130px;
+				height: 28px;
+				background: #ffffff;
+				position: absolute;
+				top: 2px;
+				left: 2px;
+				z-index: 9;
+				border: 0.5px solid rgba(0, 0, 0, 0.04);
+				box-shadow:
+					0px 3px 8px rgba(0, 0, 0, 0.12),
+					0px 3px 1px rgba(0, 0, 0, 0.04);
+				border-radius: 7px;
+				transition: all 0.2s ease-out;
+			}
+
+			.tab {
+				width: 130px;
+				height: 28px;
+				position: absolute;
+				z-index: 99;
+				outline: none;
+				opacity: 0;
+			}
+
+			.tab_label {
+				width: 130px;
+				height: 28px;
+
+				position: relative;
+				z-index: 999;
+
+				display: flex;
+				align-items: center;
+				justify-content: center;
+
+				border: 0;
+
+				color: #000;
+				font-size: 26px;
+				opacity: 0.6;
+				text-transform: uppercase;
+				cursor: pointer;
+			}
+
+			.tab--1:checked ~ .indicator {
+				left: 2px;
+			}
+
+			.tab--2:checked ~ .indicator {
+				left: calc(130px + 2px);
+			}
+
+			.tab--3:checked ~ .indicator {
+				left: calc(130px * 2 + 2px);
+			}
+		}
 
 		.column {
 			display: flex;
 			flex-direction: column;
 			justify-content: space-between;
 			align-items: center;
-			height: 100%;
+			height: 80%;
 			width: 100%;
 			background-color: rgba(44, 56, 69, 0.3);
 
 			.main {
-				display: flex;
-				flex-direction: row;
 				justify-content: space-between;
-				align-items: center;
-				height: 80%;
-				width: 100%;
+				height: 100%;
 				.desc {
-					width: calc(70% / 2);
-					height: 90%;
-					margin-top: 5%;
-					perspective: 400px;
+					width: calc(72% / 2);
+					height: 100%;
+					perspective: calc(100dvw / 2);
 					box-sizing: border-box;
 					display: flex;
 					align-items: center;
@@ -189,9 +333,10 @@
 
 					table {
 						transform: rotateY(30deg);
-						width: 90%;
+						width: 100%;
 						box-sizing: border-box;
 						table-layout: fixed;
+						padding: 0 4%;
 
 						tr td:first-child {
 							width: 40%;
@@ -201,13 +346,70 @@
 							td {
 								padding: 2% 4%;
 								box-sizing: border-box;
+
+								.types {
+									display: flex;
+									gap: 8px;
+									flex-direction: row;
+									justify-content: flex-start;
+
+									.type {
+										border-radius: 4px;
+										height: 30px;
+										width: 100px;
+										max-width: 100px;
+										filter: saturate(100%) brightness(110%);
+										transition: all 0.2s;
+										background: var(--tcolor);
+										box-shadow: 0 0 6px var(--tcolor);
+										display: flex;
+										justify-content: space-around;
+										align-items: center;
+										align-content: center;
+										flex-wrap: nowrap;
+										gap: 8px;
+										padding: 2px 8px;
+										
+
+										span {
+											color: white;
+										}
+										img {
+											height: 22px;
+											width: auto;
+										}
+									}
+								}
+
+								.abilities {
+									display: flex;
+									gap: 8px;
+									flex-direction: row;
+									justify-content: flex-start;
+									flex-wrap: wrap;
+
+									.ability {
+										background-color: var(--color);
+										padding: 2px 8px;
+										word-break: keep-all;
+										display: flex;
+										justify-content: space-between;
+										align-items: center;
+										align-content: center;
+										flex-wrap: nowrap;
+
+										border-radius: 4px;
+										height: 30px;
+										
+									}
+								}
 							}
 						}
 					}
 				}
 				.pkmn {
-					width: 30%;
-					height: 90%;
+					width: 28%;
+					height: 100%;
 					display: flex;
 					flex-direction: column;
 					justify-content: center;
@@ -228,10 +430,9 @@
 					}
 				}
 				.stats {
-					width: calc(70% / 2 - 20px);
-					height: 90%;
-					margin-top: 5%;
-					perspective: 400px;
+					width: calc(72% / 2);
+					height: 100%;
+					perspective: calc(100dvw / 2);
 					box-sizing: border-box;
 					display: flex;
 					align-items: center;
@@ -240,9 +441,10 @@
 
 					table {
 						transform: rotateY(-30deg);
-						width: 90%;
+						width: 100%;
 						box-sizing: border-box;
 						table-layout: fixed;
+						padding: 0 4%;
 
 						tr td:first-child {
 							width: 40%;
@@ -255,13 +457,12 @@
 
 								.progress {
 									position: relative;
-									height: 12px;
+									height: 18px;
 									display: block;
 									width: 100%;
-									background-color: #acece6;
-									border-radius: 2px;
-									margin: 0.5rem 0 1rem 0;
-									overflow: hidden;
+									background-color: rgba(0, 0, 0, 0.4);
+									border-radius: 4px;
+									overflow: visible;
 								}
 
 								.determinate {
@@ -269,92 +470,31 @@
 									top: 0;
 									left: 0;
 									bottom: 0;
-									background-color: #26a69a;
+									//background-color: #26a69a;
+									background-color: var(--color);
 									-webkit-transition: width 0.3s linear;
 									transition: width 0.3s linear;
+									box-shadow: 0 0 6px var(--color);
+
+									&:after {
+										content: attr(data-value);
+										position: absolute;
+										top: 0;
+										right: 0;
+										left: 0;
+										bottom: 0;
+										padding: 0 4px;
+										text-align: center;
+										line-height: 18px;
+										font-size: 22px;
+										font-weight: bold;
+										color: #fff;
+										text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
+									}
 								}
 							}
 						}
 					}
-				}
-			}
-
-			.menu {
-				display: flex;
-				flex-direction: row;
-				align-items: center;
-				text-align: center;
-				height: 10%;
-				width: 100%;
-				justify-content: center;
-				align-content: center;
-				flex-wrap: wrap;
-
-				.wrapper {
-					display: flex;
-					flex-direction: row;
-					align-items: flex-start;
-					padding: 3px;
-					background-color: rgba(44, 56, 69, 0.3);
-					border-radius: 9px;
-					position: relative;
-				}
-
-				.indicator {
-					content: '';
-					width: 130px;
-					height: 28px;
-					background: #ffffff;
-					position: absolute;
-					top: 2px;
-					left: 2px;
-					z-index: 9;
-					border: 0.5px solid rgba(0, 0, 0, 0.04);
-					box-shadow:
-						0px 3px 8px rgba(0, 0, 0, 0.12),
-						0px 3px 1px rgba(0, 0, 0, 0.04);
-					border-radius: 7px;
-					transition: all 0.2s ease-out;
-				}
-
-				.tab {
-					width: 130px;
-					height: 28px;
-					position: absolute;
-					z-index: 99;
-					outline: none;
-					opacity: 0;
-				}
-
-				.tab_label {
-					width: 130px;
-					height: 28px;
-
-					position: relative;
-					z-index: 999;
-
-					display: flex;
-					align-items: center;
-					justify-content: center;
-
-					border: 0;
-
-					font-size: 26px;
-					opacity: 0.6;
-					text-transform: uppercase;
-					cursor: pointer;
-				}
-
-				.tab--1:checked ~ .indicator {
-					left: 2px;
-				}
-
-				.tab--2:checked ~ .indicator {
-					left: calc(130px + 2px);
-				}
-
-				.tab--3:checked ~ .indicator {
-					left: calc(130px * 2 + 2px);
 				}
 			}
 		}
@@ -362,7 +502,7 @@
 
 	.back {
 		position: absolute;
-		top: 3%;
+		bottom: 3%;
 		left: 1%;
 	}
 
@@ -398,14 +538,10 @@
 		position: relative;
 		border-radius: 8px;
 		background: hsl(248, 17%, 85%);
-		padding: 10px 22px;
-		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell,
-			'Open Sans', 'Helvetica Neue', sans-serif;
-		font-weight: 600;
+		padding: 8px 22px;
+		font-family: pokemon;
 		text-transform: uppercase;
-		letter-spacing: 1.5px;
-		font-size: 1rem;
-		transform: translateY(-4px);
+		font-size: 24px;
 		transition: transform 600ms cubic-bezier(0.3, 0.7, 0.4, 1);
 	}
 

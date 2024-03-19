@@ -228,7 +228,26 @@
 		left: 0;
 		width: 100dvw;
 		height: 100dvh;
-		background-image: url('src/assets/menus/p-sum.jpg');
+		//background-image: url('src/assets/menus/p-sum.jpg');
+		background: rgb(0, 29, 43);
+		background: -moz-linear-gradient(
+			140deg,
+			rgba(0, 29, 43, 1) 0%,
+			rgba(3, 84, 142, 1) 42%,
+			rgba(0, 195, 230, 1) 100%
+		);
+		background: -webkit-linear-gradient(
+			140deg,
+			rgba(0, 29, 43, 1) 0%,
+			rgba(3, 84, 142, 1) 42%,
+			rgba(0, 195, 230, 1) 100%
+		);
+		background: linear-gradient(
+			140deg,
+			rgba(0, 29, 43, 1) 0%,
+			rgba(3, 84, 142, 1) 42%,
+			rgba(0, 195, 230, 1) 100%
+		);
 		z-index: var(--zIndex, 8);
 
 		.tabs {
