@@ -51,17 +51,13 @@
 						<td>#{('00' + pokemon?.id).slice(-3)}</td>
 					</tr>
 					<tr>
-						<td>Type</td>
-						<td>
-							<div class="types">
-								{#each pokemon.types as type}
-									<div class="type" style="--tcolor:{typeChart[type].color}">
-										<span>{type}</span>
-										<img alt={type} src="src/assets/types/{type}.svg" />
-									</div>
-								{/each}
-							</div>
-						</td>
+						<td>Height</td>
+						<td>{pokemon.height}m</td>
+					</tr>
+
+					<tr>
+						<td>Weight</td>
+						<td>{pokemon.weight}kg</td>
 					</tr>
 					<tr>
 						<td>Abilities</td>
@@ -74,23 +70,20 @@
 						</td>
 					</tr>
 					<tr>
-						<td>Height</td>
-						<td>{pokemon.height}m</td>
-					</tr>
-
-					<tr>
-						<td>Weight</td>
-						<td>{pokemon.weight}kg</td>
+						<td>Type</td>
+						<td>
+							<div class="types">
+								{#each pokemon.types as type}
+									<div class="type" style="--tcolor:{typeChart[type].color}">
+										<span>{type}</span>
+										<img alt={type} src="src/assets/types/{type}.svg" />
+									</div>
+								{/each}
+							</div>
+						</td>
 					</tr>
 				</table>
 			</div>
-			<!-- <div class="pkmn">
-				<img
-					src={`src/assets/monsters/pokedex/${('00' + pokemon?.id).slice(-3)}.png`}
-					class:hide={!pokemon?.viewed}
-					alt={pokemon?.name}
-				/>
-			</div> -->
 			<div class="stats">
 				<table>
 					<tr>
@@ -108,7 +101,6 @@
 								></div>
 							</div>
 						</td>
-						
 					</tr>
 					<tr>
 						<td>Atk</td>
@@ -125,7 +117,6 @@
 								></div>
 							</div>
 						</td>
-						
 					</tr>
 					<tr>
 						<td>Def</td>
@@ -142,7 +133,6 @@
 								></div>
 							</div>
 						</td>
-						
 					</tr>
 					<tr>
 						<td>Sp.A</td>
@@ -159,7 +149,6 @@
 								></div>
 							</div>
 						</td>
-						
 					</tr>
 					<tr>
 						<td>Sp.D</td>
@@ -176,7 +165,6 @@
 								></div>
 							</div>
 						</td>
-						
 					</tr>
 					<tr>
 						<td>Speed</td>
@@ -193,7 +181,6 @@
 								></div>
 							</div>
 						</td>
-						
 					</tr>
 					<tr>
 						<td>Total</td>
@@ -210,7 +197,6 @@
 								></div>
 							</div>
 						</td>
-
 					</tr>
 				</table>
 			</div>
@@ -240,10 +226,6 @@
 		left: 0;
 		width: 100dvw;
 		height: 100dvh;
-		// background-image: url('src/assets/menus/p-sum.jpg');
-		// background-size: cover;
-		// background-position: top left;
-		// background-repeat: round;
 		background: rgb(0, 29, 43);
 		background: -moz-linear-gradient(
 			140deg,
@@ -275,9 +257,9 @@
 		}
 
 		.title {
-			height: 10%;
+			height: 33px;
 			background-color: rgba(44, 56, 69, 0.3);
-			gap: 16px;
+			gap: 6%;
 			padding: 0 1%;
 			box-sizing: border-box;
 			justify-content: center !important;
@@ -298,18 +280,19 @@
 				display: flex;
 				align-items: center;
 				justify-content: center;
-				border: 0;
-				color: #000;
 				font-size: 26px;
 				text-transform: uppercase;
 				cursor: pointer;
-				border-radius: 8px;
+				border-radius: 4px;
+				color: white;
+				background: rgba(0, 0, 0, 0.2);
+				border: 1px solid white;
 			}
 		}
 
 		.menu {
 			align-items: center;
-			height: 10%;
+			height: 33px;
 			width: 100%;
 			justify-content: center;
 			align-content: center;
@@ -390,7 +373,7 @@
 			flex-direction: column;
 			justify-content: space-between;
 			align-items: center;
-			height: 80%;
+			height: calc(100% - 66px);
 			width: 100%;
 			background-color: rgba(44, 56, 69, 0.3);
 			background-position: center;
@@ -414,12 +397,15 @@
 					table {
 						transform: rotateY(30deg);
 						width: 100%;
+						height: calc(100% - 44px);
+						margin-top: 24px;
 						box-sizing: border-box;
 						table-layout: fixed;
-						padding: 0 4%;
+						padding: 0 2%;
+						font-size: clamp(.6em, 3vw, 2em);
 
 						tr td:first-child {
-							width: 40%;
+							width: 33%;
 						}
 
 						tr {
@@ -487,7 +473,7 @@
 						}
 					}
 				}
-				
+
 				.stats {
 					width: 33%;
 					height: 100%;
@@ -501,10 +487,13 @@
 					table {
 						transform: rotateY(-30deg);
 						width: 100%;
+						height: calc(100% - 44px);
 						box-sizing: border-box;
 						table-layout: fixed;
 						padding: 0 2%;
 						direction: rtl;
+						font-size: clamp(.6em, 3vw, 2em);
+						margin-top: 24px;
 
 						tr td:first-child {
 							width: 30%;
@@ -517,7 +506,7 @@
 
 								.progress {
 									position: relative;
-									height: 18px;
+									height: 26px;
 									display: block;
 									width: 100%;
 									background-color: rgba(0, 0, 0, 0.4);
@@ -534,7 +523,6 @@
 									background-color: var(--tcolor1);
 									-webkit-transition: width 0.3s linear;
 									transition: width 0.3s linear;
-									box-shadow: 0 0 6px var(--tcolor2);
 
 									&:after {
 										content: attr(data-value);
@@ -545,8 +533,8 @@
 										bottom: 0;
 										padding: 0 4px;
 										text-align: center;
-										line-height: 18px;
-										font-size: 22px;
+										line-height: 26px;
+										font-size: 30px;
 										font-weight: bold;
 										color: #fff;
 										text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
@@ -562,8 +550,8 @@
 
 	.back {
 		position: absolute;
-		top: 2%;
-		left: 1%;
+		top: 0;
+		left: 0;
 
 		button {
 			padding: 4px 16px;
@@ -573,13 +561,14 @@
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			border: 0;
-			color: #000;
 			font-size: 26px;
 			text-transform: uppercase;
 			cursor: pointer;
-			border-radius: 8px;
+			border-radius: 4px;
 			font-family: 'pokemon';
+			color: white;
+			background: rgba(0, 0, 0, 0.2);
+			border: 1px solid white;
 		}
 	}
 </style>
