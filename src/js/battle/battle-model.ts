@@ -77,7 +77,7 @@ export const typeChart = {
         "dark": 1,
         "steel": 0.5,
         "fairy": 1,
-        color: '#a8a67c'
+        color: 'rgb(148, 155, 163)'
     },
     "fire": {
         "normal": 1,
@@ -98,7 +98,7 @@ export const typeChart = {
         "dark": 1,
         "steel": 2,
         "fairy": 1,
-        color: '#e38643'
+        color: 'rgb(241,163,98)'
     },
     "water": {
         "normal": 1,
@@ -119,7 +119,7 @@ export const typeChart = {
         "dark": 1,
         "steel": 1,
         "fairy": 1,
-        color: '#728cc8',
+        color: 'rgb(95, 144, 210)',
     },
     "electric": {
         "normal": 1,
@@ -140,7 +140,7 @@ export const typeChart = {
         "dark": 1,
         "steel": 1,
         "fairy": 1,
-        color: '#ecb240'
+        color: 'rgb(239, 212, 89)'
     },
     "grass": {
         "normal": 1,
@@ -161,7 +161,7 @@ export const typeChart = {
         "dark": 1,
         "steel": 0.5,
         "fairy": 1,
-        color: '#8ac262'
+        color: 'rgb(122,187,101)'
     },
     "ice": {
         "normal": 1,
@@ -182,7 +182,7 @@ export const typeChart = {
         "dark": 1,
         "steel": 0.5,
         "fairy": 1,
-        color: '#a5d7d9'
+        color: 'rgb(138, 205, 193)'
     },
     "fighting": {
         "normal": 2,
@@ -203,7 +203,7 @@ export const typeChart = {
         "dark": 2,
         "steel": 2,
         "fairy": .5,
-        color: '#d84123',
+        color: 'rgb(191, 74, 108)',
     },
     "poison": {
         "normal": 1,
@@ -224,7 +224,7 @@ export const typeChart = {
         "dark": 1,
         "steel": 0,
         "fairy": 2,
-        color: '#8d4b9c'
+        color: 'rgb(162, 110, 196)'
     },
     "ground": {
         "normal": 1,
@@ -245,7 +245,7 @@ export const typeChart = {
         "dark": 1,
         "steel": 2,
         "fairy": 1,
-        color: '#b59f4b'
+        color: 'rgb(205, 126, 78)'
     },
     "flying": {
         "normal": 1,
@@ -266,7 +266,7 @@ export const typeChart = {
         "dark": 1,
         "steel": 0.5,
         "fairy": 1,
-        color: '#a8d6d8'
+        color: 'rgb(149, 170, 219)'
     },
     "psychic": {
         "normal": 1,
@@ -287,7 +287,7 @@ export const typeChart = {
         "dark": 0,
         "steel": 0.5,
         "fairy": 1,
-        color: '#e56289'
+        color: 'rgb(233, 122, 125)'
     },
     "bug": {
         "normal": 1,
@@ -308,7 +308,7 @@ export const typeChart = {
         "dark": 2,
         "steel": 0.5,
         "fairy": .5,
-        color: '#d8de57'
+        color: 'rgb(156, 193, 73)'
     },
     "rock": {
         "normal": 1,
@@ -329,7 +329,7 @@ export const typeChart = {
         "dark": 1,
         "steel": 0.5,
         "fairy": 1,
-        color: '#b59f4d'
+        color: 'rgb(196, 185, 146)'
     },
     "ghost": {
         "normal": 0,
@@ -350,7 +350,7 @@ export const typeChart = {
         "dark": 0.5,
         "steel": 0.5,
         "fairy": 1,
-        color: '#944a98'
+        color: 'rgb(86, 105, 170)'
     },
     "dragon": {
         "normal": 1,
@@ -371,7 +371,7 @@ export const typeChart = {
         "dark": 1,
         "steel": 0.5,
         "fairy": 0,
-        color: '#758bc6'
+        color: 'rgb(47, 108, 190)'
     },
     "dark": {
         "normal": 1,
@@ -392,7 +392,7 @@ export const typeChart = {
         "dark": 0.5,
         "steel": 0.5,
         "fairy": .5,
-        color: '#567783'
+        color: 'rgb(88, 83, 100)'
     },
     "steel": {
         "normal": 1,
@@ -413,7 +413,7 @@ export const typeChart = {
         "dark": 1,
         "steel": 0.5,
         "fairy": 2,
-        color: '#577884'
+        color: 'rgb(102, 142, 161)'
     },
     "fairy": {
         "normal": 1,
@@ -433,7 +433,7 @@ export const typeChart = {
         "dragon": 2,
         "dark": 2,
         "steel": .5,
-        "color": '#ee99ac'
+        "color": 'rgb(224, 149, 226)'
     }
 }
 
