@@ -1,22 +1,42 @@
 <script lang="ts">
 	import { typeChart } from '../../../js/battle/battle-model';
-	import { Stats, type PokedexEntry } from '../../../js/pokemons/pokedex';
+	import { PokedexEntry } from '../../../js/pokemons/pokedex';
 
 	export let pokemon: PokedexEntry;
+	export let selectedIdx: number;
+	export let filtered: PokedexEntry[];
+	export let detailOpened: boolean;
 
-	console.log(pokemon);
+	function select(idx: number) {
+		selectedIdx = idx;
+	}
+
+	function next() {
+		if (selectedIdx < filtered.length - 1) {
+			select(selectedIdx + 1);
+		}
+	}
+
+	function previous() {
+		if (selectedIdx > 0) {
+			select(selectedIdx - 1);
+		}
+	}
+
+	function back() {
+		detailOpened = false;
+	}
 </script>
 
 <div class="pokedex-detail" style="--color:{typeChart[pokemon.types[0]].color}">
 	<div class="back">
-		<button class="pushable">
-			<span class="edge"></span>
-			<span class="front"> BACK </span>
-		</button>
+		<button on:click={() => back()}> BACK </button>
 	</div>
 
 	<div class="row title">
+		<button on:click={() => previous()}>◄</button>
 		<h1>{pokemon.name}</h1>
+		<button on:click={() => next()}>►</button>
 	</div>
 
 	<div class="column">
@@ -80,7 +100,11 @@
 								<div
 									class="determinate"
 									data-value={pokemon.stats.hp}
-									style="width: {(pokemon.stats.hp / 255) * 100}%"
+									style="width: {(pokemon.stats.hp / 255) * 100}%; --tcolor1: {typeChart[
+										pokemon.types[0]
+									].color}; --tcolor2: {pokemon.types?.length > 1
+										? typeChart[pokemon.types[1]].color
+										: typeChart[pokemon.types[0]].color}"
 								></div>
 							</div>
 						</td>
@@ -92,7 +116,11 @@
 								<div
 									class="determinate"
 									data-value={pokemon.stats.attack}
-									style="width: {(pokemon.stats.attack / 255) * 100}%"
+									style="width: {(pokemon.stats.attack / 255) * 100}%; --tcolor1: {typeChart[
+										pokemon.types[0]
+									].color}; --tcolor2: {pokemon.types?.length > 1
+										? typeChart[pokemon.types[1]].color
+										: typeChart[pokemon.types[0]].color}"
 								></div>
 							</div>
 						</td>
@@ -104,7 +132,11 @@
 								<div
 									class="determinate"
 									data-value={pokemon.stats.defense}
-									style="width: {(pokemon.stats.defense / 255) * 100}%"
+									style="width: {(pokemon.stats.defense / 255) * 100}%; --tcolor1: {typeChart[
+										pokemon.types[0]
+									].color}; --tcolor2: {pokemon.types?.length > 1
+										? typeChart[pokemon.types[1]].color
+										: typeChart[pokemon.types[0]].color}"
 								></div>
 							</div>
 						</td>
@@ -116,7 +148,11 @@
 								<div
 									class="determinate"
 									data-value={pokemon.stats.specialAttack}
-									style="width: {(pokemon.stats.specialAttack / 255) * 100}%"
+									style="width: {(pokemon.stats.specialAttack / 255) * 100}%; --tcolor1: {typeChart[
+										pokemon.types[0]
+									].color}; --tcolor2: {pokemon.types?.length > 1
+										? typeChart[pokemon.types[1]].color
+										: typeChart[pokemon.types[0]].color}"
 								></div>
 							</div>
 						</td>
@@ -128,7 +164,11 @@
 								<div
 									class="determinate"
 									data-value={pokemon.stats.specialDefense}
-									style="width: {(pokemon.stats.specialDefense / 255) * 100}%"
+									style="width: {(pokemon.stats.specialDefense / 255) *
+										100}%; --tcolor1: {typeChart[pokemon.types[0]].color}; --tcolor2: {pokemon.types
+										?.length > 1
+										? typeChart[pokemon.types[1]].color
+										: typeChart[pokemon.types[0]].color}"
 								></div>
 							</div>
 						</td>
@@ -140,7 +180,11 @@
 								<div
 									class="determinate"
 									data-value={pokemon.stats.speed}
-									style="width: {(pokemon.stats.attack / 255) * 100}%"
+									style="width: {(pokemon.stats.attack / 255) * 100}%; --tcolor1: {typeChart[
+										pokemon.types[0]
+									].color}; --tcolor2: {pokemon.types?.length > 1
+										? typeChart[pokemon.types[1]].color
+										: typeChart[pokemon.types[0]].color}"
 								></div>
 							</div>
 						</td>
@@ -152,7 +196,11 @@
 								<div
 									class="determinate"
 									data-value={pokemon.stats.total}
-									style="width: {(pokemon.stats.total / 800) * 100}%"
+									style="width: {(pokemon.stats.total / 800) * 100}%; --tcolor1: {typeChart[
+										pokemon.types[0]
+									].color}; --tcolor2: {pokemon.types?.length > 1
+										? typeChart[pokemon.types[1]].color
+										: typeChart[pokemon.types[0]].color}"
 								></div>
 							</div>
 						</td>
@@ -221,14 +269,33 @@
 
 		.title {
 			height: 10%;
-			justify-content: center;
 			background-color: rgba(44, 56, 69, 0.3);
+			gap: 16px;
+			padding: 0 1%;
+			box-sizing: border-box;
+
 			h1 {
 				font-size: 36px;
 				text-transform: uppercase;
 				margin: 0;
 				padding: 0;
 				text-align: center;
+			}
+
+			button {
+				width: 60px;
+				height: 28px;
+				position: relative;
+				z-index: 999;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				border: 0;
+				color: #000;
+				font-size: 26px;
+				text-transform: uppercase;
+				cursor: pointer;
+				border-radius: 8px;
 			}
 		}
 
@@ -245,9 +312,10 @@
 				display: flex;
 				flex-direction: row;
 				align-items: flex-start;
-				padding: 3px;
+				padding: 2px 3px 3px 3px;
 				border-radius: 9px;
 				position: relative;
+				background: rgba(0, 0, 0, 0.2);
 			}
 
 			.indicator {
@@ -369,7 +437,6 @@
 										flex-wrap: nowrap;
 										gap: 8px;
 										padding: 2px 8px;
-										
 
 										span {
 											color: white;
@@ -400,7 +467,6 @@
 
 										border-radius: 4px;
 										height: 30px;
-										
 									}
 								}
 							}
@@ -471,10 +537,10 @@
 									left: 0;
 									bottom: 0;
 									//background-color: #26a69a;
-									background-color: var(--color);
+									background-color: var(--tcolor1);
 									-webkit-transition: width 0.3s linear;
 									transition: width 0.3s linear;
-									box-shadow: 0 0 6px var(--color);
+									box-shadow: 0 0 6px var(--tcolor2);
 
 									&:after {
 										content: attr(data-value);
@@ -502,74 +568,24 @@
 
 	.back {
 		position: absolute;
-		bottom: 3%;
+		bottom: 2%;
 		left: 1%;
-	}
 
-	.pushable {
-		position: relative;
-		background: transparent;
-		padding: 0px;
-		border: none;
-		cursor: pointer;
-		outline: none;
-		transition: filter 250ms;
-		-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-	}
-
-	.edge {
-		position: absolute;
-		top: 0;
-		left: 0;
-		height: 100%;
-		width: 100%;
-		border-radius: 8px;
-		background: linear-gradient(
-			to right,
-			hsl(248, 9%, 75%) 0%,
-			hsl(248, 9%, 75%) 8%,
-			hsl(248, 9%, 75%) 92%,
-			hsl(248, 9%, 75%) 100%
-		);
-	}
-
-	.front {
-		display: block;
-		position: relative;
-		border-radius: 8px;
-		background: hsl(248, 17%, 85%);
-		padding: 8px 22px;
-		font-family: pokemon;
-		text-transform: uppercase;
-		font-size: 24px;
-		transition: transform 600ms cubic-bezier(0.3, 0.7, 0.4, 1);
-	}
-
-	.pushable:hover {
-		filter: brightness(110%);
-	}
-
-	.pushable:hover .front {
-		transform: translateY(-6px);
-		transition: transform 250ms cubic-bezier(0.3, 0.7, 0.4, 1.5);
-	}
-
-	.pushable:active .front {
-		transform: translateY(-2px);
-		transition: transform 34ms;
-	}
-
-	.pushable:hover .shadow {
-		transform: translateY(4px);
-		transition: transform 250ms cubic-bezier(0.3, 0.7, 0.4, 1.5);
-	}
-
-	.pushable:active .shadow {
-		transform: translateY(1px);
-		transition: transform 34ms;
-	}
-
-	.pushable:focus:not(:focus-visible) {
-		outline: none;
+		button {
+			width: 130px;
+			height: 28px;
+			position: relative;
+			z-index: 999;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			border: 0;
+			color: #000;
+			font-size: 26px;
+			text-transform: uppercase;
+			cursor: pointer;
+			border-radius: 8px;
+			font-family: 'pokemon';
+		}
 	}
 </style>

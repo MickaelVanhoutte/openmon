@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import type { GameContext } from '../../../js/context/gameContext';
 	import { MenuType } from '../../../js/context/overworldContext';
-	import type { PokedexEntry, PokedexSearchResult } from '../../../js/pokemons/pokedex';
+	import type { PokedexSearchResult } from '../../../js/pokemons/pokedex';
 	import PokedexDetail from './PokedexDetail.svelte';
 
 	export let context: GameContext;
@@ -17,6 +17,10 @@
 	$: selectedPokemon = filtered[selectedIdx];
 	let filtered = context.POKEDEX.entries;
 	let detailOpened = false;
+
+	$: if (!detailOpened && elements?.length > 0) {
+		wrapper.scrollTop = elements[selectedIdx].offsetTop - 142;
+	}
 
 	const openDetail = () => {
 		detailOpened = true;
@@ -40,17 +44,22 @@
 
 	function select(idx: number) {
 		selectedIdx = idx;
-		wrapper.scrollTop = elements[selectedIdx].offsetTop - 100;
+		//wrapper.scrollTop = elements[selectedIdx].offsetTop - 100;
 	}
 
 	const listener = (e: KeyboardEvent) => {
 		if (e.key === 'Escape') {
-			context.overWorldContext.closeMenu(MenuType.POKEDEX);
-		} else if (e.key === 'ArrowDown') {
+			if (detailOpened) {
+				detailOpened = false;
+				return;
+			} else {
+				context.overWorldContext.closeMenu(MenuType.POKEDEX);
+			}
+		} else if (e.key === 'ArrowDown' || (detailOpened && e.key === 'ArrowRight')) {
 			if (selectedIdx < filtered.length - 1) {
 				select(selectedIdx + 1);
 			}
-		} else if (e.key === 'ArrowUp') {
+		} else if (e.key === 'ArrowUp' || (detailOpened && e.key === 'ArrowLeft')) {
 			if (selectedIdx > 0) {
 				select(selectedIdx - 1);
 			}
@@ -119,7 +128,7 @@
 </div>
 
 {#if detailOpened}
-	<PokedexDetail pokemon={selectedPokemon} />
+	<PokedexDetail pokemon={selectedPokemon} bind:filtered bind:selectedIdx bind:detailOpened />
 {/if}
 
 <style lang="scss">
