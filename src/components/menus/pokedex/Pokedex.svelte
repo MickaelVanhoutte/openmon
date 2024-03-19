@@ -128,7 +128,7 @@
 </div>
 
 {#if detailOpened}
-	<PokedexDetail pokemon={selectedPokemon} bind:filtered bind:selectedIdx bind:detailOpened />
+	<PokedexDetail pokemon={selectedPokemon} bind:filtered bind:selectedIdx bind:detailOpened {context}/>
 {/if}
 
 <style lang="scss">

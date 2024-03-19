@@ -1,11 +1,26 @@
 <script lang="ts">
 	import { typeChart } from '../../../js/battle/battle-model';
+	import type { GameContext } from '../../../js/context/gameContext';
 	import { PokedexEntry } from '../../../js/pokemons/pokedex';
+	import { backInOut } from 'svelte/easing';
+	import { slide } from 'svelte/transition';
 
+	export let context: GameContext;
 	export let pokemon: PokedexEntry;
 	export let selectedIdx: number;
 	export let filtered: PokedexEntry[];
 	export let detailOpened: boolean;
+
+	const tabs = {
+		1: 'Stats',
+		2: 'More',
+		3: 'Moves'
+	};
+	let currentTab = 1;
+
+	function selectTab(tab: 1 | 2 | 3) {
+		currentTab = tab;
+	}
 
 	function select(idx: number) {
 		selectedIdx = idx;
@@ -26,6 +41,18 @@
 	function back() {
 		detailOpened = false;
 	}
+
+	function calculateTypeEffectiveness(type: string, types: string[]) {
+		return types.reduce((acc, type2) => {
+			const effectiveness = fromTypeChart(type, type2);
+			return acc * effectiveness;
+		}, 1);
+	}
+
+	function fromTypeChart(type1: string, type2: string): number {
+		//@ts-ignore
+		return typeChart[type1.toLowerCase()][type2.toLowerCase()] as number;
+	}
 </script>
 
 <div class="pokedex-detail" style="--color:{typeChart[pokemon.types[0]].color}">
@@ -39,180 +66,267 @@
 		<button on:click={() => next()}>►</button>
 	</div>
 
-	<div
-		class="column"
-		style="background-image: url({`src/assets/monsters/pokedex/${('00' + pokemon?.id).slice(-3)}.png`})"
-	>
-		<div class="main row">
-			<div class="desc">
-				<table>
-					<tr>
-						<td>ID</td>
-						<td>#{('00' + pokemon?.id).slice(-3)}</td>
-					</tr>
-					<tr>
-						<td>Height</td>
-						<td>{pokemon.height}m</td>
-					</tr>
+	{#if currentTab === 1}
+		<div
+			class="stats-tab column"
+			in:slide={{ duration: 500, delay: 50, axis: 'x', easing: backInOut }}
+			style="background-image: url({`src/assets/monsters/pokedex/${('00' + pokemon?.id).slice(-3)}.png`})"
+		>
+			<div class="main row">
+				<div class="desc">
+					<table>
+						<tr>
+							<td>ID</td>
+							<td>#{('00' + pokemon?.id).slice(-3)}</td>
+						</tr>
+						<tr>
+							<td>Height</td>
+							<td>{pokemon.height}m</td>
+						</tr>
 
-					<tr>
-						<td>Weight</td>
-						<td>{pokemon.weight}kg</td>
-					</tr>
-					<tr>
-						<td>Abilities</td>
-						<td>
-							<div class="abilities">
-								{#each pokemon.abilities as ability}
-									<span class="ability">{ability}</span>
-								{/each}
-							</div>
-						</td>
-					</tr>
-					<tr>
-						<td>Type</td>
-						<td>
-							<div class="types">
-								{#each pokemon.types as type}
-									<div class="type" style="--tcolor:{typeChart[type].color}">
-										<span>{type}</span>
-										<img alt={type} src="src/assets/types/{type}.svg" />
-									</div>
-								{/each}
-							</div>
-						</td>
-					</tr>
-				</table>
-			</div>
-			<div class="stats">
-				<table>
-					<tr>
-						<td>HP</td>
-						<td>
-							<div class="progress">
-								<div
-									class="determinate"
-									data-value={pokemon.stats.hp}
-									style="width: {(pokemon.stats.hp / 255) * 100}%; --tcolor1: {typeChart[
-										pokemon.types[0]
-									].color}; --tcolor2: {pokemon.types?.length > 1
-										? typeChart[pokemon.types[1]].color
-										: typeChart[pokemon.types[0]].color}"
-								></div>
-							</div>
-						</td>
-					</tr>
-					<tr>
-						<td>Atk</td>
-						<td>
-							<div class="progress">
-								<div
-									class="determinate"
-									data-value={pokemon.stats.attack}
-									style="width: {(pokemon.stats.attack / 255) * 100}%; --tcolor1: {typeChart[
-										pokemon.types[0]
-									].color}; --tcolor2: {pokemon.types?.length > 1
-										? typeChart[pokemon.types[1]].color
-										: typeChart[pokemon.types[0]].color}"
-								></div>
-							</div>
-						</td>
-					</tr>
-					<tr>
-						<td>Def</td>
-						<td>
-							<div class="progress">
-								<div
-									class="determinate"
-									data-value={pokemon.stats.defense}
-									style="width: {(pokemon.stats.defense / 255) * 100}%; --tcolor1: {typeChart[
-										pokemon.types[0]
-									].color}; --tcolor2: {pokemon.types?.length > 1
-										? typeChart[pokemon.types[1]].color
-										: typeChart[pokemon.types[0]].color}"
-								></div>
-							</div>
-						</td>
-					</tr>
-					<tr>
-						<td>Sp.A</td>
-						<td>
-							<div class="progress">
-								<div
-									class="determinate"
-									data-value={pokemon.stats.specialAttack}
-									style="width: {(pokemon.stats.specialAttack / 255) * 100}%; --tcolor1: {typeChart[
-										pokemon.types[0]
-									].color}; --tcolor2: {pokemon.types?.length > 1
-										? typeChart[pokemon.types[1]].color
-										: typeChart[pokemon.types[0]].color}"
-								></div>
-							</div>
-						</td>
-					</tr>
-					<tr>
-						<td>Sp.D</td>
-						<td>
-							<div class="progress">
-								<div
-									class="determinate"
-									data-value={pokemon.stats.specialDefense}
-									style="width: {(pokemon.stats.specialDefense / 255) *
-										100}%; --tcolor1: {typeChart[pokemon.types[0]].color}; --tcolor2: {pokemon.types
-										?.length > 1
-										? typeChart[pokemon.types[1]].color
-										: typeChart[pokemon.types[0]].color}"
-								></div>
-							</div>
-						</td>
-					</tr>
-					<tr>
-						<td>Speed</td>
-						<td>
-							<div class="progress">
-								<div
-									class="determinate"
-									data-value={pokemon.stats.speed}
-									style="width: {(pokemon.stats.attack / 255) * 100}%; --tcolor1: {typeChart[
-										pokemon.types[0]
-									].color}; --tcolor2: {pokemon.types?.length > 1
-										? typeChart[pokemon.types[1]].color
-										: typeChart[pokemon.types[0]].color}"
-								></div>
-							</div>
-						</td>
-					</tr>
-					<tr>
-						<td>Total</td>
-						<td>
-							<div class="progress">
-								<div
-									class="determinate"
-									data-value={pokemon.stats.total}
-									style="width: {(pokemon.stats.total / 800) * 100}%; --tcolor1: {typeChart[
-										pokemon.types[0]
-									].color}; --tcolor2: {pokemon.types?.length > 1
-										? typeChart[pokemon.types[1]].color
-										: typeChart[pokemon.types[0]].color}"
-								></div>
-							</div>
-						</td>
-					</tr>
-				</table>
+						<tr>
+							<td>Weight</td>
+							<td>{pokemon.weight}kg</td>
+						</tr>
+						<tr>
+							<td>Abilities</td>
+							<td>
+								<div class="abilities">
+									{#each pokemon.abilities as ability}
+										<span class="ability">{ability}</span>
+									{/each}
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td>Type</td>
+							<td>
+								<div class="types">
+									{#each pokemon.types as type}
+										<div class="type" style="--tcolor:{typeChart[type].color}">
+											<span>{type}</span>
+											<img alt={type} src="src/assets/types/{type}.svg" />
+										</div>
+									{/each}
+								</div>
+							</td>
+						</tr>
+					</table>
+				</div>
+				<div class="stats">
+					<table>
+						<tr>
+							<td>HP</td>
+							<td>
+								<div class="progress">
+									<div
+										class="determinate"
+										data-value={pokemon.stats.hp}
+										style="width: {(pokemon.stats.hp / 255) * 100}%; --tcolor1: {typeChart[
+											pokemon.types[0]
+										].color}; --tcolor2: {pokemon.types?.length > 1
+											? typeChart[pokemon.types[1]].color
+											: typeChart[pokemon.types[0]].color}"
+									></div>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td>Atk</td>
+							<td>
+								<div class="progress">
+									<div
+										class="determinate"
+										data-value={pokemon.stats.attack}
+										style="width: {(pokemon.stats.attack / 255) * 100}%; --tcolor1: {typeChart[
+											pokemon.types[0]
+										].color}; --tcolor2: {pokemon.types?.length > 1
+											? typeChart[pokemon.types[1]].color
+											: typeChart[pokemon.types[0]].color}"
+									></div>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td>Def</td>
+							<td>
+								<div class="progress">
+									<div
+										class="determinate"
+										data-value={pokemon.stats.defense}
+										style="width: {(pokemon.stats.defense / 255) * 100}%; --tcolor1: {typeChart[
+											pokemon.types[0]
+										].color}; --tcolor2: {pokemon.types?.length > 1
+											? typeChart[pokemon.types[1]].color
+											: typeChart[pokemon.types[0]].color}"
+									></div>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td>Sp.A</td>
+							<td>
+								<div class="progress">
+									<div
+										class="determinate"
+										data-value={pokemon.stats.specialAttack}
+										style="width: {(pokemon.stats.specialAttack / 255) *
+											100}%; --tcolor1: {typeChart[pokemon.types[0]].color}; --tcolor2: {pokemon
+											.types?.length > 1
+											? typeChart[pokemon.types[1]].color
+											: typeChart[pokemon.types[0]].color}"
+									></div>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td>Sp.D</td>
+							<td>
+								<div class="progress">
+									<div
+										class="determinate"
+										data-value={pokemon.stats.specialDefense}
+										style="width: {(pokemon.stats.specialDefense / 255) *
+											100}%; --tcolor1: {typeChart[pokemon.types[0]].color}; --tcolor2: {pokemon
+											.types?.length > 1
+											? typeChart[pokemon.types[1]].color
+											: typeChart[pokemon.types[0]].color}"
+									></div>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td>Speed</td>
+							<td>
+								<div class="progress">
+									<div
+										class="determinate"
+										data-value={pokemon.stats.speed}
+										style="width: {(pokemon.stats.attack / 255) * 100}%; --tcolor1: {typeChart[
+											pokemon.types[0]
+										].color}; --tcolor2: {pokemon.types?.length > 1
+											? typeChart[pokemon.types[1]].color
+											: typeChart[pokemon.types[0]].color}"
+									></div>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td>Total</td>
+							<td>
+								<div class="progress">
+									<div
+										class="determinate"
+										data-value={pokemon.stats.total}
+										style="width: {(pokemon.stats.total / 800) * 100}%; --tcolor1: {typeChart[
+											pokemon.types[0]
+										].color}; --tcolor2: {pokemon.types?.length > 1
+											? typeChart[pokemon.types[1]].color
+											: typeChart[pokemon.types[0]].color}"
+									></div>
+								</div>
+							</td>
+						</tr>
+					</table>
+				</div>
 			</div>
 		</div>
-	</div>
-
+	{:else if currentTab === 2}
+		<div
+			class="more-tab column"
+			in:slide={{ duration: 500, delay: 50, axis: 'x', easing: backInOut }}
+		>
+			<table>
+				<tr>
+					<td>0x</td>
+					<td>
+						<div class="types">
+							{#each Object.keys(typeChart) as type}
+								{#if calculateTypeEffectiveness(type, pokemon.types) === 0}
+									<div class="type" style="--tcolor:{typeChart[type].color}">
+										<img alt={type} src="src/assets/types/{type}.svg" />
+									</div>
+								{/if}
+							{/each}
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td>0.25x</td>
+					<td>
+						<div class="types">
+							{#each Object.keys(typeChart) as type}
+								{#if calculateTypeEffectiveness(type, pokemon.types) === 0.25}
+									<div class="type" style="--tcolor:{typeChart[type].color}">
+										<img alt={type} src="src/assets/types/{type}.svg" />
+									</div>
+								{/if}
+							{/each}
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td>0.5x</td>
+					<td>
+						<div class="types">
+							{#each Object.keys(typeChart) as type}
+								{#if calculateTypeEffectiveness(type, pokemon.types) === 0.5}
+									<div class="type" style="--tcolor:{typeChart[type].color}">
+										<img alt={type} src="src/assets/types/{type}.svg" />
+									</div>
+								{/if}
+							{/each}
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td>2</td>
+					<td>
+						<div class="types">
+							{#each Object.keys(typeChart) as type}
+								{#if calculateTypeEffectiveness(type, pokemon.types) === 2}
+									<div class="type" style="--tcolor:{typeChart[type].color}">
+										<img alt={type} src="src/assets/types/{type}.svg" />
+									</div>
+								{/if}
+							{/each}
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td>4</td>
+					<td>
+						<div class="types">
+							{#each Object.keys(typeChart) as type}
+								{#if calculateTypeEffectiveness(type, pokemon.types) === 4}
+									<div class="type" style="--tcolor:{typeChart[type].color}">
+										<img alt={type} src="src/assets/types/{type}.svg" />
+									</div>
+								{/if}
+							{/each}
+						</div>
+					</td>
+				</tr>
+			</table>
+		</div>
+	{:else if currentTab === 3}
+		<div
+			class="moves-tab column"
+			in:slide={{ duration: 500, delay: 50, axis: 'x', easing: backInOut }}
+		>
+			moves
+		</div>
+	{/if}
 	<div class="menu row">
 		<div class="wrapper">
 			<input type="radio" name="tab" id="tab1" class="tab tab--1" />
-			<label class="tab_label" for="tab1">Stats</label>
+			<label class="tab_label" for="tab1" on:click={() => selectTab(1)}>Stats</label>
 
 			<input type="radio" name="tab" id="tab2" class="tab tab--2" />
-			<label class="tab_label" for="tab2">More</label>
+			<label class="tab_label" for="tab2" on:click={() => selectTab(2)}>More</label>
 
 			<input type="radio" name="tab" id="tab3" class="tab tab--3" />
-			<label class="tab_label" for="tab3">Moves</label>
+			<label class="tab_label" for="tab3" on:click={() => selectTab(3)}>Moves</label>
 
 			<div class="indicator"></div>
 		</div>
@@ -256,9 +370,15 @@
 			width: 100%;
 		}
 
+		.column {
+			display: flex;
+			flex-direction: column;
+			justify-content: space-between;
+			align-items: center;
+		}
+
 		.title {
 			height: 33px;
-			background-color: rgba(44, 56, 69, 0.3);
 			gap: 6%;
 			padding: 0 1%;
 			box-sizing: border-box;
@@ -297,7 +417,6 @@
 			justify-content: center;
 			align-content: center;
 			flex-wrap: wrap;
-			background-color: rgba(44, 56, 69, 0.3);
 
 			.wrapper {
 				display: flex;
@@ -306,7 +425,6 @@
 				padding: 2px 3px 3px 3px;
 				border-radius: 9px;
 				position: relative;
-				background: rgba(0, 0, 0, 0.2);
 			}
 
 			.indicator {
@@ -368,14 +486,9 @@
 			}
 		}
 
-		.column {
-			display: flex;
-			flex-direction: column;
-			justify-content: space-between;
-			align-items: center;
+		.stats-tab {
 			height: calc(100% - 66px);
 			width: 100%;
-			background-color: rgba(44, 56, 69, 0.3);
 			background-position: center;
 			background-size: contain;
 			background-repeat: no-repeat;
@@ -402,7 +515,7 @@
 						box-sizing: border-box;
 						table-layout: fixed;
 						padding: 0 2%;
-						font-size: clamp(.6em, 3vw, 2em);
+						font-size: clamp(0.6em, 3vw, 2em);
 
 						tr td:first-child {
 							width: 33%;
@@ -412,40 +525,6 @@
 							td {
 								padding: 1% 0%;
 								box-sizing: border-box;
-
-								.types {
-									display: flex;
-									gap: 8px;
-									flex-direction: row;
-									justify-content: flex-start;
-
-									.type {
-										font-size: 20px;
-										text-transform: uppercase;
-										border-radius: 4px;
-										height: 30px;
-										text-shadow: 0 0 3px #000;
-										filter: saturate(100%) brightness(110%);
-										transition: all 0.2s;
-										background: var(--tcolor);
-										box-shadow: 0 0 6px var(--tcolor);
-										display: flex;
-										justify-content: space-around;
-										align-items: center;
-										align-content: center;
-										flex-wrap: nowrap;
-										gap: 8px;
-										padding: 2px 6px;
-
-										span {
-											color: white;
-										}
-										img {
-											height: 22px;
-											width: auto;
-										}
-									}
-								}
 
 								.abilities {
 									display: flex;
@@ -492,7 +571,7 @@
 						table-layout: fixed;
 						padding: 0 2%;
 						direction: rtl;
-						font-size: clamp(.6em, 3vw, 2em);
+						font-size: clamp(0.6em, 3vw, 2em);
 						margin-top: 24px;
 
 						tr td:first-child {
@@ -544,6 +623,69 @@
 						}
 					}
 				}
+			}
+		}
+
+		.more-tab {
+			height: calc(100% - 66px);
+			width: 100%;
+			background-position: center;
+			background-size: contain;
+			background-repeat: no-repeat;
+			background-blend-mode: hard-light;
+
+			table {
+				border-spacing: 0;
+				border-collapse: unset;
+				tr:not(:first-of-type) td {
+					border-top: 1px solid white;
+				}
+				tr td {
+					padding: 4px 8px;
+				}
+			}
+		}
+
+		.moves-tab {
+			height: calc(100% - 66px);
+			width: 100%;
+			background-position: center;
+			background-size: contain;
+			background-repeat: no-repeat;
+			background-blend-mode: hard-light;
+		}
+	}
+
+	.types {
+		display: flex;
+		gap: 8px;
+		flex-direction: row;
+		justify-content: flex-start;
+
+		.type {
+			font-size: 20px;
+			text-transform: uppercase;
+			border-radius: 4px;
+			height: 30px;
+			text-shadow: 0 0 3px #000;
+			filter: saturate(100%) brightness(110%);
+			transition: all 0.2s;
+			background: var(--tcolor);
+			box-shadow: 0 0 6px var(--tcolor);
+			display: flex;
+			justify-content: space-around;
+			align-items: center;
+			align-content: center;
+			flex-wrap: nowrap;
+			gap: 8px;
+			padding: 2px 6px;
+
+			span {
+				color: white;
+			}
+			img {
+				height: 22px;
+				width: auto;
 			}
 		}
 	}
