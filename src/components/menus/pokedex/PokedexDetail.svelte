@@ -10,6 +10,7 @@
 	export let selectedIdx: number;
 	export let filtered: PokedexEntry[];
 	export let detailOpened: boolean;
+	console.log(pokemon);
 
 	const tabs = {
 		1: 'Stats',
@@ -232,82 +233,115 @@
 			</div>
 		</div>
 	{:else if currentTab === 2}
-		<div
-			class="more-tab column"
-			in:slide={{ duration: 500, delay: 50, axis: 'x', easing: backInOut }}
-		>
-			<table>
-				<tr>
-					<td>0x</td>
-					<td>
-						<div class="types">
-							{#each Object.keys(typeChart) as type}
-								{#if calculateTypeEffectiveness(type, pokemon.types) === 0}
-									<div class="type" style="--tcolor:{typeChart[type].color}">
-										<img alt={type} src="src/assets/types/{type}.svg" />
-									</div>
-								{/if}
-							{/each}
+		<div class="more-tab row" in:slide={{ duration: 500, delay: 50, axis: 'x', easing: backInOut }}>
+			<div class="column weaknesses">
+				<h4>Weaknesses & Resistances</h4>
+				<table>
+					<tr>
+						<td>0x</td>
+						<td>
+							<div class="types">
+								{#each Object.keys(typeChart) as type}
+									{#if calculateTypeEffectiveness(type, pokemon.types) === 0}
+										<div class="type" style="--tcolor:{typeChart[type].color}">
+											<img alt={type} src="src/assets/types/{type}.svg" />
+										</div>
+									{/if}
+								{/each}
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td>0.25x</td>
+						<td>
+							<div class="types">
+								{#each Object.keys(typeChart) as type}
+									{#if calculateTypeEffectiveness(type, pokemon.types) === 0.25}
+										<div class="type" style="--tcolor:{typeChart[type].color}">
+											<img alt={type} src="src/assets/types/{type}.svg" />
+										</div>
+									{/if}
+								{/each}
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td>0.5x</td>
+						<td>
+							<div class="types">
+								{#each Object.keys(typeChart) as type}
+									{#if calculateTypeEffectiveness(type, pokemon.types) === 0.5}
+										<div class="type" style="--tcolor:{typeChart[type].color}">
+											<img alt={type} src="src/assets/types/{type}.svg" />
+										</div>
+									{/if}
+								{/each}
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td>2</td>
+						<td>
+							<div class="types">
+								{#each Object.keys(typeChart) as type}
+									{#if calculateTypeEffectiveness(type, pokemon.types) === 2}
+										<div class="type" style="--tcolor:{typeChart[type].color}">
+											<img alt={type} src="src/assets/types/{type}.svg" />
+										</div>
+									{/if}
+								{/each}
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td>4</td>
+						<td>
+							<div class="types">
+								{#each Object.keys(typeChart) as type}
+									{#if calculateTypeEffectiveness(type, pokemon.types) === 4}
+										<div class="type" style="--tcolor:{typeChart[type].color}">
+											<img alt={type} src="src/assets/types/{type}.svg" />
+										</div>
+									{/if}
+								{/each}
+							</div>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div class="column evolutions">
+				<h4>Evolutions</h4>
+				{#if pokemon.evolution?.length === 0}
+					<div class="evolution">
+						<img
+							src={`src/assets/monsters/pokedex/${('00' + pokemon?.id).slice(-3)}.png`}
+							alt="current pokemon"
+						/>
+						<div>No evolution</div>
+					</div>
+				{:else}
+					{#each pokemon.evolution as evolution}
+						<div class="evolution">
+							<img
+								src={`src/assets/monsters/pokedex/${('00' + pokemon?.id).slice(-3)}.png`}
+								alt="current pokemon"
+							/>
+							<div class="method">
+								<span>{evolution?.method} {evolution?.level || ''}</span>
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+									><path
+										d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"
+									></path></svg
+								>
+							</div>
+							<img
+								src={`src/assets/monsters/pokedex/${('00' + evolution?.id).slice(-3)}.png`}
+								alt="next evolution"
+							/>
 						</div>
-					</td>
-				</tr>
-				<tr>
-					<td>0.25x</td>
-					<td>
-						<div class="types">
-							{#each Object.keys(typeChart) as type}
-								{#if calculateTypeEffectiveness(type, pokemon.types) === 0.25}
-									<div class="type" style="--tcolor:{typeChart[type].color}">
-										<img alt={type} src="src/assets/types/{type}.svg" />
-									</div>
-								{/if}
-							{/each}
-						</div>
-					</td>
-				</tr>
-				<tr>
-					<td>0.5x</td>
-					<td>
-						<div class="types">
-							{#each Object.keys(typeChart) as type}
-								{#if calculateTypeEffectiveness(type, pokemon.types) === 0.5}
-									<div class="type" style="--tcolor:{typeChart[type].color}">
-										<img alt={type} src="src/assets/types/{type}.svg" />
-									</div>
-								{/if}
-							{/each}
-						</div>
-					</td>
-				</tr>
-				<tr>
-					<td>2</td>
-					<td>
-						<div class="types">
-							{#each Object.keys(typeChart) as type}
-								{#if calculateTypeEffectiveness(type, pokemon.types) === 2}
-									<div class="type" style="--tcolor:{typeChart[type].color}">
-										<img alt={type} src="src/assets/types/{type}.svg" />
-									</div>
-								{/if}
-							{/each}
-						</div>
-					</td>
-				</tr>
-				<tr>
-					<td>4</td>
-					<td>
-						<div class="types">
-							{#each Object.keys(typeChart) as type}
-								{#if calculateTypeEffectiveness(type, pokemon.types) === 4}
-									<div class="type" style="--tcolor:{typeChart[type].color}">
-										<img alt={type} src="src/assets/types/{type}.svg" />
-									</div>
-								{/if}
-							{/each}
-						</div>
-					</td>
-				</tr>
-			</table>
+					{/each}
+				{/if}
+			</div>
 		</div>
 	{:else if currentTab === 3}
 		<div
@@ -633,15 +667,52 @@
 			background-size: contain;
 			background-repeat: no-repeat;
 			background-blend-mode: hard-light;
+			padding: 0 2%;
+			box-sizing: border-box;
 
-			table {
-				border-spacing: 0;
-				border-collapse: unset;
-				tr:not(:first-of-type) td {
-					border-top: 1px solid white;
+			.weaknesses {
+				height: 100%;
+				justify-content: flex-start;
+
+				table {
+					border-spacing: 0;
+					border-collapse: unset;
+					tr:not(:first-of-type) td {
+						border-top: 1px solid white;
+					}
+					tr td {
+						padding: 4px 8px;
+					}
 				}
-				tr td {
-					padding: 4px 8px;
+			}
+
+			.evolutions {
+				width: 45%;
+				height: 100%;
+				justify-content: flex-start;
+
+				overflow-y: auto;
+				scrollbar-width: thin;
+				scrollbar-color: #68c0c8 #0e2742f0;
+
+				.evolution {
+					display: flex;
+					align-items: center;
+					gap: 16px;
+
+					.method {
+						display: flex;
+						flex-direction: column;
+						align-items: center;
+
+						svg {
+							max-height: 60px;
+						}
+					}
+					img {
+						height: 100px;
+						width: auto;
+					}
 				}
 			}
 		}
