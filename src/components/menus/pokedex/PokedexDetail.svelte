@@ -443,9 +443,10 @@
 			{#if currentMove?.effect}
 				<h5>Effect : {currentMove?.effectChance}%</h5>
 				<p>
-					{currentMove?.effect?.effect.replace(mechanicRegex, '')
-					.replace(/\[/g, '')
-					.replace(/\]/g, '')}
+					{currentMove?.effect?.effect
+						.replace(mechanicRegex, '')
+						.replace(/\[/g, '')
+						.replace(/\]/g, '')}
 				</p>
 			{/if}
 		</Modal>
@@ -777,9 +778,17 @@
 			padding: 0 2%;
 			box-sizing: border-box;
 
+			h4 {
+				margin: 4dvh 0 2dvh 0;
+			}
+
 			.weaknesses {
 				height: 100%;
 				justify-content: flex-start;
+				height: calc(94dvh - 66px);
+				overflow-y: auto;
+				scrollbar-width: thin;
+				scrollbar-color: #68c0c8 #0e2742f0;
 
 				table {
 					border-spacing: 0;
@@ -795,9 +804,9 @@
 
 			.evolutions {
 				width: 45%;
-				height: 100%;
 				justify-content: flex-start;
 
+				height: calc(94dvh - 66px);
 				overflow-y: auto;
 				scrollbar-width: thin;
 				scrollbar-color: #68c0c8 #0e2742f0;
