@@ -56,10 +56,12 @@
 				context.overWorldContext.closeMenu(MenuType.POKEDEX);
 			}
 		} else if (e.key === 'ArrowDown') {
+			e.preventDefault();
 			if (selectedIdx < filtered.length - 1) {
 				select(selectedIdx + 1);
 			}
 		} else if (e.key === 'ArrowUp') {
+			e.preventDefault();
 			if (selectedIdx > 0) {
 				select(selectedIdx - 1);
 			}
