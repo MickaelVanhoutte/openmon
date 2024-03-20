@@ -454,13 +454,13 @@
 	<div class="menu row">
 		<div class="wrapper">
 			<input type="radio" name="tab" id="tab1" class="tab tab--1" checked={currentTab === 1} />
-			<label class="tab_label" for="tab1" on:click={() => selectTab(1)}>Stats</label>
+			<label class="tab_label" for="tab1" tabindex=-1 on:click={() => selectTab(1)}>Stats</label>
 
 			<input type="radio" name="tab" id="tab2" class="tab tab--2" checked={currentTab === 2} />
-			<label class="tab_label" for="tab2" on:click={() => selectTab(2)}>More</label>
+			<label class="tab_label" for="tab2" tabindex=-1 on:click={() => selectTab(2)}>More</label>
 
 			<input type="radio" name="tab" id="tab3" class="tab tab--3" checked={currentTab === 3} />
-			<label class="tab_label" for="tab3" on:click={() => selectTab(3)}>Moves</label>
+			<label class="tab_label" for="tab3" tabindex=-1 on:click={() => selectTab(3)}>Moves</label>
 
 			<div class="indicator"></div>
 		</div>
