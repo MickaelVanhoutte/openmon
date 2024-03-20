@@ -55,11 +55,11 @@
 			} else {
 				context.overWorldContext.closeMenu(MenuType.POKEDEX);
 			}
-		} else if (e.key === 'ArrowDown' || (detailOpened && e.key === 'ArrowRight')) {
+		} else if (e.key === 'ArrowDown') {
 			if (selectedIdx < filtered.length - 1) {
 				select(selectedIdx + 1);
 			}
-		} else if (e.key === 'ArrowUp' || (detailOpened && e.key === 'ArrowLeft')) {
+		} else if (e.key === 'ArrowUp') {
 			if (selectedIdx > 0) {
 				select(selectedIdx - 1);
 			}

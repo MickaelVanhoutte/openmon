@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { typeChart } from '../../../js/battle/battle-model';
 	import type { GameContext } from '../../../js/context/gameContext';
 	import { PokedexEntry } from '../../../js/pokemons/pokedex';
@@ -17,7 +18,7 @@
 		2: 'More',
 		3: 'Moves'
 	};
-	let currentTab = 1;
+	let currentTab: 1 | 2 | 3 = 1;
 
 	function selectTab(tab: 1 | 2 | 3) {
 		currentTab = tab;
@@ -54,17 +55,38 @@
 		//@ts-ignore
 		return typeChart[type1.toLowerCase()][type2.toLowerCase()] as number;
 	}
+
+	const listener = (e: KeyboardEvent) => {
+		if (e.key === 'ArrowLeft') {
+			let tab: 1 | 2 | 3 = currentTab === 1 ? 3 : ((currentTab - 1) as 1 | 2 | 3);
+			selectTab(tab);
+		} else if (e.key === 'ArrowRight') {
+			let tab: 1 | 2 | 3 = currentTab === 3 ? 1 : ((currentTab + 1) as 1 | 2 | 3);
+			selectTab(tab);
+		}
+	};
+
+	onMount(() => {
+		window.addEventListener('keydown', listener);
+		return () => {
+			window.removeEventListener('keydown', listener);
+		};
+	});
 </script>
 
 <div class="pokedex-detail" style="--color:{typeChart[pokemon.types[0]].color}">
-	<div class="back">
-		<button on:click={() => back()}> BACK </button>
-	</div>
-
 	<div class="row title">
-		<button on:click={() => previous()}>◄</button>
-		<h1>{pokemon.name}</h1>
-		<button on:click={() => next()}>►</button>
+		<div class="back">
+			<button on:click={() => back()}> BACK </button>
+		</div>
+
+		<div>
+			<h1>{pokemon.name}</h1>
+		</div>
+		<div class="prev-next">
+			<button on:click={() => previous()}>▲</button>
+			<button on:click={() => next()}>▼</button>
+		</div>
 	</div>
 
 	{#if currentTab === 1}
@@ -348,18 +370,67 @@
 			class="moves-tab column"
 			in:slide={{ duration: 500, delay: 50, axis: 'x', easing: backInOut }}
 		>
-			moves
+			<div class="row moves">
+				<table>
+					<thead>
+						<tr>
+							<th>Lvl</th>
+							<th>Name</th>
+							<th>Type</th>
+							<th>Category</th>
+							<th>Power</th>
+							<th>Accuracy</th>
+							<th>PP</th>
+						</tr>
+					</thead>
+					<tbody>
+						{#each pokemon.moves as move}
+							<tr>
+								<td>
+									{move.level}
+								</td>
+								<td>
+									{move.name}
+								</td>
+								<td>
+									<div class="types">
+										<div class="type" style="--tcolor:{typeChart[move.type].color}">
+											<img alt={move.type} src="src/assets/types/{move.type}.svg" />
+										</div>
+									</div>
+								</td>
+								<td>
+									<img
+										class="move-cat"
+										alt={move.type}
+										src="src/assets/moves-cat/{move.category}.png"
+									/>
+								</td>
+								<td>
+									{move.power || '-'}
+								</td>
+								<td>
+									{move.accuracy || '-'}
+								</td>
+								<td>
+									{move.pp}
+								</td>
+							</tr>
+						{/each}
+					</tbody>
+				</table>
+			</div>
 		</div>
 	{/if}
 	<div class="menu row">
 		<div class="wrapper">
-			<input type="radio" name="tab" id="tab1" class="tab tab--1" />
+			<input type="radio" name="tab" id="tab1" class="tab tab--1" checked={currentTab === 1} />
 			<label class="tab_label" for="tab1" on:click={() => selectTab(1)}>Stats</label>
 
-			<input type="radio" name="tab" id="tab2" class="tab tab--2" />
+			<input type="radio" name="tab" id="tab2" class="tab tab--2" checked={currentTab === 2} />
 			<label class="tab_label" for="tab2" on:click={() => selectTab(2)}>More</label>
 
-			<input type="radio" name="tab" id="tab3" class="tab tab--3" />
+			<input type="radio" name="tab" id="tab3" class="tab tab--3" checked={currentTab === 3} />
 			<label class="tab_label" for="tab3" on:click={() => selectTab(3)}>Moves</label>
 
 			<div class="indicator"></div>
@@ -416,7 +487,6 @@
 			gap: 6%;
 			padding: 0 1%;
 			box-sizing: border-box;
-			justify-content: center !important;
 
 			h1 {
 				font-size: 36px;
@@ -441,6 +511,14 @@
 				color: white;
 				background: rgba(0, 0, 0, 0.2);
 				border: 1px solid white;
+			}
+
+			.prev-next {
+				display: flex;
+				flex-direction: row;
+				justify-content: space-between;
+				align-items: center;
+				gap: 8px;
 			}
 		}
 
@@ -527,6 +605,7 @@
 			background-size: contain;
 			background-repeat: no-repeat;
 			background-blend-mode: hard-light;
+			background-size: clamp(33vw, 85vh, 60vw);
 
 			.main {
 				justify-content: space-between;
@@ -724,6 +803,45 @@
 			background-size: contain;
 			background-repeat: no-repeat;
 			background-blend-mode: hard-light;
+
+			.moves {
+				width: 100%;
+				height: 100%;
+				overflow-y: auto;
+				scrollbar-width: thin;
+				scrollbar-color: #68c0c8 #0e2742f0;
+				display: block;
+				padding: 2%;
+				box-sizing: border-box;
+
+				table {
+					width: 100%;
+					border-collapse: separate;
+					border-spacing: 0;
+					font-size: 22px;
+					height: 100%;
+
+					th {
+						color: #000;
+						padding: 8px;
+						background-color: #fff;
+					}
+
+					//odd rows
+					tr:nth-child(even) {
+						background-color: rgba(0, 0, 0, 0.4);
+					}
+
+					td {
+						padding: 8px;
+						text-align: center;
+						.move-cat {
+							height: 22px;
+							width: auto;
+						}
+					}
+				}
+			}
 		}
 	}
 
@@ -762,10 +880,6 @@
 	}
 
 	.back {
-		position: absolute;
-		top: 0;
-		left: 0;
-
 		button {
 			padding: 4px 16px;
 			height: 28px;
