@@ -2,16 +2,20 @@
 	import { onMount } from 'svelte';
 	import { typeChart } from '../../../js/battle/battle-model';
 	import type { GameContext } from '../../../js/context/gameContext';
-	import { PokedexEntry } from '../../../js/pokemons/pokedex';
+	import { Move, PokedexEntry } from '../../../js/pokemons/pokedex';
 	import { backInOut } from 'svelte/easing';
 	import { slide } from 'svelte/transition';
+	import Modal from '../../common/Modal.svelte';
 
 	export let context: GameContext;
 	export let pokemon: PokedexEntry;
 	export let selectedIdx: number;
 	export let filtered: PokedexEntry[];
 	export let detailOpened: boolean;
-	console.log(pokemon);
+
+	let currentMove: Move = pokemon.moves[0];
+	let showModal = false;
+	const mechanicRegex = /\{mechanic:.*?\}/g;
 
 	const tabs = {
 		1: 'Stats',
@@ -72,6 +76,11 @@
 			window.removeEventListener('keydown', listener);
 		};
 	});
+
+	function openModal(move: Move): any {
+		currentMove = move;
+		showModal = true;
+	}
 </script>
 
 <div class="pokedex-detail" style="--color:{typeChart[pokemon.types[0]].color}">
@@ -385,7 +394,7 @@
 					</thead>
 					<tbody>
 						{#each pokemon.moves as move}
-							<tr>
+							<tr on:click={() => openModal(move)}>
 								<td>
 									{move.level}
 								</td>
@@ -421,6 +430,25 @@
 				</table>
 			</div>
 		</div>
+
+		<Modal bind:showModal>
+			<h3 slot="header" style="margin: 2% 0">
+				{currentMove?.name}
+			</h3>
+
+			<p>
+				{currentMove?.description}
+			</p>
+			<hr />
+			{#if currentMove?.effect}
+				<h5>Effect : {currentMove?.effectChance}%</h5>
+				<p>
+					{currentMove?.effect?.effect.replace(mechanicRegex, '')
+					.replace(/\[/g, '')
+					.replace(/\]/g, '')}
+				</p>
+			{/if}
+		</Modal>
 	{/if}
 	<div class="menu row">
 		<div class="wrapper">
