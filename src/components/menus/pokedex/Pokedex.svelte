@@ -130,7 +130,7 @@
 </div>
 
 {#if detailOpened}
-	<PokedexDetail pokemon={selectedPokemon} bind:filtered bind:selectedIdx bind:detailOpened {context}/>
+	<PokedexDetail pokemon={selectedPokemon} bind:filtered bind:selectedIdx bind:detailOpened />
 {/if}
 
 <style lang="scss">
