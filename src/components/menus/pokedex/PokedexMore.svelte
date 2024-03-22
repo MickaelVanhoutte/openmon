@@ -150,6 +150,7 @@
 		background-blend-mode: hard-light;
 		padding: 0 2%;
 		box-sizing: border-box;
+        perspective: 150dvw;
 
 		h4 {
 			margin: 4dvh 0 2dvh 0;
@@ -163,6 +164,7 @@
 			overflow-y: auto;
 			scrollbar-width: thin;
 			scrollbar-color: #68c0c8 #0e2742f0;
+            transform: rotateY(30deg);
 
 			table {
 				width: 100%;
@@ -192,6 +194,7 @@
 			overflow-y: auto;
 			scrollbar-width: thin;
 			scrollbar-color: #68c0c8 #0e2742f0;
+            transform: rotateY(-30deg);
 
 			.evolution {
 				width: 100%;
