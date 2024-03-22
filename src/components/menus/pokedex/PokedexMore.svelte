@@ -19,7 +19,11 @@
 	}
 </script>
 
-<div class="more-tab row" in:slide={{ duration: 500, delay: 50, axis: 'x', easing: backInOut }}>
+<div
+	class="more-tab row"
+	in:slide={{ duration: 500, delay: 50, axis: 'x', easing: backInOut }}
+	class:hide={!pokemon.viewed}
+>
 	<div class="column weaknesses">
 		<h4>Weaknesses & Resistances</h4>
 		<table>
@@ -115,7 +119,11 @@
 						alt="current pokemon"
 					/>
 					<div class="method">
-						<span>{evolution?.method} {evolution?.level || ''}</span>
+						{#if pokemon.viewed}
+							<span>{evolution?.method} {evolution?.level || ''}</span>
+						{:else}
+							<span>???</span>
+						{/if}
 						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
 							><path
 								d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"
@@ -150,10 +158,14 @@
 		background-blend-mode: hard-light;
 		padding: 0 2%;
 		box-sizing: border-box;
-        perspective: 150dvw;
+		perspective: 150dvw;
 
 		h4 {
 			margin: 4dvh 0 2dvh 0;
+		}
+
+		&.hide {
+			filter: brightness(0);
 		}
 
 		.weaknesses {
@@ -164,11 +176,11 @@
 			overflow-y: auto;
 			scrollbar-width: thin;
 			scrollbar-color: #68c0c8 #0e2742f0;
-            transform: rotateY(30deg);
+			transform: rotateY(30deg);
 
 			table {
 				width: 100%;
-                height: 80%;
+				height: 80%;
 				border-spacing: 0;
 				border-collapse: unset;
 				table-layout: fixed;
@@ -195,7 +207,7 @@
 			overflow-y: auto;
 			scrollbar-width: thin;
 			scrollbar-color: #68c0c8 #0e2742f0;
-            transform: rotateY(-30deg);
+			transform: rotateY(-30deg);
 
 			.evolution {
 				width: 100%;
@@ -224,7 +236,7 @@
 		}
 	}
 
-    .types {
+	.types {
 		display: flex;
 		gap: 8px;
 		flex-direction: row;
