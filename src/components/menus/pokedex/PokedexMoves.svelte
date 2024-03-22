@@ -22,6 +22,10 @@
 
 <div class="moves-tab column" in:slide={{ duration: 500, delay: 50, axis: 'x', easing: backInOut }}>
 	<div class="row moves" class:hide={!pokemon.viewed}>
+
+        {#if !pokemon.viewed}
+            <h3 style="color: white; text-align: center; margin-top: 10%">No information on this pokemon</h3>
+        {:else}
 		<table>
 			<thead>
 				<tr>
@@ -70,6 +74,7 @@
 				{/each}
 			</tbody>
 		</table>
+        {/if}
 	</div>
 </div>
 
