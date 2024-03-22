@@ -134,6 +134,8 @@
 				td {
 					padding: 8px;
 					text-align: center;
+                    height: 50px;
+                    box-sizing: border-box;
 					.move-cat {
 						height: 22px;
 						width: auto;
