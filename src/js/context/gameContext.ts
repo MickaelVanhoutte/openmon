@@ -30,6 +30,8 @@ export class GameContext {
     }
 
     id: number;
+    updated: number;
+    created: number;
     isNewGame: boolean;
     player: Player;
     boxes: Array<PokemonBox>;
@@ -48,19 +50,21 @@ export class GameContext {
     // Guides
     tg: TourGuideClient;
 
-    constructor(id: number, player: Player, boxes: Array<PokemonBox>, map: MapSave, settings: Settings, isNewGame: boolean, viewedGuides: number[] = [], savedEntry: SavedEntry[] = []) {
-        this.id = id;
-        this.POKEDEX = new Pokedex(savedEntry);
-        this.player = Player.fromInstance(player);
-        this.boxes = boxes.map((box) => new PokemonBox(box.name, box.values.map((pkmn) => pkmn ? pkmn as PokemonInstance : undefined)));
-        this.map = OpenMap.fromInstance(this.MAPS[map.mapId], isNewGame ? this.MAPS[map.mapId].playerInitialPosition : player.position.positionOnMap);
-        this.settings = settings;
-        this.isNewGame = isNewGame;
+    constructor(save: SaveContext) {
+        this.id = save.id;
+        this.POKEDEX = new Pokedex(save.savedEntry);
+        this.player = Player.fromInstance(save.player);
+        this.boxes = save.boxes.map((box) => new PokemonBox(box.name, box.values.map((pkmn) => pkmn ? pkmn as PokemonInstance : undefined)));
+        this.map = OpenMap.fromInstance(this.MAPS[save.currentMap.mapId], save.isNewGame ? this.MAPS[save.currentMap.mapId].playerInitialPosition : save.player.position.positionOnMap);
+        this.settings = save.settings;
+        this.isNewGame = save.isNewGame;
+        this.created = save.created;
+        this.updated = save.updated;
 
         this.overWorldContext = new OverworldContext(this.map);
         this.player.position = new CharacterPosition(this.map.playerInitialPosition);
 
-        this.viewedGuides = viewedGuides;
+        this.viewedGuides = save.viewedGuides;
 
 
         this.tg = new TourGuideClient({
@@ -72,7 +76,7 @@ export class GameContext {
             closeButton: false,
             exitOnClickOutside: false,
             exitOnEscape: false,
-            steps : [GUIDES_STEPS.JOYSTICK, GUIDES_STEPS.KEYBOARD_ARROWS, GUIDES_STEPS.KEYBOARD_AB].filter(step => !this.viewedGuides.includes(step.order || 0))
+            steps: [GUIDES_STEPS.JOYSTICK, GUIDES_STEPS.KEYBOARD_ARROWS, GUIDES_STEPS.KEYBOARD_AB].filter(step => !this.viewedGuides.includes(step.order || 0))
         });
 
         this.tg.onFinish(() => {
@@ -192,7 +196,7 @@ export class GameContext {
 
                 this.overWorldContext.endScene(SceneType.WAKE_UP);
                 if (script) {
-                    this.playScript(script, undefined, () =>{
+                    this.playScript(script, undefined, () => {
                         this.overWorldContext.startScene(SceneType.STARTER_SELECTION);
                         let unsub = setInterval(() => {
                             if (!this.overWorldContext.scenes.starterSelection) {
@@ -350,9 +354,9 @@ export class GameContext {
             if (result) {
                 battleContext.events.ending.set(true);
 
-                if(opponent instanceof PokemonInstance){
+                if (opponent instanceof PokemonInstance) {
                     this.POKEDEX.setViewed(opponent.id);
-                }else{
+                } else {
                     opponent.monsters.forEach(pkmn => this.POKEDEX.setViewed(pkmn.id));
                 }
 
