@@ -43,7 +43,13 @@
 	};
 
 	function select(idx: number) {
-		selectedIdx = idx;
+		if (selectedIdx === idx) {
+			openDetail();
+			return;
+		} else {
+			selectedIdx = idx;
+		}
+
 		//wrapper.scrollTop = elements[selectedIdx].offsetTop - 100;
 	}
 
@@ -79,8 +85,19 @@
 </script>
 
 <div class="pokedex">
-	<div class="row">
-		<div class="preview">
+	<div class="row head">
+		<div class="column back">
+			<button on:click={() => context.overWorldContext.closeMenu(MenuType.POKEDEX)}>BACK</button>
+		</div>
+
+		<div class="column">
+			<div class="filters">
+				<input type="text" placeholder="Search" bind:value={searchTerm} on:input={search} />
+			</div>
+		</div>
+	</div>
+	<div class="row content">
+		<div class="column preview">
 			<div class="image">
 				{#if selectedPokemon?.id}
 					<img
@@ -100,31 +117,26 @@
 				</h2>
 			</div>
 		</div>
-		<div class="search">
-			<div class="filters">
-				<input type="text" placeholder="Search" bind:value={searchTerm} on:input={search} />
-			</div>
 
-			<div class="list" bind:this={wrapper}>
-				{#each filtered as pokemon, index}
-					<div
-						class:selected={selectedPokemon?.id === pokemon.id}
-						bind:this={elements[index]}
-						on:click={() => select(index)}
-					>
-						{#if pokemon.caught}
-							<img src="src/assets/menus/pokeball.png" alt="pokemons" />
-						{:else}
-							<span style="height:28px; width:24px"></span>
-						{/if}
-						<span>
-							{('00' + pokemon.id).slice(-3)} - {pokemon.name}
-						</span>
+		<div class="column list" bind:this={wrapper}>
+			{#each filtered as pokemon, index}
+				<div
+					class:selected={selectedPokemon?.id === pokemon.id}
+					bind:this={elements[index]}
+					on:click={() => select(index)}
+				>
+					{#if pokemon.caught}
+						<img src="src/assets/menus/pokeball.png" alt="pokemons" />
+					{:else}
+						<span style="height:28px; width:24px"></span>
+					{/if}
+					<span>
+						{('00' + pokemon.id).slice(-3)} - {pokemon.name}
+					</span>
 
-						<button on:click={() => openDetail()}>►</button>
-					</div>
-				{/each}
-			</div>
+					<button on:click={() => openDetail()}>►</button>
+				</div>
+			{/each}
 		</div>
 	</div>
 </div>
@@ -171,75 +183,112 @@
 			flex-direction: row;
 			justify-content: space-between;
 			align-items: center;
+			width: 100%;
+		}
+
+		.column {
+			display: flex;
+			flex-direction: column;
+			justify-content: space-between;
+			align-items: center;
+		}
+
+		.head {
+			height: 10%;
+			padding: 0 2%;
+			box-sizing: border-box;
+		}
+
+		.content {
+			height: 90%;
+			display: flex;
+			flex-direction: row;
+			justify-content: space-between;
+			align-items: center;
+			width: 100%;
+			padding: 0 2%;
+			box-sizing: border-box;
+		}
+
+		.preview {
+			width: 50%;
 			height: 100%;
-			background-color: rgba(44, 56, 69, 0.3);
 
-			.preview {
-				width: 50%;
-				height: 100%;
+			display: flex;
+			flex-direction: column;
+			justify-content: space-between;
+			align-items: center;
 
+			.image {
+				width: 100%;
+				height: 80%;
 				display: flex;
-				flex-direction: column;
-				justify-content: space-between;
-				align-items: center;
+				justify-content: center;
+				align-items: flex-end;
 
-				.image {
-					width: 100%;
+				img {
 					height: 80%;
-					display: flex;
-					justify-content: center;
-					align-items: flex-end;
+					object-fit: contain;
 
-					img {
-						height: 80%;
-						object-fit: contain;
-
-						&.hide {
-							filter: brightness(0);
-						}
+					&.hide {
+						filter: brightness(0);
 					}
 				}
 			}
 
-			.search {
-				width: 50%;
-				height: 100%;
+			h2 {
+				margin: 0;
+			}
+		}
 
+		.list {
+			width: 50%;
+			height: 96%;
+			overflow-y: auto;
+			box-sizing: border-box;
+			display: flex;
+			flex-direction: column;
+			justify-content: flex-start;
+			align-items: center;
+			gap: 4px;
+			padding: 2%;
+			scrollbar-width: thin;
+			scrollbar-color: #68c0c8 #0e2742f0;
+			div {
+				padding: 8px;
+				border-bottom: 1px solid #000;
+				border: 2px solid #000;
+				border-radius: 4px;
+				background: rgba(255, 255, 255, 0.5);
+				width: 100%;
+				box-sizing: border-box;
 				display: flex;
-				flex-direction: column;
+				flex-direction: row;
 				justify-content: space-between;
-				align-items: center;
 
-				.list {
-					width: 100%;
-					height: 80%;
-					overflow-y: auto;
-					box-sizing: border-box;
-					display: flex;
-					flex-direction: column;
-					justify-content: flex-start;
-					align-items: center;
-					gap: 8px;
-					padding: 2% 4%;
-					scrollbar-width: thin;
-					scrollbar-color: #68c0c8 #0e2742f0;
-					div {
-						padding: 8px;
-						border-bottom: 1px solid #000;
-						border: 2px solid #000;
-						border-radius: 4px;
-						background: rgba(255, 255, 255, 0.5);
-						width: 100%;
-						box-sizing: border-box;
-						display: flex;
-						flex-direction: row;
-						justify-content: space-between;
-
-						&.selected {
-							background: rgba(255, 255, 255, 0.8);
-						}
-					}
+				&.selected {
+					background: rgba(255, 255, 255, 0.8);
 				}
+			}
+		}
+
+		.back {
+			button {
+				padding: 4px 16px;
+				height: 28px;
+				position: relative;
+				z-index: 999;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-size: 26px;
+				text-transform: uppercase;
+				cursor: pointer;
+				border-radius: 4px;
+				font-family: 'pokemon';
+				color: white;
+				background: rgba(0, 0, 0, 0.2);
+				border: 1px solid white;
 			}
 		}
 	}

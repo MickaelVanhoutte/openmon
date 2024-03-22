@@ -168,6 +168,7 @@
 
 			table {
 				width: 100%;
+                height: 80%;
 				border-spacing: 0;
 				border-collapse: unset;
 				table-layout: fixed;
