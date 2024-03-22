@@ -160,10 +160,6 @@
 		left: 0;
 		width: 100dvw;
 		height: 100dvh;
-		//background-image: url('src/assets/menus/p-sum.jpg');
-		//background-size: cover;
-		//background-position: top left;
-		//background-repeat: round;
 		background: rgb(0, 29, 43);
 		background: -moz-linear-gradient(
 			140deg,
