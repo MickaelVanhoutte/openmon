@@ -12,13 +12,16 @@
 	const mechanicRegex = /\{mechanic:.*?\}/g;
 
 	function openModal(move: Move): any {
+		if (!pokemon.viewed) {
+			return;
+		}
 		currentMove = move;
 		showModal = true;
 	}
 </script>
 
 <div class="moves-tab column" in:slide={{ duration: 500, delay: 50, axis: 'x', easing: backInOut }}>
-	<div class="row moves">
+	<div class="row moves" class:hide={!pokemon.viewed}>
 		<table>
 			<thead>
 				<tr>
@@ -35,7 +38,7 @@
 				{#each pokemon.moves as move}
 					<tr on:click={() => openModal(move)}>
 						<td>
-							{move.level}
+							{pokemon.viewed ? move.level : '???'}
 						</td>
 						<td>
 							{move.name}
@@ -113,6 +116,10 @@
 			padding: 2%;
 			box-sizing: border-box;
 
+			&.hide {
+				filter: brightness(0);
+			}
+
 			table {
 				width: 100%;
 				border-collapse: separate;
@@ -125,7 +132,6 @@
 					background-color: #fff;
 				}
 
-
 				//odd rows
 				tr:nth-child(even) {
 					background-color: rgba(0, 0, 0, 0.4);
@@ -134,7 +140,7 @@
 				td {
 					padding: 8px;
 					text-align: center;
-                    box-sizing: border-box;
+					box-sizing: border-box;
 					.move-cat {
 						height: 22px;
 						width: auto;

@@ -10,6 +10,7 @@
 <div
 	class="stats-tab column"
 	in:slide={{ duration: 500, delay: 50, axis: 'x', easing: backInOut }}
+    class:hide={!pokemon.viewed}
 	style="background-image: url({`src/assets/monsters/pokedex/${('00' + pokemon?.id).slice(-3)}.png`})"
 >
 	<div class="main row">
@@ -196,6 +197,10 @@
 		background-repeat: no-repeat;
 		background-blend-mode: hard-light;
 		background-size: clamp(33vw, 70vh, 45vw);
+
+        &.hide {
+            filter: brightness(0);
+        }
 
 		.main {
 			justify-content: space-between;
