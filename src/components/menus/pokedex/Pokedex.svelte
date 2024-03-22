@@ -19,7 +19,7 @@
 	let detailOpened = false;
 
 	$: if (!detailOpened && elements?.length > 0) {
-		wrapper.scrollTop = elements[selectedIdx].offsetTop - 142;
+		wrapper.scrollTop = elements[selectedIdx]?.offsetTop - 142;
 	}
 
 	const openDetail = () => {
@@ -28,7 +28,7 @@
 
 	const search = () => {
 		selectedIdx = 0;
-		if (searchTerm.trim() === '') {
+		if (searchTerm.trim()?.length === 0) {
 			return (filtered = context.POKEDEX.entries);
 		}
 		if (Number(searchTerm) > 0 && Number(searchTerm) < 252) {
@@ -92,7 +92,16 @@
 
 		<div class="column">
 			<div class="filters">
-				<input type="text" placeholder="Search" bind:value={searchTerm} on:input={search} />
+				<div class="form__group field">
+					<input
+						type="input"
+						class="form__field"
+						placeholder="Search"
+						bind:value={searchTerm}
+						on:input={search}
+					/>
+					<label for="name" class="form__label">Name</label>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -112,8 +121,7 @@
 			<div>
 				<h2>
 					{selectedPokemon?.id ? ('00' + (selectedIdx + 1)).slice(-3) : '???'}
-					-
-					{selectedPokemon?.name}
+					{selectedPokemon?.name ? ('- ' + selectedPokemon?.name) : ''}
 				</h2>
 			</div>
 		</div>
@@ -194,13 +202,81 @@
 		}
 
 		.head {
-			height: 10%;
-			padding: 0 2%;
+			height: 12%;
+			padding: 2%;
 			box-sizing: border-box;
+
+			.filters {
+				width: 46dvw;
+				height: 100%;
+
+				.form__group {
+					position: relative;
+					padding: 15px 0 0;
+					width: 94%;
+				}
+
+				.form__field {
+					font-family: inherit;
+					width: 100%;
+					border: 0;
+					border-bottom: 2px solid rgba(0, 0, 0, 0.4);
+					outline: 0;
+					font-size: 1.2rem;
+					color: white;
+					padding: 4px 0;
+					background: transparent;
+					transition: border-color 0.2s;
+
+					&::placeholder {
+						color: transparent;
+					}
+
+					&:placeholder-shown ~ .form__label {
+						font-size: 1.2rem;
+						cursor: text;
+						top: 20px;
+						color: white;
+					}
+				}
+
+				.form__label {
+					position: absolute;
+					top: 0;
+					display: block;
+					transition: 0.2s;
+					font-size: 1rem;
+					color: rgba(0, 0, 0, 0.4);
+				}
+
+				.form__field:focus {
+					~ .form__label {
+						position: absolute;
+						top: 0;
+						display: block;
+						transition: 0.2s;
+						font-size: 1rem;
+						color: white;
+						font-weight: 700;
+					}
+					padding-bottom: 6px;
+					font-weight: 700;
+					border-width: 3px;
+					border-image: linear-gradient(to right, white, white);
+					border-image-slice: 1;
+				}
+				/* reset input */
+				.form__field {
+					&:required,
+					&:invalid {
+						box-shadow: none;
+					}
+				}
+			}
 		}
 
 		.content {
-			height: 90%;
+			height: 88%;
 			display: flex;
 			flex-direction: row;
 			justify-content: space-between;
@@ -269,6 +345,23 @@
 				&.selected {
 					background: rgba(255, 255, 255, 0.8);
 				}
+			}
+
+			button {
+				width: 40px;
+				height: 30px;
+				position: relative;
+				z-index: 999;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-size: 26px;
+				text-transform: uppercase;
+				cursor: pointer;
+				border-radius: 4px;
+				color: white;
+				background: rgba(0, 0, 0, 0.4);
+				border: 1px solid white;
 			}
 		}
 

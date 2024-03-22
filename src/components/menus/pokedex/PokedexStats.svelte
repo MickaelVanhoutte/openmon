@@ -10,7 +10,7 @@
 <div
 	class="stats-tab column"
 	in:slide={{ duration: 500, delay: 50, axis: 'x', easing: backInOut }}
-    class:hide={!pokemon.viewed}
+	class:hide={!pokemon.viewed}
 	style="background-image: url({`src/assets/monsters/pokedex/${('00' + pokemon?.id).slice(-3)}.png`})"
 >
 	<div class="main row">
@@ -33,9 +33,13 @@
 					<td>Abilities</td>
 					<td>
 						<div class="abilities">
-							{#each pokemon.abilities as ability}
-								<span class="ability">{ability}</span>
-							{/each}
+							{#if pokemon.viewed}
+								{#each pokemon.abilities as ability}
+									<span class="ability">{ability}</span>
+								{/each}
+							{:else}
+								<span>???</span>
+							{/if}
 						</div>
 					</td>
 				</tr>
@@ -43,12 +47,16 @@
 					<td>Type</td>
 					<td>
 						<div class="types">
-							{#each pokemon.types as type}
-								<div class="type" style="--tcolor:{typeChart[type].color}">
-									<span>{type}</span>
-									<img alt={type} src="src/assets/types/{type}.svg" />
-								</div>
-							{/each}
+							{#if pokemon.viewed}
+								{#each pokemon.types as type}
+									<div class="type" style="--tcolor:{typeChart[type].color}">
+										<span>{type}</span>
+										<img alt={type} src="src/assets/types/{type}.svg" />
+									</div>
+								{/each}
+							{:else}
+								<span>???</span>
+							{/if}
 						</div>
 					</td>
 				</tr>
@@ -62,8 +70,8 @@
 						<div class="progress">
 							<div
 								class="determinate"
-								data-value={pokemon.stats.hp}
-								style="width: {(pokemon.stats.hp / 255) * 100}%; --tcolor1: {typeChart[
+								data-value={pokemon.viewed ? pokemon.stats.hp : '???'}
+								style="width: {pokemon.viewed? ((pokemon.stats.hp / 255) * 100) : 0}%; --tcolor1: {typeChart[
 									pokemon.types[0]
 								].color}; --tcolor2: {pokemon.types?.length > 1
 									? typeChart[pokemon.types[1]].color
@@ -78,8 +86,8 @@
 						<div class="progress">
 							<div
 								class="determinate"
-								data-value={pokemon.stats.attack}
-								style="width: {(pokemon.stats.attack / 255) * 100}%; --tcolor1: {typeChart[
+								data-value={pokemon.viewed ? pokemon.stats.attack : '???'}
+								style="width: {pokemon.viewed? ((pokemon.stats.attack / 255) * 100) : 0}%; --tcolor1: {typeChart[
 									pokemon.types[0]
 								].color}; --tcolor2: {pokemon.types?.length > 1
 									? typeChart[pokemon.types[1]].color
@@ -94,8 +102,8 @@
 						<div class="progress">
 							<div
 								class="determinate"
-								data-value={pokemon.stats.defense}
-								style="width: {(pokemon.stats.defense / 255) * 100}%; --tcolor1: {typeChart[
+								data-value={pokemon.viewed ? pokemon.stats.defense : '???'}
+								style="width: {pokemon.viewed? ((pokemon.stats.defense / 255) * 100) : 0}%; --tcolor1: {typeChart[
 									pokemon.types[0]
 								].color}; --tcolor2: {pokemon.types?.length > 1
 									? typeChart[pokemon.types[1]].color
@@ -110,8 +118,8 @@
 						<div class="progress">
 							<div
 								class="determinate"
-								data-value={pokemon.stats.specialAttack}
-								style="width: {(pokemon.stats.specialAttack / 255) * 100}%; --tcolor1: {typeChart[
+								data-value={pokemon.viewed ? pokemon.stats.specialAttack : '???'}
+								style="width: {pokemon.viewed? ((pokemon.stats.specialAttack / 255) * 100) : 0}%; --tcolor1: {typeChart[
 									pokemon.types[0]
 								].color}; --tcolor2: {pokemon.types?.length > 1
 									? typeChart[pokemon.types[1]].color
@@ -126,8 +134,8 @@
 						<div class="progress">
 							<div
 								class="determinate"
-								data-value={pokemon.stats.specialDefense}
-								style="width: {(pokemon.stats.specialDefense / 255) * 100}%; --tcolor1: {typeChart[
+								data-value={pokemon.viewed ? pokemon.stats.specialDefense : '???'}
+								style="width: {pokemon.viewed? ((pokemon.stats.specialDefense / 255) * 100) : 0}%; --tcolor1: {typeChart[
 									pokemon.types[0]
 								].color}; --tcolor2: {pokemon.types?.length > 1
 									? typeChart[pokemon.types[1]].color
@@ -142,8 +150,8 @@
 						<div class="progress">
 							<div
 								class="determinate"
-								data-value={pokemon.stats.speed}
-								style="width: {(pokemon.stats.attack / 255) * 100}%; --tcolor1: {typeChart[
+								data-value={pokemon.viewed ? pokemon.stats.speed : '???'}
+								style="width: {pokemon.viewed? ((pokemon.stats.speed / 255) * 100) : 0}%; --tcolor1: {typeChart[
 									pokemon.types[0]
 								].color}; --tcolor2: {pokemon.types?.length > 1
 									? typeChart[pokemon.types[1]].color
@@ -158,8 +166,8 @@
 						<div class="progress">
 							<div
 								class="determinate"
-								data-value={pokemon.stats.total}
-								style="width: {(pokemon.stats.total / 800) * 100}%; --tcolor1: {typeChart[
+								data-value={pokemon.viewed ? pokemon.stats.total : '???'}
+								style="width: {pokemon.viewed? ((pokemon.stats.total / 800) * 100) : 0}%; --tcolor1: {typeChart[
 									pokemon.types[0]
 								].color}; --tcolor2: {pokemon.types?.length > 1
 									? typeChart[pokemon.types[1]].color
@@ -198,9 +206,9 @@
 		background-blend-mode: hard-light;
 		background-size: clamp(33vw, 70vh, 45vw);
 
-        &.hide {
-            filter: brightness(0);
-        }
+		&.hide {
+			filter: brightness(0);
+		}
 
 		.main {
 			justify-content: space-between;
