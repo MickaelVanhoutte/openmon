@@ -118,13 +118,13 @@
 				border-collapse: separate;
 				border-spacing: 0;
 				font-size: 22px;
-				height: 100%;
 
 				th {
 					color: #000;
 					padding: 8px;
 					background-color: #fff;
 				}
+
 
 				//odd rows
 				tr:nth-child(even) {
@@ -134,7 +134,6 @@
 				td {
 					padding: 8px;
 					text-align: center;
-                    height: 50px;
                     box-sizing: border-box;
 					.move-cat {
 						height: 22px;
