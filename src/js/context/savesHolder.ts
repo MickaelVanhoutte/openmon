@@ -12,6 +12,7 @@ import { writable, type Writable } from "svelte/store";
 export class SaveContext {
 
     id: number = 0;
+    created: number = Date.now();
     updated: number = Date.now();
     currentMap: MapSave;
     player: Player;
@@ -34,16 +35,7 @@ export class SaveContext {
     }
 
     toGameContext(): GameContext {
-        return new GameContext(
-            this.id,
-            this.player,
-            this.boxes,
-            this.currentMap,
-            this.settings,
-            this.isNewGame,
-            this.viewedGuides,
-            this.savedEntry
-        );
+        return new GameContext(this);
     }
 }
 
