@@ -1,5 +1,5 @@
 import type {PokemonInstance} from "../pokemons/pokedex";
-import itemsJson from "../../assets/data/final/usable-items.json";
+import itemsJson from "../../assets/data/final/beta/usable-items.json";
 import {Player} from "../characters/player";
 import {AItem, ItemUsageResult} from "./items-model";
 import type {BattleContext} from "../context/battleContext";
