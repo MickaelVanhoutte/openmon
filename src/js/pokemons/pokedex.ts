@@ -1,8 +1,7 @@
 import { EXPERIENCE_CHART } from "./experience";
 import type { Effect } from "./move-effects";
-import pokedexJson from "../../assets/data/final/pokedexBW-animated2.json";
+import pokedexJson from "../../assets/data/final/beta/pokedex-animatedV3.json";
 import { typeChart } from "../battle/battle-model";
-import { each } from "chart.js/helpers";
 
 export class Nature {
     public id: number;
@@ -186,8 +185,6 @@ export const NATURES: Nature[] = [
 export class Pokedex {
 
     public entries: PokedexEntry[] = [];
-    public ready = false;
-    public size = 251;
 
     constructor(savedEntries: SavedEntry[] = []) {
         this.importFromJson(pokedexJson, savedEntries);
@@ -209,7 +206,7 @@ export class Pokedex {
                     pokemon.description,
                     pokemon.isLegendary,
                     pokemon.captureRate,
-                    pokemon.experienceGrowth,
+                    pokemon.growthRateId,
                     pokemon.baseXp,
                     pokemon.percentageMale,
                     pokemon.evolution,
@@ -218,14 +215,11 @@ export class Pokedex {
                     savedEntries.find((entry) => entry.id === pokemon.id)?.caught
                 ));
             });
-            if (this.entries.length === this.size) {
-                this.ready = true;
-            }
         }
     }
 
     findById(id: number): PokedexSearchResult {
-        if (!this.ready || id === undefined || id === null || id < 1 || id > this.size) {
+        if (id === undefined || id === null || id < 1) {
             return new PokedexSearchResult(new UnknownMonster());
         }
         let entry = this.entries.find((entry) => entry.id === id);
@@ -233,7 +227,7 @@ export class Pokedex {
     }
 
     findByName(name: string): PokedexSearchResult[] {
-        if (!this.ready || name === undefined || name === null || name === "") {
+        if (name === undefined || name === null || name === "") {
             return [new PokedexSearchResult(new UnknownMonster())];
         }
         let entries = this.entries.filter((entry) => entry.name.toLowerCase().includes(name.toLowerCase()));
@@ -244,7 +238,7 @@ export class Pokedex {
         let entry = this.entries.find((entry) => entry.id === id)
         if (entry) {
             entry.viewed = true;
-        }  
+        }
     }
 
     setCaught(id: number) {
@@ -289,7 +283,6 @@ export class PokedexEntry {
     public captureRate: number;
     public growthRateId: number;
     public baseXp: number;
-    public experienceGrowth: number;
     public percentageMale: number;
     public evolution: Evolution[];
     public sprites?: Sprites;
@@ -309,7 +302,7 @@ export class PokedexEntry {
         description: string,
         isLegendary: boolean,
         captureRate: number,
-        experienceGrowth: number,
+        growthRateId: number,
         baseXp: number,
         percentageMale: number,
         evolution: Evolution[],
@@ -328,42 +321,13 @@ export class PokedexEntry {
         this.description = description;
         this.isLegendary = isLegendary;
         this.captureRate = captureRate;
-        this.experienceGrowth = experienceGrowth;
+        this.growthRateId = growthRateId;
         this.baseXp = baseXp;
         this.percentageMale = percentageMale;
         this.evolution = evolution;
         this.sprites = sprites;
-        this.viewed = viewed;
+        this.viewed = true//viewed;
         this.caught = caught;
-        switch (experienceGrowth) {
-            case 600000:
-                // erratic
-                this.growthRateId = 5;
-                break;
-            case 800000:
-                // fast
-                this.growthRateId = 3;
-                break;
-            case 1000000:
-                // medium fast
-                this.growthRateId = 2;
-                break;
-            case 1059860:
-                // medium slow
-                this.growthRateId = 4;
-                break;
-            case 1250000:
-                // slow
-                this.growthRateId = 1;
-                break;
-            case 1640000:
-                // fluctuating
-                this.growthRateId = 6;
-                break;
-            default:
-                this.growthRateId = 1;
-                break;
-        }
     }
 
     get weaknesses(): string[] {
@@ -625,7 +589,7 @@ export class PokemonInstance extends PokedexEntry {
     }
 
     constructor(pokedexEntry: PokedexEntry, level: number, nature: Nature, fromInstance?: PokemonInstance) {
-        super(pokedexEntry.id, pokedexEntry.name, pokedexEntry.types, pokedexEntry.abilities, pokedexEntry.moves, pokedexEntry.stats, pokedexEntry.height, pokedexEntry.weight, pokedexEntry.description, pokedexEntry.isLegendary, pokedexEntry.captureRate, pokedexEntry.experienceGrowth, pokedexEntry.baseXp, pokedexEntry.percentageMale, pokedexEntry.evolution, pokedexEntry.sprites);
+        super(pokedexEntry.id, pokedexEntry.name, pokedexEntry.types, pokedexEntry.abilities, pokedexEntry.moves, pokedexEntry.stats, pokedexEntry.height, pokedexEntry.weight, pokedexEntry.description, pokedexEntry.isLegendary, pokedexEntry.captureRate, pokedexEntry.growthRateId, pokedexEntry.baseXp, pokedexEntry.percentageMale, pokedexEntry.evolution, pokedexEntry.sprites);
 
         if (fromInstance) {
 

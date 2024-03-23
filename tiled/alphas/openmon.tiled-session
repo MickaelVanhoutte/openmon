@@ -3,22 +3,24 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "tileset2.16.tsx",
+    "activeFile": "start-village.tmx",
     "expandedProjectPaths": [
+        "."
     ],
+    "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
         "map1.tmx": {
             "expandedGroupLayers": [
-                9,
                 5,
-                8,
-                22
+                22,
+                9,
+                8
             ],
             "scale": 0.53,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 1596.2264150943397,
-                "y": 1596.2264150943397
+                "x": 1596.2264150943395,
+                "y": 1596.2264150943395
             }
         },
         "start-village.tmx": {
@@ -28,7 +30,7 @@
             "scale": 0.87,
             "selectedLayer": 3,
             "viewCenter": {
-                "x": 479.31034482758616,
+                "x": 478.1609195402299,
                 "y": 480.4597701149425
             }
         },
@@ -37,15 +39,15 @@
             "selectedLayer": 8,
             "viewCenter": {
                 "x": 800,
-                "y": 479.91803278688525
+                "y": 479.9180327868853
             }
         },
         "test-mal.tmx": {
             "scale": 1.57,
             "selectedLayer": 4,
             "viewCenter": {
-                "x": 159.87261146496814,
-                "y": 159.87261146496814
+                "x": 158.59872611464968,
+                "y": 158.5987261146497
             }
         },
         "test-map2.tmx": {
@@ -91,10 +93,10 @@
         "tileset.tsx",
         "test-mal.tmx",
         "test-map2.tmx",
-        "start-village.tmx",
-        "start.tmx",
-        "map1.tmx",
         "tileset2.16.tsx",
+        "map1.tmx",
+        "start.tmx",
+        "start-village.tmx",
         "ts2.tsx"
     ],
     "tileset.lastUsedFormat": "tsx",
