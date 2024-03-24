@@ -120,7 +120,7 @@
 			</div>
 			<div>
 				<h2>
-					{selectedPokemon?.id ? ('00' + (selectedIdx + 1)).slice(-3) : '???'}
+					{selectedPokemon?.id ? ('00' + (selectedPokemon?.id)).slice(-3) : '???'}
 					{selectedPokemon?.name ? ('- ' + selectedPokemon?.name) : ''}
 				</h2>
 			</div>
