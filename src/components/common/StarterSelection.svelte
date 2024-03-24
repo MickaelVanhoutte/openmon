@@ -16,9 +16,9 @@
 	let translateZ = canvasWidth * 0.33;
 
 	let monsters = [
-		context.POKEDEX.findById(1).result,
-		context.POKEDEX.findById(4).result,
-		context.POKEDEX.findById(7).result,
+		context.POKEDEX.findById(164).result,
+		context.POKEDEX.findById(125).result,
+		context.POKEDEX.findById(67).result,
 	];
 
 	console.log(monsters);

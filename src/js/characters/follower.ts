@@ -21,7 +21,7 @@ export class Follower implements Character, Interactive {
         this.position = position;
         this.pokemon = pokemon;
     }
-    
+
     static fromInstance(follower: Follower): Follower {
         let followerProto = new Follower(
             new CharacterPosition(follower.position.positionOnMap, follower.position.direction),
@@ -87,11 +87,11 @@ export class Follower implements Character, Interactive {
             this.frames.val = 0;
         }
 
-        let sY = this.orientationIndexes[this.position.direction] * 64;
+        let sY = this.orientationIndexes[this.position.direction] * image.width / 4;
 
         if (this.moving) {
             const speed = running ? RUNNING_SPEED : WALKING_SPEED;
-            
+
             const deltaX = this.position.targetPosition.x - this.position.positionOnMap.x;
             const deltaY = this.position.targetPosition.y - this.position.positionOnMap.y;
 
@@ -115,26 +115,74 @@ export class Follower implements Character, Interactive {
         }
 
         // Calculate the position of the NPC relative to the player
-        const relativeX = this.position.positionInPx.x - playerPosition.x;
-        const relativeY = this.position.positionInPx.y - playerPosition.y;
+        let imageWidth = image.width / this.frames.max * scale//image.width / this.frames.max * scale;
+        let imageHeight = image.height / this.frames.max * scale//image.height / this.frames.max * scale;
 
-        let { centerX, centerY, offsetX, offsetY } = centerObject(ctx, scale, playerPosition, 16, mapDim);
-        offsetY -= relativeY - 8;
-        offsetX -= relativeX;
+        let relativeX = this.position.positionInPx.x - playerPosition.x;
+        let relativeY = this.position.positionInPx.y - playerPosition.y;
 
+        // switch (this.position.direction) {
+
+        //     case 'up':
+
+        //         break;
+        //     case 'down':
+
+        //         break;
+        //     case 'left':
+        //         relativeY -= 16 - imageHeight;
+        //         relativeX -= 32 -imageWidth;
+        //         break;
+        //     case 'right':
+        //         relativeY -= 16 - imageHeight;
+        //         relativeX += 16 - imageWidth;
+        //         break;
+        // }
+
+        let { centerX, centerY, offsetX, offsetY } = centerObject(ctx, scale, playerPosition, imageWidth, mapDim);
+        //console.log(relativeY, ((image.height / 4 - 16) / 4));
+        //offsetY -= relativeY// adjust for different sprite sizes
+        //offsetX -= relativeX;
+
+        // adjust offset based on size ((image.width / 4 - 16) / 4), positively or negatively depending on direction
+        //offsetX -= (16 * 2.5) - (imageWidth / 2);
+        //offsetY -= (16 * 2.5) - (imageHeight / 2);
+
+        switch (this.position.direction) {
+            case 'up':
+                offsetY -= 8;
+                offsetX -= (16 * scale);
+                break;
+            case 'down':
+                offsetY -= (32 * scale) - imageHeight / 2;
+                offsetX -= (16 * scale);
+                break;
+            case 'left':
+                offsetY -= (40 * scale) - imageHeight / 2;
+                offsetX -= imageWidth / 4;
+                break;
+            case 'right':
+                offsetY -= (40 * scale) - imageHeight / 2;
+                offsetX -= (32 * scale) - imageWidth / 4;
+                break;
+        }
         ctx.save();
         ctx.translate(centerX - offsetX, centerY - offsetY);
 
+
+        // ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
+        // ctx.fillRect(relativeX, relativeY, imageWidth, imageHeight);
+
         ctx.drawImage(
             image,
-            this.frames.val * (64),
+            this.frames.val * (image.height / this.frames.max),
             sY,
-            64,
-            drawGrass ? 64 * .85 : 64,
-            0,
-            0,
-            64 * scale,
-            drawGrass ? 64 * scale * .85 : 64 * scale
+            image.width / this.frames.max,
+            drawGrass ? image.height / this.frames.max * .85 : image.height / this.frames.max,
+            relativeX,
+            relativeY,
+            imageWidth,
+            drawGrass ? imageHeight * .85 : imageHeight
         );
 
         ctx.restore();

@@ -86,7 +86,6 @@ export function centerObject(canvas: CanvasRenderingContext2D, scale: number, ob
     if (topThreshold) {
         offsetY = Math.min(centerY, window.innerHeight / 2 - (objectWidth * scale / 2)) - objectPosition.y;
     }
-
     if (rightThreshold) {
         offsetX = mapDim.width - Math.min(centerX, window.innerWidth / 2 - (objectWidth * scale / 2)) - objectPosition.x;
     }
