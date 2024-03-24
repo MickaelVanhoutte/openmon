@@ -59,7 +59,9 @@
 				}
 				if (opponent) {
 					opponent.src =
-						battleCtx?.opponentPokemon.sprites?.male?.front.frame1 ||
+						(battleCtx?.opponentPokemon.isShiny ?
+						battleCtx?.opponentPokemon.sprites?.male?.front.shiny1 :
+						battleCtx?.opponentPokemon.sprites?.male?.front.frame1) ||
 						'src/assets/monsters/bw/0.png';
 					opponent.onload = () => {
 						opponent.style.setProperty('--width', opponent.naturalWidth + 'px');
@@ -76,7 +78,10 @@
 				}
 				if (ally) {
 					ally.src =
-						battleCtx?.playerPokemon.sprites?.male?.back.frame1 || 'src/assets/monsters/bw/0.png';
+						(battleCtx?.playerPokemon.isShiny ?
+						battleCtx?.playerPokemon.sprites?.male?.back.shiny1 :
+						battleCtx?.playerPokemon.sprites?.male?.back.frame1 )|| 'src/assets/monsters/bw/0.png';
+
 					ally.onload = () => {
 						ally.style.setProperty('--width', ally.naturalWidth + 'px');
 						ally.style.setProperty('--height', ally.naturalHeight + 'px');
@@ -132,19 +137,25 @@
 
 	.wrapper {
 		font-size: 23px;
+
+		img {
+			scale: 2;
+		}
 	}
 
 	.wrapper :global(.ally-sprite) {
 		position: absolute;
-		bottom: 25%;
+		bottom: 28%;
 		left: calc(25% - var(--width) / 2);
 		z-index: 7;
+		scale: 1.7;
 	}
 
 	.wrapper :global(.opponent-sprite) {
 		position: absolute;
-		bottom: 44%;
+		bottom: 50%;
 		right: calc(25% - var(--width) / 2);
+		scale: 1.7;
 		z-index: 7;
 	}
 

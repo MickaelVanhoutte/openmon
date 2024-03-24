@@ -150,14 +150,17 @@ export class BattleContext {
     private selectOpponentAction(): ActionV2Interface {
         let random = Math.floor(Math.random() * this.opponentPokemon.moves.length);
         let move = this.opponentPokemon.moves[random];
+        console.log('opponent', this.opponentPokemon);
+        console.log('opponent move', move);
+        let action: ActionV2Interface;
 
         if (this.settings.difficulty === 'NORMAL') {
-            return new Attack(move, 'ally', this.opponentPokemon);
+            action = new Attack(move, 'ally', this.opponentPokemon);
         } else {
 
             let previousTurn = this.turnHistory.findLast((turn: TurnHistory) => turn.turn < this.turnCount && turn.initiator === this.opponentPokemon && turn.actionType === 'Attack');
             if (previousTurn) {
-                let move = previousTurn.move;
+                //let previousMove = previousTurn.move;
                 // need more infos on the move (is it a stat boost...) TODO
             }
 
@@ -171,29 +174,31 @@ export class BattleContext {
                 // is there a better poke to switch in based on types chart ?
                 let bestPoke = this.findBestPokemon(this.opponent.monsters, this.playerPokemon)
                 if (this.isWeakAgainst(this.opponentPokemon, this.playerPokemon) && bestPoke) {
-                    return new Switch(bestPoke, this.opponent);
+                    action = new Switch(bestPoke, this.opponent);
                 } else if (this.opponentPokemon.currentHp < this.opponentPokemon.stats.hp / 4 && this.havePotions(this.opponent)) {
                     // else if low hp && bag contains potions
                     let itemId = this.opponent.bag.getPocketByCategory(27)?.[0];
-                    return new UseItem(itemId, this.opponentPokemon, this.opponentPokemon, this.opponent);
+                    action = new UseItem(itemId, this.opponentPokemon, this.opponentPokemon, this.opponent);
                 }
                 // select the best move
                 if (matchTargetTypes && matchTargetTypes.power > 0) {
-                    return new Attack(matchTargetTypes, 'ally', this.opponentPokemon);
+                    action = new Attack(matchTargetTypes, 'ally', this.opponentPokemon);
                 } else {
-                    return new Attack(move, 'ally', this.opponentPokemon);
+                    action = new Attack(move, 'ally', this.opponentPokemon);
                 }
 
             } else {
                 // select the best move
                 if (matchTargetTypes && matchTargetTypes.power > 0) {
-                    return new Attack(matchTargetTypes, 'ally', this.opponentPokemon);
+                    action = new Attack(matchTargetTypes, 'ally', this.opponentPokemon);
                 } else {
-                    return new Attack(move, 'ally', this.opponentPokemon);
+                    action = new Attack(move, 'ally', this.opponentPokemon);
                 }
 
             }
         }
+        console.log('opponent action', action);
+        return action;
     }
 
     public findBestPokemon(monsters: PokemonInstance[], playerPokemon: PokemonInstance): PokemonInstance | undefined {
