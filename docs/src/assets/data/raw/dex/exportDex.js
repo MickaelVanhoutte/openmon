@@ -43,8 +43,14 @@ function exportPokemons() {
         let newNumber = ("00" + (index + 1)).slice(-3);
         let speciesData = species.find((p) => p.id === pokemon.id);
 
+        if(moves.length === 0){
+            console.log('missing moves for ' + pokemon.id);
+        }
+
         if (pokemon && xpData && speciesData) {
-            let evolutions = pokemon.evolution?.next?.length ? pokemon.evolution?.next?.filter(evo => evo[0] <= 700).map((evo) => {
+            let evolutions = pokemon.evolution?.next?.length ? pokemon.evolution?.next?.filter(evo => evo[0] <= 700)
+            .filter(evo => pIds.indexOf(parseInt(evo[0])) !== -1)
+            .map((evo) => {
                 if (evo[1]?.includes('Level')) {
                     return {
                         id: pIds.indexOf(parseInt(evo[0])) + 1,
@@ -53,7 +59,7 @@ function exportPokemons() {
                     }
                 } else {
                     return {
-                        id: parseInt(evo[0]),
+                        id: pIds.indexOf(parseInt(evo[0])) + 1,
                         level: null,
                         method: evo[1]
                     }
@@ -67,7 +73,9 @@ function exportPokemons() {
                 types: pokemon.type.map((type) => type.toLowerCase()),
                 abilities: pokemon.profile.ability.map((ability) => ability[0]),
                 baseXp: xpData.base_experience,
-                moves: moves.map((move) => {
+                moves: moves
+                .sort((a, b) => Number.parseInt(a.level) - Number.parseInt(b.level))
+                .map((move) => {
                     return {
                         id: move.move.id,
                         name: move.move.name,

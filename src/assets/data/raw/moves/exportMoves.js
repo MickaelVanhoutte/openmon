@@ -2,6 +2,7 @@ import fs from "fs";
 import moves from "./moves.json" assert {type: "json"};
 import moveEffects from "./move-effects.json" assert {type: "json"};
 import movesAssFromJson from "./pokemon-moves.json" assert {type: "json"};
+import pokemonIds from "../dex/pokemon-ids.json" assert {type: "json"};
 
 
 const typeById = {
@@ -140,7 +141,7 @@ function exportMoves() {
 
     movesAssociation
         //pokemon_move_method_id === 1 : by lvl up,  version_group_id === 7 : fire red
-        .filter((move) => Number.parseInt(move.pokemon_move_method_id) === 1 && move.version_group_id === '11' && move.pokemon_id <= 700)
+        .filter((move) => Number.parseInt(move.pokemon_move_method_id) === 1 && (Number(move.version_group_id) >= 20) && pokemonIds.includes(Number(move.pokemon_id)))
         .forEach((move) => {
 
             let moveFound = movesFromJson.find((m) => m.id === Number.parseInt(move.move_id));
@@ -169,6 +170,11 @@ function exportMoves() {
             }
         });
 
+        movesAssociationArray = movesAssociationArray.filter((move, index, self) => {
+            return index === self.findIndex((t) => (
+                t.pokemon_id === move.pokemon_id && t.move.id === move.move.id
+            )); 
+        });
     console.log(movesAssociationArray.length);
 
     fs.writeFile("./move-associations.json", JSON.stringify(movesAssociationArray), (error) => {

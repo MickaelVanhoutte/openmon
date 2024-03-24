@@ -330,7 +330,7 @@ export class PokedexEntry {
         this.percentageMale = percentageMale;
         this.evolution = evolution;
         this.sprites = sprites;
-        this.viewed = viewed;
+        this.viewed = true//viewed;
         this.caught = caught;
     }
 
@@ -376,8 +376,9 @@ export class PokedexEntry {
     public instanciate(level: number) {
         // random nature
         let nature = NATURES[Math.floor(Math.random() * NATURES.length)];
+        let shiny = Math.floor(Math.random() * 2) === 0;
 
-        return new PokemonInstance(this, level, nature);
+        return new PokemonInstance(this, level, nature, shiny);
     }
 }
 
@@ -593,7 +594,7 @@ export class PokemonInstance extends PokedexEntry {
         );
     }
 
-    constructor(pokedexEntry: PokedexEntry, level: number, nature: Nature, fromInstance?: PokemonInstance) {
+    constructor(pokedexEntry: PokedexEntry, level: number, nature: Nature, shiny: boolean, fromInstance?: PokemonInstance) {
         super(pokedexEntry.id, pokedexEntry.regionalId, pokedexEntry.name, pokedexEntry.types, pokedexEntry.abilities, pokedexEntry.moves, pokedexEntry.stats, pokedexEntry.height, pokedexEntry.weight, pokedexEntry.description, pokedexEntry.isLegendary, pokedexEntry.captureRate, pokedexEntry.growthRateId, pokedexEntry.baseXp, pokedexEntry.percentageMale, pokedexEntry.evolution, pokedexEntry.sprites);
 
         if (fromInstance) {
@@ -634,7 +635,7 @@ export class PokemonInstance extends PokedexEntry {
             this.currentHp = this.currentStats.hp;
             this.moves = this.selectLatestMoves(pokedexEntry);
             // shiny chance is 1/2048
-            this.isShiny = Math.floor(Math.random() * 2048) === 0;
+            this.isShiny= shiny;//= Math.floor(Math.random() * 2048) === 0;
 
             // random gender based on percentageMale attr
             this.gender = this.percentageMale ? (Math.random() * this.percentageMale <= this.percentageMale ? 'male' : 'female') : 'unknown';
@@ -766,7 +767,7 @@ export class PokemonInstance extends PokedexEntry {
 
     evolve(future: PokedexSearchResult): PokemonInstance {
         if (future.found && future.result) {
-            return new PokemonInstance(future.result, this.level, this.nature, this);
+            return new PokemonInstance(future.result, this.level, this.nature, this.isShiny, this);
             //this.checkForNewMoves();
         }
         return this

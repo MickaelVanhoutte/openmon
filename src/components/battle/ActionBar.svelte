@@ -59,6 +59,7 @@
 		if (idx != selectedMoveIdx) {
 			selectedMoveIdx = idx;
 		} else if (battleCtx) {
+			console.log('launching move', move);
 			battleCtx.startTurn(new Attack(move, 'opponent', battleCtx.playerPokemon));
 			moveOpened = false;
 		}
