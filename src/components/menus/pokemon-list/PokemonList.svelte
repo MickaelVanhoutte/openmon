@@ -77,6 +77,7 @@
 			first = context.player.monsters?.[0];
 			others = context.player.monsters.slice(1);
 			switchToIdx = undefined;
+			context.player.setFollower(first);
 		}
 	}
 
@@ -85,7 +86,7 @@
 	};
 
 	function summarize() {
-		if(isBattle){
+		if (isBattle) {
 			battleSummaryOpened = true;
 		} else {
 			context.overWorldContext.openMenu(MenuType.SUMMARY);
@@ -298,10 +299,13 @@
 </div>
 
 {#if context.overWorldContext.menus.openSummary || battleSummaryOpened}
-	<PokemonSummary bind:context bind:selected 
-	bind:isBattle 
-	bind:battleSummaryOpened
-	bind:zIndex={zIndexNext} />
+	<PokemonSummary
+		bind:context
+		bind:selected
+		bind:isBattle
+		bind:battleSummaryOpened
+		bind:zIndex={zIndexNext}
+	/>
 {/if}
 
 {#if context.overWorldContext.menus.bagOpened}
@@ -390,7 +394,7 @@
 			rgba(3, 84, 142, 1) 42%,
 			rgba(0, 195, 230, 1) 100%
 		);
-	
+
 		background-position: top left;
 		background-repeat: round;
 		z-index: var(--zIndex, 8);
