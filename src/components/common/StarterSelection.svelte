@@ -19,10 +19,9 @@
 		context.POKEDEX.findById(1).result,
 		context.POKEDEX.findById(4).result,
 		context.POKEDEX.findById(7).result,
-		context.POKEDEX.findById(179).result,
-		context.POKEDEX.findById(183).result,
-		context.POKEDEX.findById(246).result
 	];
+
+	console.log(monsters);
 
 	let angle = 0;
 

@@ -8,7 +8,7 @@ export class ExperienceCalculator {
     public chartById = new Map<number, ExperienceEntry[]>();
 
     constructor() {
-        fetch('src/assets/data/final/xp-chart.json')
+        fetch('src/assets/data/final/beta/xp-chart.json')
             .then(response => response.json())
             .then(data => {
 

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import Chart from 'chart.js/auto';
-	import abilities from '../../../assets/data/final/abilities.json';
+	import abilities from '../../../assets/data/final/alpha/abilities.json';
 	import { Nature, PokemonInstance } from '../../../js/pokemons/pokedex';
 	import { fade, slide } from 'svelte/transition';
 	import { backInOut } from 'svelte/easing';
