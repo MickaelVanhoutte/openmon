@@ -35,18 +35,19 @@ function exportPokemons() {
     let species = pokemonSpecies;
     let result = [];
 
-    pIds.forEach((id) => {
+    pIds.forEach((id, index) => {
         let pokemon = pokemons.find((p) => Number.parseInt(p.id) === id);
         let moves = moveAss.filter((move) => Number.parseInt(move.pokemon_id) === pokemon.id) || [];
         let xpData = xp.find((p) => p.id === pokemon.id);
         let pokedexNumber = ("00" + pokemon.id).slice(-3);
+        let newNumber = ("00" + (index + 1)).slice(-3);
         let speciesData = species.find((p) => p.id === pokemon.id);
 
         if (pokemon && xpData && speciesData) {
             let evolutions = pokemon.evolution?.next?.length ? pokemon.evolution?.next?.filter(evo => evo[0] <= 700).map((evo) => {
                 if (evo[1]?.includes('Level')) {
                     return {
-                        id: parseInt(evo[0]),
+                        id: pIds.indexOf(parseInt(evo[0])) + 1,
                         level: Number.parseInt(evo[1]?.replace('Level ', '') || '40'),
                         method: 'level'
                     }
@@ -59,8 +60,9 @@ function exportPokemons() {
                 }
             }) : [];
 
-            result.push({
-                id: pokemon.id,
+            let entry = {
+                id: Number(newNumber),
+                regionalId: Number(pokedexNumber),
                 name: pokemon.name.english,
                 types: pokemon.type.map((type) => type.toLowerCase()),
                 abilities: pokemon.profile.ability.map((ability) => ability[0]),
@@ -101,16 +103,17 @@ function exportPokemons() {
                 sprites: {
                     male: {
                         front: {
-                            frame1: `src/assets/monsters/animated/${pokedexNumber}.gif`,
-                            shiny1: `src/assets/monsters/animated/${pokedexNumber}s.gif`,
+                            frame1: `src/assets/monsters/animated/${''+ newNumber}.gif`,
+                            shiny1: `src/assets/monsters/animated/${''+ newNumber}s.gif`,
                         },
                         back: {
-                            frame1: `src/assets/monsters/animated/${pokedexNumber}b.gif`,
-                            shiny1: `src/assets/monsters/animated/${pokedexNumber}sb.gif`,
+                            frame1: `src/assets/monsters/animated/${''+ newNumber}b.gif`,
+                            shiny1: `src/assets/monsters/animated/${''+ newNumber}sb.gif`,
                         },
                     }
                 }
-            });
+            }
+            result.push(entry);
         }else {
             console.log('missing ' + pokemon.id);
         }

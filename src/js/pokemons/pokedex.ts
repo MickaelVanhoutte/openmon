@@ -196,6 +196,7 @@ export class Pokedex {
             json.forEach((pokemon) => {
                 this.entries.push(new PokedexEntry(
                     pokemon.id,
+                    pokemon.regionalId,
                     pokemon.name,
                     pokemon.types,
                     pokemon.abilities,
@@ -271,6 +272,7 @@ export class PokedexSearchResult {
 
 export class PokedexEntry {
     public id: number;
+    public regionalId: number;
     public name: string;
     public types: string[];
     public abilities: string[];
@@ -292,6 +294,7 @@ export class PokedexEntry {
 
     constructor(
         id: number,
+        regionalId: number,
         name: string,
         types: string[],
         abilities: string[],
@@ -311,6 +314,7 @@ export class PokedexEntry {
         caught: boolean = false
     ) {
         this.id = id;
+        this.regionalId = regionalId;
         this.name = name;
         this.types = types;
         this.abilities = abilities;
@@ -326,7 +330,7 @@ export class PokedexEntry {
         this.percentageMale = percentageMale;
         this.evolution = evolution;
         this.sprites = sprites;
-        this.viewed = true//viewed;
+        this.viewed = viewed;
         this.caught = caught;
     }
 
@@ -381,6 +385,7 @@ export class UnknownMonster extends PokedexEntry {
 
     constructor() {
         super(
+            0,
             0,
             'Unknown',
             [],
@@ -589,7 +594,7 @@ export class PokemonInstance extends PokedexEntry {
     }
 
     constructor(pokedexEntry: PokedexEntry, level: number, nature: Nature, fromInstance?: PokemonInstance) {
-        super(pokedexEntry.id, pokedexEntry.name, pokedexEntry.types, pokedexEntry.abilities, pokedexEntry.moves, pokedexEntry.stats, pokedexEntry.height, pokedexEntry.weight, pokedexEntry.description, pokedexEntry.isLegendary, pokedexEntry.captureRate, pokedexEntry.growthRateId, pokedexEntry.baseXp, pokedexEntry.percentageMale, pokedexEntry.evolution, pokedexEntry.sprites);
+        super(pokedexEntry.id, pokedexEntry.regionalId, pokedexEntry.name, pokedexEntry.types, pokedexEntry.abilities, pokedexEntry.moves, pokedexEntry.stats, pokedexEntry.height, pokedexEntry.weight, pokedexEntry.description, pokedexEntry.isLegendary, pokedexEntry.captureRate, pokedexEntry.growthRateId, pokedexEntry.baseXp, pokedexEntry.percentageMale, pokedexEntry.evolution, pokedexEntry.sprites);
 
         if (fromInstance) {
 
