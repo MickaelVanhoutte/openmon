@@ -14,6 +14,7 @@
 	export let battleCtx: BattleContext;
 	export let overWorldCtx: OverworldContext;
 	let moveOpened = false;
+	let infoOpened = false;
 	let show = false;
 
 	let currentMessage: String | undefined;
@@ -26,6 +27,8 @@
 	let battleBagOpened = false;
 	let battleSwitchOpened = false;
 	let zIndexNext = 10;
+	const mechanicRegex = /{[^}]*}/g;
+	const effectRegex = /\$effect_chance/g;
 
 	battleCtx.currentMessage.subscribe((message) => {
 		currentMessage = message;
@@ -50,15 +53,10 @@
 		battleBagOpened = true;
 	}
 
-	function selectMove(idx: number) {
-		selectedMoveIdx = idx;
-	}
-
 	function launchMove(idx: number, move: MoveInstance) {
 		if (idx != selectedMoveIdx) {
 			selectedMoveIdx = idx;
 		} else if (battleCtx) {
-			console.log('launching move', move);
 			battleCtx.startTurn(new Attack(move, 'opponent', battleCtx.playerPokemon));
 			moveOpened = false;
 		}
@@ -191,39 +189,46 @@
 <!-- <div class="action-bar" class:show> -->
 <div class="info" class:show class:move-desc-opened={moveOpened}>
 	<div class="_inner">
-		{#if !moveOpened}
+		<span>
 			{currentMessage?.toUpperCase()}
-		{:else}
-			<div class="move-desc">
-				<div class="_desc">
-					<p>
-						{battleCtx?.playerPokemon?.moves[selectedMoveIdx].description.replace(
-							'$effect_chance',
-							battleCtx?.playerPokemon?.moves[selectedMoveIdx].effectChance + '%'
-						)}
-					</p>
-				</div>
-				<div class="stats">
-					<p>
-						PP :
-						{battleCtx?.playerPokemon?.moves[selectedMoveIdx].currentPp}
-						/ {battleCtx?.playerPokemon?.moves[selectedMoveIdx].pp}
-					</p>
-					<p>Type : {battleCtx?.playerPokemon?.moves[selectedMoveIdx].category}</p>
-					<p>
-						Power/ACC
-						{battleCtx?.playerPokemon?.moves[selectedMoveIdx].power}
-						/ {battleCtx?.playerPokemon?.moves[selectedMoveIdx].accuracy} %
-					</p>
-				</div>
-			</div>
-		{/if}
+		</span>
 	</div>
 </div>
 
 {#if moveOpened}
+	<div class="move-desc" class:show={infoOpened}>
+		<div class="wrapper">
+			<div class="_desc">
+				<p>Acc. {battleCtx?.playerPokemon?.moves[selectedMoveIdx].accuracy} %</p>
+				<hr />
+				<p>
+					{battleCtx?.playerPokemon?.moves[selectedMoveIdx].description
+						?.replace(mechanicRegex, '')
+						?.replace(
+							effectRegex,
+							battleCtx?.playerPokemon?.moves[selectedMoveIdx].effectChance + ''
+						)}
+				</p>
+			</div>
+		</div>
+	</div>
+
+	<button class="info-btn" on:click={() => (infoOpened = !infoOpened)}>
+		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+			><path
+				d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20ZM11 7H13V9H11V7ZM11 11H13V17H11V11Z"
+			></path></svg
+		>
+	</button>
+	<button class="back-btn" on:click={() => (moveOpened = false)}>
+		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+			><path
+				d="M12 2C17.52 2 22 6.48 22 12C22 17.52 17.52 22 12 22C6.48 22 2 17.52 2 12C2 6.48 6.48 2 12 2ZM12 11V8L8 12L12 16V13H16V11H12Z"
+			></path></svg
+		></button
+	>
+
 	<div class="moves" class:show>
-		<button class="back" on:click={() => (moveOpened = false)}> ◄ </button>
 		{#each battleCtx?.playerPokemon?.moves as move, index}
 			<button
 				class="action-btn move"
@@ -237,6 +242,12 @@
 				</span>
 				<span class="move-cat">
 					<img src={`src/assets/moves-cat/${move.category}.png`} alt={move.category} />
+				</span>
+				<span class="move-pp">
+					{move.currentPp}/{move.pp}
+				</span>
+				<span class="move-power">
+					pwr. {move.power}
 				</span>
 				{move.name.toUpperCase()}
 			</button>
@@ -328,96 +339,90 @@
 		}
 	}
 
-	// .action-bar {
-	// 	z-index: 7;
-	// 	height: 25%;
-	// 	width: 98%;
-	// 	position: absolute;
-	// 	bottom: -25%;
-	// 	left: 1%;
-	// 	transition: bottom 0.5s ease-in-out;
-	// 	//text-shadow: 3px 3px 1px #bfecf7;
-	// 	display: flex;
-	// 	font-size: 26px;
-	// 	animation: appear 0.5s ease-in forwards;
+	@keyframes info-appear {
+		from {
+			bottom: -30%;
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+			bottom: 30%;
+		}
+	}
 
 	.info {
-		width: 49%;
+		width: 63%;
 		height: 15%;
 		position: absolute;
 		bottom: -20%;
 		left: 1%;
 		transition: bottom 0.5s ease-in-out;
 		animation: appear 0.5s ease-in forwards;
-		// background: rgb(220, 231, 233);
-		// background: linear-gradient(
-		// 	180deg,
-		// 	rgba(220, 231, 233, 0.7) 0%,
-		// 	rgba(255, 255, 255, 0.9) 50%,
-		// 	rgba(220, 231, 233, 0.7) 100%
-		// );
 		border-radius: 12px;
 		display: flex;
 		align-items: center;
 		align-content: center;
 		justify-content: space-around;
-		//position: relative;
 		box-sizing: border-box;
 		padding: 1%;
-
-		// -webkit-box-shadow: 5px 10px 21px 7px #000000;
-		// box-shadow: 5px 10px 21px 7px #000000;
-
-		&.move-desc-opened {
-			background: rgba(255, 255, 255, 0.6);
-			height: 25%;
-		}
+		perspective: 100dvw;
+		
 
 		._inner {
 			z-index: 1;
 			height: 100%;
-
+			font-size: 46px;
 			display: flex;
 			align-items: center;
 			justify-content: center;
 			width: 100%;
-			text-transform: capitalize;
+			text-transform: uppercase;
 			text-align: center;
 			box-sizing: border-box;
-			text-shadow: 1px 1px 4px white;
-			filter: drop-shadow(2px 2px 5px black);
+			filter: drop-shadow(2px 2px 5px white) invert(1);
+			transform: rotateY(30deg);
+			transform-origin: left;
+		}
+	}
 
-			.move-desc {
-				text-transform: initial;
-				text-align: left;
-				font-size: 20px;
-				word-break: break-word;
-				box-sizing: border-box;
-				padding: 0 1%;
+	.move-desc {
+		position: absolute;
+		left: 51%;
+		bottom: -30%;
+		width: 34%;
+		text-transform: initial;
+		text-align: left;
+		font-size: 30px;
+		word-break: break-word;
+		box-sizing: border-box;
 
-				display: flex;
-				align-items: center;
-				gap: 1%;
+		transition: bottom 0.5s ease-in-out;
+		opacity: 0;
 
-				p {
-					margin: 0;
-				}
+		&.show {
+			animation: info-appear 0.5s ease-in forwards;
+		}
 
-				._desc {
-					width: 50%;
-				}
+		.wrapper {
+			box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.45);
+			background: rgba(0, 0, 0, 0.05);
+		}
 
-				.stats {
-					width: 50%;
-				}
-			}
+		p {
+			margin: 0;
+		}
+
+		._desc {
+			width: 100%;
+			padding: 2%;
+			box-sizing: border-box;
 		}
 	}
 
 	.actions,
 	.moves {
 		width: 48%;
-		height: 25%;
+		height: 28%;
 		position: absolute;
 		bottom: -20%;
 		right: 1%;
@@ -431,20 +436,34 @@
 
 		flex-wrap: wrap;
 		gap: 5% 2%;
+	}
+	.back-btn {
+		position: absolute;
+		bottom: 30%;
+		right: 1dvw;
+		height: 8.25dvh;
+		width: 6dvw;
+		background-color: rgba(44, 56, 69, 0.45);
+		border-radius: 6px;
+		color: white;
 
-		.back {
-			position: absolute;
-			top: calc(-8.25dvh - 5%);
-			right: 1%;
-			height: 8.25dvh;
-			width: 6dvw;
-			background-color: rgba(44, 56, 69, 0.45);
-			border-radius: 6px;
-			color: white;
+		svg {
+			height: 100%;
+		}
+	}
 
-			svg {
-				height: 30px;
-			}
+	.info-btn {
+		position: absolute;
+		bottom: 30%;
+		right: 8dvw;
+		height: 8.25dvh;
+		width: 6dvw;
+		background-color: rgba(44, 56, 69, 0.45);
+		border-radius: 6px;
+		color: white;
+
+		svg {
+			height: 100%;
 		}
 	}
 	// }
@@ -479,6 +498,22 @@
 			text-shadow: none !important;
 		}
 
+		.move-pp {
+			font-size: 18px;
+			color: white;
+			position: absolute;
+			bottom: 0;
+			right: 30px;
+		}
+
+		.move-power {
+			font-size: 18px;
+			color: white;
+			position: absolute;
+			bottom: 0;
+			left: 30px;
+		}
+
 		&:hover,
 		&.selected {
 			cursor: pointer;
@@ -492,7 +527,7 @@
 			--border-angle: 0turn; // For animation.
 			--main-bg: conic-gradient(from var(--border-angle), #213, #112 5%, #112 60%, #213 95%);
 
-			border: solid 1px transparent;
+			border: solid 2px transparent;
 			--gradient-border: conic-gradient(
 				from var(--border-angle),
 				transparent 25%,

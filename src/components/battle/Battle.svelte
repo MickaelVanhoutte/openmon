@@ -160,7 +160,7 @@
 		z-index: 7;
 		width: 100dvw;
 		height: 100dvh;
-		overflow: auto;
+		overflow: hidden;
 		position: relative;
 		background-color: white;
 		box-sizing: border-box;
@@ -168,7 +168,7 @@
 		--border-angle: 0turn; // For animation.
 		--main-bg: conic-gradient(from var(--border-angle), #213, #112 5%, #112 60%, #213 95%);
 
-		border: solid 1px transparent;
+		border: solid 3px transparent;
 		--gradient-border: conic-gradient(
 			from var(--border-angle),
 			transparent 25%,
@@ -187,8 +187,8 @@
 
 		background-position: center center;
 
-		animation: bg-spin 3s linear infinite;
-		-webkit-animation: bg-spin 3s linear infinite;
+		animation: bg-spin 10s linear infinite;
+		-webkit-animation: bg-spin 10s linear infinite;
 		@keyframes bg-spin {
 			to {
 				--border-angle: 1turn;
@@ -211,7 +211,7 @@
 		bottom: 10%;
 		left: calc(17% - var(--width) / 2);
 		z-index: 7;
-		transform: scale(2.5);
+		transform: scale(2.2);
 		transform-origin: bottom left;
 		//filter: drop-shadow(-4px 6px 2px rgba(0, 0, 0, 0.45));
 	}
