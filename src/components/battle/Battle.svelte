@@ -232,7 +232,7 @@
 		position: absolute;
 		top: 0;
 		left: 0;
-		filter: opacity(0.66) blur(3px);
+		filter: opacity(0.85) blur(3px);
 	}
 
 	.wrapper :global(.opponent-grass) {
