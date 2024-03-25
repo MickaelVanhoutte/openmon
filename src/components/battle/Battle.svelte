@@ -155,6 +155,7 @@
 </div>
 
 <style lang="scss">
+
 	.battle {
 		z-index: 7;
 		width: 100dvw;
@@ -162,6 +163,36 @@
 		overflow: auto;
 		position: relative;
 		background-color: white;
+		box-sizing: border-box;
+
+		--border-angle: 0turn; // For animation.
+		--main-bg: conic-gradient(from var(--border-angle), #213, #112 5%, #112 60%, #213 95%);
+
+		border: solid 1px transparent;
+		--gradient-border: conic-gradient(
+			from var(--border-angle),
+			transparent 25%,
+			#08f,
+			#f03 99%,
+			transparent
+		);
+
+		background: 
+    // padding-box clip this background in to the overall element except the border.
+			var(--main-bg) padding-box,
+			// border-box extends this background to the border space
+			var(--gradient-border) border-box,
+			// Duplicate main background to fill in behind the gradient border. You can remove this if you want the border to extend "outside" the box background.
+			var(--main-bg) border-box;
+
+		background-position: center center;
+
+		animation: bg-spin 3s linear infinite;
+		@keyframes bg-spin {
+			to {
+				--border-angle: 1turn;
+			}
+		}
 	}
 
 	.wrapper {
@@ -177,7 +208,7 @@
 		position: absolute;
 		//bottom: 30%;
 		bottom: 10%;
-		left: calc(20% - var(--width) / 2);
+		left: calc(17% - var(--width) / 2);
 		z-index: 7;
 		transform: scale(2.5);
 		transform-origin: bottom left;
@@ -186,12 +217,12 @@
 
 	.wrapper :global(.opponent-sprite) {
 		position: absolute;
-		bottom: 46%;
+		bottom: 44%;
 		right: calc(25% - var(--width) / 2);
-		transform: scale(1.2);
+		transform: scale(1.4);
 		z-index: 7;
 		transform-origin: bottom left;
-		filter: drop-shadow(2px 4px 4px rgba(0, 0, 0, 0.66));
+		//filter: drop-shadow(2px 4px 4px rgba(0, 0, 0, 0.66));
 	}
 
 	.wrapper :global(.battle-bg) {

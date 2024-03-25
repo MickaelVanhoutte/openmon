@@ -23,8 +23,15 @@
 
 <div class="enemy-info">
 	<div class="name-lvl">
-		<span>{pokemon?.name}</span>
-		<span>Lv.{pokemon?.level}</span>
+		<div class="status">
+			{#if pokemon?.status}
+				{pokemon?.status?.abr}
+			{/if}
+		</div>
+		<div>
+			<span>{pokemon?.name}</span>
+			<span>Lv.{pokemon?.level}</span>
+		</div>
 	</div>
 
 	<div class="hp-status">
@@ -72,7 +79,7 @@
 		z-index: 7;
 
 		height: fit-content;
-		min-width: 30%;
+		width: 25%;
 		position: absolute;
 		top: 2%;
 		right: -30%;
@@ -81,7 +88,7 @@
 
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
+		gap: 4px;
 		justify-content: space-evenly;
 		box-sizing: border-box;
 
@@ -95,7 +102,7 @@
 			display: flex;
 			justify-content: space-between;
 			align-items: center;
-			font-size: 28px;
+			font-size: 24px;
 			font-weight: 500;
 			text-shadow: 1px 1px 1px #787b7e;
 		}
@@ -115,7 +122,7 @@
 		.hp {
 			width: 100%;
 			display: flex;
-			background-color: #262626;
+			background-color: rgba(0, 0, 0, 0.45);;
 			color: orange;
 			align-items: center;
 			justify-content: space-evenly;

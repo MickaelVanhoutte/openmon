@@ -384,6 +384,8 @@
 			text-transform: capitalize;
 			text-align: center;
 			box-sizing: border-box;
+			text-shadow: 1px 1px 4px white;
+			filter: drop-shadow(2px 2px 5px black);
 
 			.move-desc {
 				text-transform: initial;
@@ -414,7 +416,7 @@
 
 	.actions,
 	.moves {
-		width: 50%;
+		width: 48%;
 		height: 25%;
 		position: absolute;
 		bottom: -20%;
@@ -425,19 +427,18 @@
 		display: flex;
 		border-radius: 8px;
 		box-sizing: border-box;
-		padding: 0 0 0 2%;
 		z-index: 2;
 
 		flex-wrap: wrap;
-		gap: 2%;
+		gap: 5% 2%;
 
 		.back {
 			position: absolute;
-			top: -9.5dvh;
-			left: 2dvw;
+			top: calc(-8.25dvh - 5%);
+			right: 1%;
 			height: 8.25dvh;
 			width: 6dvw;
-			background-color: rgba(44, 56, 69, 0.84);
+			background-color: rgba(44, 56, 69, 0.45);
 			border-radius: 6px;
 			color: white;
 
@@ -452,7 +453,7 @@
 		$color: var(--color);
 		border: 2px solid var(--color);
 
-		font-size: 26px;
+		font-size: 28px;
 		color: white;
 		text-shadow: 1px 1px 1px var(--color);
 		background-color: rgba(44, 56, 69, 0.66);
@@ -474,6 +475,8 @@
 
 		&.move {
 			background: var(--color);
+			color: white !important;
+			text-shadow: none !important;
 		}
 
 		&:hover,
@@ -498,8 +501,8 @@
 			width: 30px;
 			height: 30px;
 			position: absolute;
-			top: 0;
-			right: 0;
+			top: 2px;
+			right: 2px;
 			img {
 				width: 100%;
 				height: 100%;
@@ -511,8 +514,8 @@
 			width: 30px;
 			height: 30px;
 			position: absolute;
-			top: 0;
-			left: 0;
+			top: 2px;
+			left: 2px;
 			img {
 				width: 100%;
 				height: 100%;
