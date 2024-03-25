@@ -28,63 +28,90 @@
 		debug: false,
 		allydrawn: false,
 		opponentdrawn: false,
-		bgDrawn: false
+		bgDrawn: true
 	};
+
+	let allyGrassHeight = 0;
+	let opponentGrassHeight = 0;
 
 	let ally: HTMLImageElement;
 	let opponent: HTMLImageElement;
 
-
 	function draw() {
 		drawInterval = setInterval(() => {
-			if (!battleLoopContext.bgDrawn) {
-				let bg = document.createElement('img') as HTMLImageElement;
-				bg.src = 'src/assets/battle/battle-grass.png';
-				bg.classList.add('battle-bg');
-				bg.onload = () => {
-					gifsWrapper.appendChild(bg);
-					battleLoopContext.bgDrawn = true;
-				};
-			}
+			// if (!battleLoopContext.bgDrawn) {
+			// 	let opponentGrass = document.createElement('img') as HTMLImageElement;
+			// 	opponentGrass.src = 'src/assets/battle/opponent-sand.png';
+			// 	opponentGrass.classList.add('opponent-grass');
+
+			// 	let allyGrass = document.createElement('img') as HTMLImageElement;
+			// 	allyGrass.src = 'src/assets/battle/opponent-sand.png';
+			// 	allyGrass.classList.add('ally-grass');
+
+			// 	Promise.all([
+			// 		new Promise((resolve) => {
+			// 			opponentGrass.onload = resolve;
+			// 		}),
+			// 		new Promise((resolve) => {
+			// 			allyGrass.onload = resolve;
+			// 		})
+			// 	]).then(() => {
+			// 		gifsWrapper.appendChild(opponentGrass);
+			// 		gifsWrapper.appendChild(allyGrass);
+			// 		opponentGrassHeight = opponentGrass.naturalHeight;
+			// 		opponentGrass.style.setProperty('--width', opponentGrass.naturalWidth + 'px');
+			// 		opponentGrass.style.setProperty('--height', opponentGrass.naturalHeight + 'px');
+			// 		console.log(window.innerHeight);
+			// 		// calculate grassHeight based on window height
+			// 		allyGrassHeight =
+			// 			(allyGrass.naturalHeight * (window.innerHeight * 1.5)) / window.innerWidth;
+			// 		allyGrass.style.setProperty('--width', allyGrass.naturalWidth + 'px');
+			// 		allyGrass.style.setProperty('--height', allyGrass.naturalHeight + 'px');
+			// 		battleLoopContext.bgDrawn = true;
+			// 	});
+			// }
 
 			// TODO : animation
 			//if (!battleState?.pokemonsAppearing) {
 
 			// animated gifs, handle them outside the canvas
 			// TODO : handle gender/shinys
-			if (!battleLoopContext.opponentdrawn) {
+			if (!battleLoopContext.opponentdrawn && battleLoopContext.bgDrawn) {
 				if (!opponent) {
 					opponent = document.createElement('img') as HTMLImageElement;
 					opponent.classList.add('opponent-sprite');
 				}
 				if (opponent) {
 					opponent.src =
-						(battleCtx?.opponentPokemon.isShiny ?
-						battleCtx?.opponentPokemon.sprites?.male?.front.shiny1 :
-						battleCtx?.opponentPokemon.sprites?.male?.front.frame1) ||
+						(battleCtx?.opponentPokemon.isShiny
+							? battleCtx?.opponentPokemon.sprites?.male?.front.shiny1
+							: battleCtx?.opponentPokemon.sprites?.male?.front.frame1) ||
 						'src/assets/monsters/bw/0.png';
 					opponent.onload = () => {
 						opponent.style.setProperty('--width', opponent.naturalWidth + 'px');
 						opponent.style.setProperty('--height', opponent.naturalHeight + 'px');
+						opponent.style.setProperty('--grassHeight', opponentGrassHeight + 'px');
 						gifsWrapper.appendChild(opponent);
 						battleLoopContext.opponentdrawn = true;
 					};
 				}
 			}
-			if (!battleLoopContext.allydrawn) {
+			if (!battleLoopContext.allydrawn && battleLoopContext.bgDrawn) {
 				if (!ally) {
 					ally = document.createElement('img') as HTMLImageElement;
 					ally.classList.add('ally-sprite');
 				}
 				if (ally) {
 					ally.src =
-						(battleCtx?.playerPokemon.isShiny ?
-						battleCtx?.playerPokemon.sprites?.male?.back.shiny1 :
-						battleCtx?.playerPokemon.sprites?.male?.back.frame1 )|| 'src/assets/monsters/bw/0.png';
+						(battleCtx?.playerPokemon.isShiny
+							? battleCtx?.playerPokemon.sprites?.male?.back.shiny1
+							: battleCtx?.playerPokemon.sprites?.male?.back.frame1) ||
+						'src/assets/monsters/bw/0.png';
 
 					ally.onload = () => {
 						ally.style.setProperty('--width', ally.naturalWidth + 'px');
 						ally.style.setProperty('--height', ally.naturalHeight + 'px');
+						ally.style.setProperty('--grassHeight', allyGrassHeight + 'px');
 						gifsWrapper.appendChild(ally);
 						battleLoopContext.allydrawn = true;
 					};
@@ -117,12 +144,14 @@
 </script>
 
 <div class="battle">
-	<div bind:this={gifsWrapper} class="wrapper"></div>
+	<div bind:this={gifsWrapper} class="wrapper">
+		<img class="battle-bg" alt="background" src="src/assets/battle/beach-bg2.jpg" />
+	</div>
 
 	<!-- UI -->
 	<EnemyInfo {battleCtx} />
 	<AllyInfo {battleCtx} />
-	<ActionBar bind:context bind:battleCtx bind:overWorldCtx={context.overWorldContext}/>
+	<ActionBar bind:context bind:battleCtx bind:overWorldCtx={context.overWorldContext} />
 </div>
 
 <style lang="scss">
@@ -130,33 +159,39 @@
 		z-index: 7;
 		width: 100dvw;
 		height: 100dvh;
-		overflow: hidden;
+		overflow: auto;
 		position: relative;
-		margin: auto;
+		background-color: white;
 	}
 
 	.wrapper {
+		height: 100%;
+		width: 100%;
 		font-size: 23px;
-
-		img {
-			scale: 2;
-		}
+		position: absolute;
+		z-index: -1;
+		//background-image: url('src/assets/battle/beach-bg.jpg');
 	}
 
 	.wrapper :global(.ally-sprite) {
 		position: absolute;
-		bottom: 28%;
-		left: calc(25% - var(--width) / 2);
+		//bottom: 30%;
+		bottom: 10%;
+		left: calc(20% - var(--width) / 2);
 		z-index: 7;
-		scale: 1.7;
+		transform: scale(2.5);
+		transform-origin: bottom left;
+		//filter: drop-shadow(-4px 6px 2px rgba(0, 0, 0, 0.45));
 	}
 
 	.wrapper :global(.opponent-sprite) {
 		position: absolute;
-		bottom: 50%;
+		bottom: 46%;
 		right: calc(25% - var(--width) / 2);
-		scale: 1.7;
+		transform: scale(1.2);
 		z-index: 7;
+		transform-origin: bottom left;
+		filter: drop-shadow(2px 4px 4px rgba(0, 0, 0, 0.66));
 	}
 
 	.wrapper :global(.battle-bg) {
@@ -166,5 +201,26 @@
 		position: absolute;
 		top: 0;
 		left: 0;
+		filter: opacity(0.66) blur(3px);
+	}
+
+	.wrapper :global(.opponent-grass) {
+		position: absolute;
+		bottom: 28%;
+		right: 5%;
+		height: 18%;
+		width: 35%;
+		z-index: 1;
+	}
+
+	.wrapper :global(.ally-grass) {
+		position: absolute;
+		bottom: 0;
+		//height: 50%;
+		//scale: 4;
+		height: 30%;
+		width: 50%;
+		left: 0; //calc(25% - (var(--width) * 40%) / 2);
+		z-index: 1;
 	}
 </style>

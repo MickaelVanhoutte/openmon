@@ -117,7 +117,6 @@ export class BattleContext {
             }
 
             console.log('executing ' + action?.type, action);
-            console.log(this.playerPokemon.currentHp);
             action.execute(this);
 
             // TODO wait for input ? (or settings, auto/manual)
@@ -150,8 +149,6 @@ export class BattleContext {
     private selectOpponentAction(): ActionV2Interface {
         let random = Math.floor(Math.random() * this.opponentPokemon.moves.length);
         let move = this.opponentPokemon.moves[random];
-        console.log('opponent', this.opponentPokemon);
-        console.log('opponent move', move);
         let action: ActionV2Interface;
 
         if (this.settings.difficulty === 'NORMAL') {
@@ -227,7 +224,7 @@ export class BattleContext {
 
             // remove target attack from stack
             this.actionStack.stack = this.actionStack.stack.filter((action: ActionV2Interface) => {
-                return !(action.type === ActionType.ATTACK && action.initiator === target);
+                return !(action.initiator === target);
             });
 
             if (target === this.opponentPokemon) {

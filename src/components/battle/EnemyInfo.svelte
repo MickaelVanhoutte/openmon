@@ -51,10 +51,10 @@
 <style lang="scss">
 	@keyframes appear {
 		from {
-			left: -30%;
+			right: -30%;
 		}
 		to {
-			left: 2%;
+			right: 2%;
 		}
 	}
 
@@ -75,7 +75,7 @@
 		min-width: 30%;
 		position: absolute;
 		top: 2%;
-		left: -30%;
+		right: -30%;
 
 		border-radius: 10px;
 
@@ -123,6 +123,7 @@
 			padding: 2px;
 
 			& > span {
+				font-size: 20px;
 				padding: 0 12px;
 				font-weight: bold;
 			}
@@ -132,7 +133,7 @@
 				width: 100%;
 				background-color: #595b59;
 				border-radius: 4px;
-				border: 2px solid white;
+				//border: 2px solid white;
 
 				.hp-value {
 					position: absolute;
