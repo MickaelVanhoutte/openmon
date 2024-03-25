@@ -475,7 +475,7 @@
 
 		&.move {
 			background: var(--color);
-			color: white !important;
+			//color: white !important;
 			text-shadow: none !important;
 		}
 
@@ -488,6 +488,39 @@
 			text-shadow: 1px 1px 1px black;
 			-webkit-box-shadow: inset 2px -2px 10px 0px rgba(0, 0, 0, 0.7);
 			box-shadow: inset 2px -2px 10px 0px rgba(0, 0, 0, 0.7);
+
+			--border-angle: 0turn; // For animation.
+			--main-bg: conic-gradient(from var(--border-angle), #213, #112 5%, #112 60%, #213 95%);
+
+			border: solid 1px transparent;
+			--gradient-border: conic-gradient(
+				from var(--border-angle),
+				transparent 25%,
+				#08f,
+				#f03 99%,
+				transparent
+			);
+
+			background: 
+    			// padding-box clip this background in to the overall element except the border.
+				var(--main-bg) padding-box,
+				// border-box extends this background to the border space
+				var(--gradient-border) border-box,
+				// Duplicate main background to fill in behind the gradient border. You can remove this if you want the border to extend "outside" the box background.
+				var(--main-bg) border-box;
+
+			background-position: center center;
+
+			animation: bg-spin 3s linear infinite;
+			@keyframes bg-spin {
+				to {
+					--border-angle: -1turn;
+				}
+			}
+
+			.move-cat {
+				color: var(--color);
+			}
 		}
 
 		&[disabled] {
@@ -503,6 +536,7 @@
 			position: absolute;
 			top: 2px;
 			right: 2px;
+			color: white;
 			img {
 				width: 100%;
 				height: 100%;
@@ -516,6 +550,7 @@
 			position: absolute;
 			top: 2px;
 			left: 2px;
+			color: white;
 			img {
 				width: 100%;
 				height: 100%;
