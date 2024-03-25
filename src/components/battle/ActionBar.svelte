@@ -512,6 +512,7 @@
 			background-position: center center;
 
 			animation: bg-spin 3s linear infinite;
+			-webkit-animation: bg-spin 3s linear infinite;
 			@keyframes bg-spin {
 				to {
 					--border-angle: -1turn;
