@@ -13,7 +13,6 @@
 	export let context: GameContext;
 	export let battleCtx: BattleContext;
 	export let overWorldCtx: OverworldContext;
-;
 	let moveOpened = false;
 	let show = false;
 
@@ -88,6 +87,9 @@
 			battleCtx.playerPokemon = battleCtx.player.monsters[0];
 			battleCtx.participants.add(battleCtx.playerPokemon);
 			changePokemon = false;
+			selectedOptionIdx = 0;
+			selectedMoveIdx = 0;
+			battleCtx.events.pokemonChange.set(battleCtx.player);
 			battleCtx.currentMessage.set(`What should ${battleCtx.playerPokemon.name} do?`);
 			//BATTLE_STATE.set(new BattleContext(battleState));
 			//battleLoopContext.allydrawn = false;
@@ -186,107 +188,111 @@
 	});
 </script>
 
-<div class="action-bar" class:show>
-	<div class="info">
-		<div class="_inner">
-			{#if !moveOpened}
-				{currentMessage?.toUpperCase()}
-			{:else}
-				<div class="move-desc">
-					<div class="_desc">
-						<p>
-							{battleCtx?.playerPokemon?.moves[selectedMoveIdx].description.replace(
-								'$effect_chance',
-								battleCtx?.playerPokemon?.moves[selectedMoveIdx].effectChance + '%'
-							)}
-						</p>
-					</div>
-					<div class="stats">
-						<p>
-							PP :
-							{battleCtx?.playerPokemon?.moves[selectedMoveIdx].currentPp}
-							/ {battleCtx?.playerPokemon?.moves[selectedMoveIdx].pp}
-						</p>
-						<p>Type : {battleCtx?.playerPokemon?.moves[selectedMoveIdx].category}</p>
-						<p>
-							Power/ACC
-							{battleCtx?.playerPokemon?.moves[selectedMoveIdx].power}
-							/ {battleCtx?.playerPokemon?.moves[selectedMoveIdx].accuracy} %
-						</p>
-					</div>
+<!-- <div class="action-bar" class:show> -->
+<div class="info" class:show class:move-desc-opened={moveOpened}>
+	<div class="_inner">
+		{#if !moveOpened}
+			{currentMessage?.toUpperCase()}
+		{:else}
+			<div class="move-desc">
+				<div class="_desc">
+					<p>
+						{battleCtx?.playerPokemon?.moves[selectedMoveIdx].description.replace(
+							'$effect_chance',
+							battleCtx?.playerPokemon?.moves[selectedMoveIdx].effectChance + '%'
+						)}
+					</p>
 				</div>
-			{/if}
-		</div>
+				<div class="stats">
+					<p>
+						PP :
+						{battleCtx?.playerPokemon?.moves[selectedMoveIdx].currentPp}
+						/ {battleCtx?.playerPokemon?.moves[selectedMoveIdx].pp}
+					</p>
+					<p>Type : {battleCtx?.playerPokemon?.moves[selectedMoveIdx].category}</p>
+					<p>
+						Power/ACC
+						{battleCtx?.playerPokemon?.moves[selectedMoveIdx].power}
+						/ {battleCtx?.playerPokemon?.moves[selectedMoveIdx].accuracy} %
+					</p>
+				</div>
+			</div>
+		{/if}
 	</div>
-
-	{#if moveOpened}
-		<div class="moves">
-			<button class="back" on:click={() => (moveOpened = false)}>
-				◄
-			</button>
-			{#each battleCtx?.playerPokemon?.moves as move, index}
-				<button
-					class="action-btn"
-					style="--color:{typeChart[move.type].color}"
-					{disabled}
-					class:selected={selectedMoveIdx === index}
-					on:click={() => launchMove(index, move)}
-				>
-					{ move.name.toUpperCase()}
-				</button>
-			{/each}
-		</div>
-	{:else}
-		<div class="actions">
-			<button
-				class="action-btn"
-				style="--color:#dc5959"
-				{disabled}
-				on:click={() => (moveOpened = true)}
-				class:selected={selectedOptionIdx === 0}
-			>
-				FIGHT
-			</button>
-
-			<button
-				class="action-btn"
-				style="--color:#eca859"
-				{disabled}
-				class:selected={selectedOptionIdx === 1}
-				on:click={() => openBag()}
-			>
-				BAG
-			</button>
-
-			<button
-				class="action-btn"
-				style="--color:#7EAF53"
-				{disabled}
-				class:selected={selectedOptionIdx === 2}
-				on:click={() => switchOpen()}
-			>
-				POKEMONS
-			</button>
-
-			<button
-				class="action-btn"
-				style="--color:#599bdc"
-				{disabled}
-				class:selected={selectedOptionIdx === 3}
-				on:click={() => escape()}
-			>
-				RUN
-			</button>
-		</div>
-	{/if}
 </div>
+
+{#if moveOpened}
+	<div class="moves" class:show>
+		<button class="back" on:click={() => (moveOpened = false)}> ◄ </button>
+		{#each battleCtx?.playerPokemon?.moves as move, index}
+			<button
+				class="action-btn move"
+				style="--color:{typeChart[move.type].color}"
+				{disabled}
+				class:selected={selectedMoveIdx === index}
+				on:click={() => launchMove(index, move)}
+			>
+				<span class="move-type">
+					<img src={`src/assets/types/${move.type}.svg`} alt={move.type} />
+				</span>
+				<span class="move-cat">
+					<img src={`src/assets/moves-cat/${move.category}.png`} alt={move.category} />
+				</span>
+				{move.name.toUpperCase()}
+			</button>
+		{/each}
+	</div>
+{:else}
+	<div class="actions" class:show>
+		<button
+			class="action-btn"
+			style="--color:#dc5959"
+			{disabled}
+			on:click={() => (moveOpened = true)}
+			class:selected={selectedOptionIdx === 0}
+		>
+			FIGHT
+		</button>
+
+		<button
+			class="action-btn"
+			style="--color:#eca859"
+			{disabled}
+			class:selected={selectedOptionIdx === 1}
+			on:click={() => openBag()}
+		>
+			BAG
+		</button>
+
+		<button
+			class="action-btn"
+			style="--color:#7EAF53"
+			{disabled}
+			class:selected={selectedOptionIdx === 2}
+			on:click={() => switchOpen()}
+		>
+			POKEMONS
+		</button>
+
+		<button
+			class="action-btn"
+			style="--color:#599bdc"
+			{disabled}
+			class:selected={selectedOptionIdx === 3}
+			on:click={() => escape()}
+		>
+			RUN
+		</button>
+	</div>
+{/if}
+<!-- </div> -->
 
 <!-- Menus -->
 {#if battleSwitchOpened}
 	<PokemonList
 		bind:context
 		{isBattle}
-		bind:battleSwitchOpened={battleSwitchOpened}
+		bind:battleSwitchOpened
 		zIndex={zIndexNext}
 		onChange={(pkm) => !!pkm && sendSwitchAction(pkm)}
 	/>
@@ -303,11 +309,13 @@
 {/if}
 
 {#if battleBagOpened}
-	<Bag bind:context 
-	{isBattle} 
-	bind:battleBagOpened={battleBagOpened}
-	zIndex={zIndexNext}
-	 onChange={(result) => sendObjectAction(result)} />
+	<Bag
+		bind:context
+		{isBattle}
+		bind:battleBagOpened
+		zIndex={zIndexNext}
+		onChange={(result) => sendObjectAction(result)}
+	/>
 {/if}
 
 <style lang="scss">
@@ -320,148 +328,195 @@
 		}
 	}
 
-	.action-bar {
-		z-index: 7;
+	// .action-bar {
+	// 	z-index: 7;
+	// 	height: 25%;
+	// 	width: 98%;
+	// 	position: absolute;
+	// 	bottom: -25%;
+	// 	left: 1%;
+	// 	transition: bottom 0.5s ease-in-out;
+	// 	//text-shadow: 3px 3px 1px #bfecf7;
+	// 	display: flex;
+	// 	font-size: 26px;
+	// 	animation: appear 0.5s ease-in forwards;
 
-		height: 25%;
-		width: 98%;
+	.info {
+		width: 49%;
+		height: 15%;
 		position: absolute;
-		bottom: -25%;
+		bottom: -20%;
 		left: 1%;
-
 		transition: bottom 0.5s ease-in-out;
-
-		text-shadow: 3px 3px 1px #bfecf7;
-
-		display: flex;
-
-		font-size: 26px;
-
 		animation: appear 0.5s ease-in forwards;
+		// background: rgb(220, 231, 233);
+		// background: linear-gradient(
+		// 	180deg,
+		// 	rgba(220, 231, 233, 0.7) 0%,
+		// 	rgba(255, 255, 255, 0.9) 50%,
+		// 	rgba(220, 231, 233, 0.7) 100%
+		// );
+		border-radius: 12px;
+		display: flex;
+		align-items: center;
+		align-content: center;
+		justify-content: space-around;
+		//position: relative;
+		box-sizing: border-box;
+		padding: 1%;
 
-		.info {
-			width: 50%;
-			background: rgb(220, 231, 233);
-			background: linear-gradient(
-				180deg,
-				rgba(220, 231, 233, 1) 0%,
-				rgba(255, 255, 255, 1) 50%,
-				rgba(220, 231, 233, 0.713344712885154) 100%
-			);
-			border-radius: 12px;
+		// -webkit-box-shadow: 5px 10px 21px 7px #000000;
+		// box-shadow: 5px 10px 21px 7px #000000;
+
+		&.move-desc-opened {
+			background: rgba(255, 255, 255, 0.6);
+			height: 25%;
+		}
+
+		._inner {
+			z-index: 1;
+			height: 100%;
+
 			display: flex;
 			align-items: center;
-			align-content: center;
-			justify-content: space-around;
-			position: relative;
+			justify-content: center;
+			width: 100%;
+			text-transform: capitalize;
+			text-align: center;
 			box-sizing: border-box;
-			padding: 1%;
 
-			-webkit-box-shadow: 5px 10px 21px 7px #000000;
-			box-shadow: 5px 10px 21px 7px #000000;
-
-			._inner {
-				z-index: 1;
-				height: 100%;
+			.move-desc {
+				text-transform: initial;
+				text-align: left;
+				font-size: 20px;
+				word-break: break-word;
+				box-sizing: border-box;
+				padding: 0 1%;
 
 				display: flex;
 				align-items: center;
-				justify-content: center;
-				width: 100%;
-				text-transform: capitalize;
-				text-align: center;
-				box-sizing: border-box;
+				gap: 1%;
 
-				.move-desc {
-					text-transform: initial;
-					text-align: left;
-					font-size: 20px;
-					word-break: break-word;
-					box-sizing: border-box;
-					padding: 0 1%;
-
-					display: flex;
-					align-items: center;
-					gap: 1%;
-
-					p {
-						margin: 0;
-					}
-
-					._desc {
-						width: 50%;
-					}
-
-					.stats {
-						width: 50%;
-					}
+				p {
+					margin: 0;
 				}
-			}
-		}
 
-		.actions,
-		.moves {
-			position: relative;
-			width: 50%;
-			height: 100%;
-			display: flex;
-			border-radius: 8px;
-			box-sizing: border-box;
-			padding: 0 2%;
-			z-index: 2;
+				._desc {
+					width: 50%;
+				}
 
-			flex-wrap: wrap;
-			gap: 8px;
-
-			.back {
-				position: absolute;
-				top: -9.5dvh;
-				left: 2dvw;
-				height: 8.25dvh;
-				width: 6dvw;
-				background-color: rgba(44, 56, 69, 0.84);
-				border-radius: 6px;
-				color: white;
-
-				svg {
-					height: 30px;
+				.stats {
+					width: 50%;
 				}
 			}
 		}
 	}
 
+	.actions,
+	.moves {
+		width: 50%;
+		height: 25%;
+		position: absolute;
+		bottom: -20%;
+		right: 1%;
+		transition: bottom 0.5s ease-in-out;
+		animation: appear 0.5s ease-in forwards;
+
+		display: flex;
+		border-radius: 8px;
+		box-sizing: border-box;
+		padding: 0 0 0 2%;
+		z-index: 2;
+
+		flex-wrap: wrap;
+		gap: 2%;
+
+		.back {
+			position: absolute;
+			top: -9.5dvh;
+			left: 2dvw;
+			height: 8.25dvh;
+			width: 6dvw;
+			background-color: rgba(44, 56, 69, 0.84);
+			border-radius: 6px;
+			color: white;
+
+			svg {
+				height: 30px;
+			}
+		}
+	}
+	// }
+
 	.action-btn {
+		$color: var(--color);
 		border: 2px solid var(--color);
 
 		font-size: 26px;
 		color: white;
 		text-shadow: 1px 1px 1px var(--color);
-		background-color: rgba(44, 56, 69, 0.84);
+		background-color: rgba(44, 56, 69, 0.66);
+		//background: var(--color);
 		border-radius: 8px;
+		box-sizing: border-box;
 		font-family: pokemon, serif;
+		position: relative;
 
 		transition:
 			color 0.3s ease-in-out,
 			opacity 0.3s ease-in-out;
 		flex: 48%;
 		max-height: 49%;
-		max-width: 48%;
+		max-width: 49%;
 
-		-webkit-box-shadow: 4px 6px 21px 2px #000000;
-		box-shadow: 4px 6px 21px 2px #000000;
+		-webkit-box-shadow: 3px 5px 10px 1px rgba(0, 0, 0, 0.7);
+		box-shadow: 3px 5px 10px 1px rgba(0, 0, 0, 0.7);
+
+		&.move {
+			background: var(--color);
+		}
 
 		&:hover,
 		&.selected {
 			cursor: pointer;
-			background-color: rgba(44, 56, 69, 0.5);
-			color: white;
-			text-shadow: none;
+			//);
+			//background-color: rgba(44, 56, 69, 0.5);
+			color: var(--color);
+			text-shadow: 1px 1px 1px black;
+			-webkit-box-shadow: inset 2px -2px 10px 0px rgba(0, 0, 0, 0.7);
+			box-shadow: inset 2px -2px 10px 0px rgba(0, 0, 0, 0.7);
 		}
 
 		&[disabled] {
 			opacity: 0.5;
 			cursor: not-allowed;
 			pointer-events: none;
+		}
+
+		.move-type {
+			display: block;
+			width: 30px;
+			height: 30px;
+			position: absolute;
+			top: 0;
+			right: 0;
+			img {
+				width: 100%;
+				height: 100%;
+			}
+		}
+
+		.move-cat {
+			display: block;
+			width: 30px;
+			height: 30px;
+			position: absolute;
+			top: 0;
+			left: 0;
+			img {
+				width: 100%;
+				height: 100%;
+			}
 		}
 	}
 

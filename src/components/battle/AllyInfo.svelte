@@ -62,10 +62,10 @@
 <style lang="scss">
 	@keyframes appear {
 		from {
-			right: -30%;
+			left: -30%;
 		}
 		to {
-			right: 2%;
+			left: 2%;
 		}
 	}
 
@@ -83,10 +83,10 @@
 		z-index: 7;
 
 		height: fit-content;
-		min-width: 35%;
+		width: 35%;
 		position: absolute;
-		bottom: 28%;
-		right: -30%;
+		top: 2%;
+		left: -30%;
 
 		display: flex;
 		flex-direction: column;
@@ -94,7 +94,7 @@
 		box-sizing: border-box;
 		justify-content: space-evenly;
 
-		font-size: 24px;
+		font-size: 20px;
 
 		animation:
 			appear 0.5s ease-in forwards,
@@ -141,7 +141,7 @@
 				position: absolute;
 				left: -14px;
 				bottom: 0;
-				border-bottom: 28px solid #262626;
+				border-bottom: 31px solid #262626;
 				border-left: 14px solid transparent;
 			}
 
@@ -172,7 +172,7 @@
 			width: 100%;
 			display: flex;
 			background-color: #262626;
-			font-size: 24px;
+			font-size: 20px;
 			color: orange;
 			align-items: center;
 			justify-content: space-evenly;
@@ -185,11 +185,11 @@
 			}
 
 			.progressbar-wrapper {
-				height: 20px;
+				height: 16px;
 				width: 100%;
 				background-color: #595b59;
-				border-radius: 4px;
-				border: 2px solid white;
+				border-radius: 2px;
+				//border: 2px solid white;
 				position: relative;
 
 				.hp-value {
