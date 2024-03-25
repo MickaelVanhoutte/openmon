@@ -240,7 +240,7 @@ export class BattleContext {
                                 this.addToStack(new XPWin(nParticipant, npXp));
                             }
                         }
-                        this.addToStack(new Message(`The others received ${xp / 2} experience via XP-Share!`, initiator));
+                        this.addToStack(new Message(`The others received ${npXp} experience via XP-Share!`, initiator));
                     }
                 }
 

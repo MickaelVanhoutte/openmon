@@ -83,14 +83,14 @@
 		z-index: 7;
 
 		height: fit-content;
-		width: 35%;
+		width: 25%;
 		position: absolute;
 		top: 2%;
 		left: -30%;
 
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
+		gap: 4px;
 		box-sizing: border-box;
 		justify-content: space-evenly;
 
@@ -105,7 +105,7 @@
 			justify-content: space-between;
 			align-items: center;
 
-			font-size: 28px;
+			font-size: 24px;
 			font-weight: 500;
 			text-shadow: 1px 1px 1px #787b7e;
 		}
@@ -123,15 +123,17 @@
 		}
 
 		.exp {
-			width: 100%;
+			width: 98%;
 			display: flex;
-			border: 2px solid #262626;
-			background-color: #262626;
+			//border: 2px solid rgba(0, 0, 0, 0.45);
+			//border-top-color: transparent;
+			padding: 2px 1%;
+			background-color: rgba(0, 0, 0, 0.45);
 			align-items: center;
 			justify-content: space-evenly;
-			margin-top: -10px;
+			margin-top: -4px;
 			border-radius: 0 0 11px 0;
-			box-sizing: border-box;
+			//box-sizing: border-box;
 
 			&:before {
 				content: '';
@@ -141,14 +143,14 @@
 				position: absolute;
 				left: -14px;
 				bottom: 0;
-				border-bottom: 31px solid #262626;
+				border-bottom: 31px solid rgba(0, 0, 0, 0.45);
 				border-left: 14px solid transparent;
 			}
 
 			.progressbar-wrapper {
 				height: 10px;
 				width: 100%;
-				background-color: #595b59;
+				background-color: rgba(0, 0, 0, 0.25);;
 				border-radius: 4px 0 9px 4px;
 				position: relative;
 
@@ -158,7 +160,7 @@
 
 					background: #0e73cf;
 
-					border-radius: 2px;
+					border-radius: 2px 2px 11px 2px;
 					display: flex;
 					text-align: center;
 					align-items: center;
@@ -171,7 +173,7 @@
 		.hp {
 			width: 100%;
 			display: flex;
-			background-color: #262626;
+			background-color: rgba(0, 0, 0, 0.45);
 			font-size: 20px;
 			color: orange;
 			align-items: center;
@@ -187,7 +189,7 @@
 			.progressbar-wrapper {
 				height: 16px;
 				width: 100%;
-				background-color: #595b59;
+				background-color: rgba(0, 0, 0, 0.25);
 				border-radius: 2px;
 				//border: 2px solid white;
 				position: relative;
