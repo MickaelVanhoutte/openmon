@@ -235,7 +235,7 @@
 			ally-arrive 1.5s ease-in-out forwards,
 			ally-arrive-color 1s ease-in-out forwards 1s;
 		transition:
-			bottom 1.5s ease-in-out 1s,
+			bottom 1.5s ease-in-out 1.5s,
 			filter 1s ease-in-out 1s,
 			transform 1.5s ease-in-out 1.3s;
 
@@ -260,12 +260,11 @@
 
 	.wrapper :global(.ally-sprite.runaway) {
 		//left: -100% !important;
-		filter: saturate(0);
-		transform:  scale(2) rotateY(-90deg) translateX(-30dvw) translateX(-5%) skewX(20deg);
+		transform:  scale(2) rotateY(-90deg) translateX(-60dvw) translateX(-5%) skewX(20deg);
 	}
 
 	.wrapper :global(.ally-sprite.faint) {
-		bottom: -30% !important;
+		bottom: -60dvh !important;
 		filter: brightness(1);
 	}
 
@@ -281,7 +280,7 @@
 			opp-arrive 1.5s ease-in-out forwards,
 			opp-arrive-color 1s ease-in-out forwards 1s;
 		transition:
-			bottom 1.5s ease-in-out 1s,
+			bottom 1.5s ease-in-out 1.5s,
 			filter 1s ease-in-out 1s;
 
 		@keyframes opp-arrive-color {
@@ -304,7 +303,7 @@
 	}
 
 	.wrapper :global(.opponent-sprite.faint) {
-		bottom: -30% !important;
+		bottom: -60dvh !important;
 		filter: brightness(0);
 	}
 
