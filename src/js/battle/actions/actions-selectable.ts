@@ -29,6 +29,7 @@ export class RunAway implements ActionV2Interface {
             if (f > 255) {
                 ctx.clearStack();
                 ctx.battleResult.win = true;
+                ctx.events.runnaway.set(true);
                 ctx.addToStack(new EndBattle(ctx.playerPokemon));
                 ctx.addToStack(new Message('You ran away safely!', ctx.playerPokemon));
             } else {

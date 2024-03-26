@@ -1,15 +1,15 @@
-import {BattleEvents, BattleResult, TurnHistory, TurnPhase, typeChart} from "../battle/battle-model";
-import {Move, PokemonInstance} from "../pokemons/pokedex";
-import {Player} from "../characters/player";
+import { BattleEvents, BattleResult, TurnHistory, TurnPhase, typeChart } from "../battle/battle-model";
+import { Move, PokemonInstance } from "../pokemons/pokedex";
+import { Player } from "../characters/player";
 import { type Character } from "../characters/characters-model";
-import type {Settings} from "../characters/settings";
-import {ActionStack} from "../battle/actions/action-stack";
-import {NPC} from "../characters/npc";
-import {writable, type Writable} from "svelte/store";
-import {ActionType, type ActionV2Interface} from "../battle/actions/actions-model";
-import {EXPERIENCE_CHART} from "../pokemons/experience";
-import {Attack, Switch, UseItem} from "../battle/actions/actions-selectable";
-import {EndTurnChecks, Message, XPWin} from "../battle/actions/actions-derived";
+import type { Settings } from "../characters/settings";
+import { ActionStack } from "../battle/actions/action-stack";
+import { NPC } from "../characters/npc";
+import { writable, type Writable } from "svelte/store";
+import { ActionType, type ActionV2Interface } from "../battle/actions/actions-model";
+import { EXPERIENCE_CHART } from "../pokemons/experience";
+import { Attack, Switch, UseItem } from "../battle/actions/actions-selectable";
+import { EndTurnChecks, Message, XPWin } from "../battle/actions/actions-derived";
 import { ItemsReferences } from "../items/items";
 
 export class BattleContext {
@@ -113,7 +113,7 @@ export class BattleContext {
         if (action !== undefined) {
 
             if (action.type === ActionType.END_CHECKS) {
-               this.turnPhases.set(TurnPhase.END);
+                this.turnPhases.set(TurnPhase.END);
             }
 
             console.log('executing ' + action?.type, action);
@@ -202,7 +202,7 @@ export class BattleContext {
         // find a poke which have a type that is strong against playerPokemon
         return monsters.find(poke => {
             !poke.fainted &&
-            poke.types.some(type => playerPokemon.weaknesses.includes(type));
+                poke.types.some(type => playerPokemon.weaknesses.includes(type));
         });
     }
 
@@ -218,6 +218,7 @@ export class BattleContext {
     public checkFainted(target: PokemonInstance, initiator: PokemonInstance) {
         if (target.currentHp <= 0) {
             target.currentHp = 0;
+            
             target.fainted = true;
             target.status = undefined;
             target.resetBattleStats();
@@ -228,6 +229,7 @@ export class BattleContext {
             });
 
             if (target === this.opponentPokemon) {
+                this.events.opponentPokemonFaint.set(target);
                 let xp = EXPERIENCE_CHART.howMuchIGet(initiator, target, this.participants.size, !this.isWild, this.settings.xpShare);
 
                 if (this.settings.xpShare) {
