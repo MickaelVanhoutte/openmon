@@ -249,7 +249,7 @@
 				<span class="move-power">
 					pwr. {move.power}
 				</span>
-				{move.name.toUpperCase()}
+				<span class="move-name">{move.name.toUpperCase()}</span>
 			</button>
 		{/each}
 	</div>
@@ -341,20 +341,19 @@
 
 	@keyframes info-appear {
 		from {
-			bottom: -30%;
+			bottom: -32%;
 			opacity: 0;
 		}
 		to {
 			opacity: 1;
-			bottom: 30%;
+			bottom: 32%;
 		}
 	}
 
 	.info {
 		width: 63%;
-		height: 15%;
 		position: absolute;
-		bottom: -20%;
+		bottom: -32%;
 		left: 1%;
 		transition: bottom 0.5s ease-in-out;
 		animation: appear 0.5s ease-in forwards;
@@ -422,7 +421,7 @@
 	.actions,
 	.moves {
 		width: 48%;
-		height: 28%;
+		height: 30%;
 		position: absolute;
 		bottom: -20%;
 		right: 1%;
@@ -439,7 +438,7 @@
 	}
 	.back-btn {
 		position: absolute;
-		bottom: 30%;
+		bottom: 32%;
 		right: 1dvw;
 		height: 8.25dvh;
 		width: 6dvw;
@@ -454,7 +453,7 @@
 
 	.info-btn {
 		position: absolute;
-		bottom: 30%;
+		bottom: 32%;
 		right: 8dvw;
 		height: 8.25dvh;
 		width: 6dvw;
@@ -498,11 +497,16 @@
 			text-shadow: none !important;
 		}
 
+		.move-name {
+			position: absolute;
+			transform: translate(-50%, -80%);
+		}
+
 		.move-pp {
 			font-size: 18px;
 			color: white;
 			position: absolute;
-			bottom: 0;
+			bottom: 4px;
 			right: 30px;
 		}
 
@@ -510,7 +514,7 @@
 			font-size: 18px;
 			color: white;
 			position: absolute;
-			bottom: 0;
+			bottom: 4px;
 			left: 30px;
 		}
 
@@ -567,8 +571,8 @@
 
 		.move-type {
 			display: block;
-			width: 30px;
-			height: 30px;
+			width: 24px;
+			height: 24px;
 			position: absolute;
 			top: 2px;
 			right: 2px;
@@ -581,8 +585,8 @@
 
 		.move-cat {
 			display: block;
-			width: 30px;
-			height: 30px;
+			width: 24px;
+			height: 24px;
 			position: absolute;
 			top: 2px;
 			left: 2px;

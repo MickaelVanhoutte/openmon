@@ -108,6 +108,7 @@
 			font-size: 24px;
 			font-weight: 500;
 			text-shadow: 1px 1px 1px #787b7e;
+			filter: drop-shadow(2px 2px 5px white) invert(1);
 		}
 
 		.hp-status {
