@@ -18,6 +18,8 @@ export class BattleEvents {
     end: Writable<BattleResult|undefined> = writable(undefined);
     pokemonChange: Writable<Character|undefined> = writable(undefined);
     playerPokemonFaint: Writable<PokemonInstance|undefined> = writable(undefined);
+    opponentPokemonFaint: Writable<PokemonInstance|undefined> = writable(undefined);
+    runnaway: Writable<boolean> = writable(false);
 }
 
 export class TurnHistory {

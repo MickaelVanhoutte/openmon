@@ -37,6 +37,24 @@
 	let ally: HTMLImageElement;
 	let opponent: HTMLImageElement;
 
+	battleCtx.events.playerPokemonFaint.subscribe((value) => {
+		if (value && ally) {
+			ally.classList.add('faint');
+		}
+	});
+
+	battleCtx.events.opponentPokemonFaint.subscribe((value) => {
+		if (value && opponent) {
+			opponent.classList.add('faint');
+		}
+	});
+
+	battleCtx.events.runnaway.subscribe((value) => {
+		if (value) {
+			ally.classList.add('runaway');
+		}
+	});
+
 	function draw() {
 		drawInterval = setInterval(() => {
 			// if (!battleLoopContext.bgDrawn) {
@@ -155,7 +173,6 @@
 </div>
 
 <style lang="scss">
-
 	.battle {
 		z-index: 7;
 		width: 100dvw;
@@ -209,21 +226,86 @@
 		position: absolute;
 		//bottom: 30%;
 		bottom: 10%;
-		left: calc(14% - var(--width) / 2);
+		left: -30%;
 		z-index: 7;
 		transform: scale(2.2);
 		transform-origin: bottom left;
-		//filter: drop-shadow(-4px 6px 2px rgba(0, 0, 0, 0.45));
+		filter: brightness(0);
+		animation:
+			ally-arrive 1.5s ease-in-out forwards,
+			ally-arrive-color 1s ease-in-out forwards 1s;
+		transition:
+			bottom 1.5s ease-in-out 1s,
+			filter 1s ease-in-out 1s,
+			transform 1.5s ease-in-out 1.3s;
+
+		@keyframes ally-arrive-color {
+			0% {
+				filter: brightness(0);
+			}
+			100% {
+				filter: brightness(1);
+			}
+		}
+
+		@keyframes ally-arrive {
+			0% {
+				left: -30%;
+			}
+			100% {
+				left: calc(14% - var(--width) / 2);
+			}
+		}
+	}
+
+	.wrapper :global(.ally-sprite.runaway) {
+		//left: -100% !important;
+		filter: saturate(0);
+		transform:  scale(2) rotateY(-90deg) translateX(-30dvw) translateX(-5%) skewX(20deg);
+	}
+
+	.wrapper :global(.ally-sprite.faint) {
+		bottom: -30% !important;
+		filter: brightness(1);
 	}
 
 	.wrapper :global(.opponent-sprite) {
 		position: absolute;
 		bottom: 40%;
-		right: calc(25% - var(--width) / 2);
+		right: -10%;
 		transform: scale(1.4);
 		z-index: 7;
 		transform-origin: bottom left;
-		//filter: drop-shadow(2px 4px 4px rgba(0, 0, 0, 0.66));
+		filter: brightness(0);
+		animation:
+			opp-arrive 1.5s ease-in-out forwards,
+			opp-arrive-color 1s ease-in-out forwards 1s;
+		transition:
+			bottom 1.5s ease-in-out 1s,
+			filter 1s ease-in-out 1s;
+
+		@keyframes opp-arrive-color {
+			0% {
+				filter: brightness(0);
+			}
+			100% {
+				filter: brightness(1);
+			}
+		}
+
+		@keyframes opp-arrive {
+			0% {
+				right: -10%;
+			}
+			100% {
+				right: calc(25% - var(--width) / 2);
+			}
+		}
+	}
+
+	.wrapper :global(.opponent-sprite.faint) {
+		bottom: -30% !important;
+		filter: brightness(0);
 	}
 
 	.wrapper :global(.battle-bg) {
