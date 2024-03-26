@@ -209,7 +209,7 @@
 		position: absolute;
 		//bottom: 30%;
 		bottom: 10%;
-		left: calc(17% - var(--width) / 2);
+		left: calc(14% - var(--width) / 2);
 		z-index: 7;
 		transform: scale(2.2);
 		transform-origin: bottom left;
@@ -218,7 +218,7 @@
 
 	.wrapper :global(.opponent-sprite) {
 		position: absolute;
-		bottom: 44%;
+		bottom: 40%;
 		right: calc(25% - var(--width) / 2);
 		transform: scale(1.4);
 		z-index: 7;
