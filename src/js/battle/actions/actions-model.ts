@@ -13,6 +13,7 @@ export enum ActionType {
     REMOVE_HP = 'Remove-HP',
     XP_WIN = 'XP-Win',
     LEVEL_UP = 'Level-Up',
+    PLAY_ANIMATION = 'Play-Animation',
 
     END_CHECKS = 'End-Checks',
     END_BATTLE = 'End-Battle',

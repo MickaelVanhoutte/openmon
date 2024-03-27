@@ -4,7 +4,7 @@ import type {BattleContext} from "../../context/battleContext";
 import {Player} from "../../characters/player";
 import { type Character } from "../../characters/characters-model";
 import {DamageResults, MOVE_EFFECT_APPLIER} from "../battle-model";
-import {ApplyEffect, ChangePokemon, EndBattle, Message, RemoveHP} from "./actions-derived";
+import {ApplyEffect, ChangePokemon, EndBattle, Message, PlayAnimation, RemoveHP} from "./actions-derived";
 import { Pokeball } from "../../items/items";
 
 // SELECTABLE ACTIONS
@@ -124,6 +124,7 @@ export class Attack implements ActionV2Interface {
                 actionsToPush.push(new Message('A critical hit!', this.initiator));
             }
 
+            actionsToPush.push(new PlayAnimation(this.move, this.target, this.initiator));
             actionsToPush.push(new RemoveHP(result.damages, this.target, this.initiator));
 
             // Apply attack effect

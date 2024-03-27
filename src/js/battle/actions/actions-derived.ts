@@ -1,12 +1,12 @@
 // DERIVED FROM MAIN ACTIONS
 
-import {ActionType, type ActionV2Interface} from "./actions-model";
-import {Move, PokemonInstance} from "../../pokemons/pokedex";
-import type {BattleContext} from "../../context/battleContext";
-import {Player} from "../../characters/player";
+import { ActionType, type ActionV2Interface } from "./actions-model";
+import { Move, PokemonInstance } from "../../pokemons/pokedex";
+import type { BattleContext } from "../../context/battleContext";
+import { Player } from "../../characters/player";
 import { type Character } from "../../characters/characters-model";
-import {NPC} from "../../characters/npc";
-import {MOVE_EFFECT_APPLIER} from "../battle-model";
+import { NPC } from "../../characters/npc";
+import { MOVE_EFFECT_APPLIER } from "../battle-model";
 
 export class Message implements ActionV2Interface {
     public type: ActionType;
@@ -79,6 +79,29 @@ export class ApplyEffect implements ActionV2Interface {
     }
 }
 
+export class PlayAnimation implements ActionV2Interface {
+    public type: ActionType;
+    public description: string;
+    public move: Move;
+    public target: 'opponent' | 'ally';
+    public initiator: PokemonInstance;
+
+    constructor(move: Move, target: 'opponent' | 'ally', initiator: PokemonInstance) {
+        this.type = ActionType.PLAY_ANIMATION;
+        this.description = 'Play Animation';
+        this.move = move;
+        this.target = target;
+        this.initiator = initiator;
+    }
+    execute(ctx: BattleContext): void {
+        ctx.events.animateAttack.set({
+            move: this.move.name,
+            target: this.target === 'opponent' ? 'opponent' : 'ally',
+            initiator: this.initiator === ctx.playerPokemon ? 'ally' : 'opponent'
+        });
+    }
+}
+
 export class RemoveHP implements ActionV2Interface {
     public type: ActionType;
     public description: string;
@@ -95,7 +118,6 @@ export class RemoveHP implements ActionV2Interface {
     }
 
     execute(ctx: BattleContext): void {
-
         const target = this.target === 'opponent' ?
             ctx.opponentPokemon :
             ctx.playerPokemon;
