@@ -1,9 +1,9 @@
 import "@abraham/reflection";
-import {PokemonInstance} from "../pokemons/pokedex";
-import {container} from "tsyringe";
-import {MoveEffectApplier} from "../pokemons/move-effects";
+import { PokemonInstance } from "../pokemons/pokedex";
+import { container } from "tsyringe";
+import { MoveEffectApplier } from "../pokemons/move-effects";
 import type { Character } from "../characters/characters-model";
-import {writable, type Writable} from "svelte/store";
+import { writable, type Writable } from "svelte/store";
 
 export enum TurnPhase {
     UPKEEP = 'UPKEEP',
@@ -11,15 +11,30 @@ export enum TurnPhase {
     END = 'END'
 }
 
+export class BattleAnimation {
+    move: string;
+    target: 'ally' | 'opponent';
+    initiator: 'ally' | 'opponent';
+
+    constructor(move: string, target: 'ally' | 'opponent', initiator: 'ally' | 'opponent') {
+        this.move = move;
+        this.target = target;
+        this.initiator = initiator;
+    }
+
+}
+
 export class BattleEvents {
     starting: Writable<boolean> = writable(false);
     ending: Writable<boolean> = writable(false);
-    
-    end: Writable<BattleResult|undefined> = writable(undefined);
-    pokemonChange: Writable<Character|undefined> = writable(undefined);
-    playerPokemonFaint: Writable<PokemonInstance|undefined> = writable(undefined);
-    opponentPokemonFaint: Writable<PokemonInstance|undefined> = writable(undefined);
+
+    end: Writable<BattleResult | undefined> = writable(undefined);
+    pokemonChange: Writable<Character | undefined> = writable(undefined);
+    playerPokemonFaint: Writable<PokemonInstance | undefined> = writable(undefined);
+    opponentPokemonFaint: Writable<PokemonInstance | undefined> = writable(undefined);
     runnaway: Writable<boolean> = writable(false);
+
+    animateAttack: Writable<BattleAnimation | undefined> = writable(undefined);
 }
 
 export class TurnHistory {
