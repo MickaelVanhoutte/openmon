@@ -253,6 +253,8 @@ export class BattleContext {
                     }
                 }
 
+            }else{
+                this.events.playerPokemonFaint.set(this.playerPokemon);
             }
 
             this.addToStack(new Message(target.name + ' fainted!', initiator));

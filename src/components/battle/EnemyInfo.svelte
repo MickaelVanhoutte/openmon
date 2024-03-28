@@ -35,11 +35,6 @@
 	</div>
 
 	<div class="hp-status">
-		<div class="status">
-			{#if pokemon?.status}
-				{pokemon?.status?.abr}
-			{/if}
-		</div>
 
 		<div class="hp">
 			<span>HP</span>
