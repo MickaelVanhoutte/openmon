@@ -175,7 +175,7 @@
 		window.addEventListener('keydown', listener);
 
 		battleCtx.events.playerPokemonFaint.subscribe((pkmn) => {
-			if (pkmn) {
+			if (pkmn && !battleCtx?.player.monsters.every((p) => p.fainted)){
 				changePokemon = true;
 			}
 		});

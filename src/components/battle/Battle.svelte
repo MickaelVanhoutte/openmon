@@ -6,7 +6,12 @@
 	import { BattleContext } from '../../js/context/battleContext';
 	import type { GameContext } from '../../js/context/gameContext';
 	import type { OverworldContext } from '../../js/context/overworldContext';
-	import { animate } from '../../js/battle/animations/battle-animations';
+	import {
+		animateEntry,
+		animateFaint,
+		animateMove,
+		animateRun
+	} from '../../js/battle/animations/battle-animations';
 
 	/**
 	 * Battle screen component, handles pokemons display.
@@ -17,7 +22,9 @@
 	export let overWorldCtx: OverworldContext;
 
 	let gifsWrapper: HTMLDivElement;
-	let fx: HTMLImageElement;
+	let scene: HTMLImageElement;
+	let fx: HTMLImageElement[] = [];
+	let spriteFx: HTMLDivElement;
 	let drawInterval: number;
 
 	let battleLoopContext = {
@@ -39,29 +46,37 @@
 	let opponent: HTMLImageElement;
 
 	battleCtx.events.playerPokemonFaint.subscribe((value) => {
+		console.log('player faint !');
 		if (value && ally) {
-			ally.classList.add('faint');
+			animateFaint(ally);
 		}
 	});
 
 	battleCtx.events.opponentPokemonFaint.subscribe((value) => {
 		if (value && opponent) {
-			opponent.classList.add('faint');
+			animateFaint(opponent);
 		}
 	});
 
 	battleCtx.events.runnaway.subscribe((value) => {
 		if (value) {
-			ally.classList.add('runaway');
+			animateRun(ally);
 		}
 	});
 
 	battleCtx.events.animateAttack.subscribe((value) => {
 		if (value) {
-			console.log('play animation', value);
 			let animTarget = value.target === 'opponent' ? opponent : ally;
 			let animInitiator = value.initiator === 'ally' ? ally : opponent;
-			animate(value.move, value.initiator, animTarget, animInitiator, gifsWrapper, [fx]);
+			animateMove(
+				value.move,
+				value.initiator,
+				animTarget,
+				animInitiator,
+				scene,
+				spriteFx,
+				fx
+			);
 		}
 	});
 
@@ -121,6 +136,7 @@
 						opponent.style.setProperty('--grassHeight', opponentGrassHeight + 'px');
 						gifsWrapper.appendChild(opponent);
 						battleLoopContext.opponentdrawn = true;
+						animateEntry(opponent, 'opponent');
 					};
 				}
 			}
@@ -142,6 +158,7 @@
 						ally.style.setProperty('--grassHeight', allyGrassHeight + 'px');
 						gifsWrapper.appendChild(ally);
 						battleLoopContext.allydrawn = true;
+						animateEntry(ally, 'ally');
 					};
 				}
 			}
@@ -174,8 +191,38 @@
 
 <div class="battle">
 	<div bind:this={gifsWrapper} class="wrapper">
-		<img class="battle-bg" alt="background" src="src/assets/battle/bg-beach.png" />
-		<img bind:this={fx} class="fx" alt="fx" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" />
+		<img class="battle-bg" bind:this={scene} alt="background" src="src/assets/battle/bg-beach.png" />
+		<div class="fx" bind:this={spriteFx}></div>
+		<img
+			bind:this={fx[0]}
+			class="fx"
+			alt="fx"
+			src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
+		/>
+		<img
+			bind:this={fx[1]}
+			class="fx"
+			alt="fx"
+			src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
+		/>
+		<img
+			bind:this={fx[2]}
+			class="fx"
+			alt="fx"
+			src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
+		/>
+		<img
+			bind:this={fx[3]}
+			class="fx"
+			alt="fx"
+			src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
+		/>
+		<img
+			bind:this={fx[4]}
+			class="fx"
+			alt="fx"
+			src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
+		/>
 	</div>
 
 	<!-- UI -->
@@ -193,36 +240,7 @@
 		position: relative;
 		background-color: black;
 		box-sizing: border-box;
-
-	// 	--border-angle: 0turn; // For animation.
-	// 	--main-bg: conic-gradient(from var(--border-angle), #213, #112 5%, #112 60%, #213 95%);
-
-	 	border: solid 3px transparent;
-	// 	--gradient-border: conic-gradient(
-	// 		from var(--border-angle),
-	// 		transparent 25%,
-	// 		#08f,
-	// 		#f03 99%,
-	// 		transparent
-	// 	);
-
-	// 	background: 
-    // // padding-box clip this background in to the overall element except the border.
-	// 		var(--main-bg) padding-box,
-	// 		// border-box extends this background to the border space
-	// 		var(--gradient-border) border-box,
-	// 		// Duplicate main background to fill in behind the gradient border. You can remove this if you want the border to extend "outside" the box background.
-	// 		var(--main-bg) border-box;
-
-	// 	background-position: center center;
-
-	// 	animation: bg-spin 10s linear infinite;
-	// 	-webkit-animation: bg-spin 10s linear infinite;
-	// 	@keyframes bg-spin {
-	// 		to {
-	// 			--border-angle: 1turn;
-	// 		}
-	// 	}
+		border: solid 3px transparent;
 	}
 
 	.wrapper {
@@ -231,7 +249,6 @@
 		font-size: 23px;
 		position: absolute;
 		z-index: -1;
-		//background-image: url('src/assets/battle/beach-bg.jpg');
 	}
 
 	.wrapper :global(.fx) {
@@ -242,91 +259,29 @@
 		left: 0;
 		z-index: 9;
 	}
+	.wrapper :global(div.fx) {
+		background-repeat: no-repeat;
+		background-position: 0 50%;
+		background-size: cover;
+		scale: .2;
+	}
 
 	.wrapper :global(.ally-sprite) {
 		position: absolute;
-		//bottom: 30%;
-		bottom: 30%;
-		left: calc(14% - var(--width) / 2);
 		z-index: 8;
-		transform: scale(2.2);
-		//transform-origin: bottom left;
-		//filter: brightness(0);
-		// animation:
-		// 	ally-arrive 1.5s ease-in-out forwards,
-		// 	ally-arrive-color 1s ease-in-out forwards 1s;
-		// transition:
-		// 	bottom 1.5s ease-in-out 1.5s,
-		// 	filter 1s ease-in-out 1s,
-		// 	transform 1.5s ease-in-out 1.3s;
-
-		// @keyframes ally-arrive-color {
-		// 	0% {
-		// 		filter: brightness(0);
-		// 	}
-		// 	100% {
-		// 		filter: brightness(1);
-		// 	}
-		// }
-
-		// @keyframes ally-arrive {
-		// 	0% {
-		// 		left: -30%;
-		// 	}
-		// 	100% {
-		// 		left: calc(14% - var(--width) / 2);
-		// 	}
-		// }
+		height: 100%;
+		width: auto;
+		transform: scale(.7);
 	}
 
-	.wrapper :global(.ally-sprite.runaway) {
-		//left: -100% !important;
-		//transform: scale(2) rotateY(-90deg) translateX(-60dvw) translateX(-5%) skewX(20deg);
-	}
-
-	.wrapper :global(.ally-sprite.faint) {
-		bottom: -60dvh !important;
-		filter: brightness(1);
-	}
 
 	.wrapper :global(.opponent-sprite) {
 		position: absolute;
-		bottom: 40%;
-		right: 15%;
-		transform: scale(1.4);
 		z-index: 7;
-		//transform-origin: bottom left;
-		//filter: brightness(0);
-		// animation:
-		// 	opp-arrive 1.5s ease-in-out forwards,
-		// 	opp-arrive-color 1s ease-in-out forwards 1s;
-		// transition:
-		// 	bottom 1.5s ease-in-out 1.5s,
-		// 	filter 1s ease-in-out 1s;
-
-		// @keyframes opp-arrive-color {
-		// 	0% {
-		// 		filter: brightness(0);
-		// 	}
-		// 	100% {
-		// 		filter: brightness(1);
-		// 	}
-		// }
-
-		// @keyframes opp-arrive {
-		// 	0% {
-		// 		right: -10%;
-		// 	}
-		// 	100% {
-		// 		right: calc(25% - var(--width) / 2);
-		// 	}
-		// }
+		height: 100%;
+		width: auto;
+		transform: scale(.5);
 	}
-
-	// .wrapper :global(.opponent-sprite.faint) {
-	// 	bottom: -60dvh !important;
-	// 	filter: brightness(0);
-	// }
 
 	.wrapper :global(.battle-bg) {
 		z-index: 0;
@@ -336,25 +291,5 @@
 		top: 0;
 		left: 0;
 		filter: opacity(0.85) blur(3px);
-	}
-
-	.wrapper :global(.opponent-grass) {
-		position: absolute;
-		bottom: 28%;
-		right: 5%;
-		height: 18%;
-		width: 35%;
-		z-index: 1;
-	}
-
-	.wrapper :global(.ally-grass) {
-		position: absolute;
-		bottom: 0;
-		//height: 50%;
-		//scale: 4;
-		height: 30%;
-		width: 50%;
-		left: 0; //calc(25% - (var(--width) * 40%) / 2);
-		z-index: 1;
 	}
 </style>

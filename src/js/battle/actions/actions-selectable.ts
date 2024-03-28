@@ -1,10 +1,10 @@
-import {MoveInstance, PokemonInstance} from "../../pokemons/pokedex";
-import {ActionType, type ActionV2Interface} from "./actions-model";
-import type {BattleContext} from "../../context/battleContext";
-import {Player} from "../../characters/player";
+import { MoveInstance, PokemonInstance } from "../../pokemons/pokedex";
+import { ActionType, type ActionV2Interface } from "./actions-model";
+import type { BattleContext } from "../../context/battleContext";
+import { Player } from "../../characters/player";
 import { type Character } from "../../characters/characters-model";
-import {DamageResults, MOVE_EFFECT_APPLIER} from "../battle-model";
-import {ApplyEffect, ChangePokemon, EndBattle, Message, PlayAnimation, RemoveHP} from "./actions-derived";
+import { DamageResults, MOVE_EFFECT_APPLIER } from "../battle-model";
+import { ApplyEffect, ChangePokemon, EndBattle, Message, PlayAnimation, RemoveHP } from "./actions-derived";
 import { Pokeball } from "../../items/items";
 
 // SELECTABLE ACTIONS
@@ -113,6 +113,9 @@ export class Attack implements ActionV2Interface {
                 actionsToPush.push(new ApplyEffect(this.move, this.target, this.initiator))
             }
 
+            if (!result.immune) {
+                actionsToPush.push(new PlayAnimation(this.move, this.target, this.initiator));
+            }
             if (result.immune) {
                 actionsToPush.push(new Message('It doesn\'t affect ' + target.name + '...', this.initiator));
             } else if (result.notVeryEffective) {
@@ -124,7 +127,7 @@ export class Attack implements ActionV2Interface {
                 actionsToPush.push(new Message('A critical hit!', this.initiator));
             }
 
-            actionsToPush.push(new PlayAnimation(this.move, this.target, this.initiator));
+
             actionsToPush.push(new RemoveHP(result.damages, this.target, this.initiator));
 
             // Apply attack effect
