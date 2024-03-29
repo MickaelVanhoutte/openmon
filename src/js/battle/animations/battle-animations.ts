@@ -44,6 +44,35 @@ export function animateRun(target: HTMLImageElement) {
         .play();
 }
 
+// testing
+export function animateMove2(
+    move: string,
+    source: 'ally' | 'opponent',
+    target: HTMLImageElement,
+    initiator: HTMLImageElement,
+    scene: HTMLImageElement,
+    spriteFx: HTMLDivElement,
+    fx: HTMLImageElement[]) {
+
+    //animateContact(move, source, target, initiator, scene, [fx[0]], ['foot']);
+    //animateContact(move, source, target, initiator, scene, [fx[0]], ['fist']);
+    //animateContact(move, source, target, initiator, scene, [fx[0]], ['leftchop']); // todo, animate as sprite
+    //animateContact(move, source, target, initiator, scene, [fx[0]], ['impact']);
+    //animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'shadow1-sprite', 6, 192);
+    //animateSpriteDistance(move, source, target, initiator, scene, spriteFx, 'ice2-sprite', 6, 192);
+    //animateContactSprite(move, source, target, initiator, scene, spriteFx, 'crunch-sprite', 6, 192,.4, 2);
+    //animateContactSprite(move, source, target, initiator, scene, spriteFx, 'slash-sprite', 6, 192,1, 1); // todo improve slash sprite
+    //animateContactSprite(move, source, target, initiator, scene, spriteFx, 'claws-sprite', 5, 192,.8, 1);
+    //animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'fire-sprite', 8, 192);
+    //animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'poison-sprite', 9, 192);
+    //animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'rock-sprite', 7, 192);
+    //animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'shadow1-sprite', 6, 192);
+    //animateSpriteDistance(move, source, target, initiator, scene, spriteFx, 'thunder2-sprite', 6, 192);
+    //animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'thunder-sprite', 6, 192);
+    //animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'vines-sprite', 6, 192);
+    //animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'water-sprite', 8, 192);
+    //animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'wind-sprite', 8, 192);
+}
 
 export function animateMove(
     move: string,
@@ -65,32 +94,32 @@ export function animateMove(
         case 'rolling-kick':
         case 'high-jump-kick':
         case 'triple-kick':
-        case 'blaze-kick':
+        case 'blaze-kick': // TODO element
         case 'low-sweep':
         case 'darkest-lariat':
-        case 'triple-axel':
-        case 'thunderous-kick':
+        case 'triple-axel': // TODO element
+        case 'thunderous-kick': // TODO element
         case 'axe-kick':
             animateContact(move, source, target, initiator, scene, [fx[0]], ['foot']);
             break;
         case 'comet-punch':
         case 'mega-punch':
-        case 'fire-punch':
-        case 'ice-punch':
-        case 'thunder-punch':
+        case 'fire-punch': // TODO element
+        case 'ice-punch': // TODO element
+        case 'thunder-punch': // TODO element
         case 'dizzy-punch':
         case 'mach-punch':
         case 'dynamic-punch':
         case 'focus-punch':
         case 'bullet-punch':
         case 'drain-punch':
-        case 'shadow-punch':
+        case 'shadow-punch': // TODO element
         case 'sky-uppercut':
         case 'close-combat':
         case 'sucker-punch':
-        case 'poison-jab':
+        case 'poison-jab': // TODO element
         case 'power-up-punch':
-
+        case 'plasma-fists': // TODO element
             animateContact(move, source, target, initiator, scene, [fx[0]], ['fist']);
             break;
         case 'karate-chop':
@@ -101,12 +130,15 @@ export function animateMove(
         case 'arm-thrust':
         case 'dual-chop':
         case 'throat-chop':
-        case 'plasma-fists':
         case 'rage-fist':
             animateContact(move, source, target, initiator, scene, [fx[0]], ['rightchop']);
             break;
         case 'pound':
         case 'tackle':
+        case 'slam':
+        case 'trash':
+        case 'rage':
+        case 'strength':
         case 'body-slam':
         case 'heavy-slam':
         case 'take-down':
@@ -117,22 +149,21 @@ export function animateMove(
         case 'extreme-speed':
         case 'return':
         case 'facade':
-        case 'poison-tail':
-        case 'aqua-tail':
+        case 'poison-tail': // TODO element
+        case 'aqua-tail': // TODO element
         case 'iron-tail':
         case 'dragon-tail':
-        case 'volt-tackle':
-        case 'wood-hammer':
+        case 'volt-tackle': // TODO element
+        case 'wood-hammer': // TODO element
         case 'hammer-arm':
         case 'ice-hammer':
-        case 'u-turn':
         case 'dragon-rush':
         case 'giga-impact':
         case 'power-whip':
         case 'dragon-hammer':
         case 'brutal-swing':
         case 'smack-down':
-        case 'flame-charge':
+        case 'flame-charge': // TODO element
         case 'acrobatics':
         case 'final-gambit':
         case 'volt-switch':
@@ -149,57 +180,126 @@ export function animateMove(
         case 'covet':
         case 'wing-attack':
         case 'outrage':
+        case 'bolt-strike':// TODO element
+        case 'fusion-bolt':// TODO element
+        case 'aura-wheel': // TODO element
+        case 'pay-day': // TODO coins fall
+        case 'bide': // TODO angry first turns
+        case 'skull-bash': // TODO only 2nd turn
+        case 'struggle':
             animateContact(move, source, target, initiator, scene, [fx[0]], ['impact']);
+        case 'double-slap':
+            animateContact(move, source, target, initiator, scene, [fx[0]], ['impact'], 2);
             break;
         case 'scratch':
         case 'cut':
         case 'slash':
-        case 'fury-swipes':
+        case 'fury-swipes': // todo repeat
         case 'false-swipe':
         case 'fury-cutter':
         case 'night-slash':
         case 'x-scissor':
-            animateContact(move, source, target, initiator, scene, [fx[0]], ['rightslash']);
+        case 'vice-grip':
+        case 'guillotine':
+            animateContactSprite(move, source, target, initiator, scene, spriteFx, 'slash-sprite', 6, 192, 1, 1);
             break;
         case 'metal-claw':
         case 'shadow-claw':
         case 'dragon-claw':
         case 'crush-claw':
         case 'hone-claws':
-            animateContact(move, source, target, initiator, scene, [fx[0]], ['rightclaw']);
+            animateContactSprite(move, source, target, initiator, scene, spriteFx, 'claw-sprite', 5, 192, 1, 2);
             break;
         case 'bite':
         case 'crunch':
-        case 'fire-fang':
-        case 'ice-fang':
-        case 'thunder-fang':
-        case 'poison-fang':
+        case 'fire-fang': // TODO element
+        case 'ice-fang': // TODO element
+        case 'thunder-fang': // TODO element
+        case 'poison-fang': // TODO element
         case 'bug-bite':
         case 'psychic-fang':
-            animateContact(move, source, target, initiator, scene, fx, ['topbite', 'bottombite']);
+        case 'hyper-fang':
+        case 'super-fang':
+            animateContactSprite(move, source, target, initiator, scene, spriteFx, 'crunch-sprite', 6, 192, .4, 2);
             break;
 
 
         // from initiator
         // electrik
         case 'thunder-shock':
-            case 'spark':
+        case 'thunderbolt':
+        case 'thunder':
+        case 'spark':
+        case 'electro-web': // todo add web sprite
+        case 'nuzzle':
+        case 'overdrive':
+            animateSpriteDistance(move, source, target, initiator, scene, spriteFx, 'thunder-sprite', 6, 192);
+        case 'spark':
         case 'electro-ball':
-            animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'thunder-sprite', 6, 192);
+        case 'zap-cannon':
+        case 'shock-wave':
+        case 'discharge':
+        case 'charge-beam':
+        case 'electro-ball':
+        case 'electrify':
+        case 'eerie-impulse':
+        case 'bolt-beak':
+            animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'thunderball-sprite', 6, 192);
             break;
         // fire
         case 'ember':
             animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'fire-sprite', 8, 192);
+
+            break;
+        // ice
+        case 'ice-beam': // TODO From, change sprite
+        case 'hyper-beam': // TODO From, change sprite
+            animateSpriteDistance(move, source, target, initiator, scene, spriteFx, 'ice-sprite', 6, 192);
             break;
 
+        case 'razor-wind':
+        case 'whirlwind': // TODO make target move away
+        case 'sonic-boom':
+        case 'swift':
+            animateSpriteDistance(move, source, target, initiator, scene, spriteFx, 'wind-sprite', 8, 192);
+            break
+
         // back and forth
+        case 'parabolic-charge':
+            // TODO
+            break;
 
         // distance moves
+        // TODO bind, wrap, constrict, spike-cannon, egg-bomb
+
+        // buffs TODO
+        // sword dance, growth, double-team, recover, harden, minimize, 
+        // defense-curl, focus-energy, soft-boiled, sharpen, conversion
+        // SUBSTITUTE
+
+
+        // debuffs TODO
+        // tail whip, leer, growl, screech, smokescreen, flash
+
+        // status TODO 
+        // sing supersonic disable, glare, barrage, lovely-kiss
+
+        // roar // TODO make target move away
+        // metronome
+        // self-destruct, explosion
+        // transform
+        // splash
+        // tri-attack
 
         default:
             console.log('No animation for this move');
             break;
     }
+}
+
+function animateEffects() {
+    // TODO 
+    // confusion, para...
 }
 
 function animateSpriteFrom(
@@ -211,7 +311,7 @@ function animateSpriteFrom(
     spriteFx: HTMLDivElement,
     fxImage: string,
     spriteN: number,
-    spriteSize: number) {
+    spriteSize: number = 192) {
     let tl = gsap.timeline();
 
     // from initiator
@@ -224,7 +324,7 @@ function animateSpriteFrom(
         opacity: 1,
         height: spriteSize + 'px',
         width: spriteSize + 'px',
-        scale: .3,
+        scale: .8,
         visibility: 'visible',
         duration: .1,
     }, 'fx')
@@ -239,7 +339,7 @@ function animateSpriteFrom(
                 target.getBoundingClientRect().left + target.getBoundingClientRect().width / 2 - spriteSize / 2,
             top: target.getBoundingClientRect().top + target.getBoundingClientRect().height / 3 - spriteSize / 2,
             duration: 1.4,
-            scale: 1.2,
+            scale: .8,
             delay: 0,
         }, 'fx+=.1')
     // animate sprite
@@ -247,15 +347,15 @@ function animateSpriteFrom(
         const xPos = -i * spriteSize;
         tl.to(spriteFx, {
             opacity: .5,
-            scale: 0.1 + i * .2,
-            duration: .1,
+            //scale: 0.1 + i * .2,
+            duration: .05,
             ease: 'elastic.inOut',
         },).set(spriteFx, {
             backgroundPosition: `${xPos}px 50%`,
             ease: 'steps(1)',
-            scale: 0.2 + i * .1,
+            //scale: 0.2 + i * .1,
             opacity: 1,
-            duration: .3,
+            duration: 1.5 / spriteN,
         }, 'fx+=' + (.1 + .3 * i)
         );
     }
@@ -276,7 +376,7 @@ function animateSpriteFrom(
     tl.play();
 }
 
-export function animateSpriteDistance(
+function animateSpriteDistance(
     move: string,
     source: 'ally' | 'opponent',
     target: HTMLImageElement,
@@ -285,7 +385,7 @@ export function animateSpriteDistance(
     spriteFx: HTMLDivElement,
     fxImage: string,
     spriteN: number,
-    spriteSize: number) {
+    spriteSize: number = 192) {
     let tl = gsap.timeline();
 
     tl.set(spriteFx, {
@@ -300,26 +400,33 @@ export function animateSpriteDistance(
         top: target.getBoundingClientRect().top + target.getBoundingClientRect().height / 4,
         opacity: 1,
         visibility: 'visible',
-        delay: .1,
+        scale: .8,
         duration: .2
     }, 'fx')
     for (let i = 1; i < spriteN; i++) {
         const xPos = -i * spriteSize;
         tl.to(spriteFx, {
             opacity: .5,
-            scale: .7,
+            //scale: 0.1 + i * .2,
             duration: .05,
             ease: 'elastic.inOut',
-        }).to(spriteFx, {
+        },).set(spriteFx, {
             backgroundPosition: `${xPos}px 50%`,
             ease: 'steps(1)',
+            //scale: 0.2 + i * .1,
             opacity: 1,
-            scale: 1,
-            duration: .2,
-            delay: 0,
-        });
+            duration: 1.5 / spriteN,
+        }, 'fx+=' + (.1 + .3 * i)
+        );
     }
-    tl.set(spriteFx, {
+    tl.set(target, {
+        filter: 'invert(1)',
+        delay: .2,
+        duration: .2,
+    }).set(target, {
+        filter: 'invert(0)',
+        delay: .1,
+    }).set(spriteFx, {
         opacity: 0,
         visibility: 'hidden',
         delay: .1,
@@ -333,19 +440,21 @@ function animateContact(move: string,
     initiator: HTMLImageElement,
     scene: HTMLDivElement,
     fx: HTMLImageElement[],
-    fxImage: string[]) {
-    gsap.timeline()
-        .to(
-            initiator,
-            {
-                x: source === 'ally' ?
-                    target.getBoundingClientRect().left - initiator.getBoundingClientRect().width :
-                    target.getBoundingClientRect().right - initiator.getBoundingClientRect().width,
-                y: target.getBoundingClientRect().top - initiator.getBoundingClientRect().height / 2,
-                duration: .4
-            }
-        )
-        .set(fx[0], {
+    fxImage: string[],
+    repeat: number = 1) {
+    let tl = gsap.timeline();
+    tl.to(
+        initiator,
+        {
+            x: source === 'ally' ?
+                target.getBoundingClientRect().left - initiator.getBoundingClientRect().width :
+                target.getBoundingClientRect().right - initiator.getBoundingClientRect().width,
+            y: target.getBoundingClientRect().top - initiator.getBoundingClientRect().height / 2,
+            duration: .4
+        }
+    );
+    for (let i = 0; i < repeat; i++) {
+        tl.set(fx[0], {
             attr: {
                 src: 'src/assets/battle/fx/' + fxImage[0] + '.png',
             },
@@ -357,27 +466,29 @@ function animateContact(move: string,
             opacity: 1,
             visibility: 'visible',
             delay: .1,
-            duration: .4
-        }, 'fx')
-        .set(fx[1], {
-            attr: {
-                src: 'src/assets/battle/fx/' + fxImage[1] + '.png',
-            },
-            width: '7%',
-            height: 'auto',
-            left: source === 'ally' ? target.getBoundingClientRect().left + target.getBoundingClientRect().width / 4 :
-                target.getBoundingClientRect().left + target.getBoundingClientRect().width * 3 / 4,
-            top: target.getBoundingClientRect().top + target.getBoundingClientRect().height / 4 + 35,
-            opacity: 1,
-            visibility: 'visible',
-            delay: .1,
-            duration: .4
-        }, 'fx')
-        .to(fx[1], {
-            top: target.getBoundingClientRect().top + target.getBoundingClientRect().height / 4 + 20,
-            duration: .1,
-            delay: .1
-        })
+            duration: .4 / repeat
+        }, 'fx' + i)
+            .set(fx[1], {
+                attr: {
+                    src: 'src/assets/battle/fx/' + fxImage[1] + '.png',
+                },
+                width: '7%',
+                height: 'auto',
+                left: source === 'ally' ? target.getBoundingClientRect().left + target.getBoundingClientRect().width / 4 :
+                    target.getBoundingClientRect().left + target.getBoundingClientRect().width * 3 / 4,
+                top: target.getBoundingClientRect().top + target.getBoundingClientRect().height / 4 + 35,
+                opacity: 1,
+                visibility: 'visible',
+                delay: .1,
+                duration: .4 / repeat
+            }, 'fx' + i);
+    }
+
+    tl.to(fx[1], {
+        top: target.getBoundingClientRect().top + target.getBoundingClientRect().height / 4 + 20,
+        duration: .1,
+        delay: .1
+    })
         .to(fx[1], {
             top: target.getBoundingClientRect().top + target.getBoundingClientRect().height / 4 + 35,
             duration: .1,
@@ -416,4 +527,77 @@ function animateContact(move: string,
                 delay: .1
             }
         ).play();
+}
+
+function animateContactSprite(
+    move: string,
+    source: 'ally' | 'opponent',
+    target: HTMLImageElement,
+    initiator: HTMLImageElement,
+    scene: HTMLDivElement,
+    spriteFx: HTMLDivElement,
+    fxImage: string,
+    spriteN: number,
+    spriteSize: number,
+    scale: number,
+    repeat: number) {
+    console.log(repeat);
+    let tl = gsap.timeline();
+    tl.to(
+        initiator,
+        {
+            x: source === 'ally' ?
+                target.getBoundingClientRect().left - initiator.getBoundingClientRect().width :
+                target.getBoundingClientRect().right - initiator.getBoundingClientRect().width,
+            y: target.getBoundingClientRect().top - initiator.getBoundingClientRect().height / 2,
+            duration: .4
+        }
+    ).set(spriteFx, {
+        background: 'url(src/assets/battle/fx/' + fxImage + '.png)',
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: '0 50%',
+        backgroundSize: 'cover',
+        width: spriteSize + 'px',
+        height: spriteSize + 'px',
+        left: source === 'ally' ?
+            target.getBoundingClientRect().left :
+            target.getBoundingClientRect().right - spriteSize,
+        top: target.getBoundingClientRect().top,
+        scale: scale,
+        opacity: 1,
+        visibility: 'visible',
+        delay: .1,
+        duration: .2
+    }, 'fx')
+    for (let i = 0; i < repeat; i++) {
+        for (let j = 1; j < spriteN; j++) {
+            const xPos = -j * spriteSize;
+            tl.to(spriteFx, {
+                backgroundPosition: `${xPos}px 50%`,
+                ease: 'steps(1)',
+                duration: 1.5 / (spriteN * repeat),
+            }
+            );
+        }
+    }
+    tl.set(target, {
+        filter: 'invert(1)',
+        delay: .2,
+        duration: .2,
+    }).set(target, {
+        filter: 'invert(0)',
+        delay: .1,
+    }).set(spriteFx, {
+        opacity: 0,
+        visibility: 'hidden',
+        delay: .1,
+    }).to(
+        initiator,
+        {
+            x: source === 'ally' ? window.innerWidth * .025 : window.innerWidth * .55,
+            y: 0,
+            duration: .3,
+            delay: .1
+        }
+    ).play();
 }
