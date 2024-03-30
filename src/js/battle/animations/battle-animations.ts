@@ -46,7 +46,7 @@ export function animateRun(target: HTMLImageElement) {
 }
 
 // testing
-export function animateMove(
+export function animateMoveTest(
     move: string,
     source: 'ally' | 'opponent',
     target: HTMLImageElement,
@@ -75,7 +75,7 @@ export function animateMove(
     //animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'wind-sprite', 8, 192);
 }
 
-export function animateMove2(
+export function animateMove(
     move: string,
     source: 'ally' | 'opponent',
     target: HTMLImageElement,
@@ -349,6 +349,53 @@ export function animateMove2(
             animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'water-sprite', 8, 192);
             break;
 
+        // buffs
+        case 'nasty-plot':
+        case 'dragon-dance':
+        case 'bulk-up':
+        case 'cotton-guard':
+        case 'harden':
+        case 'focus-energy':
+        case 'double-team':
+        case 'defense-curl':
+        case 'minimize':
+        case 'stockpile':
+        case 'growth':
+        case 'howl':
+        case 'belly-drum':
+        case 'swords-dance':
+        case 'conversion':
+        case 'conversion-2':
+        case 'acupressure':
+        case 'work-up':
+        case 'acid-armor':
+        case 'coil':
+        case 'agility':
+        case 'amnesia':
+        case 'calm-mind':
+        case 'iron-defense':
+        case 'withdraw':
+            animateSpriteDistance(move, source, initiator, initiator, scene, spriteFx, 'buff-sprite', 6, 192);
+            break;
+        case 'swagger':
+            animateSpriteDistance(move, source, target, initiator, scene, spriteFx, 'buff-sprite', 6, 192);
+            break;
+
+        // debuffs
+        case 'fake-tears':
+        case 'feather-dance':
+        case 'cotton-spore':
+        case 'growl':
+        case 'smokescreen':
+        case 'scary-face':
+        case 'tail-whip':
+        case 'leer':
+        case 'screech':
+        case 'sweet-scent':
+        case 'metal-sound':
+            animateSpriteDistance(move, source, target, initiator, scene, spriteFx, 'debuff-sprite', 6, 192);
+            break;
+
         default:
             console.log('No animation for this move');
             break;
@@ -359,6 +406,7 @@ function animateEffects() {
     // TODO 
     // confusion, para...
 }
+
 
 function animateSpriteFrom(
     move: string,
