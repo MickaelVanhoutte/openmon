@@ -231,10 +231,8 @@ export function animateMove(
         case 'psychic-fang':
         case 'hyper-fang':
         case 'super-fang':
-            animateContactSprite(move, source, target, initiator, scene, spriteFx, 'crunch-sprite', 6, 192, .4, 1);
+            animateContactSprite(move, source, target, initiator, scene, spriteFx, 'crunch-sprite', 6, 192, .6, 2);
             break;
-
-
         // from initiator
         // electrik
         case 'thunder-shock':
@@ -678,14 +676,14 @@ function animateContactSprite(
             tl.to(spriteFx, {
                 backgroundPosition: `${xPos}px 50%`,
                 ease: 'steps(1)',
-                duration: spriteN > 6 ? (1.5 / (spriteN * repeat)) : .2,
+                duration: spriteN >= 6 ? (1.5 / (spriteN * repeat)) : .2,
             }
             );
         }
     }
     tl.set(target, {
         filter: 'invert(1)',
-        delay: .2,
+    
         duration: .2,
     }).set(target, {
         filter: 'invert(0)',
@@ -702,12 +700,11 @@ function animateContactSprite(
             height: spriteSize + 'px',
             left: target.getBoundingClientRect().right - target.getBoundingClientRect().width / 2 - (192 * scale / 2),
             bottom: source === 'ally' ? '35%' : '15%',
-            scale: scale,
+            scale: 1,
             opacity: 1,
             visibility: 'visible',
-            delay: .1,
-            duration: .3
-        })
+            duration: .4
+        }, 'element')
     } else if (move.type === 'fire') {
         tl.set(spriteFx, {
             background: 'url(src/assets/battle/fx/elements/burn.png)',
@@ -718,12 +715,11 @@ function animateContactSprite(
             height: spriteSize + 'px',
             left: target.getBoundingClientRect().right - target.getBoundingClientRect().width / 2 - (192 * scale / 2),
             bottom: source === 'ally' ? '35%' : '15%',
-            scale: scale,
+            scale: 1,
             opacity: 1,
             visibility: 'visible',
-            delay: .1,
-            duration: .2
-        })
+            duration: .4
+        }, 'element')
     } else if (move.type === 'electric') {
         tl.set(spriteFx, {
             background: 'url(src/assets/battle/fx/elements/static.png)',
@@ -734,12 +730,11 @@ function animateContactSprite(
             height: spriteSize + 'px',
             left: target.getBoundingClientRect().right - target.getBoundingClientRect().width / 2 - (192 * scale / 2),
             bottom: source === 'ally' ? '35%' : '15%',
-            scale: scale,
+            scale: 1,
             opacity: 1,
             visibility: 'visible',
-            delay: .1,
-            duration: .2
-        })
+            duration: .4
+        }, 'element')
     } else if (move.type === 'ice') {
         tl.set(spriteFx, {
             background: 'url(src/assets/battle/fx/elements/ice.png)',
@@ -750,12 +745,11 @@ function animateContactSprite(
             height: spriteSize + 'px',
             left: target.getBoundingClientRect().right - target.getBoundingClientRect().width / 2 - (192 * scale / 2),
             bottom: source === 'ally' ? '35%' : '15%',
-            scale: scale,
+            scale: 1,
             opacity: 1,
             visibility: 'visible',
-            delay: .1,
-            duration: .2
-        })
+            duration: .4
+        }, 'element')
     } else if (move.type === 'poison') {
         tl.set(spriteFx, {
             background: 'url(src/assets/battle/fx/elements/poison.png)',
@@ -766,12 +760,11 @@ function animateContactSprite(
             height: spriteSize + 'px',
             left: target.getBoundingClientRect().right - target.getBoundingClientRect().width / 2 - (192 * scale / 2),
             bottom: source === 'ally' ? '35%' : '15%',
-            scale: scale,
+            scale: 1,
             opacity: 1,
             visibility: 'visible',
-            delay: .1,
-            duration: .2
-        })
+            duration: .4
+        }, 'element')
     } else if (move.type === 'rock') {
         tl.set(spriteFx, {
             background: 'url(src/assets/battle/fx/elements/rock.png)',
@@ -782,12 +775,11 @@ function animateContactSprite(
             height: spriteSize + 'px',
             left: target.getBoundingClientRect().right - target.getBoundingClientRect().width / 2 - (192 * scale / 2),
             bottom: source === 'ally' ? '35%' : '15%',
-            scale: scale,
+            scale: 1,
             opacity: 1,
             visibility: 'visible',
-            delay: .1,
-            duration: .2
-        })
+            duration: .4
+        }, 'element')
     } else if (move.type === 'grass') {
         tl.set(spriteFx, {
             background: 'url(src/assets/battle/fx/elements/grass.png)',
@@ -798,12 +790,11 @@ function animateContactSprite(
             height: spriteSize + 'px',
             left: target.getBoundingClientRect().right - target.getBoundingClientRect().width / 2 - (192 * scale / 2),
             bottom: source === 'ally' ? '35%' : '15%',
-            scale: scale,
+            scale: 1,
             opacity: 1,
             visibility: 'visible',
-            delay: .1,
-            duration: .2
-        })
+            duration: .4
+        }, 'element')
     } else if (move.type === 'ghost') {
         tl.set(spriteFx, {
             background: 'url(src/assets/battle/fx/elements/ghost.png)',
@@ -814,19 +805,17 @@ function animateContactSprite(
             height: spriteSize + 'px',
             left: target.getBoundingClientRect().right - target.getBoundingClientRect().width / 2 - (192 * scale / 2),
             bottom: source === 'ally' ? '35%' : '15%',
-            scale: scale,
+            scale: 1,
             opacity: 1,
             visibility: 'visible',
-            delay: .1,
-            duration: .2
-        })
+            duration: .4
+        }, 'element')
     }
 
     tl.set(spriteFx, {
         opacity: 0,
         visibility: 'hidden',
-        delay: .1,
-    }).to(
+    }, 'element+=.4').to(
         initiator,
         {
             left: source === 'ally' ?
