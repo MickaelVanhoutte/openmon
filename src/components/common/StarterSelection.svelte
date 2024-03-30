@@ -16,12 +16,10 @@
 	let translateZ = canvasWidth * 0.33;
 
 	let monsters = [
-		context.POKEDEX.findById(67).result,
+		context.POKEDEX.findById(1).result,
 		context.POKEDEX.findById(4).result,
 		context.POKEDEX.findById(7).result,
 	];
-
-	console.log(monsters);
 
 	let angle = 0;
 
