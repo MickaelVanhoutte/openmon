@@ -46,7 +46,6 @@
 	let opponent: HTMLImageElement;
 
 	battleCtx.events.playerPokemonFaint.subscribe((value) => {
-		console.log('player faint !');
 		if (value && ally) {
 			animateFaint(ally);
 		}
@@ -125,12 +124,23 @@
 					opponent.classList.add('opponent-sprite');
 				}
 				if (opponent) {
+					// scale based on pokemon height
+
+				
 					opponent.src =
 						(battleCtx?.opponentPokemon.isShiny
 							? battleCtx?.opponentPokemon.sprites?.male?.front.shiny1
 							: battleCtx?.opponentPokemon.sprites?.male?.front.frame1) ||
 						'src/assets/monsters/bw/0.png';
 					opponent.onload = () => {
+						//let scale = Math.min(battleCtx?.opponentPokemon.height / 4, 1);
+						//let scale = Math.max(Math.min(battleCtx?.opponentPokemon.height / 3, .7), 0.2);
+						let scale = Math.max(Math.min(opponent.naturalHeight / 200, .9), 0.1);
+						console.log(battleCtx?.opponentPokemon.name, opponent.naturalHeight / 100, scale);
+
+
+
+						opponent.style.setProperty('--scale', scale + '');
 						opponent.style.setProperty('--width', opponent.naturalWidth + 'px');
 						opponent.style.setProperty('--height', opponent.naturalHeight + 'px');
 						opponent.style.setProperty('--grassHeight', opponentGrassHeight + 'px');
@@ -153,6 +163,11 @@
 						'src/assets/monsters/bw/0.png';
 
 					ally.onload = () => {
+						//let scale = Math.min(battleCtx?.playerPokemon.height / 4, 1);
+						let scale = Math.max(Math.min(ally.naturalHeight / 200, 1), 0.2);
+						//let scale = Math.max(Math.min(battleCtx?.playerPokemon.height / 3, .9), 0.3);
+						console.log(battleCtx?.playerPokemon.name, ally.naturalHeight / 100, scale);
+						ally.style.setProperty('--scale', scale + '')
 						ally.style.setProperty('--width', ally.naturalWidth + 'px');
 						ally.style.setProperty('--height', ally.naturalHeight + 'px');
 						ally.style.setProperty('--grassHeight', allyGrassHeight + 'px');
@@ -255,7 +270,7 @@
 		visibility: hidden;
 		opacity: 0;
 		position: absolute;
-		top: 0;
+		bottom: 0;
 		left: 0;
 		z-index: 9;
 	}
@@ -264,6 +279,7 @@
 		background-position: 0 50%;
 		background-size: cover;
 		scale: .2;
+		transform-origin: bottom left;
 	}
 
 	.wrapper :global(.ally-sprite) {
@@ -271,7 +287,10 @@
 		z-index: 8;
 		height: 100%;
 		width: auto;
-		transform: scale(.7);
+		transform: scale(var(--scale));
+		transform-origin: bottom left;
+		bottom: 15%;
+		left: 0;
 	}
 
 
@@ -280,7 +299,10 @@
 		z-index: 7;
 		height: 100%;
 		width: auto;
-		transform: scale(.5);
+		transform: scale(var(--scale));
+		transform-origin: bottom left;
+		bottom: 35%;
+		left: 0;
 	}
 
 	.wrapper :global(.battle-bg) {

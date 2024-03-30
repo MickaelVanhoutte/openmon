@@ -298,3 +298,21 @@ let rock = ids.map(id => {
 }).filter(pokemon => pokemon.type[0] === 'Rock' || pokemon.type[1] === 'Rock').map(pokemon => pokemon.name?.english);
 
 console.log(rock);
+
+
+// min an max heights
+import dex from '../../final/beta/pokedex-animatedV3.json' assert {type: 'json'};
+
+let minHeight= 0;
+let maxHeight = 0;
+let heights=[];
+ids.map(id => {
+    return dex.find(pokemon => pokemon.regionalId === id);
+}).forEach(pokemon => {
+    heights.push(pokemon.height);
+});
+heights.sort((a, b) => a - b);
+
+console.log(heights);
+// log last 10 entries
+console.log(heights.slice(-10));

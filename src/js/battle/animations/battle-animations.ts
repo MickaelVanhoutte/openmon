@@ -1,15 +1,16 @@
 import { gsap } from 'gsap';
 
 export function animateEntry(target: HTMLImageElement, source: 'ally' | 'opponent') {
+    console.log(source, target.getBoundingClientRect().width);
     gsap.timeline().fromTo(target,
         {
-            x: source === 'ally' ? -300 : window.innerWidth + 100,
+            left: source === 'ally' ? -target.getBoundingClientRect().width : window.innerWidth,
             filter: source === 'ally' ? 'brightness(5)' : 'brightness(0)',
-            borderRadius: source === 'ally' ? '50%' : '0%',
         },
         {
-            x: source === 'ally' ? window.innerWidth * .025 : window.innerWidth * .55,
-            borderRadius: 0,
+            left: source === 'ally' ?
+                window.innerWidth * 0.25 - target.getBoundingClientRect().width / 2
+                : window.innerWidth * 0.75 - target.getBoundingClientRect().width / 2,
             duration: 2,
         }).to(target, {
             filter: 'brightness(1)',
@@ -32,7 +33,7 @@ export function animateRun(target: HTMLImageElement) {
     gsap.timeline()
         .to(target, {
             filter: 'brightness(5)',
-            transform: 'scale(.3)',
+            transform: 'scale(.1)',
             duration: .8,
             delay: .3
         })
@@ -45,7 +46,7 @@ export function animateRun(target: HTMLImageElement) {
 }
 
 // testing
-export function animateMove2(
+export function animateMove(
     move: string,
     source: 'ally' | 'opponent',
     target: HTMLImageElement,
@@ -58,23 +59,23 @@ export function animateMove2(
     //animateContact(move, source, target, initiator, scene, [fx[0]], ['fist']);
     //animateContact(move, source, target, initiator, scene, [fx[0]], ['leftchop']); // todo, animate as sprite
     //animateContact(move, source, target, initiator, scene, [fx[0]], ['impact']);
-    //animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'shadow1-sprite', 6, 192);
-    //animateSpriteDistance(move, source, target, initiator, scene, spriteFx, 'ice2-sprite', 6, 192);
-    //animateContactSprite(move, source, target, initiator, scene, spriteFx, 'crunch-sprite', 6, 192,.4, 2);
+    //animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'shadowball-sprite', 6, 192);
+    //animateSpriteDistance(move, source, target, initiator, scene, spriteFx, 'ice-sprite', 6, 192);
+    //animateContactSprite(move, source, target, initiator, scene, spriteFx, 'crunch-sprite', 6, 192, .4, 2);
     //animateContactSprite(move, source, target, initiator, scene, spriteFx, 'slash-sprite', 6, 192,1, 1); // todo improve slash sprite
-    //animateContactSprite(move, source, target, initiator, scene, spriteFx, 'claws-sprite', 5, 192,.8, 1);
+    //animateContactSprite(move, source, target, initiator, scene, spriteFx, 'claws-sprite', 5, 192,.8, 1); // todo fix claws sprite
     //animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'fire-sprite', 8, 192);
     //animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'poison-sprite', 9, 192);
     //animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'rock-sprite', 7, 192);
-    //animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'shadow1-sprite', 6, 192);
-    //animateSpriteDistance(move, source, target, initiator, scene, spriteFx, 'thunder2-sprite', 6, 192);
+    //animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'shadowball-sprite', 6, 192);
+    animateSpriteDistance(move, source, target, initiator, scene, spriteFx, 'thunderball-sprite', 6, 192);
     //animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'thunder-sprite', 6, 192);
     //animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'vines-sprite', 6, 192);
     //animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'water-sprite', 8, 192);
     //animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'wind-sprite', 8, 192);
 }
 
-export function animateMove(
+export function animateMove2(
     move: string,
     source: 'ally' | 'opponent',
     target: HTMLImageElement,
@@ -208,7 +209,7 @@ export function animateMove(
         case 'dragon-claw':
         case 'crush-claw':
         case 'hone-claws':
-            animateContactSprite(move, source, target, initiator, scene, spriteFx, 'claw-sprite', 5, 192, 1, 2);
+            animateContactSprite(move, source, target, initiator, scene, spriteFx, 'claws-sprite', 5, 192, 1, 1);
             break;
         case 'bite':
         case 'crunch':
@@ -220,7 +221,7 @@ export function animateMove(
         case 'psychic-fang':
         case 'hyper-fang':
         case 'super-fang':
-            animateContactSprite(move, source, target, initiator, scene, spriteFx, 'crunch-sprite', 6, 192, .4, 2);
+            animateContactSprite(move, source, target, initiator, scene, spriteFx, 'crunch-sprite', 6, 192, .4, 1);
             break;
 
 
@@ -235,7 +236,6 @@ export function animateMove(
         case 'overdrive':
             animateSpriteDistance(move, source, target, initiator, scene, spriteFx, 'thunder-sprite', 6, 192);
         case 'spark':
-        case 'electro-ball':
         case 'zap-cannon':
         case 'shock-wave':
         case 'discharge':
@@ -395,9 +395,8 @@ function animateSpriteDistance(
         backgroundSize: 'cover',
         width: spriteSize + 'px',
         height: spriteSize + 'px',
-        left: source === 'ally' ? target.getBoundingClientRect().left + target.getBoundingClientRect().width / 4 :
-            target.getBoundingClientRect().left + target.getBoundingClientRect().width * 3 / 4,
-        top: target.getBoundingClientRect().top + target.getBoundingClientRect().height / 4,
+        left: target.getBoundingClientRect().left + target.getBoundingClientRect().width / 2 - (192 * .8 / 2),
+        bottom: source === 'ally' ? '35%' : '15%',
         opacity: 1,
         visibility: 'visible',
         scale: .8,
@@ -446,10 +445,10 @@ function animateContact(move: string,
     tl.to(
         initiator,
         {
-            x: source === 'ally' ?
-                target.getBoundingClientRect().left - initiator.getBoundingClientRect().width :
-                target.getBoundingClientRect().right - initiator.getBoundingClientRect().width,
-            y: target.getBoundingClientRect().top - initiator.getBoundingClientRect().height / 2,
+            left: source === 'ally' ?
+                target.getBoundingClientRect().left - initiator.getBoundingClientRect().width * 2 / 3 :
+                target.getBoundingClientRect().right - initiator.getBoundingClientRect().width * 2 / 3,
+            bottom: source === 'ally' ? '35%' : '15%',
             duration: .4
         }
     );
@@ -499,14 +498,9 @@ function animateContact(move: string,
             duration: .1,
             delay: .1
         })
-        .to(target, {
-            skew: source === 'ally' ? '20deg' : '-20deg',
-            duration: .2,
-            delay: .1
-        })
         .set(target, {
             filter: 'invert(1)',
-            delay: .2,
+            delay: .1,
             duration: .2,
         })
         .set(target, {
@@ -521,8 +515,10 @@ function animateContact(move: string,
         .to(
             initiator,
             {
-                x: source === 'ally' ? window.innerWidth * .025 : window.innerWidth * .55,
-                y: 0,
+                left: source === 'ally' ?
+                    window.innerWidth * 0.25 - target.getBoundingClientRect().width / 2
+                    : window.innerWidth * 0.75 - target.getBoundingClientRect().width / 2,
+                bottom: source === 'ally' ? '15%' : '35%',
                 duration: .3,
                 delay: .1
             }
@@ -546,10 +542,10 @@ function animateContactSprite(
     tl.to(
         initiator,
         {
-            x: source === 'ally' ?
-                target.getBoundingClientRect().left - initiator.getBoundingClientRect().width :
-                target.getBoundingClientRect().right - initiator.getBoundingClientRect().width,
-            y: target.getBoundingClientRect().top - initiator.getBoundingClientRect().height / 2,
+            left: source === 'ally' ?
+                target.getBoundingClientRect().left - initiator.getBoundingClientRect().width * 2 / 3 :
+                target.getBoundingClientRect().right - initiator.getBoundingClientRect().width * 2 / 3,
+            bottom: source === 'ally' ? '35%' : '15%',
             duration: .4
         }
     ).set(spriteFx, {
@@ -559,10 +555,8 @@ function animateContactSprite(
         backgroundSize: 'cover',
         width: spriteSize + 'px',
         height: spriteSize + 'px',
-        left: source === 'ally' ?
-            target.getBoundingClientRect().left :
-            target.getBoundingClientRect().right - spriteSize,
-        top: target.getBoundingClientRect().top,
+        left: source === 'ally' ? target.getBoundingClientRect().left : target.getBoundingClientRect().right - (192 * scale),
+        bottom: initiator.getBoundingClientRect().top - (192 * .8 / 2),
         scale: scale,
         opacity: 1,
         visibility: 'visible',
@@ -594,8 +588,10 @@ function animateContactSprite(
     }).to(
         initiator,
         {
-            x: source === 'ally' ? window.innerWidth * .025 : window.innerWidth * .55,
-            y: 0,
+            left: source === 'ally' ?
+                window.innerWidth * 0.25 - target.getBoundingClientRect().width / 2
+                : window.innerWidth * 0.75 - target.getBoundingClientRect().width / 2,
+            bottom: source === 'ally' ? '15%' : '35%',
             duration: .3,
             delay: .1
         }
