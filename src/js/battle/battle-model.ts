@@ -1,5 +1,5 @@
 import "@abraham/reflection";
-import { PokemonInstance } from "../pokemons/pokedex";
+import { Move, PokemonInstance } from "../pokemons/pokedex";
 import { container } from "tsyringe";
 import { MoveEffectApplier } from "../pokemons/move-effects";
 import type { Character } from "../characters/characters-model";
@@ -12,11 +12,11 @@ export enum TurnPhase {
 }
 
 export class BattleAnimation {
-    move: string;
+    move: Move;
     target: 'ally' | 'opponent';
     initiator: 'ally' | 'opponent';
 
-    constructor(move: string, target: 'ally' | 'opponent', initiator: 'ally' | 'opponent') {
+    constructor(move: Move, target: 'ally' | 'opponent', initiator: 'ally' | 'opponent') {
         this.move = move;
         this.target = target;
         this.initiator = initiator;

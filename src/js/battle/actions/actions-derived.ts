@@ -95,7 +95,7 @@ export class PlayAnimation implements ActionV2Interface {
     }
     execute(ctx: BattleContext): void {
         ctx.events.animateAttack.set({
-            move: this.move.name,
+            move: this.move,
             target: this.target === 'opponent' ? 'opponent' : 'ally',
             initiator: this.initiator === ctx.playerPokemon ? 'ally' : 'opponent'
         });
