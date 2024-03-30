@@ -24,9 +24,9 @@ const typeById = {
 }
 
 const movesCat = {
-    1: 'physical',
-    2: 'special',
-    3: 'status'
+    2: 'physical',
+    3: 'special',
+    1: 'status'
 }
 
 let movesFromJson = movesAss;
@@ -42,7 +42,7 @@ let movesUniq = [];
 uniqueMoves = Array.from(uniqueMoves);
 uniqueMoves.forEach((move) => {
     let m = moves.find((m) => m.id === move);
-    movesUniq.push({ id: m.id, name: m.identifier, type: typeById[m.type_id], cat: movesCat[m.damage_class_id], impl : false });
+    movesUniq.push({ id: m.id, name: m.identifier, type: typeById[m.type_id], cat: movesCat[m.damage_class_id], power: m.power, impl: false });
 });
 
 // sort by type and cat
@@ -68,9 +68,8 @@ movesUniq.forEach((m) => {
     }
 });
 
+let todos = movesUniq.filter(move => !move.impl);
 
-movesUniq.filter(move => !move.impl).forEach((m) => {
-    console.log(m);
-});
+fs.writeFileSync('/Users/perso/workspace/perso/openmon/src/js/battle/animations/missing-moves.json', JSON.stringify(todos));
 console.log('implemented : ', movesUniq.filter(move => move.impl).length);
 console.log('todo : ', movesUniq.filter(move => !move.impl).length);

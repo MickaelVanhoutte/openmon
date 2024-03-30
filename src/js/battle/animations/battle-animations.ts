@@ -68,9 +68,9 @@ export function animateMove(
     //animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'poison-sprite', 9, 192);
     //animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'rock-sprite', 7, 192);
     //animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'shadowball-sprite', 6, 192);
-    animateSpriteDistance(move, source, target, initiator, scene, spriteFx, 'thunderball-sprite', 6, 192);
-    //animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'thunder-sprite', 6, 192);
-    //animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'vines-sprite', 6, 192);
+    //animateSpriteDistance(move, source, target, initiator, scene, spriteFx, 'thunderball-sprite', 6, 192);
+    //animateSpriteDistance(move, source, target, initiator, scene, spriteFx, 'thunder-sprite', 6, 192);
+    //animateSpriteDistance(move, source, target, initiator, scene, spriteFx, 'vines-sprite', 6, 192);
     //animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'water-sprite', 8, 192);
     //animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'wind-sprite', 8, 192);
 }
@@ -121,6 +121,7 @@ export function animateMove2(
         case 'poison-jab': // TODO element
         case 'power-up-punch':
         case 'plasma-fists': // TODO element
+        case 'force-palm':
             animateContact(move, source, target, initiator, scene, [fx[0]], ['fist']);
             break;
         case 'karate-chop':
@@ -145,7 +146,6 @@ export function animateMove2(
         case 'take-down':
         case 'headbutt':
         case 'double-edge':
-        case 'strength':
         case 'quick-attack':
         case 'extreme-speed':
         case 'return':
@@ -187,7 +187,11 @@ export function animateMove2(
         case 'pay-day': // TODO coins fall
         case 'bide': // TODO angry first turns
         case 'skull-bash': // TODO only 2nd turn
-        case 'struggle':
+        case 'zen-headbutt':
+        case 'rollout':
+        case 'head-smash':
+        case 'iron-head':
+        case 'aqua-jet': // TODO element
             animateContact(move, source, target, initiator, scene, [fx[0]], ['impact']);
         case 'double-slap':
             animateContact(move, source, target, initiator, scene, [fx[0]], ['impact'], 2);
@@ -202,6 +206,8 @@ export function animateMove2(
         case 'x-scissor':
         case 'vice-grip':
         case 'guillotine':
+        case 'cross-poison':
+        case 'psycho-cut':
             animateContactSprite(move, source, target, initiator, scene, spriteFx, 'slash-sprite', 6, 192, 1, 1);
             break;
         case 'metal-claw':
@@ -230,7 +236,6 @@ export function animateMove2(
         case 'thunder-shock':
         case 'thunderbolt':
         case 'thunder':
-        case 'spark':
         case 'electro-web': // todo add web sprite
         case 'nuzzle':
         case 'overdrive':
@@ -248,48 +253,101 @@ export function animateMove2(
             break;
         // fire
         case 'ember':
+        case 'flamethrower':
+        case 'flare-blitz':
+        case 'flame-wheel':
+        case 'v-create':
+        case 'heat-wave':
+        case 'lava-plume':
+        case 'fire-blast':
+        case 'incinerate':
+        case 'mystical-fire':
+        case 'searing-shot':
+        case 'fire-spin':
+        case 'inferno':
+        case 'burn-up':
+        case 'overheat':
+        case 'fiery-dance':
             animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'fire-sprite', 8, 192);
 
             break;
         // ice
         case 'ice-beam': // TODO From, change sprite
         case 'hyper-beam': // TODO From, change sprite
+        case 'blizzard':
+        case 'freeze-dry':
             animateSpriteDistance(move, source, target, initiator, scene, spriteFx, 'ice-sprite', 6, 192);
             break;
-
+        // wind
         case 'razor-wind':
         case 'whirlwind': // TODO make target move away
         case 'sonic-boom':
         case 'swift':
+        case 'twister':
+        case 'aerial-ace':
+        case 'air-slash':
+        case 'hurricane':
+        case 'air-cutter':
+        case 'aeroblast':
+        case 'gust':
             animateSpriteDistance(move, source, target, initiator, scene, spriteFx, 'wind-sprite', 8, 192);
             break
-
-        // back and forth
-        case 'parabolic-charge':
-            // TODO
+        // beams
+        case 'dazzling-gleam':
+        case 'moonblast':
+        case 'vacuum-wave':
+        case 'aura-sphere':
+            animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'lightball-sprite', 8, 192);
             break;
-
-        // distance moves
-        // TODO bind, wrap, constrict, spike-cannon, egg-bomb
-
-        // buffs TODO
-        // sword dance, growth, double-team, recover, harden, minimize, 
-        // defense-curl, focus-energy, soft-boiled, sharpen, conversion
-        // SUBSTITUTE
-
-
-        // debuffs TODO
-        // tail whip, leer, growl, screech, smokescreen, flash
-
-        // status TODO 
-        // sing supersonic disable, glare, barrage, lovely-kiss
-
-        // roar // TODO make target move away
-        // metronome
-        // self-destruct, explosion
-        // transform
-        // splash
-        // tri-attack
+        // shadow balls
+        case 'shadow-ball':
+        case 'dark-pulse':
+            animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'shadowball-sprite', 8, 192);
+            break;
+        // grass
+        case 'leech-seed':
+        case 'vine-whip':
+            animateSpriteDistance(move, source, target, initiator, scene, spriteFx, 'vines-sprite', 6, 192);
+            break;
+        case 'leafage':
+        case 'magical-leaf':
+        case 'leaf-blade':
+        case 'razor-leaf':
+        case 'leaf-storm':
+        case 'leaf-tornado':
+            animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'leaf-sprite', 6, 192);
+            break;
+        // poison
+        case 'venoshock':
+        case 'sludge-wave':
+        case 'sludge-bomb':
+        case 'acid':
+        case 'smog':
+        case 'clear-smog':
+        case 'belch':
+        case 'poison-powder':
+            animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'poison-sprite', 9, 192);
+            break;
+        case 'toxic':
+            animateSpriteDistance(move, source, target, initiator, scene, spriteFx, 'poison-sprite', 9, 192);
+            break;
+        case 'rock-slide':
+        case 'rock-throw':
+        case 'stone-edge':
+        case 'rock-tomb':
+        case 'rock-blast':
+        case 'ancient-power':
+        case 'power-gem':
+            animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'rock-sprite', 7, 192);
+            break;
+        case 'waterfall':
+        case 'whirlpool':
+            animateSpriteDistance(move, source, target, initiator, scene, spriteFx, 'water-sprite', 8, 192);
+            break;
+        case 'hydro-pump':
+        case 'surf':
+            animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'water-sprite', 8, 192);
+            break;
 
         default:
             console.log('No animation for this move');
