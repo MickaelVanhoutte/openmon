@@ -62,7 +62,7 @@
 
 	battleCtx.events.runnaway.subscribe((value) => {
 		if (value) {
-			animateRun(ally);
+			animateRun(ally, 'ally');
 		}
 	});
 
