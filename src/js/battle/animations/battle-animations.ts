@@ -1,9 +1,9 @@
 import { gsap } from 'gsap';
 import type { Move } from '../../pokemons/pokedex';
 
-export function animateEntry(target: HTMLImageElement, source: 'ally' | 'opponent') {
-    console.log(source, target.getBoundingClientRect().width);
-    gsap.timeline().fromTo(target,
+export function animateEntry(target: HTMLImageElement, source: 'ally' | 'opponent'): gsap.core.Timeline {
+
+    return gsap.timeline().fromTo(target,
         {
             left: source === 'ally' ? -target.getBoundingClientRect().width : window.innerWidth,
             filter: source === 'ally' ? 'brightness(5)' : 'brightness(0)',
@@ -19,8 +19,8 @@ export function animateEntry(target: HTMLImageElement, source: 'ally' | 'opponen
         }).play();
 }
 
-export function animateFaint(target: HTMLImageElement) {
-    gsap.timeline()
+export function animateFaint(target: HTMLImageElement): gsap.core.Timeline {
+    return gsap.timeline()
         .to(target, {
             filter: 'brightness(0)',
             y: window.innerHeight,
@@ -30,8 +30,8 @@ export function animateFaint(target: HTMLImageElement) {
         .play();
 }
 
-export function animateRun(target: HTMLImageElement, source: 'ally' | 'opponent') { // todo handle for opponent
-    gsap.timeline()
+export function animateRun(target: HTMLImageElement, source: 'ally' | 'opponent'): gsap.core.Timeline { // todo handle for opponent
+    return gsap.timeline()
         .to(target, {
             filter: 'brightness(5)',
             transform: 'scale(.1)',
@@ -84,7 +84,7 @@ export function animateMove(
     initiator: HTMLImageElement,
     scene: HTMLImageElement,
     spriteFx: HTMLDivElement,
-    fx: HTMLImageElement[]) {
+    fx: HTMLImageElement[]): gsap.core.Timeline | Promise<gsap.core.Timeline> {
 
     console.log('animating', move.name);
 
@@ -192,6 +192,8 @@ export function animateMove(
         case 'aqua-jet':
         case 'superpower':
         case 'steel-wing':
+        case 'beat-up':
+        case 'power-trip':
             return animateSpriteDash(move, source, target, initiator, scene, spriteFx, 'impact-sprite', 4, 192, 1, 1);
         case 'double-slap':
         case 'double-hit':
@@ -292,10 +294,12 @@ export function animateMove(
         case 'weather-ball':
         case 'focus-blast':
         case 'gyro-ball':
-            return animateSpriteToTarget(move, source, target, initiator, scene, spriteFx, 'lightball-sprite', 8, 192);
+        case 'bug-buzz':
+            return animateSpriteToTarget(move, source, target, initiator, scene, spriteFx, 'lightball-sprite', 8, 192, true);
         // shadow balls
         case 'shadow-ball':
         case 'dark-pulse':
+        case 'foul-play':
             return animateSpriteToTarget(move, source, target, initiator, scene, spriteFx, 'shadowball-sprite', 8, 192);
         // grass
         case 'leech-seed':
@@ -455,7 +459,7 @@ export function animateMove(
 
         default:
             console.log('No animation for this move');
-            return undefined;
+            return gsap.timeline().play();
     }
 }
 
@@ -726,8 +730,11 @@ function animateSpriteToTarget(
     spriteFx: HTMLDivElement,
     fxImage: string,
     spriteN: number,
-    spriteSize: number = 192): gsap.core.Timeline {
+    spriteSize: number = 192,
+    colorize: boolean = false): gsap.core.Timeline {
     let tl = gsap.timeline();
+
+    let angle = colorize ? getHueAngle(move) : 0;
 
     // from initiator
     tl.set(spriteFx, {
@@ -737,6 +744,7 @@ function animateSpriteToTarget(
             initiator.getBoundingClientRect().left + spriteSize / 2,
         bottom: source === 'ally' ? 'calc(25% - ' + spriteSize / 2 + 'px)' : 'calc(45% + ' + spriteSize / 2 + 'px)',
         opacity: 1,
+        filter: 'hue-rotate(' + angle + 'deg)',
         height: spriteSize + 'px',
         width: spriteSize + 'px',
         scale: source === 'ally' ? 1 : -1,
@@ -969,6 +977,9 @@ function getHueAngle(move: Move) {
             break;
         case 'grass':
             angle = 45;
+            break;
+        case 'bug':
+            angle = 60;
             break;
         case 'dragon':
             angle = 190;
