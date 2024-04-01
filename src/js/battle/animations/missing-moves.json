@@ -1,13 +1,5 @@
 [
     {
-        "id": 141,
-        "name": "leech-life",
-        "type": "bug",
-        "cat": "physical",
-        "power": 80,
-        "impl": false
-    },
-    {
         "id": 405,
         "name": "bug-buzz",
         "type": "bug",
@@ -26,14 +18,6 @@
     {
         "id": 476,
         "name": "rage-powder",
-        "type": "bug",
-        "cat": "status",
-        "power": "",
-        "impl": false
-    },
-    {
-        "id": 483,
-        "name": "quiver-dance",
         "type": "bug",
         "cat": "status",
         "power": "",
@@ -160,14 +144,6 @@
         "impl": false
     },
     {
-        "id": 577,
-        "name": "draining-kiss",
-        "type": "dragon",
-        "cat": "special",
-        "power": 50,
-        "impl": false
-    },
-    {
         "id": 584,
         "name": "fairy-wind",
         "type": "dragon",
@@ -186,14 +162,6 @@
     {
         "id": 204,
         "name": "charm",
-        "type": "dragon",
-        "cat": "status",
-        "power": "",
-        "impl": false
-    },
-    {
-        "id": 236,
-        "name": "moonlight",
         "type": "dragon",
         "cat": "status",
         "power": "",
@@ -376,14 +344,6 @@
         "impl": false
     },
     {
-        "id": 355,
-        "name": "roost",
-        "type": "flying",
-        "cat": "status",
-        "power": "",
-        "impl": false
-    },
-    {
         "id": 310,
         "name": "astonish",
         "type": "ghost",
@@ -480,43 +440,11 @@
         "impl": false
     },
     {
-        "id": 71,
-        "name": "absorb",
-        "type": "grass",
-        "cat": "special",
-        "power": 20,
-        "impl": false
-    },
-    {
-        "id": 72,
-        "name": "mega-drain",
-        "type": "grass",
-        "cat": "special",
-        "power": 40,
-        "impl": false
-    },
-    {
-        "id": 202,
-        "name": "giga-drain",
-        "type": "grass",
-        "cat": "special",
-        "power": 75,
-        "impl": false
-    },
-    {
         "id": 80,
         "name": "petal-dance",
         "type": "grass",
         "cat": "special",
         "power": 120,
-        "impl": false
-    },
-    {
-        "id": 412,
-        "name": "energy-ball",
-        "type": "grass",
-        "cat": "special",
-        "power": 90,
         "impl": false
     },
     {
@@ -554,14 +482,6 @@
     {
         "id": 275,
         "name": "ingrain",
-        "type": "grass",
-        "cat": "status",
-        "power": "",
-        "impl": false
-    },
-    {
-        "id": 235,
-        "name": "synthesis",
         "type": "grass",
         "cat": "status",
         "power": "",
@@ -848,14 +768,6 @@
         "impl": false
     },
     {
-        "id": 311,
-        "name": "weather-ball",
-        "type": "normal",
-        "cat": "special",
-        "power": 50,
-        "impl": false
-    },
-    {
         "id": 253,
         "name": "uproar",
         "type": "normal",
@@ -1072,14 +984,6 @@
         "impl": false
     },
     {
-        "id": 105,
-        "name": "recover",
-        "type": "normal",
-        "cat": "status",
-        "power": "",
-        "impl": false
-    },
-    {
         "id": 199,
         "name": "lock-on",
         "type": "normal",
@@ -1112,32 +1016,8 @@
         "impl": false
     },
     {
-        "id": 234,
-        "name": "morning-sun",
-        "type": "normal",
-        "cat": "status",
-        "power": "",
-        "impl": false
-    },
-    {
         "id": 244,
         "name": "psych-up",
-        "type": "normal",
-        "cat": "status",
-        "power": "",
-        "impl": false
-    },
-    {
-        "id": 215,
-        "name": "heal-bell",
-        "type": "normal",
-        "cat": "status",
-        "power": "",
-        "impl": false
-    },
-    {
-        "id": 208,
-        "name": "milk-drink",
         "type": "normal",
         "cat": "status",
         "power": "",
@@ -1320,14 +1200,6 @@
         "impl": false
     },
     {
-        "id": 505,
-        "name": "heal-pulse",
-        "type": "psychic",
-        "cat": "status",
-        "power": "",
-        "impl": false
-    },
-    {
         "id": 379,
         "name": "power-trick",
         "type": "psychic",
@@ -1424,14 +1296,6 @@
         "impl": false
     },
     {
-        "id": 360,
-        "name": "gyro-ball",
-        "type": "steel",
-        "cat": "physical",
-        "power": "",
-        "impl": false
-    },
-    {
         "id": 368,
         "name": "metal-burst",
         "type": "steel",
@@ -1469,22 +1333,6 @@
         "type": "water",
         "cat": "physical",
         "power": 100,
-        "impl": false
-    },
-    {
-        "id": 55,
-        "name": "water-gun",
-        "type": "water",
-        "cat": "special",
-        "power": 40,
-        "impl": false
-    },
-    {
-        "id": 61,
-        "name": "bubble-beam",
-        "type": "water",
-        "cat": "special",
-        "power": 65,
         "impl": false
     },
     {
