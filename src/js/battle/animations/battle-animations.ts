@@ -47,7 +47,7 @@ export function animateRun(target: HTMLImageElement, source: 'ally' | 'opponent'
 }
 
 // testing
-export function animateMoveTest(
+export function animateMove2(
     move: Move,
     source: 'ally' | 'opponent',
     target: HTMLImageElement,
@@ -55,8 +55,7 @@ export function animateMoveTest(
     scene: HTMLImageElement,
     spriteFx: HTMLDivElement,
     fx: HTMLImageElement[]) {
-    return animateContactSprite(move, source, target, initiator, scene, spriteFx, 'impact-sprite', 4, 192, 1, 1)
-        .then(() => animateRun(initiator, source));
+    return animateSpriteToTarget(move, source, target, initiator, scene, spriteFx, 'waterdrop-sprite', 3, 192);
     // animateContactSprite(move, source, target, initiator, scene, spriteFx, 'impact-sprite', 4, 192, 1, 1);
     //animateContact(move, source, target, initiator, scene, [fx[0]], ['foot']);
     //animateContact(move, source, target, initiator, scene, [fx[0]], ['fist']);
@@ -106,7 +105,7 @@ export function animateMove(
         case 'triple-axel':
         case 'thunderous-kick':
         case 'axe-kick':
-            return animateContactSprite(move, source, target, initiator, scene, spriteFx, 'foot-sprite', 5, 192, 1, 1);
+            return animateSpriteDash(move, source, target, initiator, scene, spriteFx, 'foot-sprite', 5, 192, 1, 1);
         case 'comet-punch':
         case 'mega-punch':
         case 'fire-punch':
@@ -117,7 +116,6 @@ export function animateMove(
         case 'dynamic-punch':
         case 'focus-punch':
         case 'bullet-punch':
-        case 'drain-punch':
         case 'shadow-punch':
         case 'sky-uppercut':
         case 'close-combat':
@@ -126,7 +124,7 @@ export function animateMove(
         case 'power-up-punch':
         case 'plasma-fists':
         case 'force-palm':
-            return animateContactSprite(move, source, target, initiator, scene, spriteFx, 'fist-sprite', 5, 192, 1, 1);
+            return animateSpriteDash(move, source, target, initiator, scene, spriteFx, 'fist-sprite', 5, 192, 1, 1);
         case 'karate-chop':
         case 'cross-chop':
         case 'rock-smash':
@@ -136,7 +134,7 @@ export function animateMove(
         case 'dual-chop':
         case 'throat-chop':
         case 'rage-fist':
-            return animateContactSprite(move, source, target, initiator, scene, spriteFx, 'chop-sprite', 4, 192, 1, 1);
+            return animateSpriteDash(move, source, target, initiator, scene, spriteFx, 'chop-sprite', 4, 192, 1, 1);
         case 'pound':
         case 'tackle':
         case 'slam':
@@ -174,7 +172,6 @@ export function animateMove(
         case 'wild-charge':
         case 'horn-attack':
         case 'horn-drill':
-        case 'horn-leech':
         case 'tail-slap':
         case 'play-rough':
         case 'body-press':
@@ -195,10 +192,10 @@ export function animateMove(
         case 'aqua-jet':
         case 'superpower':
         case 'steel-wing':
-            return animateContactSprite(move, source, target, initiator, scene, spriteFx, 'impact-sprite', 4, 192, 1, 1);
+            return animateSpriteDash(move, source, target, initiator, scene, spriteFx, 'impact-sprite', 4, 192, 1, 1);
         case 'double-slap':
         case 'double-hit':
-            return animateContactSprite(move, source, target, initiator, scene, spriteFx, 'impact-sprite', 4, 192, 1, 2);
+            return animateSpriteDash(move, source, target, initiator, scene, spriteFx, 'impact-sprite', 4, 192, 1, 2);
         case 'scratch':
         case 'cut':
         case 'slash':
@@ -210,15 +207,15 @@ export function animateMove(
         case 'guillotine':
         case 'cross-poison':
         case 'psycho-cut':
-            return animateContactSprite(move, source, target, initiator, scene, spriteFx, 'slash-sprite', 5, 192, 1, 1);
+            return animateSpriteDash(move, source, target, initiator, scene, spriteFx, 'slash-sprite', 5, 192, 1, 1);
         case 'fury-swipes':
-            return animateContactSprite(move, source, target, initiator, scene, spriteFx, 'slash-sprite', 5, 192, 1, 2);
+            return animateSpriteDash(move, source, target, initiator, scene, spriteFx, 'slash-sprite', 5, 192, 1, 2);
         case 'metal-claw':
         case 'shadow-claw':
         case 'dragon-claw':
         case 'crush-claw':
         case 'hone-claws':
-            return animateContactSprite(move, source, target, initiator, scene, spriteFx, 'claws-sprite', 8, 192, 1, 1);
+            return animateSpriteDash(move, source, target, initiator, scene, spriteFx, 'claws-sprite', 8, 192, 1, 1);
         case 'bite':
         case 'crunch':
         case 'fire-fang':
@@ -229,7 +226,7 @@ export function animateMove(
         case 'psychic-fang':
         case 'hyper-fang':
         case 'super-fang':
-            return animateContactSprite(move, source, target, initiator, scene, spriteFx, 'crunch-sprite', 6, 192, .6, 2);
+            return animateSpriteDash(move, source, target, initiator, scene, spriteFx, 'crunch-sprite', 6, 192, .6, 2);
         // from initiator
         // electrik
         case 'thunder-shock':
@@ -238,7 +235,7 @@ export function animateMove(
         case 'electro-web': // todo add web sprite
         case 'nuzzle':
         case 'overdrive':
-            return animateSpriteDistance(move, source, target, initiator, scene, spriteFx, 'thunder-sprite', 6, 192);
+            return animateSpriteOnTarget(move, source, target, initiator, scene, spriteFx, 'thunder-sprite', 6, 192);
         case 'spark':
         case 'zap-cannon':
         case 'shock-wave':
@@ -248,7 +245,7 @@ export function animateMove(
         case 'electrify':
         case 'eerie-impulse':
         case 'bolt-beak':
-            return animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'thunderball-sprite', 6, 192);
+            return animateSpriteToTarget(move, source, target, initiator, scene, spriteFx, 'thunderball-sprite', 6, 192);
         // fire
         case 'ember':
         case 'flamethrower':
@@ -266,13 +263,13 @@ export function animateMove(
         case 'burn-up':
         case 'overheat':
         case 'fiery-dance':
-            return animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'fire-sprite', 8, 192);
+            return animateSpriteToTarget(move, source, target, initiator, scene, spriteFx, 'fire-sprite', 8, 192);
         // ice
         case 'ice-beam': // TODO From, change sprite
         case 'hyper-beam': // TODO From, change sprite
         case 'blizzard':
         case 'freeze-dry':
-            return animateSpriteDistance(move, source, target, initiator, scene, spriteFx, 'ice-sprite', 6, 192);
+            return animateSpriteOnTarget(move, source, target, initiator, scene, spriteFx, 'ice-sprite', 6, 192);
         // wind
         case 'razor-wind':
         case 'whirlwind': // TODO make target move away
@@ -285,28 +282,32 @@ export function animateMove(
         case 'air-cutter':
         case 'aeroblast':
         case 'gust':
-            return animateSpriteDistance(move, source, target, initiator, scene, spriteFx, 'wind-sprite', 8, 192);
+            return animateSpriteOnTarget(move, source, target, initiator, scene, spriteFx, 'wind-sprite', 8, 192);
         // beams
         case 'dazzling-gleam':
         case 'moonblast':
         case 'vacuum-wave':
         case 'aura-sphere':
-            return animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'lightball-sprite', 8, 192);
+        case 'energy-ball':
+        case 'weather-ball':
+        case 'focus-blast':
+        case 'gyro-ball':
+            return animateSpriteToTarget(move, source, target, initiator, scene, spriteFx, 'lightball-sprite', 8, 192);
         // shadow balls
         case 'shadow-ball':
         case 'dark-pulse':
-            return animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'shadowball-sprite', 8, 192);
+            return animateSpriteToTarget(move, source, target, initiator, scene, spriteFx, 'shadowball-sprite', 8, 192);
         // grass
         case 'leech-seed':
         case 'vine-whip':
-            return animateSpriteDistance(move, source, target, initiator, scene, spriteFx, 'vines-sprite', 6, 192);
+            return animateSpriteOnTarget(move, source, target, initiator, scene, spriteFx, 'vines-sprite', 6, 192);
         case 'leafage':
         case 'magical-leaf':
         case 'leaf-blade':
         case 'razor-leaf':
         case 'leaf-storm':
         case 'leaf-tornado':
-            return animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'leaf-sprite', 6, 192);
+            return animateSpriteToTarget(move, source, target, initiator, scene, spriteFx, 'leaf-sprite', 6, 192);
         // poison
         case 'venoshock':
         case 'sludge-wave':
@@ -316,9 +317,9 @@ export function animateMove(
         case 'clear-smog':
         case 'belch':
         case 'poison-powder':
-            return animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'poison-sprite', 9, 192);
+            return animateSpriteToTarget(move, source, target, initiator, scene, spriteFx, 'poison-sprite', 9, 192);
         case 'toxic':
-            return animateSpriteDistance(move, source, target, initiator, scene, spriteFx, 'poison-sprite', 9, 192);
+            return animateSpriteOnTarget(move, source, target, initiator, scene, spriteFx, 'poison-sprite', 9, 192);
         case 'rock-slide':
         case 'rock-throw':
         case 'stone-edge':
@@ -326,13 +327,19 @@ export function animateMove(
         case 'rock-blast':
         case 'ancient-power':
         case 'power-gem':
-            return animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'rock-sprite', 7, 192);
+            return animateSpriteToTarget(move, source, target, initiator, scene, spriteFx, 'rock-sprite', 7, 192);
         case 'waterfall':
         case 'whirlpool':
-            return animateSpriteDistance(move, source, target, initiator, scene, spriteFx, 'water-sprite', 8, 192);
+            return animateSpriteOnTarget(move, source, target, initiator, scene, spriteFx, 'water-sprite', 8, 192);
         case 'hydro-pump':
         case 'surf':
-            return animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'water-sprite', 8, 192);
+            return animateSpriteToTarget(move, source, target, initiator, scene, spriteFx, 'water-sprite', 8, 192);
+
+        case 'water-gun':
+        case 'bubble':
+        case 'bubble-beam':
+            return animateSpriteToTarget(move, source, target, initiator, scene, spriteFx, 'waterdrop-sprite', 3, 192);
+
         case 'dragon-breath':
         case 'dragon-pulse':
         case 'solar-beam':
@@ -360,13 +367,45 @@ export function animateMove(
         case 'poison-sting':
             return animateThrow(move, source, target, initiator, scene, spriteFx, 'shard', 1, 192);
 
+        case 'leech-life':
+        case 'draining-kiss':
+        case 'absorb':
+        case 'mega-drain':
+        case 'giga-drain':
+        case 'parabolic-charge':
+        case 'strength-sap':
+        case 'oblivion-wing':
+            return animateSpriteFromTarget(move, source, target, initiator, scene, spriteFx, 'drain-sprite', 8)
+                .then(() => animateSpriteToTarget(move, source, target, initiator, scene, spriteFx, 'heal-sprite', 7));
+
+        case 'drain-punch':
+        case 'horn-leech':
+            return animateSpriteDash(move, source, target, initiator, scene, spriteFx, 'fist-sprite', 5, 192, 1, 1)
+                .then(() => animateSpriteFromTarget(move, source, target, initiator, scene, spriteFx, 'drain-sprite', 8)
+                    .then(() => animateSpriteSelf(move, source, target, initiator, scene, spriteFx, 'heal-sprite', 7)));
 
         case 'baton-pass':
             return animateRun(initiator, source);
         case 'u-turn':
         case 'volt-switch':
-            return animateContactSprite(move, source, target, initiator, scene, spriteFx, 'impact-sprite', 4, 192, 1, 1)
+            return animateSpriteDash(move, source, target, initiator, scene, spriteFx, 'impact-sprite', 4, 192, 1, 1)
                 .then(() => animateRun(initiator, source));
+
+        // heal 
+        case 'recover':
+        case 'moonlight':
+        case 'synthesis':
+        case 'milk-drink':
+        case 'soft-boiled':
+        case 'slack-off':
+        case 'roost':
+        case 'heal-order':
+        case 'morning-sun':
+        case 'heal-bell':
+            return animateSpriteSelf(move, source, target, initiator, scene, spriteFx, 'heal-sprite', 7);
+
+        case 'heal-pulse':
+            return animateSpriteToTarget(move, source, target, initiator, scene, spriteFx, 'heal-sprite', 7);
 
         // buffs
         case 'nasty-plot':
@@ -394,9 +433,11 @@ export function animateMove(
         case 'calm-mind':
         case 'iron-defense':
         case 'withdraw':
-            return animateSpriteDistance(move, source, initiator, initiator, scene, spriteFx, 'buff-sprite', 6, 192);
+        case 'quiver-dance':
+            return animateSpriteOnTarget(move, source, initiator, initiator, scene, spriteFx, 'buff-sprite', 6, 192);
         case 'swagger':
-            return animateSpriteDistance(move, source, target, initiator, scene, spriteFx, 'buff-sprite', 6, 192);
+            return animateSpriteOnTarget(move, source, target, initiator, scene, spriteFx, 'buff-sprite', 6, 192);
+        // then confusion
 
         // debuffs
         case 'fake-tears':
@@ -410,7 +451,7 @@ export function animateMove(
         case 'screech':
         case 'sweet-scent':
         case 'metal-sound':
-            return animateSpriteDistance(move, source, target, initiator, scene, spriteFx, 'debuff-sprite', 6, 192);
+            return animateSpriteOnTarget(move, source, target, initiator, scene, spriteFx, 'debuff-sprite', 6, 192);
 
         default:
             console.log('No animation for this move');
@@ -493,6 +534,68 @@ function animateThrow(move: Move,
     return tl.play();
 }
 
+function animateSpriteFromTarget(
+    move: Move,
+    source: 'ally' | 'opponent',
+    target: HTMLImageElement,
+    initiator: HTMLImageElement,
+    scene: HTMLDivElement,
+    spriteFx: HTMLDivElement,
+    fxImage: string,
+    spriteN: number,
+    spriteSize: number = 192): gsap.core.Timeline {
+    let tl = gsap.timeline();
+
+    let angle = getHueAngle(move);
+
+    tl.set(spriteFx, {
+        background: 'url(src/assets/battle/fx/' + fxImage + '.png)',
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: '0 50%',
+        backgroundSize: 'cover',
+        width: spriteSize + 'px',
+        height: spriteSize + 'px',
+        left: target.getBoundingClientRect().left + target.getBoundingClientRect().width / 2 - (192 / 2),
+        bottom: source === 'ally' ? '35%' : '15%',
+        filter: 'hue-rotate(' + angle + 'deg)',
+        opacity: 1,
+        visibility: 'visible',
+        scale: 1,
+        duration: .1
+    }, 'fx');
+
+    for (let i = 1; i < spriteN; i++) {
+        const xPos = -i * spriteSize;
+        tl.set(spriteFx, {
+            backgroundPosition: `${xPos}px 50%`,
+            ease: 'steps(1)',
+            duration: 1 / spriteN,
+        }, 'fx+=' + (.1 + (1 / spriteN) * i)
+        );
+    }
+    tl.set(target, {
+        filter: 'invert(1)',
+        delay: .2,
+        duration: .2,
+    }).set(target, {
+        filter: 'invert(0)',
+        delay: .1,
+    })
+        .to(spriteFx, {
+            left: initiator.getBoundingClientRect().left + initiator.getBoundingClientRect().width / 2 - (spriteSize / 2),
+            bottom: source === 'ally' ? '15%' : '35%',
+            ease: 'expo.in',
+            duration: .5,
+        })
+        .set(spriteFx, {
+            opacity: 0,
+            visibility: 'hidden',
+            delay: .1,
+        })
+
+    return tl.play();
+}
+
 function animateBeam(
     move: Move,
     source: 'ally' | 'opponent',
@@ -503,30 +606,7 @@ function animateBeam(
     spriteSize: number = 192): gsap.core.Timeline {
     let tl = gsap.timeline();
 
-    let angle = 0;
-    switch (move.type) {
-        case 'fire':
-            angle = -55;
-            break;
-        case 'water':
-            angle = 155;
-            break;
-        case 'grass':
-            angle = 45;
-            break;
-        case 'dragon':
-            angle = 190;
-            break;
-        case 'psychic':
-            angle = 220;
-            break;
-        case 'ice':
-            angle = 115;
-            break;
-        default:
-            angle = 0;
-            break;
-    }
+    let angle = getHueAngle(move);
 
     tl
         .to(scene, {
@@ -578,7 +658,66 @@ function animateBeam(
     return tl.play();
 }
 
-function animateSpriteFrom(
+function animateSpriteSelf(move: Move,
+    source: 'ally' | 'opponent',
+    target: HTMLImageElement,
+    initiator: HTMLImageElement,
+    scene: HTMLDivElement,
+    spriteFx: HTMLDivElement,
+    fxImage: string,
+    spriteN: number,
+    spriteSize: number = 192): gsap.core.Timeline {
+    let tl = gsap.timeline();
+
+    let angle = getHueAngle(move);
+
+    tl.set(spriteFx, {
+        background: 'url(src/assets/battle/fx/' + fxImage + '.png)',
+        left: initiator.getBoundingClientRect().left + initiator.getBoundingClientRect().width / 2 - spriteSize / 2,
+        top: initiator.getBoundingClientRect().top - spriteSize / 3,
+        opacity: 1,
+        filter: 'hue-rotate(' + angle + 'deg)',
+        height: spriteSize + 'px',
+        width: spriteSize + 'px',
+        scale: 1,
+        visibility: 'visible',
+        duration: .1,
+    }, 'fx')
+        .to(scene, {
+            opacity: .4,
+            duration: 1.4,
+        }, 'fx')
+
+    for (let i = 1; i < spriteN; i++) {
+        const xPos = -i * spriteSize;
+        tl.set(spriteFx, {
+            backgroundPosition: `${xPos}px 50%`,
+            ease: 'steps(1)',
+            duration: 1 / spriteN,
+        }, 'fx+=' + (.1 + (1 / spriteN) * i)
+        );
+    }
+    // end
+    tl.set(initiator, {
+        filter: 'brightness(3)',
+        duration: .2,
+    })
+        .set(initiator, {
+            filter: 'brightness(1)',
+            delay: .1,
+        }).set(spriteFx, {
+            opacity: 0,
+            visibility: 'hidden',
+            delay: .1,
+        })
+        .set(scene, {
+            opacity: .85,
+        })
+
+    return tl.play();
+}
+
+function animateSpriteToTarget(
     move: Move,
     source: 'ally' | 'opponent',
     target: HTMLImageElement,
@@ -594,13 +733,13 @@ function animateSpriteFrom(
     tl.set(spriteFx, {
         background: 'url(src/assets/battle/fx/' + fxImage + '.png)',
         left: source === 'ally' ?
-            initiator.getBoundingClientRect().right - initiator.getBoundingClientRect().width / 3 :
-            initiator.getBoundingClientRect().left + initiator.getBoundingClientRect().width / 3 - spriteSize,
-        top: initiator.getBoundingClientRect().top + initiator.getBoundingClientRect().height / 2 - spriteSize / 2,
+            initiator.getBoundingClientRect().right - spriteSize / 2 :
+            initiator.getBoundingClientRect().left + spriteSize / 2,
+        bottom: source === 'ally' ? 'calc(25% - ' + spriteSize / 2 + 'px)' : 'calc(45% + ' + spriteSize / 2 + 'px)',
         opacity: 1,
         height: spriteSize + 'px',
         width: spriteSize + 'px',
-        scale: .8,
+        scale: source === 'ally' ? 1 : -1,
         visibility: 'visible',
         duration: .1,
     }, 'fx')
@@ -613,7 +752,7 @@ function animateSpriteFrom(
             left: source === 'ally' ?
                 target.getBoundingClientRect().right - target.getBoundingClientRect().width / 2 - spriteSize / 2 :
                 target.getBoundingClientRect().left + target.getBoundingClientRect().width / 2 - spriteSize / 2,
-            top: target.getBoundingClientRect().top + target.getBoundingClientRect().height / 3 - spriteSize / 2,
+            bottom: source === 'ally' ? 'calc(45% - ' + spriteSize / 2 + 'px)' : 'calc(25% - ' + spriteSize / 2 + 'px)',
             duration: 1.4,
             scale: .8,
             delay: 0,
@@ -621,18 +760,11 @@ function animateSpriteFrom(
     // animate sprite
     for (let i = 1; i < spriteN; i++) {
         const xPos = -i * spriteSize;
-        tl.to(spriteFx, {
-            opacity: .5,
-            //scale: 0.1 + i * .2,
-            duration: .05,
-            ease: 'elastic.inOut',
-        },).set(spriteFx, {
+        tl.set(spriteFx, {
             backgroundPosition: `${xPos}px 50%`,
             ease: 'steps(1)',
-            //scale: 0.2 + i * .1,
-            opacity: 1,
-            duration: 1.5 / spriteN,
-        }, 'fx+=' + (.1 + .3 * i)
+            duration: 1 / spriteN,
+        }, 'fx+=' + (.1 + (1 / spriteN) * i)
         );
     }
     // end
@@ -652,7 +784,7 @@ function animateSpriteFrom(
     return tl.play();
 }
 
-function animateSpriteDistance(
+function animateSpriteOnTarget(
     move: Move,
     source: 'ally' | 'opponent',
     target: HTMLImageElement,
@@ -671,27 +803,20 @@ function animateSpriteDistance(
         backgroundSize: 'cover',
         width: spriteSize + 'px',
         height: spriteSize + 'px',
-        left: target.getBoundingClientRect().left + target.getBoundingClientRect().width / 2 - (192 * .8 / 2),
+        left: target.getBoundingClientRect().left + target.getBoundingClientRect().width / 2 - (spriteSize / 2),
         bottom: source === 'ally' ? '35%' : '15%',
         opacity: 1,
         visibility: 'visible',
-        scale: .8,
+        scale: 1,
         duration: .2
     }, 'fx')
     for (let i = 1; i < spriteN; i++) {
         const xPos = -i * spriteSize;
-        tl.to(spriteFx, {
-            opacity: .5,
-            //scale: 0.1 + i * .2,
-            duration: .05,
-            ease: 'elastic.inOut',
-        },).set(spriteFx, {
+        tl.set(spriteFx, {
             backgroundPosition: `${xPos}px 50%`,
             ease: 'steps(1)',
-            //scale: 0.2 + i * .1,
-            opacity: 1,
-            duration: 1.5 / spriteN,
-        }, 'fx+=' + (.1 + .3 * i)
+            duration: 1 / spriteN,
+        }, 'fx+=' + (.1 + (1 / spriteN) * i)
         );
     }
     tl.set(target, {
@@ -709,7 +834,7 @@ function animateSpriteDistance(
     return tl.play();
 }
 
-function animateContactSprite(
+function animateSpriteDash(
     move: Move,
     source: 'ally' | 'opponent',
     target: HTMLImageElement,
@@ -831,4 +956,32 @@ function getAfterEffect(move: Move) {
             break;
     }
     return afterEffect;
+}
+
+function getHueAngle(move: Move) {
+    let angle = 0;
+    switch (move.type) {
+        case 'fire':
+            angle = -55;
+            break;
+        case 'water':
+            angle = 155;
+            break;
+        case 'grass':
+            angle = 45;
+            break;
+        case 'dragon':
+            angle = 190;
+            break;
+        case 'psychic':
+            angle = 220;
+            break;
+        case 'ice':
+            angle = 115;
+            break;
+        default:
+            angle = 0;
+            break;
+    }
+    return angle;
 }
