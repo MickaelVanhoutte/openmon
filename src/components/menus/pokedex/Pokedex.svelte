@@ -4,6 +4,7 @@
 	import { MenuType } from '../../../js/context/overworldContext';
 	import type { PokedexSearchResult } from '../../../js/pokemons/pokedex';
 	import PokedexDetail from './PokedexDetail.svelte';
+	import { typeChart } from '../../../js/battle/battle-model';
 
 	export let context: GameContext;
 	// viewed / caught
@@ -85,7 +86,7 @@
 </script>
 
 <div class="pokedex">
-	<div class="row head">
+	<!-- <div class="row head">
 		<div class="column back">
 			<button on:click={() => context.overWorldContext.closeMenu(MenuType.POKEDEX)}>BACK</button>
 		</div>
@@ -104,9 +105,9 @@
 				</div>
 			</div>
 		</div>
-	</div>
-	<div class="row content">
-		<div class="column preview">
+	</div> -->
+	<div class="row">
+		<!-- <div class="column preview">
 			<div class="image">
 				{#if selectedPokemon?.id}
 					<img
@@ -120,7 +121,7 @@
 			</div>
 			<div>
 				<h2>
-					{selectedPokemon?.id ? ('00' + (selectedPokemon?.id)).slice(-3) : '???'}
+					{selectedPokemon?.id ? ('00' + (selectedPokemon?.id)).slice(-3) : '???'} (#{selectedPokemon?.regionalId})
 					{selectedPokemon?.name ? ('- ' + selectedPokemon?.name) : ''}
 				</h2>
 			</div>
@@ -143,6 +144,26 @@
 					</span>
 
 					<button on:click={() => openDetail()}>►</button>
+				</div>
+			{/each}
+		</div> -->
+
+		<div style="display: flex; flex-wrap: wrap;overflow-y: scroll;overflow-x: hidden;height: 100dvh;">
+			{#each filtered as pokemon}
+				<div style="position:relative; width: calc(100% / 9); box-sizing:border-box; height: auto; border: 1px solid black;
+				background: linear-gradient(
+    to bottom,
+    {typeChart[pokemon.types[0]].color} 0%,
+	{typeChart[pokemon.types[0]].color} 50%,
+	 {typeChart[pokemon.types[1]]?.color || typeChart[pokemon.types[0]].color} 50%,
+	 {typeChart[pokemon.types[1]]?.color || typeChart[pokemon.types[0]].color} 100%
+  );">
+					<img
+						style="width: 100%"
+						src={`src/assets/monsters/pokedex/${('00' + pokemon?.id).slice(-3)}.png`}
+					/>
+					<!-- <span style="position: absolute; bottom:4px; left: 50%;
+					transform: translate(-50%, 0%); font-size:12px; color: black">{pokemon.regionalId}</span> -->
 				</div>
 			{/each}
 		</div>
