@@ -45,7 +45,7 @@ pokedex.forEach((pokemon, index) => {
         fs.copyFileSync('/Users/perso/workspace/perso/showdown/sprites/ani-shiny/'+hisuiName, '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 's.gif');
         fs.copyFileSync('/Users/perso/workspace/perso/showdown/sprites/ani-back/'+hisuiName, '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 'b.gif');
         fs.copyFileSync('/Users/perso/workspace/perso/showdown/sprites/ani-back-shiny/'+hisuiName, '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 'sb.gif');
-    }else if (fs.existsSync('/Users/perso/workspace/perso/showdown/sprites/ani/'+galarName)  && newNumber !== '199') {
+    }else if (fs.existsSync('/Users/perso/workspace/perso/showdown/sprites/ani/'+galarName)) {
         fs.copyFileSync('/Users/perso/workspace/perso/showdown/sprites/ani/'+galarName, '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + '.gif');
         fs.copyFileSync('/Users/perso/workspace/perso/showdown/sprites/ani-shiny/'+galarName, '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 's.gif');
         fs.copyFileSync('/Users/perso/workspace/perso/showdown/sprites/ani-back/'+galarName, '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 'b.gif');

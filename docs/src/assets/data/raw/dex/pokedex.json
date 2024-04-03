@@ -11048,7 +11048,7 @@
       "french": "Roigada"
     },
     "type": [
-      "Water",
+      "Poison",
       "Psychic"
     ],
     "base": {
@@ -11076,7 +11076,7 @@
       ],
       "ability": [
         [
-          "Oblivious",
+          "Curious Medicine",
           "false"
         ],
         [

@@ -13,7 +13,7 @@ ids.forEach((id, index) => {
 
     if (fs.existsSync(hisuiFile) && number !== '215' && number !== '724') {
         fs.copyFileSync(hisuiFile, '/Users/perso/workspace/perso/openmon/src/assets/monsters/pokedex/' + newNumber + '.png');
-    }else if (fs.existsSync(galarFile)  && number !== '199') {
+    }else if (fs.existsSync(galarFile)) {
         fs.copyFileSync(galarFile, '/Users/perso/workspace/perso/openmon/src/assets/monsters/pokedex/' + newNumber + '.png');
     } else if (fs.existsSync(alolanFile)) {
         fs.copyFileSync(alolanFile, '/Users/perso/workspace/perso/openmon/src/assets/monsters/pokedex/' + newNumber + '.png');
