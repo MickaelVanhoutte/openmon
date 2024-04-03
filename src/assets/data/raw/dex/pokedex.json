@@ -998,6 +998,7 @@
       "french": "Rattata"
     },
     "type": [
+      "Dark",
       "Normal"
     ],
     "base": {
@@ -1055,15 +1056,16 @@
       "french": "Rattatac"
     },
     "type": [
+      "Dark",
       "Normal"
     ],
     "base": {
-      "HP": 55,
-      "attack": 81,
-      "defense": 60,
-      "spAttack": 50,
-      "spDefense": 70,
-      "speed": 97
+      "HP": 75,
+      "attack": 71,
+      "defense": 70,
+      "spAttack": 40,
+      "spDefense": 80,
+      "speed": 77
     },
     "species": "Mouse Pokémon",
     "description": "Its whiskers are essential for maintaining its balance. No matter how friendly you are, it will get angry and bite you if you touch its whiskers.",
@@ -1081,8 +1083,8 @@
       ],
       "ability": [
         [
-          "Run Away",
-          "false"
+          "Thick Fat",
+          "true"
         ],
         [
           "Guts",
@@ -1090,7 +1092,7 @@
         ],
         [
           "Hustle",
-          "true"
+          "false"
         ]
       ],
       "gender": "50:50"
@@ -1388,14 +1390,15 @@
       "french": "Raichu"
     },
     "type": [
-      "Electric"
+      "Electric",
+      "Psychic"
     ],
     "base": {
       "HP": 60,
-      "attack": 90,
-      "defense": 55,
-      "spAttack": 90,
-      "spDefense": 80,
+      "attack": 85,
+      "defense": 50,
+      "spAttack": 95,
+      "spDefense": 85,
       "speed": 110
     },
     "species": "Mouse Pokémon",
@@ -1419,7 +1422,7 @@
           "false"
         ],
         [
-          "Lightning Rod",
+          "Surge Surfer",
           "true"
         ]
       ],
@@ -1440,14 +1443,15 @@
       "french": "Sabelette"
     },
     "type": [
-      "Ground"
+      "Ice",
+      "Steel"
     ],
     "base": {
       "HP": 50,
       "attack": 75,
-      "defense": 85,
-      "spAttack": 20,
-      "spDefense": 30,
+      "defense": 90,
+      "spAttack": 10,
+      "spDefense": 35,
       "speed": 40
     },
     "species": "Mouse Pokémon",
@@ -1493,14 +1497,15 @@
       "french": "Sablaireau"
     },
     "type": [
-      "Ground"
+      "Ice",
+      "Steel"
     ],
     "base": {
       "HP": 75,
       "attack": 100,
-      "defense": 110,
-      "spAttack": 45,
-      "spDefense": 55,
+      "defense": 120,
+      "spAttack": 25,
+      "spDefense": 65,
       "speed": 65
     },
     "species": "Mouse Pokémon",
@@ -2012,7 +2017,7 @@
       "french": "Goupix"
     },
     "type": [
-      "Fire"
+      "Ice"
     ],
     "base": {
       "HP": 38,
@@ -2065,15 +2070,16 @@
       "french": "Feunard"
     },
     "type": [
-      "Fire"
+      "Ice",
+      "Fairy"
     ],
     "base": {
       "HP": 73,
-      "attack": 76,
+      "attack": 67,
       "defense": 75,
       "spAttack": 81,
       "spDefense": 100,
-      "speed": 100
+      "speed": 109
     },
     "species": "Fox Pokémon",
     "description": "The flickering flames it spews from its mouth leave its opponents hypnotized. Then, this extremely intelligent Pokémon attacks.",
@@ -2856,15 +2862,15 @@
       "french": "Miaouss"
     },
     "type": [
-      "Normal"
+      "Steel"
     ],
     "base": {
-      "HP": 40,
-      "attack": 45,
-      "defense": 35,
+      "HP": 50,
+      "attack": 65,
+      "defense": 55,
       "spAttack": 40,
       "spDefense": 40,
-      "speed": 90
+      "speed": 40
     },
     "species": "Scratch Cat Pokémon",
     "description": "It loves coins, so if you give it one, you can make friends with Meowth easily. But it’s fickle, so you can’t count on that friendship lasting.",
@@ -2888,11 +2894,7 @@
           "false"
         ],
         [
-          "Technician",
-          "false"
-        ],
-        [
-          "Unnerve",
+          "Tough Claws",
           "true"
         ]
       ],
@@ -3194,15 +3196,16 @@
       "french": "Caninos"
     },
     "type": [
-      "Fire"
+      "Fire",
+      "Rock"
     ],
     "base": {
-      "HP": 55,
-      "attack": 70,
+      "HP": 60,
+      "attack": 75,
       "defense": 45,
-      "spAttack": 70,
+      "spAttack": 65,
       "spDefense": 50,
-      "speed": 60
+      "speed": 55
     },
     "species": "Puppy Pokémon",
     "description": "It has lived alongside humans since ages ago. Its bones have been found in excavations of ruins from the Stone Age.",
@@ -3228,10 +3231,6 @@
         [
           "Flash Fire",
           "false"
-        ],
-        [
-          "Justified",
-          "true"
         ]
       ],
       "gender": "75:25"
@@ -3251,15 +3250,16 @@
       "french": "Arcanin"
     },
     "type": [
-      "Fire"
+      "Fire",
+      "Rock"
     ],
     "base": {
-      "HP": 90,
-      "attack": 110,
+      "HP": 95,
+      "attack": 115,
       "defense": 80,
-      "spAttack": 100,
+      "spAttack": 95,
       "spDefense": 80,
-      "speed": 95
+      "speed": 90
     },
     "species": "Legendary Pokémon",
     "description": "There are so many old tales about them that they’re called legendary Pokémon, but there are way more of them around than you’d expect.",
@@ -3285,7 +3285,7 @@
           "false"
         ],
         [
-          "Justified",
+          "Rock Head",
           "true"
         ]
       ],
@@ -4284,7 +4284,7 @@
       "french": "Ponyta"
     },
     "type": [
-      "Fire"
+      "Psychic"
     ],
     "base": {
       "HP": 50,
@@ -4316,7 +4316,7 @@
           "false"
         ],
         [
-          "Flash Fire",
+          "Pastel Veil",
           "false"
         ],
         [
@@ -4341,7 +4341,8 @@
       "french": "Galopa"
     },
     "type": [
-      "Fire"
+      "Psychic",
+      "Fairy"
     ],
     "base": {
       "HP": 65,
@@ -4371,7 +4372,7 @@
           "false"
         ],
         [
-          "Flash Fire",
+          "Pastel Veil",
           "false"
         ],
         [
@@ -4396,7 +4397,6 @@
       "french": "Ramoloss"
     },
     "type": [
-      "Water",
       "Psychic"
     ],
     "base": {
@@ -4417,7 +4417,7 @@
         ],
         [
           "199",
-          "trade holding Kings Rock"
+          "use Galarica Wreath"
         ]
       ]
     },
@@ -4459,15 +4459,15 @@
       "french": "Flagadoss"
     },
     "type": [
-      "Water",
+      "Poison",
       "Psychic"
     ],
     "base": {
       "HP": 95,
-      "attack": 75,
-      "defense": 110,
+      "attack": 100,
+      "defense": 95,
       "spAttack": 100,
-      "spDefense": 80,
+      "spDefense": 70,
       "speed": 30
     },
     "species": "Hermit Crab Pokémon",
@@ -5576,7 +5576,8 @@
       "french": "Voltorbe"
     },
     "type": [
-      "Electric"
+      "Electric",
+      "Grass"
     ],
     "base": {
       "HP": 40,
@@ -5851,7 +5852,8 @@
       "french": "Ossatueur"
     },
     "type": [
-      "Ground"
+      "Fire",
+      "Ghost"
     ],
     "base": {
       "HP": 60,
@@ -5885,7 +5887,7 @@
           "false"
         ],
         [
-          "Battle Armor",
+          "Cursed Body",
           "true"
         ]
       ],
@@ -8026,16 +8028,16 @@
       "french": "Artikodin"
     },
     "type": [
-      "Ice",
+      "Psychic",
       "Flying"
     ],
     "base": {
       "HP": 90,
       "attack": 85,
-      "defense": 100,
-      "spAttack": 95,
-      "spDefense": 125,
-      "speed": 85
+      "defense": 85,
+      "spAttack": 125,
+      "spDefense": 100,
+      "speed": 95
     },
     "species": "Freeze Pokémon",
     "description": "Articuno is a legendary bird Pokémon that can control ice. The flapping of its wings chills the air. As a result, it is said that when this Pokémon flies, snow will fall.",
@@ -8048,12 +8050,8 @@
       ],
       "ability": [
         [
-          "Pressure",
+          "Competitive",
           "false"
-        ],
-        [
-          "Snow Cloak",
-          "true"
         ]
       ],
       "gender": "Genderless"
@@ -8073,14 +8071,14 @@
       "french": "Électhor"
     },
     "type": [
-      "Electric",
+      "Fighting",
       "Flying"
     ],
     "base": {
       "HP": 90,
-      "attack": 90,
-      "defense": 85,
-      "spAttack": 125,
+      "attack": 125,
+      "defense": 90,
+      "spAttack": 85,
       "spDefense": 90,
       "speed": 100
     },
@@ -8095,12 +8093,8 @@
       ],
       "ability": [
         [
-          "Pressure",
+          "Defiant",
           "false"
-        ],
-        [
-          "Static",
-          "true"
         ]
       ],
       "gender": "Genderless"
@@ -8120,15 +8114,15 @@
       "french": "Sulfura"
     },
     "type": [
-      "Fire",
+      "Dark",
       "Flying"
     ],
     "base": {
       "HP": 90,
-      "attack": 100,
+      "attack": 85,
       "defense": 90,
-      "spAttack": 125,
-      "spDefense": 85,
+      "spAttack": 100,
+      "spDefense": 125,
       "speed": 90
     },
     "species": "Flame Pokémon",
@@ -8142,12 +8136,8 @@
       ],
       "ability": [
         [
-          "Pressure",
+          "Berserk",
           "false"
-        ],
-        [
-          "Flame Body",
-          "true"
         ]
       ],
       "gender": "Genderless"
@@ -11063,9 +11053,9 @@
     ],
     "base": {
       "HP": 95,
-      "attack": 75,
+      "attack": 65,
       "defense": 80,
-      "spAttack": 100,
+      "spAttack": 110,
       "spDefense": 110,
       "speed": 30
     },
@@ -12303,16 +12293,15 @@
       "french": "Corayon"
     },
     "type": [
-      "Water",
-      "Rock"
+      "Ghost"
     ],
     "base": {
-      "HP": 65,
+      "HP": 60,
       "attack": 55,
-      "defense": 95,
+      "defense": 100,
       "spAttack": 65,
-      "spDefense": 95,
-      "speed": 35
+      "spDefense": 100,
+      "speed": 30
     },
     "species": "Coral Pokémon",
     "description": "In Alola, where their natural enemies Mareanie are plentiful, many Corsola have stubby branches on their heads.",
@@ -29856,15 +29845,16 @@
       "french": "Fragilady"
     },
     "type": [
-      "Grass"
+      "Grass",
+      "Fighting"
     ],
     "base": {
       "HP": 70,
-      "attack": 60,
+      "attack": 105,
       "defense": 75,
-      "spAttack": 110,
+      "spAttack": 50,
       "spDefense": 75,
-      "speed": 90
+      "speed": 105
     },
     "species": "Flowering Pokémon",
     "description": "It’s well liked by other Pokémon because of its beauty. The flower on its head needs constant care, or it will soon wither and rot.",
@@ -29886,7 +29876,7 @@
           "false"
         ],
         [
-          "Own Tempo",
+          "Hustle",
           "false"
         ],
         [
@@ -31000,15 +30990,16 @@
       "french": "Zorua"
     },
     "type": [
-      "Dark"
+      "Ghost",
+      "Normal"
     ],
     "base": {
-      "HP": 40,
-      "attack": 65,
+      "HP": 35,
+      "attack": 60,
       "defense": 40,
-      "spAttack": 80,
+      "spAttack": 85,
       "spDefense": 40,
-      "speed": 65
+      "speed": 70
     },
     "species": "Tricky Fox Pokémon",
     "description": "If a normally talkative child suddenly stops talking, it may have been replaced by Zorua.",
@@ -31049,15 +31040,16 @@
       "french": "Zoroark"
     },
     "type": [
-      "Dark"
+      "Ghost",
+      "Normal"
     ],
     "base": {
-      "HP": 60,
-      "attack": 105,
+      "HP": 55,
+      "attack": 100,
       "defense": 60,
-      "spAttack": 120,
+      "spAttack": 125,
       "spDefense": 60,
-      "speed": 105
+      "speed": 110
     },
     "species": "Illusion Fox Pokémon",
     "description": "If it thinks humans are going to discover its den, Zoroark shows them visions that make them wander around in the woods.",
@@ -38241,15 +38233,16 @@
       "french": "Colimucus"
     },
     "type": [
+      "Steel",
       "Dragon"
     ],
     "base": {
-      "HP": 68,
+      "HP": 58,
       "attack": 75,
-      "defense": 53,
+      "defense": 83,
       "spAttack": 83,
       "spDefense": 113,
-      "speed": 60
+      "speed": 40
     },
     "species": "Soft Tissue Pokémon",
     "description": "Its entire body is covered with gooey mucus that can dissolve anything. Be sure to put gloves on if you’re going to touch it.",
@@ -38277,7 +38270,7 @@
           "false"
         ],
         [
-          "Hydration",
+          "Shell Armor",
           "false"
         ],
         [
@@ -38302,15 +38295,16 @@
       "french": "Muplodocus"
     },
     "type": [
+      "Steel",
       "Dragon"
     ],
     "base": {
-      "HP": 90,
+      "HP": 80,
       "attack": 100,
-      "defense": 70,
+      "defense": 100,
       "spAttack": 110,
       "spDefense": 150,
-      "speed": 80
+      "speed": 60
     },
     "species": "Dragon Pokémon",
     "description": "Underneath its slimy skin is a thick layer of fat, and the combination of the two makes enemies’ attacks slide right off.",
@@ -38332,7 +38326,7 @@
           "false"
         ],
         [
-          "Hydration",
+          "Shell Armor",
           "false"
         ],
         [
@@ -44530,6 +44524,14 @@
     "type": [
       "Normal"
     ],
+    "base": {
+      "HP": 42,
+      "attack": 40,
+      "defense": 55,
+      "spAttack": 40,
+      "spDefense": 45,
+      "speed": 48
+    },
     "species": "Sheep Pokémon",
     "description": "If its fleece grows too long, Wooloo won’t be able to move. Cloth made with the wool of this Pokémon is surprisingly strong.",
     "evolution": {
@@ -44576,6 +44578,14 @@
     "type": [
       "Normal"
     ],
+    "base": {
+      "HP": 72,
+      "attack": 80,
+      "defense": 100,
+      "spAttack": 60,
+      "spDefense": 90,
+      "speed": 88
+    },
     "species": "Sheep Pokémon",
     "description": "Its majestic horns are meant only to impress the opposite gender. They never see use in battle.",
     "evolution": {
@@ -44793,6 +44803,14 @@
     "type": [
       "Rock"
     ],
+    "base": {
+      "HP": 80,
+      "attack": 60,
+      "defense": 90,
+      "spAttack": 60,
+      "spDefense": 70,
+      "speed": 50
+    },
     "species": "Coal Pokémon",
     "description": "It can race around like a unicycle, even on rough, rocky terrain. Burning coal sustains it.",
     "evolution": {
@@ -44840,6 +44858,14 @@
       "Rock",
       "Fire"
     ],
+    "base": {
+      "HP": 110,
+      "attack": 80,
+      "defense": 120,
+      "spAttack": 80,
+      "spDefense": 90,
+      "speed": 30
+    },
     "species": "Coal Pokémon",
     "description": "By rapidly rolling its legs, it can travel at over 18 mph. The temperature of the flames it breathes exceeds 1,800 degrees Fahrenheit.",
     "evolution": {
@@ -45375,6 +45401,14 @@
       "Fire",
       "Bug"
     ],
+    "base": {
+      "HP": 50,
+      "attack": 65,
+      "defense": 45,
+      "spAttack": 50,
+      "spDefense": 50,
+      "speed": 45
+    },
     "species": "Radiator Pokémon",
     "description": "It wraps prey up with its heated body, cooking them in its coils. Once they’re well-done, it will voraciously nibble them down to the last morsel.",
     "evolution": {
@@ -45422,6 +45456,14 @@
       "Fire",
       "Bug"
     ],
+    "base": {
+      "HP": 100,
+      "attack": 115,
+      "defense": 65,
+      "spAttack": 90,
+      "spDefense": 90,
+      "speed": 65
+    },
     "species": "Radiator Pokémon",
     "description": "While its burning body is already dangerous on its own, this excessively hostile Pokémon also has large and very sharp fangs.",
     "evolution": {
@@ -45548,6 +45590,14 @@
     "type": [
       "Ghost"
     ],
+    "base": {
+      "HP": 40,
+      "attack": 45,
+      "defense": 45,
+      "spAttack": 74,
+      "spDefense": 54,
+      "speed": 50
+    },
     "species": "Black Tea Pokémon",
     "description": "The teacup in which this Pokémon makes its home is a famous piece of antique tableware. Many forgeries are in circulation.",
     "evolution": {
@@ -45590,6 +45640,14 @@
     "type": [
       "Ghost"
     ],
+    "base": {
+      "HP": 60,
+      "attack": 65,
+      "defense": 65,
+      "spAttack": 134,
+      "spDefense": 114,
+      "speed": 70
+    },
     "species": "Black Tea Pokémon",
     "description": "Leaving leftover black tea unattended is asking for this Pokémon to come along and pour itself into it, turning the tea into a new Polteageist.",
     "evolution": {
@@ -45959,6 +46017,14 @@
     "type": [
       "Steel"
     ],
+    "base": {
+      "HP": 70,
+      "attack": 110,
+      "defense": 100,
+      "spAttack": 50,
+      "spDefense": 60,
+      "speed": 50
+    },
     "species": "Viking Pokémon",
     "description": "After many battles, it evolved dangerous claws that come together to form daggers when extended.",
     "evolution": {
@@ -46003,6 +46069,14 @@
     "type": [
       "Ghost"
     ],
+    "base": {
+      "HP": 60,
+      "attack": 95,
+      "defense": 50,
+      "spAttack": 145,
+      "spDefense": 130,
+      "speed": 30
+    },
     "species": "Coral Pokémon",
     "description": "Be cautious of the ectoplasmic body surrounding its soul. You’ll become stiff as stone if you touch it.",
     "evolution": {
@@ -46817,6 +46891,14 @@
       "Dragon",
       "Ghost"
     ],
+    "base": {
+      "HP": 28,
+      "attack": 60,
+      "defense": 30,
+      "spAttack": 40,
+      "spDefense": 30,
+      "speed": 82
+    },
     "species": "Lingering Pokémon",
     "description": "If this weak Pokémon is by itself, a mere child could defeat it. But if Dreepy has friends to help it train, it can evolve and become much stronger.",
     "evolution": {
@@ -46864,6 +46946,14 @@
       "Dragon",
       "Ghost"
     ],
+    "base": {
+      "HP": 68,
+      "attack": 80,
+      "defense": 50,
+      "spAttack": 60,
+      "spDefense": 50,
+      "speed": 102
+    },
     "species": "Caretaker Pokémon",
     "description": "Without a Dreepy to place on its head and care for, it gets so uneasy it’ll try to substitute any Pokémon it finds for the missing Dreepy.",
     "evolution": {
@@ -46915,6 +47005,14 @@
       "Dragon",
       "Ghost"
     ],
+    "base": {
+      "HP": 88,
+      "attack": 120,
+      "defense": 75,
+      "spAttack": 100,
+      "spDefense": 75,
+      "speed": 142
+    },
     "species": "Stealth Pokémon",
     "description": "Apparently the Dreepy inside Dragapult’s horns eagerly look forward to being launched out at Mach speeds.",
     "evolution": {

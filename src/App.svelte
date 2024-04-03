@@ -84,11 +84,11 @@
 	}
 
 	window.addEventListener('resize', () => {
-		checkOrientation();
+		//checkOrientation();
 	});
 
 	onMount(() => {
-		checkOrientation();
+		//checkOrientation();
 	});
 </script>
 

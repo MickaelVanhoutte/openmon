@@ -121,12 +121,33 @@ function exportPokemons() {
                     }
                 }
             }
+            console.log(entry.name);
             result.push(entry);
         }else {
             console.log('missing ' + pokemon.id);
         }
     });
 
+    // sort by types 
+    // result = result.sort((a, b) => {
+    //     return a.types[0].localeCompare(b.types[0]);
+    // }
+    // );
+
+    // sort by regionalId except for the first 9 
+    // result = result.sort((a, b) => {
+    //     if (a.id <= 9 && b.id <= 9) {
+    //         return 0;
+    //     } else if (a.regionalId <= 9) {
+    //         return -1;
+    //     } else if (b.regionalId <= 9) {
+    //         return 1;
+    //     } else {
+    //         return a.regionalId - b.regionalId;
+    //     }
+    // });
+
+    
     fs.writeFile("./pokedex-animatedV3.json", JSON.stringify(result), (error) => {
         // throwing the error
         // in case of a writing problem

@@ -16,6 +16,7 @@ fs.readdir(sourcePath, (err, files) => {
         let newNumber = ("00" + number).slice(-3);
 
         if (fs.existsSync(sourcePath + file)) {
+            console.log('copying ' + sourcePath + file + ' to ' + destPath + newNumber + (file.includes('Galarian') ? 'G' : '') + (file.includes('ManyBattles') ? '*' : '') + '.png')
             fs.copyFileSync(sourcePath + file, destPath + newNumber + (file.includes('Galarian') ? 'G' : '') + (file.includes('ManyBattles') ? '*' : '') + '.png');
         } else {
             console.log('Missing ' + number);
