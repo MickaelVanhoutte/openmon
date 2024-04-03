@@ -86,7 +86,7 @@
 </script>
 
 <div class="pokedex">
-	<!-- <div class="row head">
+	<div class="row head">
 		<div class="column back">
 			<button on:click={() => context.overWorldContext.closeMenu(MenuType.POKEDEX)}>BACK</button>
 		</div>
@@ -105,9 +105,9 @@
 				</div>
 			</div>
 		</div>
-	</div> -->
-	<div class="row">
-		<!-- <div class="column preview">
+	</div>
+	<div class="row content">
+		<div class="column preview">
 			<div class="image">
 				{#if selectedPokemon?.id}
 					<img
@@ -146,9 +146,9 @@
 					<button on:click={() => openDetail()}>►</button>
 				</div>
 			{/each}
-		</div> -->
+		</div>
 
-		<div style="display: flex; flex-wrap: wrap;overflow-y: scroll;overflow-x: hidden;height: 100dvh;">
+		<!-- <div style="display: flex; flex-wrap: wrap;overflow-y: scroll;overflow-x: hidden;height: 100dvh;">
 			{#each filtered as pokemon}
 				<div style="position:relative; width: calc(100% / 9); box-sizing:border-box; height: auto; border: 1px solid black;
 				background: linear-gradient(
@@ -159,14 +159,20 @@
 	 {typeChart[pokemon.types[1]]?.color || typeChart[pokemon.types[0]].color} 100%
   );">
 					<img
-						style="width: 100%"
+						style="width: 100%; opacity: .5" 
 						src={`src/assets/monsters/pokedex/${('00' + pokemon?.id).slice(-3)}.png`}
 					/>
-					<!-- <span style="position: absolute; bottom:4px; left: 50%;
-					transform: translate(-50%, 0%); font-size:12px; color: black">{pokemon.regionalId}</span> -->
+
+					<img
+						style="width: 100%; position: absolute; top: 0; left: 0; filter: brightness(1);"
+						src={`src/assets/monsters/walking/${('00' + pokemon?.id).slice(-3)}.png`}
+					/>
+
+					<span style="position: absolute; bottom:4px; left: 50%;
+					transform: translate(-50%, 0%); font-size:12px; color: black">{pokemon.regionalId + ' - ' +pokemon.id + ' - ' + pokemon.name}</span>
 				</div>
 			{/each}
-		</div>
+		</div> -->
 	</div>
 </div>
 
