@@ -4,6 +4,7 @@
 	import { MenuType } from '../../../js/context/overworldContext';
 	import type { PokedexSearchResult } from '../../../js/pokemons/pokedex';
 	import PokedexDetail from './PokedexDetail.svelte';
+	import { typeChart } from '../../../js/battle/battle-model';
 
 	export let context: GameContext;
 	// viewed / caught
@@ -120,7 +121,7 @@
 			</div>
 			<div>
 				<h2>
-					{selectedPokemon?.id ? ('00' + (selectedPokemon?.id)).slice(-3) : '???'}
+					{selectedPokemon?.id ? ('00' + (selectedPokemon?.id)).slice(-3) : '???'} (#{selectedPokemon?.regionalId})
 					{selectedPokemon?.name ? ('- ' + selectedPokemon?.name) : ''}
 				</h2>
 			</div>
@@ -146,6 +147,32 @@
 				</div>
 			{/each}
 		</div>
+
+		<!-- <div style="display: flex; flex-wrap: wrap;overflow-y: scroll;overflow-x: hidden;height: 100dvh;">
+			{#each filtered as pokemon}
+				<div style="position:relative; width: calc(100% / 9); box-sizing:border-box; height: auto; border: 1px solid black;
+				background: linear-gradient(
+    to bottom,
+    {typeChart[pokemon.types[0]].color} 0%,
+	{typeChart[pokemon.types[0]].color} 50%,
+	 {typeChart[pokemon.types[1]]?.color || typeChart[pokemon.types[0]].color} 50%,
+	 {typeChart[pokemon.types[1]]?.color || typeChart[pokemon.types[0]].color} 100%
+  );">
+					<img
+						style="width: 100%; opacity: .5" 
+						src={`src/assets/monsters/pokedex/${('00' + pokemon?.id).slice(-3)}.png`}
+					/>
+
+					<img
+						style="width: 100%; position: absolute; top: 0; left: 0; filter: brightness(1);"
+						src={`src/assets/monsters/walking/${('00' + pokemon?.id).slice(-3)}.png`}
+					/>
+
+					<span style="position: absolute; bottom:4px; left: 50%;
+					transform: translate(-50%, 0%); font-size:12px; color: black">{pokemon.regionalId + ' - ' +pokemon.id + ' - ' + pokemon.name}</span>
+				</div>
+			{/each}
+		</div> -->
 	</div>
 </div>
 
