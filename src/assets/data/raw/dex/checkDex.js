@@ -48,7 +48,6 @@ ids.map(id => {
 });
 console.log(spAttack?.length, ids?.length - spAttack?.length);
 //console.log(spAttack);
-attack.filter(pk => pk.type[0] === 'Normal').forEach(pokemon => console.log(pokemon.id + ' - ' +pokemon.name.english));
 
 
 // every flying :

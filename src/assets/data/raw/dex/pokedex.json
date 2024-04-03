@@ -8028,16 +8028,16 @@
       "french": "Artikodin"
     },
     "type": [
-      "Ice",
+      "Psychic",
       "Flying"
     ],
     "base": {
       "HP": 90,
       "attack": 85,
-      "defense": 100,
-      "spAttack": 95,
-      "spDefense": 125,
-      "speed": 85
+      "defense": 85,
+      "spAttack": 125,
+      "spDefense": 100,
+      "speed": 95
     },
     "species": "Freeze Pokémon",
     "description": "Articuno is a legendary bird Pokémon that can control ice. The flapping of its wings chills the air. As a result, it is said that when this Pokémon flies, snow will fall.",
@@ -8050,12 +8050,8 @@
       ],
       "ability": [
         [
-          "Pressure",
+          "Competitive",
           "false"
-        ],
-        [
-          "Snow Cloak",
-          "true"
         ]
       ],
       "gender": "Genderless"
@@ -8075,14 +8071,14 @@
       "french": "Électhor"
     },
     "type": [
-      "Electric",
+      "Fighting",
       "Flying"
     ],
     "base": {
       "HP": 90,
-      "attack": 90,
-      "defense": 85,
-      "spAttack": 125,
+      "attack": 125,
+      "defense": 90,
+      "spAttack": 85,
       "spDefense": 90,
       "speed": 100
     },
@@ -8097,12 +8093,8 @@
       ],
       "ability": [
         [
-          "Pressure",
+          "Defiant",
           "false"
-        ],
-        [
-          "Static",
-          "true"
         ]
       ],
       "gender": "Genderless"
@@ -8122,15 +8114,15 @@
       "french": "Sulfura"
     },
     "type": [
-      "Fire",
+      "Dark",
       "Flying"
     ],
     "base": {
       "HP": 90,
-      "attack": 100,
+      "attack": 85,
       "defense": 90,
-      "spAttack": 125,
-      "spDefense": 85,
+      "spAttack": 100,
+      "spDefense": 125,
       "speed": 90
     },
     "species": "Flame Pokémon",
@@ -8144,12 +8136,8 @@
       ],
       "ability": [
         [
-          "Pressure",
+          "Berserk",
           "false"
-        ],
-        [
-          "Flame Body",
-          "true"
         ]
       ],
       "gender": "Genderless"
@@ -11060,7 +11048,7 @@
       "french": "Roigada"
     },
     "type": [
-      "Poison",
+      "Water",
       "Psychic"
     ],
     "base": {
@@ -11088,7 +11076,7 @@
       ],
       "ability": [
         [
-          "Curious Medicine",
+          "Oblivious",
           "false"
         ],
         [
