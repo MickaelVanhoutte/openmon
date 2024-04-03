@@ -465,11 +465,11 @@ const npcs = [
                 new Message('I saw you faint.', 'System'),
                 new Message('Take this with you.', 'System'),
             ]),
-            new GiveItem(17, 5),
+            new GiveItem(25, 99),
             new Dialog([
                 new Message('You received 5 Potions', 'System'),
             ]),
-            new GiveItem(4, 5),
+            new GiveItem(1, 99),
             new Dialog([
                 new Message('You received 5 Pokeballs', 'System'),
                 new Message('Take care.', 'System'),

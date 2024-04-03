@@ -86,7 +86,7 @@
 </script>
 
 <div class="pokedex">
-	<!-- <div class="row head">
+	<div class="row head">
 		<div class="column back">
 			<button on:click={() => context.overWorldContext.closeMenu(MenuType.POKEDEX)}>BACK</button>
 		</div>
@@ -105,9 +105,9 @@
 				</div>
 			</div>
 		</div>
-	</div> -->
-	<div class="row ">
-		<!--content <div class="column preview">
+	</div>
+	<div class="row content">
+		<div class="column preview">
 			<div class="image">
 				{#if selectedPokemon?.id}
 					<img
@@ -146,9 +146,9 @@
 					<button on:click={() => openDetail()}>►</button>
 				</div>
 			{/each}
-		</div> -->
+		</div>
 
-		<div style="display: flex; flex-wrap: wrap;overflow-y: scroll;overflow-x: hidden;height: 100dvh;">
+		<!-- <div style="display: flex; flex-wrap: wrap;overflow-y: scroll;overflow-x: hidden;height: 100dvh;">
 			{#each filtered as pokemon}
 				<div style="position:relative; width: calc(100% / 9); overflow:hidden; box-sizing:border-box; height: auto; border: 1px solid black;
 				background: linear-gradient(
@@ -176,7 +176,7 @@
 					transform: translate(-50%, 0%); font-size:12px; color: black">{pokemon.regionalId}</span>
 				</div>
 			{/each}
-		</div>
+		</div> -->
 	</div>
 </div>
 

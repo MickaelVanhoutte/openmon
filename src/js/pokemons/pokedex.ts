@@ -310,7 +310,7 @@ export class PokedexEntry {
         percentageMale: number,
         evolution: Evolution[],
         sprites?: Sprites,
-        viewed: boolean = true,
+        viewed: boolean = false,
         caught: boolean = false
     ) {
         this.id = id;
