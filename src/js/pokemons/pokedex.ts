@@ -373,12 +373,20 @@ export class PokedexEntry {
             });
     }
 
-    public instanciate(level: number) {
+    public instanciate(level: number, minIv = 0) {
         // random nature
         let nature = NATURES[Math.floor(Math.random() * NATURES.length)];
         let shiny = Math.floor(Math.random() * 2) === 0;
+        let ivs = undefined;
+        if (minIv > 0) {
+            ivs = new Stats(this.getIvFromMin(minIv), this.getIvFromMin(minIv), this.getIvFromMin(minIv), this.getIvFromMin(minIv), this.getIvFromMin(minIv), this.getIvFromMin(minIv));
+        }
 
-        return new PokemonInstance(this, level, nature, shiny);
+        return new PokemonInstance(this, level, nature, shiny, ivs);
+    }
+
+    private getIvFromMin(min: number): number {
+        return Math.floor(Math.random() * (32 - min) + min);
     }
 }
 
@@ -594,7 +602,7 @@ export class PokemonInstance extends PokedexEntry {
         );
     }
 
-    constructor(pokedexEntry: PokedexEntry, level: number, nature: Nature, shiny: boolean, fromInstance?: PokemonInstance) {
+    constructor(pokedexEntry: PokedexEntry, level: number, nature: Nature, shiny: boolean, ivs?: Stats, fromInstance?: PokemonInstance) {
         super(pokedexEntry.id, pokedexEntry.regionalId, pokedexEntry.name, pokedexEntry.types, pokedexEntry.abilities, pokedexEntry.moves, pokedexEntry.stats, pokedexEntry.height, pokedexEntry.weight, pokedexEntry.description, pokedexEntry.isLegendary, pokedexEntry.captureRate, pokedexEntry.growthRateId, pokedexEntry.baseXp, pokedexEntry.percentageMale, pokedexEntry.evolution, pokedexEntry.sprites);
 
         if (fromInstance) {
@@ -619,7 +627,7 @@ export class PokemonInstance extends PokedexEntry {
         } else {
             this.currentAbility = this.abilities[Math.floor(Math.random() * this.abilities.length)];
             this.evs = new Stats();
-            this.ivs = new Stats(
+            this.ivs = ivs !== undefined ? ivs : new Stats(
                 Math.floor(Math.random() * 32),
                 Math.floor(Math.random() * 32),
                 Math.floor(Math.random() * 32),
@@ -635,7 +643,7 @@ export class PokemonInstance extends PokedexEntry {
             this.currentHp = this.currentStats.hp;
             this.moves = this.selectLatestMoves(pokedexEntry);
             // shiny chance is 1/2048
-            this.isShiny= shiny;//= Math.floor(Math.random() * 2048) === 0;
+            this.isShiny = shiny;//= Math.floor(Math.random() * 2048) === 0;
 
             // random gender based on percentageMale attr
             this.gender = this.percentageMale ? (Math.random() * this.percentageMale <= this.percentageMale ? 'male' : 'female') : 'unknown';
