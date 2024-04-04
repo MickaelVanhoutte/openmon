@@ -124,7 +124,12 @@ export class RemoveHP implements ActionV2Interface {
 
         target.currentHp = target.currentHp - this.damages;
 
-        ctx.checkFainted(target, this.initiator);
+        let actions = ctx.checkFainted(target, this.initiator);
+        if (actions) {
+            actions.forEach((action: ActionV2Interface) => {
+                ctx.addToStack(action);
+            });
+        }
     }
 }
 
@@ -200,12 +205,14 @@ export class EndTurnChecks implements ActionV2Interface {
 
     execute(ctx: BattleContext): void {
         // end turn effects (burn, poison..)
+        let actions: ActionV2Interface[] = [];
         let opponent = this.initiator === ctx.playerPokemon ? ctx.opponentPokemon : ctx.playerPokemon;
         if (!this.initiator.fainted && this.initiator.status && this.initiator.status.when === 'end-turn') {
             let effect = this.initiator.status.playEffect(this.initiator, opponent);
-            ctx.checkFainted(this.initiator, opponent);
+             actions = ctx.checkFainted(this.initiator, opponent);
+
             if (effect?.message) {
-                ctx.addToStack(new Message(effect.message, this.initiator));
+                actions.push(new Message(effect.message, this.initiator));
             }
         }
 
@@ -213,8 +220,7 @@ export class EndTurnChecks implements ActionV2Interface {
             (ctx.opponent instanceof NPC && ctx.opponent.monsters.every((monster: PokemonInstance) => monster.fainted))) {
             //remove end turn action from stack
             ctx.actionStack.stack = ctx.actionStack.stack.filter((action: ActionV2Interface) => {
-                return !(action.type === ActionType.MESSAGE)
-                    && action?.description.startsWith('What should');
+                return !(action.type === ActionType.MESSAGE && action?.description.startsWith('What should'));
             });
             ctx.battleResult.win = true;
             ctx.addToStack(new EndBattle(this.initiator));
@@ -222,7 +228,7 @@ export class EndTurnChecks implements ActionV2Interface {
         } else if (ctx.player.monsters.every((monster: PokemonInstance) => monster.fainted)) {
             ctx.battleResult.win = false;
             ctx.addToStack(new EndBattle(this.initiator));
-            ctx.addToStack(new Message('You lose the battle...', this.initiator));
+            ctx.addToStack(new Message('You lost the battle...', this.initiator));
         } else if (ctx.opponentPokemon.fainted && ctx.opponent instanceof NPC) {
             if (ctx.settings?.difficulty === 'NORMAL') {
                 // random non fainted
@@ -238,6 +244,11 @@ export class EndTurnChecks implements ActionV2Interface {
             ctx.events.pokemonChange.set(ctx.opponent);
         } else if (ctx.playerPokemon.fainted) {
             ctx.events.playerPokemonFaint.set(ctx.playerPokemon);
+        }
+        if (actions) {
+            actions.forEach((action: ActionV2Interface) => {
+                ctx.addToStack(action);
+            });
         }
     }
 }
@@ -256,5 +267,6 @@ export class EndBattle implements ActionV2Interface {
     execute(ctx: BattleContext): void {
         ctx.clearStack();
         ctx.events.end.set(ctx.battleResult);
+        ctx.events.battleEnded = true;
     }
 }

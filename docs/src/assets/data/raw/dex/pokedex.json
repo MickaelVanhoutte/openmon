@@ -5634,7 +5634,8 @@
       "french": "Électrode"
     },
     "type": [
-      "Electric"
+      "Electric",
+      "Grass"
     ],
     "base": {
       "HP": 60,
