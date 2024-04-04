@@ -17,9 +17,17 @@
 
 	const savesHolder = new SavesHolder();
 	let gameContext: GameContext;
+	let newGame: boolean = false;
+
 	savesHolder.selectedSave$.subscribe((value: SaveContext | undefined) => {
 		if (value) {
 			gameContext = value.toGameContext();
+		}
+	});
+
+	savesHolder.requestNexGame$.subscribe((value) => {
+		if (value) {
+			newGame = true;
 		}
 	});
 
@@ -114,7 +122,7 @@
 	{#if battleEnding}
 		<div class="battleEnd"></div>
 	{/if}
-{:else if savesHolder.saves?.length > 0}
+{:else if savesHolder.saves?.length > 0 && !newGame}
 	<!-- select a save / start new -->
 	<LoadSave {savesHolder} />
 {:else}

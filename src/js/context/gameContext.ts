@@ -292,7 +292,9 @@ export class GameContext {
             Math.random() < 0.07
         ) {
             let monster = this.map.randomMonster();
-            this.startBattle(this.POKEDEX.findById(monster.id).result.instanciate(monster.level));
+            // level can be base on player medium level of his team
+            let level = this.player.monsters.reduce((acc, pkmn) => acc + pkmn.level, 0) / this.player.monsters.length;
+            this.startBattle(this.POKEDEX.findById(monster.id).result.instanciate(level - 1));//monster.level
         }
     }
 
