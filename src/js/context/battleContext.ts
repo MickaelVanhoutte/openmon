@@ -110,6 +110,7 @@ export class BattleContext {
      */
     private executeAction(action?: ActionV2Interface) {
         this.currentAction.set(action);
+        console.log('DEBUG, stack : ', this.actionStack.stack);
         if (action !== undefined) {
 
             if (action.type === ActionType.END_CHECKS) {
@@ -125,7 +126,7 @@ export class BattleContext {
                     this.executeAction(this.actionStack?.pop());
                 }
             );
-        } else {
+        } else if (!this.events.battleEnded) {
             // no more actions, reinit
             this.prepareNewTurn();
         }
@@ -215,13 +216,16 @@ export class BattleContext {
     }
 
     // TODO : could be in the remove HP action
-    public checkFainted(target: PokemonInstance, initiator: PokemonInstance) {
+    public checkFainted(target: PokemonInstance, initiator: PokemonInstance): ActionV2Interface[] {
+        let actions: ActionV2Interface[] = [];
         if (target.currentHp <= 0) {
             target.currentHp = 0;
-            
+
             target.fainted = true;
             target.status = undefined;
             target.resetBattleStats();
+
+            console.log(target.name + ' fainted!', initiator);
 
             // remove target attack from stack
             this.actionStack.stack = this.actionStack.stack.filter((action: ActionV2Interface) => {
@@ -230,7 +234,7 @@ export class BattleContext {
 
             if (target === this.opponentPokemon) {
                 this.events.opponentPokemonFaint.set(target);
-                let xp = EXPERIENCE_CHART.howMuchIGet(initiator, target, this.participants.size, !this.isWild, this.settings.xpShare);
+                let xp = EXPERIENCE_CHART.howMuchIGet(this.playerPokemon, target, this.participants.size, !this.isWild, this.settings.xpShare);
 
                 if (this.settings.xpShare) {
                     let nonParticipants = this.player.monsters.filter((monster: PokemonInstance) => !this.participants.has(monster));
@@ -239,26 +243,27 @@ export class BattleContext {
                         let npXp = Math.floor(xp / 2);
                         for (let nParticipant of nonParticipants) {
                             if (!nParticipant.fainted) {
-                                this.addToStack(new XPWin(nParticipant, npXp));
+                                actions.push(new XPWin(nParticipant, npXp));
                             }
                         }
-                        this.addToStack(new Message(`The others received ${npXp} experience via XP-Share!`, initiator));
+                        actions.push(new Message(`The others received ${npXp} experience via XP-Share!`, initiator));
                     }
                 }
 
                 for (let participant of this.participants) {
                     if (!participant.fainted) {
-                        this.addToStack(new XPWin(participant, xp));
-                        this.addToStack(new Message(`${participant.name} gets ${xp} experience!`, participant));
+                        actions.push(new XPWin(participant, xp));
+                        actions.push(new Message(`${participant.name} gets ${xp} experience!`, participant));
                     }
                 }
 
-            }else{
+            } else {
                 this.events.playerPokemonFaint.set(this.playerPokemon);
             }
 
-            this.addToStack(new Message(target.name + ' fainted!', initiator));
+            actions.push(new Message(target.name + ' fainted!', initiator));
         }
+        return actions;
     }
 
     public fromTypeChart(type1: string, type2: string): number {

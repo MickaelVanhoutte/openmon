@@ -47,7 +47,7 @@ export class ExperienceCalculator {
 
 
 
-        return Math.floor(((b * l) / 7) * a * (1 / s) * t * e * v * f * p);
+        return Math.floor(((b * l) / 7) * a * (1 / s) * t * e * v * f * p) * 2; // bonus, might be removed TODO;
     }
 }
 

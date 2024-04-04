@@ -27,8 +27,9 @@ export class BattleAnimation {
 export class BattleEvents {
     starting: Writable<boolean> = writable(false);
     ending: Writable<boolean> = writable(false);
-
     end: Writable<BattleResult | undefined> = writable(undefined);
+    battleEnded: boolean = false;
+
     pokemonChange: Writable<Character | undefined> = writable(undefined);
     playerPokemonFaint: Writable<PokemonInstance | undefined> = writable(undefined);
     opponentPokemonFaint: Writable<PokemonInstance | undefined> = writable(undefined);
