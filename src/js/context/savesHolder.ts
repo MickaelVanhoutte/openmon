@@ -49,6 +49,8 @@ export class SavesHolder {
     _selectedSave: SaveContext | undefined = undefined;
     selectedSave$: Writable<SaveContext | undefined> = writable(undefined);
 
+    requestNexGame$: Writable<boolean> = writable(false);
+
     constructor() {
         this.saves = localStorage.getItem('saves-v2')?.length &&
             // @ts-ignore
@@ -73,6 +75,7 @@ export class SavesHolder {
 
     removeSave(index: number) {
         this.saves.splice(index, 1);
+        this.persist();
     }
 
     selectSave(index: number) {

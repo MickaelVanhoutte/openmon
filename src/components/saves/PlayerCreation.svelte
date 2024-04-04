@@ -7,7 +7,7 @@
 	 */
 
 	let playerName = 'Ethan';
-	let playerClasses = ['conqueror', 'bug-catcher'];
+	let playerClasses = ['conqueror'];
 	let selected = playerClasses[0];
 	export let savesHolder: SavesHolder;
 
