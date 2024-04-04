@@ -3,7 +3,7 @@ import {NPC} from "../../characters/npc";
 import {Dialog, GiveItem, Message, MoveToPlayer, Script} from "../../scripting/scripts";
 import {Position} from "../positions";
 
-const monsters = [1]//Array.from({length: 193}, (v, k) => k + 1);
+const monsters = Array.from({length: 233}, (v, k) => k + 1);
 
 const collisions = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40104, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40104, 0, 0, 0, 0, 0, 0, 0, 40104, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40104, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40104, 40104, 0, 0, 0, 0, 0, 0, 0, 40104, 0,
@@ -465,11 +465,11 @@ const npcs = [
                 new Message('I saw you faint.', 'System'),
                 new Message('Take this with you.', 'System'),
             ]),
-            new GiveItem(17, 5),
+            new GiveItem(25, 99),
             new Dialog([
                 new Message('You received 5 Potions', 'System'),
             ]),
-            new GiveItem(4, 5),
+            new GiveItem(1, 99),
             new Dialog([
                 new Message('You received 5 Pokeballs', 'System'),
                 new Message('Take care.', 'System'),
