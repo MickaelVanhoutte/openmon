@@ -12,6 +12,11 @@
 	let preview: HTMLDivElement;
 
 	let selected: SaveContext;
+	let drawnId: number = 0;
+
+	$: if (selected && drawnId !== selected.id) {
+		drawPreview(selected);
+	}
 
 	function drawPreview(selected: SaveContext) {
 		preview.innerHTML = '';
@@ -30,6 +35,7 @@
 
 			preview.appendChild(img);
 		});
+		drawnId = selected.id;
 	}
 
 	function handleSubmit(save: SaveContext) {
@@ -42,7 +48,7 @@
 	}
 
 	function startNew() {
-		//saveContext = saveContext.requestNewGame();
+		savesHolder.requestNexGame$.set(true);
 	}
 
 	onMount(() => {
@@ -64,7 +70,6 @@
 					class="save"
 					tabindex="1"
 					on:click={() => (selected = save)}
-					on:mouseover={() => (selected = save)}
 					on:focus={() => (selected = save)}
 				>
 					<p>{new Date(save.updated).toUTCString()}</p>
@@ -79,9 +84,9 @@
 			</div>
 		{/each}
 	</div>
-	<form class="new-game" on:submit|preventDefault={startNew}>
-		<button type="submit"> Start a new game </button>
-	</form>
+	<div class="new-game">
+		<button on:click={() => startNew()}> Start a new game </button>
+	</div>
 </div>
 
 <style lang="scss">

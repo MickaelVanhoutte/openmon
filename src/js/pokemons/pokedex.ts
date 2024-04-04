@@ -775,7 +775,7 @@ export class PokemonInstance extends PokedexEntry {
 
     evolve(future: PokedexSearchResult): PokemonInstance {
         if (future.found && future.result) {
-            return new PokemonInstance(future.result, this.level, this.nature, this.isShiny, this);
+            return new PokemonInstance(future.result, this.level, this.nature, this.isShiny, undefined, this);
             //this.checkForNewMoves();
         }
         return this
