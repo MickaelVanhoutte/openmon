@@ -28,6 +28,12 @@
 	let others: PokemonInstance[] = context.player.monsters.slice(1);
 	let battleContext: BattleContext | undefined = undefined;
 
+	$: {
+		if(!battleContext) {
+			first = context.player.monsters?.[0];
+			others = context.player.monsters.slice(1);
+		}
+	}
 	$: itemName = itemToUse && context.ITEMS.getItem(itemToUse)?.name;
 	$: zIndexNext = zIndex + 1;
 
@@ -308,7 +314,7 @@
 	/>
 {/if}
 
-{#if context.overWorldContext.menus.bagOpened}
+{#if context.overWorldContext.menus.bagOpened && !itemToUse}
 	<Bag
 		bind:context
 		bind:isBattle
