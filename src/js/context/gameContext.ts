@@ -366,6 +366,9 @@ export class GameContext {
                 if (!result.win) {
                     // tp back to the start // TODO pokecenter position
                     this.player.position.positionOnMap = this.map.playerInitialPosition;
+                    this.player.monsters.forEach((pkmn) => {
+                        pkmn.fullHeal();
+                    });
                 } else if (result.caught) {
                     this.POKEDEX.setCaught(result.caught.id);
                     // add caught pokemon to team if space or in the box
