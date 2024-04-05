@@ -705,6 +705,10 @@ export class PokemonInstance extends PokedexEntry {
         }
     }
 
+    fullHeal() {
+        this.revive(this.currentStats.hp);
+    }
+
     public revive(hp: number) {
         this.fainted = false;
         this.currentHp = hp;

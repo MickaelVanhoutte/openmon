@@ -69,6 +69,7 @@ function exportPokemons() {
             let entry = {
                 id: Number(newNumber),
                 regionalId: Number(pokedexNumber),
+                
                 name: pokemon.name.english,
                 types: pokemon.type.map((type) => type.toLowerCase()),
                 abilities: pokemon.profile.ability.map((ability) => ability[0]),

@@ -878,7 +878,7 @@
     "target_id": 10,
     "damage_class_id": 3,
     "effect_id": 5,
-    "effect_chance": 100,
+    "effect_chance": 10,
     "contest_type_id": 2,
     "contest_effect_id": 1,
     "super_contest_effect_id": 5
