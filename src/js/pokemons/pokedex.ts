@@ -478,7 +478,7 @@ export class Stats {
     public accuracy: number;
     public evasion: number;
 
-    constructor(hp: number = 0, attack: number = 0, defense: number = 0, specialAttack: number = 0, specialDefense: number = 0, speed: number = 0, evasion: number = 0, accuracy: number = 100, total?: number) {
+    constructor(hp: number = 0, attack: number = 0, defense: number = 0, specialAttack: number = 0, specialDefense: number = 0, speed: number = 0, evasion: number = 0, accuracy: number = 0, total?: number) {
         this.hp = hp;
         this.attack = attack;
         this.defense = defense;
@@ -593,12 +593,13 @@ export class PokemonInstance extends PokedexEntry {
     get battleStats(): Stats {
         return new Stats(
             this.currentStats.hp,
-            this.currentStats.attack * (this.statsChanges.attack > 0 ? (2 + this.statsChanges.attack / 2) : (2 / 2 + this.statsChanges.attack)),
-            this.currentStats.defense * (this.statsChanges.defense > 0 ? (2 + this.statsChanges.defense / 2) : (2 / 2 + this.statsChanges.defense)),
-            this.currentStats.specialAttack * (this.statsChanges.specialAttack > 0 ? (2 + this.statsChanges.specialAttack / 2) : (2 / 2 + this.statsChanges.specialAttack)),
-            this.currentStats.specialDefense * (this.statsChanges.specialDefense > 0 ? (2 + this.statsChanges.specialDefense / 2) : (2 / 2 + this.statsChanges.specialDefense)),
-            this.currentStats.speed * (this.statsChanges.speed > 0 ? (2 + this.statsChanges.speed / 2) : (2 / 2 + this.statsChanges.speed)),
-            this.currentStats.evasion * (this.statsChanges.evasion > 0 ? (3 + this.statsChanges.evasion / 3) : (3 / 3 + this.statsChanges.evasion)),
+            this.currentStats.attack * (this.statsChanges.attack >= 0 ? (2 + this.statsChanges.attack / 2) : (2 / 2 + this.statsChanges.attack)),
+            this.currentStats.defense * (this.statsChanges.defense >= 0 ? (2 + this.statsChanges.defense / 2) : (2 / 2 + this.statsChanges.defense)),
+            this.currentStats.specialAttack * (this.statsChanges.specialAttack >= 0 ? (2 + this.statsChanges.specialAttack / 2) : (2 / 2 + this.statsChanges.specialAttack)),
+            this.currentStats.specialDefense * (this.statsChanges.specialDefense >= 0 ? (2 + this.statsChanges.specialDefense / 2) : (2 / 2 + this.statsChanges.specialDefense)),
+            this.currentStats.speed * (this.statsChanges.speed >= 0 ? (2 + this.statsChanges.speed / 2) : (2 / 2 + this.statsChanges.speed)),
+            this.currentStats.evasion * (this.statsChanges.evasion >= 0 ? (3 + this.statsChanges.evasion / 3) : (3 / 3 + this.statsChanges.evasion)),
+            this.currentStats.accuracy * (this.statsChanges.accuracy >= 0 ? (3 + this.statsChanges.accuracy / 3) : (3 / 3 + this.statsChanges.accuracy)),
         );
     }
 
@@ -651,7 +652,7 @@ export class PokemonInstance extends PokedexEntry {
     }
 
     public changeBattleStats(stat: 'hp' | 'attack' | 'defense' | 'specialAttack' | 'specialDefense' | 'speed' | 'evasion' | 'accuracy', value: number) {
-        this.battleStats[stat] > -6 && this.battleStats[stat] < 6 ? this.battleStats[stat] += value : console.log(`${stat}cannot go higher`);
+        this.statsChanges[stat] > -6 && this.statsChanges[stat] < 6 ? this.statsChanges[stat] += value : console.log(`${stat}cannot go ${value > 0 ? 'higher' : 'lower'}`);
     }
 
     public resetBattleStats() {
