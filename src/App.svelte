@@ -1,12 +1,10 @@
-<svelte:options customElement="open-mon" />
-
 <script lang="ts">
 	import '@abraham/reflection';
 	import { onMount } from 'svelte';
-	import Battle from './components/battle/Battle.svelte';
-	import World from './components/world/World.svelte';
-	import LoadSave from './components/saves/LoadSave.svelte';
-	import PlayerCreation from './components/saves/PlayerCreation.svelte';
+	import Battle from './lib/battle/Battle.svelte';
+	import World from './lib/world/World.svelte';
+	import LoadSave from './lib/saves/LoadSave.svelte';
+	import PlayerCreation from './lib/saves/PlayerCreation.svelte';
 	import { SaveContext, SavesHolder } from './js/context/savesHolder';
 	import type { GameContext } from './js/context/gameContext';
 	import type { BattleContext } from './js/context/battleContext';

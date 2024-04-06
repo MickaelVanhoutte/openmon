@@ -213,6 +213,8 @@
 		.main {
 			justify-content: space-between;
 			height: 100%;
+			padding: 0 1%;
+			
 			.desc {
 				width: calc(76% / 2);
 				height: 100%;
@@ -289,6 +291,7 @@
 					direction: rtl;
 					font-size: clamp(0.6em, 3vw, 2em);
 					margin-top: 24px;
+					text-align: right;
 
 					tr td:first-child {
 						width: 30%;
