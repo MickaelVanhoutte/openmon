@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && rm -rf docs && mkdir docs && mkdir docs/src && cp dist/* docs && cp -R src/assets docs/src && mkdir docs/static && cp -R static/* docs/static",
+    "build": "vite build && rm -rf docs && mkdir docs && mkdir docs/src && cp -R dist/ docs && cp -R src/assets docs/src",
     "preview": "vite preview",
     "graph": "npx depcruise src --include-only '^src' --no-config -T  dot | dot -T svg | npx depcruise-wrap-stream-in-html > dependency-graph.html && open dependency-graph.html",
     "check": "svelte-check --tsconfig ./tsconfig.json"
