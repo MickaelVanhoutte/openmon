@@ -223,11 +223,11 @@
 		}
 
 		.grid {
-			width: 80dvh;
+			width: 100dvh;
 			position: absolute;
 			top: 50%;
 			left: 50%;
-			transform: translate(-51%, -45%);
+			transform: translate(-50%, -50%);
 
 			#hexGrid {
 				display: flex;
@@ -302,8 +302,8 @@
 
 			.hex img {
 				position: absolute;
-				height: 20px;
-				width: 20px;
+				height: auto;
+				width: 20%;
 				scale: 2;
 				top: 50%;
 				left: 50%;

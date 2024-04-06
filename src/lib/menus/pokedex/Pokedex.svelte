@@ -18,6 +18,7 @@
 	$: selectedPokemon = filtered[selectedIdx];
 	let filtered = context.POKEDEX.entries;
 	let detailOpened = false;
+	let selectedType: string | undefined = undefined;
 
 	$: if (!detailOpened && elements?.length > 0) {
 		wrapper.scrollTop = elements[selectedIdx]?.offsetTop - 142;
@@ -30,17 +31,20 @@
 	const search = () => {
 		selectedIdx = 0;
 		if (searchTerm.trim()?.length === 0) {
-			return (filtered = context.POKEDEX.entries);
+			return (filtered = context.POKEDEX.entries
+			?.filter((p) =>  !selectedType || p.types.includes(selectedType))
+			);
 		}
 		if (Number(searchTerm) > 0 && Number(searchTerm) < 252) {
 			return (filtered = context.POKEDEX.findById(Number(searchTerm))?.result
 				? [context.POKEDEX.findById(Number(searchTerm))?.result]
-				: []);
+				: [])
+				.filter((p) => !selectedType || p.types.includes(selectedType));
 		}
 
 		return (filtered = context.POKEDEX.findByName(searchTerm).map(
 			(p: PokedexSearchResult) => p.result
-		));
+		))?.filter((p) => !selectedType || p.types.includes(selectedType));
 	};
 
 	function select(idx: number) {
@@ -87,27 +91,34 @@
 
 <div class="pokedex">
 	<div class="row head">
-		<div class="column back">
+		<div class="col-2 back">
 			<button on:click={() => context.overWorldContext.closeMenu(MenuType.POKEDEX)}>BACK</button>
 		</div>
 
-		<div class="column">
-			<div class="filters">
-				<div class="form__group field">
-					<input
-						type="input"
-						class="form__field"
-						placeholder="Search"
-						bind:value={searchTerm}
-						on:input={search}
-					/>
-					<label for="name" class="form__label">Name</label>
-				</div>
-			</div>
+		<div class="col-2"></div>
+
+		<div class="col-4">
+			<select bind:value={selectedType} on:change={search}>
+				<option value="{undefined}">Type</option>
+				{#each Object.keys(typeChart) as type}
+					<option value={type}>{type.toUpperCase()}</option>
+				{/each}
+			</select>
+		</div>
+
+		<div class="col-4">
+			<input
+					type="input"
+					class="form__field"
+					placeholder="Search"
+					bind:value={searchTerm}
+					on:input={search}
+				/>
+			
 		</div>
 	</div>
 	<div class="row content">
-		<div class="column preview">
+		<div class="col-6 preview">
 			<div class="image">
 				{#if selectedPokemon?.id}
 					<img
@@ -116,18 +127,18 @@
 						alt={selectedPokemon?.name}
 					/>
 				{:else}
-					<img src="src/assets/monsters/bw-animated/000.png" alt="unknown" />
+					<img src="src/assets/monsters/animated/000.png" alt="unknown" />
 				{/if}
 			</div>
 			<div>
-				<h2>
-					{selectedPokemon?.id ? ('00' + (selectedPokemon?.id)).slice(-3) : '???'} (#{selectedPokemon?.regionalId})
-					{selectedPokemon?.name ? ('- ' + selectedPokemon?.name) : ''}
-				</h2>
+				<span>
+					{selectedPokemon?.id ? ('00' + selectedPokemon?.id).slice(-3) : '???'} (#{selectedPokemon?.regionalId})
+					{selectedPokemon?.name ? '- ' + selectedPokemon?.name : ''}
+				</span>
 			</div>
 		</div>
 
-		<div class="column list" bind:this={wrapper}>
+		<div class="col-6 list" bind:this={wrapper}>
 			{#each filtered as pokemon, index}
 				<div
 					class:selected={selectedPokemon?.id === pokemon.id}
@@ -213,93 +224,11 @@
 		color: #fff;
 		z-index: 9;
 
-		.row {
-			display: flex;
-			flex-direction: row;
-			justify-content: space-between;
-			align-items: center;
-			width: 100%;
-		}
-
-		.column {
-			display: flex;
-			flex-direction: column;
-			justify-content: space-between;
-			align-items: center;
-		}
-
 		.head {
 			height: 12%;
-			padding: 2%;
+			padding: 2% 2% 0 2%;
+			font-size: 14px;
 			box-sizing: border-box;
-
-			.filters {
-				width: 46dvw;
-				height: 100%;
-
-				.form__group {
-					position: relative;
-					padding: 15px 0 0;
-					width: 94%;
-				}
-
-				.form__field {
-					font-family: inherit;
-					width: 100%;
-					border: 0;
-					border-bottom: 2px solid rgba(0, 0, 0, 0.4);
-					outline: 0;
-					font-size: 1.2rem;
-					color: white;
-					padding: 4px 0;
-					background: transparent;
-					transition: border-color 0.2s;
-
-					&::placeholder {
-						color: transparent;
-					}
-
-					&:placeholder-shown ~ .form__label {
-						font-size: 1.2rem;
-						cursor: text;
-						top: 20px;
-						color: white;
-					}
-				}
-
-				.form__label {
-					position: absolute;
-					top: 0;
-					display: block;
-					transition: 0.2s;
-					font-size: 1rem;
-					color: rgba(0, 0, 0, 0.4);
-				}
-
-				.form__field:focus {
-					~ .form__label {
-						position: absolute;
-						top: 0;
-						display: block;
-						transition: 0.2s;
-						font-size: 1rem;
-						color: white;
-						font-weight: 700;
-					}
-					padding-bottom: 6px;
-					font-weight: 700;
-					border-width: 3px;
-					border-image: linear-gradient(to right, white, white);
-					border-image-slice: 1;
-				}
-				/* reset input */
-				.form__field {
-					&:required,
-					&:invalid {
-						box-shadow: none;
-					}
-				}
-			}
 		}
 
 		.content {
@@ -308,7 +237,6 @@
 			flex-direction: row;
 			justify-content: space-between;
 			align-items: center;
-			width: 100%;
 			padding: 0 2%;
 			box-sizing: border-box;
 		}

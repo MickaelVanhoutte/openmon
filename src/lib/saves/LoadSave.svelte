@@ -30,7 +30,7 @@
 
 		selected.player.monsters.forEach((monster) => {
 			let img = new Image();
-			img.src = monster.sprites?.male?.front?.frame1 || 'assets/monsters/bw-animated/000.png';
+			img.src = monster.sprites?.male?.front?.frame1 || 'assets/monsters/animated/000.png';
 			img.style.maxHeight = '-webkit-fill-available';
 
 			preview.appendChild(img);

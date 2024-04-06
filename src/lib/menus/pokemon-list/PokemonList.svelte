@@ -622,7 +622,6 @@
 
 			button {
 				width: 100%;
-				height: 42px;
 				font-size: 32px;
 				text-align: center;
 				font-family: pokemon, serif;

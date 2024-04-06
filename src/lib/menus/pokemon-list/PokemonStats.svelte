@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import Chart from 'chart.js/auto';
-	import abilities from '../../../assets/data/final/alpha/abilities.json';
+	import abilities from '../../../assets/data/final/beta/abilities.json';
 	import { Nature, PokemonInstance } from '../../../js/pokemons/pokedex';
 	import { fade, slide } from 'svelte/transition';
 	import { backInOut } from 'svelte/easing';
@@ -332,7 +332,7 @@
 					<th>STAT</th>
 					<th>VALUE</th>
 					<th>IV</th>
-					<th width="40%">EV ({selectedMons.evsToDistribute})</th>
+					<th width="50%">EV ({selectedMons.evsToDistribute})</th>
 				</tr>
 			</thead>
 			<tbody bind:this={editLines}>
@@ -621,13 +621,13 @@
 				color: #fff;
 
 				max-height: calc(100dvh - 46px);
-				font-size: 22px;
+				font-size: 20px;
 
 				thead {
 					tr th {
 						text-align: end;
 						font-weight: 400;
-						font-size: 16px;
+						font-size: 20px;
 					}
 				}
 
@@ -643,6 +643,7 @@
 							border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 							text-align: end;
 							color: var(--color, white);
+							font-size: 18px;
 							padding: 1%;
 							box-sizing: border-box;
 
@@ -685,7 +686,7 @@
 										border: 1px solid black;
 										background: rgba(84, 80, 108, 0.2);
 										color: white;
-										padding: 2px 6px;
+										padding: 6px 12px;
 
 										&[disabled] {
 											background-color: rgba(255, 255, 255, 0.5);
