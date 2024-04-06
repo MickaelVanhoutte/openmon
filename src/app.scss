@@ -1,0 +1,54 @@
+@import '../node_modules/chota/src/chota.css';
+@import '../node_modules/@sjmc11/tourguidejs/dist/css/tour.min.css';
+
+
+@font-face {
+  font-family: pokemon;
+  src: url('src/assets/fonts/pokemon-ds-font.ttf');
+}
+
+:root {
+  --font-color: #000;
+}
+
+html,
+html * {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+
+  touch-action: pan-x pan-y;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: pokemon, serif;
+  font-size: 32px;
+  overflow: hidden;
+  background: black;
+  line-height: 1;
+}
+
+body * {
+  box-sizing: border-box;
+}
+
+:global(.guide-dialog) {
+  font-family: pokemon, serif;
+  font-size: 28px !important;
+}
+
+:global(.guide-dialog .tg-dialog-title) {
+  font-size: 32px !important;
+}
+
+
+// Chota reset
+button {
+  padding: 0;
+}
