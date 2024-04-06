@@ -14,47 +14,82 @@
 	let expPercent = 0;
 	let pokemon: PokemonInstance;
 
+	const statsFormat = {
+		attack: 'Atk',
+		defense: 'Def',
+		specialAttack: 'SpA',
+		specialDefense: 'SpD',
+		speed: 'Spe',
+		hp: 'HP',
+		accuracy: 'Acc',
+		evasion: 'Eva',
+	};
+
+	const statsMultiplier = {
+		attack: ((value: number) => (value + 2) / 2),
+		defense: ((value: number) => (value + 2) / 2),
+		specialAttack: ((value: number) => (value + 2) / 2),
+		specialDefense: ((value: number) => (value + 2) / 2),
+		speed: ((value: number) => (value + 2) / 2),
+		hp: ((value: number) => (value + 2) / 2),
+		accuracy: ((value: number) => (value + 3) / 3),
+		evasion: ((value: number) => (value + 3) / 3)
+	};
+
+
 	battleCtx.currentAction.subscribe((_value) => {
 		pokemon = battleCtx?.playerPokemon;
 		currentHp = pokemon?.currentHp || 0;
 		percent = Math.floor((currentHp * 100) / pokemon.currentStats.hp);
-		expPercent = Math.floor(
-			(pokemon?.currentXp * 100) / pokemon?.xpToNextLevel
-		);
+		expPercent = Math.floor((pokemon?.currentXp * 100) / pokemon?.xpToNextLevel);
+
+		console.log(pokemon);
 	});
 </script>
 
 <div class="ally-info">
-	<div class="name-lvl">
-		<div class="status">
-			{#if pokemon?.status}
-				{pokemon?.status?.abr}
-			{/if}
-		</div>
-		<div>
-			<span>{pokemon?.name}</span>
-			<span>Lv.{pokemon?.level}</span>
-		</div>
-	</div>
-
-	<div class="hp-status">
-		<div class="hp">
-			<span>HP</span>
-			<div class="progressbar-wrapper">
-				<span class="hp-value">{currentHp} / {pokemon?.currentStats.hp}</span>
-				<div
-					class="progressbar"
-					class:warning={percent <= 50}
-					class:danger={percent < 15}
-					style="--width:{percent + '%'}"
-				></div>
+	<div class="rotate">
+		<div class="name-lvl">
+			<div class="status">
+				{#if pokemon?.status}
+					{pokemon?.status?.abr}
+				{/if}
+			</div>
+			<div>
+				<span>{pokemon?.name}</span>
+				<span>Lv.{pokemon?.level}</span>
 			</div>
 		</div>
-	</div>
 
-	<div class="exp">
-		<div class="progressbar-wrapper">
-			<div class="progressbar" style="--width:{expPercent + '%'}"></div>
+		<div class="hp-status">
+			<div class="hp">
+				<span>HP</span>
+				<div class="progressbar-wrapper">
+					<span class="hp-value">{currentHp} / {pokemon?.currentStats.hp}</span>
+					<div
+						class="progressbar"
+						class:warning={percent <= 50}
+						class:danger={percent < 15}
+						style="--width:{percent + '%'}"
+					></div>
+				</div>
+			</div>
+		</div>
+
+		<div class="exp">
+			<div class="progressbar-wrapper">
+				<div class="progressbar" style="--width:{expPercent + '%'}"></div>
+			</div>
+		</div>
+
+		<div class="stats">
+			{#each Object.entries(pokemon.statsChanges) as [stat, value], index}
+			{#if statsFormat[stat] && statsMultiplier[stat](value) !== 1}
+				<div class="mult" style="--color:{statsMultiplier[stat](value) >= 1 ? '#7EAF53' : '#dc5959'}">
+					{statsFormat[stat]} : {statsMultiplier[stat](value)}x
+				</div>
+				{/if}
+			{/each}
 		</div>
 	</div>
 </div>
@@ -82,17 +117,9 @@
 	.ally-info {
 		z-index: 7;
 
-		height: fit-content;
-		width: 25%;
 		position: absolute;
-		top: 2%;
+		top: 8%;
 		left: -30%;
-
-		display: flex;
-		flex-direction: column;
-		gap: 4px;
-		box-sizing: border-box;
-		justify-content: space-evenly;
 
 		font-size: 20px;
 
@@ -100,146 +127,168 @@
 			appear 0.5s ease-in forwards,
 			bounce 2s ease-in-out infinite;
 
-		.name-lvl {
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
+		height: 60%;
+		width: 25%;
+		perspective: 100dvw;
 
-			font-size: 24px;
-			font-weight: 500;
-			text-shadow: 1px 1px 1px #787b7e;
-			filter: drop-shadow(2px 2px 5px white) invert(1);
-		}
-
-		.hp-status {
-			display: flex;
-			flex-direction: row;
-			justify-content: space-between;
-		}
-
-		.status {
+		.rotate {
+			height: 100%;
+			width: 100%;
+			transform: rotateY(40deg);
 			display: flex;
 			flex-direction: column;
-			align-items: flex-end;
-		}
+			gap: 4px;
+			box-sizing: border-box;
+			justify-content: flex-start;
+			background: transparent;
 
-		.exp {
-			width: 98%;
-			display: flex;
-			//border: 2px solid rgba(0, 0, 0, 0.45);
-			//border-top-color: transparent;
-			padding: 2px 1%;
-			background-color: rgba(0, 0, 0, 0.45);
-			align-items: center;
-			justify-content: space-evenly;
-			margin-top: -4px;
-			border-radius: 0 0 11px 0;
-			//box-sizing: border-box;
-
-			&:before {
-				content: '';
-				display: inline-block;
-				height: 0;
-				width: 0;
-				position: absolute;
-				left: -14px;
-				bottom: 0;
-				border-bottom: 31px solid rgba(0, 0, 0, 0.45);
-				border-left: 14px solid transparent;
-			}
-
-			.progressbar-wrapper {
-				height: 10px;
+			.stats {
 				width: 100%;
-				background-color: rgba(0, 0, 0, 0.25);;
-				border-radius: 4px 0 9px 4px;
-				position: relative;
+				display: flex;
+				flex-wrap: wrap;
+				gap: 4px;
 
-				.progressbar {
-					width: var(--width);
-					height: 100%;
-
-					background: #0e73cf;
-
-					border-radius: 2px 2px 11px 2px;
-					display: flex;
-					text-align: center;
-					align-items: center;
-					justify-content: center;
-					transition: width 1s ease-in-out;
+				.mult {
+					font-size: 16px;
+					color: var(--color);
+					text-shadow: 1px 0px 0px var(--color);
+    				letter-spacing: 1.5px;
+					background-color: rgba(255, 255, 255, .85);
+					border-radius: 4px;
+					padding: 4px;
 				}
 			}
-		}
 
-		.hp {
-			width: 100%;
-			display: flex;
-			background-color: rgba(0, 0, 0, 0.45);
-			font-size: 20px;
-			color: orange;
-			align-items: center;
-			justify-content: space-evenly;
-			border-radius: 4px 4px 0 0;
-			padding: 2px;
+			.name-lvl {
+				width: 100%;
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
 
-			& > span {
-				padding: 0 12px;
-				font-weight: bold;
+				font-size: 24px;
+				font-weight: 500;
+				text-shadow: 1px 1px 1px #787b7e;
+				filter: drop-shadow(2px 2px 5px white) invert(1);
 			}
 
-			.progressbar-wrapper {
-				height: 16px;
+			.hp-status {
+				display: flex;
+				flex-direction: row;
+				justify-content: space-between;
 				width: 100%;
-				background-color: rgba(0, 0, 0, 0.25);
-				border-radius: 2px;
-				//border: 2px solid white;
-				position: relative;
+			}
 
-				.hp-value {
-					position: absolute;
-					//mix-blend-mode: difference;
-					font-size: 18px;
-					color: white;
-					left: 50%;
-					top: 50%;
-					transform: translate(-50%, -50%);
+			.status {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-end;
+			}
+
+			.exp {
+				width: 98%;
+				display: flex;
+				//border: 2px solid rgba(0, 0, 0, 0.45);
+				//border-top-color: transparent;
+				padding: 2px;
+				background-color: rgba(0, 0, 0, 0.45);
+				align-items: center;
+				justify-content: space-evenly;
+				border-radius: 4px;
+				//box-sizing: border-box;
+
+				.progressbar-wrapper {
+					height: 10px;
+					width: 100%;
+					background-color: rgba(0, 0, 0, 0.25);
+					border-radius: 4px;
+					position: relative;
+
+					.progressbar {
+						width: var(--width);
+						height: 100%;
+
+						background: #0e73cf;
+
+						border-radius: 2px;
+						display: flex;
+						text-align: center;
+						align-items: center;
+						justify-content: center;
+						transition: width 1s ease-in-out;
+					}
+				}
+			}
+
+			.hp {
+				width: 100%;
+				display: flex;
+				background-color: rgba(0, 0, 0, 0.45);
+				font-size: 20px;
+				color: orange;
+				align-items: center;
+				justify-content: space-evenly;
+				border-radius: 4px;
+				padding: 2px;
+
+				& > span {
+					padding: 0 12px;
+					font-weight: bold;
 				}
 
-				.progressbar {
-					width: var(--width);
-					height: 100%;
-					background: rgb(184, 244, 166);
-					background: linear-gradient(
-						0deg,
-						rgb(86, 170, 58) 0%,
-						rgb(86, 170, 58) 50%,
-						rgb(86, 170, 58) 100%
-					);
+				.progressbar-wrapper {
+					height: 16px;
+					width: 100%;
+					background-color: rgba(0, 0, 0, 0.25);
 					border-radius: 2px;
-					display: flex;
-					text-align: center;
-					align-items: center;
-					justify-content: center;
-					transition: width 1s ease-in-out;
+					//border: 2px solid white;
+					position: relative;
 
-					&.warning {
-						background: rgb(255, 241, 164);
-						background: linear-gradient(
-							0deg,
-							rgba(255, 194, 16, 1) 0%,
-							rgba(255, 194, 16, 1) 50%,
-							rgba(255, 194, 16, 1) 100%
-						);
+					.hp-value {
+						position: absolute;
+						//mix-blend-mode: difference;
+						font-size: 18px;
+						color: white;
+						left: 50%;
+						top: 50%;
+						transform: translate(-50%, -50%);
 					}
 
-					&.danger {
-						background: rgb(244, 177, 159);
+					.progressbar {
+						width: var(--width);
+						height: 100%;
+						background: rgb(184, 244, 166);
 						background: linear-gradient(
 							0deg,
-							rgba(223, 85, 48, 1) 0%,
-							rgba(223, 85, 48, 1) 50%,
-							rgba(223, 85, 48, 1) 100%
+							rgb(86, 170, 58) 0%,
+							rgb(86, 170, 58) 50%,
+							rgb(86, 170, 58) 100%
 						);
+						border-radius: 2px;
+						display: flex;
+						text-align: center;
+						align-items: center;
+						justify-content: center;
+						transition: width 1s ease-in-out;
+
+						&.warning {
+							background: rgb(255, 241, 164);
+							background: linear-gradient(
+								0deg,
+								rgba(255, 194, 16, 1) 0%,
+								rgba(255, 194, 16, 1) 50%,
+								rgba(255, 194, 16, 1) 100%
+							);
+						}
+
+						&.danger {
+							background: rgb(244, 177, 159);
+							background: linear-gradient(
+								0deg,
+								rgba(223, 85, 48, 1) 0%,
+								rgba(223, 85, 48, 1) 50%,
+								rgba(223, 85, 48, 1) 100%
+							);
+						}
 					}
 				}
 			}
