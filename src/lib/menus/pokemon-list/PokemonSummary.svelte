@@ -49,7 +49,7 @@
 	}
 
 	const listener = (e: KeyboardEvent) => {
-		if (context.overWorldContext.menus.openSummary && battleSummaryOpened) {
+		if (context.overWorldContext.menus.openSummary || battleSummaryOpened) {
 			if (e.key === 'ArrowRight') {
 				tab = (tab + 1) % 3;
 			} else if (e.key === 'ArrowLeft') {

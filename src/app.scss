@@ -47,6 +47,9 @@ body * {
   font-size: 32px !important;
 }
 
+.tg-dialog .tg-dialog-header .tg-dialog-title {
+  font-size: 3rem;
+}
 
 // Chota reset
 button {
@@ -55,4 +58,14 @@ button {
 
 table {
   border-collapse: separate;
+}
+
+select {
+  font-size: 24px;
+  padding: 0.25rem 1rem;
+}
+
+input:not([type="checkbox"], [type="radio"], [type="submit"], [type="color"], [type="button"], [type="reset"]), select, textarea, textarea[type="text"] {
+  font-size: 24px;
+  padding: 0.25rem 1rem;
 }

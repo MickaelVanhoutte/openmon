@@ -9,72 +9,94 @@
 
 	let currentMove: Move = pokemon.moves[0];
 	let showModal = false;
+	let showDetail = false;
 	const mechanicRegex = /\{mechanic:.*?\}/g;
 
 	function openModal(move: Move): any {
 		if (!pokemon.viewed) {
 			return;
 		}
+		console.log(move);
 		currentMove = move;
+
+		showDetail =
+			currentMove?.effect?.effect
+				?.replace(mechanicRegex, '')
+				?.replace(/\[/g, '')
+				?.replace(/\]/g, '')
+				?.replaceAll('$effect_chance', currentMove?.effectChance + '')?.length >
+			currentMove?.description?.replaceAll('$effect_chance', currentMove?.effectChance + '')
+				?.length;
+
+				console.log(currentMove?.effect?.effect
+				?.replace(mechanicRegex, '')
+				?.replace(/\[/g, '')
+				?.replace(/\]/g, '')
+				?.replaceAll('$effect_chance', currentMove?.effectChance + '')?.length +
+				2 ,
+			currentMove?.description?.replaceAll('$effect_chance', currentMove?.effectChance + '')
+				?.length)
+
 		showModal = true;
 	}
 </script>
 
 <div class="moves-tab column" in:slide={{ duration: 500, delay: 50, axis: 'x', easing: backInOut }}>
 	<div class="row moves" class:hide={!pokemon.viewed}>
-
-        {#if !pokemon.viewed}
-            <h3 style="color: white; text-align: center; margin-top: 10%">No information on this pokemon</h3>
-        {:else}
-		<table>
-			<thead>
-				<tr>
-					<th>Lvl</th>
-					<th>Name</th>
-					<th>Type</th>
-					<th>Category</th>
-					<th>Power</th>
-					<th>Accuracy</th>
-					<th>PP</th>
-				</tr>
-			</thead>
-			<tbody>
-				{#each pokemon.moves as move}
-					<tr on:click={() => openModal(move)}>
-						<td>
-							{pokemon.viewed ? move.level : '???'}
-						</td>
-						<td>
-							{move.name}
-						</td>
-						<td>
-							<div class="types">
-								<div class="type" style="--tcolor:{typeChart[move.type].color}">
-									<img alt={move.type} src="src/assets/types/{move.type}.svg" />
-								</div>
-							</div>
-						</td>
-						<td>
-							<img
-								class="move-cat"
-								alt={move.type}
-								src="src/assets/moves-cat/{move.category}.png"
-							/>
-						</td>
-						<td>
-							{move.power || '-'}
-						</td>
-						<td>
-							{move.accuracy || '-'}
-						</td>
-						<td>
-							{move.pp}
-						</td>
+		{#if !pokemon.viewed}
+			<h3 style="color: white; text-align: center; margin-top: 10%">
+				No information on this pokemon
+			</h3>
+		{:else}
+			<table>
+				<thead>
+					<tr>
+						<th>Lvl</th>
+						<th>Name</th>
+						<th>Type</th>
+						<th>Category</th>
+						<th>Power</th>
+						<th>Accuracy</th>
+						<th>PP</th>
 					</tr>
-				{/each}
-			</tbody>
-		</table>
-        {/if}
+				</thead>
+				<tbody>
+					{#each pokemon.moves as move}
+						<tr on:click={() => openModal(move)}>
+							<td>
+								{pokemon.viewed ? move.level : '???'}
+							</td>
+							<td>
+								{move.name}
+							</td>
+							<td>
+								<div class="types">
+									<div class="type" style="--tcolor:{typeChart[move.type].color}">
+										<img alt={move.type} src="src/assets/types/{move.type}.svg" />
+									</div>
+								</div>
+							</td>
+							<td>
+								<img
+									class="move-cat"
+									alt={move.type}
+									src="src/assets/moves-cat/{move.category}.png"
+								/>
+							</td>
+							<td>
+								{move.power || '-'}
+							</td>
+							<td>
+								{move.accuracy || '-'}
+							</td>
+							<td>
+								{move.pp}
+							</td>
+						</tr>
+					{/each}
+				</tbody>
+			</table>
+		{/if}
 	</div>
 </div>
 
@@ -84,13 +106,18 @@
 	</h3>
 
 	<p>
-		{currentMove?.description}
+		{currentMove?.description?.replaceAll('$effect_chance', currentMove?.effectChance + '')}
 	</p>
-	<hr />
-	{#if currentMove?.effect}
-		<h5>Effect : {currentMove?.effectChance}%</h5>
+
+	{#if currentMove?.effect && showDetail}
+		<hr />
+		<h5>Detail</h5>
 		<p>
-			{currentMove?.effect?.effect.replace(mechanicRegex, '').replace(/\[/g, '').replace(/\]/g, '')}
+			{currentMove?.effect?.effect
+				.replace(mechanicRegex, '')
+				.replace(/\[/g, '')
+				.replace(/\]/g, '')
+				?.replaceAll('$effect_chance', currentMove?.effectChance + '')}
 		</p>
 	{/if}
 </Modal>

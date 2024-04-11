@@ -102,7 +102,7 @@
 	<div class="column evolutions">
 		<h4>Evolutions</h4>
 		{#if pokemon.evolution?.length === 0}
-			<div class="evolution">
+			<div class="evolution noEvolution">
 				<img
 					src={`src/assets/monsters/pokedex/${('00' + pokemon?.id).slice(-3)}.png`}
 					alt="current pokemon"
@@ -141,22 +141,14 @@
 </div>
 
 <style lang="scss">
-	.row {
-		display: flex;
-		flex-direction: row;
-		justify-content: space-between;
-		align-items: center;
-		width: 100%;
-	}
-
+	
 	.more-tab {
 		height: calc(100% - 66px);
-		width: 100%;
 		background-position: center;
 		background-size: contain;
 		background-repeat: no-repeat;
 		background-blend-mode: hard-light;
-		padding: 0 2%;
+		padding: 0 4%;
 		box-sizing: border-box;
 		perspective: 150dvw;
 
@@ -172,7 +164,7 @@
 			height: 100%;
 			width: 50%;
 			justify-content: flex-start;
-			height: calc(94dvh - 66px);
+			height: calc(100dvh - 66px);
 			overflow-y: auto;
 			scrollbar-width: thin;
 			scrollbar-color: #68c0c8 #0e2742f0;
@@ -214,6 +206,11 @@
 				display: flex;
 				align-items: center;
 				gap: 16px;
+				justify-content: space-between;
+
+				&.noEvolution {
+					justify-content: center;
+				}
 
 				.method {
 					display: flex;
@@ -229,8 +226,8 @@
 					}
 				}
 				img {
-					height: 100px;
-					width: auto;
+					height: auto;
+					width: 17dvw;
 				}
 			}
 		}
