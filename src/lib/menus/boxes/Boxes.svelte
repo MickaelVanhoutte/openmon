@@ -97,6 +97,10 @@
 	}
 
 	function swapPokemon(select1: BoxSelection, select2: BoxSelection) {
+		if (select1.zone === 'party' && context.player.monsters.length === 1) {
+			return;
+		}
+
 		let sourceList =
 			select1.zone === 'party' ? context.player.monsters : context.boxes[select1.box].values;
 		let targetList =
@@ -372,7 +376,9 @@
 
 	<div class="options" class:opened={optionsOpened}>
 		<ul>
-			<li class:selected={selectedOption === 0} on:click={() => setMoving()}>MOVE</li>
+			{#if context.player.monsters.length > 1 && firstSelection?.zone === 'party'}
+				<li class:selected={selectedOption === 0} on:click={() => setMoving()}>MOVE</li>
+			{/if}
 			<li class:selected={selectedOption === 1} on:click={() => openSum()}>SUMMARY</li>
 			<!--TODO <li class:selected={selectedOption === 2}>RELEASE</li>-->
 			<li class:selected={selectedOption === 2} on:click={() => cancel()}>CANCEL</li>

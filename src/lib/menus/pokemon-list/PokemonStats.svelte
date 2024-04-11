@@ -465,7 +465,7 @@
 				padding: 2%;
 				color: white;
 				justify-content: space-around;
-				align-items: flex-start;
+				align-items: center;
 
 				transition: all 0.5s ease-in-out;
 

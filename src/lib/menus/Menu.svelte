@@ -153,7 +153,7 @@
 			</li>
 
 			<li class="hex">
-				<div class="hexIn" class:selected={selected === 6}>
+				<!-- <div class="hexIn" class:selected={selected === 6}>
 					<button class="hexLink" on:click={() => close()}>
 						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
 							<path
@@ -163,9 +163,18 @@
 						<span class="title">Back</span>
 						<span class="img"></span>
 					</button>
-				</div>
+				</div> -->
 			</li>
 		</ul>
+	</div>
+	<div class="close">
+		<button on:click={() => close()}>
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+				><path
+					d="M10.5859 12L2.79297 4.20706L4.20718 2.79285L12.0001 10.5857L19.793 2.79285L21.2072 4.20706L13.4143 12L21.2072 19.7928L19.793 21.2071L12.0001 13.4142L4.20718 21.2071L2.79297 19.7928L10.5859 12Z"
+				></path></svg
+			>
+		</button>
 	</div>
 </div>
 
@@ -211,6 +220,22 @@
 		&.open {
 			z-index: 9;
 			opacity: 1;
+		}
+
+		.close {
+			position: absolute;
+			top: 4%;
+			right: 2%;
+			width: 60px;
+
+			button {
+				height: 60px;
+				width: 60px;
+				color: white;
+				background-color: transparent;
+				border: none;
+				outline: none;
+			}
 		}
 
 		.helper {

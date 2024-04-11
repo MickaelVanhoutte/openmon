@@ -48,7 +48,7 @@ function exportPokemons() {
         }
 
         if (pokemon && xpData && speciesData) {
-            let evolutions = pokemon.evolution?.next?.length ? pokemon.evolution?.next?.filter(evo => evo[0] <= 700)
+            let evolutions = pokemon.evolution?.next?.length ? pokemon.evolution?.next
             .filter(evo => pIds.indexOf(parseInt(evo[0])) !== -1)
             .map((evo) => {
                 if (evo[1]?.includes('Level')) {

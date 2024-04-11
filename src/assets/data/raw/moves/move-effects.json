@@ -159,7 +159,7 @@
     "move_effect_id": 32,
     "local_language_id": 9,
     "short_effect": "Has a $effect_chance% chance to make the target flinch.",
-    "effect": "Inflicts [regular damage]{mechanic:regular-damage}.  Has a $effect_chance% chance to make the target []{mechanic:flinch}."
+    "effect": "Inflicts [regular damage]{mechanic:regular-damage}.  Has a $effect_chance% chance to make the target [flinch]{mechanic:flinch}."
   },
   {
     "move_effect_id": 33,
@@ -501,7 +501,7 @@
     "move_effect_id": 93,
     "local_language_id": 9,
     "short_effect": "Has a $effect_chance% chance to make the target flinch.  Only works if the user is sleeping.",
-    "effect": "Only usable if the user is [sleep]{mechanic:sleep}ing.  Inflicts [regular damage]{mechanic:regular-damage}.  Has a $effect_chance% chance to make the target []{mechanic:flinch}."
+    "effect": "Only usable if the user is [sleep]{mechanic:sleep}ing.  Inflicts [regular damage]{mechanic:regular-damage}.  Has a $effect_chance% chance to make the target [flinch]{mechanic:flinch}."
   },
   {
     "move_effect_id": 94,
@@ -855,7 +855,7 @@
     "move_effect_id": 159,
     "local_language_id": 9,
     "short_effect": "Can only be used as the first move after the user enters battle.  Causes the target to flinch.",
-    "effect": "Inflicts [regular damage]{mechanic:regular-damage}.  Causes the target to []{mechanic:flinch}.  Can only be used on the user's first turn after entering the [field]{mechanic:field}."
+    "effect": "Inflicts [regular damage]{mechanic:regular-damage}.  Causes the target to [flinch]{mechanic:flinch}.  Can only be used on the user's first turn after entering the [field]{mechanic:field}."
   },
   {
     "move_effect_id": 160,

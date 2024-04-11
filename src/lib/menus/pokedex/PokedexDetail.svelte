@@ -71,8 +71,12 @@
 			<h1>{pokemon.name}</h1>
 		</div>
 		<div class="prev-next">
-			<button on:click={() => previous()}>▲</button>
-			<button on:click={() => next()}>▼</button>
+			<button on:click={() => previous()}>
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 8L18 14H6L12 8Z"></path></svg>
+			</button>
+			<button on:click={() => next()}>
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 16L6 10H18L12 16Z"></path></svg>
+			</button>
 		</div>
 	</div>
 
@@ -147,7 +151,7 @@
 		.title {
 			height: 33px;
 			gap: 6%;
-			padding: 0 1%;
+			padding: 0 2%;
 			box-sizing: border-box;
 
 			h1 {

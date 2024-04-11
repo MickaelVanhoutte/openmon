@@ -132,7 +132,7 @@
 			</div>
 			<div>
 				<span>
-					{selectedPokemon?.id ? ('00' + selectedPokemon?.id).slice(-3) : '???'} (#{selectedPokemon?.regionalId})
+					{selectedPokemon?.id ? '#' +('00' + selectedPokemon?.id).slice(-3) : '???'} 
 					{selectedPokemon?.name ? '- ' + selectedPokemon?.name : ''}
 				</span>
 			</div>
@@ -151,10 +151,12 @@
 						<span style="height:28px; width:24px"></span>
 					{/if}
 					<span>
-						{('00' + pokemon.id).slice(-3)} - {pokemon.name}
+						{'#' +('00' + pokemon.id).slice(-3)} - {pokemon.name}
 					</span>
 
-					<button on:click={() => openDetail()}>►</button>
+					<button on:click={() => openDetail()}>
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M16 12L10 18V6L16 12Z"></path></svg>
+					</button>
 				</div>
 			{/each}
 		</div>

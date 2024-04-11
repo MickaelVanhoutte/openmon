@@ -84,11 +84,16 @@ export class SavesHolder {
     }
 
     newGame(spriteId: number, name: string, gender: 'MALE' | 'FEMALE'): SaveContext {
+        let boxes: Array<PokemonBox> = new Array<PokemonBox>(32);
+        for (let i = 0; i < 32; i++) {
+            boxes[i] = new PokemonBox('Box ' + (i+1), new Array<PokemonInstance | undefined>(36).fill(undefined));
+        }
+
         let newSave = new SaveContext(
             this.saves?.length || 0, Date.now(),
             new MapSave(0),
             Player.fromScratch(spriteId, name, gender),
-            new Array<PokemonBox>(10).fill(new PokemonBox('Box', new Array<PokemonInstance | undefined>(36).fill(undefined))),
+            boxes,
             new Settings(),
             true
         );
