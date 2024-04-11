@@ -40,9 +40,9 @@
 			moveEdit = false;
 			return;
 		} else {
-			if(isBattle){
+			if (isBattle) {
 				battleSummaryOpened = false;
-			}else{
+			} else {
 				context.overWorldContext.closeMenu(MenuType.SUMMARY);
 			}
 		}
@@ -100,7 +100,30 @@
 	in:slide={{ duration: 500, delay: 100, axis: 'x', easing: backInOut }}
 	out:fade
 >
-	<div class="tabs">
+	<div class="head">
+		<nav class="nav">
+			<div class="nav-left">
+				<a>{tabs[tab].replace('$POKEMON', selectedMons.name)}</a>
+				<div class="tabs">
+					<a class:active={tab === 0} on:click={() => (tab = 0)}>Link 1</a>
+					<a class:active={tab === 1} on:click={() => (tab = 1)}>Link 2</a>
+					<a class:active={tab === 2} on:click={() => (tab = 2)}>Link 3</a>
+				</div>
+			</div>
+			<div class="nav-right">
+				<button on:click={() => previous()}>
+					<span class="arrow"></span>
+				</button>
+				<button on:click={() => next()}>
+					<span class="arrow"></span>
+				</button>
+
+				<button on:click={() => back()}>BACK</button>
+			</div>
+		</nav>
+	</div>
+
+	<!-- <div class="tabs">
 		<div class="current" style="--index: {tab}">
 			<span>{tabs[tab].replace('$POKEMON', selectedMons.name)}</span>
 
@@ -133,7 +156,7 @@
 		</button>
 
 		<button class="back" on:click={() => back()}>BACK</button>
-	</div>
+	</div> -->
 
 	<div class="tab-content">
 		{#if tab === 0}
@@ -170,7 +193,7 @@
 		height: 100dvh;
 		z-index: var(--zIndex, 10);
 
-		.tabs {
+		.head {
 			height: 46px;
 			width: 100%;
 
@@ -181,6 +204,15 @@
 			font-size: 32px;
 			color: white;
 			text-shadow: 1px 1px 1px black;
+
+			.nav {
+				.nav-left {
+					width: 80%;
+				}
+				.nav-right {
+					width: 20%;
+				}
+			}
 
 			.current {
 				width: calc(35% + (var(--index) + 1) * 80px);
@@ -308,25 +340,25 @@
 			background-color: #0e2742f0;
 			//background-image: url('src/assets/menus/p-sum.jpg');
 			background: rgb(0, 29, 43);
-		background: -moz-linear-gradient(
-			140deg,
-			rgba(0, 29, 43, 1) 0%,
-			rgba(3, 84, 142, 1) 42%,
-			rgba(0, 195, 230, 1) 100%
-		);
-		background: -webkit-linear-gradient(
-			140deg,
-			rgba(0, 29, 43, 1) 0%,
-			rgba(3, 84, 142, 1) 42%,
-			rgba(0, 195, 230, 1) 100%
-		);
-		background: linear-gradient(
-			140deg,
-			rgba(0, 29, 43, 1) 0%,
-			rgba(3, 84, 142, 1) 42%,
-			rgba(0, 195, 230, 1) 100%
-		);
-		color: #fff;
+			background: -moz-linear-gradient(
+				140deg,
+				rgba(0, 29, 43, 1) 0%,
+				rgba(3, 84, 142, 1) 42%,
+				rgba(0, 195, 230, 1) 100%
+			);
+			background: -webkit-linear-gradient(
+				140deg,
+				rgba(0, 29, 43, 1) 0%,
+				rgba(3, 84, 142, 1) 42%,
+				rgba(0, 195, 230, 1) 100%
+			);
+			background: linear-gradient(
+				140deg,
+				rgba(0, 29, 43, 1) 0%,
+				rgba(3, 84, 142, 1) 42%,
+				rgba(0, 195, 230, 1) 100%
+			);
+			color: #fff;
 			background-blend-mode: soft-light;
 		}
 	}

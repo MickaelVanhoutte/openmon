@@ -56,3 +56,14 @@ button {
 table {
   border-collapse: separate;
 }
+
+nav.nav {
+  height: 100%;
+  width: 100%;
+  min-height: unset;
+
+
+  a, .brand {
+    padding: 0 1rem;
+  }
+}

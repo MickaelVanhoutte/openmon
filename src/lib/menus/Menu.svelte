@@ -14,7 +14,7 @@
 
 	const isBattle = false;
 
-	let selected = 0;
+	let selected;
 
 	function saveCurrent() {
 		savesHolder.persist(context.toSaveContext());
@@ -75,6 +75,8 @@
 
 	onMount(() => {
 		window.addEventListener('keydown', listener);
+		selected = 0;
+		
 		return () => window.removeEventListener('keydown', listener);
 	});
 </script>
