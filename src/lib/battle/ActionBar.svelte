@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onDestroy, onMount } from 'svelte';
-	import type { MoveInstance, PokemonInstance } from '../../js/pokemons/pokedex';
+	import { ComboMove, type MoveInstance, type PokemonInstance } from '../../js/pokemons/pokedex';
 	import type { GameContext } from '../../js/context/gameContext';
 	import { typeChart } from '../../js/battle/battle-model';
 	import { BattleContext } from '../../js/context/battleContext';
@@ -21,7 +21,8 @@
 	let disabled = false;
 	let selectedMoveIdx = 0;
 	let selectedOptionIdx = 0;
-
+	let combo = false;
+	let currentCombo: { pokemon: PokemonInstance; move: MoveInstance } | undefined = undefined;
 	let changePokemon = false;
 	let isBattle = true;
 	let battleBagOpened = false;
@@ -30,6 +31,8 @@
 	const mechanicRegex = /{[^}]*}/g;
 	const effectRegex = /\$effect_chance/g;
 
+	$: comboDisabled =
+		battleCtx.usedCombo || battleCtx.player.monsters?.filter((p) => !p.fainted).length === 1;
 	battleCtx.currentMessage.subscribe((message) => {
 		currentMessage = message;
 	});
@@ -57,8 +60,21 @@
 		if (idx != selectedMoveIdx) {
 			selectedMoveIdx = idx;
 		} else if (battleCtx) {
-			battleCtx.startTurn(new Attack(move, 'opponent', battleCtx.playerPokemon));
-			moveOpened = false;
+			// TODO if currentCombo, send combo action
+			if(!!currentCombo){
+				battleCtx.startTurn(new Attack(
+				new ComboMove(move, currentCombo.move, currentCombo.pokemon),	
+				 'opponent', battleCtx.playerPokemon));
+				currentCombo = undefined;
+				combo = false;
+				moveOpened = false;
+				return;
+			}else {
+				battleCtx.startTurn(new Attack(move, 'opponent', battleCtx.playerPokemon));
+				moveOpened = false;
+			}
+
+			
 		}
 	}
 
@@ -92,6 +108,19 @@
 			//BATTLE_STATE.set(new BattleContext(battleState));
 			//battleLoopContext.allydrawn = false;
 		}
+	}
+
+	function toggleCombo() {
+		if(!combo && !currentCombo){
+			combo = true;
+		}else if(!combo && currentCombo){
+			currentCombo = undefined;
+		}
+	}
+
+	function prepareCombo(pokemon: PokemonInstance, move: MoveInstance) {
+		console.log(pokemon, move);
+		currentCombo = { pokemon, move };
 	}
 
 	function sendObjectAction(result: { item: number; target?: PokemonInstance }) {
@@ -175,7 +204,7 @@
 		window.addEventListener('keydown', listener);
 
 		battleCtx.events.playerPokemonFaint.subscribe((pkmn) => {
-			if (pkmn && !battleCtx?.player.monsters.every((p) => p.fainted)){
+			if (pkmn && !battleCtx?.player.monsters.every((p) => p.fainted)) {
 				changePokemon = true;
 			}
 		});
@@ -213,20 +242,97 @@
 		</div>
 	</div>
 
-	<button class="info-btn" on:click={() => (infoOpened = !infoOpened)}>
-		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-			><path
-				d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20ZM11 7H13V9H11V7ZM11 11H13V17H11V11Z"
-			></path></svg
-		>
-	</button>
-	<button class="back-btn" on:click={() => (moveOpened = false)}>
-		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-			><path
-				d="M12 2C17.52 2 22 6.48 22 12C22 17.52 17.52 22 12 22C6.48 22 2 17.52 2 12C2 6.48 6.48 2 12 2ZM12 11V8L8 12L12 16V13H16V11H12Z"
-			></path></svg
-		></button
-	>
+	<div class="additionnal">
+		<div class="combo">
+			<button class="combo-btn" on:click={() => (toggleCombo())} disabled={comboDisabled}>
+				{#if !currentCombo}
+					<svg
+						version="1.0"
+						xmlns="http://www.w3.org/2000/svg"
+						viewBox="0 0 1920.000000 1920.000000"
+						preserveAspectRatio="xMidYMid meet"
+					>
+						<g
+							transform="translate(0.000000,1920.000000) scale(0.100000,-0.100000)"
+							fill="currentColor"
+							stroke="none"
+						>
+							<path
+								d="M14625 16153 c-213 -182 -365 -323 -599 -553 -398 -393 -707 -738
+-1093 -1219 l-132 -164 182 -91 c278 -140 470 -268 639 -425 42 -39 80 -71 84
+-70 5 0 54 57 109 126 450 567 1017 1161 1477 1549 64 55 117 101 117 104 1 7
+-678 814 -687 818 -4 1 -48 -32 -97 -75z"
+							/>
+							<path
+								d="M11375 14259 c-483 -58 -957 -257 -1345 -566 -111 -88 -329 -305
+-414 -413 -279 -354 -563 -876 -886 -1630 -152 -355 -747 -1868 -738 -1875 2
+-1 93 -7 203 -14 110 -7 340 -23 510 -36 171 -13 332 -25 358 -26 l49 -3 162
+419 c586 1512 883 2130 1208 2520 319 382 821 598 1288 556 239 -22 422 -76
+666 -196 237 -117 355 -210 469 -369 367 -515 301 -1483 -149 -2165 -82 -125
+-109 -157 -219 -269 -243 -247 -565 -422 -998 -542 l-116 -33 -107 -229 c-181
+-385 -422 -935 -414 -943 5 -6 189 18 388 50 928 151 1651 510 2124 1055 420
+483 684 1094 782 1805 26 184 26 630 1 800 -60 405 -177 733 -364 1020 -220
+338 -495 576 -903 780 -300 150 -572 239 -886 291 -118 19 -548 28 -669 13z"
+							/>
+							<path
+								d="M11897 12952 c-457 -692 -995 -1615 -1449 -2487 -440 -845 -653
+-1317 -1092 -2423 -281 -705 -456 -1100 -612 -1373 -71 -125 -223 -353 -297
+-444 -310 -384 -736 -644 -1211 -740 -68 -14 -137 -25 -153 -25 -38 0 -43 -4
+-158 -145 -182 -222 -319 -375 -599 -669 -94 -98 -171 -184 -171 -189 0 -11
+120 -36 305 -64 88 -13 181 -17 395 -18 242 0 300 3 427 23 920 142 1681 636
+2210 1432 133 202 242 395 374 665 141 290 225 487 514 1210 378 945 481 1178
+809 1835 518 1037 1001 1888 1533 2702 l110 168 -36 57 c-43 72 -116 157 -179
+212 -108 92 -345 212 -532 269 -161 49 -158 49 -188 4z"
+							/>
+							<path
+								d="M7180 9600 c-593 -45 -1004 -172 -1388 -427 -332 -220 -632 -553
+-886 -982 -164 -276 -307 -600 -390 -881 -119 -401 -139 -851 -56 -1234 61
+-278 208 -587 390 -817 l38 -49 264 278 c336 353 478 508 478 522 0 6 -13 34
+-29 63 -39 69 -85 205 -102 297 -19 103 -16 322 6 445 75 435 364 973 671
+1254 283 259 634 398 1119 441 208 19 772 5 1210 -30 467 -36 820 -58 827 -52
+4 4 64 142 133 307 69 165 169 398 221 518 53 121 94 220 92 222 -2 2 -100 8
+-218 14 -255 14 -490 30 -1095 77 -485 37 -1047 52 -1285 34z"
+							/>
+							<path
+								d="M7393 8338 c-5 -7 -33 -65 -63 -128 -144 -307 -282 -555 -499 -895
+-369 -580 -796 -1142 -1202 -1581 -787 -850 -1346 -1406 -1687 -1677 -48 -38
+-102 -81 -119 -95 l-33 -27 245 -475 c135 -261 246 -479 248 -485 9 -25 440
+316 706 559 455 415 1583 1616 1942 2068 430 541 861 1179 1133 1676 132 240
+495 1006 483 1018 -4 4 -382 32 -602 44 -265 14 -540 13 -552 -2z"
+							/>
+						</g>
+					</svg>
+				{:else}
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+						><path
+							d="M10.5859 12L2.79297 4.20706L4.20718 2.79285L12.0001 10.5857L19.793 2.79285L21.2072 4.20706L13.4143 12L21.2072 19.7928L19.793 21.2071L12.0001 13.4142L4.20718 21.2071L2.79297 19.7928L10.5859 12Z"
+						></path></svg
+					>
+				{/if}
+			</button>
+			{#if currentCombo}
+				<span class="combo-info" style="--color:{typeChart[currentCombo?.move?.type]?.color}">
+					{currentCombo.move.name} by {currentCombo.pokemon.name}
+				</span>
+			{/if}
+		</div>
+		<div>
+			<button class="info-btn" on:click={() => (infoOpened = !infoOpened)}>
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+					><path
+						d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20ZM11 7H13V9H11V7ZM11 11H13V17H11V11Z"
+					></path></svg
+				>
+			</button>
+			<button class="back-btn" on:click={() => (moveOpened = false)}>
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+					><path
+						d="M12 2C17.52 2 22 6.48 22 12C22 17.52 17.52 22 12 22C6.48 22 2 17.52 2 12C2 6.48 6.48 2 12 2ZM12 11V8L8 12L12 16V13H16V11H12Z"
+					></path></svg
+				></button
+			>
+		</div>
+	</div>
 
 	<div class="moves" class:show>
 		{#each battleCtx?.playerPokemon?.moves as move, index}
@@ -306,16 +412,21 @@
 		bind:battleSwitchOpened
 		zIndex={zIndexNext}
 		onChange={(pkm) => !!pkm && sendSwitchAction(pkm)}
+		onCombo={() => {}}
 	/>
 {/if}
 
-{#if changePokemon}
+{#if changePokemon || combo}
 	<PokemonList
 		bind:context
 		{isBattle}
+		bind:combo
 		bind:forceChange={changePokemon}
 		zIndex={zIndexNext}
 		onChange={(pkm) => !!pkm && send(pkm)}
+		onCombo={(combo) => {
+			!!combo && prepareCombo(combo.pokemon, combo.move);
+		}}
 	/>
 {/if}
 
@@ -365,7 +476,6 @@
 		box-sizing: border-box;
 		padding: 1%;
 		perspective: 100dvw;
-		
 
 		._inner {
 			z-index: 1;
@@ -436,36 +546,77 @@
 		flex-wrap: wrap;
 		gap: 5% 2%;
 	}
-	.back-btn {
+
+	.additionnal {
 		position: absolute;
 		bottom: 32%;
-		right: 1dvw;
+		left: 51dvw;
 		height: 8.25dvh;
-		width: 6dvw;
-		background-color: rgba(44, 56, 69, 0.45);
-		border-radius: 6px;
+		width: 47dvw;
 		color: white;
+		display: flex;
+		justify-content: space-between;
 
-		svg {
+		.combo {
+			width: 70%;
+			gap: 3%;
 			height: 100%;
+			display: flex;
+			justify-content: space-between;
+
+			.combo-btn {
+				height: 100%;
+				width: 6dvw;
+				background-color: rgba(44, 56, 69, 0.45);
+				border-radius: 6px;
+				color: white;
+
+				svg {
+					height: 100%;
+				}
+			}
+
+			.combo-info {
+				height: 100%;
+				width: calc(100% - 6dvw);
+				max-width: calc(100% - 6dvw);
+				font-size: 26px;
+				padding: 1% 4%;
+				background-color: rgba(44, 56, 69, 0.45);
+				border-radius: 6px;
+				color: var(--color, white);
+				text-shadow: 1px 0px 0px black;
+				text-overflow: ellipsis;
+				overflow: hidden;
+				white-space: nowrap;
+				text-align: left;
+			}
+		}
+
+		.back-btn {
+			height: 100%;
+			width: 6dvw;
+			background-color: rgba(44, 56, 69, 0.45);
+			border-radius: 6px;
+			color: white;
+
+			svg {
+				height: 100%;
+			}
+		}
+
+		.info-btn {
+			height: 100%;
+			width: 6dvw;
+			background-color: rgba(44, 56, 69, 0.45);
+			border-radius: 6px;
+			color: white;
+
+			svg {
+				height: 100%;
+			}
 		}
 	}
-
-	.info-btn {
-		position: absolute;
-		bottom: 32%;
-		right: 8dvw;
-		height: 8.25dvh;
-		width: 6dvw;
-		background-color: rgba(44, 56, 69, 0.45);
-		border-radius: 6px;
-		color: white;
-
-		svg {
-			height: 100%;
-		}
-	}
-	// }
 
 	.action-btn {
 		$color: var(--color);
@@ -524,39 +675,12 @@
 			//);
 			//background-color: rgba(44, 56, 69, 0.5);
 			color: var(--color);
-			text-shadow: 1px 1px 1px black;
-			-webkit-box-shadow: inset 2px -2px 10px 0px rgba(0, 0, 0, 0.7);
-			box-shadow: inset 2px -2px 10px 0px rgba(0, 0, 0, 0.7);
 
-			--border-angle: 0turn; // For animation.
-			--main-bg: conic-gradient(from var(--border-angle), #213, #112 5%, #112 60%, #213 95%);
+			--main-bg: conic-gradient(from 0, #213, #112 5%, #112 60%, #213 95%);
 
-			border: solid 2px transparent;
-			--gradient-border: conic-gradient(
-				from var(--border-angle),
-				transparent 25%,
-				#08f,
-				#f03 99%,
-				transparent
-			);
-
-			background: 
-    			// padding-box clip this background in to the overall element except the border.
-				var(--main-bg) padding-box,
-				// border-box extends this background to the border space
-				var(--gradient-border) border-box,
-				// Duplicate main background to fill in behind the gradient border. You can remove this if you want the border to extend "outside" the box background.
-				var(--main-bg) border-box;
+			background: var(--main-bg) border-box;
 
 			background-position: center center;
-
-			animation: bg-spin 3s linear infinite;
-			-webkit-animation: bg-spin 3s linear infinite;
-			@keyframes bg-spin {
-				to {
-					--border-angle: -1turn;
-				}
-			}
 
 			.move-cat {
 				color: var(--color);

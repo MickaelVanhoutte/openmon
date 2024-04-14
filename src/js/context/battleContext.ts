@@ -38,6 +38,8 @@ export class BattleContext {
     currentAction: Writable<ActionV2Interface | undefined> = writable(undefined);
     currentMessage: Writable<String | undefined> = writable(undefined);
 
+    usedCombo: boolean = false;
+
     public battleResult: BattleResult = new BattleResult(false);
     sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 

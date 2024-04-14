@@ -1,4 +1,4 @@
-import { MoveInstance, PokemonInstance } from "../../pokemons/pokedex";
+import { ComboMove, MoveEffect, MoveInstance, PokemonInstance } from "../../pokemons/pokedex";
 import { ActionType, type ActionV2Interface } from "./actions-model";
 import type { BattleContext } from "../../context/battleContext";
 import { Player } from "../../characters/player";
@@ -67,11 +67,11 @@ export class Attack implements ActionV2Interface {
     public type: ActionType;
     public name: string;
     public description: string;
-    public move: MoveInstance;
+    public move: MoveInstance | ComboMove;
     public target: 'opponent' | 'ally';
-    public initiator: PokemonInstance;
+    public initiator: PokemonInstance ;
 
-    constructor(move: MoveInstance, target: 'opponent' | 'ally', initiator: PokemonInstance) {
+    constructor(move: MoveInstance | ComboMove, target: 'opponent' | 'ally', initiator: PokemonInstance) {
         this.type = ActionType.ATTACK;
         this.name = move.name;
         this.description = move.description;
@@ -106,12 +106,21 @@ export class Attack implements ActionV2Interface {
         if (success) {
 
             const result = this.calculateDamage(attacker, target, this.move, ctx);
-            let effect = MOVE_EFFECT_APPLIER.findEffect(this.move.effect);
 
-
-            if (effect.when === 'before-move' && this.effectApplies(this.move)) {
-                actionsToPush.push(new ApplyEffect(this.move, this.target, this.initiator))
-            }
+            if (this.move instanceof ComboMove) {
+                let move: ComboMove = this.move;
+                move.effects.forEach((eff, index) => {
+                    let effect = MOVE_EFFECT_APPLIER.findEffect(eff);
+                    if(effect.when === 'before-move' && this.effectApplies(move.effectsChances[index], eff)) {
+                        actionsToPush.push(new ApplyEffect(eff, this.target, this.initiator))
+                    }
+                });
+            } else {
+                let effect = MOVE_EFFECT_APPLIER.findEffect(this.move.effect);
+                if (effect.when === 'before-move' && this.effectApplies(this.move.effectChance, this.move.effect)) {
+                    actionsToPush.push(new ApplyEffect(this.move.effect, this.target, this.initiator))
+                }
+            } 
 
             if (!result.immune) {
                 actionsToPush.push(new PlayAnimation(this.move, this.target, this.initiator));
@@ -127,12 +136,18 @@ export class Attack implements ActionV2Interface {
                 actionsToPush.push(new Message('A critical hit!', this.initiator));
             }
 
-
             actionsToPush.push(new RemoveHP(result.damages, this.target, this.initiator));
 
             // Apply attack effect
-            if (!result.immune && this.effectApplies(this.move)) {
-                actionsToPush.push(new ApplyEffect(this.move, this.target, this.initiator))
+            if (!result.immune && this.move instanceof ComboMove) {
+                let move: ComboMove = this.move;
+                move.effects.forEach((effect, index) => {
+                    if(this.effectApplies(move.effectsChances[index], effect)) {
+                        actionsToPush.push(new ApplyEffect(effect, this.target, this.initiator))
+                    }
+                });
+            } else if (!result.immune && this.effectApplies(this.move.effectChance, this.move.effect)) {
+                actionsToPush.push(new ApplyEffect(this.move.effect, this.target, this.initiator))
             }
 
         } else {
@@ -150,7 +165,7 @@ export class Attack implements ActionV2Interface {
         }
     }
 
-    private calculateDamage(attacker: PokemonInstance, defender: PokemonInstance, move: MoveInstance, ctx: BattleContext): DamageResults {
+    private calculateDamage(attacker: PokemonInstance, defender: PokemonInstance, move: MoveInstance | ComboMove, ctx: BattleContext): DamageResults {
         let result = new DamageResults();
         const typeEffectiveness = this.calculateTypeEffectiveness(move.type, defender.types, ctx);
         result.superEffective = typeEffectiveness > 1;
@@ -187,19 +202,19 @@ export class Attack implements ActionV2Interface {
         return Math.random() < 0.0625 ? 1.5 : 1;
     }
 
-    private calculateStab(attacker: PokemonInstance, move: MoveInstance) {
+    private calculateStab(attacker: PokemonInstance, move: MoveInstance | ComboMove) {
         return attacker.types.includes(move.type) ? 1.5 : 1; // TODO wtf
     }
 
-    private accuracyApplies(move: MoveInstance) {
+    private accuracyApplies(move: MoveInstance | ComboMove) {
         return move.accuracy === 100 || move.accuracy === 0 || !Number.isInteger(move.effectChance) || Math.random() * 100 < move.accuracy;
     }
 
-    private effectApplies(move: MoveInstance) {
-        return move.effect &&
-            ((Number.isInteger(move.effectChance) && Math.random() * 100 < move.effectChance) ||
+    private effectApplies(effectChance: number, moveEffect?: MoveEffect) {
+        return moveEffect &&
+            ((Number.isInteger(effectChance) && Math.random() * 100 < effectChance) ||
                 //  100%
-                Number.isNaN(move.effectChance));
+                Number.isNaN(effectChance));
     }
 }
 

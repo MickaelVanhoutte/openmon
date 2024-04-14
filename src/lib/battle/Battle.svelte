@@ -14,7 +14,13 @@
 	} from '../../js/battle/animations/battle-animations';
 
 	import moves from '../../assets/data/raw/moves/moves.json';
-				import { Move, MoveEffect } from '../../js/pokemons/pokedex';
+	import {
+		ComboMove,
+		Move,
+		MoveEffect,
+		MoveInstance,
+		PokemonInstance
+	} from '../../js/pokemons/pokedex';
 
 	/**
 	 * Battle screen component, handles pokemons display.
@@ -42,9 +48,6 @@
 		bgDrawn: true
 	};
 
-	let allyGrassHeight = 0;
-	let opponentGrassHeight = 0;
-
 	let ally: HTMLImageElement;
 	let opponent: HTMLImageElement;
 
@@ -68,19 +71,47 @@
 
 	battleCtx.events.animateAttack.subscribe((value) => {
 		if (value) {
-			let animTarget = value.target === 'opponent' ? opponent : ally;
-			let animInitiator = value.initiator === 'ally' ? ally : opponent;
-			animateMove(
-				value.move,
-				value.initiator,
-				animTarget,
-				animInitiator,
-				scene,
-				spriteFx,
-				fx
-			);
+			if (value.move instanceof MoveInstance) {
+				let animTarget = value.target === 'opponent' ? opponent : ally;
+				let animInitiator = value.initiator === 'ally' ? ally : opponent;
+				animateMove(value.move, value.initiator, animTarget, animInitiator, scene, spriteFx, fx);
+			} else if (value.move instanceof ComboMove) {
+				let move: ComboMove = value.move;
+				addPartner(value.target === 'opponent' ? 'ally' : 'opponent', move.pokemon2).then((partner) => {
+					animateEntry(partner, value.target === 'opponent' ? 'ally' : 'opponent').then(() => {
+						Promise.all([
+							animateMove(move.move1, value.initiator, value.target === 'opponent' ? opponent : ally, partner, scene, spriteFx, fx),
+							animateMove(move.move2, value.initiator, partner, value.initiator === 'ally' ? ally : opponent, scene, spriteFx, fx)
+							]
+						).then(() => {
+							animateRun(partner, value.target === 'opponent' ? 'ally' : 'opponent');
+						});
+					});
+				});
+			}
 		}
 	});
+
+	function addPartner(target: string, pokemon: PokemonInstance): Promise<HTMLImageElement> {
+		return new Promise((resolve, reject) => {
+			let partner = document.createElement('img') as HTMLImageElement;
+			partner.classList.add(target + '-sprite');
+			let frBc = target === 'opponent' ? 'back' : 'front';
+
+			partner.src =
+				(pokemon.isShiny
+					? pokemon.sprites?.male?.[frBc].shiny1
+					: pokemon.sprites?.male?.[frBc].frame1) || 'src/assets/monsters/bw/0.png';
+			partner.onload = () => {
+				let scale = Math.max(Math.min(partner.naturalHeight / 200, 0.9), 0.1);
+				partner.style.setProperty('--scale', scale + '');
+				partner.style.setProperty('--width', partner.naturalWidth + 'px');
+				partner.style.setProperty('--height', partner.naturalHeight + 'px');
+				gifsWrapper.appendChild(partner);
+				return resolve(partner);
+			};
+		});
+	}
 
 	function draw() {
 		drawInterval = setInterval(() => {
@@ -129,7 +160,6 @@
 				if (opponent) {
 					// scale based on pokemon height
 
-				
 					opponent.src =
 						(battleCtx?.opponentPokemon.isShiny
 							? battleCtx?.opponentPokemon.sprites?.male?.front.shiny1
@@ -138,15 +168,12 @@
 					opponent.onload = () => {
 						//let scale = Math.min(battleCtx?.opponentPokemon.height / 4, 1);
 						//let scale = Math.max(Math.min(battleCtx?.opponentPokemon.height / 3, .7), 0.2);
-						let scale = Math.max(Math.min(opponent.naturalHeight / 200, .9), 0.1);
+						let scale = Math.max(Math.min(opponent.naturalHeight / 200, 0.9), 0.1);
 						console.log(battleCtx?.opponentPokemon.name, opponent.naturalHeight / 100, scale);
-
-
 
 						opponent.style.setProperty('--scale', scale + '');
 						opponent.style.setProperty('--width', opponent.naturalWidth + 'px');
 						opponent.style.setProperty('--height', opponent.naturalHeight + 'px');
-						opponent.style.setProperty('--grassHeight', opponentGrassHeight + 'px');
 						gifsWrapper.appendChild(opponent);
 						battleLoopContext.opponentdrawn = true;
 						animateEntry(opponent, 'opponent');
@@ -170,10 +197,9 @@
 						let scale = Math.max(Math.min(ally.naturalHeight / 200, 1), 0.2);
 						//let scale = Math.max(Math.min(battleCtx?.playerPokemon.height / 3, .9), 0.3);
 						console.log(battleCtx?.playerPokemon.name, ally.naturalHeight / 100, scale);
-						ally.style.setProperty('--scale', scale + '')
+						ally.style.setProperty('--scale', scale + '');
 						ally.style.setProperty('--width', ally.naturalWidth + 'px');
 						ally.style.setProperty('--height', ally.naturalHeight + 'px');
-						ally.style.setProperty('--grassHeight', allyGrassHeight + 'px');
 						gifsWrapper.appendChild(ally);
 						battleLoopContext.allydrawn = true;
 						animateEntry(ally, 'ally');
@@ -199,245 +225,23 @@
 		window.addEventListener('keydown', (e) => {
 			if (e.key === 'x') {
 				battleLoopContext.debug = !battleLoopContext.debug;
-				testMoves();
 			}
 		});
-		
+
 		return () => {
 			clearInterval(drawInterval);
 		};
 	});
-
-	// TEST
-
-	function testMoves(){
-		
-				// test moves
-				
-				//@ts-ignore
-				let movesImpl = moves.map((m) => new Move(m.id, m.identifier, typeById[m.type_id] as string, 'physical', 40, 100, 35, 1, new MoveEffect(1, 1, '',''), 0, '', 1));
-				
-				
-				// @ts-ignore
-				animateMove(movesImpl.find(m => m.name === 'stomp'), 'ally', opponent, ally, scene, spriteFx, fx)
-				.then(() => {
-					// @ts-ignore
-					animateMove(movesImpl.find(m => m.name === 'blaze-kick'), 'ally', opponent, ally, scene, spriteFx, fx)
-					.then(() => {
-						// @ts-ignore
-						animateMove(movesImpl.find(m => m.name === 'triple-axel'), 'ally', opponent, ally, scene, spriteFx, fx)
-						.then(() => {
-						// @ts-ignore
-						animateMove(movesImpl.find(m => m.name === 'thunderous-kick'), 'ally', opponent, ally, scene, spriteFx, fx)
-						.then(() => {
-						// @ts-ignore
-						animateMove(movesImpl.find(m => m.name === 'comet-punch'), 'ally', opponent, ally, scene, spriteFx, fx)
-						.then(() => {
-						// @ts-ignore
-						animateMove(movesImpl.find(m => m.name === 'fire-punch'), 'ally', opponent, ally, scene, spriteFx, fx)
-						.then(() => {
-						// @ts-ignore
-						animateMove(movesImpl.find(m => m.name === 'ice-punch'), 'ally', opponent, ally, scene, spriteFx, fx)
-
-						.then(() => {
-						// @ts-ignore
-						animateMove(movesImpl.find(m => m.name === 'thunder-punch'), 'ally', opponent, ally, scene, spriteFx, fx)
-
-						.then(() => {
-						// @ts-ignore
-						animateMove(movesImpl.find(m => m.name === 'shadow-punch'), 'ally', opponent, ally, scene, spriteFx, fx)
-
-						.then(() => {
-						// @ts-ignore
-						animateMove(movesImpl.find(m => m.name === 'poison-jab'), 'ally', opponent, ally, scene, spriteFx, fx)
-
-						.then(() => {
-						// @ts-ignore
-						animateMove(movesImpl.find(m => m.name === 'karate-chop'), 'ally', opponent, ally, scene, spriteFx, fx)
-
-						.then(() => {
-						// @ts-ignore
-						animateMove(movesImpl.find(m => m.name === 'pound'), 'ally', opponent, ally, scene, spriteFx, fx)
-
-						.then(() => {
-						// @ts-ignore
-						animateMove(movesImpl.find(m => m.name === 'poison-tail'), 'ally', opponent, ally, scene, spriteFx, fx)
-
-						.then(() => {
-						// @ts-ignore
-						animateMove(movesImpl.find(m => m.name === 'aqua-tail'), 'ally', opponent, ally, scene, spriteFx, fx)
-
-						.then(() => {
-						// @ts-ignore
-						animateMove(movesImpl.find(m => m.name === 'volt-tackle'), 'ally', opponent, ally, scene, spriteFx, fx)
-						.then(() => {
-						// @ts-ignore
-						animateMove(movesImpl.find(m => m.name === 'wood-hammer'), 'ally', opponent, ally, scene, spriteFx, fx)
-
-						.then(() => {
-						// @ts-ignore
-						animateMove(movesImpl.find(m => m.name === 'ice-hammer'), 'ally', opponent, ally, scene, spriteFx, fx)
-						.then(() => {
-						// @ts-ignore
-						animateMove(movesImpl.find(m => m.name === 'flame-charge'), 'ally', opponent, ally, scene, spriteFx, fx)
-						.then(() => {
-						// @ts-ignore
-						animateMove(movesImpl.find(m => m.name === 'aqua-jet'), 'ally', opponent, ally, scene, spriteFx, fx)
-						.then(() => {
-						// @ts-ignore
-						animateMove(movesImpl.find(m => m.name === 'double-slap'), 'ally', opponent, ally, scene, spriteFx, fx)
-						.then(() => {
-						// @ts-ignore
-						animateMove(movesImpl.find(m => m.name === 'scratch'), 'ally', opponent, ally, scene, spriteFx, fx)
-						.then(() => {
-						// @ts-ignore
-						animateMove(movesImpl.find(m => m.name === 'cross-poison'), 'ally', opponent, ally, scene, spriteFx, fx)
-						.then(() => {
-						// @ts-ignore
-						animateMove(movesImpl.find(m => m.name === 'metal-claw'), 'ally', opponent, ally, scene, spriteFx, fx)
-						.then(() => {
-						// @ts-ignore
-						animateMove(movesImpl.find(m => m.name === 'shadow-claw'), 'ally', opponent, ally, scene, spriteFx, fx)
-						.then(() => {
-						// @ts-ignore
-						animateMove(movesImpl.find(m => m.name === 'bite'), 'ally', opponent, ally, scene, spriteFx, fx)
-						.then(() => {
-						// @ts-ignore
-						animateMove(movesImpl.find(m => m.name === 'fire-fang'), 'ally', opponent, ally, scene, spriteFx, fx)
-						.then(() => {
-						// @ts-ignore
-						animateMove(movesImpl.find(m => m.name === 'ice-fang'), 'ally', opponent, ally, scene, spriteFx, fx)
-						.then(() => {
-						// @ts-ignore
-						animateMove(movesImpl.find(m => m.name === 'thunder-fang'), 'ally', opponent, ally, scene, spriteFx, fx)
-						.then(() => {
-						// @ts-ignore
-						animateMove(movesImpl.find(m => m.name === 'poison-fang'), 'ally', opponent, ally, scene, spriteFx, fx)
-						.then(() => {
-						// @ts-ignore
-						animateMove(movesImpl.find(m => m.name === 'thunder-shock'), 'ally', opponent, ally, scene, spriteFx, fx)
-						.then(() => {
-						// @ts-ignore
-						animateMove(movesImpl.find(m => m.name === 'spark'), 'ally', opponent, ally, scene, spriteFx, fx)
-						.then(() => {
-						// @ts-ignore
-						animateMove(movesImpl.find(m => m.name === 'ember'), 'ally', opponent, ally, scene, spriteFx, fx)
-						.then(() => {
-						// @ts-ignore
-						animateMove(movesImpl.find(m => m.name === 'hyper-beam'), 'ally', opponent, ally, scene, spriteFx, fx)
-						.then(() => {
-						// @ts-ignore
-						animateMove(movesImpl.find(m => m.name === 'razor-wind'), 'ally', opponent, ally, scene, spriteFx, fx)
-						.then(() => {
-						// @ts-ignore
-						animateMove(movesImpl.find(m => m.name === 'dazzling-gleam'), 'ally', opponent, ally, scene, spriteFx, fx)
-						.then(() => {
-						// @ts-ignore
-						animateMove(movesImpl.find(m => m.name === 'shadow-ball'), 'ally', opponent, ally, scene, spriteFx, fx)
-						.then(() => {
-						// @ts-ignore
-						animateMove(movesImpl.find(m => m.name === 'leech-seed'), 'ally', opponent, ally, scene, spriteFx, fx)
-						.then(() => {
-						// @ts-ignore
-						animateMove(movesImpl.find(m => m.name === 'leafage'), 'ally', opponent, ally, scene, spriteFx, fx)
-						.then(() => {
-						// @ts-ignore
-						animateMove(movesImpl.find(m => m.name === 'venoshock'), 'ally', opponent, ally, scene, spriteFx, fx)
-						.then(() => {
-						// @ts-ignore
-						animateMove(movesImpl.find(m => m.name === 'toxic'), 'ally', opponent, ally, scene, spriteFx, fx)
-						.then(() => {
-						// @ts-ignore
-						animateMove(movesImpl.find(m => m.name === 'rock-slide'), 'ally', opponent, ally, scene, spriteFx, fx)
-						.then(() => {
-						// @ts-ignore
-						animateMove(movesImpl.find(m => m.name === 'waterfall'), 'ally', opponent, ally, scene, spriteFx, fx)
-						.then(() => {
-						// @ts-ignore
-						animateMove(movesImpl.find(m => m.name === 'surf'), 'ally', opponent, ally, scene, spriteFx, fx)
-						.then(() => {
-						// @ts-ignore
-						animateMove(movesImpl.find(m => m.name === 'nasty-plot'), 'ally', opponent, ally, scene, spriteFx, fx)
-						.then(() => {
-						// @ts-ignore
-						animateMove(movesImpl.find(m => m.name === 'swagger'), 'ally', opponent, ally, scene, spriteFx, fx)
-						.then(() => {
-						// @ts-ignore
-						animateMove(movesImpl.find(m => m.name === 'fake-tears'), 'ally', opponent, ally, scene, spriteFx, fx)
-					});
-					});
-					});
-					});
-					});
-					});
-					});
-					});
-					});
-					});
-					});
-					});
-					});
-					});
-					});
-					});
-					});
-					});
-					});
-					});
-					});
-					});
-					});
-					});
-					});
-					});
-					});
-					});
-					});
-					});
-					});
-					});
-					});
-					});
-					});
-					});
-					});
-					});
-					});
-					});
-					});
-					});
-					});
-					});
-				});
-
-	}
-
-	const typeById = {
-    1: 'normal',
-    2: 'fighting',
-    3: 'flying',
-    4: 'poison',
-    5: 'ground',
-    6: 'rock',
-    7: 'bug',
-    8: 'ghost',
-    9: 'steel',
-    10: 'fire',
-    11: 'water',
-    12: 'grass',
-    13: 'electric',
-    14: 'psychic',
-    15: 'ice',
-    16: 'dragon',
-    17: 'dark',
-    18: 'dragon'
-}
-
 </script>
 
 <div class="battle">
 	<div bind:this={gifsWrapper} class="wrapper">
-		<img class="battle-bg" bind:this={scene} alt="background" src="src/assets/battle/bg-beach.png" />
+		<img
+			class="battle-bg"
+			bind:this={scene}
+			alt="background"
+			src="src/assets/battle/bg-beach.png"
+		/>
 		<div class="fx" bind:this={spriteFx}></div>
 		<img
 			bind:this={fx[0]}
@@ -509,7 +313,7 @@
 		background-repeat: no-repeat;
 		background-position: 0 50%;
 		background-size: cover;
-		scale: .2;
+		scale: 0.2;
 		transform-origin: bottom left;
 	}
 
@@ -523,7 +327,6 @@
 		bottom: 15%;
 		left: 0;
 	}
-
 
 	.wrapper :global(.opponent-sprite) {
 		position: absolute;

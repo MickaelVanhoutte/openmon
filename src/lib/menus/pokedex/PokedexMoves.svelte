@@ -131,7 +131,7 @@
 	}
 
 	.moves-tab {
-		height: calc(100% - 66px);
+		height: calc(100% - 80px);
 		width: 100%;
 		background-position: center;
 		background-size: contain;

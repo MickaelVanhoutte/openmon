@@ -31,15 +31,14 @@
 	const search = () => {
 		selectedIdx = 0;
 		if (searchTerm.trim()?.length === 0) {
-			return (filtered = context.POKEDEX.entries
-			?.filter((p) =>  !selectedType || p.types.includes(selectedType))
-			);
+			return (filtered = context.POKEDEX.entries?.filter(
+				(p) => !selectedType || p.types.includes(selectedType)
+			));
 		}
 		if (Number(searchTerm) > 0 && Number(searchTerm) < 252) {
 			return (filtered = context.POKEDEX.findById(Number(searchTerm))?.result
 				? [context.POKEDEX.findById(Number(searchTerm))?.result]
-				: [])
-				.filter((p) => !selectedType || p.types.includes(selectedType));
+				: []).filter((p) => !selectedType || p.types.includes(selectedType));
 		}
 
 		return (filtered = context.POKEDEX.findByName(searchTerm).map(
@@ -92,14 +91,20 @@
 <div class="pokedex">
 	<div class="row head">
 		<div class="col-2 back">
-			<button on:click={() => context.overWorldContext.closeMenu(MenuType.POKEDEX)}>BACK</button>
+			<button on:click={() => context.overWorldContext.closeMenu(MenuType.POKEDEX)}>
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+					><path
+						d="M10.5859 12L2.79297 4.20706L4.20718 2.79285L12.0001 10.5857L19.793 2.79285L21.2072 4.20706L13.4143 12L21.2072 19.7928L19.793 21.2071L12.0001 13.4142L4.20718 21.2071L2.79297 19.7928L10.5859 12Z"
+					></path></svg
+				>
+			</button>
 		</div>
 
 		<div class="col-2"></div>
 
 		<div class="col-4">
 			<select bind:value={selectedType} on:change={search}>
-				<option value="{undefined}">Type</option>
+				<option value={undefined}>Type</option>
 				{#each Object.keys(typeChart) as type}
 					<option value={type}>{type.toUpperCase()}</option>
 				{/each}
@@ -108,13 +113,12 @@
 
 		<div class="col-4">
 			<input
-					type="input"
-					class="form__field"
-					placeholder="Search"
-					bind:value={searchTerm}
-					on:input={search}
-				/>
-			
+				type="input"
+				class="form__field"
+				placeholder="Search"
+				bind:value={searchTerm}
+				on:input={search}
+			/>
 		</div>
 	</div>
 	<div class="row content">
@@ -132,7 +136,7 @@
 			</div>
 			<div>
 				<span>
-					{selectedPokemon?.id ? '#' +('00' + selectedPokemon?.id).slice(-3) : '???'} 
+					{selectedPokemon?.id ? '#' + ('00' + selectedPokemon?.id).slice(-3) : '???'}
 					{selectedPokemon?.name ? '- ' + selectedPokemon?.name : ''}
 				</span>
 			</div>
@@ -151,11 +155,13 @@
 						<span style="height:28px; width:24px"></span>
 					{/if}
 					<span>
-						{'#' +('00' + pokemon.id).slice(-3)} - {pokemon.name}
+						{'#' + ('00' + pokemon.id).slice(-3)} - {pokemon.name}
 					</span>
 
 					<button on:click={() => openDetail()}>
-						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M16 12L10 18V6L16 12Z"></path></svg>
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+							><path d="M16 12L10 18V6L16 12Z"></path></svg
+						>
 					</button>
 				</div>
 			{/each}
@@ -228,7 +234,7 @@
 
 		.head {
 			height: 12%;
-			padding: 2% 2% 0 2%;
+			padding: 1% 2% 0 2%;
 			font-size: 14px;
 			box-sizing: border-box;
 		}
@@ -324,21 +330,12 @@
 
 		.back {
 			button {
-				padding: 4px 16px;
-				height: 28px;
-				position: relative;
-				z-index: 999;
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				font-size: 26px;
-				text-transform: uppercase;
-				cursor: pointer;
-				border-radius: 4px;
-				font-family: 'pokemon';
+				height: 46px;
+				width: 46px;
 				color: white;
-				background: rgba(0, 0, 0, 0.2);
-				border: 1px solid white;
+				background-color: transparent;
+				border: none;
+				outline: none;
 			}
 		}
 	}
