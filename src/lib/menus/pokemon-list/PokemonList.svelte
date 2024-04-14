@@ -294,9 +294,9 @@
 	</div>
 
 	<div class="options" class:hidden={!openOptions}>
-		{#if combo && context.player.monsters.at(selected)}
+		{#if combo && battleContext && battleContext.player.monsters.at(selected)}
 			<ul>
-				{#each (context.player.monsters.at(selected)?.moves || []) as move, index }
+				{#each (battleContext.player.monsters.at(selected)?.moves || []) as move, index }
 					<li class:selected={optionSelected === index}
 						on:click={() => {
 							selectCombo(index);

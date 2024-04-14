@@ -16,7 +16,7 @@
 		if (!pokemon.viewed) {
 			return;
 		}
-		console.log(move);
+
 		currentMove = move;
 
 		showDetail =
@@ -27,15 +27,6 @@
 				?.replaceAll('$effect_chance', currentMove?.effectChance + '')?.length >
 			currentMove?.description?.replaceAll('$effect_chance', currentMove?.effectChance + '')
 				?.length;
-
-				console.log(currentMove?.effect?.effect
-				?.replace(mechanicRegex, '')
-				?.replace(/\[/g, '')
-				?.replace(/\]/g, '')
-				?.replaceAll('$effect_chance', currentMove?.effectChance + '')?.length +
-				2 ,
-			currentMove?.description?.replaceAll('$effect_chance', currentMove?.effectChance + '')
-				?.length)
 
 		showModal = true;
 	}

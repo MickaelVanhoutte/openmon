@@ -112,18 +112,18 @@ export class BattleContext {
      */
     private executeAction(action?: ActionV2Interface) {
         this.currentAction.set(action);
-        console.log('DEBUG, stack : ', this.actionStack.stack);
+        //console.log('DEBUG, stack : ', this.actionStack.stack);
         if (action !== undefined) {
 
             if (action.type === ActionType.END_CHECKS) {
                 this.turnPhases.set(TurnPhase.END);
             }
 
-            console.log('executing ' + action?.type, action);
+            //console.log('executing ' + action?.type, action);
             action.execute(this);
 
             // TODO wait for input ? (or settings, auto/manual)
-            this.sleep(1000).then(
+            this.sleep(1500).then(
                 () => {
                     this.executeAction(this.actionStack?.pop());
                 }
@@ -197,7 +197,7 @@ export class BattleContext {
 
             }
         }
-        console.log('opponent action', action);
+        //console.log('opponent action', action);
         return action;
     }
 
@@ -227,7 +227,7 @@ export class BattleContext {
             target.status = undefined;
             target.resetBattleStats();
 
-            console.log(target.name + ' fainted!', initiator);
+            //console.log(target.name + ' fainted!', initiator);
 
             // remove target attack from stack
             this.actionStack.stack = this.actionStack.stack.filter((action: ActionV2Interface) => {

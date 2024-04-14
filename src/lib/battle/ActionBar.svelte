@@ -119,7 +119,7 @@
 	}
 
 	function prepareCombo(pokemon: PokemonInstance, move: MoveInstance) {
-		console.log(pokemon, move);
+		//console.log(pokemon, move);
 		currentCombo = { pokemon, move };
 	}
 
@@ -452,12 +452,12 @@
 
 	@keyframes info-appear {
 		from {
-			bottom: -32%;
+			bottom: -40%;
 			opacity: 0;
 		}
 		to {
 			opacity: 1;
-			bottom: 32%;
+			bottom: 42%;
 		}
 	}
 
@@ -497,14 +497,15 @@
 	.move-desc {
 		position: absolute;
 		left: 51%;
-		bottom: -30%;
+		bottom: -40%;
 		width: 34%;
 		text-transform: initial;
 		text-align: left;
 		font-size: 30px;
 		word-break: break-word;
 		box-sizing: border-box;
-
+		max-height: 50%;
+		background-color: rgba(255, 255, 255, 0.3);
 		transition: bottom 0.5s ease-in-out;
 		opacity: 0;
 
@@ -551,6 +552,7 @@
 		position: absolute;
 		bottom: 32%;
 		left: 51dvw;
+		z-index: 9;
 		height: 8.25dvh;
 		width: 47dvw;
 		color: white;

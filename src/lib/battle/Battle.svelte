@@ -34,6 +34,7 @@
 	let scene: HTMLImageElement;
 	let fx: HTMLImageElement[] = [];
 	let spriteFx: HTMLDivElement;
+	let spriteFxPartner: HTMLDivElement;
 	let drawInterval: number;
 
 	let battleLoopContext = {
@@ -77,14 +78,18 @@
 				animateMove(value.move, value.initiator, animTarget, animInitiator, scene, spriteFx, fx);
 			} else if (value.move instanceof ComboMove) {
 				let move: ComboMove = value.move;
+				let animTarget = value.target === 'opponent' ? opponent : ally;
+				let animInitiator = value.initiator === 'ally' ? ally : opponent;
 				addPartner(value.target === 'opponent' ? 'ally' : 'opponent', move.pokemon2).then((partner) => {
-					animateEntry(partner, value.target === 'opponent' ? 'ally' : 'opponent').then(() => {
-						Promise.all([
-							animateMove(move.move1, value.initiator, value.target === 'opponent' ? opponent : ally, partner, scene, spriteFx, fx),
-							animateMove(move.move2, value.initiator, partner, value.initiator === 'ally' ? ally : opponent, scene, spriteFx, fx)
-							]
-						).then(() => {
-							animateRun(partner, value.target === 'opponent' ? 'ally' : 'opponent');
+
+					animateEntry(partner, value.target === 'opponent' ? 'ally' : 'opponent', true).then(() => {
+					animateMove(move.move2, value.initiator, animTarget, partner, scene, spriteFxPartner, fx);
+					animateMove(move.move1, value.initiator, animTarget, animInitiator, scene, spriteFx, fx)
+					.then(() => {
+							animateRun(partner, value.target === 'opponent' ? 'ally' : 'opponent')
+							.then(() => {
+								partner.remove();
+							});
 						});
 					});
 				});
@@ -95,13 +100,19 @@
 	function addPartner(target: string, pokemon: PokemonInstance): Promise<HTMLImageElement> {
 		return new Promise((resolve, reject) => {
 			let partner = document.createElement('img') as HTMLImageElement;
-			partner.classList.add(target + '-sprite');
-			let frBc = target === 'opponent' ? 'back' : 'front';
-
-			partner.src =
+			partner.classList.add(target + '-partner-sprite');
+			if(target === 'opponent') {
+				partner.src =
 				(pokemon.isShiny
-					? pokemon.sprites?.male?.[frBc].shiny1
-					: pokemon.sprites?.male?.[frBc].frame1) || 'src/assets/monsters/bw/0.png';
+					? pokemon.sprites?.male?.front?.shiny1
+					: pokemon.sprites?.male?.front?.frame1) || 'src/assets/monsters/bw/0.png';
+			}else{
+				partner.src =
+				(pokemon.isShiny
+					? pokemon.sprites?.male?.back?.shiny1
+					: pokemon.sprites?.male?.back?.frame1) || 'src/assets/monsters/bw/0.png';
+			}
+			
 			partner.onload = () => {
 				let scale = Math.max(Math.min(partner.naturalHeight / 200, 0.9), 0.1);
 				partner.style.setProperty('--scale', scale + '');
@@ -169,7 +180,7 @@
 						//let scale = Math.min(battleCtx?.opponentPokemon.height / 4, 1);
 						//let scale = Math.max(Math.min(battleCtx?.opponentPokemon.height / 3, .7), 0.2);
 						let scale = Math.max(Math.min(opponent.naturalHeight / 200, 0.9), 0.1);
-						console.log(battleCtx?.opponentPokemon.name, opponent.naturalHeight / 100, scale);
+						//console.log(battleCtx?.opponentPokemon.name, opponent.naturalHeight / 100, scale);
 
 						opponent.style.setProperty('--scale', scale + '');
 						opponent.style.setProperty('--width', opponent.naturalWidth + 'px');
@@ -196,7 +207,7 @@
 						//let scale = Math.min(battleCtx?.playerPokemon.height / 4, 1);
 						let scale = Math.max(Math.min(ally.naturalHeight / 200, 1), 0.2);
 						//let scale = Math.max(Math.min(battleCtx?.playerPokemon.height / 3, .9), 0.3);
-						console.log(battleCtx?.playerPokemon.name, ally.naturalHeight / 100, scale);
+						//console.log(battleCtx?.playerPokemon.name, ally.naturalHeight / 100, scale);
 						ally.style.setProperty('--scale', scale + '');
 						ally.style.setProperty('--width', ally.naturalWidth + 'px');
 						ally.style.setProperty('--height', ally.naturalHeight + 'px');
@@ -243,6 +254,7 @@
 			src="src/assets/battle/bg-beach.png"
 		/>
 		<div class="fx" bind:this={spriteFx}></div>
+		<div class="fx" bind:this={spriteFxPartner}></div>
 		<img
 			bind:this={fx[0]}
 			class="fx"
@@ -328,6 +340,17 @@
 		left: 0;
 	}
 
+	.wrapper :global(.ally-partner-sprite) {
+		position: absolute;
+		z-index: 7;
+		height: 100%;
+		width: auto;
+		transform: scale(var(--scale));
+		transform-origin: bottom left;
+		bottom: 16%;
+		left: 0;
+	}
+
 	.wrapper :global(.opponent-sprite) {
 		position: absolute;
 		z-index: 7;
@@ -339,7 +362,21 @@
 		left: 0;
 	}
 
-	.wrapper :global(.battle-bg) {
+
+	.wrapper :global(.opponent-partner-sprite) {
+		position: absolute;
+		z-index: 6;
+		height: 100%;
+		width: auto;
+		transform: scale(var(--scale));
+		transform-origin: bottom left;
+		bottom: 37%;
+		left: 0;
+	}
+
+
+
+	.wrapper .battle-bg {
 		z-index: 0;
 		width: 100%;
 		height: 100%;

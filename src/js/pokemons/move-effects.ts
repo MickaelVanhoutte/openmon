@@ -54,7 +54,7 @@ class RegularDamageEffect implements Effect {
     }
 
     apply(target: PokemonInstance[], user: PokemonInstance): EffectResult {
-        console.log('RegularDamageEffect');
+        //console.log('RegularDamageEffect');
         return new EffectResult();
     }
 
