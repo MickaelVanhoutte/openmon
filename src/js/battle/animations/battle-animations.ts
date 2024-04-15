@@ -1,7 +1,7 @@
 import { gsap } from 'gsap';
 import type { Move } from '../../pokemons/pokedex';
 
-export function animateEntry(target: HTMLImageElement, source: 'ally' | 'opponent'): gsap.core.Timeline {
+export function animateEntry(target: HTMLImageElement, source: 'ally' | 'opponent', partner: boolean = false): gsap.core.Timeline {
 
     return gsap.timeline().fromTo(target,
         {
@@ -10,8 +10,8 @@ export function animateEntry(target: HTMLImageElement, source: 'ally' | 'opponen
         },
         {
             left: source === 'ally' ?
-                window.innerWidth * 0.25 - target.getBoundingClientRect().width / 2
-                : window.innerWidth * 0.75 - target.getBoundingClientRect().width / 2,
+                window.innerWidth * (partner ? 0.18 : 0.25) - target.getBoundingClientRect().width / 2
+                : window.innerWidth * (partner ? 0.68 : 0.75) - target.getBoundingClientRect().width / 2,
             duration: 2,
         }).to(target, {
             filter: 'brightness(1)',
@@ -380,7 +380,7 @@ export function animateMove(
         case 'strength-sap':
         case 'oblivion-wing':
             return animateSpriteFromTarget(move, source, target, initiator, scene, spriteFx, 'drain-sprite', 8)
-                .then(() => animateSpriteToTarget(move, source, target, initiator, scene, spriteFx, 'heal-sprite', 7));
+                .then(() => animateSpriteSelf(move, source, target, initiator, scene, spriteFx, 'heal-sprite', 7));
 
         case 'drain-punch':
         case 'horn-leech':

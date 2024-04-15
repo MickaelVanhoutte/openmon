@@ -64,7 +64,13 @@
 <div class="pokedex-detail" style="--color:{typeChart[pokemon.types[0]].color}">
 	<div class="row title">
 		<div class="back">
-			<button on:click={() => back()}> BACK </button>
+			<button on:click={() => back()}> 
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+				><path
+					d="M10.5859 12L2.79297 4.20706L4.20718 2.79285L12.0001 10.5857L19.793 2.79285L21.2072 4.20706L13.4143 12L21.2072 19.7928L19.793 21.2071L12.0001 13.4142L4.20718 21.2071L2.79297 19.7928L10.5859 12Z"
+				></path></svg
+			>
+			</button>
 		</div>
 
 		<div>
@@ -149,7 +155,7 @@
 		}
 
 		.title {
-			height: 33px;
+			height: 46px;
 			gap: 6%;
 			padding: 0 2%;
 			box-sizing: border-box;
@@ -181,21 +187,12 @@
 
 			.back {
 				button {
-					padding: 4px 16px;
-					height: 28px;
-					position: relative;
-					z-index: 999;
-					display: flex;
-					align-items: center;
-					justify-content: center;
-					font-size: 26px;
-					text-transform: uppercase;
-					cursor: pointer;
-					border-radius: 4px;
-					font-family: 'pokemon';
+					height: 46px;
+					width: 46px;
 					color: white;
-					background: rgba(0, 0, 0, 0.2);
-					border: 1px solid white;
+					background-color: transparent;
+					border: none;
+					outline: none;
 				}
 			}
 

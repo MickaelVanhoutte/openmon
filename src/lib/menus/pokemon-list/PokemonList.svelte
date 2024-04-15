@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { PokemonInstance } from '../../../js/pokemons/pokedex';
+	import { Move, MoveInstance, PokemonInstance } from '../../../js/pokemons/pokedex';
 	import PokemonSummary from './PokemonSummary.svelte';
 	import { onMount } from 'svelte';
 	import { backInOut } from 'svelte/easing';
@@ -11,6 +11,8 @@
 
 	export let context: GameContext;
 	export let isBattle: boolean;
+	export let combo: boolean = false;
+	export let comboPokemon: PokemonInstance | undefined = undefined;
 	export let battleSwitchOpened: boolean = false;
 	export let forceChange: boolean = false;
 	export let selected = 0;
@@ -18,7 +20,7 @@
 	export let zIndex: number;
 
 	let battleSummaryOpened = false;
-	let numberOfOptions = !!itemToUse ? 2 : isBattle ? 3 : 4;
+	$: numberOfOptions = !!itemToUse ? 2 : isBattle ? combo? (context.player.monsters.at(selected)?.moves?.length || 0) : 3 : 4;
 	let switchToIdx: number | undefined = undefined;
 	let openOptions = false;
 	let optionSelected = 0;
@@ -29,7 +31,7 @@
 	let battleContext: BattleContext | undefined = undefined;
 
 	$: {
-		if(!battleContext) {
+		if (!battleContext) {
 			first = context.player.monsters?.[0];
 			others = context.player.monsters.slice(1);
 		}
@@ -66,6 +68,10 @@
 	export let onChange: (poke: PokemonInstance | undefined) => void;
 	$: onChange(currentBattlePokemon);
 
+	let currentCombo: {pokemon: PokemonInstance, move: MoveInstance} | undefined = undefined;
+	export let onCombo: (combo: {pokemon: PokemonInstance, move: MoveInstance} | undefined) => void;
+	$: onCombo(currentCombo);
+
 	function switchNow() {
 		//swap(save.player.monsters, selected, 0);
 		closeList();
@@ -100,7 +106,9 @@
 	}
 
 	function closeList() {
-		if (isBattle && !itemToUse) {
+		if (isBattle && combo) {
+			combo = false; 
+		} else if (isBattle && !itemToUse) {
 			//context.overWorldContext.closeMenu(MenuType.SWITCH);
 			battleSwitchOpened = false;
 		} else {
@@ -120,6 +128,14 @@
 		setTimeout(() => {
 			closeList();
 		}, 1000);
+	}
+
+	function selectCombo(index: number) {
+		comboPokemon = context.player.monsters.at(selected);
+		if (combo && comboPokemon) {
+			combo = false;
+			currentCombo = {pokemon: comboPokemon, move: comboPokemon.moves[index]};
+		}
 	}
 
 	const listener = (e: KeyboardEvent) => {
@@ -181,6 +197,17 @@
 	in:slide={{ duration: 500, delay: 100, axis: 'x', easing: backInOut }}
 	out:fade
 >
+	<div class="close">
+		{#if !forceChange}
+			<button on:click={() => closeList()}>
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+					><path
+						d="M10.5859 12L2.79297 4.20706L4.20718 2.79285L12.0001 10.5857L19.793 2.79285L21.2072 4.20706L13.4143 12L21.2072 19.7928L19.793 21.2071L12.0001 13.4142L4.20718 21.2071L2.79297 19.7928L10.5859 12Z"
+					></path></svg
+				>
+			</button>
+		{/if}
+	</div>
 	<div class="pokemons">
 		<div class="first">
 			<div
@@ -266,13 +293,21 @@
 		</div>
 	</div>
 
-	<div class="actions">
-		{#if !forceChange}
-			<button on:click={() => closeList()}>CANCEL</button>
-		{/if}
-	</div>
-
 	<div class="options" class:hidden={!openOptions}>
+		{#if combo && battleContext && battleContext.player.monsters.at(selected)}
+			<ul>
+				{#each (battleContext.player.monsters.at(selected)?.moves || []) as move, index }
+					<li class:selected={optionSelected === index}
+						on:click={() => {
+							selectCombo(index);
+							closeList();
+						}}
+					>
+						{move?.name}
+					</li>
+				{/each}
+			</ul>
+		{:else}
 		<ul>
 			{#if !!itemToUse}
 				<li class:selected={optionSelected === 0} on:click={() => useItem()}>USE ({itemName})</li>
@@ -301,6 +336,7 @@
 				<li class:selected={optionSelected === 3} on:click={() => (openOptions = false)}>CANCEL</li>
 			{/if}
 		</ul>
+		{/if}
 	</div>
 </div>
 
@@ -325,6 +361,21 @@
 {/if}
 
 <style lang="scss">
+	.close {
+		position: absolute;
+		top: 4%;
+		left: 2%;
+		width: 46px;
+
+		button {
+			height: 46px;
+			width: 46px;
+			color: white;
+			background-color: transparent;
+			border: none;
+			outline: none;
+		}
+	}
 	.options {
 		position: absolute;
 		font-size: 32px;
