@@ -649,6 +649,7 @@
 				display: flex;
 				align-items: center;
 				justify-content: center;
+				overflow: hidden;
 
 				svg {
 					height: 133%;
@@ -678,6 +679,7 @@
 			background-color: rgba(44, 56, 69, 0.45);
 			border-radius: 6px;
 			color: white;
+			overflow: hidden;
 
 			svg {
 				height: 100%;
@@ -690,6 +692,7 @@
 			background-color: rgba(44, 56, 69, 0.45);
 			border-radius: 6px;
 			color: white;
+			overflow: hidden;
 
 			svg {
 				height: 100%;
