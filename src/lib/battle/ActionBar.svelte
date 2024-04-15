@@ -61,20 +61,23 @@
 			selectedMoveIdx = idx;
 		} else if (battleCtx) {
 			// TODO if currentCombo, send combo action
-			if(!!currentCombo){
-				battleCtx.startTurn(new Attack(
-				new ComboMove(move, currentCombo.move, currentCombo.pokemon),	
-				 'opponent', battleCtx.playerPokemon));
+			if (!!currentCombo) {
+				battleCtx.startTurn(
+					new Attack(
+						new ComboMove(move, currentCombo.move, currentCombo.pokemon),
+						'opponent',
+						battleCtx.playerPokemon
+					)
+				);
+				infoOpened = false;
 				currentCombo = undefined;
 				combo = false;
 				moveOpened = false;
 				return;
-			}else {
+			} else {
 				battleCtx.startTurn(new Attack(move, 'opponent', battleCtx.playerPokemon));
 				moveOpened = false;
 			}
-
-			
 		}
 	}
 
@@ -111,16 +114,18 @@
 	}
 
 	function toggleCombo() {
-		if(!combo && !currentCombo){
+		if (!combo && !currentCombo) {
 			combo = true;
-		}else if(!combo && currentCombo){
+		} else if (!combo && currentCombo) {
 			currentCombo = undefined;
+			infoOpened = false;
 		}
 	}
 
 	function prepareCombo(pokemon: PokemonInstance, move: MoveInstance) {
 		//console.log(pokemon, move);
 		currentCombo = { pokemon, move };
+		infoOpened = true;
 	}
 
 	function sendObjectAction(result: { item: number; target?: PokemonInstance }) {
@@ -228,23 +233,60 @@
 	<div class="move-desc" class:show={infoOpened}>
 		<div class="wrapper">
 			<div class="_desc">
-				<p>Acc. {battleCtx?.playerPokemon?.moves[selectedMoveIdx].accuracy} %</p>
-				<hr />
-				<p>
-					{battleCtx?.playerPokemon?.moves[selectedMoveIdx].description
-						?.replace(mechanicRegex, '')
-						?.replace(
-							effectRegex,
-							battleCtx?.playerPokemon?.moves[selectedMoveIdx].effectChance + ''
-						)}
-				</p>
+				{#if !!currentCombo}
+					<h4>Combo with {currentCombo.pokemon.name} !</h4>
+					<p>
+						Pwr: {currentCombo.move.power / 2 +
+							battleCtx?.playerPokemon?.moves[selectedMoveIdx].power}
+						({currentCombo.move.power | 0} * 0.5 + {battleCtx?.playerPokemon?.moves[selectedMoveIdx]
+							.power | 0})
+					</p>
+					<p>
+						Types: {currentCombo.move.type}, {battleCtx?.playerPokemon?.moves[selectedMoveIdx].type}
+					</p>
+					<hr />
+					<p>Effects: (boosted chances)</p>
+					<ul>
+						<li>
+							{currentCombo.move.effect.effect
+								?.replace(mechanicRegex, '')
+								?.replace(
+									effectRegex,
+									(currentCombo.move.effectChance * 1.5 > 100
+										? 100
+										: currentCombo.move.effectChance * 1.5) + ''
+								)}
+						</li>
+						<li>
+							{battleCtx?.playerPokemon?.moves[selectedMoveIdx].effect.effect
+								?.replace(mechanicRegex, '')
+								?.replace(
+									effectRegex,
+									(battleCtx?.playerPokemon?.moves[selectedMoveIdx].effectChance * 1.5 > 100
+										? 100
+										: battleCtx?.playerPokemon?.moves[selectedMoveIdx].effectChance * 1.5) + ''
+								)}
+						</li>
+					</ul>
+				{:else}
+					<p>Acc. {battleCtx?.playerPokemon?.moves[selectedMoveIdx].accuracy} %</p>
+					<hr />
+					<p>
+						{battleCtx?.playerPokemon?.moves[selectedMoveIdx].description
+							?.replace(mechanicRegex, '')
+							?.replace(
+								effectRegex,
+								battleCtx?.playerPokemon?.moves[selectedMoveIdx].effectChance + ''
+							)}
+					</p>
+				{/if}
 			</div>
 		</div>
 	</div>
 
 	<div class="additionnal">
 		<div class="combo">
-			<button class="combo-btn" on:click={() => (toggleCombo())} disabled={comboDisabled}>
+			<button class="combo-btn" on:click={() => toggleCombo()} disabled={comboDisabled}>
 				{#if !currentCombo}
 					<svg
 						version="1.0"
@@ -252,18 +294,38 @@
 						viewBox="0 0 1920.000000 1920.000000"
 						preserveAspectRatio="xMidYMid meet"
 					>
-						<g
-							transform="translate(0.000000,1920.000000) scale(0.100000,-0.100000)"
-							fill="currentColor"
-							stroke="none"
-						>
+						<defs>
+							<linearGradient id="myGradient2" x2="1" y2="1">
+								<stop offset="0%" stop-color="#01a9da" />
+								<stop offset="20%" stop-color="#e876ac" />
+							</linearGradient>
+							<linearGradient id="myGradient3" x2="1" y2="1">
+								<stop offset="0%" stop-color="#00a658" />
+								<stop offset="50%" stop-color="#01a9da" />
+								<stop offset="100%" stop-color="#e876ac" />
+							</linearGradient>
+							<linearGradient id="myGradient4" x2="1" y2="1">
+								<stop offset="0%" stop-color="#f4e90e" />
+								<stop offset="33%" stop-color="#00a658" />
+								<stop offset="90%" stop-color="#01a9da" />
+								<stop offset="100%" stop-color="#e876ac" />
+							</linearGradient>
+							<linearGradient id="myGradient5" x2="1" y2="1">
+								<stop offset="0%" stop-color="#f4e90e" />
+								<stop offset="100%" stop-color="#00a658" />
+							</linearGradient>
+						</defs>
+
+						<g transform="translate(0.000000,1920.000000) scale(0.100000,-0.100000)" stroke="none">
 							<path
+								fill="url(#myGradient2)"
 								d="M14625 16153 c-213 -182 -365 -323 -599 -553 -398 -393 -707 -738
 -1093 -1219 l-132 -164 182 -91 c278 -140 470 -268 639 -425 42 -39 80 -71 84
 -70 5 0 54 57 109 126 450 567 1017 1161 1477 1549 64 55 117 101 117 104 1 7
 -678 814 -687 818 -4 1 -48 -32 -97 -75z"
 							/>
 							<path
+								fill="url(#myGradient3)"
 								d="M11375 14259 c-483 -58 -957 -257 -1345 -566 -111 -88 -329 -305
 -414 -413 -279 -354 -563 -876 -886 -1630 -152 -355 -747 -1868 -738 -1875 2
 -1 93 -7 203 -14 110 -7 340 -23 510 -36 171 -13 332 -25 358 -26 l49 -3 162
@@ -275,6 +337,7 @@
 338 -495 576 -903 780 -300 150 -572 239 -886 291 -118 19 -548 28 -669 13z"
 							/>
 							<path
+								fill="url(#myGradient4)"
 								d="M11897 12952 c-457 -692 -995 -1615 -1449 -2487 -440 -845 -653
 -1317 -1092 -2423 -281 -705 -456 -1100 -612 -1373 -71 -125 -223 -353 -297
 -444 -310 -384 -736 -644 -1211 -740 -68 -14 -137 -25 -153 -25 -38 0 -43 -4
@@ -285,6 +348,7 @@
 212 -108 92 -345 212 -532 269 -161 49 -158 49 -188 4z"
 							/>
 							<path
+								fill="url(#myGradient5)"
 								d="M7180 9600 c-593 -45 -1004 -172 -1388 -427 -332 -220 -632 -553
 -886 -982 -164 -276 -307 -600 -390 -881 -119 -401 -139 -851 -56 -1234 61
 -278 208 -587 390 -817 l38 -49 264 278 c336 353 478 508 478 522 0 6 -13 34
@@ -294,6 +358,7 @@
 -218 14 -255 14 -490 30 -1095 77 -485 37 -1047 52 -1285 34z"
 							/>
 							<path
+								fill="url(#myGradient5)"
 								d="M7393 8338 c-5 -7 -33 -65 -63 -128 -144 -307 -282 -555 -499 -895
 -369 -580 -796 -1142 -1202 -1581 -787 -850 -1346 -1406 -1687 -1677 -48 -38
 -102 -81 -119 -95 l-33 -27 245 -475 c135 -261 246 -479 248 -485 9 -25 440
@@ -498,16 +563,28 @@
 		position: absolute;
 		left: 51%;
 		bottom: -40%;
-		width: 34%;
+		width: 47%;
+		color: white;
 		text-transform: initial;
 		text-align: left;
 		font-size: 30px;
 		word-break: break-word;
 		box-sizing: border-box;
-		max-height: 50%;
-		background-color: rgba(255, 255, 255, 0.3);
+		max-height: 53%;
+		overflow: auto;
+		scrollbar-width: thin;
+		scrollbar-color: #68c0c8 #0e2742f0;
+		background-color: rgba(0, 0, 0, 0.6);
 		transition: bottom 0.5s ease-in-out;
 		opacity: 0;
+		z-index: 9;
+
+		h4,
+		h5,
+		ul,
+		p {
+			margin: 0;
+		}
 
 		&.show {
 			animation: info-appear 0.5s ease-in forwards;
@@ -516,10 +593,6 @@
 		.wrapper {
 			box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.45);
 			background: rgba(0, 0, 0, 0.05);
-		}
-
-		p {
-			margin: 0;
 		}
 
 		._desc {
@@ -569,12 +642,16 @@
 			.combo-btn {
 				height: 100%;
 				width: 6dvw;
-				background-color: rgba(44, 56, 69, 0.45);
+				background-color: rgba(44, 56, 69, 0.85);
 				border-radius: 6px;
 				color: white;
+				/* text-align: center; */
+				display: flex;
+				align-items: center;
+				justify-content: center;
 
 				svg {
-					height: 100%;
+					height: 133%;
 				}
 			}
 
@@ -586,7 +663,7 @@
 				padding: 1% 4%;
 				background-color: rgba(44, 56, 69, 0.45);
 				border-radius: 6px;
-				color: var(--color, white);
+				color: white;
 				text-shadow: 1px 0px 0px black;
 				text-overflow: ellipsis;
 				overflow: hidden;

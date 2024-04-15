@@ -560,12 +560,12 @@ export class ComboMove extends Move {
             `Combo ${move1.name} + ${move2.name}`,
             move1.type,
             move1.category,
-            move1.power + move2.power / 2,
+            move1.power,
             100,
             move1.pp,
             move1.priority,
             move1.effect,
-            move1.effectChance,
+            move1.effectChance * 1.5 > 100 ? 100 : move1.effectChance * 1.5,
             `Combo`,
             move1.level
         )

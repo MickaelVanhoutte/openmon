@@ -69,7 +69,7 @@ export class Attack implements ActionV2Interface {
     public description: string;
     public move: MoveInstance | ComboMove;
     public target: 'opponent' | 'ally';
-    public initiator: PokemonInstance ;
+    public initiator: PokemonInstance;
 
     constructor(move: MoveInstance | ComboMove, target: 'opponent' | 'ally', initiator: PokemonInstance) {
         this.type = ActionType.ATTACK;
@@ -109,45 +109,76 @@ export class Attack implements ActionV2Interface {
 
             if (this.move instanceof ComboMove) {
                 let move: ComboMove = this.move;
+
+                const result2 = this.calculateDamage(attacker, target, move.move2, ctx, .5);
+
+                actionsToPush.push(new PlayAnimation(this.move, this.target, this.initiator));
+
+                actionsToPush.push(new Message(move.pokemon2.name + ' used ' + move.move2.name + '!', this.initiator));
+
                 move.effects.forEach((eff, index) => {
                     let effect = MOVE_EFFECT_APPLIER.findEffect(eff);
-                    if(effect.when === 'before-move' && this.effectApplies(move.effectsChances[index], eff)) {
+                    if (effect.when === 'before-move' && this.effectApplies(move.effectsChances[index], eff)) {
                         actionsToPush.push(new ApplyEffect(eff, this.target, this.initiator))
                     }
                 });
+
+                if (result2.immune) {
+                    actionsToPush.push(new Message(move.move2.name + ' doesn\'t affect ' + target.name + '...', this.initiator));
+                } else if (result2.notVeryEffective) {
+                    actionsToPush.push(new Message(move.move2.name + ' is not very effective...', this.initiator));
+                } else if (result2.superEffective) {
+                    actionsToPush.push(new Message(move.move2.name + ' is super effective!', this.initiator));
+                }
+                if (result2.critical) {
+                    actionsToPush.push(new Message(move.move2.name + ' critical hit!', this.initiator));
+                }
+
+                if (result.immune) {
+                    actionsToPush.push(new Message(move.move1.name + ' doesn\'t affect ' + target.name + '...', this.initiator));
+                } else if (result.notVeryEffective) {
+                    actionsToPush.push(new Message(move.move1.name + ' is not very effective...', this.initiator));
+                } else if (result.superEffective) {
+                    actionsToPush.push(new Message(move.move1.name + ' is super effective!', this.initiator));
+                }
+                if (result.critical) {
+                    actionsToPush.push(new Message(move.move1.name + ' critical hit!', this.initiator));
+                }
+
+                actionsToPush.push(new RemoveHP(result.damages + result2.damages, this.target, this.initiator));
+
+                move.effects.forEach((effect, index) => {
+                    let eff = MOVE_EFFECT_APPLIER.findEffect(effect);
+                    if (this.effectApplies(move.effectsChances[index], effect) && eff.when !== 'before-move') {
+                        actionsToPush.push(new ApplyEffect(effect, this.target, this.initiator))
+                    }
+                });
+
             } else {
                 let effect = MOVE_EFFECT_APPLIER.findEffect(this.move.effect);
                 if (effect.when === 'before-move' && this.effectApplies(this.move.effectChance, this.move.effect)) {
                     actionsToPush.push(new ApplyEffect(this.move.effect, this.target, this.initiator))
                 }
-            } 
 
-            if (!result.immune) {
-                actionsToPush.push(new PlayAnimation(this.move, this.target, this.initiator));
-            }
-            if (result.immune) {
-                actionsToPush.push(new Message('It doesn\'t affect ' + target.name + '...', this.initiator));
-            } else if (result.notVeryEffective) {
-                actionsToPush.push(new Message('It\'s not very effective...', this.initiator));
-            } else if (result.superEffective) {
-                actionsToPush.push(new Message('It\'s super effective!', this.initiator));
-            }
-            if (result.critical) {
-                actionsToPush.push(new Message('A critical hit!', this.initiator));
-            }
+                if (!result.immune) {
+                    actionsToPush.push(new PlayAnimation(this.move, this.target, this.initiator));
+                }
+                if (result.immune) {
+                    actionsToPush.push(new Message('It doesn\'t affect ' + target.name + '...', this.initiator));
+                } else if (result.notVeryEffective) {
+                    actionsToPush.push(new Message('It\'s not very effective...', this.initiator));
+                } else if (result.superEffective) {
+                    actionsToPush.push(new Message('It\'s super effective!', this.initiator));
+                }
+                if (result.critical) {
+                    actionsToPush.push(new Message('A critical hit!', this.initiator));
+                }
 
-            actionsToPush.push(new RemoveHP(result.damages, this.target, this.initiator));
+                actionsToPush.push(new RemoveHP(result.damages, this.target, this.initiator));
 
-            // Apply attack effect
-            if (!result.immune && this.move instanceof ComboMove) {
-                let move: ComboMove = this.move;
-                move.effects.forEach((effect, index) => {
-                    if(this.effectApplies(move.effectsChances[index], effect)) {
-                        actionsToPush.push(new ApplyEffect(effect, this.target, this.initiator))
-                    }
-                });
-            } else if (!result.immune && this.effectApplies(this.move.effectChance, this.move.effect)) {
-                actionsToPush.push(new ApplyEffect(this.move.effect, this.target, this.initiator))
+                if (!result.immune && this.effectApplies(this.move.effectChance, this.move.effect) && effect.when !== 'before-move') {
+                    actionsToPush.push(new ApplyEffect(this.move.effect, this.target, this.initiator));
+                }
             }
 
         } else {
@@ -159,13 +190,13 @@ export class Attack implements ActionV2Interface {
 
 
     private flushActions(ctx: BattleContext, actionsToPush: ActionV2Interface[]) {
-       // console.log(actionsToPush);
+        // console.log(actionsToPush);
         if (actionsToPush && actionsToPush.length > 0) {
             actionsToPush.reverse().forEach((action: ActionV2Interface) => ctx.addToStack(action));
         }
     }
 
-    private calculateDamage(attacker: PokemonInstance, defender: PokemonInstance, move: MoveInstance | ComboMove, ctx: BattleContext): DamageResults {
+    private calculateDamage(attacker: PokemonInstance, defender: PokemonInstance, move: MoveInstance | ComboMove, ctx: BattleContext, modifier: number = 1): DamageResults {
         let result = new DamageResults();
         const typeEffectiveness = this.calculateTypeEffectiveness(move.type, defender.types, ctx);
         result.superEffective = typeEffectiveness > 1;
@@ -182,7 +213,7 @@ export class Attack implements ActionV2Interface {
             const stab = this.calculateStab(attacker, move);
             const other = 1; // TODO weather, badges  ...
             const modifiers = typeEffectiveness * critical * random * stab * other;
-            result.damages = Math.floor((((2 * attacker.level / 5 + 2) * move.power * attack / defense) / 50 + 2) * modifiers);
+            result.damages = Math.floor((((2 * attacker.level / 5 + 2) * move.power * attack / defense) / 50 + 2) * modifiers * modifier);
 
         } else {
             result.damages = 0;
