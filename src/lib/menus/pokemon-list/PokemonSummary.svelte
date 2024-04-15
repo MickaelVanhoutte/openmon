@@ -40,9 +40,9 @@
 			moveEdit = false;
 			return;
 		} else {
-			if(isBattle){
+			if (isBattle) {
 				battleSummaryOpened = false;
-			}else{
+			} else {
 				context.overWorldContext.closeMenu(MenuType.SUMMARY);
 			}
 		}
@@ -132,7 +132,13 @@
 			<span class="arrow"></span>
 		</button>
 
-		<button class="back" on:click={() => back()}>BACK</button>
+		<button class="back" on:click={() => back()}>
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+				><path
+					d="M10.5859 12L2.79297 4.20706L4.20718 2.79285L12.0001 10.5857L19.793 2.79285L21.2072 4.20706L13.4143 12L21.2072 19.7928L19.793 21.2071L12.0001 13.4142L4.20718 21.2071L2.79297 19.7928L10.5859 12Z"
+				></path></svg
+			>
+		</button>
 	</div>
 
 	<div class="tab-content">
@@ -240,9 +246,13 @@
 					font-family: pokemon, serif;
 					right: 1%;
 					background: none;
-					font-size: 32px;
+					font-size: 20px;
 					color: white;
 					text-shadow: 1px 1px 1px black;
+
+					svg {
+						height: 100%;
+					}
 				}
 
 				&.previous,
@@ -308,25 +318,25 @@
 			background-color: #0e2742f0;
 			//background-image: url('src/assets/menus/p-sum.jpg');
 			background: rgb(0, 29, 43);
-		background: -moz-linear-gradient(
-			140deg,
-			rgba(0, 29, 43, 1) 0%,
-			rgba(3, 84, 142, 1) 42%,
-			rgba(0, 195, 230, 1) 100%
-		);
-		background: -webkit-linear-gradient(
-			140deg,
-			rgba(0, 29, 43, 1) 0%,
-			rgba(3, 84, 142, 1) 42%,
-			rgba(0, 195, 230, 1) 100%
-		);
-		background: linear-gradient(
-			140deg,
-			rgba(0, 29, 43, 1) 0%,
-			rgba(3, 84, 142, 1) 42%,
-			rgba(0, 195, 230, 1) 100%
-		);
-		color: #fff;
+			background: -moz-linear-gradient(
+				140deg,
+				rgba(0, 29, 43, 1) 0%,
+				rgba(3, 84, 142, 1) 42%,
+				rgba(0, 195, 230, 1) 100%
+			);
+			background: -webkit-linear-gradient(
+				140deg,
+				rgba(0, 29, 43, 1) 0%,
+				rgba(3, 84, 142, 1) 42%,
+				rgba(0, 195, 230, 1) 100%
+			);
+			background: linear-gradient(
+				140deg,
+				rgba(0, 29, 43, 1) 0%,
+				rgba(3, 84, 142, 1) 42%,
+				rgba(0, 195, 230, 1) 100%
+			);
+			color: #fff;
 			background-blend-mode: soft-light;
 		}
 	}

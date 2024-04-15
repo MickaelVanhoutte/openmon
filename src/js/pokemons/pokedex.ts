@@ -546,6 +546,40 @@ export class SpriteGroup {
     }
 }
 
+export class ComboMove extends Move {
+
+    public pokemon2: PokemonInstance;
+    public effects: MoveEffect[] = [];
+    public effectsChances: number[] = [];
+    public move1: MoveInstance;
+    public move2: MoveInstance;
+
+    constructor(move1: MoveInstance, move2: MoveInstance, pokemon2: PokemonInstance) {
+        super(
+            -1,
+            `Combo ${move1.name} + ${move2.name}`,
+            move1.type,
+            move1.category,
+            move1.power,
+            100,
+            move1.pp,
+            move1.priority,
+            move1.effect,
+            move1.effectChance * 1.5 > 100 ? 100 : move1.effectChance * 1.5,
+            `Combo`,
+            move1.level
+        )
+        this.move1 = move1;
+        this.move2 = move2;
+        this.pokemon2 = pokemon2;
+        this.effects.push(move1.effect);
+        this.effects.push(move2.effect);
+        // effectChance haves 50% bonus (max 100%)
+        this.effectsChances.push(move1.effectChance * 1.5 > 100 ? 100 : move1.effectChance * 1.5);
+        this.effectsChances.push(move2.effectChance * 1.5 > 100 ? 100 : move2.effectChance * 1.5);
+    } 
+
+}
 
 export class MoveInstance extends Move {
     public currentPp: number;

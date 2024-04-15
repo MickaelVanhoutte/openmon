@@ -179,7 +179,7 @@
 </div>
 
 {#if context.overWorldContext.menus.pokemonListOpened}
-	<PokemonList bind:context {isBattle} onChange={() => 0} zIndex={10} />
+	<PokemonList bind:context {isBattle} onChange={() => 0} zIndex={10} onCombo={() => {}} />
 {/if}
 
 {#if context.overWorldContext.menus.bagOpened}

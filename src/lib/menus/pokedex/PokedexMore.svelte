@@ -143,7 +143,7 @@
 <style lang="scss">
 	
 	.more-tab {
-		height: calc(100% - 66px);
+		height: calc(100% - 80px);
 		background-position: center;
 		background-size: contain;
 		background-repeat: no-repeat;

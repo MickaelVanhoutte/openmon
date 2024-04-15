@@ -262,9 +262,13 @@
 <div class="boxes">
 	<div class="party">
 		<div class="title">
-			<button class="cancel" on:click={() => context.overWorldContext.closeMenu(MenuType.BOX)}
-				>BACK</button
-			>
+			<button class="cancel" on:click={() => context.overWorldContext.closeMenu(MenuType.BOX)}>
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+					><path
+						d="M10.5859 12L2.79297 4.20706L4.20718 2.79285L12.0001 10.5857L19.793 2.79285L21.2072 4.20706L13.4143 12L21.2072 19.7928L19.793 21.2071L12.0001 13.4142L4.20718 21.2071L2.79297 19.7928L10.5859 12Z"
+					></path></svg
+				>
+			</button>
 		</div>
 		<div class="entries">
 			{#each teamSlot as pokemon, i}
@@ -486,31 +490,29 @@
 			flex-direction: column;
 
 			.title {
-				height: 42px;
+				height: 46px;
 				width: 100%;
 
 				display: flex;
 				flex-direction: row;
-				justify-content: center;
+				justify-content: flex-start;
 				align-items: center;
 				padding: 1%;
 				box-sizing: border-box;
 
 				.cancel {
-					width: 66%;
-					font-size: 28px;
-					text-align: center;
-					font-family: pokemon, serif;
+
+					height: 46px;
+					width: 46px;
 					color: white;
-					text-shadow: 3px 1px 2px #54506c;
-					background-color: #5c438966;
-					border-radius: 4px;
-					border: 2px solid rgba(0, 0, 0, 0.7);
+					background-color: transparent;
+					border: none;
+					outline: none;
 				}
 			}
 
 			.entries {
-				height: calc(100dvh - 46px);
+				height: calc(100dvh - 50px);
 				width: 100%;
 				overflow-y: auto;
 				display: flex;
@@ -522,7 +524,7 @@
 				.entry {
 					color: white;
 					font-size: 18px;
-					height: calc((100dvh - 46px - 6%) / 6);
+					height: calc((100dvh - 50px - 6%) / 6);
 					width: 23dvw;
 					margin: 0 auto;
 					display: flex;
@@ -570,7 +572,7 @@
 				flex-direction: row;
 				justify-content: space-between;
 				align-items: center;
-				height: 42px;
+				height: 46px;
 				width: 99%;
 				box-sizing: border-box;
 				padding: 1% 3.5%;
@@ -619,7 +621,7 @@
 				gap: 1%;
 				box-sizing: border-box;
 				width: 100%;
-				height: calc(100dvh - 46px);
+				height: calc(100dvh - 50px);
 
 				.entry {
 					width: calc(94% / 6);

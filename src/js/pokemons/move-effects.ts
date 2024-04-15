@@ -54,7 +54,7 @@ class RegularDamageEffect implements Effect {
     }
 
     apply(target: PokemonInstance[], user: PokemonInstance): EffectResult {
-        console.log('RegularDamageEffect');
+        //console.log('RegularDamageEffect');
         return new EffectResult();
     }
 
@@ -117,7 +117,7 @@ class Poison implements Effect {
     apply(target: PokemonInstance[], user: PokemonInstance): EffectResult {
         console.log('Poison');
         let poison = new Poison();
-        poison.damages = Math.floor(target[0].stats.hp / 16);
+        poison.damages = Math.floor(target[0].currentStats.hp / 16);
         return new EffectResult(poison, `${target[0].name} is poisoned`);
     }
 
@@ -154,7 +154,7 @@ class Burn implements Effect {
     apply(target: PokemonInstance[], user: PokemonInstance): EffectResult {
         console.log('burn');
         let burn = new Burn();
-        burn.damages = Math.floor(target[0].stats.hp / 16);
+        burn.damages = Math.floor(target[0].currentStats.hp / 16);
         return new EffectResult(burn, `${target[0].name} is burnt`);
     }
 

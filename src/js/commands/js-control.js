@@ -292,7 +292,7 @@ export class JoystickController {
             this.container.remove();
         };
         this.updateCoordinates = (x, y) => {
-            console.log('update');
+            //console.log('update');
             // distance from center
             this.distance = Math.sqrt(Math.pow(x - this.centerX, 2) + Math.pow(y - this.centerY, 2)).toFixed(4);
             // angle from center in Radians
@@ -407,7 +407,7 @@ export class JoystickController {
             const x = touch.clientX;
             const y = touch.clientY;
             // update coordinates
-            console.log('update');
+            //console.log('update');
             this.updateCoordinates(x, y);
         };
         this.onMouseEvent = event => {

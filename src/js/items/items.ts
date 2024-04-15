@@ -36,7 +36,7 @@ export class Pokeball extends AItem {
 
             let success = (( 1 + ( maxHp * 3 - currentHp * 2 ) * captureRate * this.power * statusBonus ) / ( maxHp * 3 )) / 256;
 
-            console.log(success);
+            //console.log(success);
             return new ItemUsageResult(Math.random() < success);
         }
 

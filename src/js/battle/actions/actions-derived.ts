@@ -1,7 +1,7 @@
 // DERIVED FROM MAIN ACTIONS
 
 import { ActionType, type ActionV2Interface } from "./actions-model";
-import { Move, PokemonInstance } from "../../pokemons/pokedex";
+import { Move, MoveEffect, PokemonInstance } from "../../pokemons/pokedex";
 import type { BattleContext } from "../../context/battleContext";
 import { Player } from "../../characters/player";
 import { type Character } from "../../characters/characters-model";
@@ -53,22 +53,22 @@ export class ChangePokemon implements ActionV2Interface {
 export class ApplyEffect implements ActionV2Interface {
     public type: ActionType;
     public description: string;
-    public move?: Move;
+    public moveEffect?: MoveEffect;
     public target: 'opponent' | 'ally';
     public initiator: PokemonInstance;
 
-    constructor(move: Move, target: 'opponent' | 'ally', initiator: PokemonInstance) {
+    constructor(moveEffect: MoveEffect, target: 'opponent' | 'ally', initiator: PokemonInstance) {
         this.type = ActionType.APPLY_EFFECT;
         this.description = 'Apply Effect';
-        this.move = move;
+        this.moveEffect = moveEffect;
         this.target = target;
         this.initiator = initiator;
     }
 
     execute(ctx: BattleContext): void {
         let target = this.initiator === ctx.playerPokemon ? ctx.opponentPokemon : ctx.playerPokemon;
-        if (!target.fainted && this.move) {
-            let result = MOVE_EFFECT_APPLIER.apply(this.move.effect, [target], this.initiator);
+        if (!target.fainted && this.moveEffect) {
+            let result = MOVE_EFFECT_APPLIER.apply(this.moveEffect, [target], this.initiator);
             if (result?.effect) {
                 target.status = result.effect;
             }
