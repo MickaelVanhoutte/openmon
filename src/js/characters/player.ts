@@ -6,6 +6,23 @@ import { type Character, CharacterPosition, RUNNING_SPEED, WALKING_SPEED } from 
 import { Follower } from "./follower";
 import type { OverworldContext } from "../context/overworldContext";
 
+export class ComboJauge {
+    public value: number = 0;
+    public stored: number = 0;
+
+    public addValue(value: number) {
+        this.value += value;
+        if (this.value > 100) {
+            this.value = 100;
+            
+            if(this.stored < 3){
+                this.stored++;
+                this.value = 0;
+            }
+        }
+    }
+}
+
 export class Player implements Character {
     public spriteId: number;
     public name: string;
@@ -18,10 +35,12 @@ export class Player implements Character {
     public sprite: PlayerSprite;
     public position: CharacterPosition = new CharacterPosition();
 
+    public comboJauge: ComboJauge = new ComboJauge();
+
     // followerIdx (chose a monster to follow you TODO)
     public follower?: Follower;
 
-    constructor(spriteId: number, name: string, gender: 'MALE' | 'FEMALE', monsters: PokemonInstance[], bag: Bag, lvl: number, moving: boolean, follower?: Follower) {
+    constructor(spriteId: number, name: string, gender: 'MALE' | 'FEMALE', monsters: PokemonInstance[], bag: Bag, lvl: number, moving: boolean, comboJauge: ComboJauge, follower?: Follower) {
         this.spriteId = spriteId;
         this.name = name;
         this.gender = gender;
@@ -31,6 +50,7 @@ export class Player implements Character {
         this.moving = moving;
         this.position = new CharacterPosition();
         this.sprite = CHARACTER_SPRITES.getSprite(spriteId);
+        this.comboJauge = comboJauge;
         this.follower = follower;
     }
 
@@ -42,7 +62,8 @@ export class Player implements Character {
             [],
             new Bag(),
             1,
-            false
+            false,
+            new ComboJauge(),
         )
     }
 
@@ -55,6 +76,7 @@ export class Player implements Character {
             character.bag,
             character.lvl,
             character.moving,
+            character.comboJauge || new ComboJauge(),
             character.follower,
         );
     }

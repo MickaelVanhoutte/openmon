@@ -9,6 +9,7 @@
 	import Bag from '../menus/bag/Bag.svelte';
 	import { Pokeball } from '../../js/items/items';
 	import { MenuType, OverworldContext } from '../../js/context/overworldContext';
+	import { ComboJauge } from '../../js/characters/player';
 
 	export let context: GameContext;
 	export let battleCtx: BattleContext;
@@ -31,11 +32,10 @@
 	const mechanicRegex = /{[^}]*}/g;
 	const effectRegex = /\$effect_chance/g;
 
-	let comboJauge = 20;
-	let comboCount = 2;
+	$:comboJauge = battleCtx.player.comboJauge;
 
 	$: comboDisabled =
-		battleCtx.usedCombo || battleCtx.player.monsters?.filter((p) => !p.fainted).length === 1;
+		battleCtx.player.comboJauge.stored === 0 || battleCtx.player.monsters?.filter((p) => !p.fainted).length === 1;
 	battleCtx.currentMessage.subscribe((message) => {
 		currentMessage = message;
 	});
@@ -392,9 +392,9 @@
 					<div class="progressbar-wrapper">
 						<div
 							class="progressbar"
-							class:warning={comboJauge <= 50}
-							class:danger={comboJauge < 15}
-							style="--width:{comboJauge + '%'}"
+							class:warning={comboJauge.value <= 50}
+							class:danger={comboJauge.value < 15}
+							style="--width:{comboJauge.value + '%'}"
 						>
 							<span></span>
 						</div>
@@ -402,13 +402,21 @@
 				</div>
 			{/if}
 		</div>
-		<div>
+		<div class="info-back">
 			<button class="info-btn" on:click={() => (infoOpened = !infoOpened)}>
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-					><path
-						d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20ZM11 7H13V9H11V7ZM11 11H13V17H11V11Z"
-					></path></svg
-				>
+				{#if !infoOpened}
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+						><path
+							d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20ZM11 7H13V9H11V7ZM11 11H13V17H11V11Z"
+						></path></svg
+					>
+				{:else}
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+						><path
+							d="M10.5859 12L2.79297 4.20706L4.20718 2.79285L12.0001 10.5857L19.793 2.79285L21.2072 4.20706L13.4143 12L21.2072 19.7928L19.793 21.2071L12.0001 13.4142L4.20718 21.2071L2.79297 19.7928L10.5859 12Z"
+						></path></svg
+					>
+				{/if}
 			</button>
 			<button class="back-btn" on:click={() => (moveOpened = false)}>
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
@@ -725,11 +733,15 @@
 
 					.progressbar {
 						width: var(--width);
-						background: linear-gradient(to bottom, rgba(232, 25, 87, 1) 0%, rgba(170, 0, 51, 1) 100%);
+						background: linear-gradient(
+							to bottom,
+							rgba(232, 25, 87, 1) 0%,
+							rgba(170, 0, 51, 1) 100%
+						);
 						height: 100%;
 						position: relative;
 						overflow: hidden;
-						border-radius: 2px;
+						border-radius: 4px;
 						display: flex;
 						text-align: center;
 						align-items: center;
@@ -808,33 +820,42 @@
 			}
 		}
 
-		.back-btn {
+		.info-back {
+			display: flex;
+			align-items: center;
+			justify-content: flex-end;
+			width: 30%;
 			height: 100%;
-			width: 6dvw;
-			background-color: rgba(44, 56, 69, 0.45);
-			border-radius: 6px;
-			color: white;
-			overflow: hidden;
+			gap: 3%;
 
-			svg {
+			.back-btn {
 				height: 100%;
-				max-height: 100%;
-				max-width: 100%;
+				width: 6dvw;
+				background-color: rgba(44, 56, 69, 0.45);
+				border-radius: 6px;
+				color: white;
+				overflow: hidden;
+
+				svg {
+					height: 100%;
+					max-height: 100%;
+					max-width: 100%;
+				}
 			}
-		}
 
-		.info-btn {
-			height: 100%;
-			width: 6dvw;
-			background-color: rgba(44, 56, 69, 0.45);
-			border-radius: 6px;
-			color: white;
-			overflow: hidden;
-
-			svg {
+			.info-btn {
 				height: 100%;
-				max-height: 100%;
-				max-width: 100%;
+				width: 6dvw;
+				background-color: rgba(44, 56, 69, 0.45);
+				border-radius: 6px;
+				color: white;
+				overflow: hidden;
+
+				svg {
+					height: 100%;
+					max-height: 100%;
+					max-width: 100%;
+				}
 			}
 		}
 	}
