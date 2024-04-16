@@ -3,7 +3,7 @@
 import { ActionType, type ActionV2Interface } from "./actions-model";
 import { Move, MoveEffect, PokemonInstance } from "../../pokemons/pokedex";
 import type { BattleContext } from "../../context/battleContext";
-import { Player } from "../../characters/player";
+import { ComboJauge, Player } from "../../characters/player";
 import { type Character } from "../../characters/characters-model";
 import { NPC } from "../../characters/npc";
 import { MOVE_EFFECT_APPLIER } from "../battle-model";
@@ -159,7 +159,9 @@ export class ComboBoost implements ActionV2Interface {
             if (this.critical) {
                 valueToAdd += 5;
             }
+            
             this.controller.comboJauge.addValue(valueToAdd);
+            this.controller.comboJauge = new ComboJauge(this.controller.comboJauge.value, this.controller.comboJauge.stored);
         }
     }
 }
