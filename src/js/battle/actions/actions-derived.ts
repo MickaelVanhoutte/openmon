@@ -215,7 +215,14 @@ export class LvlUp implements ActionV2Interface {
         }
 
         ctx.addToStack(new Message(this.description, this.initiator));
-        this.initiator.levelUp();
+        let result = this.initiator.levelUp();
+        ctx.events.levelUp.set({pokemon: this.initiator, ...result});
+        console.log(result?.moves);
+        if(result?.moves && result.moves.length > 0) {
+            result.moves.forEach((move: Move) => {
+                ctx.addToStack(new Message(`${this.initiator.name} learned ${move.name}!`, this.initiator));
+            });
+        }
 
         // todo display stats (ctx onLvlUp)
     }

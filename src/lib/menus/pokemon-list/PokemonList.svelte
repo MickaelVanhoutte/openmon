@@ -113,6 +113,9 @@
 			battleSwitchOpened = false;
 		} else {
 			context.overWorldContext.closeMenu(MenuType.POKEMON_LIST);
+			if(context.overWorldContext.menus.bagOpened){
+				context.overWorldContext.closeMenu(MenuType.BAG);
+			}
 		}
 	}
 
@@ -125,6 +128,7 @@
 			let selectedMons = selected === 0 ? first : others[selected - 1];
 			onChange(selectedMons);
 		}
+		openOptions = false;
 		setTimeout(() => {
 			closeList();
 		}, 1000);

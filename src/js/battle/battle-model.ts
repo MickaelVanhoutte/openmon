@@ -1,5 +1,5 @@
 import "@abraham/reflection";
-import { Move, PokemonInstance } from "../pokemons/pokedex";
+import { Move, PokemonInstance, Stats } from "../pokemons/pokedex";
 import { container } from "tsyringe";
 import { MoveEffectApplier } from "../pokemons/move-effects";
 import type { Character } from "../characters/characters-model";
@@ -36,6 +36,8 @@ export class BattleEvents {
     runnaway: Writable<boolean> = writable(false);
 
     animateAttack: Writable<BattleAnimation | undefined> = writable(undefined);
+
+    levelUp: Writable<{pokemon: PokemonInstance, oldStats?: Stats, newStats?: Stats} | undefined> = writable(undefined);
 }
 
 export class TurnHistory {
