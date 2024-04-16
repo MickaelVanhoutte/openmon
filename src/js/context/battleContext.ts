@@ -9,7 +9,7 @@ import { writable, type Writable } from "svelte/store";
 import { ActionType, type ActionV2Interface } from "../battle/actions/actions-model";
 import { EXPERIENCE_CHART } from "../pokemons/experience";
 import { Attack, Switch, UseItem } from "../battle/actions/actions-selectable";
-import { EndTurnChecks, Message, XPWin } from "../battle/actions/actions-derived";
+import { EndTurnChecks, Message, PlayAnimation, XPWin } from "../battle/actions/actions-derived";
 import { ItemsReferences } from "../items/items";
 
 export class BattleContext {
@@ -110,7 +110,7 @@ export class BattleContext {
      */
     private executeAction(action?: ActionV2Interface) {
         this.currentAction.set(action);
-        //console.log('DEBUG, stack : ', this.actionStack.stack);
+        console.log('DEBUG, stack : ', this.actionStack.stack);
         if (action !== undefined) {
 
             if (action.type === ActionType.END_CHECKS) {
@@ -121,7 +121,7 @@ export class BattleContext {
             action.execute(this);
 
             // TODO wait for input ? (or settings, auto/manual)
-            this.sleep(1500).then(
+            this.sleep(action instanceof PlayAnimation ? 1600 : 800).then(
                 () => {
                     this.executeAction(this.actionStack?.pop());
                 }

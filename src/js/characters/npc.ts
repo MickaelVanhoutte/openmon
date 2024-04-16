@@ -4,6 +4,7 @@ import { Bag } from "../items/bag";
 import type { PokemonInstance } from "../pokemons/pokedex";
 import { Position } from "../mapping/positions";
 import { centerObject, CHARACTER_SPRITES } from "../sprites/sprites";
+import { ComboJauge } from "./player";
 
 export class NPC implements Character, Interactive {
     id: number;
@@ -12,6 +13,7 @@ export class NPC implements Character, Interactive {
     gender: 'MALE' | 'FEMALE';
     monsterIds: number[];
     monsters: PokemonInstance[];
+    comboJauge: ComboJauge = new ComboJauge();
     bag: Bag;
     moving: boolean = false;
     direction: 'up' | 'down' | 'left' | 'right' = 'down';

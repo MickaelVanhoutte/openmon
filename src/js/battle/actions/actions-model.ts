@@ -11,6 +11,7 @@ export enum ActionType {
     SWITCH_EFFECT = 'Switch-Effect',
     APPLY_EFFECT = 'Apply-Effect',
     REMOVE_HP = 'Remove-HP',
+    COMBO_BOOST = 'Combo-Boost',
     XP_WIN = 'XP-Win',
     LEVEL_UP = 'Level-Up',
     PLAY_ANIMATION = 'Play-Animation',

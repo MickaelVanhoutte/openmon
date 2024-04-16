@@ -32,10 +32,11 @@
 	const mechanicRegex = /{[^}]*}/g;
 	const effectRegex = /\$effect_chance/g;
 
-	$:comboJauge = battleCtx.player.comboJauge;
+	$: comboJauge = battleCtx.player.comboJauge;
 
 	$: comboDisabled =
-		battleCtx.player.comboJauge.stored === 0 || battleCtx.player.monsters?.filter((p) => !p.fainted).length === 1;
+		battleCtx.player.comboJauge.stored === 0 ||
+		battleCtx.player.monsters?.filter((p) => !p.fainted).length === 1;
 	battleCtx.currentMessage.subscribe((message) => {
 		currentMessage = message;
 	});
@@ -389,6 +390,7 @@
 				</span>
 			{:else}
 				<div class="combo-jauge">
+					<span>{comboJauge.stored}</span>
 					<div class="progressbar-wrapper">
 						<div
 							class="progressbar"
@@ -665,14 +667,13 @@
 		left: 51dvw;
 		z-index: 9;
 		height: 8.25dvh;
-		width: 47dvw;
+		width: 47.5dvw;
 		color: white;
 		display: flex;
 		justify-content: space-between;
 
 		.combo {
 			width: 70%;
-			gap: 3%;
 			height: 100%;
 			display: flex;
 			justify-content: space-between;
@@ -681,7 +682,7 @@
 				height: 100%;
 				width: 6dvw;
 				background-color: rgba(44, 56, 69, 0.85);
-				border-radius: 6px;
+				border-radius: 6px 0 0 6px;
 				color: white;
 				/* text-align: center; */
 				display: flex;
@@ -705,7 +706,7 @@
 				font-size: 26px;
 				padding: 1% 4%;
 				background-color: rgba(44, 56, 69, 0.45);
-				border-radius: 6px;
+				border-radius: 0 6px 6px 0;
 				color: white;
 				text-shadow: 1px 0px 0px black;
 				text-overflow: ellipsis;
@@ -720,9 +721,12 @@
 				max-width: calc(100% - 6dvw);
 				font-size: 26px;
 				padding: 1%;
-				background-color: rgba(44, 56, 69, 0.45);
-				border-radius: 6px;
+				background-color: rgba(44, 56, 69, 0.85);
+				border-radius: 0 6px 6px 0;
 				color: white;
+				display: flex;
+				gap: 2%;
+				align-items: center;
 
 				.progressbar-wrapper {
 					height: 100%;

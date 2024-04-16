@@ -223,6 +223,7 @@
 		bind:isBattle
 		bind:itemToUse
 		onChange={(pkmn) => use(pkmn)}
+		onCombo={() => {}}
 		zIndex={zIndex + 1}
 	/>
 {/if}

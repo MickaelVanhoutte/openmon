@@ -4,8 +4,9 @@ import type { BattleContext } from "../../context/battleContext";
 import { Player } from "../../characters/player";
 import { type Character } from "../../characters/characters-model";
 import { DamageResults, MOVE_EFFECT_APPLIER } from "../battle-model";
-import { ApplyEffect, ChangePokemon, EndBattle, Message, PlayAnimation, RemoveHP } from "./actions-derived";
+import { ApplyEffect, ChangePokemon, ComboBoost, EndBattle, Message, PlayAnimation, RemoveHP } from "./actions-derived";
 import { Pokeball } from "../../items/items";
+import { NPC } from "../../characters/npc";
 
 // SELECTABLE ACTIONS
 export class RunAway implements ActionV2Interface {
@@ -83,6 +84,7 @@ export class Attack implements ActionV2Interface {
     execute(ctx: BattleContext): void {
         const attacker = this.initiator;
         const target = this.target === 'opponent' ? ctx.opponentPokemon : ctx.playerPokemon;
+        const controller = this.target === 'opponent' ? ctx.player : ctx.opponent;
 
         const actionsToPush: ActionV2Interface[] = [];
         const success = this.accuracyApplies(this.move);
@@ -109,6 +111,10 @@ export class Attack implements ActionV2Interface {
 
             if (this.move instanceof ComboMove) {
                 let move: ComboMove = this.move;
+
+                if (controller instanceof NPC || controller instanceof Player && controller?.comboJauge) {
+                    controller.comboJauge.consume();
+                }
 
                 const result2 = this.calculateDamage(attacker, target, move.move2, ctx, .5);
 
@@ -175,6 +181,7 @@ export class Attack implements ActionV2Interface {
                 }
 
                 actionsToPush.push(new RemoveHP(result.damages, this.target, this.initiator));
+                actionsToPush.push(new ComboBoost(this.initiator, controller, result.superEffective, result.critical))
 
                 if (!result.immune && this.effectApplies(this.move.effectChance, this.move.effect) && effect.when !== 'before-move') {
                     actionsToPush.push(new ApplyEffect(this.move.effect, this.target, this.initiator));

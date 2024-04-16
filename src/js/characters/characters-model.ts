@@ -2,6 +2,7 @@ import type { Bag } from "../items/bag";
 import type { Position } from "../mapping/positions";
 import type { PokemonInstance } from "../pokemons/pokedex";
 import type { Script } from "../scripting/scripts";
+import type { ComboJauge } from "./player";
 
 
 export const WALKING_SPEED: number = .5;
@@ -19,6 +20,7 @@ export interface Character {
     bag: Bag;
     moving: boolean;
     position: CharacterPosition;
+    comboJauge: ComboJauge;
 }
 
 export class CharacterPosition {

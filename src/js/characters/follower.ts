@@ -4,6 +4,7 @@ import { PokemonInstance } from "../pokemons/pokedex";
 import type { Script } from "../scripting/scripts";
 import { centerObject } from "../sprites/sprites";
 import { WALKING_SPEED, type Character, CharacterPosition, type Interactive, RUNNING_SPEED } from "./characters-model";
+import { ComboJauge } from "./player";
 
 export class Follower implements Character, Interactive {
 
@@ -16,6 +17,7 @@ export class Follower implements Character, Interactive {
     moving: boolean = false;
 
     pokemon: PokemonInstance;
+    comboJauge: ComboJauge = new ComboJauge();
 
     constructor(position: CharacterPosition, pokemon: PokemonInstance) {
         this.position = position;
