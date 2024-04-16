@@ -72,11 +72,7 @@
 
 	battleCtx.events.animateAttack.subscribe((value) => {
 		if (value) {
-			if (value.move instanceof MoveInstance) {
-				let animTarget = value.target === 'opponent' ? opponent : ally;
-				let animInitiator = value.initiator === 'ally' ? ally : opponent;
-				animateMove(value.move, value.initiator, animTarget, animInitiator, scene, spriteFx, fx);
-			} else if (value.move instanceof ComboMove) {
+			if (value.move instanceof ComboMove) {
 				let move: ComboMove = value.move;
 				let animTarget = value.target === 'opponent' ? opponent : ally;
 				let animInitiator = value.initiator === 'ally' ? ally : opponent;
@@ -93,7 +89,11 @@
 						});
 					});
 				});
-			}
+			} else {
+				let animTarget = value.target === 'opponent' ? opponent : ally;
+				let animInitiator = value.initiator === 'ally' ? ally : opponent;
+				animateMove(value.move, value.initiator, animTarget, animInitiator, scene, spriteFx, fx);
+			} 
 		}
 	});
 

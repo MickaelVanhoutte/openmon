@@ -10,16 +10,30 @@ export class ComboJauge {
     public value: number = 0;
     public stored: number = 0;
 
+    constructor(value: number = 0, stored: number = 0) {
+        this.value = value;
+        this.stored = stored;
+    }
+
     public addValue(value: number) {
         this.value += value;
         if (this.value > 100) {
-            this.value = 100;
-            
-            if(this.stored < 3){
+
+            if (this.stored < 3) {
                 this.stored++;
-                this.value = 0;
+                this.value = this.value - 100;
+            } else {
+                this.value = 100;
             }
         }
+    }
+
+    public consume(){
+        console.log(this.stored)
+        if(this.stored > 0){
+            this.stored--;
+        }
+        console.log(this.stored)
     }
 }
 
@@ -28,14 +42,13 @@ export class Player implements Character {
     public name: string;
     public gender: 'MALE' | 'FEMALE';
     public monsters: PokemonInstance[];
+    public comboJauge: ComboJauge = new ComboJauge();
     public bag = new Bag();
     public lvl: number = 1;
     public moving: boolean = false;
     public running: boolean = false;
     public sprite: PlayerSprite;
     public position: CharacterPosition = new CharacterPosition();
-
-    public comboJauge: ComboJauge = new ComboJauge();
 
     // followerIdx (chose a monster to follow you TODO)
     public follower?: Follower;
@@ -76,7 +89,7 @@ export class Player implements Character {
             character.bag,
             character.lvl,
             character.moving,
-            character.comboJauge || new ComboJauge(),
+            character.comboJauge? new ComboJauge(character.comboJauge.value, character.comboJauge.stored) : new ComboJauge(),
             character.follower,
         );
     }
@@ -134,7 +147,7 @@ export class Player implements Character {
                                             }
                                         });
                                     }
-                                }, battle? 2000: 800);
+                                }, battle ? 2000 : 800);
                             });
                         }
                     });

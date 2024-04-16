@@ -742,7 +742,7 @@ function animateSpriteToTarget(
         left: source === 'ally' ?
             initiator.getBoundingClientRect().right - spriteSize / 2 :
             initiator.getBoundingClientRect().left + spriteSize / 2,
-        bottom: source === 'ally' ? 'calc(25% - ' + spriteSize / 2 + 'px)' : 'calc(45% + ' + spriteSize / 2 + 'px)',
+        bottom: source === 'ally' ? 'calc(30% - ' + spriteSize / 2 + 'px)' : 'calc(50% + ' + spriteSize / 2 + 'px)',
         opacity: 1,
         filter: 'hue-rotate(' + angle + 'deg)',
         height: spriteSize + 'px',

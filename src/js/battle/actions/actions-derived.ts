@@ -133,6 +133,37 @@ export class RemoveHP implements ActionV2Interface {
     }
 }
 
+export class ComboBoost implements ActionV2Interface {
+    type: ActionType;
+    description: string;
+    initiator: PokemonInstance;
+    controller: Character | PokemonInstance;
+    superEffective: boolean;
+    critical: boolean;
+
+    constructor(initiator: PokemonInstance, controller: Character | PokemonInstance, superEffective: boolean, critical: boolean) {
+        this.type = ActionType.COMBO_BOOST;
+        this.description = 'Combo Boost';
+        this.initiator = initiator;
+        this.controller = controller;
+        this.superEffective = superEffective;
+        this.critical = critical;
+    }
+
+    execute(ctx: BattleContext): void {
+        if (!(this.controller instanceof PokemonInstance) && !!this.controller.comboJauge) {
+            let valueToAdd = 15;
+            if (this.superEffective) {
+                valueToAdd += 5;
+            }
+            if (this.critical) {
+                valueToAdd += 5;
+            }
+            this.controller.comboJauge.addValue(valueToAdd);
+        }
+    }
+}
+
 
 // ON KILL
 export class XPWin implements ActionV2Interface {
@@ -209,7 +240,7 @@ export class EndTurnChecks implements ActionV2Interface {
         let opponent = this.initiator === ctx.playerPokemon ? ctx.opponentPokemon : ctx.playerPokemon;
         if (!this.initiator.fainted && this.initiator.status && this.initiator.status.when === 'end-turn') {
             let effect = this.initiator.status.playEffect(this.initiator, opponent);
-             actions = ctx.checkFainted(this.initiator, opponent);
+            actions = ctx.checkFainted(this.initiator, opponent);
 
             if (effect?.message) {
                 actions.push(new Message(effect.message, this.initiator));
@@ -265,6 +296,12 @@ export class EndBattle implements ActionV2Interface {
     }
 
     execute(ctx: BattleContext): void {
+        ctx.player.monsters?.forEach((monster: PokemonInstance) => {
+            monster.resetBattleStats();
+        });
+        ctx?.opponent instanceof NPC && ctx.opponent.monsters.forEach((monster: PokemonInstance) => {
+            monster.resetBattleStats();
+        });
         ctx.clearStack();
         ctx.events.end.set(ctx.battleResult);
         ctx.events.battleEnded = true;
