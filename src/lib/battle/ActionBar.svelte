@@ -1,6 +1,11 @@
 <script lang="ts">
 	import { onDestroy, onMount } from 'svelte';
-	import { ComboMove, type MoveInstance, type PokemonInstance } from '../../js/pokemons/pokedex';
+	import {
+		ComboMove,
+		Stats,
+		type MoveInstance,
+		type PokemonInstance
+	} from '../../js/pokemons/pokedex';
 	import type { GameContext } from '../../js/context/gameContext';
 	import { typeChart } from '../../js/battle/battle-model';
 	import { BattleContext } from '../../js/context/battleContext';
@@ -9,14 +14,13 @@
 	import Bag from '../menus/bag/Bag.svelte';
 	import { Pokeball } from '../../js/items/items';
 	import { MenuType, OverworldContext } from '../../js/context/overworldContext';
-	import { ActionType } from '../../js/battle/actions/actions-model';
-	import type { ComboBoost } from '../../js/battle/actions/actions-derived';
 
 	export let context: GameContext;
 	export let battleCtx: BattleContext;
 	export let overWorldCtx: OverworldContext;
 	let moveOpened = false;
 	let infoOpened = false;
+	let showInfoBack = false;
 	let show = false;
 	let showAdd = false;
 
@@ -37,17 +41,32 @@
 	let comboJauge = battleCtx.player.comboJauge;
 	let comboValue = comboJauge.value;
 	let comboStored = comboJauge.stored;
+	let comboDisabled =
+		battleCtx.player.comboJauge.stored === 0 ||
+		battleCtx.player.monsters?.filter((p) => !p.fainted).length === 1;
 	let updating = false;
 	let disableComboTransition = false;
 
-	$: comboDisabled =
-		battleCtx.player.comboJauge.stored === 0 ||
-		battleCtx.player.monsters?.filter((p) => !p.fainted).length === 1;
+	let levelUpRecap: { pokemon: PokemonInstance; oldStats?: Stats; newStats?: Stats } | undefined;
+	const statSkip = ['total', 'accuracy', 'evasion'];
+
 	battleCtx.currentMessage.subscribe((message) => {
 		currentMessage = message;
 	});
 	battleCtx.isPlayerTurn.subscribe((isPlayerTurn) => {
 		disabled = !isPlayerTurn;
+	});
+	battleCtx.events.levelUp.subscribe((lvlUp) => {
+		if (lvlUp && lvlUp.newStats) {
+			setTimeout(() => {
+				levelUpRecap = lvlUp;
+				infoOpened = true;
+			}, 500);
+			setTimeout(() => {
+				infoOpened = false;
+				levelUpRecap = undefined;
+			}, 3500);
+		}
 	});
 
 	battleCtx.currentAction.subscribe((action) => {
@@ -90,6 +109,9 @@
 				comboStored = battleCtx.player.comboJauge.stored;
 				updating = false;
 			}
+			comboDisabled =
+				battleCtx.player.comboJauge.stored === 0 ||
+				battleCtx.player.monsters?.filter((p) => !p.fainted).length === 1;
 		}
 	});
 
@@ -174,6 +196,7 @@
 		} else if (!combo && currentCombo) {
 			currentCombo = undefined;
 			infoOpened = false;
+			showInfoBack = false;
 		}
 	}
 
@@ -181,6 +204,7 @@
 		//console.log(pokemon, move);
 		currentCombo = { pokemon, move };
 		infoOpened = true;
+		showInfoBack = true;
 	}
 
 	function sendObjectAction(result: { item: number; target?: PokemonInstance }) {
@@ -245,6 +269,9 @@
 				} else {
 					if (selectedOptionIdx === 0) {
 						moveOpened = true;
+						show = true;
+						showAdd = true;
+						showInfoBack = true;
 					} else if (selectedOptionIdx === 1) {
 						openBag();
 					} else if (selectedOptionIdx === 2) {
@@ -255,6 +282,9 @@
 				}
 			} else if (e.key === 'Escape') {
 				moveOpened = false;
+				show = false;
+				showAdd = false;
+				showInfoBack = false;
 			}
 		}
 	};
@@ -401,41 +431,43 @@
 			</div>
 		{/if}
 	</div>
-	<div class="info-back">
-		<button
-			class="info-btn"
-			on:click={() => {
-				infoOpened = !infoOpened;
-			}}
-		>
-			{#if !infoOpened}
+	{#if showInfoBack}
+		<div class="info-back">
+			<button
+				class="info-btn"
+				on:click={() => {
+					infoOpened = !infoOpened;
+				}}
+			>
+				{#if !infoOpened}
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+						><path
+							d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20ZM11 7H13V9H11V7ZM11 11H13V17H11V11Z"
+						></path></svg
+					>
+				{:else}
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+						><path
+							d="M10.5859 12L2.79297 4.20706L4.20718 2.79285L12.0001 10.5857L19.793 2.79285L21.2072 4.20706L13.4143 12L21.2072 19.7928L19.793 21.2071L12.0001 13.4142L4.20718 21.2071L2.79297 19.7928L10.5859 12Z"
+						></path></svg
+					>
+				{/if}
+			</button>
+			<button
+				class="back-btn"
+				on:click={() => {
+					moveOpened = false;
+					showAdd = false;
+				}}
+			>
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
 					><path
-						d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20ZM11 7H13V9H11V7ZM11 11H13V17H11V11Z"
+						d="M12 2C17.52 2 22 6.48 22 12C22 17.52 17.52 22 12 22C6.48 22 2 17.52 2 12C2 6.48 6.48 2 12 2ZM12 11V8L8 12L12 16V13H16V11H12Z"
 					></path></svg
-				>
-			{:else}
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-					><path
-						d="M10.5859 12L2.79297 4.20706L4.20718 2.79285L12.0001 10.5857L19.793 2.79285L21.2072 4.20706L13.4143 12L21.2072 19.7928L19.793 21.2071L12.0001 13.4142L4.20718 21.2071L2.79297 19.7928L10.5859 12Z"
-					></path></svg
-				>
-			{/if}
-		</button>
-		<button
-			class="back-btn"
-			on:click={() => {
-				moveOpened = false;
-				showAdd = false;
-			}}
-		>
-			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-				><path
-					d="M12 2C17.52 2 22 6.48 22 12C22 17.52 17.52 22 12 22C6.48 22 2 17.52 2 12C2 6.48 6.48 2 12 2ZM12 11V8L8 12L12 16V13H16V11H12Z"
-				></path></svg
-			></button
-		>
-	</div>
+				></button
+			>
+		</div>
+	{/if}
 </div>
 
 {#if moveOpened}
@@ -526,6 +558,7 @@
 			{disabled}
 			on:click={() => {
 				moveOpened = true;
+				showInfoBack = true;
 				showAdd = true;
 			}}
 			class:selected={selectedOptionIdx === 0}
@@ -564,7 +597,28 @@
 		</button>
 	</div>
 {/if}
-<!-- </div> -->
+
+{#if levelUpRecap}
+	<div class="level-up">
+		<ul>
+			{#each Object.keys(levelUpRecap.oldStats) as stat}
+				{#if !statSkip.includes(stat)}
+					<li
+						class="lvl-stat"
+						data-stat={stat
+							.replace(/attack/i, 'atk')
+							.replace(/defense/i, 'def')
+							.replace('special', 'sp.')
+							.toUpperCase()}
+						data-val1="{levelUpRecap.oldStats[stat]} + {levelUpRecap.newStats[stat] -
+							levelUpRecap.oldStats[stat]}"
+						data-val2={levelUpRecap.newStats[stat]}
+					></li>
+				{/if}
+			{/each}
+		</ul>
+	</div>
+{/if}
 
 <!-- Menus -->
 {#if battleSwitchOpened}
@@ -641,6 +695,75 @@
 		}
 	}
 
+	.level-up {
+		position: absolute;
+		top: 30%;
+		left: 2%;
+		min-width: 25%;
+		max-width: 33%;
+		height: 50%;
+		color: white;
+		z-index: 9;
+
+		ul {
+			height: 100%;
+			list-style: none;
+			padding: 0;
+			margin: 0;
+			overflow: hidden;
+			background-color: rgba(0, 0, 0, 0.6);
+			border-radius: 8px;
+			box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.45);
+			padding: 1%;
+			display: flex;
+			flex-direction: column;
+			align-content: flex-end;
+			justify-content: flex-start;
+			align-items: flex-start;
+			li {
+				padding: 1%;
+				margin: 1%;
+				flex-grow: 1;
+				position: relative;
+				width: 100%;
+
+				&:after {
+					content: attr(data-val1);
+					position: absolute;
+					top: 0;
+					right: 0;
+					height: 100%;
+					width: 50%;
+					padding: 0 4% 0 2%;
+					transition: all 0.2s ease-in-out;
+					animation: displayData 3s ease-in forwards;
+				}
+
+				&::before {
+					content: attr(data-stat);
+					position: absolute;
+					top: 0;
+					left: 0;
+					height: 100%;
+					width: 50%;
+					padding: 0 4% 0 2%;
+				}
+
+				@keyframes displayData {
+					0% {
+						content: attr(data-val1);
+					}
+					50% {
+						content: attr(data-val2);
+					}
+					100% {
+						content: attr(data-val2);
+					}
+				}
+			}
+		}
+	}
+
 	.info {
 		width: 63%;
 		position: absolute;
@@ -687,6 +810,7 @@
 		box-sizing: border-box;
 		max-height: 53%;
 		overflow: auto;
+		-webkit-overflow-scrolling: touch;
 		scrollbar-width: thin;
 		scrollbar-color: #68c0c8 #0e2742f0;
 		background-color: rgba(0, 0, 0, 0.6);
@@ -799,7 +923,7 @@
 				width: calc(100% - 6dvw);
 				max-width: calc(100% - 6dvw);
 				font-size: 26px;
-				padding: 1%;
+				padding: 1% 2%;
 				background-color: rgba(44, 56, 69, 0.85);
 				border-radius: 0 6px 6px 0;
 				color: white;

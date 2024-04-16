@@ -790,26 +790,31 @@ export class PokemonInstance extends PokedexEntry {
         }
     }
 
-    public levelUp() {
+    public levelUp(): {oldStats?: Stats, newStats?: Stats, moves?: Move[]} {
         if (this.level >= 100) {
-            return;
+            return {};
         }
+        let oldStats = {...this.currentStats};
+
         let currentHp = this.currentStats.hp;
         this.level += 1;
         this.updateCurrentStats();
+        let newStats = {...this.currentStats};
 
         // heal added hp
         currentHp = this.currentStats.hp - currentHp;
         this.currentHp += currentHp;
         this.currentXp = 0;
 
+        return {oldStats, newStats, moves: this.checkForNewMoves()};
+
         // TODO
         //this.checkForNewMoves();
         //this.checkForEvolutions();
     }
 
-    private checkForNewMoves() {
-        let newMoves = this.moves.filter((move) => move.level === this.level);
+    private checkForNewMoves(): Move[] {
+        return this.moves.filter((move) => move.level === this.level);
     }
 
     evolve(future: PokedexSearchResult): PokemonInstance {

@@ -48,9 +48,9 @@
 	const listener = (e: KeyboardEvent) => {
 		if (context.overWorldContext.menus.menuOpened) {
 			if (e.key === 'ArrowDown') {
-				selected = selected === 0 ? 6 : selected - 1;
+				selected = selected === 0 ? 5 : selected - 1;
 			} else if (e.key === 'ArrowUp') {
-				selected = selected === 6 ? 0 : selected + 1;
+				selected = selected === 5 ? 0 : selected + 1;
 			} else if (e.key === 'Enter' || e.key === 'a') {
 				if (selected === 0) {
 					openList();
@@ -64,8 +64,6 @@
 					trainer();
 				} else if (selected === 5) {
 					saveCurrent();
-				} else if (selected === 6) {
-					close();
 				}
 			} else if (e.key === 'b') {
 				close();
