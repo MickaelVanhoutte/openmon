@@ -16,8 +16,9 @@ export class ComboJauge {
     }
 
     public addValue(value: number) {
-        this.value += value;
-        if (this.value > 100) {
+        console.log("before", this.value, value, this.stored);
+        this.value = this.value + value;
+        if (this.value >= 100) {
 
             if (this.stored < 3) {
                 this.stored++;
@@ -26,14 +27,13 @@ export class ComboJauge {
                 this.value = 100;
             }
         }
+        console.log("after", this.value, this.stored);
     }
 
-    public consume(){
-        console.log(this.stored)
-        if(this.stored > 0){
+    public consume() {
+        if (this.stored > 0) {
             this.stored--;
         }
-        console.log(this.stored)
     }
 }
 
@@ -89,7 +89,7 @@ export class Player implements Character {
             character.bag,
             character.lvl,
             character.moving,
-            character.comboJauge? new ComboJauge(character.comboJauge.value, character.comboJauge.stored) : new ComboJauge(),
+            character.comboJauge ? new ComboJauge(character.comboJauge.value, character.comboJauge.stored) : new ComboJauge(),
             character.follower,
         );
     }
