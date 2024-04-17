@@ -121,7 +121,28 @@ export class BattleContext {
             action.execute(this);
 
             // TODO wait for input ? (or settings, auto/manual)
-            this.sleep(action instanceof PlayAnimation ? 1600 : 800).then(
+            let sleepTime = 800;
+            switch (action.type) {
+                case ActionType.ATTACK:
+                    sleepTime = 1600;
+                    break;
+                case ActionType.SWITCH:
+                    sleepTime = 2000;
+                    break;
+                case ActionType.MESSAGE:
+                    sleepTime = 1000;
+                    break;
+                case ActionType.XP_WIN:
+                    sleepTime = 300;
+                    break;
+                case ActionType.PLAY_ANIMATION:
+                    sleepTime = 1800;
+                    break;
+                default:
+                    break;
+            }
+
+            this.sleep(sleepTime).then(
                 () => {
                     this.executeAction(this.actionStack?.pop());
                 }
