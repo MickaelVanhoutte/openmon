@@ -380,7 +380,7 @@
 
 	<div class="options" class:opened={optionsOpened}>
 		<ul>
-			{#if context.player.monsters.length > 1 && firstSelection?.zone === 'party'}
+			{#if (context.player.monsters.length > 1 && firstSelection?.zone === 'party') || firstSelection?.zone === 'box'}
 				<li class:selected={selectedOption === 0} on:click={() => setMoving()}>MOVE</li>
 			{/if}
 			<li class:selected={selectedOption === 1} on:click={() => openSum()}>SUMMARY</li>

@@ -2,7 +2,7 @@ import { gsap } from 'gsap';
 import type { Move } from '../../pokemons/pokedex';
 
 export function animateEntry(target: HTMLImageElement, source: 'ally' | 'opponent', partner: boolean = false): gsap.core.Timeline {
-
+console.log('animateEntry', target, source, partner);
     return gsap.timeline().fromTo(target,
         {
             left: source === 'ally' ? -target.getBoundingClientRect().width : window.innerWidth,
