@@ -181,7 +181,7 @@
 						//let scale = Math.max(Math.min(battleCtx?.opponentPokemon.height / 3, .7), 0.2);
 						let scale = Math.max(Math.min(opponent.naturalHeight / 200, 0.9), 0.1);
 						//console.log(battleCtx?.opponentPokemon.name, opponent.naturalHeight / 100, scale);
-						ally.style.transform = 'scale(' + scale + ')';
+						opponent.style.transform = 'scale(' + scale + ')';
 						opponent.style.setProperty('--scale', scale + '');
 						opponent.style.setProperty('--width', opponent.naturalWidth + 'px');
 						opponent.style.setProperty('--height', opponent.naturalHeight + 'px');
@@ -204,7 +204,6 @@
 						'src/assets/monsters/bw/0.png';
 
 					ally.onload = () => {
-						console.log(ally);
 						//let scale = Math.min(battleCtx?.playerPokemon.height / 4, 1);
 						let scale = Math.max(Math.min(ally.naturalHeight / 200, 1), 0.2);
 						//let scale = Math.max(Math.min(battleCtx?.playerPokemon.height / 3, .9), 0.3);
@@ -392,6 +391,6 @@
 		position: absolute;
 		top: 0;
 		left: 0;
-		filter: opacity(0.85) blur(3px);
+		filter: opacity(.9) blur(2px);
 	}
 </style>
