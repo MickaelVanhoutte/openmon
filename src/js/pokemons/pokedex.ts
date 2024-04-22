@@ -257,6 +257,14 @@ export class Pokedex {
         });
     }
 
+    getCaught(): PokedexEntry[] {
+        return this.entries.filter((entry) => entry.caught);
+    }
+
+    getViewed(): PokedexEntry[] {
+        return this.entries.filter((entry) => entry.viewed);
+    }
+
 }
 
 
