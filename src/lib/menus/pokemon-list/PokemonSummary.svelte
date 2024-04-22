@@ -26,7 +26,7 @@
 	const tabs: Record<number, string> = {
 		0: '$POKEMON INFO',
 		1: '$POKEMON STATS',
-		2: '$POKEMON SKILLS'
+		2: '$POKEMON MOVES',
 	};
 
 	$: selectedMons = pkmnList[selected];
@@ -46,6 +46,18 @@
 				context.overWorldContext.closeMenu(MenuType.SUMMARY);
 			}
 		}
+	}
+
+	function previous() {
+		selectedMove = 0;
+		statEdit = false;
+		selected = selected === 0 ? pkmnList.length - 1 : selected - 1;
+	}
+
+	function next() {
+		selectedMove = 0;
+		statEdit = false;
+		selected = selected === pkmnList.length - 1 ? 0 : selected + 1;
 	}
 
 	const listener = (e: KeyboardEvent) => {
@@ -81,17 +93,6 @@
 		};
 	});
 
-	function previous() {
-		selectedMove = 0;
-		statEdit = false;
-		selected = selected === 0 ? pkmnList.length - 1 : selected - 1;
-	}
-
-	function next() {
-		selectedMove = 0;
-		statEdit = false;
-		selected = selected === pkmnList.length - 1 ? 0 : selected + 1;
-	}
 </script>
 
 <div
@@ -100,46 +101,32 @@
 	in:slide={{ duration: 500, delay: 100, axis: 'x', easing: backInOut }}
 	out:fade
 >
-	<div class="tabs">
-		<div class="current" style="--index: {tab}">
-			<span>{tabs[tab].replace('$POKEMON', selectedMons.name)}</span>
-
-			<div class="bubbles">
-				{#if tab === 1}
-					<span class="bubble off" on:click={() => (tab = 0)}></span>
-				{:else if tab === 2}
-					<span class="bubble off" on:click={() => (tab = 0)}></span>
-					<span class="bubble off" on:click={() => (tab = 1)}></span>
-				{/if}
-
-				<span class="bubble"></span>
+	<nav class="nav">
+		<div class="nav-left">
+			<a class="brand">{selectedMons.name}</a>
+			<div class="tabs">
+				<a class:active={tab === 0} on:click={() => (tab = 0)}>{tabs[0].replace('$POKEMON', '')}</a>
+				<a class:active={tab === 1} on:click={() => (tab = 1)}>{tabs[1].replace('$POKEMON', '')}</a>
+				<a class:active={tab === 2} on:click={() => (tab = 2)}>{tabs[2].replace('$POKEMON', '')}</a>
 			</div>
 		</div>
-		<button style="--index: 0" class:active={tab === 0} on:click={() => (tab = 0)}
-			><span></span></button
-		>
-		<button style="--index: 1" class:active={tab === 1} on:click={() => (tab = 1)}
-			><span></span></button
-		>
-		<button style="--index: 2" class:active={tab === 2} on:click={() => (tab = 2)}
-			><span></span></button
-		>
+		<div class="nav-right">
+			<button class="previous" on:click={() => previous()}>
+				<span class="arrow"></span>
+			</button>
+			<button class="next" on:click={() => next()}>
+				<span class="arrow"></span>
+			</button>
 
-		<button class="previous" on:click={() => previous()}>
-			<span class="arrow"></span>
-		</button>
-		<button class="next" on:click={() => next()}>
-			<span class="arrow"></span>
-		</button>
-
-		<button class="back" on:click={() => back()}>
-			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-				><path
-					d="M10.5859 12L2.79297 4.20706L4.20718 2.79285L12.0001 10.5857L19.793 2.79285L21.2072 4.20706L13.4143 12L21.2072 19.7928L19.793 21.2071L12.0001 13.4142L4.20718 21.2071L2.79297 19.7928L10.5859 12Z"
-				></path></svg
-			>
-		</button>
-	</div>
+			<button class="back" on:click={() => back()}>
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+					><path
+						d="M10.5859 12L2.79297 4.20706L4.20718 2.79285L12.0001 10.5857L19.793 2.79285L21.2072 4.20706L13.4143 12L21.2072 19.7928L19.793 21.2071L12.0001 13.4142L4.20718 21.2071L2.79297 19.7928L10.5859 12Z"
+					></path></svg
+				>
+			</button>
+		</div>
+	</nav>
 
 	<div class="tab-content">
 		{#if tab === 0}
@@ -176,7 +163,7 @@
 		height: 100dvh;
 		z-index: var(--zIndex, 10);
 
-		.tabs {
+		.nav {
 			height: 46px;
 			width: 100%;
 
@@ -188,36 +175,31 @@
 			color: white;
 			text-shadow: 1px 1px 1px black;
 
-			.current {
-				width: calc(35% + (var(--index) + 1) * 80px);
-				height: 100%;
-				background-color: #313e62;
+			.nav-left {
+				width: 72dvw;
+				color: white;
+
+				.brand {
+					flex: unset;
+					font-size: 36px;
+					width: 40%;
+					color: white;
+				}
+			}
+			.nav-right {
+				width: 28dvw;
 				display: flex;
-				align-items: center;
-				border-radius: 0 50px 50px 0;
-				z-index: 2;
-				position: relative;
-				box-sizing: border-box;
-				padding-left: 4%;
 				justify-content: space-between;
+				justify-content: flex-end;
+				gap: 12%;
+			}
 
-				.bubbles {
-					display: flex;
-					gap: 62px;
-					padding-right: 30px;
+			.tabs a {
+				color: white;
+				border: none;
 
-					.bubble {
-						height: 26px;
-						width: 18px;
-						background-color: white;
-						border-radius: 16px;
-						position: relative;
-						z-index: 9;
-
-						&.off {
-							background-color: rgba(255, 255, 255, 0.5);
-						}
-					}
+				&.active {
+					color: #68c0c8;
 				}
 			}
 
@@ -226,9 +208,9 @@
 				border: none;
 				width: 80px;
 				height: 46px;
-				position: absolute;
-				left: calc(35% + var(--index) * 80px);
-				top: 0;
+				display: flex;
+				align-items: center;
+				justify-content: center;
 				z-index: 1;
 
 				-webkit-touch-callout: none;
@@ -244,14 +226,13 @@
 
 				&.back {
 					font-family: pokemon, serif;
-					right: 1%;
 					background: none;
 					font-size: 20px;
 					color: white;
 					text-shadow: 1px 1px 1px black;
 
 					svg {
-						height: 100%;
+						height: 70%;
 					}
 				}
 

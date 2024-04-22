@@ -76,11 +76,28 @@
 			next();
 		}
 	};
+	const mouseDown = (e: MouseEvent) => {
+		ts = e.clientX;
+	};
+	const mouseUp = (e: MouseEvent) => {
+		let te = e.clientX;
+		if (Math.abs(ts - te) < 30) {
+			return;
+		}
+		if (ts > te) {
+			prev();
+		} else {
+			next();
+		}
+	};
 
 	onMount(() => {
 		window.addEventListener('keydown', keyDownListener);
 		pokeballs.addEventListener('touchstart', touchDown);
 		pokeballs.addEventListener('touchend', touchUp);
+		pokeballs.addEventListener('mousedown', mouseDown);
+		pokeballs.addEventListener('mouseup', mouseUp);
+
 		setTimeout(() => {
 			aUnsubscribe = context.overWorldContext.keys.a?.subscribe((value) => {
 				if (value) {
