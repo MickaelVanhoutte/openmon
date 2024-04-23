@@ -11,7 +11,7 @@
 
 	const tabs: Record<number, string> = {
 		0: 'CARD',
-		1: 'ABILITIES',
+		1: 'MASTERIES',
 		2: 'SETTINGS'
 	};
 

@@ -94,7 +94,6 @@ img {
   display: flex;
   height: 72px;
   min-width: 110px;
-  font-family: 'Fira Mono', Monospace;
   font-weight: 500;
   letter-spacing: -0.2px;
   box-shadow: var(--node-box-shadow);
@@ -109,7 +108,18 @@ img {
   flex-grow: 1;
 }
 
-.gradient:before {
+.svelte-flow__node-turbo.title, .svelte-flow__node-turbo:not(.set) {
+  box-shadow: none;
+
+  .wrapper .inner .body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+}
+
+.svelte-flow__node-turbo.set .wrapper.gradient:before {
   content: '';
   position: absolute;
   padding-bottom: calc(100% * 1.41421356237);
@@ -127,7 +137,7 @@ img {
   border-radius: 100%;
 }
 
-.svelte-flow__node-turbo.selected .wrapper.gradient:before {
+.svelte-flow__node-turbo.set .wrapper.gradient:before {
   content: '';
   background: conic-gradient(
     from -160deg at 50% 50%,
@@ -167,14 +177,14 @@ img {
 }
 
 .svelte-flow__node-turbo .title {
-  font-size: 16px;
+  font-size: 28px;
   margin-bottom: 2px;
   line-height: 1;
 }
 
 .svelte-flow__node-turbo .subline {
-  font-size: 12px;
-  color: #777;
+  font-size: 22px;
+  color: #4197f9 ;
 }
 
 .svelte-flow__node-turbo .cloud {
@@ -220,9 +230,10 @@ img {
 }
 
 .svelte-flow__edge .svelte-flow__edge-path {
-  stroke: url(#edge-gradient);
-  stroke-width: 2;
-  stroke-opacity: 0.75;
+  //stroke: url(#edge-gradient);
+  stroke:#e92a67;
+  stroke-width: 3;
+  stroke-opacity: 1;
 }
 
 .svelte-flow__controls button {
