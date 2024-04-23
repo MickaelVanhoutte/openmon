@@ -59,66 +59,66 @@
 	let battleNodes = [
 		{
 			id: '10',
-			position: { x: 0, y: 150 },
+			position: { x: 0, y: 120 },
 			data: { title: 'BATTLE', wrap: false, set: false },
 			class: 'title',
 			type: 'turbo'
 		},
 		{
 			id: '11',
-			position: { x: 225, y: 150 },
-			data: { title: 'HP', subline: 'Base +10', wrap: true, cost: 2, set: false },
+			position: { x: 225, y: 120 },
+			data: { title: 'Stab dmg', subline: '+10%', wrap: true, cost: 2, set: false },
 			type: 'turbo'
 		},
 		{
 			id: '12',
-			position: { x: 450, y: 150 },
-			data: { title: 'ATK / SP.ATK', subline: 'Base +10', wrap: true, cost: 2, set: false },
+			position: { x: 450, y: 120 },
+			data: { title: 'Effect chance', subline: '+5%', wrap: true, cost: 2, set: false },
 			type: 'turbo'
 		},
 		{
 			id: '13',
-			position: { x: 675, y: 150 },
-			data: { title: 'DEF / SP.DEF', subline: 'Base +10', wrap: true, cost: 2, set: false },
+			position: { x: 675, y: 120 },
+			data: { title: 'Effect res.', subline: '+10%', wrap: true, cost: 2, set: false },
 			type: 'turbo'
 		},
 		{
 			id: '14',
-			position: { x: 900, y: 150 },
+			position: { x: 900, y: 120 },
 			type: 'turbo',
-			data: { title: 'SPEED', subline: 'Base +10', wrap: true, cost: 2, set: false }
+			data: { title: 'Weather', subline: '+1 turn', wrap: true, cost: 2, set: false }
 		}
 	];
 
 	let trainerNode = [
 		{
 			id: '20',
-			position: { x: 0, y: 300 },
+			position: { x: 0, y: 240 },
 			data: { title: 'TRAINER', wrap: false, set: false },
 			class: 'title',
 			type: 'turbo'
 		},
 		{
 			id: '21',
-			position: { x: 225, y: 300 },
-			data: { title: 'EXP rate', subline: '+10%', wrap: true, cost: 2, set: false },
+			position: { x: 225, y: 240 },
+			data: { title: 'XP rate', subline: '+10%', wrap: true, cost: 2, set: false },
 			type: 'turbo'
 		},
 		{
 			id: '22',
-			position: { x: 450, y: 300 },
+			position: { x: 450, y: 240 },
 			data: { title: 'Catch rate', subline: '+10%', wrap: true, cost: 2, set: false },
 			type: 'turbo'
 		},
 		{
 			id: '23',
-			position: { x: 675, y: 300 },
-			data: { title: 'Better IVs', subline: '+10%', wrap: true, cost: 3, set: false },
+			position: { x: 675, y: 240 },
+			data: { title: 'IVs', subline: 'Min +5', wrap: true, cost: 3, set: false },
 			type: 'turbo'
 		},
 		{
 			id: '24',
-			position: { x: 890, y: 300 },
+			position: { x: 890, y: 240 },
 			data: { title: 'Shiny rate', subline: '+10%', wrap: true, cost: 5, set: false },
 			type: 'turbo'
 		}
