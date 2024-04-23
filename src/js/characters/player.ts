@@ -49,11 +49,12 @@ export class Player implements Character {
     public running: boolean = false;
     public sprite: PlayerSprite;
     public position: CharacterPosition = new CharacterPosition();
+    public masteryPoints: number = 12;
 
     // followerIdx (chose a monster to follow you TODO)
     public follower?: Follower;
 
-    constructor(spriteId: number, name: string, gender: 'MALE' | 'FEMALE', monsters: PokemonInstance[], bag: Bag, lvl: number, moving: boolean, comboJauge: ComboJauge, follower?: Follower) {
+    constructor(spriteId: number, name: string, gender: 'MALE' | 'FEMALE', monsters: PokemonInstance[], bag: Bag, lvl: number, moving: boolean, comboJauge: ComboJauge, masteryPoints?: number, follower?: Follower) {
         this.spriteId = spriteId;
         this.name = name;
         this.gender = gender;
@@ -64,6 +65,7 @@ export class Player implements Character {
         this.position = new CharacterPosition();
         this.sprite = CHARACTER_SPRITES.getSprite(spriteId);
         this.comboJauge = comboJauge;
+        this.masteryPoints = 12//masteryPoints || 0;
         this.follower = follower;
     }
 
@@ -90,6 +92,7 @@ export class Player implements Character {
             character.lvl,
             character.moving,
             character.comboJauge ? new ComboJauge(character.comboJauge.value, character.comboJauge.stored) : new ComboJauge(),
+            character.masteryPoints,
             character.follower,
         );
     }
