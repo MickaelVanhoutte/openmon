@@ -6,7 +6,6 @@
 	import TurboEdge from './flow/TurboEdge.svelte';
 
 	export let context: GameContext;
-	console.log(context.player);
 	$: masteryPoints = context.player.masteryPoints;
 
 	const nodeTypes = {

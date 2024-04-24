@@ -4,6 +4,7 @@
 	import { MenuType } from '../../../js/context/overworldContext';
 	import TrainerCard from './TrainerCard.svelte';
 	import TrainerTree from './TrainerTree.svelte';
+	import TrainerMastery from './TrainerMastery.svelte';
 
 	export let context: GameContext;
 	let optionsOpened = false;
@@ -67,7 +68,8 @@
 		{#if tab === 0}
 			<TrainerCard {context} />
 		{:else if tab === 1}
-			<TrainerTree {context} />
+			<!-- <TrainerTree {context} /> -->
+			<TrainerMastery {context} />
 		{:else if tab === 2}
 		{/if}
 	</div>
