@@ -5,7 +5,8 @@
         "cost": 1,
         "title": "catch +5%",
         "color": "#F7F6CF",
-        "set": false
+        "set": false,
+        "first": true
     },
     {
         "q": 1,
@@ -13,7 +14,8 @@
         "cost": 1,
         "title": "catch +5%",
         "color": "#F7F6CF",
-        "set": false
+        "set": false,
+        "first": false
     },
     {
         "q": 2,
@@ -21,7 +23,8 @@
         "cost": 1,
         "title": "CUT",
         "color": "#EDC531",
-        "set": false
+        "set": false,
+        "first": false
     },
     {
         "q": 3,
@@ -29,7 +32,8 @@
         "cost": 1,
         "title": "XP +5%",
         "color": "#F7F6CF",
-        "set": false
+        "set": false,
+        "first": false
     },
     {
         "q": 4,
@@ -37,7 +41,8 @@
         "cost": 1,
         "title": "XP +5%",
         "color": "#F7F6CF",
-        "set": false
+        "set": false,
+        "first": false
     },
     {
         "q": 5,
@@ -45,7 +50,8 @@
         "cost": 1,
         "title": "STRENGH",
         "color": "#EDC531",
-        "set": false
+        "set": false,
+        "first": false
     },
     {
         "q": 6,
@@ -53,7 +59,8 @@
         "cost": 1,
         "title": "EV +1",
         "color": "#F7F6CF",
-        "set": false
+        "set": false,
+        "first": false
     },
     {
         "q": 7,
@@ -61,7 +68,8 @@
         "cost": 1,
         "title": "EV +1",
         "color": "#F7F6CF",
-        "set": false
+        "set": false,
+        "first": false
     },
     {
         "q": 8,
@@ -69,7 +77,8 @@
         "cost": 1,
         "title": "ROCK SMASH",
         "color": "#EDC531",
-        "set": false
+        "set": false,
+        "first": false
     },
     {
         "q": 9,
@@ -77,7 +86,8 @@
         "cost": 1,
         "title": "Combo +5%",
         "color": "#F7F6CF",
-        "set": false
+        "set": false,
+        "first": false
     },
     {
         "q": 10,
@@ -85,7 +95,8 @@
         "cost": 1,
         "title": "Combo +5%",
         "color": "#F7F6CF",
-        "set": false
+        "set": false,
+        "first": false
     },
     {
         "q": 11,
@@ -93,7 +104,8 @@
         "cost": 1,
         "title": "SURF",
         "color": "#EDC531",
-        "set": false
+        "set": false,
+        "first": false
     },
     {
         "q": 12,
@@ -101,7 +113,8 @@
         "cost": 1,
         "title": "Shiny +5%",
         "color": "#F7F6CF",
-        "set": false
+        "set": false,
+        "first": false
     },
     {
         "q": 13,
@@ -109,7 +122,8 @@
         "cost": 1,
         "title": "Shiny +5%",
         "color": "#F7F6CF",
-        "set": false
+        "set": false,
+        "first": false
     },
     {
         "q": 14,
@@ -117,7 +131,8 @@
         "cost": 1,
         "title": "FLY",
         "color": "#EDC531",
-        "set": false
+        "set": false,
+        "first": false
     },
     {
         "q": 15,
@@ -125,6 +140,7 @@
         "cost": 1,
         "title": "ROCK CLIMB",
         "color": "#EDC531",
-        "set": false
+        "set": false,
+        "first": false
     }
 ]
