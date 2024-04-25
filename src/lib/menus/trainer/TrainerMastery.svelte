@@ -336,36 +336,34 @@
 
 	let count = 0;
 
-	// const HexExpert = defineHex({ dimensions: 30, origin: 'topLeft' });
-	// const gridExpert = new Grid(HexExpert, spiral({ radius: 3, start: [3, 3] }));
-
 	function renderSVG(hex: HexExpert, draw: SVG.Doc, tiles: any[]) {
-		console.log(hex.q, hex.r);
+		//console.log(hex.q, hex.r);
 		let tile = tiles.find((tile) => tile.q === hex.q && tile.r === hex.r);
 
-		const polygon = draw
+
+		if (tile) {
+
+            const polygon = draw
 			// create a polygon from a hex's corner points
 			.polygon(hex.corners.map(({ x, y }) => `${x},${y}`))
 			.fill('white')
 			.stroke({ width: 1, color: '#999' });
-
-		if (tile) {
+            
 			count += tile.cost;
 			if (tile?.color) {
 				polygon.fill(tile.color);
 			} else {
 				polygon.fill('white');
 			}
+
+            // if(tile?.first){
+            //     draw.stroke({ width: 1, color: 'black' });
+            // }
+
 			let width = hex.corners[0].x - hex.corners[3].x;
 
 			draw.group().add(polygon);
 
-			// if (tile.cost) {
-			// 	draw
-			// 		.text(tile.cost + ' pts')
-			// 		.move(hex.corners[0].x - width / 2, hex.corners[0].y - 18)
-			// 		.font({ fill: 'black', size: 12, anchor: 'middle', leading: 1 });
-			// }
 			if (tile.title) {
 				tile.title.split(' ').forEach((word, i) => {
 					draw
@@ -374,15 +372,22 @@
 						.font({ fill: 'black', size: 12, anchor: 'middle', leading: 1 });
 				});
 			}
-		}
-		console.log(count);
+		}else {
+            const polygon = draw
+			// create a polygon from a hex's corner points
+			.polygon(hex.corners.map(({ x, y }) => `${x},${y}`))
+			.fill('white')
+			.stroke({ width: 1, color: '#999' });
+        }
+		//console.log(count);
 		return;
 	}
 
 	onMount(() => {
-		const draw = SVG().addTo(masteries).size('100%', '15dvh');
+        // INITIATE
+		const draw = SVG().addTo(masteries).size('100%', '100%');
 		const Hex = defineHex({
-			dimensions: masteries.getBoundingClientRect().width / 28.8,
+			dimensions: masteries.getBoundingClientRect().width / 28.25,
 			origin: 'topLeft'
 		});
 		const grid = new Grid(Hex, rectangle({ width: 16, height: 1 }));
@@ -392,12 +397,13 @@
 			console.log(hex);
 		});
 
-        const draw2 = SVG().addTo(expert).size('100%', '80dvh');
+        // EXPERT
+        const draw2 = SVG().addTo(expert).size('100%', '100%');
 		const Hex2 = defineHex({
-			dimensions: expert.getBoundingClientRect().width / 28.8,
+			dimensions: expert.getBoundingClientRect().width / 26.5,
 			origin: 'topLeft'
 		});
-		const grid2 = new Grid(Hex2, rectangle({ width: 16, height: 6 }));
+		const grid2 = new Grid(Hex2, rectangle({ width: 15, height: 5 }));
 		grid2.forEach((hex) => renderSVG(hex, draw2, expertTiles));
 		expert.addEventListener('click', ({ offsetX, offsetY }) => {
 			const hex = grid.pointToHex({ x: offsetX, y: offsetY }, { allowOutside: false });
@@ -409,22 +415,24 @@
 <div class="masteries" bind:this={masteries}></div>
 <div class="expert" bind:this={expert}></div>
 
-<!-- <span class="points">
+<span class="points">
     {masteryPoints} points
-</span> -->
+</span>
 
 <style lang="scss">
 	.masteries {
 		width: 100dvw;
+        height: 15dvh;
         padding: 1%;
 	}
     .expert {
         width: 100dvw;
-        padding: 0 1% 0 1%;
+        height: calc(100dvh - 15dvh - 46px);
+        padding: 1%;
     }
 	.points {
 		position: absolute;
-		top: 56px;
+		bottom: 0;
 		right: 0;
 		padding: 8px;
 		font-size: 32px;
