@@ -340,7 +340,6 @@
 		//console.log(hex.q, hex.r);
 		let tile = tiles.find((tile) => tile.q === hex.q && tile.r === hex.r);
 
-
 		if (tile) {
 
             const polygon = draw
@@ -422,13 +421,13 @@
 <style lang="scss">
 	.masteries {
 		width: 100dvw;
-        height: 15dvh;
+        height: calc(100dvw / 10);
         padding: 1%;
 	}
     .expert {
         width: 100dvw;
         height: calc(100dvh - 15dvh - 46px);
-        padding: 1%;
+        //padding: 1%;
     }
 	.points {
 		position: absolute;
