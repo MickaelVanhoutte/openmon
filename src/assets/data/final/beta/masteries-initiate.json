@@ -1,0 +1,130 @@
+[
+    {
+        "q": 0,
+        "r": 0,
+        "cost": 1,
+        "title": "catch +5%",
+        "color": "#F7F6CF",
+        "set": false
+    },
+    {
+        "q": 1,
+        "r": 0,
+        "cost": 1,
+        "title": "catch +5%",
+        "color": "#F7F6CF",
+        "set": false
+    },
+    {
+        "q": 2,
+        "r": 0,
+        "cost": 1,
+        "title": "CUT",
+        "color": "#EDC531",
+        "set": false
+    },
+    {
+        "q": 3,
+        "r": 0,
+        "cost": 1,
+        "title": "XP +5%",
+        "color": "#F7F6CF",
+        "set": false
+    },
+    {
+        "q": 4,
+        "r": 0,
+        "cost": 1,
+        "title": "XP +5%",
+        "color": "#F7F6CF",
+        "set": false
+    },
+    {
+        "q": 5,
+        "r": 0,
+        "cost": 1,
+        "title": "STRENGH",
+        "color": "#EDC531",
+        "set": false
+    },
+    {
+        "q": 6,
+        "r": 0,
+        "cost": 1,
+        "title": "EV +1",
+        "color": "#F7F6CF",
+        "set": false
+    },
+    {
+        "q": 7,
+        "r": 0,
+        "cost": 1,
+        "title": "EV +1",
+        "color": "#F7F6CF",
+        "set": false
+    },
+    {
+        "q": 8,
+        "r": 0,
+        "cost": 1,
+        "title": "ROCK SMASH",
+        "color": "#EDC531",
+        "set": false
+    },
+    {
+        "q": 9,
+        "r": 0,
+        "cost": 1,
+        "title": "Combo +5%",
+        "color": "#F7F6CF",
+        "set": false
+    },
+    {
+        "q": 10,
+        "r": 0,
+        "cost": 1,
+        "title": "Combo +5%",
+        "color": "#F7F6CF",
+        "set": false
+    },
+    {
+        "q": 11,
+        "r": 0,
+        "cost": 1,
+        "title": "SURF",
+        "color": "#EDC531",
+        "set": false
+    },
+    {
+        "q": 12,
+        "r": 0,
+        "cost": 1,
+        "title": "Shiny +5%",
+        "color": "#F7F6CF",
+        "set": false
+    },
+    {
+        "q": 13,
+        "r": 0,
+        "cost": 1,
+        "title": "Shiny +5%",
+        "color": "#F7F6CF",
+        "set": false
+    },
+    {
+        "q": 14,
+        "r": 0,
+        "cost": 1,
+        "title": "FLY",
+        "color": "#EDC531",
+        "set": false
+    },
+    {
+        "q": 15,
+        "r": 0,
+        "cost": 1,
+        "title": "ROCK CLIMB",
+        "color": "#EDC531",
+        "set": false
+    }
+]
