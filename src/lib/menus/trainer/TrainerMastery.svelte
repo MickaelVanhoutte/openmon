@@ -8,6 +8,7 @@
 
 	export let context: GameContext;
 	let masteries;
+    let expert;
 	$: masteryPoints = context.player.masteryPoints;
 	const initiateTiles = initiateMasteries;
 	const expertTiles = expertMasteries;
@@ -379,7 +380,7 @@
 	}
 
 	onMount(() => {
-		const draw = SVG().addTo(masteries).size('100%', '14dvh');
+		const draw = SVG().addTo(masteries).size('100%', '15dvh');
 		const Hex = defineHex({
 			dimensions: masteries.getBoundingClientRect().width / 28.8,
 			origin: 'topLeft'
@@ -390,10 +391,23 @@
 			const hex = grid.pointToHex({ x: offsetX, y: offsetY }, { allowOutside: false });
 			console.log(hex);
 		});
+
+        const draw2 = SVG().addTo(expert).size('100%', '80dvh');
+		const Hex2 = defineHex({
+			dimensions: expert.getBoundingClientRect().width / 28.8,
+			origin: 'topLeft'
+		});
+		const grid2 = new Grid(Hex2, rectangle({ width: 16, height: 6 }));
+		grid2.forEach((hex) => renderSVG(hex, draw2, expertTiles));
+		expert.addEventListener('click', ({ offsetX, offsetY }) => {
+			const hex = grid.pointToHex({ x: offsetX, y: offsetY }, { allowOutside: false });
+			console.log(hex);
+		});
 	});
 </script>
 
 <div class="masteries" bind:this={masteries}></div>
+<div class="expert" bind:this={expert}></div>
 
 <!-- <span class="points">
     {masteryPoints} points
@@ -402,8 +416,12 @@
 <style lang="scss">
 	.masteries {
 		width: 100dvw;
-        padding: 2%;
+        padding: 1%;
 	}
+    .expert {
+        width: 100dvw;
+        padding: 0 1% 0 1%;
+    }
 	.points {
 		position: absolute;
 		top: 56px;
