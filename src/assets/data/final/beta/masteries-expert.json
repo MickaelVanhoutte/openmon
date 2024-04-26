@@ -1,1 +1,452 @@
-[]
+[
+    {
+        "q": 3,
+        "r": 0,
+        "cost": 1,
+        "title": "Stab 5%",
+        "color": "yellow",
+        "set": false,
+        "first": false
+    },
+    {
+        "q": 4,
+        "r": 0,
+        "cost": 1,
+        "title": "Stab 5%",
+        "color": "yellow",
+        "set": false,
+        "first": false
+    },
+    {
+        "q": 5,
+        "r": 0,
+        "cost": 1,
+        "title": "Stab 5%",
+        "color": "yellow",
+        "set": false,
+        "first": false
+    },
+    {
+        "q": 6,
+        "r": 0,
+        "cost": 1,
+        "title": "Acc 3%",
+        "color": "yellow",
+        "set": false,
+        "first": false
+    },
+    {
+        "q": 7,
+        "r": 0,
+        "cost": 0,
+        "title": "",
+        "color": "#999",
+        "set": true,
+        "first": true
+    },
+    {
+        "q": 8,
+        "r": 0,
+        "cost": 1,
+        "title": "Acc 3%",
+        "color": "yellow",
+        "set": false,
+        "first": false
+    },
+    {
+        "q": 9,
+        "r": 0,
+        "cost": 1,
+        "title": "Non-Stab 5%",
+        "color": "yellow",
+        "set": false,
+        "first": false
+    },
+    {
+        "q": 10,
+        "r": 0,
+        "cost": 1,
+        "title": "Non-Stab 5%",
+        "color": "yellow",
+        "set": false,
+        "first": false
+    },
+    {
+        "q": 11,
+        "r": 0,
+        "cost": 1,
+        "title": "Non-Stab 5%",
+        "color": "yellow",
+        "set": false,
+        "first": false
+    },
+
+
+
+
+
+    {
+        "q": 5,
+        "r": 1,
+        "cost": 1,
+        "title": "Res 3%",
+        "color": "yellow",
+        "set": false,
+        "first": false
+    },
+    {
+        "q": 6,
+        "r": 1,
+        "cost": 1,
+        "title": "Res 3%",
+        "color": "yellow",
+        "set": false,
+        "first": false
+    },
+    {
+        "q": 7,
+        "r": 1,
+        "cost": 1,
+        "title": "Eff 3%",
+        "color": "yellow",
+        "set": false,
+        "first": false
+    },
+    {
+        "q": 8,
+        "r": 1,
+        "cost": 1,
+        "title": "Eff 3%",
+        "color": "yellow",
+        "set": false,
+        "first": false
+    },
+    {
+        "q": 5,
+        "r": 2,
+        "cost": 1,
+        "title": "Res 5%",
+        "color": "yellow",
+        "set": false,
+        "first": false
+    },
+    {
+        "q": 6,
+        "r": 2,
+        "cost": 1,
+        "title": "Acc 5%",
+        "color": "yellow",
+        "set": false,
+        "first": false
+    },
+    {
+        "q": 7,
+        "r": 2,
+        "cost": 1,
+        "title": "Eff 5%",
+        "color": "yellow",
+        "set": false,
+        "first": false
+    },
+
+
+    {
+        "q": 4,
+        "r": 3,
+        "cost": 1,
+        "title": "Crit 2%",
+        "color": "yellow",
+        "set": false,
+        "first": false
+    },
+    {
+        "q": 5,
+        "r": 3,
+        "cost": 1,
+        "title": "Crit 1%",
+        "color": "yellow",
+        "set": false,
+        "first": false
+    },
+    {
+        "q": 6,
+        "r": 3,
+        "cost": 1,
+        "title": "Crit 1%",
+        "color": "yellow",
+        "set": false,
+        "first": false
+    },
+    {
+        "q": 7,
+        "r": 3,
+        "cost": 1,
+        "title": "Crit 2%",
+        "color": "yellow",
+        "set": false,
+        "first": false
+    },
+
+
+    {
+        "q": 1,
+        "r": 0,
+        "cost": 1,
+        "title": "Weather",
+        "color": "blue",
+        "set": false,
+        "first": false
+    },
+    {
+        "q": 2,
+        "r": 0,
+        "cost": 1,
+        "title": "Weather",
+        "color": "blue",
+        "set": false,
+        "first": false
+    },
+    {
+        "q": 0,
+        "r": 1,
+        "cost": 1,
+        "title": "Weather",
+        "color": "blue",
+        "set": false,
+        "first": false
+    },
+    {
+        "q": 1,
+        "r": 1,
+        "cost": 1,
+        "title": "Weather",
+        "color": "blue",
+        "set": false,
+        "first": false
+    },
+    {
+        "q": 2,
+        "r": 1,
+        "cost": 1,
+        "title": "Weather",
+        "color": "blue",
+        "set": false,
+        "first": false
+    },
+    {
+        "q": 0,
+        "r": 2,
+        "cost": 1,
+        "title": "Weather",
+        "color": "blue",
+        "set": false,
+        "first": false
+    },
+    {
+        "q": 1,
+        "r": 2,
+        "cost": 1,
+        "title": "Weather",
+        "color": "blue",
+        "set": false,
+        "first": false
+    },
+
+
+
+    {
+        "q": 3,
+        "r": 1,
+        "cost": 1,
+        "title": "Heal",
+        "color": "green",
+        "set": false,
+        "first": false
+    },
+    {
+        "q": 4,
+        "r": 1,
+        "cost": 1,
+        "title": "Heal",
+        "color": "green",
+        "set": false,
+        "first": false
+    },
+    {
+        "q": 2,
+        "r": 2,
+        "cost": 1,
+        "title": "Heal",
+        "color": "green",
+        "set": false,
+        "first": false
+    },
+    {
+        "q": 3,
+        "r": 2,
+        "cost": 1,
+        "title": "Heal",
+        "color": "green",
+        "set": false,
+        "first": false
+    },
+    {
+        "q": 4,
+        "r": 2,
+        "cost": 1,
+        "title": "Heal",
+        "color": "green",
+        "set": false,
+        "first": false
+    },
+    {
+        "q": 2,
+        "r": 3,
+        "cost": 1,
+        "title": "Heal",
+        "color": "green",
+        "set": false,
+        "first": false
+    },
+    {
+        "q": 3,
+        "r": 3,
+        "cost": 1,
+        "title": "Heal",
+        "color": "green",
+        "set": false,
+        "first": false
+    },
+    
+    
+    
+    {
+        "q": 9,
+        "r": 1,
+        "cost": 1,
+        "title": "DOT",
+        "color": "red",
+        "set": false,
+        "first": false
+    },
+    {
+        "q": 10,
+        "r": 1,
+        "cost": 1,
+        "title": "DOT",
+        "color": "red",
+        "set": false,
+        "first": false
+    },
+    {
+        "q": 8,
+        "r": 2,
+        "cost": 1,
+        "title": "DOT",
+        "color": "red",
+        "set": false,
+        "first": false
+    },
+    {
+        "q": 9,
+        "r": 2,
+        "cost": 1,
+        "title": "DOT",
+        "color": "red",
+        "set": false,
+        "first": false
+    },
+    {
+        "q": 10,
+        "r": 2,
+        "cost": 1,
+        "title": "DOT",
+        "color": "red",
+        "set": false,
+        "first": false
+    },
+    {
+        "q": 8,
+        "r": 3,
+        "cost": 1,
+        "title": "DOT",
+        "color": "red",
+        "set": false,
+        "first": false
+    },
+    {
+        "q": 9,
+        "r": 3,
+        "cost": 1,
+        "title": "DOT",
+        "color": "red",
+        "set": false,
+        "first": false
+    },
+
+
+
+    {
+        "q": 12,
+        "r": 0,
+        "cost": 1,
+        "title": "Combo",
+        "color": "pink",
+        "set": false,
+        "first": false
+    },
+    {
+        "q": 13,
+        "r": 0,
+        "cost": 1,
+        "title": "Combo",
+        "color": "pink",
+        "set": false,
+        "first": false
+    },
+    {
+        "q": 11,
+        "r": 1,
+        "cost": 1,
+        "title": "Combo",
+        "color": "pink",
+        "set": false,
+        "first": false
+    }
+    ,
+    {
+        "q": 12,
+        "r": 1,
+        "cost": 1,
+        "title": "Combo",
+        "color": "pink",
+        "set": false,
+        "first": false
+    },
+    {
+        "q": 13,
+        "r": 1,
+        "cost": 1,
+        "title": "Combo",
+        "color": "pink",
+        "set": false,
+        "first": false
+    },
+    {
+        "q": 11,
+        "r": 2,
+        "cost": 1,
+        "title": "Combo",
+        "color": "pink",
+        "set": false,
+        "first": false
+    },{
+        "q": 12,
+        "r": 2,
+        "cost": 1,
+        "title": "Combo",
+        "color": "pink",
+        "set": false,
+        "first": false
+    }
+]
