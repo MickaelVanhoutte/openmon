@@ -1,9 +1,20 @@
 [
     {
+        "q": 2,
+        "r": 0,
+        "cost": 1,
+        "title": "Stab 5%",
+        "color": "#BBF1E4",
+        "description": "Increase Stabbed damages of your Pokemons by 5%",
+        "set": false,
+        "first": false
+    },
+    {
         "q": 3,
         "r": 0,
         "cost": 1,
         "title": "Stab 5%",
+        "description": "Increase Stabbed damages of your Pokemons by 5%",
         "color": "#BBF1E4",
         "set": false,
         "first": false
@@ -12,7 +23,8 @@
         "q": 4,
         "r": 0,
         "cost": 1,
-        "title": "Stab 5%",
+        "title": "Stab 3%",
+        "description": "Increase Stabbed damages of your Pokemons by 3%",
         "color": "#BBF1E4",
         "set": false,
         "first": false
@@ -21,7 +33,8 @@
         "q": 5,
         "r": 0,
         "cost": 1,
-        "title": "Stab 5%",
+        "title": "Stab 2%",
+        "description": "Increase Stabbed damages of your Pokemons by 2%",
         "color": "#BBF1E4",
         "set": false,
         "first": false
@@ -31,6 +44,7 @@
         "r": 0,
         "cost": 1,
         "title": "Acc 3%",
+        "description": "Increase Accuracy of your Pokemon moves by 3%",
         "color": "#FDEFAB",
         "set": false,
         "first": false
@@ -49,6 +63,7 @@
         "r": 0,
         "cost": 1,
         "title": "Acc 3%",
+        "description": "Increase Accuracy of your Pokemon moves by 3%",
         "color": "#FDEFAB",
         "set": false,
         "first": false
@@ -57,7 +72,8 @@
         "q": 9,
         "r": 0,
         "cost": 1,
-        "title": "Non-Stab 5%",
+        "title": "Non-Stab 2%",
+        "description": "Increase non-Stabbed damages of your Pokemons by 2%",
         "color": "#BADDD6",
         "set": false,
         "first": false
@@ -66,7 +82,8 @@
         "q": 10,
         "r": 0,
         "cost": 1,
-        "title": "Non-Stab 5%",
+        "title": "Non-Stab 3%",
+        "description": "Increase non-Stabbed damages of your Pokemons by 3%",
         "color": "#BADDD6",
         "set": false,
         "first": false
@@ -76,6 +93,17 @@
         "r": 0,
         "cost": 1,
         "title": "Non-Stab 5%",
+        "description": "Increase non-Stabbed damages of your Pokemons by 5%",
+        "color": "#BADDD6",
+        "set": false,
+        "first": false
+    },
+    {
+        "q": 12,
+        "r": 0,
+        "cost": 1,
+        "title": "Non-Stab 5%",
+        "description": "Increase non-Stabbed damages of your Pokemons by 5%",
         "color": "#BADDD6",
         "set": false,
         "first": false
@@ -84,12 +112,22 @@
 
 
 
-
+    {
+        "q": 4,
+        "r": 1,
+        "cost": 1,
+        "title": "Res 3%",
+        "color": "#D5E5E2",
+        "description": "Increase resistance to opponent's move effects by 3%",
+        "set": false,
+        "first": false
+    },
     {
         "q": 5,
         "r": 1,
         "cost": 1,
         "title": "Res 3%",
+        "description": "Increase resistance to opponent's move effects by 3%",
         "color": "#D5E5E2",
         "set": false,
         "first": false
@@ -99,6 +137,7 @@
         "r": 1,
         "cost": 1,
         "title": "Res 3%",
+        "description": "Increase resistance to opponent's move effects by 3%",
         "color": "#D5E5E2",
         "set": false,
         "first": false
@@ -108,7 +147,8 @@
         "r": 1,
         "cost": 1,
         "title": "Eff 3%",
-        "color": "yellow",
+        "description": "Increase your Pokemon move side effects chances by 3%",
+        "color": "#FFFFBA",
         "set": false,
         "first": false
     },
@@ -117,7 +157,18 @@
         "r": 1,
         "cost": 1,
         "title": "Eff 3%",
-        "color": "yellow",
+        "description": "Increase your Pokemon move side effects chances by 3%",
+        "color": "#FFFFBA",
+        "set": false,
+        "first": false
+    },
+    {
+        "q": 9,
+        "r": 1,
+        "cost": 1,
+        "title": "Eff 3%",
+        "description": "Increase your Pokemon move side effects chances by 3%",
+        "color": "#FFFFBA",
         "set": false,
         "first": false
     },
@@ -126,6 +177,7 @@
         "r": 2,
         "cost": 1,
         "title": "Res 5%",
+        "description": "Increase resistance to opponent's move effects by 5%",
         "color": "#D5E5E2",
         "set": false,
         "first": false
@@ -135,6 +187,7 @@
         "r": 2,
         "cost": 1,
         "title": "Acc 5%",
+        "description": "Increase Accuracy of your Pokemon moves by 5%",
         "color": "#FDEFAB",
         "set": false,
         "first": false
@@ -144,7 +197,8 @@
         "r": 2,
         "cost": 1,
         "title": "Eff 5%",
-        "color": "yellow",
+        "description": "Increase your Pokemon move side effects chances by 5%",
+        "color": "#FFFFBA",
         "set": false,
         "first": false
     },
@@ -155,6 +209,7 @@
         "r": 3,
         "cost": 1,
         "title": "Crit 2%",
+        "description": "Increase your Pokemon Critical hit chances by 2%",
         "color": "#F4D35E",
         "set": false,
         "first": false
@@ -164,6 +219,7 @@
         "r": 3,
         "cost": 1,
         "title": "Crit 1%",
+        "description": "Increase your Pokemon Critical hit chances by 1%",
         "color": "#F4D35E",
         "set": false,
         "first": false
@@ -173,6 +229,7 @@
         "r": 3,
         "cost": 1,
         "title": "Crit 1%",
+        "description": "Increase your Pokemon Critical hit chances by 1%",
         "color": "#F4D35E",
         "set": false,
         "first": false
@@ -182,6 +239,7 @@
         "r": 3,
         "cost": 1,
         "title": "Crit 2%",
+        "description": "Increase your Pokemon Critical hit chances by 2%",
         "color": "#F4D35E",
         "set": false,
         "first": false
@@ -192,16 +250,7 @@
         "q": 1,
         "r": 0,
         "cost": 1,
-        "title": "Weather",
-        "color": "#40E0D0",
-        "set": false,
-        "first": false
-    },
-    {
-        "q": 2,
-        "r": 0,
-        "cost": 1,
-        "title": "Weather",
+        "title": "Weather Sun",
         "color": "#40E0D0",
         "set": false,
         "first": false
@@ -210,7 +259,7 @@
         "q": 0,
         "r": 1,
         "cost": 1,
-        "title": "Weather",
+        "title": "Weather Sandstorm",
         "color": "#40E0D0",
         "set": false,
         "first": false
@@ -218,8 +267,9 @@
     {
         "q": 1,
         "r": 1,
-        "cost": 1,
-        "title": "Weather",
+        "cost": 2,
+        "title": "Weather turn+1",
+        "description": "Increase the duration of your weather moves by 1 turn",
         "color": "#40E0D0",
         "set": false,
         "first": false
@@ -228,7 +278,7 @@
         "q": 2,
         "r": 1,
         "cost": 1,
-        "title": "Weather",
+        "title": "Weather Hail",
         "color": "#40E0D0",
         "set": false,
         "first": false
@@ -237,7 +287,8 @@
         "q": 0,
         "r": 2,
         "cost": 1,
-        "title": "Weather",
+        "title": "Weather turn-1",
+        "description": "Decrease your opponent's weather moves duration by 1 turn",
         "color": "#40E0D0",
         "set": false,
         "first": false
@@ -246,7 +297,7 @@
         "q": 1,
         "r": 2,
         "cost": 1,
-        "title": "Weather",
+        "title": "Weather Rain",
         "color": "#40E0D0",
         "set": false,
         "first": false
@@ -258,16 +309,8 @@
         "q": 3,
         "r": 1,
         "cost": 1,
-        "title": "Heal",
-        "color": "#baffc9",
-        "set": false,
-        "first": false
-    },
-    {
-        "q": 4,
-        "r": 1,
-        "cost": 1,
-        "title": "Heal",
+        "title": "Heal +2%",
+        "description": "Increase healing moves and healing items effects by 2%",
         "color": "#baffc9",
         "set": false,
         "first": false
@@ -276,7 +319,8 @@
         "q": 2,
         "r": 2,
         "cost": 1,
-        "title": "Heal",
+        "title": "Heal +2%",
+        "description": "Increase healing moves and healing items effects by 2%",
         "color": "#baffc9",
         "set": false,
         "first": false
@@ -284,8 +328,9 @@
     {
         "q": 3,
         "r": 2,
-        "cost": 1,
-        "title": "Heal",
+        "cost": 2,
+        "title": "Heal auto-10%",
+        "description": "Automatically heal 10% of your Pokemon's max HP at the end of each battles",
         "color": "#baffc9",
         "set": false,
         "first": false
@@ -294,7 +339,8 @@
         "q": 4,
         "r": 2,
         "cost": 1,
-        "title": "Heal",
+        "title": "Heal +2%",
+        "description": "Increase healing moves and healing items effects by 2%",
         "color": "#baffc9",
         "set": false,
         "first": false
@@ -303,7 +349,8 @@
         "q": 2,
         "r": 3,
         "cost": 1,
-        "title": "Heal",
+        "title": "Heal +2%",
+        "description": "Increase healing moves and healing items effects by 2%",
         "color": "#baffc9",
         "set": false,
         "first": false
@@ -312,7 +359,8 @@
         "q": 3,
         "r": 3,
         "cost": 1,
-        "title": "Heal",
+        "title": "Heal +2%",
+        "description": "Increase healing moves and healing items effects by 2%",
         "color": "#baffc9",
         "set": false,
         "first": false
@@ -321,19 +369,11 @@
     
     
     {
-        "q": 9,
-        "r": 1,
-        "cost": 1,
-        "title": "DOT",
-        "color": "#CBAACB",
-        "set": false,
-        "first": false
-    },
-    {
         "q": 10,
         "r": 1,
         "cost": 1,
-        "title": "DOT",
+        "title": "DOT dmg+1%",
+        "description": "Increase damages of burn and poison effects by 1%",
         "color": "#CBAACB",
         "set": false,
         "first": false
@@ -342,7 +382,8 @@
         "q": 8,
         "r": 2,
         "cost": 1,
-        "title": "DOT",
+        "title": "DOT dmg+1%",
+        "description": "Increase damages of burn and poison effects by 1%",
         "color": "#CBAACB",
         "set": false,
         "first": false
@@ -350,8 +391,9 @@
     {
         "q": 9,
         "r": 2,
-        "cost": 1,
-        "title": "DOT",
+        "cost": 2,
+        "title": "DOT ch+5%",
+        "description": "Increase chances of inflict burn and poison effects by 5%",
         "color": "#CBAACB",
         "set": false,
         "first": false
@@ -360,7 +402,8 @@
         "q": 10,
         "r": 2,
         "cost": 1,
-        "title": "DOT",
+        "title": "DOT dmg+1%",
+        "description": "Increase damages of burn and poison effects by 1%",
         "color": "#CBAACB",
         "set": false,
         "first": false
@@ -369,7 +412,8 @@
         "q": 8,
         "r": 3,
         "cost": 1,
-        "title": "DOT",
+        "title": "DOT dmg+1%",
+        "description": "Increase damages of burn and poison effects by 1%",
         "color": "#CBAACB",
         "set": false,
         "first": false
@@ -378,7 +422,8 @@
         "q": 9,
         "r": 3,
         "cost": 1,
-        "title": "DOT",
+        "title": "DOT dmg+1%",
+        "description": "Increase damages of burn and poison effects by 1%",
         "color": "#CBAACB",
         "set": false,
         "first": false
@@ -386,20 +431,12 @@
 
 
 
-    {
-        "q": 12,
-        "r": 0,
-        "cost": 1,
-        "title": "Combo",
-        "color": "#FF968A",
-        "set": false,
-        "first": false
-    },
     {
         "q": 13,
         "r": 0,
         "cost": 1,
-        "title": "Combo",
+        "title": "Combo jge+2%",
+        "description": "Increase the Combo jauge gain by 2%",
         "color": "#FF968A",
         "set": false,
         "first": false
@@ -408,7 +445,8 @@
         "q": 11,
         "r": 1,
         "cost": 1,
-        "title": "Combo",
+        "title": "Combo jge+2%",
+        "description": "Increase the Combo jauge gain by 2%",
         "color": "#FF968A",
         "set": false,
         "first": false
@@ -417,8 +455,9 @@
     {
         "q": 12,
         "r": 1,
-        "cost": 1,
-        "title": "Combo",
+        "cost": 2,
+        "title": "Combo dmg+10%",
+        "description": "Increase the Combo damages by 10%",
         "color": "#FF968A",
         "set": false,
         "first": false
@@ -427,7 +466,8 @@
         "q": 13,
         "r": 1,
         "cost": 1,
-        "title": "Combo",
+        "title": "Combo jge+2%",
+        "description": "Increase the Combo jauge gain by 2%",
         "color": "#FF968A",
         "set": false,
         "first": false
@@ -436,7 +476,8 @@
         "q": 11,
         "r": 2,
         "cost": 1,
-        "title": "Combo",
+        "title": "Combo jge+2%",
+        "description": "Increase the Combo jauge gain by 2%",
         "color": "#FF968A",
         "set": false,
         "first": false
@@ -444,7 +485,8 @@
         "q": 12,
         "r": 2,
         "cost": 1,
-        "title": "Combo",
+        "title": "Combo jge+2%",
+        "description": "Increase the Combo jauge gain by 2%",
         "color": "#FF968A",
         "set": false,
         "first": false
@@ -454,8 +496,9 @@
     {
         "q": 1,
         "r": 3,
-        "cost": 1,
+        "cost": 2,
         "title": "Attract",
+        "description": "Increase chances of inflicting Attraction status by 5%",
         "color": "#FBC2C2",
         "set": false,
         "first": false
@@ -463,8 +506,9 @@
     {
         "q": 10,
         "r": 3,
-        "cost": 1,
+        "cost": 2,
         "title": "Confuse",
+        "description": "Increase chances of inflicting Confusion status by 5%",
         "color": "#D9E5E3",
         "set": false,
         "first": false
