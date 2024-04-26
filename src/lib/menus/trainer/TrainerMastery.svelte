@@ -5,334 +5,16 @@
 	import { onMount } from 'svelte';
 	import initiateMasteries from '../../../assets/data/final/beta/masteries-initiate.json';
 	import expertMasteries from '../../../assets/data/final/beta/masteries-expert.json';
+	import Modal from '../../common/Modal.svelte';
 
 	export let context: GameContext;
 	let masteries;
-    let expert;
+	let expert;
+	let showModal = false;
+	let currentNode: any | undefined;
 	$: masteryPoints = context.player.masteryPoints;
 	const initiateTiles = initiateMasteries;
 	const expertTiles = expertMasteries;
-
-	// const tiles = [
-	// 	{
-	// 		q: 3,
-	// 		r: 2,
-	//         cost: 1,
-	// 		title: 'CUT',
-	//         color: '#EDC531',
-	// 		set: false
-	// 	},
-	//     {
-	// 		q: 4,
-	// 		r: 2,
-	//         cost: 2,
-	// 		title: 'SURF',
-	//         color: '#EDC531',
-	// 		set: false
-	// 	},
-	//     {
-	// 		q: 4,
-	// 		r: 3,
-	//         cost: 1,
-	// 		title: 'ROCK SMASH',
-	//         color: '#EDC531',
-	// 		set: false
-	// 	},
-	//     {
-	// 		q: 3,
-	// 		r: 4,
-	//         cost: 1,
-	// 		title: 'STRENGH',
-	//         color: '#EDC531',
-	// 		set: false
-	// 	},
-	//     {
-	// 		q: 2,
-	// 		r: 4,
-	// 		cost: 3,
-	// 		title: 'FLY',
-	//         color: '#EDC531',
-	// 		set: false
-	// 	},
-	//     {
-	// 		q: 2,
-	// 		r: 3,
-	//         cost: 2,
-	// 		title: 'ROCK CLIMB',
-	//         color: '#EDC531',
-	// 		set: false
-	// 	},
-	//     {
-	// 		q: 3,
-	// 		r: 1,
-	//         cost: 2,
-	// 		title: 'Shiny +10%',
-	// 		subTitle: '+10%',
-	//         color: '#F7F6CF',
-	// 		set: false
-	// 	},
-	//     {
-	// 		q: 3,
-	// 		r: 0,
-	//         cost: 3,
-	// 		title: 'Shiny +20%',
-	// 		subTitle: '+20%',
-	//         color: '#F7F6CF',
-	// 		set: false
-	// 	},
-	//     {
-	// 		q: 5,
-	// 		r: 1,
-	//         cost: 1,
-	// 		title: 'Catch +10%',
-	// 		subTitle: '+10%',
-	//         color: '#F7F6CF',
-	// 		set: false
-	// 	},
-	//     {
-	// 		q: 6,
-	// 		r: 0,
-	//         cost: 1,
-	// 		title: 'Catch +20%',
-	// 		subTitle: '+20%',
-	//         color: '#F7F6CF',
-	// 		set: false
-	// 	},
-	//     {
-	// 		q: 5,
-	// 		r: 3,
-	//         cost: 1,
-	// 		title: 'XP +10%',
-	// 		subTitle: '',
-	//         color: '#F7F6CF',
-	// 		set: false
-	// 	},
-	//     {
-	// 		q: 6,
-	// 		r: 3,
-	//         cost: 1,
-	// 		title: 'XP +20%',
-	// 		subTitle: '+20%',
-	//         color: '#F7F6CF',
-	// 		set: false
-	// 	},
-	//     {
-	// 		q: 3,
-	// 		r: 5,
-	//         cost: 2,
-	// 		title: 'IVs +5',
-	// 		subTitle: '+5',
-	//         color: '#F7F6CF',
-	// 		set: false
-	// 	},
-	//     {
-	// 		q: 3,
-	// 		r: 6,
-	//         cost: 3,
-	// 		title: 'IVs +5',
-	// 		subTitle: '+5',
-	//         color: '#F7F6CF',
-	// 		set: false
-	// 	},
-	//     {
-	// 		q: 1,
-	// 		r: 5,
-	//         cost: 1,
-	// 		title: 'EVs +1',
-	// 		subTitle: '+1',
-	//         color: '#F7F6CF',
-	// 		set: false
-	// 	},
-	//     {
-	// 		q: 0,
-	// 		r: 6,
-	//         cost: 1,
-	// 		title: 'EVs +2',
-	// 		subTitle: '+2',
-	//         color: '#F7F6CF',
-	// 		set: false
-	// 	},
-	//     {
-	// 		q: 1,
-	// 		r: 3,
-	//         cost: 2,
-	// 		title: 'Combo +5%',
-	// 		subTitle: '+5%',
-	//         color: '#F7F6CF',
-	// 		set: false
-	// 	},
-	//     {
-	// 		q: 0,
-	// 		r: 3,
-	//         cost: 2,
-	// 		title: 'Combo +5%',
-	// 		subTitle: '+5%',
-	//         color: '#F7F6CF',
-	// 		set: false
-	// 	},
-	//     {
-	// 		q: 2,
-	// 		r: 2,
-	//         cost: 1,
-	// 		title: 'Stab +5%',
-	// 		subTitle: '+5%',
-	//         color: '#baffc9',
-	// 		set: false
-	// 	},
-	//     {
-	// 		q: 1,
-	// 		r: 2,
-	//         cost: 1,
-	// 		title: 'Stab +5%',
-	// 		subTitle: '+5%',
-	//         color: '#baffc9',
-	// 		set: false
-	// 	},
-	//     {
-	// 		q: 2,
-	// 		r: 1,
-	//         cost: 1,
-	// 		title: 'Stab +5%',
-	// 		subTitle: '+5%',
-	//         color: '#baffc9',
-	// 		set: false
-	// 	},
-	//     {
-	// 		q: 1,
-	// 		r: 4,
-	//         cost: 1,
-	// 		title: 'non-STAB +5%',
-	// 		subTitle: '+5%',
-	//         color: '#FFD5BA',
-	// 		set: false
-	// 	},
-	//     {
-	// 		q: 0,
-	// 		r: 4,
-	//         cost: 1,
-	// 		title: 'non-STAB +5%',
-	// 		subTitle: '+5%',
-	//         color: '#FFD5BA',
-	// 		set: false
-	// 	},
-	//     {
-	// 		q: 0,
-	// 		r: 5,
-	//         cost: 1,
-	// 		title: 'non-STAB +5%',
-	// 		subTitle: '+5%',
-	//         color: '#FFD5BA',
-	// 		set: false
-	// 	},
-	//     {
-	// 		q: 2,
-	// 		r: 5,
-	//         cost: 1,
-	// 		title: 'Resistance +4%',
-	// 		subTitle: '+4%',
-	//         color: '#ECD5E3',
-	// 		set: false
-	// 	},
-	//     {
-	// 		q: 1,
-	// 		r: 6,
-	//         cost: 1,
-	// 		title: 'Resistance +3%',
-	// 		subTitle: '+3%',
-	//         color: '#ECD5E3',
-	// 		set: false
-	// 	},
-	//     {
-	// 		q: 2,
-	// 		r: 6,
-	//         cost: 1,
-	// 		title: 'Resistance +3%',
-	// 		subTitle: '+3%',
-	//         color: '#ECD5E3',
-	// 		set: false
-	// 	},
-	//     {
-	// 		q: 4,
-	// 		r: 4,
-	//         cost: 1,
-	// 		title: 'Effect +4%',
-	// 		subTitle: '+4%',
-	//         color: '#FFA07A',
-	// 		set: false
-	// 	},
-	//     {
-	// 		q: 4,
-	// 		r: 5,
-	//         cost: 1,
-	// 		title: 'Effect +3%',
-	// 		subTitle: '+3%',
-	//         color: '#FFA07A',
-	// 		set: false
-	// 	},
-	//     {
-	// 		q: 5,
-	// 		r: 4,
-	//         cost: 1,
-	// 		title: 'Effect +3%',
-	// 		subTitle: '+3%',
-	//         color: '#FFA07A',
-	// 		set: false
-	// 	},
-	//     {
-	// 		q: 4,
-	// 		r: 1,
-	//         cost: 1,
-	// 		title: 'Weather dmg+10%',
-	// 		subTitle: '+10%',
-	//         color: '#ABDEE6',
-	// 		set: false
-	// 	},
-	//     {
-	// 		q: 4,
-	// 		r: 0,
-	//         cost: 2,
-	// 		title: 'weather Own+1turn',
-	// 		subTitle: '+1 turn',
-	//         color: '#ABDEE6',
-	// 		set: false
-	// 	},
-	//     {
-	// 		q: 5,
-	// 		r: 0,
-	//         cost: 2,
-	// 		title: 'Weather Opp-1turn',
-	// 		subTitle: '-1 turn',
-	//         color: '#ABDEE6',
-	// 		set: false
-	// 	},
-	//     {
-	// 		q: 5,
-	// 		r: 2,
-	//         cost: 1,
-	// 		title: 'Accuracy +4%',
-	// 		subTitle: '+4%',
-	//         color: '#40E0D0',
-	// 		set: false
-	// 	},
-	//     {
-	// 		q: 6,
-	// 		r: 1,
-	//         cost: 1,
-	// 		title: 'Accuracy +3%',
-	// 		subTitle: '+3%',
-	//         color: '#40E0D0',
-	// 		set: false
-	// 	},
-	//     {
-	// 		q: 6,
-	// 		r: 2,
-	//         cost: 1,
-	// 		title: 'Accuracy +3%',
-	// 		subTitle: '+3%',
-	//         color: '#40E0D0',
-	// 		set: false
-	// 	},
-	// ];
 
 	let count = 0;
 
@@ -341,13 +23,13 @@
 		let tile = tiles.find((tile) => tile.q === hex.q && tile.r === hex.r);
 
 		if (tile) {
+			const polygon = draw
+				// create a polygon from a hex's corner points
+				.polygon(hex.corners.map(({ x, y }) => `${x},${y}`))
+				.fill('white')
+				.css('cursor', 'pointer')
+				.stroke({ width: 1, color: '#999' });
 
-            const polygon = draw
-			// create a polygon from a hex's corner points
-			.polygon(hex.corners.map(({ x, y }) => `${x},${y}`))
-			.fill('white')
-			.stroke({ width: 1, color: '#999' });
-            
 			count += tile.cost;
 			if (tile?.color) {
 				polygon.fill(tile.color);
@@ -355,9 +37,9 @@
 				polygon.fill('white');
 			}
 
-            // if(tile?.first){
-            //     draw.stroke({ width: 1, color: 'black' });
-            // }
+			// if(tile?.first){
+			//     draw.stroke({ width: 1, color: 'black' });
+			// }
 
 			let width = hex.corners[0].x - hex.corners[3].x;
 
@@ -368,22 +50,30 @@
 					draw
 						.text(word)
 						.move(hex.corners[0].x - width / 2, hex.corners[0].y - 14 + i * 12)
+						.css('pointer-events', 'none')
 						.font({ fill: 'black', size: 12, anchor: 'middle', leading: 1 });
 				});
 			}
-		}else {
-            const polygon = draw
+		} else {
+			const polygon = draw;
 			// create a polygon from a hex's corner points
 			// .polygon(hex.corners.map(({ x, y }) => `${x},${y}`))
 			// .fill('white')
 			// .stroke({ width: 1, color: '#999' });
-        }
+		}
 		//console.log(count);
 		return;
 	}
 
+	function openModal(tile?: any): any {
+		if (tile && !tile.first) {
+			currentNode = tile;
+			showModal = true;
+		}
+	}
+
 	onMount(() => {
-        // INITIATE
+		// INITIATE
 		const draw = SVG().addTo(masteries).size('100%', '100%');
 		const Hex = defineHex({
 			dimensions: masteries.getBoundingClientRect().width / 28.25,
@@ -394,10 +84,25 @@
 		masteries.addEventListener('click', ({ offsetX, offsetY }) => {
 			const hex = grid.pointToHex({ x: offsetX, y: offsetY }, { allowOutside: false });
 			console.log(hex);
+			openModal(initiateTiles.find((tile) => tile.q === hex.q && tile.r === hex.r));
 		});
+		masteries.addEventListener('touch', ({ offsetX, offsetY }) => {
+			const hex = grid.pointToHex({ x: offsetX, y: offsetY }, { allowOutside: false });
+			console.log(hex);
+			openModal(initiateTiles.find((tile) => tile.q === hex.q && tile.r === hex.r));
+		});
+		// let svg1 = document.querySelector('.masteries');
+		// console.log(svg1);
+		// if (svg1) {
+		// 	svg1.addEventListener('click', ({ offsetX, offsetY }) => {
+		// 		console.log(offsetX, offsetY);
+		// 		const hex = grid.pointToHex({ x: offsetX, y: offsetY }, { allowOutside: false });
+		// 		openModal(initiateTiles.find((tile) => tile.q === hex.q && tile.r === hex.r));
+		// 	});
+		// }
 
-        // EXPERT
-        const draw2 = SVG().addTo(expert).size('100%', '100%');
+		// EXPERT
+		const draw2 = SVG().addTo(expert).size('100%', '100%');
 		const Hex2 = defineHex({
 			dimensions: expert.getBoundingClientRect().width / 26.5,
 			origin: 'topLeft'
@@ -407,7 +112,14 @@
 		expert.addEventListener('click', ({ offsetX, offsetY }) => {
 			const hex = grid2.pointToHex({ x: offsetX, y: offsetY }, { allowOutside: false });
 			console.log(hex);
+			openModal(expertTiles.find((tile) => tile.q === hex.q && tile.r === hex.r));
 		});
+		expert.addEventListener('touch', ({ offsetX, offsetY }) => {
+			const hex = grid2.pointToHex({ x: offsetX, y: offsetY }, { allowOutside: false });
+			console.log(hex);
+			openModal(expertTiles.find((tile) => tile.q === hex.q && tile.r === hex.r));
+		});
+		console.log(count);
 	});
 </script>
 
@@ -415,20 +127,36 @@
 <div class="expert" bind:this={expert}></div>
 
 <span class="points">
-    {masteryPoints} points
+	{masteryPoints} points
 </span>
+
+<Modal bind:showModal>
+	<h3 slot="header" style="margin: 2% 0">
+		{currentNode?.title}
+	</h3>
+
+	<p>
+		cost : {currentNode?.cost}
+	</p>
+
+	<hr />
+	<h5>Detail</h5>
+	<p>
+		{currentNode?.description}
+	</p>
+</Modal>
 
 <style lang="scss">
 	.masteries {
 		width: 100dvw;
-        height: calc(100dvw / 10);
-        padding: 1%;
+		height: calc(100dvw / 10);
+		padding: 1%;
 	}
-    .expert {
-        width: 100dvw;
-        height: calc(100dvh - 15dvh - 46px);
-        padding: 1%;
-    }
+	.expert {
+		width: 100dvw;
+		height: calc(100dvh - 15dvh - 46px);
+		padding: 1%;
+	}
 	.points {
 		position: absolute;
 		bottom: 0;
@@ -437,5 +165,8 @@
 		font-size: 32px;
 		color: white;
 		text-shadow: 1px 1px 1px black;
+	}
+	:global(.modal) {
+		min-width: 60%;
 	}
 </style>

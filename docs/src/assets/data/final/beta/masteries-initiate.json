@@ -2,10 +2,10 @@
     {
         "q": 0,
         "r": 0,
-        "cost": 1,
-        "title": "catch +5%",
-        "color": "#F7F6CF",
-        "set": false,
+        "cost": 0,
+        "title": "",
+        "color": "white",
+        "set": true,
         "first": true
     },
     {
@@ -13,16 +13,18 @@
         "r": 0,
         "cost": 1,
         "title": "catch +5%",
+        "description": "Increase your pokeballs catch rate by 5%",
         "color": "#F7F6CF",
         "set": false,
-        "first": false
+        "first": true
     },
     {
         "q": 2,
         "r": 0,
         "cost": 1,
-        "title": "CUT",
-        "color": "#F4D35E",
+        "title": "catch +5%",
+        "description": "Increase your pokeballs catch rate by 5%",
+        "color": "#F7F6CF",
         "set": false,
         "first": false
     },
@@ -30,8 +32,9 @@
         "q": 3,
         "r": 0,
         "cost": 1,
-        "title": "XP +5%",
-        "color": "#F7F6CF",
+        "title": "CUT",
+        "description": "Cut down trees to access new areas",
+        "color": "#F4D35E",
         "set": false,
         "first": false
     },
@@ -40,6 +43,7 @@
         "r": 0,
         "cost": 1,
         "title": "XP +5%",
+        "description": "Increase experience gain of yourself and your Pokemons by 5%",
         "color": "#F7F6CF",
         "set": false,
         "first": false
@@ -48,8 +52,9 @@
         "q": 5,
         "r": 0,
         "cost": 1,
-        "title": "STRENGH",
-        "color": "#F4D35E",
+        "title": "XP +5%",
+        "description": "Increase experience gain of yourself and your Pokemons by 5%",
+        "color": "#F7F6CF",
         "set": false,
         "first": false
     },
@@ -57,8 +62,9 @@
         "q": 6,
         "r": 0,
         "cost": 1,
-        "title": "EV +1",
-        "color": "#F7F6CF",
+        "title": "STRENGH",
+        "description": "Push boulders to access new areas",
+        "color": "#F4D35E",
         "set": false,
         "first": false
     },
@@ -67,6 +73,7 @@
         "r": 0,
         "cost": 1,
         "title": "EV +1",
+        "description": "Increase your Pokemons EV gain by 1",
         "color": "#F7F6CF",
         "set": false,
         "first": false
@@ -75,8 +82,9 @@
         "q": 8,
         "r": 0,
         "cost": 1,
-        "title": "ROCK SMASH",
-        "color": "#F4D35E",
+        "title": "EV +1",
+        "description": "Increase your Pokemons EV gain by 1",
+        "color": "#F7F6CF",
         "set": false,
         "first": false
     },
@@ -84,8 +92,9 @@
         "q": 9,
         "r": 0,
         "cost": 1,
-        "title": "Combo +5%",
-        "color": "#F7F6CF",
+        "title": "ROCK SMASH",
+        "description": "Break rocks to access new areas",
+        "color": "#F4D35E",
         "set": false,
         "first": false
     },
@@ -94,6 +103,7 @@
         "r": 0,
         "cost": 1,
         "title": "Combo +5%",
+        "description": "Increase the Combo jauge gain by 5%",
         "color": "#F7F6CF",
         "set": false,
         "first": false
@@ -102,8 +112,9 @@
         "q": 11,
         "r": 0,
         "cost": 1,
-        "title": "SURF",
-        "color": "#F4D35E",
+        "title": "Combo +5%",
+        "description": "Increase the Combo jauge gain by 5%",
+        "color": "#F7F6CF",
         "set": false,
         "first": false
     },
@@ -111,8 +122,9 @@
         "q": 12,
         "r": 0,
         "cost": 1,
-        "title": "Shiny +5%",
-        "color": "#F7F6CF",
+        "title": "SURF",
+        "description": "Surf on water to access new areas",
+        "color": "#F4D35E",
         "set": false,
         "first": false
     },
@@ -121,6 +133,7 @@
         "r": 0,
         "cost": 1,
         "title": "Shiny +5%",
+        "description": "Increase the shiny rate of Pokemons by 5%",
         "color": "#F7F6CF",
         "set": false,
         "first": false
@@ -129,8 +142,9 @@
         "q": 14,
         "r": 0,
         "cost": 1,
-        "title": "FLY",
-        "color": "#F4D35E",
+        "title": "Shiny +5%",
+        "description": "Increase the shiny rate of Pokemons by 5%",
+        "color": "#F7F6CF",
         "set": false,
         "first": false
     },
@@ -138,9 +152,11 @@
         "q": 15,
         "r": 0,
         "cost": 1,
-        "title": "ROCK CLIMB",
+        "title": "FLY",
+        "description": "Fly to access new areas",
         "color": "#F4D35E",
         "set": false,
         "first": false
     }
+    
 ]
