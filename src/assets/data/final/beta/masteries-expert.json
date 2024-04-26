@@ -4,7 +4,7 @@
         "r": 0,
         "cost": 1,
         "title": "Stab 5%",
-        "color": "yellow",
+        "color": "#BBF1E4",
         "set": false,
         "first": false
     },
@@ -13,7 +13,7 @@
         "r": 0,
         "cost": 1,
         "title": "Stab 5%",
-        "color": "yellow",
+        "color": "#BBF1E4",
         "set": false,
         "first": false
     },
@@ -22,7 +22,7 @@
         "r": 0,
         "cost": 1,
         "title": "Stab 5%",
-        "color": "yellow",
+        "color": "#BBF1E4",
         "set": false,
         "first": false
     },
@@ -31,7 +31,7 @@
         "r": 0,
         "cost": 1,
         "title": "Acc 3%",
-        "color": "yellow",
+        "color": "#FDEFAB",
         "set": false,
         "first": false
     },
@@ -40,7 +40,7 @@
         "r": 0,
         "cost": 0,
         "title": "",
-        "color": "#999",
+        "color": "white",
         "set": true,
         "first": true
     },
@@ -49,7 +49,7 @@
         "r": 0,
         "cost": 1,
         "title": "Acc 3%",
-        "color": "yellow",
+        "color": "#FDEFAB",
         "set": false,
         "first": false
     },
@@ -58,7 +58,7 @@
         "r": 0,
         "cost": 1,
         "title": "Non-Stab 5%",
-        "color": "yellow",
+        "color": "#BADDD6",
         "set": false,
         "first": false
     },
@@ -67,7 +67,7 @@
         "r": 0,
         "cost": 1,
         "title": "Non-Stab 5%",
-        "color": "yellow",
+        "color": "#BADDD6",
         "set": false,
         "first": false
     },
@@ -76,7 +76,7 @@
         "r": 0,
         "cost": 1,
         "title": "Non-Stab 5%",
-        "color": "yellow",
+        "color": "#BADDD6",
         "set": false,
         "first": false
     },
@@ -90,7 +90,7 @@
         "r": 1,
         "cost": 1,
         "title": "Res 3%",
-        "color": "yellow",
+        "color": "#D5E5E2",
         "set": false,
         "first": false
     },
@@ -99,7 +99,7 @@
         "r": 1,
         "cost": 1,
         "title": "Res 3%",
-        "color": "yellow",
+        "color": "#D5E5E2",
         "set": false,
         "first": false
     },
@@ -126,7 +126,7 @@
         "r": 2,
         "cost": 1,
         "title": "Res 5%",
-        "color": "yellow",
+        "color": "#D5E5E2",
         "set": false,
         "first": false
     },
@@ -135,7 +135,7 @@
         "r": 2,
         "cost": 1,
         "title": "Acc 5%",
-        "color": "yellow",
+        "color": "#FDEFAB",
         "set": false,
         "first": false
     },
@@ -155,7 +155,7 @@
         "r": 3,
         "cost": 1,
         "title": "Crit 2%",
-        "color": "yellow",
+        "color": "#F4D35E",
         "set": false,
         "first": false
     },
@@ -164,7 +164,7 @@
         "r": 3,
         "cost": 1,
         "title": "Crit 1%",
-        "color": "yellow",
+        "color": "#F4D35E",
         "set": false,
         "first": false
     },
@@ -173,7 +173,7 @@
         "r": 3,
         "cost": 1,
         "title": "Crit 1%",
-        "color": "yellow",
+        "color": "#F4D35E",
         "set": false,
         "first": false
     },
@@ -182,7 +182,7 @@
         "r": 3,
         "cost": 1,
         "title": "Crit 2%",
-        "color": "yellow",
+        "color": "#F4D35E",
         "set": false,
         "first": false
     },
@@ -193,7 +193,7 @@
         "r": 0,
         "cost": 1,
         "title": "Weather",
-        "color": "blue",
+        "color": "#40E0D0",
         "set": false,
         "first": false
     },
@@ -202,7 +202,7 @@
         "r": 0,
         "cost": 1,
         "title": "Weather",
-        "color": "blue",
+        "color": "#40E0D0",
         "set": false,
         "first": false
     },
@@ -211,7 +211,7 @@
         "r": 1,
         "cost": 1,
         "title": "Weather",
-        "color": "blue",
+        "color": "#40E0D0",
         "set": false,
         "first": false
     },
@@ -220,7 +220,7 @@
         "r": 1,
         "cost": 1,
         "title": "Weather",
-        "color": "blue",
+        "color": "#40E0D0",
         "set": false,
         "first": false
     },
@@ -229,7 +229,7 @@
         "r": 1,
         "cost": 1,
         "title": "Weather",
-        "color": "blue",
+        "color": "#40E0D0",
         "set": false,
         "first": false
     },
@@ -238,7 +238,7 @@
         "r": 2,
         "cost": 1,
         "title": "Weather",
-        "color": "blue",
+        "color": "#40E0D0",
         "set": false,
         "first": false
     },
@@ -247,7 +247,7 @@
         "r": 2,
         "cost": 1,
         "title": "Weather",
-        "color": "blue",
+        "color": "#40E0D0",
         "set": false,
         "first": false
     },
@@ -259,7 +259,7 @@
         "r": 1,
         "cost": 1,
         "title": "Heal",
-        "color": "green",
+        "color": "#baffc9",
         "set": false,
         "first": false
     },
@@ -268,7 +268,7 @@
         "r": 1,
         "cost": 1,
         "title": "Heal",
-        "color": "green",
+        "color": "#baffc9",
         "set": false,
         "first": false
     },
@@ -277,7 +277,7 @@
         "r": 2,
         "cost": 1,
         "title": "Heal",
-        "color": "green",
+        "color": "#baffc9",
         "set": false,
         "first": false
     },
@@ -286,7 +286,7 @@
         "r": 2,
         "cost": 1,
         "title": "Heal",
-        "color": "green",
+        "color": "#baffc9",
         "set": false,
         "first": false
     },
@@ -295,7 +295,7 @@
         "r": 2,
         "cost": 1,
         "title": "Heal",
-        "color": "green",
+        "color": "#baffc9",
         "set": false,
         "first": false
     },
@@ -304,7 +304,7 @@
         "r": 3,
         "cost": 1,
         "title": "Heal",
-        "color": "green",
+        "color": "#baffc9",
         "set": false,
         "first": false
     },
@@ -313,7 +313,7 @@
         "r": 3,
         "cost": 1,
         "title": "Heal",
-        "color": "green",
+        "color": "#baffc9",
         "set": false,
         "first": false
     },
@@ -325,7 +325,7 @@
         "r": 1,
         "cost": 1,
         "title": "DOT",
-        "color": "red",
+        "color": "#CBAACB",
         "set": false,
         "first": false
     },
@@ -334,7 +334,7 @@
         "r": 1,
         "cost": 1,
         "title": "DOT",
-        "color": "red",
+        "color": "#CBAACB",
         "set": false,
         "first": false
     },
@@ -343,7 +343,7 @@
         "r": 2,
         "cost": 1,
         "title": "DOT",
-        "color": "red",
+        "color": "#CBAACB",
         "set": false,
         "first": false
     },
@@ -352,7 +352,7 @@
         "r": 2,
         "cost": 1,
         "title": "DOT",
-        "color": "red",
+        "color": "#CBAACB",
         "set": false,
         "first": false
     },
@@ -361,7 +361,7 @@
         "r": 2,
         "cost": 1,
         "title": "DOT",
-        "color": "red",
+        "color": "#CBAACB",
         "set": false,
         "first": false
     },
@@ -370,7 +370,7 @@
         "r": 3,
         "cost": 1,
         "title": "DOT",
-        "color": "red",
+        "color": "#CBAACB",
         "set": false,
         "first": false
     },
@@ -379,7 +379,7 @@
         "r": 3,
         "cost": 1,
         "title": "DOT",
-        "color": "red",
+        "color": "#CBAACB",
         "set": false,
         "first": false
     },
@@ -391,7 +391,7 @@
         "r": 0,
         "cost": 1,
         "title": "Combo",
-        "color": "pink",
+        "color": "#FF968A",
         "set": false,
         "first": false
     },
@@ -400,7 +400,7 @@
         "r": 0,
         "cost": 1,
         "title": "Combo",
-        "color": "pink",
+        "color": "#FF968A",
         "set": false,
         "first": false
     },
@@ -409,7 +409,7 @@
         "r": 1,
         "cost": 1,
         "title": "Combo",
-        "color": "pink",
+        "color": "#FF968A",
         "set": false,
         "first": false
     }
@@ -419,7 +419,7 @@
         "r": 1,
         "cost": 1,
         "title": "Combo",
-        "color": "pink",
+        "color": "#FF968A",
         "set": false,
         "first": false
     },
@@ -428,7 +428,7 @@
         "r": 1,
         "cost": 1,
         "title": "Combo",
-        "color": "pink",
+        "color": "#FF968A",
         "set": false,
         "first": false
     },
@@ -437,7 +437,7 @@
         "r": 2,
         "cost": 1,
         "title": "Combo",
-        "color": "pink",
+        "color": "#FF968A",
         "set": false,
         "first": false
     },{
@@ -445,7 +445,27 @@
         "r": 2,
         "cost": 1,
         "title": "Combo",
-        "color": "pink",
+        "color": "#FF968A",
+        "set": false,
+        "first": false
+    },
+
+
+    {
+        "q": 1,
+        "r": 3,
+        "cost": 1,
+        "title": "Attract",
+        "color": "#FBC2C2",
+        "set": false,
+        "first": false
+    },
+    {
+        "q": 10,
+        "r": 3,
+        "cost": 1,
+        "title": "Confuse",
+        "color": "#D9E5E3",
         "set": false,
         "first": false
     }
