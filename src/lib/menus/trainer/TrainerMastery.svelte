@@ -374,9 +374,9 @@
 		}else {
             const polygon = draw
 			// create a polygon from a hex's corner points
-			.polygon(hex.corners.map(({ x, y }) => `${x},${y}`))
-			.fill('white')
-			.stroke({ width: 1, color: '#999' });
+			// .polygon(hex.corners.map(({ x, y }) => `${x},${y}`))
+			// .fill('white')
+			// .stroke({ width: 1, color: '#999' });
         }
 		//console.log(count);
 		return;
@@ -405,7 +405,7 @@
 		const grid2 = new Grid(Hex2, rectangle({ width: 15, height: 4 }));
 		grid2.forEach((hex) => renderSVG(hex, draw2, expertTiles));
 		expert.addEventListener('click', ({ offsetX, offsetY }) => {
-			const hex = grid.pointToHex({ x: offsetX, y: offsetY }, { allowOutside: false });
+			const hex = grid2.pointToHex({ x: offsetX, y: offsetY }, { allowOutside: false });
 			console.log(hex);
 		});
 	});
