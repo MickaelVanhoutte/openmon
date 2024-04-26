@@ -402,7 +402,7 @@
 			dimensions: expert.getBoundingClientRect().width / 26.5,
 			origin: 'topLeft'
 		});
-		const grid2 = new Grid(Hex2, rectangle({ width: 15, height: 5 }));
+		const grid2 = new Grid(Hex2, rectangle({ width: 15, height: 4 }));
 		grid2.forEach((hex) => renderSVG(hex, draw2, expertTiles));
 		expert.addEventListener('click', ({ offsetX, offsetY }) => {
 			const hex = grid.pointToHex({ x: offsetX, y: offsetY }, { allowOutside: false });
@@ -427,7 +427,7 @@
     .expert {
         width: 100dvw;
         height: calc(100dvh - 15dvh - 46px);
-        //padding: 1%;
+        padding: 1%;
     }
 	.points {
 		position: absolute;
