@@ -259,7 +259,7 @@
         "q": 0,
         "r": 1,
         "cost": 1,
-        "title": "Weather Sandstorm",
+        "title": "Weather Sand",
         "color": "#40E0D0",
         "set": false,
         "first": false
@@ -329,7 +329,7 @@
         "q": 3,
         "r": 2,
         "cost": 2,
-        "title": "Heal auto-10%",
+        "title": "Heal auto",
         "description": "Automatically heal 10% of your Pokemon's max HP at the end of each battles",
         "color": "#baffc9",
         "set": false,

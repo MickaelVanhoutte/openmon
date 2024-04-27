@@ -149,7 +149,7 @@
 >
 	<nav class="nav">
 		<div class="nav-left">
-			<a class="brand">{tabs[tab]}</a>
+			<a class="brand">BAG</a>
 			<div class="tabs">
 				<a class:active={tab === 0} on:click={() => changeTab(0)}
 					>{tabs[0].replace('$POKEMON', '')}</a

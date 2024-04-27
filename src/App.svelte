@@ -136,35 +136,35 @@
 
 <style lang="scss" global>
 	:root {
-		box-sizing: border-box;
-		touch-action: none;
-		-webkit-touch-callout: none;
-		user-select: none;
-		-webkit-user-select: none;
-		-moz-user-select: none;
-		-ms-user-select: none;
-		-o-user-select: none;
-		-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+		// box-sizing: border-box;
+		// touch-action: none;
+		// -webkit-touch-callout: none;
+		// user-select: none;
+		// -webkit-user-select: none;
+		// -moz-user-select: none;
+		// -ms-user-select: none;
+		// -o-user-select: none;
+		// -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 
-		-webkit-appearance: none;
-		-moz-appearance: none;
-		appearance: none;
+		// -webkit-appearance: none;
+		// -moz-appearance: none;
+		// appearance: none;
 
-		* {
-			box-sizing: border-box;
-			touch-action: none;
-			-webkit-touch-callout: none;
-			user-select: none;
-			-webkit-user-select: none;
-			-moz-user-select: none;
-			-ms-user-select: none;
-			-o-user-select: none;
-			-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+		// * {
+		// 	box-sizing: border-box;
+		// 	touch-action: none;
+		// 	-webkit-touch-callout: none;
+		// 	user-select: none;
+		// 	-webkit-user-select: none;
+		// 	-moz-user-select: none;
+		// 	-ms-user-select: none;
+		// 	-o-user-select: none;
+		// 	-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 
-			-webkit-appearance: none;
-			-moz-appearance: none;
-			appearance: none;
-		}
+		// 	-webkit-appearance: none;
+		// 	-moz-appearance: none;
+		// 	appearance: none;
+		// }
 	}
 
 	.rotate {

@@ -15,8 +15,8 @@
         "title": "catch +5%",
         "description": "Increase your pokeballs catch rate by 5%",
         "color": "#F7F6CF",
-        "set": false,
-        "first": true
+        "set": true,
+        "first": false
     },
     {
         "q": 2,
@@ -25,7 +25,7 @@
         "title": "catch +5%",
         "description": "Increase your pokeballs catch rate by 5%",
         "color": "#F7F6CF",
-        "set": false,
+        "set": true,
         "first": false
     },
     {
@@ -35,7 +35,7 @@
         "title": "CUT",
         "description": "Cut down trees to access new areas",
         "color": "#F4D35E",
-        "set": false,
+        "set": true,
         "first": false
     },
     {
