@@ -96,14 +96,14 @@
 		{currentMove?.name}
 	</h3>
 
-	<p>
+	<p style="margin: 0">
 		{currentMove?.description?.replaceAll('$effect_chance', currentMove?.effectChance + '')}
 	</p>
 
 	{#if currentMove?.effect && showDetail}
 		<hr />
 		<h5>Detail</h5>
-		<p>
+		<p  style="margin: 0">
 			{currentMove?.effect?.effect
 				.replace(mechanicRegex, '')
 				.replace(/\[/g, '')

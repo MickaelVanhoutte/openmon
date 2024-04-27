@@ -40,12 +40,12 @@
 
 		.close {
 			float: right;
-            border: none;
-            background: none;
-            svg {
-                width: 2em;
-                height: 2em;
-            }
+			border: none;
+			background: none;
+			svg {
+				width: 2em;
+				height: 2em;
+			}
 		}
 	}
 	dialog::backdrop {

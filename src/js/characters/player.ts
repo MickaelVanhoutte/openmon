@@ -37,6 +37,33 @@ export class ComboJauge {
     }
 }
 
+export class Masteries {
+    catch: number = 0;
+    xp: number = 0;
+    ev: number = 0;
+    shiny: number = 0;
+    critical: number = 0;
+    stab: number = 0;
+    nonStab: number = 0;
+    accuracy: number = 0;
+    effectiveness: number = 0;
+    resistance: number = 0;
+
+    comboJauge: number = 0;
+    comboDamage: number = 0;
+
+    heal: number = 0;
+    autoHeal: number = 0;
+
+    dotChance: number = 0;
+    dotDamage: number = 0;
+
+    
+
+    confuse: number = 0;
+    attract: number = 0;
+}
+
 export class Player implements Character {
     public spriteId: number;
     public name: string;
@@ -49,7 +76,10 @@ export class Player implements Character {
     public running: boolean = false;
     public sprite: PlayerSprite;
     public position: CharacterPosition = new CharacterPosition();
+
+    public level: number = 1;
     public masteryPoints: number = 12;
+    //public masteries: Masteries = new Masteries();
 
     // followerIdx (chose a monster to follow you TODO)
     public follower?: Follower;

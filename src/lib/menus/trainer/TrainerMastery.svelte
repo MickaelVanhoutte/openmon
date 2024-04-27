@@ -19,7 +19,6 @@
 	let count = 0;
 
 	function renderSVG(hex: HexExpert, draw: SVG.Doc, tiles: any[]) {
-		//console.log(hex.q, hex.r);
 		let tile = tiles.find((tile) => tile.q === hex.q && tile.r === hex.r);
 
 		if (tile) {
@@ -28,31 +27,76 @@
 				.polygon(hex.corners.map(({ x, y }) => `${x},${y}`))
 				.fill('white')
 				.css('cursor', 'pointer')
-				.stroke({ width: 1, color: '#999' });
+				.css('text-align', 'center')
+				.stroke({ width: 2, color: tile?.color || '#999' });
 
 			count += tile.cost;
 			if (tile?.color) {
 				polygon.fill(tile.color);
+				if (tile.set) {
+				} else {
+					//polygon.fill('#EEE');
+					polygon.css('opacity', '0.7');
+					polygon.stroke({ width: 2, color: tile.color });
+				}
 			} else {
 				polygon.fill('white');
 			}
 
-			// if(tile?.first){
-			//     draw.stroke({ width: 1, color: 'black' });
-			// }
+			
 
-			let width = hex.corners[0].x - hex.corners[3].x;
+			// get highest y value 
+			let highestY = Math.min(hex.corners[0].y, hex.corners[1].y, hex.corners[2].y, hex.corners[3].y, hex.corners[4].y, hex.corners[5].y);
+			let lowestY = Math.max(hex.corners[0].y, hex.corners[1].y, hex.corners[2].y, hex.corners[3].y, hex.corners[4].y, hex.corners[5].y);
+
+			let highestX = Math.min(hex.corners[0].x, hex.corners[1].x, hex.corners[2].x, hex.corners[3].x, hex.corners[4].x, hex.corners[5].x);
+			let lowestX = Math.max(hex.corners[0].x, hex.corners[1].x, hex.corners[2].x, hex.corners[3].x, hex.corners[4].x, hex.corners[5].x);
+
+			let width = Math.abs(lowestX - highestX);
+			let height = Math.abs(lowestY - highestY);
+			
 
 			draw.group().add(polygon);
-
-			if (tile.title) {
-				tile.title.split(' ').forEach((word, i) => {
+			//console.log(polygon, hex.corners);
+			if (tile?.title) {
+				if (tile.title?.split(' ')?.length > 1) {
+					tile.title.split(' ').forEach((word, i) => {
+						draw
+							.text(word)
+							// .move(
+							// 	hex.corners[0].x - width / 2,
+							// 	highestY  + ((i) * (height / 4)) //- (hex.corners[2].y - hex.corners[1].y) + (i * width) / 4
+							// )
+							.move(hex.corners[0].x - width / 2, hex.corners[0].y - 14 + i * (height/4))
+							.css('pointer-events', 'none')
+							.css('text-anchor', 'middle')
+							.css('transform', 'translate(100)')
+							.font({
+								family: 'pokemon',
+								fill: '#444',
+								size: height / 4,
+								weight: 'bold',
+								leading: 1
+							});
+					});
+				} else {
 					draw
-						.text(word)
-						.move(hex.corners[0].x - width / 2, hex.corners[0].y - 14 + i * 12)
+						.text(tile.title)
+						// .move(
+						// 	hex.corners[0].x - width / 2,
+						// 	highestY  //+ height / 2, //- (hex.corners[2].y - hex.corners[1].y)
+						// )
+						.move(hex.corners[0].x - width / 2, hex.corners[0].y - 14 )
 						.css('pointer-events', 'none')
-						.font({ fill: 'black', size: 12, anchor: 'middle', leading: 1 });
-				});
+						.font({
+							family: 'pokemon',
+							fill: '#444',
+							size: height / 4,
+							anchor: 'middle',
+							weight: 'bold',
+							leading: 1
+						});
+				}
 			}
 		} else {
 			const polygon = draw;
@@ -61,7 +105,6 @@
 			// .fill('white')
 			// .stroke({ width: 1, color: '#999' });
 		}
-		//console.log(count);
 		return;
 	}
 
@@ -76,30 +119,20 @@
 		// INITIATE
 		const draw = SVG().addTo(masteries).size('100%', '100%');
 		const Hex = defineHex({
-			dimensions: masteries.getBoundingClientRect().width / 28.25,
+			dimensions: masteries.getBoundingClientRect().width / 28.4,
 			origin: 'topLeft'
 		});
 		const grid = new Grid(Hex, rectangle({ width: 16, height: 1 }));
+		console.log(grid.toArray()[0].corners);
 		grid.forEach((hex) => renderSVG(hex, draw, initiateTiles));
 		masteries.addEventListener('click', ({ offsetX, offsetY }) => {
 			const hex = grid.pointToHex({ x: offsetX, y: offsetY }, { allowOutside: false });
-			console.log(hex);
 			openModal(initiateTiles.find((tile) => tile.q === hex.q && tile.r === hex.r));
 		});
 		masteries.addEventListener('touch', ({ offsetX, offsetY }) => {
 			const hex = grid.pointToHex({ x: offsetX, y: offsetY }, { allowOutside: false });
-			console.log(hex);
 			openModal(initiateTiles.find((tile) => tile.q === hex.q && tile.r === hex.r));
 		});
-		// let svg1 = document.querySelector('.masteries');
-		// console.log(svg1);
-		// if (svg1) {
-		// 	svg1.addEventListener('click', ({ offsetX, offsetY }) => {
-		// 		console.log(offsetX, offsetY);
-		// 		const hex = grid.pointToHex({ x: offsetX, y: offsetY }, { allowOutside: false });
-		// 		openModal(initiateTiles.find((tile) => tile.q === hex.q && tile.r === hex.r));
-		// 	});
-		// }
 
 		// EXPERT
 		const draw2 = SVG().addTo(expert).size('100%', '100%');
@@ -111,18 +144,16 @@
 		grid2.forEach((hex) => renderSVG(hex, draw2, expertTiles));
 		expert.addEventListener('click', ({ offsetX, offsetY }) => {
 			const hex = grid2.pointToHex({ x: offsetX, y: offsetY }, { allowOutside: false });
-			console.log(hex);
 			openModal(expertTiles.find((tile) => tile.q === hex.q && tile.r === hex.r));
 		});
 		expert.addEventListener('touch', ({ offsetX, offsetY }) => {
 			const hex = grid2.pointToHex({ x: offsetX, y: offsetY }, { allowOutside: false });
-			console.log(hex);
 			openModal(expertTiles.find((tile) => tile.q === hex.q && tile.r === hex.r));
 		});
 		console.log(count);
 	});
 </script>
-
+<div class="offset"></div>
 <div class="masteries" bind:this={masteries}></div>
 <div class="expert" bind:this={expert}></div>
 
@@ -135,27 +166,32 @@
 		{currentNode?.title}
 	</h3>
 
-	<p>
+	<p style="margin: 0">
 		cost : {currentNode?.cost}
 	</p>
 
 	<hr />
-	<h5>Detail</h5>
-	<p>
+	<p style="margin: 0">
 		{currentNode?.description}
 	</p>
 </Modal>
 
 <style lang="scss">
+	.offset{
+		//height: 2dvh;
+		width: 100%;
+	}
 	.masteries {
 		width: 100dvw;
 		height: calc(100dvw / 10);
-		padding: 1%;
+		//padding: 1%;
+		//margin-top: 1%;
+		margin-left: 1%;
 	}
 	.expert {
 		width: 100dvw;
 		height: calc(100dvh - 15dvh - 46px);
-		padding: 1%;
+		//padding: 1%;
 	}
 	.points {
 		position: absolute;
