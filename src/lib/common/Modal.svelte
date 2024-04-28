@@ -4,6 +4,7 @@
 	let dialog: HTMLDialogElement;
 
 	$: if (dialog && showModal) dialog.showModal();
+	$: if (dialog && !showModal) dialog.close();
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-noninteractive-element-interactions -->
