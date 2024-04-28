@@ -6,7 +6,8 @@
         "title": "",
         "color": "white",
         "set": true,
-        "first": true
+        "first": true,
+        "settable": false
     },
     {
         "q": 1,
@@ -16,7 +17,8 @@
         "description": "Increase your pokeballs catch rate by 5%",
         "color": "#F7F6CF",
         "set": true,
-        "first": false
+        "first": false,
+        "settable": false
     },
     {
         "q": 2,
@@ -26,7 +28,8 @@
         "description": "Increase your pokeballs catch rate by 5%",
         "color": "#F7F6CF",
         "set": true,
-        "first": false
+        "first": false,
+        "settable": false
     },
     {
         "q": 3,
@@ -36,7 +39,8 @@
         "description": "Cut down trees to access new areas",
         "color": "#F4D35E",
         "set": true,
-        "first": false
+        "first": false,
+        "settable": false
     },
     {
         "q": 4,
@@ -46,7 +50,8 @@
         "description": "Increase experience gain of yourself and your Pokemons by 5%",
         "color": "#F7F6CF",
         "set": false,
-        "first": false
+        "first": false,
+        "settable": false
     },
     {
         "q": 5,
@@ -56,7 +61,8 @@
         "description": "Increase experience gain of yourself and your Pokemons by 5%",
         "color": "#F7F6CF",
         "set": false,
-        "first": false
+        "first": false,
+        "settable": false
     },
     {
         "q": 6,
@@ -66,7 +72,8 @@
         "description": "Push boulders to access new areas",
         "color": "#F4D35E",
         "set": false,
-        "first": false
+        "first": false,
+        "settable": false
     },
     {
         "q": 7,
@@ -76,7 +83,8 @@
         "description": "Increase your Pokemons EV gain by 1",
         "color": "#F7F6CF",
         "set": false,
-        "first": false
+        "first": false,
+        "settable": false
     },
     {
         "q": 8,
@@ -86,7 +94,8 @@
         "description": "Increase your Pokemons EV gain by 1",
         "color": "#F7F6CF",
         "set": false,
-        "first": false
+        "first": false,
+        "settable": false
     },
     {
         "q": 9,
@@ -96,7 +105,8 @@
         "description": "Break rocks to access new areas",
         "color": "#F4D35E",
         "set": false,
-        "first": false
+        "first": false,
+        "settable": false
     },
     {
         "q": 10,
@@ -106,7 +116,8 @@
         "description": "Increase the Combo jauge gain by 5%",
         "color": "#F7F6CF",
         "set": false,
-        "first": false
+        "first": false,
+        "settable": false
     },
     {
         "q": 11,
@@ -116,7 +127,8 @@
         "description": "Increase the Combo jauge gain by 5%",
         "color": "#F7F6CF",
         "set": false,
-        "first": false
+        "first": false,
+        "settable": false
     },
     {
         "q": 12,
@@ -126,7 +138,8 @@
         "description": "Surf on water to access new areas",
         "color": "#F4D35E",
         "set": false,
-        "first": false
+        "first": false,
+        "settable": false
     },
     {
         "q": 13,
@@ -136,7 +149,8 @@
         "description": "Increase the shiny rate of Pokemons by 5%",
         "color": "#F7F6CF",
         "set": false,
-        "first": false
+        "first": false,
+        "settable": false
     },
     {
         "q": 14,
@@ -146,7 +160,8 @@
         "description": "Increase the shiny rate of Pokemons by 5%",
         "color": "#F7F6CF",
         "set": false,
-        "first": false
+        "first": false,
+        "settable": false
     },
     {
         "q": 15,
@@ -156,7 +171,8 @@
         "description": "Fly to access new areas",
         "color": "#F4D35E",
         "set": false,
-        "first": false
+        "first": false,
+        "settable": false
     }
     
 ]
