@@ -39,7 +39,7 @@
         "title": "Stab 2%",
         "description": "Increase Stabbed damages of your Pokemons by 2%",
         "color": "#BBF1E4",
-        "set": true,
+        "set": false,
         "first": false,
         "settable": false
     },
@@ -50,7 +50,7 @@
         "title": "Acc 3%",
         "description": "Increase Accuracy of your Pokemon moves by 3%",
         "color": "#FDEFAB",
-        "set": true,
+        "set": false,
         "first": false
     },
     {

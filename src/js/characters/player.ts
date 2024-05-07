@@ -78,7 +78,7 @@ export class Player implements Character {
     public position: CharacterPosition = new CharacterPosition();
 
     public level: number = 1;
-    public masteryPoints: number = 12;
+    public masteryPoints: number = 16;
     //public masteries: Masteries = new Masteries();
 
     // followerIdx (chose a monster to follow you TODO)

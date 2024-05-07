@@ -49,7 +49,7 @@
         "title": "XP +5%",
         "description": "Increase experience gain of yourself and your Pokemons by 5%",
         "color": "#F7F6CF",
-        "set": false,
+        "set": true,
         "first": false,
         "settable": false
     },
@@ -60,7 +60,7 @@
         "title": "XP +5%",
         "description": "Increase experience gain of yourself and your Pokemons by 5%",
         "color": "#F7F6CF",
-        "set": false,
+        "set": true,
         "first": false,
         "settable": false
     },
@@ -71,7 +71,7 @@
         "title": "STRENGH",
         "description": "Push boulders to access new areas",
         "color": "#F4D35E",
-        "set": false,
+        "set": true,
         "first": false,
         "settable": false
     },
@@ -82,7 +82,7 @@
         "title": "EV +1",
         "description": "Increase your Pokemons EV gain by 1",
         "color": "#F7F6CF",
-        "set": false,
+        "set": true,
         "first": false,
         "settable": false
     },
@@ -93,7 +93,7 @@
         "title": "EV +1",
         "description": "Increase your Pokemons EV gain by 1",
         "color": "#F7F6CF",
-        "set": false,
+        "set": true,
         "first": false,
         "settable": false
     },
@@ -104,7 +104,7 @@
         "title": "ROCK SMASH",
         "description": "Break rocks to access new areas",
         "color": "#F4D35E",
-        "set": false,
+        "set": true,
         "first": false,
         "settable": false
     },
@@ -115,7 +115,7 @@
         "title": "Combo +5%",
         "description": "Increase the Combo jauge gain by 5%",
         "color": "#F7F6CF",
-        "set": false,
+        "set": true,
         "first": false,
         "settable": false
     },
@@ -126,7 +126,7 @@
         "title": "Combo +5%",
         "description": "Increase the Combo jauge gain by 5%",
         "color": "#F7F6CF",
-        "set": false,
+        "set": true,
         "first": false,
         "settable": false
     },
@@ -137,7 +137,7 @@
         "title": "SURF",
         "description": "Surf on water to access new areas",
         "color": "#F4D35E",
-        "set": false,
+        "set": true,
         "first": false,
         "settable": false
     },
@@ -148,7 +148,7 @@
         "title": "Shiny +5%",
         "description": "Increase the shiny rate of Pokemons by 5%",
         "color": "#F7F6CF",
-        "set": false,
+        "set": true,
         "first": false,
         "settable": false
     },
@@ -159,7 +159,7 @@
         "title": "Shiny +5%",
         "description": "Increase the shiny rate of Pokemons by 5%",
         "color": "#F7F6CF",
-        "set": false,
+        "set": true,
         "first": false,
         "settable": false
     },
