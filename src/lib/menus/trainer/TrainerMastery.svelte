@@ -1,44 +1,34 @@
 <script lang="ts">
 	import type { GameContext } from '../../../js/context/gameContext';
 	import { defineHex, Direction, Grid, rectangle, ring, spiral } from 'honeycomb-grid';
-	import { Svg, SVG } from '@svgdotjs/svg.js';
+	import { A, Svg, SVG } from '@svgdotjs/svg.js';
 	import { onMount } from 'svelte';
 	import initiateMasteries from '../../../assets/data/final/beta/masteries-initiate.json';
 	import expertMasteries from '../../../assets/data/final/beta/masteries-expert.json';
 	import Modal from '../../common/Modal.svelte';
+	import { gsap } from 'gsap';
 
 	export let context: GameContext;
 	let masteries;
 	let expert;
 	let showModal = false;
+	let targetElement: any;
 	let currentNode: any | undefined;
 	let currentTiles: any[];
+	let currentHex: any;
+	let currentGrid: Grid;
 	$: masteryPoints = context.player.masteryPoints;
 
-	const initiateTiles = initiateMasteries;
+	let initiateTiles = initiateMasteries;
 	let initiateSvg: Svg;
 	let initiateGrid: Grid;
-	const expertTiles = expertMasteries;
+	let expertTiles = expertMasteries;
 	let expertSvg: Svg;
 	let expertGrid: Grid;
 
-	$: initiateFinished = initiateTiles.every((tile) => tile.set);
-
 	let count = 0;
 
-	function hexToRGB(hex, alpha) {
-		var r = parseInt(hex.slice(1, 3), 16),
-			g = parseInt(hex.slice(3, 5), 16),
-			b = parseInt(hex.slice(5, 7), 16);
-
-		if (alpha) {
-			return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + alpha + ')';
-		} else {
-			return 'rgb(' + r + ', ' + g + ', ' + b + ')';
-		}
-	}
-
-	function renderSVG(hex: HexExpert, draw: SVG.Doc, tiles: any[], grid: Grid) {
+	function renderSVG(hex: HexExpert, draw: SVG.Doc, tiles: any[], grid: Grid, expert = false) {
 		function isCurrentNeighborOfSetTile(hex: HexExpert, grid: Grid, tiles: any[]) {
 			return [
 				grid.neighborOf({ q: hex.q, r: hex.r }, Direction.NE, { allowOutside: false }),
@@ -52,7 +42,6 @@
 				.some((neighbor) => {
 					let neighborTile = tiles.find((t) => t.q === neighbor.q && t.r === neighbor.r);
 					if (neighborTile?.set) {
-						console.log('neighborTile: ', neighborTile);
 						return true;
 					}
 				});
@@ -103,32 +92,36 @@
 			const polygon = draw
 				// create a polygon from a hex's corner points
 				.polygon(hex.corners.map(({ x, y }) => `${x},${y}`))
-				.fill('white')
+				.fill({ color: 'white', opacity: 0.8 })
 				.css('cursor', 'pointer')
 				.css('text-align', 'center')
-				.stroke({ width: 2, color: 'white' });
+				.id(`hex-${hex.q}-${hex.r}`)
+				.stroke({ width: 2, color: '#04548f', opacity: 0.5 });
 
 			count += tile.cost;
 
-			polygon.fill(tile.color);
-			if (tile.first) {
-				draw
-					.text('First')
-					.move(hex.corners[0].x - width / 2, hex.corners[0].y - 14)
-					.css('pointer-events', 'none')
-					.css('text-anchor', 'middle')
-					.font({
-						family: 'pokemon',
-						fill: 'black',
-						size: 20,
-						weight: 'bold',
-						leading: 1
-					});
-			} else if (!tile.set && !hasSetNeighbor && !tile.first) {
-				polygon.fill(hexToRGB(tile.color, 0.3));
+			if (!tile.set && !hasSetNeighbor && !tile.first) {
+				polygon.fill({ color: '#000', opacity: 0.5 });
 			} else if (!tile.set && hasSetNeighbor && !tile.first) {
-				polygon.fill(hexToRGB(tile.color, 0.6));
-				tile.settable = true;
+				
+				if (expert && !initiateTiles.every((tile) => tile.set || tile.first)) {
+					polygon.fill({ color: '#000', opacity: 0.5 });
+				} else {
+					var gradient = draw
+						.gradient('linear', function (add) {
+							// add.stop({ offset: 0, color: '#000', opacity: 1 })   // -> first
+							add.stop({ offset: 0.75, color: '#000', opacity: 0.5 }); // -> second
+							add.stop({ offset: 0.75, color: '#FFF', opacity: 1 }); // -> third
+						})
+						.from(0, 0)
+						.to(1.2, 0.8);
+
+					polygon.fill(gradient);
+					//polygon.fill({color: '#000', opacity: 0.5});
+					tile.settable = true;
+				}
+			} else if (!tile.first) {
+				polygon.fill({ color: tile.color, opacity: 1 });
 			}
 
 			draw.group().add(polygon);
@@ -137,97 +130,223 @@
 				tile.title.split(' ').forEach((word, i) => {
 					draw
 						.text(word)
+						.id(`text-${hex.q}-${hex.r}-${i}`)
 						.move(hex.corners[0].x - width / 2, hex.corners[0].y - 14 + i * (height / 4))
 						.css('pointer-events', 'none')
 						.css('text-anchor', 'middle')
 						.css('transform', 'translate(100)')
+						//.css ('mix-blend-mode', 'difference')
 						.font({
 							family: 'pokemon',
-							fill: !tile.set && hasSetNeighbor ? 'gold' : tile.set ? '#444' : '#EEE',
+							fill: tile.set ? '#444' : tile.color,
 							size: width / 4,
 							weight: 'bold',
 							leading: 1
 						});
 				});
 			}
-		} else {
-			const polygon = draw;
-			// create a polygon from a hex's corner points
-			// .polygon(hex.corners.map(({ x, y }) => `${x},${y}`))
-			// .fill('white')
-			// .stroke({ width: 1, color: '#999' });
 		}
 		return;
 	}
 
-	function openModal(tile?: any, tiles: any[]): any {
+	function openModal(tile?: any, tiles: any[], target: any, hex: any, grid: Grid): any {
 		if (tile && !tile.first) {
 			currentNode = tile;
 			currentTiles = tiles;
 			showModal = true;
+			targetElement = target;
+			currentHex = hex;
+			currentGrid = grid;
 		}
 	}
 
-	function drawGrid(draw: Svg, grid: Grid, tiles: any[]) {
-		grid.forEach((hex) => renderSVG(hex, draw, tiles, grid));
+	function drawGrid(draw: Svg, grid: Grid, tiles: any[], expert: boolean = false, lastHex?: any) {
+		draw.clear();
+		grid
+			.filter((hex) => !lastHex || !(lastHex.q === hex.q && lastHex.r === hex.r))
+			.forEach((hex) => renderSVG(hex, draw, tiles, grid, expert));
+		if (lastHex) {
+			renderSVG(lastHex, draw, tiles, grid, expert);
+		}
 	}
 
 	function setNode(tile: any, tiles: any[]) {
+		let svgId = initiateTiles === tiles ? 'initiate' : 'expert';
+		tiles === initiateTiles
+			? drawGrid(initiateSvg, initiateGrid, initiateTiles, false, currentHex)
+			: drawGrid(expertSvg, expertGrid, expertTiles, true, currentHex);
+		showModal = false;
 		tile.set = true;
 		tile.settable = false;
-		masteryPoints -= tile.cost;
-		tiles === initiateTiles
-			? drawGrid(initiateSvg, initiateGrid, initiateTiles)
-			: drawGrid(expertSvg, expertGrid, expertTiles);
-		showModal = false;
+		context.player.masteryPoints -= tile.cost;
+
+		let neighbors = [
+			currentGrid.neighborOf({ q: currentHex.q, r: currentHex.r }, Direction.NE, {
+				allowOutside: false
+			}),
+			currentGrid.neighborOf({ q: currentHex.q, r: currentHex.r }, Direction.NW, {
+				allowOutside: false
+			}),
+			currentGrid.neighborOf({ q: currentHex.q, r: currentHex.r }, Direction.E, {
+				allowOutside: false
+			}),
+			currentGrid.neighborOf({ q: currentHex.q, r: currentHex.r }, Direction.W, {
+				allowOutside: false
+			}),
+			currentGrid.neighborOf({ q: currentHex.q, r: currentHex.r }, Direction.SE, {
+				allowOutside: false
+			}),
+			currentGrid.neighborOf({ q: currentHex.q, r: currentHex.r }, Direction.SW, {
+				allowOutside: false
+			})
+		]
+			.filter((neighbor) => !!neighbor)
+			.filter((neighbor) => {
+				let neighborTile = tiles.find((t) => t.q === neighbor.q && t.r === neighbor.r);
+				return !neighborTile?.set && !neighborTile.settable;
+			})
+			.map((ng) => '#' + svgId + ' #hex-' + ng.q + '-' + ng.r);
+
+		let tl = gsap.timeline();
+		console.log(neighbors);
+
+		tl.to(
+			'#' + svgId + ' #hex-' + currentHex.q + '-' + currentHex.r,
+			{
+				scale: 1.3,
+				duration: 1,
+				repeat: 1,
+				transformOrigin: '50% 50%',
+				position: 'relative',
+				rotate: 180,
+				//fill: tile.color,
+				//fillOpacity: 1,
+				yoyo: true
+			},
+			'fx'
+		)
+			.to(
+				'#' + svgId + ' #hex-' + currentHex.q + '-' + currentHex.r,
+				{
+					//rotate: 360,
+					fill: tile.color,
+					fillOpacity: 1
+				},
+				'fx'
+			)
+			.to(
+				'#' + svgId + ' #text-' + currentHex.q + '-' + currentHex.r + '-0',
+				{
+					fill: '#444'
+				},
+				'fx'
+			)
+			.to(
+				'#' + svgId + ' #text-' + currentHex.q + '-' + currentHex.r + '-1',
+				{
+					fill: '#444'
+				},
+				'fx'
+			);
+		neighbors.forEach((ng) => {
+			tl.to(
+				ng,
+				{
+					duration: 0.5,
+					transformOrigin: '50% 50%',
+					scale: 0.85
+				},
+				'fx+1'
+			).to(
+				ng,
+				{
+					duration: 0.5,
+					transformOrigin: '50% 50%',
+					scale: 1
+				},
+				'fx+1.5'
+			);
+		});
+
+		neighbors.forEach((ng) => {});
+		tl.play().then(() => {
+			//initiateTiles = initiateTiles;
+			//expertTiles = expertTiles;
+			drawGrid(initiateSvg, initiateGrid, initiateTiles, false);
+
+			if(tiles === initiateTiles && initiateTiles.every((tile) => tile.set || tile.first)){
+				console.log('init expert')
+				let firstExp = expertTiles.find((tile) => tile.first);
+				currentGrid = expertGrid;
+				currentHex = expertGrid.getHex({q: firstExp?.q, r: firstExp?.r});
+				console.log(firstExp, currentHex)
+				setNode(firstExp, expertTiles);
+			}else {
+				drawGrid(expertSvg, expertGrid, expertTiles, true);
+			}
+
+		});
 	}
 
 	onMount(() => {
 		// INITIATE
-		initiateSvg = SVG().addTo(masteries).size('100%', '100%');
+		initiateSvg = SVG().addTo(masteries).size('100%', '100%').id('initiate').css('zIndex', '-1');
 		const Hex = defineHex({
 			dimensions: masteries.getBoundingClientRect().width / 28.4,
 			origin: 'topLeft'
 		});
 		initiateGrid = new Grid(Hex, rectangle({ width: 16, height: 1 }));
 
-		drawGrid(initiateSvg, initiateGrid, initiateTiles);
+		drawGrid(initiateSvg, initiateGrid, initiateTiles, false);
 
-		masteries.addEventListener('click', ({ offsetX, offsetY }) => {
+		masteries.addEventListener('click', ({ target, offsetX, offsetY }) => {
 			const hex = initiateGrid.pointToHex({ x: offsetX, y: offsetY }, { allowOutside: false });
 			openModal(
 				initiateTiles.find((tile) => tile.q === hex.q && tile.r === hex.r),
-				initiateTiles
+				initiateTiles,
+				target,
+				hex,
+				initiateGrid
 			);
 		});
-		masteries.addEventListener('touch', ({ offsetX, offsetY }) => {
+		masteries.addEventListener('touch', ({ target, offsetX, offsetY }) => {
 			const hex = initiateGrid.pointToHex({ x: offsetX, y: offsetY }, { allowOutside: false });
 			openModal(
 				initiateTiles.find((tile) => tile.q === hex.q && tile.r === hex.r),
-				initiateTiles
+				initiateTiles,
+				target,
+				hex,
+				initiateGrid
 			);
 		});
 
 		// EXPERT
-		expertSvg = SVG().addTo(expert).size('100%', '100%');
+		expertSvg = SVG().addTo(expert).id('expert').size('100%', '100%');
 		const Hex2 = defineHex({
 			dimensions: expert.getBoundingClientRect().width / 26.5,
 			origin: 'topLeft'
 		});
 		expertGrid = new Grid(Hex2, rectangle({ width: 15, height: 4 }));
-		drawGrid(expertSvg, expertGrid, expertTiles);
-		-expert.addEventListener('click', ({ offsetX, offsetY }) => {
+		drawGrid(expertSvg, expertGrid, expertTiles, true);
+		expert.addEventListener('click', ({ target, offsetX, offsetY }) => {
+			console.log(target);
 			const hex = expertGrid.pointToHex({ x: offsetX, y: offsetY }, { allowOutside: false });
 			openModal(
 				expertTiles.find((tile) => tile.q === hex.q && tile.r === hex.r),
-				expertTiles
+				expertTiles,
+				target,
+				hex,
+				expertGrid
 			);
 		});
-		expert.addEventListener('touch', ({ offsetX, offsetY }) => {
+		expert.addEventListener('touch', ({ target, offsetX, offsetY }) => {
 			const hex = expertGrid.pointToHex({ x: offsetX, y: offsetY }, { allowOutside: false });
 			openModal(
 				expertTiles.find((tile) => tile.q === hex.q && tile.r === hex.r),
-				expertTiles
+				expertTiles,
+				target,
+				hex,
+				expertGrid
 			);
 		});
 		console.log(count);
@@ -258,7 +377,9 @@
 	<hr />
 	<button
 		class="button primary"
-		disabled={!currentNode?.settable}
+		disabled={!currentNode?.settable ||
+			masteryPoints < currentNode?.cost ||
+			(currentGrid === expertGrid && !initiateTiles.every((tile) => tile.set || tile.first))}
 		on:click={() => {
 			setNode(currentNode, currentTiles);
 		}}>Activate</button
@@ -276,11 +397,21 @@
 		//padding: 1%;
 		//margin-top: 1%;
 		margin-left: 1%;
+		overflow: visible;
+	}
+
+	:global(.masteries svg) {
+		overflow: visible;
+		z-index: -1;
 	}
 	.expert {
 		width: 100dvw;
 		height: calc(100dvh - 15dvh - 46px);
-		//padding: 1%;
+		overflow: visible;
+	}
+	:global(.expert svg) {
+		overflow: visible;
+		z-index: -1;
 	}
 	.points {
 		position: absolute;
