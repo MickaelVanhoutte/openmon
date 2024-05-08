@@ -1,0 +1,412 @@
+<script lang="ts">
+	import { onMount } from 'svelte';
+	import { gsap } from 'gsap';
+
+	export let started: boolean;
+	let intro: HTMLDivElement;
+	let pkmnListShuffled: number[] = fisherYates(Array.from({ length: 233 }, (_, i) => i));
+
+	function fisherYates(array) {
+		var count = array.length,
+			randomnumber,
+			temp;
+		while (count) {
+			randomnumber = (Math.random() * count--) | 0;
+			temp = array[count];
+			array[count] = array[randomnumber];
+			array[randomnumber] = temp;
+		}
+		return array;
+	}
+
+	function playAnimation() {
+		function randomPokemon() {
+			return Math.floor(Math.random() * 233) + 1;
+		}
+
+		function getY(pokemon: number) {
+			// if( pokemons.flying.indexOf( pokemon ) >= 0 ) {
+			//     return (( Math.random() * 3 ) + 11).toFixed(2);
+			// } else {
+			//    return  (( Math.random() * 3 ) + 9).toFixed(2);
+			// }
+			return (Math.random() * 3 + 9).toFixed(2);
+		}
+
+		function getZ(y) {
+			return Math.floor((20 - y) * 100);
+		}
+
+		function makePokemon() {
+			const horde = intro.querySelector('.horde');
+			var xDelay = 0;
+			var delay = '-webkit-animation-delay: ' + (Math.random() * 1.7 + xDelay).toFixed(3) + 's;';
+			var pokemon = randomPokemon();
+			var bottom = getY(pokemon);
+			var y = 'bottom: ' + bottom + '%;';
+			var z = 'z-index: ' + getZ(bottom) + ';';
+			var index = '--index: ' + pokemon + ';';
+			var style = "style='" + delay + ' ' + y + ' ' + z + ' ' + index + "'";
+
+			return (
+				'' +
+				"<i class='sprite pokemon move " +
+				pokemon +
+				"' " +
+				style +
+				'>' +
+				"<i style='" +
+				delay +
+				"'></i>" +
+				'</i>'
+			);
+		}
+
+		let horde = '';
+
+		for (let i = 0; i < 20; i++) {
+			horde += makePokemon();
+		}
+		document.querySelector('.horde').innerHTML = horde;
+	}
+
+	onMount(() => {
+		//playAnimation();
+		intro.addEventListener('click', () => {
+			started = true;
+		});
+	});
+</script>
+
+<div class="intro" bind:this={intro}>
+	{#each Array.from({ length: 15 }) as i}
+		<div class="firefly"></div>
+	{/each}
+
+	<img class="logo" src="src/assets/menus/pokemon-logo.png" alt="pokemon logo" />
+	<h3 class="animate-charcter title">UNISON</h3>
+
+	<span class="touch">Touch to start</span>
+
+	<div class="horde">
+		{#each pkmnListShuffled as i, index}
+			<i
+				class="sprite pokemon move"
+				style="-webkit-animation-delay: {(index * 2 + Math.random() * 2).toFixed(3)}s; z-index: {i}"
+			>
+				<i
+					style="animation: anim-sprite 0.5s infinite steps(1); background: url('src/assets/monsters/walking/{(
+						'00' +
+						(i + 1)
+					).slice(-3)}{Math.random() > 0.5 ? 's' : ''}.png')"
+				></i>
+			</i>
+		{/each}
+	</div>
+</div>
+
+<style lang="scss">
+	@keyframes poke-move {
+		0% {
+			transform: translateX(0);
+			opacity: 0;
+		}
+		10% {
+			opacity: 1;
+		}
+		77% {
+			transform: translateX(100vw);
+		}
+		80% {
+			opacity: 0;
+		}
+		100% {
+			opacity: 0;
+		}
+	}
+
+	@keyframes -global-anim-sprite {
+		0% {
+			background-position: 0 -128px;
+		}
+		25% {
+			background-position: 64px -128px;
+		}
+		50% {
+			background-position: 128px -128px;
+		}
+		75% {
+			background-position: 192px -128px;
+		}
+	}
+
+	@keyframes fall {
+		0% {
+			transform: translateY(-100vh) translateX(-50%) rotate(10deg);
+		}
+		40% {
+			transform: translateY(0) translateX(-50%) rotate(6deg);
+		}
+		48% {
+			transform: translateY(-10px) translateX(-50%) rotate(2deg);
+		}
+		50% {
+			transform: translateY(0) translateX(-50%) rotate(-2deg);
+		}
+		100% {
+			transform: translateY(0) translateX(-50%) rotate(0deg);
+		}
+	}
+
+  @keyframes bounce-7 {
+
+        0%   { transform: scale(1,1)      translateY(-100vh)  translateX(-50%); }
+        10%  { transform: scale(1.1,.9)   translateY(0)  translateX(-50%); }
+        30%  { transform: scale(.9,1.1)   translateY(-20px)  translateX(-50%); }
+        50%  { transform: scale(1.05,.95) translateY(0)  translateX(-50%); }
+        57%  { transform: scale(1,1)      translateY(-7px)  translateX(-50%); }
+        64%  { transform: scale(1,1)      translateY(0)  translateX(-50%); }
+        100% { transform: scale(1,1)      translateY(0)  translateX(-50%); }
+    }
+
+  @keyframes fadeIn {
+      0% {
+        opacity: 0;
+      }
+      100% {
+        opacity: 1;
+      }
+    }
+
+	.intro {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		height: 100vh;
+		width: 100dvw;
+		background-color: #fff;
+		position: absolute;
+		top: 0;
+		left: 0;
+		z-index: 100;
+
+		.logo {
+			position: absolute;
+			bottom: 50%;
+			left: 50%;
+			transform: translateY(-100vh) translateX(-50%);
+      transform-origin: -50% 50%;
+			z-index: 100;
+			width: 60%;
+			height: auto;
+			animation: bounce-7 4s cubic-bezier(0.280, 0.840, 0.420, 1) forwards;
+			animation-delay: 2s;
+		}
+
+    .title {
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      width: 100%;
+      text-align: center;
+      margin: 0;
+      font-size: 120px;
+      opacity: 0;
+      //animation: fadeIn 2s ease-in-out forwards;
+
+    }
+
+		.animate-charcter {
+			text-transform: uppercase;
+			background-image: linear-gradient(
+				-225deg,
+				#2d1b6f 0%,
+				#50107a 29%,
+				#ff1361 67%,
+				#fff800 100%
+			);
+			background-size: auto auto;
+			background-clip: border-box;
+			background-size: 200% auto;
+			color: #fff;
+			background-clip: text;
+			text-fill-color: transparent;
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+			animation: fadeIn 2s ease-in-out forwards, textclip 4s linear infinite;
+      animation-delay: 4s;
+			display: inline-block;
+      font-weight: 900;
+		}
+
+		@keyframes textclip {
+			to {
+				background-position: 200% center;
+			}
+		}
+
+		.touch {
+			position: absolute;
+			bottom: 28%;
+			left: 50%;
+			transform: translateX(-50%);
+			font-size: 2.5rem;
+			color: white;
+			text-shadow: 0 0 2px #fff;
+			z-index: 100;
+			opacity: 0;
+			animation: blink 8s ease-in-out infinite;
+			animation-delay: 6s;
+		}
+
+		.horde {
+			//display: none;
+			//position: absolute;
+
+      background: #0f0c29;  /* fallback for old browsers */
+background: -webkit-linear-gradient(to right, #24243e, #302b63, #0f0c29);  /* Chrome 10-25, Safari 5.1-6 */
+background: linear-gradient(to right, #24243e, #302b63, #0f0c29); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
+
+			position: fixed;
+			//z-index: 9999;
+			left: 0;
+			right: 0;
+			top: 0;
+			bottom: 0;
+			//background: #1d1f20;
+
+			.sprite {
+				position: absolute;
+				bottom: 10%;
+				left: 0%;
+				opacity: 0;
+
+				&.pokemon {
+					margin-bottom: -3px;
+					&.move {
+						animation: poke-move 20s linear forwards;
+					}
+					&:after {
+						content: '';
+						width: 80%;
+						height: 2px;
+						position: absolute;
+						z-index: -1;
+						border-radius: 50%;
+						margin-left: -40%;
+						bottom: -22%;
+						left: 40%;
+						background: rgba(0, 0, 0, 0.5);
+						box-shadow: 0 0 2px 1px rgba(0, 0, 0, 0.6);
+					}
+					i {
+						display: block;
+						width: 64px;
+						height: 64px;
+						background-repeat: no-repeat;
+						background-size: contain;
+						background-position: 0 -128px;
+						transform: scale(1.5);
+					}
+				}
+			}
+		}
+
+		$quantity: 15;
+
+		.firefly {
+			position: fixed;
+			left: 50%;
+			top: 50%;
+			width: 0.4vw;
+			height: 0.4vw;
+			margin: -0.2vw 0 0 9.8vw;
+			animation: ease 200s alternate infinite;
+			pointer-events: none;
+			z-index: 110;
+
+			&::before,
+			&::after {
+				content: '';
+				position: absolute;
+				width: 100%;
+				height: 100%;
+				border-radius: 50%;
+				transform-origin: -10vw;
+			}
+
+			&::before {
+				background: black;
+				opacity: 0.4;
+				animation: drift ease alternate infinite;
+			}
+
+			&::after {
+				background: white;
+				opacity: 0;
+				box-shadow: 0 0 0vw 0vw yellow;
+				animation:
+					drift ease alternate infinite,
+					flash ease infinite;
+			}
+		}
+
+		// Randomize Fireflies Motion
+		@for $i from 1 through $quantity {
+			$steps: random(12) + 16;
+			$rotationSpeed: random(10) + 8s;
+
+			.firefly:nth-child(#{$i}) {
+				animation-name: move#{$i};
+
+				&::before {
+					animation-duration: #{$rotationSpeed};
+				}
+
+				&::after {
+					animation-duration:
+						#{$rotationSpeed},
+						random(6000) + 5000ms;
+					animation-delay:
+						0ms,
+						random(8000) + 500ms;
+				}
+			}
+
+			@keyframes move#{$i} {
+				@for $step from 0 through $steps {
+					#{$step * (100 / $steps)}% {
+						transform: translateX(random(100) - 50vw)
+							translateY(random(100) - 50vh)
+							scale(random(75) / 100 + 0.25);
+					}
+				}
+			}
+		}
+	}
+
+	@keyframes drift {
+		0% {
+			transform: rotate(0deg);
+		}
+		100% {
+			transform: rotate(360deg);
+		}
+	}
+
+	@keyframes flash {
+		0%,
+		30%,
+		100% {
+			opacity: 0;
+			box-shadow: 0 0 0vw 0vw yellow;
+		}
+		5% {
+			opacity: 1;
+			box-shadow: 0 0 2vw 0.4vw yellow;
+		}
+	}
+</style>
