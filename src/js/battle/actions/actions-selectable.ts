@@ -7,6 +7,7 @@ import { DamageResults, MOVE_EFFECT_APPLIER } from "../battle-model";
 import { ApplyEffect, ChangePokemon, ComboBoost, EndBattle, Message, PlayAnimation, RemoveHP } from "./actions-derived";
 import { Pokeball } from "../../items/items";
 import { NPC } from "../../characters/npc";
+import { MasteryType } from "../../characters/mastery-model";
 
 // SELECTABLE ACTIONS
 export class RunAway implements ActionV2Interface {
@@ -107,7 +108,7 @@ export class Attack implements ActionV2Interface {
 
         if (success) {
 
-            const result = this.calculateDamage(attacker, target, this.move, ctx);
+            const result = this.calculateDamage(attacker, target, this.move, ctx, controller, 1);
 
             if (this.move instanceof ComboMove) {
                 let move: ComboMove = this.move;
@@ -116,7 +117,11 @@ export class Attack implements ActionV2Interface {
                     controller.comboJauge.consume();
                 }
 
-                const result2 = this.calculateDamage(attacker, target, move.move2, ctx, .5);
+                let comboDmgModifier = 0;
+                if (controller instanceof Player) {
+                    comboDmgModifier = controller.getMasteryBonus(MasteryType.COMBO_DAMAGE);
+                }
+                const result2 = this.calculateDamage(attacker, target, move.move2, ctx, controller, .5 + (comboDmgModifier / 100));
 
                 actionsToPush.push(new PlayAnimation(this.move, this.target, this.initiator));
 
@@ -203,13 +208,13 @@ export class Attack implements ActionV2Interface {
         }
     }
 
-    private calculateDamage(attacker: PokemonInstance, defender: PokemonInstance, move: MoveInstance | ComboMove, ctx: BattleContext, modifier: number = 1): DamageResults {
+    private calculateDamage(attacker: PokemonInstance, defender: PokemonInstance, move: MoveInstance | ComboMove, ctx: BattleContext, controller: Character | PokemonInstance, modifier: number = 1): DamageResults {
         let result = new DamageResults();
         const typeEffectiveness = this.calculateTypeEffectiveness(move.type, defender.types, ctx);
         result.superEffective = typeEffectiveness > 1;
         result.notVeryEffective = typeEffectiveness < 1;
         result.immune = typeEffectiveness === 0;
-        const critical = result.immune ? 0 : this.calculateCritical();
+        const critical = result.immune ? 0 : this.calculateCritical(controller);
         result.critical = critical > 1;
 
         if (move.category !== 'no-damage' && move.power > 0) {
@@ -217,7 +222,7 @@ export class Attack implements ActionV2Interface {
             const defense = move.category === 'physical' ? defender.battleStats.defense : defender.battleStats.specialDefense;
 
             const random = Math.random() * (1 - 0.85) + 0.85;
-            const stab = this.calculateStab(attacker, move);
+            const stab = this.calculateStab(attacker, move, controller);
             const other = 1; // TODO weather, badges  ...
             const modifiers = typeEffectiveness * critical * random * stab * other;
             result.damages = Math.floor((((2 * attacker.level / 5 + 2) * move.power * attack / defense) / 50 + 2) * modifiers * modifier);
@@ -236,12 +241,29 @@ export class Attack implements ActionV2Interface {
         }, 1);
     }
 
-    private calculateCritical() {
-        return Math.random() < 0.0625 ? 1.5 : 1;
+    private calculateCritical(controller: Character | PokemonInstance) {
+        let modifier = 0;
+        if (controller instanceof Player) {// TODO handle opponents
+            modifier = controller.getMasteryBonus(MasteryType.CRITICAL);
+        }
+        return Math.random() < 0.0625 ? 1.5 + (modifier / 100) : 1;
     }
 
-    private calculateStab(attacker: PokemonInstance, move: MoveInstance | ComboMove) {
-        return attacker.types.includes(move.type) ? 1.5 : 1; // TODO wtf
+    private calculateStab(attacker: PokemonInstance, move: MoveInstance | ComboMove, controller: Character | PokemonInstance) {
+
+        if (attacker.types.includes(move.type)) {
+            let modifier = 0;
+            if (controller instanceof Player) {// TODO handle opponents
+                modifier = controller.getMasteryBonus(MasteryType.STAB);
+            }
+            return 1.5 + (modifier / 100);
+        } else {
+            let modifier = 0;
+            if (controller instanceof Player) {// TODO handle opponents
+                modifier = controller.getMasteryBonus(MasteryType.NON_STAB);
+            }
+            return 1 + (modifier / 100);
+        }
     }
 
     private accuracyApplies(move: MoveInstance | ComboMove) {

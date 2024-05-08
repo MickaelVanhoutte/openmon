@@ -1,30 +1,32 @@
 <script lang="ts">
-	import type { GameContext } from '../../../js/context/gameContext';
-	import { defineHex, Direction, Grid, rectangle, ring, spiral } from 'honeycomb-grid';
-	import { A, Svg, SVG } from '@svgdotjs/svg.js';
-	import { onMount } from 'svelte';
-	import initiateMasteries from '../../../assets/data/final/beta/masteries-initiate.json';
-	import expertMasteries from '../../../assets/data/final/beta/masteries-expert.json';
-	import Modal from '../../common/Modal.svelte';
+	import { Svg, SVG } from '@svgdotjs/svg.js';
 	import { gsap } from 'gsap';
+	import { defineHex, Direction, Grid, rectangle } from 'honeycomb-grid';
+	import { onMount } from 'svelte';
+	import type { GameContext } from '../../../js/context/gameContext';
+	import Modal from '../../common/Modal.svelte';
 
 	export let context: GameContext;
-	let masteries;
-	let expert;
+	let masteries: HTMLDivElement;
+	let expert: HTMLDivElement;
 	let showModal = false;
 	let targetElement: any;
 	let currentNode: any | undefined;
 	let currentTiles: any[];
 	let currentHex: any;
 	let currentGrid: Grid;
-	$: masteryPoints = context.player.masteryPoints;
 
-	let initiateTiles = initiateMasteries;
+	$: pMasteries = context.player.playerMasteries;
+	$: masteryPoints = pMasteries.points;
+
+	$: initiateTiles = pMasteries.novice;
 	let initiateSvg: Svg;
 	let initiateGrid: Grid;
-	let expertTiles = expertMasteries;
+	$: expertTiles = pMasteries.expert;
 	let expertSvg: Svg;
 	let expertGrid: Grid;
+
+	let animating: boolean = false;
 
 	let count = 0;
 
@@ -103,7 +105,6 @@
 			if (!tile.set && !hasSetNeighbor && !tile.first) {
 				polygon.fill({ color: '#000', opacity: 0.5 });
 			} else if (!tile.set && hasSetNeighbor && !tile.first) {
-				
 				if (expert && !initiateTiles.every((tile) => tile.set || tile.first)) {
 					polygon.fill({ color: '#000', opacity: 0.5 });
 				} else {
@@ -150,7 +151,7 @@
 	}
 
 	function openModal(tile?: any, tiles: any[], target: any, hex: any, grid: Grid): any {
-		if (tile && !tile.first) {
+		if (tile && !tile.first && !animating) {
 			currentNode = tile;
 			currentTiles = tiles;
 			showModal = true;
@@ -171,14 +172,13 @@
 	}
 
 	function setNode(tile: any, tiles: any[]) {
+		animating = true;
 		let svgId = initiateTiles === tiles ? 'initiate' : 'expert';
 		tiles === initiateTiles
 			? drawGrid(initiateSvg, initiateGrid, initiateTiles, false, currentHex)
 			: drawGrid(expertSvg, expertGrid, expertTiles, true, currentHex);
 		showModal = false;
-		tile.set = true;
-		tile.settable = false;
-		context.player.masteryPoints -= tile.cost;
+		context.player.setMastery(tile);
 
 		let neighbors = [
 			currentGrid.neighborOf({ q: currentHex.q, r: currentHex.r }, Direction.NE, {
@@ -270,21 +270,24 @@
 
 		neighbors.forEach((ng) => {});
 		tl.play().then(() => {
-			//initiateTiles = initiateTiles;
-			//expertTiles = expertTiles;
-			drawGrid(initiateSvg, initiateGrid, initiateTiles, false);
+			if (tile.group == 'novice') {
+				console.log('redraw initiate');
+				drawGrid(initiateSvg, initiateGrid, initiateTiles, false);
+				animating = false;
 
-			if(tiles === initiateTiles && initiateTiles.every((tile) => tile.set || tile.first)){
-				console.log('init expert')
-				let firstExp = expertTiles.find((tile) => tile.first);
-				currentGrid = expertGrid;
-				currentHex = expertGrid.getHex({q: firstExp?.q, r: firstExp?.r});
-				console.log(firstExp, currentHex)
-				setNode(firstExp, expertTiles);
-			}else {
+				if (initiateTiles.every((tile) => tile.set || tile.first)) {
+					console.log('init expert');
+					let firstExp = expertTiles.find((tile) => tile.first);
+					currentGrid = expertGrid;
+					currentHex = expertGrid.getHex({ q: firstExp?.q, r: firstExp?.r });
+					console.log(firstExp, currentHex);
+					setNode(firstExp, expertTiles);
+				}
+			} else {
+				console.log('redraw expert');
 				drawGrid(expertSvg, expertGrid, expertTiles, true);
+				animating = false;
 			}
-
 		});
 	}
 

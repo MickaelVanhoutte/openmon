@@ -2,6 +2,7 @@ import type { Bag } from "../items/bag";
 import type { Position } from "../mapping/positions";
 import type { PokemonInstance } from "../pokemons/pokedex";
 import type { Script } from "../scripting/scripts";
+import type { MasteryType } from "./mastery-model";
 import type { ComboJauge } from "./player";
 
 
@@ -21,6 +22,8 @@ export interface Character {
     moving: boolean;
     position: CharacterPosition;
     comboJauge: ComboJauge;
+
+    getMasteryBonus(type: MasteryType): number;
 }
 
 export class CharacterPosition {

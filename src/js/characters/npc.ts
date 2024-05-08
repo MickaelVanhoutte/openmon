@@ -5,6 +5,7 @@ import type { PokemonInstance } from "../pokemons/pokedex";
 import { Position } from "../mapping/positions";
 import { centerObject, CHARACTER_SPRITES } from "../sprites/sprites";
 import { ComboJauge } from "./player";
+import type { MasteryType } from "./mastery-model";
 
 export class NPC implements Character, Interactive {
     id: number;
@@ -39,6 +40,10 @@ export class NPC implements Character, Interactive {
         this.mainScript = mainScript ? new Script(mainScript?.triggerType, mainScript?.actions, mainScript?.stepPosition, mainScript?.replayable) : undefined;
         this.dialogScripts = dialogScripts?.map((script) => new Script(script.triggerType, script.actions, script.stepPosition, script.replayable)) || [];
         this.movingScript = movingScript ? new Script(movingScript?.triggerType, movingScript?.actions, movingScript?.stepPosition, movingScript?.replayable) : undefined;
+    }
+
+    getMasteryBonus(type: MasteryType): number {
+        return 0;
     }
 
     interact(playerPosition: Position): (Script | undefined)[] {

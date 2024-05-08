@@ -8,7 +8,10 @@
         "description": "Increase Stabbed damages of your Pokemons by 5%",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "stab",
+        "value": 5,
+        "group": "expert"
     },
     {
         "q": 3,
@@ -19,7 +22,10 @@
         "color": "#BBF1E4",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "stab",
+        "value": 5,
+        "group": "expert"
     },
     {
         "q": 4,
@@ -30,7 +36,10 @@
         "color": "#BBF1E4",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "stab",
+        "value": 3,
+        "group": "expert"
     },
     {
         "q": 5,
@@ -41,7 +50,10 @@
         "color": "#BBF1E4",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "stab",
+        "value": 2,
+        "group": "expert"
     },
     {
         "q": 6,
@@ -51,7 +63,11 @@
         "description": "Increase Accuracy of your Pokemon moves by 3%",
         "color": "#FDEFAB",
         "set": false,
-        "first": false
+        "settable": false,
+        "first": false,
+        "type": "accuracy",
+        "value": 3,
+        "group": "expert"
     },
     {
         "q": 7,
@@ -61,7 +77,10 @@
         "color": "white",
         "set": true,
         "first": true,
-        "settable": false
+        "settable": false,
+        "type": "start",
+        "value": 0,
+        "group": "expert"
     },
     {
         "q": 8,
@@ -72,7 +91,10 @@
         "color": "#FDEFAB",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "accuracy",
+        "value": 3,
+        "group": "expert"
     },
     {
         "q": 9,
@@ -83,7 +105,10 @@
         "color": "#BADDD6",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "non-stab",
+        "value": 2,
+        "group": "expert"
     },
     {
         "q": 10,
@@ -94,7 +119,10 @@
         "color": "#BADDD6",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "non-stab",
+        "value": 3,
+        "group": "expert"
     },
     {
         "q": 11,
@@ -105,7 +133,10 @@
         "color": "#BADDD6",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "non-stab",
+        "value": 5,
+        "group": "expert"
     },
     {
         "q": 12,
@@ -116,7 +147,10 @@
         "color": "#BADDD6",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "non-stab",
+        "value": 5,
+        "group": "expert"
     },
 
 
@@ -131,7 +165,10 @@
         "description": "Increase resistance to opponent's move effects by 3%",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "resistance",
+        "value": 3,
+        "group": "expert"
     },
     {
         "q": 5,
@@ -142,7 +179,10 @@
         "color": "#D5E5E2",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "resistance",
+        "value": 3,
+        "group": "expert"
     },
     {
         "q": 6,
@@ -153,7 +193,10 @@
         "color": "#D5E5E2",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "resistance",
+        "value": 3,
+        "group": "expert"
     },
     {
         "q": 7,
@@ -164,7 +207,10 @@
         "color": "#FFFFBA",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "effectiveness",
+        "value": 3,
+        "group": "expert"
     },
     {
         "q": 8,
@@ -175,7 +221,10 @@
         "color": "#FFFFBA",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "effectiveness",
+        "value": 3,
+        "group": "expert"
     },
     {
         "q": 9,
@@ -186,7 +235,10 @@
         "color": "#FFFFBA",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "effectiveness",
+        "value": 3,
+        "group": "expert"
     },
     {
         "q": 5,
@@ -197,7 +249,10 @@
         "color": "#D5E5E2",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "resistance",
+        "value": 5,
+        "group": "expert"
     },
     {
         "q": 6,
@@ -208,7 +263,10 @@
         "color": "#FDEFAB",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "accuracy",
+        "value": 5,
+        "group": "expert"
     },
     {
         "q": 7,
@@ -219,7 +277,10 @@
         "color": "#FFFFBA",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "effectiveness",
+        "value": 5,
+        "group": "expert"
     },
 
 
@@ -232,7 +293,10 @@
         "color": "#F4D35E",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "critical",
+        "value": 2,
+        "group": "expert"
     },
     {
         "q": 5,
@@ -243,7 +307,10 @@
         "color": "#F4D35E",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "critical",
+        "value": 1,
+        "group": "expert"
     },
     {
         "q": 6,
@@ -254,7 +321,10 @@
         "color": "#F4D35E",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "critical",
+        "value": 1,
+        "group": "expert"
     },
     {
         "q": 7,
@@ -265,7 +335,10 @@
         "color": "#F4D35E",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "critical",
+        "value": 2,
+        "group": "expert"
     },
 
 
@@ -277,7 +350,10 @@
         "color": "#40E0D0",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "wSun",
+        "value": 1,
+        "group": "expert"
     },
     {
         "q": 0,
@@ -287,7 +363,10 @@
         "color": "#40E0D0",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "wSand",
+        "value": 1,
+        "group": "expert"
     },
     {
         "q": 1,
@@ -298,7 +377,10 @@
         "color": "#40E0D0",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "wTurnAlly",
+        "value": 1,
+        "group": "expert"
     },
     {
         "q": 2,
@@ -308,7 +390,10 @@
         "color": "#40E0D0",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "wHail",
+        "value": 1,
+        "group": "expert"
     },
     {
         "q": 0,
@@ -319,7 +404,10 @@
         "color": "#40E0D0",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "wTurnOpp",
+        "value": -1,
+        "group": "expert"
     },
     {
         "q": 1,
@@ -329,7 +417,10 @@
         "color": "#40E0D0",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "wRain",
+        "value": 1,
+        "group": "expert"
     },
 
 
@@ -343,7 +434,10 @@
         "color": "#baffc9",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "heal",
+        "value": 2,
+        "group": "expert"
     },
     {
         "q": 2,
@@ -354,7 +448,10 @@
         "color": "#baffc9",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "heal",
+        "value": 2,
+        "group": "expert"
     },
     {
         "q": 3,
@@ -365,7 +462,10 @@
         "color": "#baffc9",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "autoHeal",
+        "value": 1,
+        "group": "expert"
     },
     {
         "q": 4,
@@ -376,7 +476,10 @@
         "color": "#baffc9",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "heal",
+        "value": 2,
+        "group": "expert"
     },
     {
         "q": 2,
@@ -387,7 +490,10 @@
         "color": "#baffc9",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "heal",
+        "value": 2,
+        "group": "expert"
     },
     {
         "q": 3,
@@ -398,7 +504,10 @@
         "color": "#baffc9",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "heal",
+        "value": 2,
+        "group": "expert"
     },
     
     
@@ -412,7 +521,10 @@
         "color": "#CBAACB",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "dotDamage",
+        "value": 1,
+        "group": "expert"
     },
     {
         "q": 8,
@@ -423,7 +535,10 @@
         "color": "#CBAACB",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "dotDamage",
+        "value": 1,
+        "group": "expert"
     },
     {
         "q": 9,
@@ -434,7 +549,10 @@
         "color": "#CBAACB",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "dotChance",
+        "value": 5,
+        "group": "expert"
     },
     {
         "q": 10,
@@ -445,7 +563,10 @@
         "color": "#CBAACB",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "dotDamage",
+        "value": 1,
+        "group": "expert"
     },
     {
         "q": 8,
@@ -456,7 +577,10 @@
         "color": "#CBAACB",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "dotDamage",
+        "value": 1,
+        "group": "expert"
     },
     {
         "q": 9,
@@ -467,7 +591,10 @@
         "color": "#CBAACB",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "dotDamage",
+        "value": 1,
+        "group": "expert"
     },
 
 
@@ -481,7 +608,10 @@
         "color": "#FF968A",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "comboJauge",
+        "value": 2,
+        "group": "expert"
     },
     {
         "q": 11,
@@ -492,7 +622,10 @@
         "color": "#FF968A",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "comboJauge",
+        "value": 2,
+        "group": "expert"
     }
     ,
     {
@@ -504,7 +637,10 @@
         "color": "#FF968A",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "comboDamage",
+        "value": 10,
+        "group": "expert"
     },
     {
         "q": 13,
@@ -515,7 +651,10 @@
         "color": "#FF968A",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "comboJauge",
+        "value": 2,
+        "group": "expert"
     },
     {
         "q": 11,
@@ -526,7 +665,10 @@
         "color": "#FF968A",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "comboJauge",
+        "value": 2,
+        "group": "expert"
     },{
         "q": 12,
         "r": 2,
@@ -536,7 +678,10 @@
         "color": "#FF968A",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "comboJauge",
+        "value": 2,
+        "group": "expert"
     },
 
 
@@ -549,7 +694,10 @@
         "color": "#FBC2C2",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "attraction",
+        "value": 1,
+        "group": "expert"
     },
     {
         "q": 10,
@@ -560,6 +708,9 @@
         "color": "#D9E5E3",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "confusion",
+        "value": 1,
+        "group": "expert"
     }
 ]
