@@ -8,6 +8,7 @@
 	import { SaveContext, SavesHolder } from './js/context/savesHolder';
 	import type { GameContext } from './js/context/gameContext';
 	import type { BattleContext } from './js/context/battleContext';
+	import Intro from './lib/Intro.svelte';
 
 	/**
 	 * Main component, handling screens transitions
@@ -16,6 +17,7 @@
 	const savesHolder = new SavesHolder();
 	let gameContext: GameContext;
 	let newGame: boolean = false;
+	let started: boolean = false;
 
 	savesHolder.selectedSave$.subscribe((value: SaveContext | undefined) => {
 		if (value) {
@@ -98,6 +100,8 @@
 	});
 </script>
 
+{#if started}
+
 {#if gameContext}
 	<!-- game started -->
 	{#if battleCtx !== undefined && !battleStarting}
@@ -126,6 +130,11 @@
 {:else}
 	<!-- create a new save -->
 	<PlayerCreation {savesHolder} />
+{/if}
+
+{:else}
+	<!-- game not started -->
+	<Intro bind:started/>
 {/if}
 
 {#if rotate}
