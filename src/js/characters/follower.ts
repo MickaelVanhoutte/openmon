@@ -4,6 +4,7 @@ import { PokemonInstance } from "../pokemons/pokedex";
 import type { Script } from "../scripting/scripts";
 import { centerObject } from "../sprites/sprites";
 import { WALKING_SPEED, type Character, CharacterPosition, type Interactive, RUNNING_SPEED } from "./characters-model";
+import type { MasteryType } from "./mastery-model";
 import { ComboJauge } from "./player";
 
 export class Follower implements Character, Interactive {
@@ -22,6 +23,9 @@ export class Follower implements Character, Interactive {
     constructor(position: CharacterPosition, pokemon: PokemonInstance) {
         this.position = position;
         this.pokemon = pokemon;
+    }
+    getMasteryBonus(type: MasteryType): number {
+        return 0;
     }
 
     static fromInstance(follower: Follower): Follower {

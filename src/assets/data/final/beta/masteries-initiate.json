@@ -7,7 +7,10 @@
         "color": "white",
         "set": true,
         "first": true,
-        "settable": false
+        "settable": false,
+        "type": "start",
+        "value": 0,
+        "group": "novice"
     },
     {
         "q": 1,
@@ -16,9 +19,12 @@
         "title": "catch +5%",
         "description": "Increase your pokeballs catch rate by 5%",
         "color": "#F7F6CF",
-        "set": true,
+        "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "catch",
+        "value": 5,
+        "group": "novice"
     },
     {
         "q": 2,
@@ -27,9 +33,12 @@
         "title": "catch +5%",
         "description": "Increase your pokeballs catch rate by 5%",
         "color": "#F7F6CF",
-        "set": true,
+        "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "catch",
+        "value": 5,
+        "group": "novice"
     },
     {
         "q": 3,
@@ -38,9 +47,12 @@
         "title": "CUT",
         "description": "Cut down trees to access new areas",
         "color": "#F4D35E",
-        "set": true,
+        "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "cut",
+        "value": 1,
+        "group": "novice"
     },
     {
         "q": 4,
@@ -49,9 +61,12 @@
         "title": "XP +5%",
         "description": "Increase experience gain of yourself and your Pokemons by 5%",
         "color": "#F7F6CF",
-        "set": true,
+        "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "xp",
+        "value": 5,
+        "group": "novice"
     },
     {
         "q": 5,
@@ -60,9 +75,12 @@
         "title": "XP +5%",
         "description": "Increase experience gain of yourself and your Pokemons by 5%",
         "color": "#F7F6CF",
-        "set": true,
+        "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "xp",
+        "value": 5,
+        "group": "novice"
     },
     {
         "q": 6,
@@ -71,9 +89,12 @@
         "title": "STRENGH",
         "description": "Push boulders to access new areas",
         "color": "#F4D35E",
-        "set": true,
+        "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "strength",
+        "value": 1,
+        "group": "novice"
     },
     {
         "q": 7,
@@ -82,9 +103,12 @@
         "title": "EV +1",
         "description": "Increase your Pokemons EV gain by 1",
         "color": "#F7F6CF",
-        "set": true,
+        "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "ev",
+        "value": 1,
+        "group": "novice"
     },
     {
         "q": 8,
@@ -93,9 +117,12 @@
         "title": "EV +1",
         "description": "Increase your Pokemons EV gain by 1",
         "color": "#F7F6CF",
-        "set": true,
+        "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "ev",
+        "value": 1,
+        "group": "novice"
     },
     {
         "q": 9,
@@ -104,9 +131,12 @@
         "title": "ROCK SMASH",
         "description": "Break rocks to access new areas",
         "color": "#F4D35E",
-        "set": true,
+        "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "rockSmash",
+        "value": 1,
+        "group": "novice"
     },
     {
         "q": 10,
@@ -115,9 +145,12 @@
         "title": "Combo +5%",
         "description": "Increase the Combo jauge gain by 5%",
         "color": "#F7F6CF",
-        "set": true,
+        "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "comboJauge",
+        "value": 5,
+        "group": "novice"
     },
     {
         "q": 11,
@@ -126,9 +159,12 @@
         "title": "Combo +5%",
         "description": "Increase the Combo jauge gain by 5%",
         "color": "#F7F6CF",
-        "set": true,
+        "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "comboJauge",
+        "value": 5,
+        "group": "novice"
     },
     {
         "q": 12,
@@ -137,9 +173,12 @@
         "title": "SURF",
         "description": "Surf on water to access new areas",
         "color": "#F4D35E",
-        "set": true,
+        "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "surf",
+        "value": 1,
+        "group": "novice"
     },
     {
         "q": 13,
@@ -148,9 +187,12 @@
         "title": "Shiny +5%",
         "description": "Increase the shiny rate of Pokemons by 5%",
         "color": "#F7F6CF",
-        "set": true,
+        "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "shiny",
+        "value": 5,
+        "group": "novice"
     },
     {
         "q": 14,
@@ -159,9 +201,12 @@
         "title": "Shiny +5%",
         "description": "Increase the shiny rate of Pokemons by 5%",
         "color": "#F7F6CF",
-        "set": true,
+        "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "shiny",
+        "value": 5,
+        "group": "novice"
     },
     {
         "q": 15,
@@ -172,7 +217,10 @@
         "color": "#F4D35E",
         "set": false,
         "first": false,
-        "settable": false
+        "settable": false,
+        "type": "fly",
+        "value": 1,
+        "group": "novice"
     }
     
 ]

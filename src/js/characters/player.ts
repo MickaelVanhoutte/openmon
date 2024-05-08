@@ -5,6 +5,7 @@ import { centerObject, CHARACTER_SPRITES, PlayerSprite } from "../sprites/sprite
 import { type Character, CharacterPosition, RUNNING_SPEED, WALKING_SPEED } from "./characters-model";
 import { Follower } from "./follower";
 import type { OverworldContext } from "../context/overworldContext";
+import { Mastery, MasteryType, PlayerMasteries } from "./mastery-model";
 
 export class ComboJauge {
     public value: number = 0;
@@ -37,32 +38,7 @@ export class ComboJauge {
     }
 }
 
-export class Masteries {
-    catch: number = 0;
-    xp: number = 0;
-    ev: number = 0;
-    shiny: number = 0;
-    critical: number = 0;
-    stab: number = 0;
-    nonStab: number = 0;
-    accuracy: number = 0;
-    effectiveness: number = 0;
-    resistance: number = 0;
 
-    comboJauge: number = 0;
-    comboDamage: number = 0;
-
-    heal: number = 0;
-    autoHeal: number = 0;
-
-    dotChance: number = 0;
-    dotDamage: number = 0;
-
-    
-
-    confuse: number = 0;
-    attract: number = 0;
-}
 
 export class Player implements Character {
     public spriteId: number;
@@ -77,14 +53,12 @@ export class Player implements Character {
     public sprite: PlayerSprite;
     public position: CharacterPosition = new CharacterPosition();
 
-    public level: number = 1;
-    public masteryPoints: number = 16;
-    //public masteries: Masteries = new Masteries();
+    public playerMasteries: PlayerMasteries = new PlayerMasteries();
 
     // followerIdx (chose a monster to follow you TODO)
     public follower?: Follower;
 
-    constructor(spriteId: number, name: string, gender: 'MALE' | 'FEMALE', monsters: PokemonInstance[], bag: Bag, lvl: number, moving: boolean, comboJauge: ComboJauge, masteryPoints?: number, follower?: Follower) {
+    constructor(spriteId: number, name: string, gender: 'MALE' | 'FEMALE', monsters: PokemonInstance[], bag: Bag, lvl: number, moving: boolean, comboJauge: ComboJauge, masteries?: PlayerMasteries, follower?: Follower) {
         this.spriteId = spriteId;
         this.name = name;
         this.gender = gender;
@@ -95,7 +69,7 @@ export class Player implements Character {
         this.position = new CharacterPosition();
         this.sprite = CHARACTER_SPRITES.getSprite(spriteId);
         this.comboJauge = comboJauge;
-        this.masteryPoints = 12//masteryPoints || 0;
+        this.playerMasteries = PlayerMasteries.fromInstance(masteries);
         this.follower = follower;
     }
 
@@ -122,7 +96,7 @@ export class Player implements Character {
             character.lvl,
             character.moving,
             character.comboJauge ? new ComboJauge(character.comboJauge.value, character.comboJauge.stored) : new ComboJauge(),
-            character.masteryPoints,
+            character.playerMasteries,
             character.follower,
         );
     }
@@ -136,6 +110,15 @@ export class Player implements Character {
             this.follower = Follower.fromInstance(this.follower);
         }
         return this;
+    }
+
+    setMastery(mastery: Mastery) {
+        this.playerMasteries.setMastery(mastery);
+        this.playerMasteries = PlayerMasteries.fromInstance(this.playerMasteries);
+    }
+
+    getMasteryBonus(type: MasteryType): number {
+        return this.playerMasteries.bonuses.getMastery(type);
     }
 
     public setFollower(monster: PokemonInstance): Follower {

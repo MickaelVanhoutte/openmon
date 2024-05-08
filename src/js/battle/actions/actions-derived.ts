@@ -7,6 +7,7 @@ import { ComboJauge, Player } from "../../characters/player";
 import { type Character } from "../../characters/characters-model";
 import { NPC } from "../../characters/npc";
 import { MOVE_EFFECT_APPLIER } from "../battle-model";
+import { MasteryType } from "../../characters/mastery-model";
 
 export class Message implements ActionV2Interface {
     public type: ActionType;
@@ -152,13 +153,15 @@ export class ComboBoost implements ActionV2Interface {
 
     execute(ctx: BattleContext): void {
         if (!(this.controller instanceof PokemonInstance) && !!this.controller.comboJauge) {
-            let valueToAdd = 15;
+            let valueToAdd = 5;
             if (this.superEffective) {
                 valueToAdd += 5;
             }
             if (this.critical) {
                 valueToAdd += 5;
             }
+
+            valueToAdd += this.controller.getMasteryBonus(MasteryType.COMBO_JAUGE); 
             
             this.controller.comboJauge.addValue(valueToAdd);
             this.controller.comboJauge = new ComboJauge(this.controller.comboJauge.value, this.controller.comboJauge.stored);
