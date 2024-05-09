@@ -85,6 +85,7 @@
 
 	<img class="logo" src="src/assets/menus/pokemon-logo.png" alt="pokemon logo" />
 	<h3 class="animate-charcter title">UNISON</h3>
+	<img class="combo" src="src/assets/menus/combo.svg" alt="gimmick logo" />
 
 	<span class="touch">Touch to start</span>
 
@@ -158,25 +159,47 @@
 		}
 	}
 
-  @keyframes bounce-7 {
+	@keyframes bounce-7 {
+		0% {
+			transform: scale(1, 1) translateY(-100vh) translateX(-50%);
+		}
+		10% {
+			transform: scale(1.1, 0.9) translateY(0) translateX(-50%);
+		}
+		30% {
+			transform: scale(0.9, 1.1) translateY(-20px) translateX(-50%);
+		}
+		50% {
+			transform: scale(1.05, 0.95) translateY(0) translateX(-50%);
+		}
+		57% {
+			transform: scale(1, 1) translateY(-7px) translateX(-50%);
+		}
+		64% {
+			transform: scale(1, 1) translateY(0) translateX(-50%);
+		}
+		100% {
+			transform: scale(1, 1) translateY(0) translateX(-50%);
+		}
+	}
 
-        0%   { transform: scale(1,1)      translateY(-100vh)  translateX(-50%); }
-        10%  { transform: scale(1.1,.9)   translateY(0)  translateX(-50%); }
-        30%  { transform: scale(.9,1.1)   translateY(-20px)  translateX(-50%); }
-        50%  { transform: scale(1.05,.95) translateY(0)  translateX(-50%); }
-        57%  { transform: scale(1,1)      translateY(-7px)  translateX(-50%); }
-        64%  { transform: scale(1,1)      translateY(0)  translateX(-50%); }
-        100% { transform: scale(1,1)      translateY(0)  translateX(-50%); }
-    }
+	@keyframes fadeIn {
+		0% {
+			opacity: 0;
+		}
+		100% {
+			opacity: 1;
+		}
+	}
 
-  @keyframes fadeIn {
-      0% {
-        opacity: 0;
-      }
-      100% {
-        opacity: 1;
-      }
-    }
+  @keyframes fadeIn2 {
+		0% {
+			opacity: 0;
+		}
+		100% {
+			opacity: .5;
+		}
+	}
 
 	.intro {
 		display: flex;
@@ -192,31 +215,46 @@
 
 		.logo {
 			position: absolute;
-			bottom: 50%;
+			top: 5%;
 			left: 50%;
 			transform: translateY(-100vh) translateX(-50%);
-      transform-origin: -50% 50%;
+			transform-origin: -50% 50%;
 			z-index: 100;
 			width: 60%;
 			height: auto;
-			animation: bounce-7 4s cubic-bezier(0.280, 0.840, 0.420, 1) forwards;
-			animation-delay: 2s;
+			animation: bounce-7 3.5s cubic-bezier(0.28, 0.84, 0.42, 1) forwards;
+			animation-delay: 3s;
+      will-change: transform;
 		}
 
-    .title {
-      position: absolute;
-      top: 40%;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 100;
-      width: 100%;
-      text-align: center;
-      margin: 0;
-      font-size: 120px;
-      opacity: 0;
-      //animation: fadeIn 2s ease-in-out forwards;
+		.title {
+			position: absolute;
+			top: 38%;
+			left: 47%;
+			transform: translateX(-47%);
+			z-index: 100;
+			width: 100%;
+			text-align: center;
+			margin: 0;
+			font-size: 140px;
+			opacity: 0;
+			//animation: fadeIn 2s ease-in-out forwards;
+		}
 
-    }
+		.combo {
+			position: absolute;
+			top: 30.6%;
+			left: 50%;
+      transform: translateX(-50%);
+			z-index: 99;
+			height: 43%;
+			width: auto;
+			opacity: 0;
+			animation:
+				fadeIn2 3s ease-in-out forwards;
+			animation-delay: 7s;
+      will-change: opacity;
+		}
 
 		.animate-charcter {
 			text-transform: uppercase;
@@ -235,10 +273,26 @@
 			text-fill-color: transparent;
 			-webkit-background-clip: text;
 			-webkit-text-fill-color: transparent;
-			animation: fadeIn 2s ease-in-out forwards, textclip 4s linear infinite;
-      animation-delay: 4s;
+			animation:
+				fadeIn 2s ease-in-out forwards,
+				textclip 4s linear infinite,
+				svg-shadow 3s ease-in-out infinite alternate;
+			animation-delay: 5s;
 			display: inline-block;
-      font-weight: 900;
+			font-weight: 900;
+      will-change: filter, background-position, opacity;
+		}
+
+		@keyframes svg-shadow {
+			from {
+				filter: drop-shadow(0 0 5px #fff) drop-shadow(0 0 10px #e6007f4b)
+					drop-shadow(0 0 20px #e6007f4b);
+			}
+
+			to {
+				filter: drop-shadow(0 0 40px #fff) drop-shadow(0 0 15px #e6007f4b)
+					drop-shadow(0 0 60px #e6007f4b);
+			}
 		}
 
 		@keyframes textclip {
@@ -249,7 +303,7 @@
 
 		.touch {
 			position: absolute;
-			bottom: 28%;
+			bottom: 25%;
 			left: 50%;
 			transform: translateX(-50%);
 			font-size: 2.5rem;
@@ -258,17 +312,26 @@
 			z-index: 100;
 			opacity: 0;
 			animation: blink 8s ease-in-out infinite;
-			animation-delay: 6s;
+			animation-delay: 7s;
 		}
 
 		.horde {
 			//display: none;
 			//position: absolute;
 
-      background: #0f0c29;  /* fallback for old browsers */
-background: -webkit-linear-gradient(to right, #24243e, #302b63, #0f0c29);  /* Chrome 10-25, Safari 5.1-6 */
-background: linear-gradient(to right, #24243e, #302b63, #0f0c29); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
-
+			background: #0f0c29; /* fallback for old browsers */
+			background: -webkit-linear-gradient(
+				to right,
+				#24243e,
+				#302b63,
+				#0f0c29
+			); /* Chrome 10-25, Safari 5.1-6 */
+			background: linear-gradient(
+				to right,
+				#24243e,
+				#302b63,
+				#0f0c29
+			); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
 
 			position: fixed;
 			//z-index: 9999;
@@ -283,6 +346,7 @@ background: linear-gradient(to right, #24243e, #302b63, #0f0c29); /* W3C, IE 10+
 				bottom: 10%;
 				left: 0%;
 				opacity: 0;
+        will-change: transform, opacity;
 
 				&.pokemon {
 					margin-bottom: -3px;
@@ -327,6 +391,7 @@ background: linear-gradient(to right, #24243e, #302b63, #0f0c29); /* W3C, IE 10+
 			animation: ease 200s alternate infinite;
 			pointer-events: none;
 			z-index: 110;
+      will-change: transform;
 
 			&::before,
 			&::after {
@@ -342,6 +407,7 @@ background: linear-gradient(to right, #24243e, #302b63, #0f0c29); /* W3C, IE 10+
 				background: black;
 				opacity: 0.4;
 				animation: drift ease alternate infinite;
+        will-change: transform, opacity;
 			}
 
 			&::after {
@@ -351,6 +417,7 @@ background: linear-gradient(to right, #24243e, #302b63, #0f0c29); /* W3C, IE 10+
 				animation:
 					drift ease alternate infinite,
 					flash ease infinite;
+        will-change: box-shadow, transform, opacity;
 			}
 		}
 
