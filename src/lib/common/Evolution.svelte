@@ -28,13 +28,13 @@
 			let bubbles = [...bubblesWrap.children] as HTMLDivElement[];
 
 			currentSprite =
-				(poke?.sprites && poke?.sprites[poke?.gender]?.front?.frame1) ||
-				poke?.sprites?.male?.front?.frame1;
+				(poke?.sprites && poke?.sprites[poke?.gender]?.front[poke.isShiny? 'shiny1' : 'frame1']) ||
+				poke?.sprites?.male?.front[poke.isShiny? 'shiny1' : 'frame1'];
 			let nextResult =
 				poke?.evolution[0]?.id && context.POKEDEX.findById(poke?.evolution[0]?.id)?.result;
 			nextSprite =
-				(nextResult && nextResult?.sprites && nextResult?.sprites[poke?.gender]?.front?.frame1) ||
-				(nextResult && nextResult?.sprites?.male?.front?.frame1) ||
+				(nextResult && nextResult?.sprites && nextResult?.sprites[poke?.gender]?.front[nextResult.isShiny? 'shiny1' : 'frame1']) ||
+				(nextResult && nextResult?.sprites?.male?.front[nextResult.isShiny? 'shiny1' : 'frame1']) ||
 				'';
 
 			if (currentSprite && nextSprite) {

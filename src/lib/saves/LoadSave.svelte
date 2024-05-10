@@ -30,7 +30,7 @@
 
 		selected.player.monsters.forEach((monster) => {
 			let img = new Image();
-			img.src = monster.sprites?.male?.front?.frame1 || 'assets/monsters/animated/000.png';
+			img.src = monster.sprites?.male?.front?.[monster.isShiny? 'shiny1' : 'frame1'] || 'assets/monsters/animated/000.png';
 			img.style.maxHeight = '-webkit-fill-available';
 
 			preview.appendChild(img);
@@ -58,6 +58,9 @@
 </script>
 
 <div class="load-screen">
+	{#each Array.from({ length: 15 }) as i}
+		<div class="firefly"></div>
+	{/each}
 	<div class="preview" bind:this={preview}>
 		<!-- <div class="player-wrapper" bind:this={playerWrapper}></div>
          <div class="monster-wrapper" bind:this={monsterWrapper}></div>-->
@@ -92,17 +95,17 @@
 <style lang="scss">
 	.preview {
 		width: 100%;
-		height: 33%;
+		height: 30%;
 		display: flex;
 		flex-direction: row;
 		gap: 8px;
 		box-sizing: border-box;
-		align-content: center;
-		align-items: center;
+		align-items: flex-end;
 		justify-content: flex-start;
+		margin-bottom: 2%;
 
 		:global(img) {
-			width: calc(100% / 7);
+			max-width: calc(100% / 7);
 			height: auto;
 		}
 	}
@@ -110,10 +113,22 @@
 	.load-screen {
 		height: 100dvh;
 		width: 100dvw;
-		background: #ececec;
 		color: #262626;
 		box-sizing: border-box;
 		padding: 2%;
+		background: #0f0c29; /* fallback for old browsers */
+		background: -webkit-linear-gradient(
+			to right,
+			#24243e,
+			#302b63,
+			#0f0c29
+		); /* Chrome 10-25, Safari 5.1-6 */
+		background: linear-gradient(
+			to right,
+			#24243e,
+			#302b63,
+			#0f0c29
+		); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
 
 		.new-game {
 			position: absolute;
@@ -156,8 +171,8 @@
 					gap: 8px;
 
 					.go {
-						background: #262626;
-						color: #ececec;
+						//background: #262626;
+						//color: #ececec;
 						border: none;
 						padding: 8px;
 						border-radius: 8px;
@@ -186,7 +201,8 @@
 
 					display: flex;
 					flex-direction: column;
-					gap: 4px;
+					gap: 6px;
+					font-size: 24px;
 
 					p {
 						margin: 0;
