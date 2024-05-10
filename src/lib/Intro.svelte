@@ -5,6 +5,7 @@
 	export let started: boolean;
 	let intro: HTMLDivElement;
 	let pkmnListShuffled: number[] = fisherYates(Array.from({ length: 233 }, (_, i) => i));
+	let ready = false;
 
 	function fisherYates(array) {
 		var count = array.length,
@@ -19,61 +20,13 @@
 		return array;
 	}
 
-	function playAnimation() {
-		function randomPokemon() {
-			return Math.floor(Math.random() * 233) + 1;
-		}
-
-		function getY(pokemon: number) {
-			// if( pokemons.flying.indexOf( pokemon ) >= 0 ) {
-			//     return (( Math.random() * 3 ) + 11).toFixed(2);
-			// } else {
-			//    return  (( Math.random() * 3 ) + 9).toFixed(2);
-			// }
-			return (Math.random() * 3 + 9).toFixed(2);
-		}
-
-		function getZ(y) {
-			return Math.floor((20 - y) * 100);
-		}
-
-		function makePokemon() {
-			const horde = intro.querySelector('.horde');
-			var xDelay = 0;
-			var delay = '-webkit-animation-delay: ' + (Math.random() * 1.7 + xDelay).toFixed(3) + 's;';
-			var pokemon = randomPokemon();
-			var bottom = getY(pokemon);
-			var y = 'bottom: ' + bottom + '%;';
-			var z = 'z-index: ' + getZ(bottom) + ';';
-			var index = '--index: ' + pokemon + ';';
-			var style = "style='" + delay + ' ' + y + ' ' + z + ' ' + index + "'";
-
-			return (
-				'' +
-				"<i class='sprite pokemon move " +
-				pokemon +
-				"' " +
-				style +
-				'>' +
-				"<i style='" +
-				delay +
-				"'></i>" +
-				'</i>'
-			);
-		}
-
-		let horde = '';
-
-		for (let i = 0; i < 20; i++) {
-			horde += makePokemon();
-		}
-		document.querySelector('.horde').innerHTML = horde;
-	}
-
 	onMount(() => {
 		//playAnimation();
+		setTimeout(() => {
+			ready = true;
+		}, 8000);
 		intro.addEventListener('click', () => {
-			started = true;
+			if (ready) started = true;
 		});
 	});
 </script>
@@ -192,12 +145,12 @@
 		}
 	}
 
-  @keyframes fadeIn2 {
+	@keyframes fadeIn2 {
 		0% {
 			opacity: 0;
 		}
 		100% {
-			opacity: .5;
+			opacity: 0.5;
 		}
 	}
 
@@ -224,7 +177,7 @@
 			height: auto;
 			animation: bounce-7 3.5s cubic-bezier(0.28, 0.84, 0.42, 1) forwards;
 			animation-delay: 3s;
-      will-change: transform;
+			will-change: transform;
 		}
 
 		.title {
@@ -245,15 +198,14 @@
 			position: absolute;
 			top: 32.6%;
 			left: 72%;
-      transform: translateX(-50%);
+			transform: translateX(-50%);
 			z-index: 99;
 			height: 43%;
 			width: auto;
 			opacity: 0;
-			animation:
-				fadeIn2 3s ease-in-out forwards;
+			animation: fadeIn2 3s ease-in-out forwards;
 			animation-delay: 7s;
-      will-change: opacity;
+			will-change: opacity;
 		}
 
 		.animate-charcter {
@@ -280,7 +232,7 @@
 			animation-delay: 5s;
 			display: inline-block;
 			font-weight: 900;
-      will-change: filter, background-position, opacity;
+			will-change: filter, background-position, opacity;
 		}
 
 		@keyframes svg-shadow {
@@ -346,7 +298,7 @@
 				bottom: 14%;
 				left: 0%;
 				opacity: 0;
-        will-change: transform, opacity;
+				will-change: transform, opacity;
 
 				&.pokemon {
 					margin-bottom: -3px;
@@ -379,5 +331,4 @@
 			}
 		}
 	}
-
 </style>
