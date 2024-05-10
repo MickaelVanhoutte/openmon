@@ -243,8 +243,8 @@
 
 		.combo {
 			position: absolute;
-			top: 30.6%;
-			left: 50%;
+			top: 32.6%;
+			left: 72%;
       transform: translateX(-50%);
 			z-index: 99;
 			height: 43%;
@@ -260,10 +260,10 @@
 			text-transform: uppercase;
 			background-image: linear-gradient(
 				-225deg,
-				#2d1b6f 0%,
-				#50107a 29%,
-				#ff1361 67%,
-				#fff800 100%
+				#fff800 0%,
+				#ff1361 29%,
+				#50107a 67%,
+				#2d1b6f 100%
 			);
 			background-size: auto auto;
 			background-clip: border-box;
@@ -275,7 +275,7 @@
 			-webkit-text-fill-color: transparent;
 			animation:
 				fadeIn 2s ease-in-out forwards,
-				textclip 4s linear infinite,
+				textclip 4s linear forwards,
 				svg-shadow 3s ease-in-out infinite alternate;
 			animation-delay: 5s;
 			display: inline-block;
@@ -303,7 +303,7 @@
 
 		.touch {
 			position: absolute;
-			bottom: 25%;
+			bottom: 2%;
 			left: 50%;
 			transform: translateX(-50%);
 			font-size: 2.5rem;
@@ -343,7 +343,7 @@
 
 			.sprite {
 				position: absolute;
-				bottom: 10%;
+				bottom: 14%;
 				left: 0%;
 				opacity: 0;
         will-change: transform, opacity;
