@@ -223,8 +223,8 @@
 				<div class="header">
 					<div class="img-wrapper">
 						<img
-							src={first?.sprites?.[first?.gender]?.front?.frame1 ||
-								first?.sprites?.male?.front?.frame1}
+							src={first?.sprites?.[first?.gender]?.front[first.isShiny? 'shiny1' : 'frame1'] ||
+								first?.sprites?.male?.front[first.isShiny? 'shiny1' : 'frame1']}
 							alt={first?.name}
 						/>
 					</div>
@@ -262,8 +262,8 @@
 					<div class="header">
 						<div class="img-wrapper">
 							<img
-								src={monster?.sprites?.[monster?.gender]?.front?.frame1 ||
-									monster?.sprites?.male?.front?.frame1}
+								src={monster?.sprites?.[monster?.gender]?.front[monster.isShiny? 'shiny1' : 'frame1'] ||
+									monster?.sprites?.male?.front[monster.isShiny? 'shiny1' : 'frame1']}
 								alt={monster.name}
 							/>
 						</div>

@@ -74,6 +74,7 @@ export class Attack implements ActionV2Interface {
     public initiator: PokemonInstance;
 
     constructor(move: MoveInstance | ComboMove, target: 'opponent' | 'ally', initiator: PokemonInstance) {
+        console.log(move, initiator, target);
         this.type = ActionType.ATTACK;
         this.name = move.name;
         this.description = move.description;

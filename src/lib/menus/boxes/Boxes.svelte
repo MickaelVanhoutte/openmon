@@ -284,8 +284,8 @@
 					{#if firstSelection?.moving && selectZone === 'party' && over === i}
 						<img
 							class="moving"
-							src={firstSelection.selected.sprites[firstSelection.selected?.gender]?.front.frame1 ||
-								firstSelection.selected.sprites.male?.front?.frame1}
+							src={firstSelection.selected.sprites[firstSelection.selected?.gender]?.front[firstSelection.selected.isShiny? 'shiny1' : 'frame1'] ||
+								firstSelection.selected.sprites.male?.front[firstSelection.selected.isShiny? 'shiny1' : 'frame1']}
 							alt="moving pokemon"
 						/>
 					{/if}
@@ -295,8 +295,8 @@
 							<span>Lv. {pokemon?.level}</span>
 						</div>
 						<img
-							src={pokemon?.sprites[pokemon?.gender]?.front.frame1 ||
-								pokemon?.sprites.male?.front?.frame1}
+							src={pokemon?.sprites[pokemon?.gender]?.front[pokemon.isShiny? 'shiny1' : 'frame1'] ||
+								pokemon?.sprites.male?.front[pokemon.isShiny? 'shiny1' : 'frame1']}
 							alt={pokemon?.name}
 						/>
 					{/if}
@@ -319,8 +319,8 @@
 			{#if firstSelection?.moving && selectZone === 'box-change'}
 				<img
 					class="moving"
-					src={firstSelection.selected.sprites[firstSelection.selected?.gender]?.front.frame1 ||
-						firstSelection.selected.sprites.male?.front?.frame1}
+					src={firstSelection?.selected?.sprites[firstSelection?.selected?.gender]?.front[firstSelection?.selected?.isShiny? 'shiny1' : 'frame1'] ||
+						firstSelection?.selected?.sprites.male?.front[firstSelection?.selected?.isShiny? 'shiny1' : 'frame1']}
 					alt="moving pokemon"
 				/>
 			{/if}
@@ -352,8 +352,8 @@
 					{#if firstSelection?.moving && selectZone === 'box' && over === index}
 						<img
 							class="moving"
-							src={firstSelection.selected.sprites[firstSelection.selected?.gender]?.front.frame1 ||
-								firstSelection.selected.sprites.male?.front?.frame1}
+							src={firstSelection.selected.sprites[firstSelection.selected?.gender]?.front[firstSelection.selected.isShiny? 'shiny1' : 'frame1'] ||
+								firstSelection.selected.sprites.male?.front[firstSelection.selected.isShiny? 'shiny1' : 'frame1']}
 							alt="moving pokemon"
 						/>
 					{/if}
@@ -369,7 +369,7 @@
 					</div>
 					{#if entry instanceof PokemonInstance && !(firstSelection?.selected === entry && firstSelection.moving)}
 						<img
-							src={entry.sprites[entry?.gender]?.front.frame1 || entry.sprites.male?.front?.frame1}
+							src={entry.sprites[entry?.gender]?.front[entry.isShiny? 'shiny1' : 'frame1'] || entry.sprites.male?.front[entry.isShiny? 'shiny1' : 'frame1']}
 							alt={entry.name}
 						/>
 					{/if}
