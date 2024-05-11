@@ -228,7 +228,7 @@
 			animation:
 				fadeIn 2s ease-in-out forwards,
 				textclip 4s linear infinite;
-				//svg-shadow 3s ease-in-out infinite alternate;
+			//svg-shadow 3s ease-in-out infinite alternate;
 			animation-delay: 5s;
 			display: inline-block;
 			font-weight: 900;
@@ -261,7 +261,7 @@
 			font-size: 2.5rem;
 			color: white;
 			text-shadow: 0 0 2px #fff;
-			z-index: 100;
+			z-index: 120;
 			opacity: 0;
 			animation: blink 8s ease-in-out infinite;
 			animation-delay: 7s;
@@ -273,12 +273,18 @@
 
 			background: #0f0c29; /* fallback for old browsers */
 			background: -webkit-linear-gradient(
-				to right, #24243e, #5b53b2, #0f0c29
+				to right,
+				#24243e,
+				#5b53b2,
+				#0f0c29
 			); /* Chrome 10-25, Safari 5.1-6 */
 			background: linear-gradient(
-				to right, #24243e, #5b53b2, #0f0c29
+				to right,
+				#24243e,
+				#5b53b2,
+				#0f0c29
 			); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
-      
+
 			position: fixed;
 			//z-index: 9999;
 			left: 0;
@@ -321,6 +327,33 @@
 						background-position: 0 -128px;
 						transform: scale(1.5);
 					}
+				}
+			}
+		}
+	}
+
+	@media (max-width: 768px) {
+		.intro {
+			.logo {
+				top: 5%;
+				width: 55%;
+			}
+			.title {
+				top: 35%;
+				font-size: clamp(60px, 160px, 30dvh);
+			}
+			.combo {
+				top: 30%;
+				left: 69%;
+				height: 40%;
+			}
+			.touch {
+				bottom: 30%;
+				font-size: 2rem;
+			}
+			.horde {
+				.sprite {
+					bottom: 10%;
 				}
 			}
 		}
