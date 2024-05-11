@@ -168,7 +168,7 @@
 
 		.logo {
 			position: absolute;
-			top: 5%;
+			top: 3%;
 			left: 50%;
 			transform: translateY(-100vh) translateX(-50%);
 			transform-origin: -50% 50%;
@@ -189,7 +189,7 @@
 			width: 100%;
 			text-align: center;
 			margin: 0;
-			font-size: 140px;
+			font-size: clamp(120px, 240px, 36dvh);
 			opacity: 0;
 			//animation: fadeIn 2s ease-in-out forwards;
 		}
@@ -200,7 +200,7 @@
 			left: 72%;
 			transform: translateX(-50%);
 			z-index: 99;
-			height: 43%;
+			height: 40%;
 			width: auto;
 			opacity: 0;
 			animation: fadeIn2 3s ease-in-out forwards;
@@ -227,8 +227,8 @@
 			-webkit-text-fill-color: transparent;
 			animation:
 				fadeIn 2s ease-in-out forwards,
-				textclip 4s linear forwards,
-				svg-shadow 3s ease-in-out infinite alternate;
+				textclip 4s linear infinite;
+				//svg-shadow 3s ease-in-out infinite alternate;
 			animation-delay: 5s;
 			display: inline-block;
 			font-weight: 900;
@@ -255,7 +255,7 @@
 
 		.touch {
 			position: absolute;
-			bottom: 2%;
+			bottom: 4%;
 			left: 50%;
 			transform: translateX(-50%);
 			font-size: 2.5rem;
