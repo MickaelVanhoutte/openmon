@@ -4,7 +4,11 @@
 
 	export let started: boolean;
 	let intro: HTMLDivElement;
-	let pkmnListShuffled: number[] = fisherYates(Array.from({ length: 233 }, (_, i) => i));
+	let pkmnListShuffled: number[] = fisherYates(Array.from({ length: 233 }, (_, i) => i)).slice(0, 50);
+  
+
+
+
 	let ready = false;
 
 	function fisherYates(array) {
