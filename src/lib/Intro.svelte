@@ -259,10 +259,10 @@
 
 		.touch {
 			position: absolute;
-			bottom: 4%;
+			bottom: 28%;
 			left: 50%;
 			transform: translateX(-50%);
-			font-size: 2.5rem;
+			font-size: 4rem;
 			color: white;
 			text-shadow: 0 0 2px #fff;
 			z-index: 120;
@@ -354,7 +354,7 @@
 			}
 			.touch {
 				bottom: 30%;
-				font-size: 2rem;
+				font-size: 2.5rem;
 			}
 			.horde {
 				.sprite {
