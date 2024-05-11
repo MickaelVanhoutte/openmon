@@ -49,7 +49,7 @@
 				style="-webkit-animation-delay: {(index * 2 + Math.random() * 2).toFixed(3)}s; z-index: {i}"
 			>
 				<i
-					style="animation: anim-sprite 0.5s infinite steps(1); background: url('src/assets/monsters/walking/{(
+					style="will-change: background-position; animation: anim-sprite 0.5s infinite steps(1); background: url('src/assets/monsters/walking/{(
 						'00' +
 						(i + 1)
 					).slice(-3)}{Math.random() > 0.5 ? 's' : ''}.png')"
@@ -298,11 +298,12 @@
 				bottom: 14%;
 				left: 0%;
 				opacity: 0;
-				will-change: transform, opacity;
+				
 
 				&.pokemon {
 					margin-bottom: -3px;
 					&.move {
+            will-change: transform, opacity;
 						animation: poke-move 20s linear forwards;
 					}
 					&:after {
