@@ -5,7 +5,7 @@
 	export let started: boolean;
 	let intro: HTMLDivElement;
 	let pkmnListShuffled: number[] = fisherYates(Array.from({ length: 233 }, (_, i) => i)).slice(0, 50);
-  
+  //let pkmnListShuffled: number[] = Array.from({ length: 233 }, (_, i) => i).slice(127,233);
 
 
 
@@ -50,7 +50,7 @@
 		{#each pkmnListShuffled as i, index}
 			<i
 				class="sprite pokemon move"
-				style="-webkit-animation-delay: {(index * 2 + Math.random() * 2).toFixed(3)}s; z-index: {i}"
+				style="animation: poke-move {Math.random() * (20 - 13 + 1) + 13}s linear forwards;-webkit-animation-delay: {(index * 2 + Math.random() * 2).toFixed(3)}s; z-index: {i};"
 			>
 				<i
 					style="will-change: background-position; animation: anim-sprite 0.5s infinite steps(1); background: url('src/assets/monsters/walking/{(
@@ -64,7 +64,7 @@
 </div>
 
 <style lang="scss">
-	@keyframes poke-move {
+	@keyframes -global-poke-move {
 		0% {
 			transform: translateX(0);
 			opacity: 0;
@@ -176,7 +176,7 @@
 			left: 50%;
 			transform: translateY(-100vh) translateX(-50%);
 			transform-origin: -50% 50%;
-			z-index: 100;
+			z-index: 98;
 			width: 60%;
 			height: auto;
 			animation: bounce-7 3.5s cubic-bezier(0.28, 0.84, 0.42, 1) forwards;
@@ -308,20 +308,6 @@
 					margin-bottom: -3px;
 					&.move {
             will-change: transform, opacity;
-						animation: poke-move 20s linear forwards;
-					}
-					&:after {
-						content: '';
-						width: 80%;
-						height: 2px;
-						position: absolute;
-						z-index: -1;
-						border-radius: 50%;
-						margin-left: -40%;
-						bottom: -22%;
-						left: 40%;
-						background: rgba(0, 0, 0, 0.5);
-						box-shadow: 0 0 2px 1px rgba(0, 0, 0, 0.6);
 					}
 					i {
 						display: block;

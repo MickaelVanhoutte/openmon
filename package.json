@@ -21,6 +21,7 @@
     "@xyflow/svelte": "^0.0.41",
     "dependency-cruiser": "^16.2.3",
     "graphviz": "^0.0.9",
+    "image-size": "^1.1.1",
     "node-graphviz": "^0.1.1",
     "sass": "^1.69.5",
     "svelte": "^4.2.8",

@@ -475,7 +475,6 @@
 
 				._desc {
 					font-size: 22px;
-					height: 50%;
 					padding: 4%;
 				}
 			}
