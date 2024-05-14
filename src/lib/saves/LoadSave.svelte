@@ -8,6 +8,8 @@
 
 	export let savesHolder: SavesHolder;
 	let selected: SaveContext;
+	let sound: Howl;
+	let soundPlaying: boolean;
 
 	function handleSubmit(save: SaveContext) {
 		savesHolder.selectSave(savesHolder.saves.indexOf(save));
@@ -36,10 +38,27 @@
 		}
 	};
 
+	function loadSound() {
+		sound = new Howl({
+			src: ['src/assets/audio/save.mp3'],
+			autoplay: true,
+			loop: true,
+			volume: 0.5
+		});
+		setTimeout(() => {
+			soundPlaying = sound.playing();
+		}, 200);
+		console.log(sound);
+	}
+
 	onMount(() => {
+		loadSound();
 		selected = savesHolder.saves[0] || null;
 		window.addEventListener('keydown', listener);
-		return () => window.removeEventListener('keydown', listener);
+		return () => {
+			window.removeEventListener('keydown', listener);
+			sound.stop();
+		};
 	});
 </script>
 

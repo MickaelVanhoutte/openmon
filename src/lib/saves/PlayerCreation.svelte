@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { SavesHolder } from '../../js/context/savesHolder';
 
 	/**
@@ -10,10 +11,32 @@
 	let playerClasses = ['conqueror'];
 	let selected = playerClasses[0];
 	export let savesHolder: SavesHolder;
+	let sound: Howl;
+	let soundPlaying: boolean;
+
+	function loadSound() {
+		sound = new Howl({
+			src: ['src/assets/audio/save.mp3'],
+			autoplay: true,
+			loop: true,
+			volume: 0.5
+		});
+		setTimeout(() => {
+			soundPlaying = sound.playing();
+		}, 200);
+		console.log(sound);
+	}
 
 	function handleSubmit() {
 		savesHolder.newGame(1, playerName, 'MALE');
 	}
+
+	onMount(() => {
+		loadSound();
+		return () => {
+			sound.stop();
+		};
+	});
 </script>
 
 <div class="create">
