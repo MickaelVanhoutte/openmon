@@ -4,7 +4,10 @@
 
 	export let started: boolean;
 	let intro: HTMLDivElement;
-	let pkmnListShuffled: number[] = fisherYates(Array.from({ length: 233 }, (_, i) => i)).slice(0, 35);
+	let pkmnListShuffled: number[] = fisherYates(Array.from({ length: 233 }, (_, i) => i)).slice(
+		0,
+		35
+	);
 
 	let ready = false;
 
@@ -25,7 +28,7 @@
 		//playAnimation();
 		setTimeout(() => {
 			ready = true;
-		}, 8000);
+		}, 10000);
 		intro.addEventListener('click', () => {
 			if (ready) started = true;
 		});
@@ -33,13 +36,13 @@
 </script>
 
 <div class="intro" bind:this={intro}>
-	{#each Array.from({ length: 10 }) as i}
+	{#each Array.from({ length: 8 }) as i}
 		<div class="firefly"></div>
 	{/each}
 
 	<img class="logo" src="src/assets/menus/pokemon-logo.png" alt="pokemon logo" />
 	<h3 class="animate-charcter title">UNISON</h3>
-	<!-- <img class="combo" src="src/assets/menus/combo.svg" alt="gimmick logo" /> -->
+	<img class="combo" src="src/assets/menus/combo.svg" alt="gimmick logo" />
 	<img class="darkrai" src="src/assets/darkrai.png" alt="darkrai" />
 	<img class="diancie" src="src/assets/diancie.png" alt="diancie" />
 	<span class="touch">Touch to start</span>
@@ -144,61 +147,59 @@
 	@keyframes fadeIn {
 		0% {
 			opacity: 0;
-      transform:  scale(.3) translateX(-85%) translateY(0);
+			transform: scale(0.3) translateX(-85%) translateY(0);
 		}
 		100% {
 			opacity: 1;
-      transform:  scale(1) translateX(-50%) translateY(-15%);
+			transform: scale(1) translateX(-50%) translateY(-15%);
 		}
 	}
 
-  @keyframes fromRight {
-    0% {
-      transform: translateX(100%) rotate(-15deg) scale(.55);
-      opacity: 0;
-    }
-    50% {
-      transform: translateX(60%) rotate(5deg) scale(.75);
-    }
-    100% {
-      transform: translateX(1%) rotate(-15deg) scale(1);
-      opacity: 0.55;
-    }
-  }
+	@keyframes fromRight {
+		0% {
+			transform: translateX(100%) rotate(-15deg) scale(0.55);
+			opacity: 0;
+		}
+		50% {
+			transform: translateX(60%) rotate(5deg) scale(0.75);
+		}
+		100% {
+			transform: translateX(1%) rotate(-15deg) scale(1);
+			opacity: 0.55;
+		}
+	}
 
-  @keyframes fromLeft {
-    0% {
-      transform: translateX(-100%) rotate(15deg) scale(.55);
-      opacity: 0;
-    }
-    50% {
-      transform: translateX(-60%) rotate(-5deg) scale(.75);
-    }
-    100% {
-      transform: translateX(-1%) rotate(15deg) scale(1);
-      opacity: 0.55;
-    }
-  }
+	@keyframes fromLeft {
+		0% {
+			transform: translateX(-100%) rotate(15deg) scale(0.55);
+			opacity: 0;
+		}
+		50% {
+			transform: translateX(-60%) rotate(-5deg) scale(0.75);
+		}
+		100% {
+			transform: translateX(-1%) rotate(15deg) scale(1);
+			opacity: 0.55;
+		}
+	}
 
-  @keyframes minimize {
-    0% {
-      transform: scale(1) translateX(-50%) translateY(0);
-    }
-    100% {
-      transform:  scale(.5) translateX(-100%) translateY(-45%);
-    }
-  }
+	@keyframes minimize {
+		0% {
+			transform: scale(1) translateX(-50%) translateY(0);
+		}
+		100% {
+			transform: scale(0.5) translateX(-100%) translateY(-45%);
+		}
+	}
 
-  @keyframes shadow {
-    0% {
-      filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 3px #4444dd)
-        drop-shadow(0 0 5px #4444dd);
-    }
-    100% {
-      filter: drop-shadow(0 0 5px #fff) drop-shadow(0 0 6px #4444dd)
-        drop-shadow(0 0 10px #4444dd);
-    }
-  }
+	@keyframes shadow {
+		0% {
+			filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 3px #4444dd) drop-shadow(0 0 5px #4444dd);
+		}
+		100% {
+			filter: drop-shadow(0 0 5px #fff) drop-shadow(0 0 6px #4444dd) drop-shadow(0 0 10px #4444dd);
+		}
+	}
 
 	.intro {
 		display: flex;
@@ -211,36 +212,37 @@
 		top: 0;
 		left: 0;
 		z-index: 100;
+		overflow: hidden;
 
 		.darkrai {
-      will-change: transform, opacity, drop-shadow;
+			will-change: transform, opacity, filter;
 			position: absolute;
 			bottom: 22%;
 			left: 3%;
 			width: 100%;
 			max-width: 24dvw;
 			opacity: 0;
-			animation: fromLeft 8s ease-in-out forwards,
-                 shadow 3s ease-in-out infinite alternate;
+			animation:
+				fromLeft 6s ease-in-out forwards,
+				shadow 2s ease-in-out infinite alternate;
 			animation-delay: 6s;
-			z-index: 99;
-      filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 3px #4444dd)
-        drop-shadow(0 0 5px #4444dd);
+			z-index: 96;
+			filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 3px #4444dd) drop-shadow(0 0 5px #4444dd);
 		}
 		.diancie {
-      will-change: transform, opacity, drop-shadow;
+			will-change: transform, opacity, filter;
 			position: absolute;
 			bottom: 22%;
 			right: 3%;
 			width: 100%;
 			max-width: 24dvw;
 			opacity: 0;
-			animation: fromRight 8s ease-in-out forwards,
-                 shadow 3s ease-in-out infinite alternate;
+			animation:
+				fromRight 6s ease-in-out forwards,
+				shadow 2s linear infinite alternate;
 			animation-delay: 6s;
-			z-index: 99;
-      filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 3px #4444dd)
-        drop-shadow(0 0 5px #4444dd);
+			z-index: 96;
+			filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 3px #4444dd) drop-shadow(0 0 5px #4444dd);
 		}
 
 		.logo {
@@ -252,8 +254,9 @@
 			z-index: 98;
 			width: 60%;
 			height: auto;
-			animation: bounce-7 3.5s cubic-bezier(0.28, 0.84, 0.42, 1) forwards,
-                 minimize 3.5s ease-in-out forwards;
+			animation:
+				bounce-7 3.5s cubic-bezier(0.28, 0.84, 0.42, 1) forwards,
+				minimize 3.5s linear forwards;
 			animation-delay: 3s, 6.5s;
 			will-change: transform;
 		}
@@ -274,15 +277,15 @@
 
 		.combo {
 			position: absolute;
-			top: 32.6%;
-			left: 72%;
+			top: 44%;
+			left: 67%;
 			transform: translateX(-50%);
 			z-index: 99;
-			height: 40%;
+			height: 35%;
 			width: auto;
 			opacity: 0;
 			animation: fadeIn 3s ease-in-out forwards;
-			animation-delay: 7s;
+			animation-delay: 10s;
 			will-change: opacity;
 		}
 
@@ -307,7 +310,7 @@
 				fadeIn 2s ease-in-out forwards,
 				textclip 4s linear forwards;
 			//svg-shadow 3s ease-in-out infinite alternate;
-			animation-delay: 8s,8s;
+			animation-delay: 8s, 12s;
 			display: inline-block;
 			font-weight: 900;
 			will-change: filter, background-position, opacity;
@@ -370,7 +373,7 @@
 					&.move {
 						will-change: transform, opacity;
 					}
-          // &:after {
+					// &:after {
 					// 	content: '';
 					// 	width: 80%;
 					// 	height: 2px;
@@ -408,7 +411,7 @@
 				font-size: clamp(60px, 160px, 30dvh);
 			}
 			.combo {
-				top: 30%;
+				top: 45%;
 				left: 69%;
 				height: 40%;
 			}
