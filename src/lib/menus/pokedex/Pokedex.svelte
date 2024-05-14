@@ -89,7 +89,7 @@
 </script>
 
 <div class="pokedex">
-	<!-- <div class="row head">
+	<div class="row head">
 		<div class="col-2 back">
 			<button on:click={() => context.overWorldContext.closeMenu(MenuType.POKEDEX)}>
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
@@ -120,9 +120,9 @@
 				on:input={search}
 			/>
 		</div>
-	</div> -->
+	</div>
 	<div class="row content">
-		<!-- <div class="col-6 preview">
+		<div class="col-6 preview">
 			<div class="image">
 				{#if selectedPokemon?.id}
 					<img
@@ -140,9 +140,8 @@
 					{selectedPokemon?.name ? '- ' + selectedPokemon?.name : ''}
 				</span>
 			</div>
-		</div> -->
-
-		<!-- <div class="col-6 list" bind:this={wrapper}>
+		</div>
+		 <div class="col-6 list" bind:this={wrapper}>
 			{#each filtered as pokemon, index}
 				<div
 					class:selected={selectedPokemon?.id === pokemon.id}
@@ -165,9 +164,9 @@
 					</button>
 				</div>
 			{/each}
-		</div> -->
+		</div>
 
-		<div style="display: flex; flex-wrap: wrap;overflow-y: scroll;overflow-x: hidden;height: 100dvh;">
+		<!-- <div style="display: flex; flex-wrap: wrap;overflow-y: scroll;overflow-x: hidden;height: 100dvh;">
 			{#each filtered as pokemon}
 				<div style="position:relative; width: calc(100% / 9); overflow:hidden; box-sizing:border-box; height: auto; border: 1px solid black;
 				background: linear-gradient(
@@ -179,23 +178,23 @@
   );">
 					<img
 						style="width: 100%; opacity: 0" 
-						src={`src/assets/monsters/pokedex/${('00' + pokemon?.id).slice(-3)}.png`}
+						src={`src/assets/monsters/pokedex/${('00' + pokemon?.id).slice(-3)}s.png`}
 					/>
 
 					<img
 						style="width: 50%; position: absolute; top: 0; left: 0; filter: brightness(1); opacity: .8;"
-						src={`src/assets/monsters/walking/${('00' + pokemon?.id).slice(-3)}.png`}
+						src={`src/assets/monsters/walking/${('00' + pokemon?.id).slice(-3)}s.png`}
 					/>
 
 					<img
 						style="max-width: 80%; height:auto; position: absolute; top: 50%; left: 66%; transform:translate(-50%, -50%); filter: brightness(1);"
-						src={`src/assets/monsters/animated/${('00' + pokemon?.id).slice(-3)}.gif`}
+						src={`src/assets/monsters/animated/${('00' + pokemon?.id).slice(-3)}s.gif`}
 					/>
 					<span style="position: absolute; bottom:4px; left: 50%;
 					transform: translate(-50%, 0%); font-size:12px; color: black">{pokemon.regionalId} {pokemon.id}</span>
 				</div>
 			{/each}
-		</div>
+		</div> -->
 	</div>
 </div>
 

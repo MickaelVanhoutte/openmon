@@ -4,10 +4,7 @@
 
 	export let started: boolean;
 	let intro: HTMLDivElement;
-	let pkmnListShuffled: number[] = fisherYates(Array.from({ length: 233 }, (_, i) => i)).slice(0, 50);
-  //let pkmnListShuffled: number[] = Array.from({ length: 233 }, (_, i) => i).slice(127,233);
-
-
+	let pkmnListShuffled: number[] = fisherYates(Array.from({ length: 233 }, (_, i) => i)).slice(0, 35);
 
 	let ready = false;
 
@@ -36,21 +33,25 @@
 </script>
 
 <div class="intro" bind:this={intro}>
-	{#each Array.from({ length: 15 }) as i}
+	{#each Array.from({ length: 10 }) as i}
 		<div class="firefly"></div>
 	{/each}
 
 	<img class="logo" src="src/assets/menus/pokemon-logo.png" alt="pokemon logo" />
 	<h3 class="animate-charcter title">UNISON</h3>
-	<img class="combo" src="src/assets/menus/combo.svg" alt="gimmick logo" />
-
+	<!-- <img class="combo" src="src/assets/menus/combo.svg" alt="gimmick logo" /> -->
+	<img class="darkrai" src="src/assets/darkrai.png" alt="darkrai" />
+	<img class="diancie" src="src/assets/diancie.png" alt="diancie" />
 	<span class="touch">Touch to start</span>
 
 	<div class="horde">
 		{#each pkmnListShuffled as i, index}
 			<i
 				class="sprite pokemon move"
-				style="animation: poke-move {Math.random() * (20 - 13 + 1) + 13}s linear forwards;-webkit-animation-delay: {(index * 2 + Math.random() * 2).toFixed(3)}s; z-index: {i};"
+				style="animation: poke-move {Math.random() * (20 - 13 + 1) +
+					13}s linear forwards;-webkit-animation-delay: {(index * 2 + Math.random() * 2).toFixed(
+					3
+				)}s; z-index: {i};"
 			>
 				<i
 					style="will-change: background-position; animation: anim-sprite 0.5s infinite steps(1); background: url('src/assets/monsters/walking/{(
@@ -124,7 +125,7 @@
 			transform: scale(1.1, 0.9) translateY(0) translateX(-50%);
 		}
 		30% {
-			transform: scale(0.9, 1.1) translateY(-20px) translateX(-50%);
+			transform: scale(0.9, 1.1) translateY(0px) translateX(-50%);
 		}
 		50% {
 			transform: scale(1.05, 0.95) translateY(0) translateX(-50%);
@@ -143,20 +144,61 @@
 	@keyframes fadeIn {
 		0% {
 			opacity: 0;
+      transform:  scale(.3) translateX(-85%) translateY(0);
 		}
 		100% {
 			opacity: 1;
+      transform:  scale(1) translateX(-50%) translateY(-15%);
 		}
 	}
 
-	@keyframes fadeIn2 {
-		0% {
-			opacity: 0;
-		}
-		100% {
-			opacity: 0.5;
-		}
-	}
+  @keyframes fromRight {
+    0% {
+      transform: translateX(100%) rotate(-15deg) scale(.55);
+      opacity: 0;
+    }
+    50% {
+      transform: translateX(60%) rotate(5deg) scale(.75);
+    }
+    100% {
+      transform: translateX(1%) rotate(-15deg) scale(1);
+      opacity: 0.55;
+    }
+  }
+
+  @keyframes fromLeft {
+    0% {
+      transform: translateX(-100%) rotate(15deg) scale(.55);
+      opacity: 0;
+    }
+    50% {
+      transform: translateX(-60%) rotate(-5deg) scale(.75);
+    }
+    100% {
+      transform: translateX(-1%) rotate(15deg) scale(1);
+      opacity: 0.55;
+    }
+  }
+
+  @keyframes minimize {
+    0% {
+      transform: scale(1) translateX(-50%) translateY(0);
+    }
+    100% {
+      transform:  scale(.5) translateX(-100%) translateY(-45%);
+    }
+  }
+
+  @keyframes shadow {
+    0% {
+      filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 3px #4444dd)
+        drop-shadow(0 0 5px #4444dd);
+    }
+    100% {
+      filter: drop-shadow(0 0 5px #fff) drop-shadow(0 0 6px #4444dd)
+        drop-shadow(0 0 10px #4444dd);
+    }
+  }
 
 	.intro {
 		display: flex;
@@ -170,6 +212,37 @@
 		left: 0;
 		z-index: 100;
 
+		.darkrai {
+      will-change: transform, opacity, drop-shadow;
+			position: absolute;
+			bottom: 22%;
+			left: 3%;
+			width: 100%;
+			max-width: 24dvw;
+			opacity: 0;
+			animation: fromLeft 8s ease-in-out forwards,
+                 shadow 3s ease-in-out infinite alternate;
+			animation-delay: 6s;
+			z-index: 99;
+      filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 3px #4444dd)
+        drop-shadow(0 0 5px #4444dd);
+		}
+		.diancie {
+      will-change: transform, opacity, drop-shadow;
+			position: absolute;
+			bottom: 22%;
+			right: 3%;
+			width: 100%;
+			max-width: 24dvw;
+			opacity: 0;
+			animation: fromRight 8s ease-in-out forwards,
+                 shadow 3s ease-in-out infinite alternate;
+			animation-delay: 6s;
+			z-index: 99;
+      filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 3px #4444dd)
+        drop-shadow(0 0 5px #4444dd);
+		}
+
 		.logo {
 			position: absolute;
 			top: 3%;
@@ -179,21 +252,22 @@
 			z-index: 98;
 			width: 60%;
 			height: auto;
-			animation: bounce-7 3.5s cubic-bezier(0.28, 0.84, 0.42, 1) forwards;
-			animation-delay: 3s;
+			animation: bounce-7 3.5s cubic-bezier(0.28, 0.84, 0.42, 1) forwards,
+                 minimize 3.5s ease-in-out forwards;
+			animation-delay: 3s, 6.5s;
 			will-change: transform;
 		}
 
 		.title {
 			position: absolute;
 			top: 38%;
-			left: 47%;
-			transform: translateX(-47%);
+			left: 50%;
+			transform: translateX(-50%);
 			z-index: 100;
-			width: 100%;
+			// width: 100%;
 			text-align: center;
 			margin: 0;
-			font-size: clamp(120px, 240px, 36dvh);
+			font-size: clamp(120px, 240px, 32dvh);
 			opacity: 0;
 			//animation: fadeIn 2s ease-in-out forwards;
 		}
@@ -207,7 +281,7 @@
 			height: 40%;
 			width: auto;
 			opacity: 0;
-			animation: fadeIn2 3s ease-in-out forwards;
+			animation: fadeIn 3s ease-in-out forwards;
 			animation-delay: 7s;
 			will-change: opacity;
 		}
@@ -231,24 +305,12 @@
 			-webkit-text-fill-color: transparent;
 			animation:
 				fadeIn 2s ease-in-out forwards,
-				textclip 4s linear infinite;
+				textclip 4s linear forwards;
 			//svg-shadow 3s ease-in-out infinite alternate;
-			animation-delay: 5s;
+			animation-delay: 8s,8s;
 			display: inline-block;
 			font-weight: 900;
 			will-change: filter, background-position, opacity;
-		}
-
-		@keyframes svg-shadow {
-			from {
-				filter: drop-shadow(0 0 5px #fff) drop-shadow(0 0 10px #e6007f4b)
-					drop-shadow(0 0 20px #e6007f4b);
-			}
-
-			to {
-				filter: drop-shadow(0 0 40px #fff) drop-shadow(0 0 15px #e6007f4b)
-					drop-shadow(0 0 60px #e6007f4b);
-			}
 		}
 
 		@keyframes textclip {
@@ -268,7 +330,7 @@
 			z-index: 120;
 			opacity: 0;
 			animation: blink 8s ease-in-out infinite;
-			animation-delay: 7s;
+			animation-delay: 10s;
 		}
 
 		.horde {
@@ -299,16 +361,28 @@
 
 			.sprite {
 				position: absolute;
-				bottom: 14%;
+				bottom: 6%;
 				left: 0%;
 				opacity: 0;
-				
 
 				&.pokemon {
 					margin-bottom: -3px;
 					&.move {
-            will-change: transform, opacity;
+						will-change: transform, opacity;
 					}
+          // &:after {
+					// 	content: '';
+					// 	width: 80%;
+					// 	height: 2px;
+					// 	position: absolute;
+					// 	z-index: -1;
+					// 	border-radius: 50%;
+					// 	margin-left: -40%;
+					// 	bottom: -22%;
+					// 	left: 40%;
+					// 	background: rgba(0, 0, 0, 0.5);
+					// 	box-shadow: 0 0 2px 1px rgba(0, 0, 0, 0.6);
+					// }
 					i {
 						display: block;
 						width: 64px;
