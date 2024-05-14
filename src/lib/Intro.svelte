@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { gsap } from 'gsap';
+
 
 	export let started: boolean;
 	let intro: HTMLDivElement;
@@ -25,13 +25,20 @@
 	}
 
 	onMount(() => {
-		//playAnimation();
+		let audio = new Audio('src/assets/audio/intro.mp3');
+    audio.volume = 0.5;
+    audio.play();
+    console.log(audio);
 		setTimeout(() => {
 			ready = true;
 		}, 10000);
 		intro.addEventListener('click', () => {
 			if (ready) started = true;
 		});
+
+    return () => {
+      audio.pause();
+    }
 	});
 </script>
 
@@ -41,8 +48,28 @@
 	{/each}
 
 	<img class="logo" src="src/assets/menus/pokemon-logo.png" alt="pokemon logo" />
+
+	<div class="links">
+		<a href="https://www.tiktok.com/@azkaiser" target="_blank" class="tiktok">
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+				><path
+					d="M16 8.24537V15.5C16 19.0899 13.0899 22 9.5 22C5.91015 22 3 19.0899 3 15.5C3 11.9101 5.91015 9 9.5 9C10.0163 9 10.5185 9.06019 11 9.17393V12.3368C10.5454 12.1208 10.0368 12 9.5 12C7.567 12 6 13.567 6 15.5C6 17.433 7.567 19 9.5 19C11.433 19 13 17.433 13 15.5V2H16C16 4.76142 18.2386 7 21 7V10C19.1081 10 17.3696 9.34328 16 8.24537Z"
+				></path></svg
+			>
+			<span>@Azkaiser</span>
+		</a>
+		<a href="https://github.com/MickaelVanhoutte/openmon" target="_blank" class="github">
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+				><path
+					d="M12.001 2C6.47598 2 2.00098 6.475 2.00098 12C2.00098 16.425 4.86348 20.1625 8.83848 21.4875C9.33848 21.575 9.52598 21.275 9.52598 21.0125C9.52598 20.775 9.51348 19.9875 9.51348 19.15C7.00098 19.6125 6.35098 18.5375 6.15098 17.975C6.03848 17.6875 5.55098 16.8 5.12598 16.5625C4.77598 16.375 4.27598 15.9125 5.11348 15.9C5.90098 15.8875 6.46348 16.625 6.65098 16.925C7.55098 18.4375 8.98848 18.0125 9.56348 17.75C9.65098 17.1 9.91348 16.6625 10.201 16.4125C7.97598 16.1625 5.65098 15.3 5.65098 11.475C5.65098 10.3875 6.03848 9.4875 6.67598 8.7875C6.57598 8.5375 6.22598 7.5125 6.77598 6.1375C6.77598 6.1375 7.61348 5.875 9.52598 7.1625C10.326 6.9375 11.176 6.825 12.026 6.825C12.876 6.825 13.726 6.9375 14.526 7.1625C16.4385 5.8625 17.276 6.1375 17.276 6.1375C17.826 7.5125 17.476 8.5375 17.376 8.7875C18.0135 9.4875 18.401 10.375 18.401 11.475C18.401 15.3125 16.0635 16.1625 13.8385 16.4125C14.201 16.725 14.5135 17.325 14.5135 18.2625C14.5135 19.6 14.501 20.675 14.501 21.0125C14.501 21.275 14.6885 21.5875 15.1885 21.4875C19.259 20.1133 21.9999 16.2963 22.001 12C22.001 6.475 17.526 2 12.001 2Z"
+				></path></svg
+			>
+			<span>@openmon</span>
+		</a>
+	</div>
+
 	<h3 class="animate-charcter title">UNISON</h3>
-	<img class="combo" src="src/assets/menus/combo.svg" alt="gimmick logo" />
+	<!-- <img class="combo" src="src/assets/menus/combo.svg" alt="gimmick logo" /> -->
 	<img class="darkrai" src="src/assets/darkrai.png" alt="darkrai" />
 	<img class="diancie" src="src/assets/diancie.png" alt="diancie" />
 	<span class="touch">Touch to start</span>
@@ -156,48 +183,40 @@
 	}
 
 	@keyframes fromRight {
-		0% {
-			transform: translateX(100%) rotate(-15deg) scale(0.55);
-			opacity: 0;
-		}
-		50% {
-			transform: translateX(60%) rotate(5deg) scale(0.75);
-		}
-		100% {
-			transform: translateX(1%) rotate(-15deg) scale(1);
-			opacity: 0.55;
+		to {
+			transform: translateX(1%) rotate(-15deg) scale(1) rotateY(10deg);
+			opacity: 0.95;
 		}
 	}
 
 	@keyframes fromLeft {
-		0% {
-			transform: translateX(-100%) rotate(15deg) scale(0.55);
-			opacity: 0;
-		}
-		50% {
-			transform: translateX(-60%) rotate(-5deg) scale(0.75);
-		}
-		100% {
-			transform: translateX(-1%) rotate(15deg) scale(1);
-			opacity: 0.55;
+		to {
+			transform: translateX(-1%) rotate(15deg) scale(1) rotateY(-10deg);
+			opacity: 0.85;
 		}
 	}
 
 	@keyframes minimize {
-		0% {
-			transform: scale(1) translateX(-50%) translateY(0);
-		}
-		100% {
+		to {
 			transform: scale(0.5) translateX(-100%) translateY(-45%);
 		}
 	}
 
-	@keyframes shadow {
+	@keyframes shadow1 {
 		0% {
 			filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 3px #4444dd) drop-shadow(0 0 5px #4444dd);
 		}
 		100% {
 			filter: drop-shadow(0 0 5px #fff) drop-shadow(0 0 6px #4444dd) drop-shadow(0 0 10px #4444dd);
+		}
+	}
+
+	@keyframes shadow2 {
+		0% {
+			filter: drop-shadow(0 0 4px #000) drop-shadow(0 0 3px #7f7fef) drop-shadow(0 0 5px #a8a8ec);
+		}
+		100% {
+			filter: drop-shadow(0 0 7px #000) drop-shadow(0 0 6px #7f7fef) drop-shadow(0 0 10px #a8a8ec);
 		}
 	}
 
@@ -213,6 +232,32 @@
 		left: 0;
 		z-index: 100;
 		overflow: hidden;
+		perspective: 100dvw;
+
+		.links {
+			position: absolute;
+			top: 3%;
+			right: 3%;
+			z-index: 100;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			justify-content: space-around;
+			width: 200px;
+
+			a {
+				width: 32px;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				font-size: 26px;
+				color: white;
+				opacity: 0.6;
+				&:hover {
+					opacity: 1;
+				}
+			}
+		}
 
 		.darkrai {
 			will-change: transform, opacity, filter;
@@ -222,12 +267,12 @@
 			width: 100%;
 			max-width: 24dvw;
 			opacity: 0;
+			transform: translateX(-100%) rotate(15deg) scale(0.55) rotateY(0);
 			animation:
 				fromLeft 6s ease-in-out forwards,
-				shadow 2s ease-in-out infinite alternate;
+				shadow1 3s ease-in-out infinite alternate;
 			animation-delay: 6s;
 			z-index: 96;
-			filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 3px #4444dd) drop-shadow(0 0 5px #4444dd);
 		}
 		.diancie {
 			will-change: transform, opacity, filter;
@@ -237,15 +282,16 @@
 			width: 100%;
 			max-width: 24dvw;
 			opacity: 0;
+			transform: translateX(100%) rotate(-15deg) scale(0.55) rotateY(0);
 			animation:
 				fromRight 6s ease-in-out forwards,
-				shadow 2s linear infinite alternate;
+				shadow2 3s ease-in-out infinite alternate;
 			animation-delay: 6s;
 			z-index: 96;
-			filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 3px #4444dd) drop-shadow(0 0 5px #4444dd);
 		}
 
 		.logo {
+			will-change: transform;
 			position: absolute;
 			top: 3%;
 			left: 50%;
@@ -256,9 +302,8 @@
 			height: auto;
 			animation:
 				bounce-7 3.5s cubic-bezier(0.28, 0.84, 0.42, 1) forwards,
-				minimize 3.5s linear forwards;
+				minimize 1.5s linear forwards;
 			animation-delay: 3s, 6.5s;
-			will-change: transform;
 		}
 
 		.title {
@@ -267,15 +312,14 @@
 			left: 50%;
 			transform: translateX(-50%);
 			z-index: 100;
-			// width: 100%;
 			text-align: center;
 			margin: 0;
 			font-size: clamp(120px, 240px, 32dvh);
 			opacity: 0;
-			//animation: fadeIn 2s ease-in-out forwards;
 		}
 
 		.combo {
+			will-change: opacity;
 			position: absolute;
 			top: 44%;
 			left: 67%;
@@ -286,10 +330,10 @@
 			opacity: 0;
 			animation: fadeIn 3s ease-in-out forwards;
 			animation-delay: 10s;
-			will-change: opacity;
 		}
 
 		.animate-charcter {
+			will-change: filter, background-position, opacity;
 			text-transform: uppercase;
 			background-image: linear-gradient(
 				-225deg,
@@ -309,16 +353,15 @@
 			animation:
 				fadeIn 2s ease-in-out forwards,
 				textclip 4s linear forwards;
-			//svg-shadow 3s ease-in-out infinite alternate;
 			animation-delay: 8s, 12s;
 			display: inline-block;
 			font-weight: 900;
-			will-change: filter, background-position, opacity;
 		}
 
 		@keyframes textclip {
 			to {
 				background-position: 200% center;
+				//filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 1px #000);
 			}
 		}
 
@@ -402,6 +445,9 @@
 
 	@media (max-width: 768px) {
 		.intro {
+			.links a {
+				font-size: 16px;
+			}
 			.logo {
 				top: 5%;
 				width: 55%;
