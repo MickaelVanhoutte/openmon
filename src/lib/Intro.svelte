@@ -526,8 +526,12 @@
 				font-size: 2.5rem;
 			}
 			.horde {
-				.sprite {
+				.sprite.pokemon {
 					bottom: 10%;
+
+          i {
+            scale: .8;
+          }
 				}
 			}
 		}
