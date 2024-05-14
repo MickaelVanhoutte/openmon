@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { Howl } from 'howler';
-  import { fade } from 'svelte/transition';
+	import { fade } from 'svelte/transition';
 
 	export let started: boolean;
 	let intro: HTMLDivElement;
@@ -503,11 +503,13 @@
 		}
 	}
 
-
 	@media (max-width: 968px) {
 		.intro {
-			.links a {
-				font-size: 16px;
+			.links {
+        width: 120px;
+				a {
+					font-size: 16px;
+				}
 			}
 			.logo {
 				top: 5%;
@@ -523,16 +525,16 @@
 				height: 40%;
 			}
 			.touch {
-				bottom: 30%;
+				bottom: 33%;
 				font-size: 2.5rem;
 			}
 			.horde {
 				.sprite.pokemon {
-					bottom: 12%;
+					bottom: 15%;
 
-          i {
-            scale: .8;
-          }
+					i {
+						scale: 0.8;
+					}
 				}
 			}
 		}
