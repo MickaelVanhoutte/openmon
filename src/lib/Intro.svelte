@@ -503,7 +503,7 @@
 		}
 	}
 
-  
+
 	@media (max-width: 968px) {
 		.intro {
 			.links a {
@@ -528,7 +528,7 @@
 			}
 			.horde {
 				.sprite.pokemon {
-					bottom: 10%;
+					bottom: 12%;
 
           i {
             scale: .8;
