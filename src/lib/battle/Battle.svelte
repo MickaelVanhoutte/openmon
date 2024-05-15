@@ -227,7 +227,7 @@
 
 	function loadSound() {
 		sound = new Howl({
-			src: ['src/assets/audio/battle/battle1.mp3'],
+			src: ['src/assets/audio/battle/battle2.mp3'],
 			autoplay: true,
 			loop: true,
 			volume: 0.5
