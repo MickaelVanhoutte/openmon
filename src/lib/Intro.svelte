@@ -55,7 +55,7 @@
 		loadSound();
 		setTimeout(() => {
 			ready = true;
-		}, 10000);
+		}, 9000);
 		horde.addEventListener('click', () => {
 			if (ready) started = true;
 		});
