@@ -530,7 +530,8 @@
 			}
 			.horde {
 				.sprite.pokemon {
-					bottom: 15%;
+					bottom: 0;
+          top: calc(100dvh - 80px);
 
 					i {
 						scale: 0.8;
