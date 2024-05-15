@@ -34,7 +34,10 @@
 	onMount(() => {
 		loadSound();
 		return () => {
-			sound.stop();
+			sound.fade(0.5, 0, 1000);
+			setTimeout(() => {
+				sound.stop();
+			}, 1000);
 		};
 	});
 </script>
