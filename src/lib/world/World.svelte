@@ -22,6 +22,8 @@
 	let wrapper: HTMLDivElement;
 	let canvasWidth: number;
 	let canvasCtx: CanvasRenderingContext2D;
+	let sound: Howl;
+	let soundPlaying: boolean;
 
 	/*
     Scripts
@@ -145,15 +147,33 @@
 		// }
 	}
 
+	function loadSound() {
+		sound = new Howl({
+			src: ['src/assets/audio/beach.mp3'],
+			autoplay: true,
+			loop: true,
+			volume: 0.5
+		});
+		setTimeout(() => {
+			soundPlaying = sound.playing();
+		}, 200);
+		console.log(sound);
+	}
+
 	onMount(() => {
 		//@ts-ignore
 		canvasCtx = canvas.getContext('2d');
 		canvasWidth = Math.min(window.innerWidth, canvas.width);
 		initContext();
+		loadSound();
 
 		return () => {
 			canvasCtx?.clearRect(0, 0, canvas.width, canvas.height);
 			window.cancelAnimationFrame(overWorldCtx.frames.frameId);
+			sound.fade(0.5, 0, 1000);
+			setTimeout(() => {
+				sound.stop();
+			}, 1000);
 		};
 	});
 </script>

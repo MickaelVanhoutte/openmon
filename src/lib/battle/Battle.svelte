@@ -51,6 +51,8 @@
 
 	let ally: HTMLImageElement;
 	let opponent: HTMLImageElement;
+	let sound: Howl;
+	let soundPlaying: boolean;
 
 	battleCtx.events.playerPokemonFaint.subscribe((value) => {
 		if (value && ally) {
@@ -223,6 +225,19 @@
 		}, 200);
 	}
 
+	function loadSound() {
+		sound = new Howl({
+			src: ['src/assets/audio/battle/battle1.mp3'],
+			autoplay: true,
+			loop: true,
+			volume: 0.5
+		});
+		setTimeout(() => {
+			soundPlaying = sound.playing();
+		}, 200);
+		console.log(sound);
+	}
+
 	onMount(() => {
 		// set events
 		battleCtx.events.pokemonChange.subscribe((owner) => {
@@ -240,6 +255,7 @@
 		});
 
 		draw();
+		loadSound();
 
 		window.addEventListener('keydown', (e) => {
 			if (e.key === 'x') {
@@ -249,6 +265,10 @@
 
 		return () => {
 			clearInterval(drawInterval);
+			sound.fade(0.5, 0, 1000);
+			setTimeout(() => {
+				sound.stop();
+			}, 1000);
 		};
 	});
 </script>

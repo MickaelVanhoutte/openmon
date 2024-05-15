@@ -57,7 +57,10 @@
 		window.addEventListener('keydown', listener);
 		return () => {
 			window.removeEventListener('keydown', listener);
-			sound.stop();
+			sound.fade(0.5, 0, 1000);
+			setTimeout(() => {
+				sound.stop();
+			}, 1000);
 		};
 	});
 </script>
