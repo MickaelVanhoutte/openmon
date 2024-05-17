@@ -1,1 +1,1 @@
-{"name":"vite-project","short_name":"vite-project","start_url":"./","display":"standalone","background_color":"#ffffff","lang":"en","scope":"./"}
+{"name":"Pokemon Unison","short_name":"Unison","start_url":"./","display":"standalone","background_color":"#ffffff","lang":"en","scope":"./","description":"Pokemon Unison, fan made in svelte","theme_color":"#000000","icons":[{"src":"openmon.png","sizes":"360x360","type":"image/png"}]}
