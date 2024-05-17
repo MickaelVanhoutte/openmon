@@ -29,7 +29,21 @@ export default defineConfig({
 		},
 	},
   plugins: [
-	VitePWA({ registerType: 'autoUpdate' }),
+	VitePWA({ registerType: 'autoUpdate',
+	manifest: {
+        name: 'Pokemon Unison',
+        short_name: 'Unison',
+        description: 'Pokemon Unison, fan made in svelte',
+        theme_color: '#000000',
+        icons: [
+          {
+            src: 'openmon.png',
+            sizes: '360x360',
+            type: 'image/png'
+          }
+        ]
+      }
+	 }),
     typescript(),
 		esbuildDecorators({
 				tsconfig: "./tsconfig.json",
