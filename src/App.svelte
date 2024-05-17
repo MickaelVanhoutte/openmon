@@ -37,16 +37,26 @@
 			battleCtx = value;
 		});
 	}
-
+	let sound: Howl = new Howl({
+		src: ['src/assets/audio/battle/battle-start.mp3'],
+		autoplay: false,
+		loop: true,
+		volume: 0.7
+	});
 	let battleStarting = false;
 	let battleEnding = false;
 	$: if (battleCtx) {
 		battleCtx.events.starting.subscribe((value) => {
 			if (value) {
 				battleStarting = value;
+				if (!sound.playing()) {
+					sound.play();
+				}
 				setTimeout(() => {
+					sound.fade(0.5, 0, 500);
 					battleCtx?.events?.starting?.set(false);
 					battleStarting = false;
+					sound.stop();
 				}, 2000);
 			}
 		});

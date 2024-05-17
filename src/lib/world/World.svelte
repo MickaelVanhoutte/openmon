@@ -8,6 +8,7 @@
 	import { SavesHolder } from '../../js/context/savesHolder';
 	import ScenesView from './ScenesView.svelte';
 	import Controls from './Controls.svelte';
+	import type { BattleContext } from '../../js/context/battleContext';
 
 	/**
 	 * Overworld component.
@@ -145,6 +146,23 @@
 		// 		context.player.position.positionOnMap
 		// 	);
 		// }
+	}
+
+	let battleCtx: BattleContext | undefined = undefined;
+	$: if (context) {
+		context.battleContext.subscribe((value) => {
+			battleCtx = value;
+		});
+	}
+	$: if (battleCtx) {
+		battleCtx.events.starting.subscribe((value) => {
+			if(value && sound.playing()) {
+				sound.fade(0.5, 0, 500);
+				setTimeout(() => {
+					sound.stop();
+				}, 500);
+			}
+		});
 	}
 
 	function loadSound() {
