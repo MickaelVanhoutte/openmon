@@ -3,6 +3,7 @@ import { svelte } from '@sveltejs/vite-plugin-svelte'
 import sveltePreprocess from "svelte-preprocess";
 import {esbuildDecorators} from "@anatine/esbuild-decorators";
 import typescript from '@rollup/plugin-typescript';
+import { VitePWA } from 'vite-plugin-pwa'
 
 const noAttr = () => {
   return {
@@ -21,13 +22,14 @@ export default defineConfig({
 		rollupOptions: {
 			output: {
 				entryFileNames: "openmon.js",
-        assetFileNames: "openmon.[ext]",
+        		assetFileNames: "openmon.[ext]",
 			},
 
 			input:[ "src/main.ts", "src/app.scss", "index.html"],
 		},
 	},
   plugins: [
+	VitePWA({ registerType: 'autoUpdate' }),
     typescript(),
 		esbuildDecorators({
 				tsconfig: "./tsconfig.json",
@@ -41,6 +43,7 @@ export default defineConfig({
 				accessors: true,
 			},
 		}),
+		
     
   ],
 })
