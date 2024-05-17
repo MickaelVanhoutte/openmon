@@ -4,10 +4,16 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="static/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
-    <title>OpenMon</title>
+    <title>Pokemon Unison</title>
   </head>
   <body>
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
+    <script>
+      const elem = document.getElementById('app');
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+      }
+    </script>
   </body>
 </html>

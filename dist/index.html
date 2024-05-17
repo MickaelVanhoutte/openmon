@@ -4,11 +4,17 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="./openmon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
-    <title>OpenMon</title>
+    <title>Pokemon Unison</title>
     <script type="module" crossorigin src="./openmon2.js"></script>
     <link rel="stylesheet" crossorigin href="./openmon.css">
   </head>
   <body>
     <div id="app"></div>
+    <script>
+      const elem = document.getElementById('app');
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+      }
+    </script>
   </body>
 </html>
