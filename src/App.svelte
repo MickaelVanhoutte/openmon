@@ -107,49 +107,56 @@
 
 	onMount(() => {
 		checkOrientation();
+		const elem = document.getElementById('wrapper');
+		if (elem?.requestFullscreen) {
+			console.log('requesting fullscreen');
+			elem.requestFullscreen();
+		}
 	});
 </script>
 
-{#if started}
-	{#if gameContext}
-		<!-- game started -->
-		{#if battleCtx !== undefined && !battleStarting}
-			<Battle
-				bind:context={gameContext}
-				bind:overWorldCtx={gameContext.overWorldContext}
-				bind:battleCtx
-			/>
-		{:else if gameContext.overWorldContext !== undefined}
-			<World
-				bind:context={gameContext}
-				bind:overWorldCtx={gameContext.overWorldContext}
-				{savesHolder}
-			/>
-		{/if}
+<div id="wrapper">
+	{#if started}
+		{#if gameContext}
+			<!-- game started -->
+			{#if battleCtx !== undefined && !battleStarting}
+				<Battle
+					bind:context={gameContext}
+					bind:overWorldCtx={gameContext.overWorldContext}
+					bind:battleCtx
+				/>
+			{:else if gameContext.overWorldContext !== undefined}
+				<World
+					bind:context={gameContext}
+					bind:overWorldCtx={gameContext.overWorldContext}
+					{savesHolder}
+				/>
+			{/if}
 
-		{#if battleStarting}
-			<div class="battleStart"></div>
+			{#if battleStarting}
+				<div class="battleStart"></div>
+			{/if}
+			{#if battleEnding}
+				<div class="battleEnd"></div>
+			{/if}
+		{:else if savesHolder.saves?.length > 0 && !newGame}
+			<!-- select a save / start new -->
+			<LoadSave {savesHolder} />
+		{:else}
+			<!-- create a new save -->
+			<PlayerCreation {savesHolder} />
 		{/if}
-		{#if battleEnding}
-			<div class="battleEnd"></div>
-		{/if}
-	{:else if savesHolder.saves?.length > 0 && !newGame}
-		<!-- select a save / start new -->
-		<LoadSave {savesHolder} />
 	{:else}
-		<!-- create a new save -->
-		<PlayerCreation {savesHolder} />
+		<!-- game not started -->
+		<Intro bind:started />
 	{/if}
-{:else}
-	<!-- game not started -->
-	<Intro bind:started />
-{/if}
 
-{#if rotate}
-	<div class="rotate">
-		<img src="src/assets/common/rotate.gif" alt="Please rotate your device" />
-	</div>
-{/if}
+	{#if rotate}
+		<div class="rotate">
+			<img src="src/assets/common/rotate.gif" alt="Please rotate your device" />
+		</div>
+	{/if}
+</div>
 
 <style lang="scss" global>
 	:root {
