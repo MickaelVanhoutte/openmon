@@ -112,6 +112,7 @@
 			console.log('requesting fullscreen');
 			elem.requestFullscreen();
 		}
+		window.scrollTo(0, 1);
 	});
 </script>
 
