@@ -35,6 +35,10 @@ export default defineConfig({
         short_name: 'Unison',
         description: 'Pokemon Unison, fan made in svelte',
         theme_color: '#000000',
+		background_color: '#000000',
+		orientation: 'landscape',
+		scope: '/',
+		start_url: '/',
         icons: [
           {
             src: 'openmon.png',
