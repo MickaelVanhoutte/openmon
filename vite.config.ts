@@ -37,8 +37,6 @@ export default defineConfig({
         theme_color: '#000000',
 		background_color: '#000000',
 		orientation: 'landscape',
-		scope: '/',
-		start_url: '/',
         icons: [
           {
             src: 'openmon.png',
