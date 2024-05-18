@@ -8,11 +8,14 @@
 	let horde: HTMLDivElement;
 	let sound: Howl;
 	let soundPlaying = false;
+	let all = Array.from({ length: 233 }, (_, i) => i).map(i => ('00' +(i + 1)).slice(-3));
 	let pkmnListShuffled: number[] = fisherYates(Array.from({ length: 233 }, (_, i) => i)).slice(
 		0,
 		35
 	);
 
+	let loaded = false;
+	let animationFinished = false;
 	let ready = false;
 
 	function fisherYates(array) {
@@ -54,7 +57,15 @@
 	onMount(() => {
 		loadSound();
 		setTimeout(() => {
-			ready = true;
+			console.log('ready');
+			animationFinished = true;
+			let int = setInterval(() => {
+				console.log(loaded, animationFinished);
+				if (loaded && animationFinished) {
+					clearInterval(int);
+					ready = true;
+				}
+			}, 300);
 		}, 9000);
 		horde.addEventListener('click', () => {
 			if (ready) started = true;
@@ -68,6 +79,8 @@
 		};
 	});
 </script>
+
+<svelte:window on:load="{()=> loaded = true}"/>
 
 <div class="intro" bind:this={intro} out:fade>
 	{#each Array.from({ length: 8 }) as i}
@@ -115,7 +128,13 @@
 	<!-- <img class="combo" src="src/assets/menus/combo.svg" alt="gimmick logo" /> -->
 	<img class="darkrai" src="src/assets/darkrai.png" alt="darkrai" />
 	<img class="diancie" src="src/assets/diancie.png" alt="diancie" />
-	<span class="touch">Touch to start</span>
+	<span class="touch">
+		{#if ready}
+			Touch to start
+		{:else}
+			Loading assets...
+		{/if}
+	</span>
 
 	<div class="horde" bind:this={horde}>
 		{#each pkmnListShuffled as i, index}
@@ -136,6 +155,62 @@
 		{/each}
 	</div>
 </div>
+
+<!-- Preloading assets -->
+{#each all as i}
+	<img
+		src={`src/assets/monsters/walking/${i}.png`}
+		alt={`pokemon ${i}`}
+		style="display: none"
+		loading="lazy" 
+	/>
+	<img
+		src={`src/assets/monsters/walking/${i}s.png`}
+		alt={`pokemon ${i}`}
+		style="display: none"
+		loading="lazy" 
+	/>
+	<img
+		src={`src/assets/monsters/animated/${i}.gif`}
+		alt={`pokemon ${i}`}
+		style="display: none"
+		loading="lazy" 
+	/>
+	<img
+		src={`src/assets/monsters/animated/${i}b.gif`}
+		alt={`pokemon ${i}`}
+		style="display: none"
+		loading="lazy" 
+	/>
+	<img
+		src={`src/assets/monsters/animated/${i}s.gif`}
+		alt={`pokemon ${i}`}
+		style="display: none"
+		loading="lazy" 
+	/>
+	<img
+		src={`src/assets/monsters/animated/${i}sb.gif`}
+		alt={`pokemon ${i}`}
+		style="display: none"
+		loading="lazy" 
+	/>
+	<img
+		src={`src/assets/monsters/pokedex/${i}sb.png`}
+		alt={`pokemon ${i}`}
+		style="display: none"
+		loading="lazy" 
+	/>
+{/each}
+
+<!-- load audios -->
+<audio src="src/assets/audio/intro.mp3" preload="auto" muted></audio>
+<audio src="src/assets/audio/beach.mp3" preload="auto" muted></audio>
+<audio src="src/assets/audio/save.mp3" preload="auto" muted></audio>
+<audio src="src/assets/audio/battle/battle-start.mp3" preload="auto" muted></audio>
+<audio src="src/assets/audio/battle/battle1.mp3" preload="auto" muted></audio>
+
+
+
 
 <style lang="scss">
 	@keyframes -global-poke-move {

@@ -159,6 +159,10 @@
 	{/if}
 </div>
 
+<!-- preload every images -->
+
+
+
 <style lang="scss" global>
 	:root {
 		// box-sizing: border-box;
