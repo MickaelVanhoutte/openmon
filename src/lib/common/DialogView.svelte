@@ -27,7 +27,7 @@
 
 	const listener = (e: KeyboardEvent) => {
 		console.log(current);
-		if (e.key === 'Enter') {
+		if (e.key === 'Enter' || e.key === 'a') {
 			if (current?.options?.length) {
 				console.log('selecting option', selectedOption);
 				dialog?.selectOption(selectedOption);
@@ -43,17 +43,9 @@
 
 	onMount(() => {
 		window.addEventListener('keydown', listener);
-		setTimeout(() => {
-			unsubscribe = context.overWorldContext.keys.a?.subscribe((value) => {
-				if (value && text) {
-					next();
-				}
-			});
-		}, 1000);
 
 		return () => {
 			window.removeEventListener('keydown', listener);
-			unsubscribe && unsubscribe();
 		};
 	});
 </script>
@@ -66,8 +58,8 @@
 	</div>
 </div>
 
-{#if current?.options}
-	<div class="options">
+{#if current?.options?.length}
+	<div class="options" class:hidden={!current?.options?.length}>
 		<ul>
 			{#each current.options as option, index}
 				<li
@@ -89,7 +81,7 @@
 		font-size: 32px;
 		font-weight: 500;
 		text-align: left;
-		bottom: 1%;
+		bottom: 27%;
 		right: 1%;
 		padding: 22px 36px 22px 36px;
 		background: rgb(220, 231, 233);

@@ -36,7 +36,7 @@
 	$: currentAction = currentScript?.currentAction;
 	$: currentDialog = currentAction?.type === 'Dialog' ? (currentAction as Dialog) : undefined;
 	$: hasDialog = currentAction?.type === 'Dialog';
-	$: hasShop = currentAction?.type === 'Shop';
+	$: hasShop = currentAction?.type === 'OpenShop';
 
 	function initContext() {
 		mainLoop();

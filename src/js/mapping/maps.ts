@@ -319,46 +319,52 @@ export class OpenMap {
         offsetY: number
     } {
 
-        let screenDimensions = {
-            width: ctx.canvas.width,
-            height: ctx.canvas.height,
-        }
 
-        let centerX, centerY, offsetX, offsetY;
+
+        let centerX, centerY, offsetX = 0, offsetY = 0;
 
         if (mapDim) {
+            // Do not recalculates the center of the screen (for foreground)
             centerX = mapDim.centerX;
             centerY = mapDim.centerY;
             offsetX = mapDim.offsetX;
             offsetY = mapDim.offsetY;
         } else {
+            let screenDimensions = {
+                width: ctx.canvas.width,
+                height: ctx.canvas.height,
+            }
+// explain the code below
+
             centerX = screenDimensions.width / 2;
-            // canvas half - half character height scaled
             centerY = screenDimensions.height / 2;
 
             offsetX = playerPosition.x;
             offsetY = playerPosition.y;
 
-            let leftThreshold = playerPosition.x < Math.min(centerX, window.innerWidth / 2 - (16 * .83 / 2));
-            let topThreshold = playerPosition.y < Math.min(centerY, window.innerHeight / 2 - (16 * .83 / 2));
-            let rightThreshold = playerPosition.x > image.width * scale - Math.min(centerX, window.innerWidth / 2 - (16 * .83 / 2));
-            let bottomThreshold = playerPosition.y > image.height * scale - Math.min(centerY, window.innerHeight / 2 - (16 * .83 / 2));
+            let minLeftSide = Math.min(centerX / 2, window.innerWidth / 4 - (16 * .83 / 2));
+            let minRightSide = (image.width * scale) - minLeftSide;
+            let minTopSide = Math.min(centerY, window.innerHeight / 4 - (16 * .83 / 2));
+            let minBottomSide = (image.height * scale) - minTopSide;
+
+            let leftThreshold = playerPosition.x <= minLeftSide;
+            let rightThreshold = playerPosition.x > minRightSide;
+            let topThreshold = playerPosition.y <= minTopSide;
+            let bottomThreshold = playerPosition.y > minBottomSide;
 
             if (leftThreshold) {
-                offsetX = Math.min(centerX, window.innerWidth / 2 - (16 * .83 / 2));
+                offsetX = minLeftSide;
             }
             if (topThreshold) {
-                offsetY = Math.min(centerY, window.innerHeight / 2 - (16 * .83 / 2));
+                offsetY = minTopSide;
             }
             if (rightThreshold) {
-                offsetX = image.width * scale - Math.min(centerX, window.innerWidth / 2 - (16 * .83 / 2));
+                offsetX = minRightSide;
             }
             if (bottomThreshold) {
-                offsetY = image.height * scale - Math.min(centerY, window.innerHeight / 2 - (16 * .83 / 2));
+                offsetY = minBottomSide;
             }
         }
-
-
 
         ctx.save();
         ctx.translate(centerX - offsetX, centerY - offsetY);

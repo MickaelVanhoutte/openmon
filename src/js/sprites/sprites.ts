@@ -1,5 +1,5 @@
 import charactersJson from "../../assets/characts/characts.json";
-import {Position} from "../mapping/positions";
+import { Position } from "../mapping/positions";
 
 export class SpriteFromSheet {
     source: string;
@@ -45,7 +45,7 @@ export class SpritesHolder {
                         value.overworld.walking.width,
                         value.overworld.walking.frameNumber
                     ),
-                    running: value.overworld.running? new SpriteFromSheet(
+                    running: value.overworld.running ? new SpriteFromSheet(
                         value.overworld.running.source,
                         value.overworld.running.startX,
                         value.overworld.running.startY,
@@ -53,7 +53,7 @@ export class SpritesHolder {
                         value.overworld.running.width,
                         value.overworld.running.frameNumber
                     ) : undefined
-                } 
+                }
             )
         });
     }
@@ -75,24 +75,29 @@ export function centerObject(canvas: CanvasRenderingContext2D, scale: number, ob
     let offsetY = 0;
 
     // translate near the edges
-    let leftThreshold = objectPosition.x < Math.min(centerX, window.innerWidth / 2 - (objectWidth * scale / 2));
-    let topThreshold = objectPosition.y < Math.min(centerY, window.innerHeight / 2 - (objectWidth * scale / 2));
-    let rightThreshold = objectPosition.x > mapDim.width - Math.min(centerX, window.innerWidth / 2 - (objectWidth * scale / 2));
-    let bottomThreshold = objectPosition.y > mapDim.height - Math.min(centerY, window.innerHeight / 2 - (objectWidth * scale / 2));
+    let minLeftSide = Math.min(centerX / 2, window.innerWidth / 4 - (objectWidth * scale / 2));
+    let minTopSide = Math.min(centerY / 2, window.innerHeight / 4 - (objectWidth * scale / 2));
+    let minRightSide = mapDim.width - Math.min(centerX / 2, window.innerWidth / 4 - (objectWidth * scale / 2));
+    let minBottomSide = mapDim.height - Math.min(centerY / 2, window.innerHeight / 4 - (objectWidth * scale / 2));
+
+    let leftThreshold = objectPosition.x < minLeftSide;
+    let topThreshold = objectPosition.y < minTopSide;
+    let rightThreshold = objectPosition.x > minRightSide;
+    let bottomThreshold = objectPosition.y > minBottomSide;
 
     if (leftThreshold) {
-        offsetX = Math.min(centerX, window.innerWidth / 2 - (objectWidth * scale / 2)) - objectPosition.x;
+        offsetX = minLeftSide - objectPosition.x;
     }
     if (topThreshold) {
-        offsetY = Math.min(centerY, window.innerHeight / 2 - (objectWidth * scale / 2)) - objectPosition.y;
+        offsetY = minTopSide - objectPosition.y;
     }
     if (rightThreshold) {
-        offsetX = mapDim.width - Math.min(centerX, window.innerWidth / 2 - (objectWidth * scale / 2)) - objectPosition.x;
+        offsetX = minRightSide - objectPosition.x;
     }
     if (bottomThreshold) {
-        offsetY = mapDim.height - Math.min(centerY, window.innerHeight / 2 - (objectWidth * scale / 2)) - objectPosition.y;
+        offsetY = minBottomSide - objectPosition.y;
     }
-    return {centerX, centerY, offsetX, offsetY};
+    return { centerX, centerY, offsetX, offsetY };
 }
 
 export class PlayerSprite {
@@ -109,7 +114,7 @@ export class PlayerSprite {
     public worldWalkingImg: HTMLImageElement;
     public worldRunningImg?: HTMLImageElement;
 
-    public frames = {max: 4, val: 0, elapsed: 0};
+    public frames = { max: 4, val: 0, elapsed: 0 };
 
     public orientationIndexes = {
         "down": 0,
@@ -132,7 +137,7 @@ export class PlayerSprite {
         this.worldWalkingImg = new Image();
         this.worldWalkingImg.src = overworld.walking.source;
 
-        if(this.overworld.running?.source){
+        if (this.overworld.running?.source) {
             this.worldRunningImg = new Image();
             // @ts-ignore
             this.worldRunningImg.src = overworld.running.source;
