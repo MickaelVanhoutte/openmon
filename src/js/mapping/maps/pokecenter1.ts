@@ -1,5 +1,5 @@
 import { NPC } from "../../characters/npc";
-import { Script, Dialog, Message } from "../../scripting/scripts";
+import { Script, Dialog, Message, HealAll, OpenShop } from "../../scripting/scripts";
 import { Jonction } from "../collisions";
 import { OpenMap } from "../maps";
 import { Position } from "../positions";
@@ -18,30 +18,46 @@ const collisions = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     14416, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14416,
     14416, 14416, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14416, 14416,
     0, 0, 14416, 14416, 14416, 14416, 14416, 14416, 14416, 0, 0, 14416, 14416, 14416, 14416, 14416, 14416, 14416, 14416, 0];
+
+const shopItems: Record<string, number> = {
+};
+shopItems['4'] = 150;
+shopItems['17'] = 150;
+shopItems['28'] = 1250;
+shopItems['33'] = 500;
+
+
 const npcs: NPC[] = [
     new NPC(991, "NPC1", 2, new Position(9, 4), 'down', 'MALE', undefined, undefined,
 
         new Script('onInteract2', [
             new Dialog([
                 new Message('Welcome to the Pokecenter!'),
-                new Message('We restore your tired Pokemon to full health.'),
-                new Message('Would you like to rest your Pokemon?')
+                new Message('Would you like to rest your Pokemon?', 'healer', ['Sure', 'No, thanks'], [
+                    new HealAll(),
+                    new Dialog([new Message('Ok, come back if you need anything.')])
+                ]),
             ]),
-            new Dialog([
-                new Message('Ok, we\'ll need your Pokemon. Thank you for waiting.'),
-                new Message('Here you go, your Pokemon are fully healed!'),
-            ])
 
-        ]),
-        undefined
+        ], undefined,
+            true),
+        undefined,
+        undefined,
+        true
     ),
     new NPC(992, "NPC2", 2, new Position(3, 9), 'down', 'MALE', undefined, undefined,
         new Script('onInteract2', [
             new Dialog([
-                new Message('I just received plenty of merchandise, want to take a look ?')
+                new Message('I just received plenty of merchandise, want to take a look ?', 'shop', ['Sure', 'No, thanks'], [
+                    new OpenShop(shopItems),
+                    new Dialog([new Message('Ok, come back if you need anything.')])
+                ])
             ])
-        ]),
-        undefined
+        ], undefined,
+            true),
+        undefined,
+        undefined,
+        true
     )
 ];
 

@@ -31,15 +31,54 @@ export class Message {
     text: string;
     speaker: string;
 
-    constructor(text: string, speaker?: string) {
+    options: string[];
+    actions: Scriptable[];
+
+    constructor(text: string, speaker?: string, options?: string[], actions?: Scriptable[]) {
         this.text = text;
         this.speaker = speaker || 'System';
+        this.options = options || [];
+        this.actions = actions || [];
+    }
+}
+
+
+export class OpenShop extends Scriptable {
+    // ID, price
+    items: Record<string, number> = {};
+    context?: GameContext;
+    onEnd: () => void = () => {
+    }
+
+    constructor(items: Record<string, number>) {
+        super();
+        this.type = 'OpenShop';
+        this.items = items;
+    }
+
+    close() {
+        this.finished = true;
+        this.onEnd();
+    }
+
+    buyItem(itemId: string, qty: number) {
+        let price = this.items[itemId] * qty;
+        if (this.context && this.context.player.bag.money >= price) {
+            this.context.player.bag.addItems(parseInt(itemId), qty, this.context.ITEMS);
+            this.context.player.bag.money -= price;
+        }
+    }
+
+    play(context: GameContext, onEnd: () => void) {
+        this.onEnd = onEnd;
+        this.context = context;
     }
 }
 
 export class Dialog extends Scriptable {
     messages: Message[] = [];
     current: Message;
+    context?: GameContext;
     onEnd: () => void = () => {
     }
 
@@ -50,24 +89,51 @@ export class Dialog extends Scriptable {
         this.current = messages[0];
     }
 
-    next(): string | undefined {
+    next(): Message | undefined {
         if (this.messages.indexOf(this.current) < this.messages.length - 1) {
             this.current = this.messages[this.messages.indexOf(this.current) + 1];
-            return this.current.text;
+            return this.current;
         } else {
             this.finished = true;
             this.onEnd();
             return;
         }
+    }
 
+    selectOption(index: number): void {
+        if (this.current.options?.length === 0 || this.current.actions?.length === 0) return;
+        let action = this.current.actions[index];
+        console.log(action, this.context);
+        if (action && this.context) {
+            action.play(this.context, () => {
+                this.next();
+            });
+        }
     }
 
     play(context: GameContext, onEnd: () => void): any {
         this.onEnd = onEnd;
+        this.context = context;
         this.current = this.messages[0];
     }
 }
 
+export class HealAll extends Scriptable {
+    constructor() {
+        super();
+        this.type = 'HealAll';
+    }
+
+    play(context: GameContext, onEnd: () => void): any {
+        context.player.monsters.forEach(monster => {
+            monster.fullHeal();
+        });
+        setTimeout(() => {
+            this.finished = true;
+            onEnd();
+        }, 300);
+    }
+}
 
 export class MoveTo extends Scriptable {
     npcId: number;

@@ -10,6 +10,7 @@ export const WALKING_SPEED: number = .5;
 export const RUNNING_SPEED: number = 1;
 
 export interface Interactive {
+    isBehindCounter(): boolean;
     interact(playerPosition: Position): (Script | undefined)[];
 }
 

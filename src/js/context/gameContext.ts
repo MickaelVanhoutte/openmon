@@ -107,9 +107,12 @@ export class GameContext {
                 let interactive = this.map?.elementInFront(this.player.position.positionOnMap, this.player.position.direction);
                 let scripts = interactive?.interact(this.player.position.positionOnMap);
 
-                // TODO interactive behind counters 
-               // let interactiveBehindCounter = this.map?.elementInFront(this.player.position.positionOnMap, this.player.position.direction);
-                //let scripts2 = interactive?.interact(this.player.position.positionOnMap);
+                // interactive behind counters 
+                if (!scripts) {
+                    let interactiveBehindCounter = this.map?.elementBehindCounter(this.player.position.positionOnMap, this.player.position.direction);
+                    console.log(interactiveBehindCounter);
+                    scripts = interactiveBehindCounter?.interact(this.player.position.positionOnMap);
+                }
 
                 let newScript = scripts?.[0];
                 let previous = scripts?.[1];
