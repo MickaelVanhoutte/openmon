@@ -18,6 +18,7 @@ export class NPC implements Character, Interactive {
     bag: Bag;
     moving: boolean = false;
     direction: 'up' | 'down' | 'left' | 'right' = 'down';
+    behindCounter: boolean = false;
 
     mainScript?: Script;
     dialogScripts: Script[];
@@ -28,7 +29,7 @@ export class NPC implements Character, Interactive {
     constructor(id: number, name: string, spriteId: number, position: Position,
         direction: 'up' | 'down' | 'left' | 'right',
         gender: 'MALE' | 'FEMALE', monstersIds?: number[], bag?: Bag,
-        mainScript?: Script, dialogScripts?: Script[], movingScript?: Script) {
+        mainScript?: Script, dialogScripts?: Script[], movingScript?: Script, behindCounter: boolean = false) {
         this.id = id;
         this.name = name;
         this.spriteId = spriteId;
@@ -40,6 +41,11 @@ export class NPC implements Character, Interactive {
         this.mainScript = mainScript ? new Script(mainScript?.triggerType, mainScript?.actions, mainScript?.stepPosition, mainScript?.replayable) : undefined;
         this.dialogScripts = dialogScripts?.map((script) => new Script(script.triggerType, script.actions, script.stepPosition, script.replayable)) || [];
         this.movingScript = movingScript ? new Script(movingScript?.triggerType, movingScript?.actions, movingScript?.stepPosition, movingScript?.replayable) : undefined;
+        this.behindCounter = behindCounter;
+    }
+
+    isBehindCounter(): boolean {
+        return this.behindCounter;
     }
 
     getMasteryBonus(type: MasteryType): number {

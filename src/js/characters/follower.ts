@@ -28,6 +28,10 @@ export class Follower implements Character, Interactive {
         return 0;
     }
 
+    isBehindCounter(): boolean {
+        return false;
+    }
+
     static fromInstance(follower: Follower): Follower {
         let followerProto = new Follower(
             new CharacterPosition(follower.position.positionOnMap, follower.position.direction),

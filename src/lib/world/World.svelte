@@ -9,6 +9,7 @@
 	import ScenesView from './ScenesView.svelte';
 	import Controls from './Controls.svelte';
 	import type { BattleContext } from '../../js/context/battleContext';
+	import Shop from '../common/Shop.svelte';
 
 	/**
 	 * Overworld component.
@@ -35,6 +36,7 @@
 	$: currentAction = currentScript?.currentAction;
 	$: currentDialog = currentAction?.type === 'Dialog' ? (currentAction as Dialog) : undefined;
 	$: hasDialog = currentAction?.type === 'Dialog';
+	$: hasShop = currentAction?.type === 'Shop';
 
 	function initContext() {
 		mainLoop();
@@ -210,6 +212,9 @@
 
 	{#if hasDialog}
 		<DialogView bind:dialog={currentDialog} {context} />
+	{/if}
+	{#if hasShop}
+		<Shop bind:shop={currentAction} {context}/>
 	{/if}
 
 	<Controls {context} {overWorldCtx} />

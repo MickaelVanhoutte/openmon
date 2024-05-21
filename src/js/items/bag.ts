@@ -7,6 +7,7 @@ export class Bag {
     public balls: Record<number, number> = {};
     public potions: Record<number, number> = {};
     public revives: Record<number, number> = {};
+    public money: number = 0;
 
     constructor(bag?: Bag) {
         if (bag) {
@@ -22,6 +23,7 @@ export class Bag {
                 // @ts-ignore
                 this.revives[parseInt(key)] = parseInt(bag['revives'][key]);
             });
+            this.money = bag.money;
         }
     }
 

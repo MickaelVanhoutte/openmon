@@ -203,7 +203,7 @@ export class OpenMap {
         });
     }
 
-    public elementInFront(position: Position, direction: 'up' | 'down' | 'left' | 'right') {
+    public elementInFront(position: Position, direction: 'up' | 'down' | 'left' | 'right'): Interactive | undefined {
         let elementPosition = new Position(position.x, position.y);
         switch (direction) {
             case 'up':
@@ -219,23 +219,28 @@ export class OpenMap {
                 elementPosition.x += 1;
                 break;
         }
-        return this.elementAt(elementPosition);
+
+        let elem = this.elementAt(elementPosition);
+        if (elem && elem.isBehindCounter()) {
+            return elem;
+        }
+        return undefined;
     }
 
-    public elementBehindCounter(position: Position, direction: 'up' | 'down' | 'left' | 'right') {
+    public elementBehindCounter(position: Position, direction: 'up' | 'down' | 'left' | 'right'): Interactive | undefined {
         let elementPosition = new Position(position.x, position.y);
         switch (direction) {
             case 'up':
-                elementPosition.y += 2;
-                break;
-            case 'down':
                 elementPosition.y -= 2;
                 break;
+            case 'down':
+                elementPosition.y += 2;
+                break;
             case 'left':
-                elementPosition.x += 2;
+                elementPosition.x -= 2;
                 break;
             case 'right':
-                elementPosition.x -= 2;
+                elementPosition.x += 2;
                 break;
         }
         return this.elementAt(elementPosition);
@@ -269,7 +274,7 @@ export class OpenMap {
                 return this.drawImage(ctx, image, map, scale, playerPosition, debug);
             }
         }
-        return { width: 0, height: 0, centerX: 0, offsetX: 0, centerY: 0, offsetY: 0};
+        return { width: 0, height: 0, centerX: 0, offsetX: 0, centerY: 0, offsetY: 0 };
     }
 
     drawFG(ctx: CanvasRenderingContext2D, map: OpenMap, scale: number, playerPosition: Position, mapDim: {
