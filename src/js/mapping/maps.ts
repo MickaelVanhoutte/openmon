@@ -1,7 +1,7 @@
-import {Boundary, Jonction} from "./collisions";
-import {Script} from "../scripting/scripts";
-import type {NPC} from "../characters/npc";
-import {Position} from "./positions";
+import { Boundary, Jonction } from "./collisions";
+import { Script } from "../scripting/scripts";
+import type { NPC } from "../characters/npc";
+import { Position } from "./positions";
 import type { Interactive } from "../characters/characters-model";
 
 export class MapSave {
@@ -45,12 +45,12 @@ export class OpenMap {
 
 
     constructor(mapId: number,
-                background: string, width: number, height: number,
-                collisions: number[], waterCollisions: number[], battles: number[], monsters: number[],
-                playerInitialPosition: Position,
-                levelRange: number[] = [1, 100],
-                jonctions: Jonction[] = [],
-                foreground?: string, battleTile?: number, collisionTile?: number, waterTile?: number, npcs?: NPC[], scripts?: Script[]) {
+        background: string, width: number, height: number,
+        collisions: number[], waterCollisions: number[], battles: number[], monsters: number[],
+        playerInitialPosition: Position,
+        levelRange: number[] = [1, 100],
+        jonctions: Jonction[] = [],
+        foreground?: string, battleTile?: number, collisionTile?: number, waterTile?: number, npcs?: NPC[], scripts?: Script[]) {
         this.mapId = mapId;
         this.background = background;
         this.foreground = foreground;
@@ -74,11 +74,11 @@ export class OpenMap {
     }
 
     public static fromScratch(mapId: number, background: string, width: number, height: number,
-                              collisions: number[], waterCollisions: number[], battles: number[], monsters: number[],
-                              playerInitialPosition: Position = new Position(),
-                              levelRange: number[] = [1, 100],
-                              jonctions: Jonction[] = [],
-                              foreground?: string, battleTile?: number, collisionTile?: number, waterTile?: number, npcs?: NPC[], scripts?: Script[]): OpenMap {
+        collisions: number[], waterCollisions: number[], battles: number[], monsters: number[],
+        playerInitialPosition: Position = new Position(),
+        levelRange: number[] = [1, 100],
+        jonctions: Jonction[] = [],
+        foreground?: string, battleTile?: number, collisionTile?: number, waterTile?: number, npcs?: NPC[], scripts?: Script[]): OpenMap {
 
 
         return new OpenMap(
@@ -103,7 +103,7 @@ export class OpenMap {
     }
 
     // TODO : scripts/npc states
-    public static fromInstance(map: OpenMap, playerPosition: Position): OpenMap {
+    public static fromInstance(map: OpenMap, playerPosition?: Position): OpenMap {
         return new OpenMap(
             map.mapId,
             map.background,
@@ -113,7 +113,7 @@ export class OpenMap {
             map.water,
             map.battles,
             map.monsters,
-            playerPosition,
+            playerPosition ? playerPosition : map.playerInitialPosition,
             map.levelRange,
             map.jonctions,
             map?.foreground,
@@ -128,10 +128,10 @@ export class OpenMap {
     randomMonster(): { id: number, level: number } {
         const monsterId = this.monsters[Math.floor(Math.random() * this.monsters.length)];
         const level = Math.floor(Math.random() * (this.levelRange[1] - this.levelRange[0] + 1)) + this.levelRange[0];
-        return {id: monsterId, level: level};
+        return { id: monsterId, level: level };
     }
 
-    public initBattlesZones(battles: number [], width: number, tileId: number) {
+    public initBattlesZones(battles: number[], width: number, tileId: number) {
         const battle_map = [];
         for (let i = 0; i < battles.length; i += width) {
             battle_map.push(battles.slice(i, width + i));
@@ -177,8 +177,8 @@ export class OpenMap {
 
     hasBoundaryAt(position: Position) {
         return this.collisionsZones.some((boundary) => {
-                return boundary.position.x === position.x && boundary.position.y === position.y;
-            }) ||
+            return boundary.position.x === position.x && boundary.position.y === position.y;
+        }) ||
             position.x < 0 || position.y < 0 || position.x > this.width - 1 || position.y > this.height - 1 ||
             this.npcAt(position) ||
             this.waterZones.some((boundary) => {
@@ -222,6 +222,25 @@ export class OpenMap {
         return this.elementAt(elementPosition);
     }
 
+    public elementBehindCounter(position: Position, direction: 'up' | 'down' | 'left' | 'right') {
+        let elementPosition = new Position(position.x, position.y);
+        switch (direction) {
+            case 'up':
+                elementPosition.y += 2;
+                break;
+            case 'down':
+                elementPosition.y -= 2;
+                break;
+            case 'left':
+                elementPosition.x += 2;
+                break;
+            case 'right':
+                elementPosition.x -= 2;
+                break;
+        }
+        return this.elementAt(elementPosition);
+    }
+
     private elementAt(elementPosition: Position): Interactive | undefined {
         return this.npcs?.find((npc) => {
             return npc.position.positionOnMap.x === elementPosition.x && npc.position.positionOnMap.y === elementPosition.y;
@@ -233,7 +252,11 @@ export class OpenMap {
 
     draw(ctx: CanvasRenderingContext2D, map: OpenMap, scale: number, playerPosition: Position, debug: boolean = true): {
         width: number,
-        height: number
+        height: number,
+        centerX: number,
+        offsetX: number,
+        centerY: number,
+        offsetY: number
     } {
         let image = this.images[map.background];
         if (image && image.complete) {
@@ -246,21 +269,28 @@ export class OpenMap {
                 return this.drawImage(ctx, image, map, scale, playerPosition, debug);
             }
         }
-        return {width: 0, height: 0};
+        return { width: 0, height: 0, centerX: 0, offsetX: 0, centerY: 0, offsetY: 0};
     }
 
-    drawFG(ctx: CanvasRenderingContext2D, map: OpenMap, scale: number, playerPosition: Position) {
+    drawFG(ctx: CanvasRenderingContext2D, map: OpenMap, scale: number, playerPosition: Position, mapDim: {
+        width: number,
+        height: number,
+        centerX: number,
+        offsetX: number,
+        centerY: number,
+        offsetY: number
+    }) {
         if (map.foreground !== undefined) {
             let image = this.images[map.foreground];
             if (image && image.complete) {
-                this.drawImage(ctx, image, map, scale, playerPosition, false);
+                this.drawImage(ctx, image, map, scale, playerPosition, false, mapDim);
             } else {
                 image = new Image();
                 image.src = map.foreground;
                 image.onload = () => {
                     if (map.foreground) {
                         this.images[map.foreground] = image;
-                        this.drawImage(ctx, image, map, scale, playerPosition, false);
+                        this.drawImage(ctx, image, map, scale, playerPosition, false, mapDim);
                     }
                 }
             }
@@ -268,9 +298,20 @@ export class OpenMap {
     }
 
 
-    private drawImage(ctx: CanvasRenderingContext2D, image: HTMLImageElement, map: OpenMap, scale: number, playerPosition: Position, debug: boolean = false): {
+    private drawImage(ctx: CanvasRenderingContext2D, image: HTMLImageElement, map: OpenMap, scale: number, playerPosition: Position, debug: boolean = false, mapDim?: {
         width: number,
-        height: number
+        height: number,
+        centerX: number,
+        offsetX: number,
+        centerY: number,
+        offsetY: number
+    }): {
+        width: number,
+        height: number,
+        centerX: number,
+        offsetX: number,
+        centerY: number,
+        offsetY: number
     } {
 
         let screenDimensions = {
@@ -278,30 +319,41 @@ export class OpenMap {
             height: ctx.canvas.height,
         }
 
-        let centerX = screenDimensions.width / 2;
-        // canvas half - half character height scaled
-        let centerY = screenDimensions.height / 2;
+        let centerX, centerY, offsetX, offsetY;
 
-        let offsetX = playerPosition.x;
-        let offsetY = playerPosition.y;
+        if (mapDim) {
+            centerX = mapDim.centerX;
+            centerY = mapDim.centerY;
+            offsetX = mapDim.offsetX;
+            offsetY = mapDim.offsetY;
+        } else {
+            centerX = screenDimensions.width / 2;
+            // canvas half - half character height scaled
+            centerY = screenDimensions.height / 2;
 
-        let leftThreshold = playerPosition.x < Math.min(centerX, window.innerWidth / 2 - (16 * .83 / 2));
-        let topThreshold = playerPosition.y < Math.min(centerY, window.innerHeight / 2 - (16 * .83 / 2));
-        let rightThreshold = playerPosition.x > image.width * scale - Math.min(centerX, window.innerWidth / 2 - (16 * .83 / 2));
-        let bottomThreshold = playerPosition.y > image.height * scale - Math.min(centerY, window.innerHeight / 2 - (16 * .83 / 2));
+            offsetX = playerPosition.x;
+            offsetY = playerPosition.y;
 
-        if (leftThreshold) {
-            offsetX = Math.min(centerX, window.innerWidth / 2 - (16 * .83 / 2));
+            let leftThreshold = playerPosition.x < Math.min(centerX, window.innerWidth / 2 - (16 * .83 / 2));
+            let topThreshold = playerPosition.y < Math.min(centerY, window.innerHeight / 2 - (16 * .83 / 2));
+            let rightThreshold = playerPosition.x > image.width * scale - Math.min(centerX, window.innerWidth / 2 - (16 * .83 / 2));
+            let bottomThreshold = playerPosition.y > image.height * scale - Math.min(centerY, window.innerHeight / 2 - (16 * .83 / 2));
+
+            if (leftThreshold) {
+                offsetX = Math.min(centerX, window.innerWidth / 2 - (16 * .83 / 2));
+            }
+            if (topThreshold) {
+                offsetY = Math.min(centerY, window.innerHeight / 2 - (16 * .83 / 2));
+            }
+            if (rightThreshold) {
+                offsetX = image.width * scale - Math.min(centerX, window.innerWidth / 2 - (16 * .83 / 2));
+            }
+            if (bottomThreshold) {
+                offsetY = image.height * scale - Math.min(centerY, window.innerHeight / 2 - (16 * .83 / 2));
+            }
         }
-        if (topThreshold) {
-            offsetY = Math.min(centerY, window.innerHeight / 2 - (16 * .83 / 2));
-        }
-        if (rightThreshold) {
-            offsetX = image.width * scale - Math.min(centerX, window.innerWidth / 2 - (16 * .83 / 2));
-        }
-        if (bottomThreshold) {
-            offsetY = image.height * scale - Math.min(centerY, window.innerHeight / 2 - (16 * .83 / 2));
-        }
+
+
 
         ctx.save();
         ctx.translate(centerX - offsetX, centerY - offsetY);
@@ -353,6 +405,6 @@ export class OpenMap {
 
         ctx.restore();
 
-        return {width: image.width * scale, height: image.height * scale};
+        return { width: image.width * scale, height: image.height * scale, centerX, offsetX, centerY, offsetY };
     }
 }

@@ -20,9 +20,11 @@
 	export let savesHolder: SavesHolder;
 
 	let canvas: HTMLCanvasElement;
+	let foregroundCanvas: HTMLCanvasElement;
 	let wrapper: HTMLDivElement;
 	let canvasWidth: number;
 	let canvasCtx: CanvasRenderingContext2D;
+	let canvasFgCtx: CanvasRenderingContext2D;
 	let sound: Howl;
 	let soundPlaying: boolean;
 
@@ -43,7 +45,7 @@
     Game loop
      */
 	function mainLoop() {
-		overWorldCtx.frames.frameId = window.requestAnimationFrame(mainLoop);
+		
 
 		canvasCtx.imageSmoothingEnabled = true;
 		canvasCtx.imageSmoothingQuality = 'high';
@@ -61,6 +63,7 @@
 
 			canvasCtx.fillStyle = 'black';
 			canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+			canvasFgCtx.clearRect(0, 0, canvas.width, canvas.height);
 
 			drawElements();
 
@@ -88,11 +91,12 @@
 				canvasCtx.fillText(`paused: ${context.overWorldContext.isPaused}`, x + 10, y + 40);
 			}
 		}
+		overWorldCtx.frames.frameId = window.requestAnimationFrame(mainLoop);
 	}
-	
+
 	// TEST -> TODO : smash rock, cut trees... using pkmn charge
-	document.addEventListener("keydown", (e) => {
-		if (e.key === "c") {
+	document.addEventListener('keydown', (e) => {
+		if (e.key === 'c') {
 			context.player.followerCharge(overWorldCtx, false);
 		}
 	});
@@ -136,16 +140,16 @@
 			context.map.hasBattleZoneAt(context.player.position.positionOnMap)
 		);
 
-	
 		// Foreground
-		// if (context.map?.foreground !== undefined) {
-		// 	context.map.drawFG(
-		// 		canvasCtx,
-		// 		context.map,
-		// 		overWorldCtx.frames.imageScale,
-		// 		context.player.position.positionOnMap
-		// 	);
-		// }
+		if (context.map?.foreground !== undefined) {
+				context.map.drawFG(
+					canvasFgCtx,
+					context.map,
+					overWorldCtx.frames.imageScale,
+					context.player.position.positionInPx,
+					mapDimensions
+				);
+			}
 	}
 
 	let battleCtx: BattleContext | undefined = undefined;
@@ -156,7 +160,7 @@
 	}
 	$: if (battleCtx) {
 		battleCtx.events.starting.subscribe((value) => {
-			if(value && sound.playing()) {
+			if (value && sound.playing()) {
 				sound.fade(0.5, 0, 500);
 				setTimeout(() => {
 					sound.stop();
@@ -181,6 +185,8 @@
 	onMount(() => {
 		//@ts-ignore
 		canvasCtx = canvas.getContext('2d');
+		//@ts-ignore
+		canvasFgCtx = foregroundCanvas.getContext('2d');
 		canvasWidth = Math.min(window.innerWidth, canvas.width);
 		initContext();
 		loadSound();
@@ -198,6 +204,7 @@
 
 <div class="world-wrapper" bind:this={wrapper} class:blur={overWorldCtx.scenes.wakeUp}>
 	<canvas bind:this={canvas} id="main" width="1024" height="1024"></canvas>
+	<canvas bind:this={foregroundCanvas} id="foreground" width="1024" height="1024"></canvas>
 
 	<Menu bind:context {savesHolder} />
 
@@ -234,5 +241,9 @@
 		left: 50%;
 		top: 50%;
 		transform: translate(-50%, -50%);
+	}
+
+	#foreground  {
+		z-index: 1;
 	}
 </style>

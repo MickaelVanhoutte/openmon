@@ -16,6 +16,7 @@ import { SaveContext } from "./savesHolder";
 import type { Jonction } from "../mapping/collisions";
 import { TourGuideClient } from "@sjmc11/tourguidejs/src/Tour"
 import { GUIDES_STEPS } from "./guides-steps";
+import { pokecenter1 } from "../mapping/maps/pokecenter1";
 
 
 /**
@@ -27,6 +28,7 @@ export class GameContext {
     POKEDEX = new Pokedex();
     MAPS: Record<number, OpenMap> = {
         0: firstBeach,
+        99: pokecenter1
     }
 
     id: number;
@@ -104,6 +106,11 @@ export class GameContext {
             if (value && !this.overWorldContext.isPaused) {
                 let interactive = this.map?.elementInFront(this.player.position.positionOnMap, this.player.position.direction);
                 let scripts = interactive?.interact(this.player.position.positionOnMap);
+
+                // TODO interactive behind counters 
+               // let interactiveBehindCounter = this.map?.elementInFront(this.player.position.positionOnMap, this.player.position.direction);
+                //let scripts2 = interactive?.interact(this.player.position.positionOnMap);
+
                 let newScript = scripts?.[0];
                 let previous = scripts?.[1];
                 if (newScript) {
@@ -226,9 +233,7 @@ export class GameContext {
 
     changeMap(jonction: Jonction) {
         let map = OpenMap.fromInstance(this.MAPS[jonction.mapIdx], new Position(0, 0));
-        //map.playerInitialPosition = map.jonctions.find(j => j.id === jonction.id)?.start || new Position(0, 0);
-        this.player.position.positionOnMap =
-            map.jonctions.find((j) => j.id === jonction.id)?.start || new Position(0, 0);
+        this.player.position.setPosition(jonction.start || new Position(0, 0));
         this.loadMap(map);
     }
 
@@ -241,7 +246,7 @@ export class GameContext {
             onEnterScript = map.scripts?.find((s) => s.triggerType === 'onEnter');
         }
 
-        let npcOnEnter = map.npcs.filter((npc) => npc.movingScript);
+        let npcOnEnter = map.npcs?.filter((npc) => npc.movingScript);
 
         // TODO set in overWorldCtx
         this.map = map;

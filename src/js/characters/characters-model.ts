@@ -46,21 +46,29 @@ export class CharacterPosition {
             this.positionInPx.y = initialPosition.y * tileSize * scale;
             this.targetPositionInPx.y = initialPosition.y * tileSize * scale;
         };
-       
+
         if (initialDirection) {
             this.direction = initialDirection;
             this.targetDirection = initialDirection;
         }
     }
 
-    public setFuturePosition(x: number, y: number, onEnd?:() => void, tileSize: number = 16, scale: number = 2.5) {
+    public setPosition(position: Position, tileSize: number = 16, scale: number = 2.5) {
+
+        this.positionOnMap = position;
+        this.positionInPx = { x: position.x * tileSize * scale, y: position.y * tileSize * scale };
+        this.targetPosition = position;
+        this.targetPositionInPx = { x: position.x * tileSize * scale, y: position.y * tileSize * scale };
+    }
+
+    public setFuturePosition(x: number, y: number, onEnd?: () => void, tileSize: number = 16, scale: number = 2.5) {
         this.targetPosition = { x, y };
         this.targetPositionInPx = { x: x * tileSize * scale, y: y * tileSize * scale };
 
         // callback when the character reaches the target position
-        if(onEnd){
+        if (onEnd) {
             let unsubscribe = setInterval(() => {
-                if(this.positionOnMap.x === x && this.positionOnMap.y === y){
+                if (this.positionOnMap.x === x && this.positionOnMap.y === y) {
                     onEnd();
                     clearInterval(unsubscribe);
                 }

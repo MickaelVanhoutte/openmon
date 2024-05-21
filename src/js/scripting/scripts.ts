@@ -1,6 +1,6 @@
-import type {NPC} from "../characters/npc";
-import {Position} from "../mapping/positions";
-import type {GameContext} from "../context/gameContext";
+import type { NPC } from "../characters/npc";
+import { Position } from "../mapping/positions";
+import type { GameContext } from "../context/gameContext";
 
 export abstract class Scriptable {
     type: string = 'scriptable';
@@ -231,7 +231,7 @@ export class StartBattle extends Scriptable {
 }
 
 export class Script {
-    triggerType: 'onEnter' | 'onStep' | 'onInteract' | 'onSight' | 'onGameStart';
+    triggerType: 'onEnter' | 'onStep' | 'onInteract' | 'onInteract2' | 'onSight' | 'onGameStart';
     stepPosition?: Position;
     actions: Scriptable[];
     onEnd: () => void = () => {
@@ -244,7 +244,7 @@ export class Script {
     playing: boolean = false;
 
 
-    constructor(triggerType: 'onEnter' | 'onStep' | 'onInteract' | 'onSight' | 'onGameStart', actions: Scriptable[], stepPosition?: Position, replayable: boolean = false) {
+    constructor(triggerType: 'onEnter' | 'onStep' | 'onInteract' | 'onInteract2' | 'onSight' | 'onGameStart', actions: Scriptable[], stepPosition?: Position, replayable: boolean = false) {
         this.triggerType = triggerType;
         this.actions = actions;
         this.stepPosition = stepPosition;
