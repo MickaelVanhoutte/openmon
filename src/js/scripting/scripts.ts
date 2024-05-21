@@ -101,10 +101,14 @@ export class Dialog extends Scriptable {
     }
 
     selectOption(index: number): void {
-        if (this.current.options?.length === 0 || this.current.actions?.length === 0) return;
+        console.log(this.current.actions);
+        if (this.current.options?.length === 0 || index > this.current.actions?.length) return;
         let action = this.current.actions[index];
-        console.log(action, this.context);
+        console.log(action, this.context)
         if (action && this.context) {
+            // @ts-ignore
+            this.context.playingScript.currentAction = action;
+            console.log(action);
             action.play(this.context, () => {
                 this.next();
             });
@@ -128,6 +132,7 @@ export class HealAll extends Scriptable {
         context.player.monsters.forEach(monster => {
             monster.fullHeal();
         });
+        // TODO animate
         setTimeout(() => {
             this.finished = true;
             onEnd();
@@ -323,6 +328,8 @@ export class Script {
             switch (action.type) {
                 case 'Dialog':
                     return new Dialog((action as Dialog).messages);
+                case 'OpenShop':
+                    return new OpenShop((action as OpenShop).items);
                 case 'StepBack':
                     return new StepBack();
                 case 'MoveTo':
