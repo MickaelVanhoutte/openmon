@@ -57,10 +57,8 @@
 	onMount(() => {
 		loadSound();
 		setTimeout(() => {
-			console.log('ready');
 			animationFinished = true;
 			let int = setInterval(() => {
-				console.log(loaded, animationFinished);
 				if (loaded && animationFinished) {
 					clearInterval(int);
 					ready = true;
