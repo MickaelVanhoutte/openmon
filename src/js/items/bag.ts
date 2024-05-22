@@ -7,7 +7,7 @@ export class Bag {
     public balls: Record<number, number> = {};
     public potions: Record<number, number> = {};
     public revives: Record<number, number> = {};
-    public money: number = 0;
+    public money: number = 3000;
 
     constructor(bag?: Bag) {
         if (bag) {

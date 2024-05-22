@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import Menu from '../menus/Menu.svelte';
 	import DialogView from '../common/DialogView.svelte';
-	import type { Dialog } from '../../js/scripting/scripts';
+	import type { Dialog, OpenShop } from '../../js/scripting/scripts';
 	import type { GameContext } from '../../js/context/gameContext';
 	import { type OverworldContext } from '../../js/context/overworldContext';
 	import { SavesHolder } from '../../js/context/savesHolder';
@@ -37,6 +37,8 @@
 	$: currentDialog = currentAction?.type === 'Dialog' ? (currentAction as Dialog) : undefined;
 	$: hasDialog = currentAction?.type === 'Dialog';
 	$: hasShop = currentAction?.type === 'OpenShop';
+	$: currentShop = currentAction?.type === 'OpenShop' ? (currentAction as OpenShop) : undefined;
+	$: isHealing = currentAction?.type === 'HealAll';
 
 	function initContext() {
 		mainLoop();
@@ -47,8 +49,6 @@
     Game loop
      */
 	function mainLoop() {
-		
-
 		canvasCtx.imageSmoothingEnabled = true;
 		canvasCtx.imageSmoothingQuality = 'high';
 
@@ -144,14 +144,14 @@
 
 		// Foreground
 		if (context.map?.foreground !== undefined) {
-				context.map.drawFG(
-					canvasFgCtx,
-					context.map,
-					overWorldCtx.frames.imageScale,
-					context.player.position.positionInPx,
-					mapDimensions
-				);
-			}
+			context.map.drawFG(
+				canvasFgCtx,
+				context.map,
+				overWorldCtx.frames.imageScale,
+				context.player.position.positionInPx,
+				mapDimensions
+			);
+		}
 	}
 
 	let battleCtx: BattleContext | undefined = undefined;
@@ -172,16 +172,17 @@
 	}
 
 	function loadSound() {
-		sound = new Howl({
-			src: ['src/assets/audio/beach.mp3'],
-			autoplay: true,
-			loop: true,
-			volume: 0.5
-		});
-		setTimeout(() => {
-			soundPlaying = sound.playing();
-		}, 200);
-		console.log(sound);
+		//if (context.map?.sound) {
+			sound = new Howl({
+				src: ['src/assets/audio/' + context.map?.sound + '.mp3'],
+				autoplay: true,
+				loop: true,
+				volume: 0.5
+			});
+			setTimeout(() => {
+				soundPlaying = sound.playing();
+			}, 200);
+		//}
 	}
 
 	onMount(() => {
@@ -214,8 +215,10 @@
 		<DialogView bind:dialog={currentDialog} {context} />
 	{/if}
 	{#if hasShop}
-		<Shop bind:shop={currentAction} {context}/>
+		<Shop bind:shop={currentShop} {context} />
 	{/if}
+
+	<div class="healing" class:show={isHealing}></div>
 
 	<Controls {context} {overWorldCtx} />
 	<ScenesView {context} {canvasWidth} />
@@ -234,6 +237,23 @@
 
 		&.blur {
 			animation: blurry 5s linear infinite;
+		}
+
+		.healing {
+			position: absolute;
+			width: 100dvw;
+			height: 100dvh;
+			top: 0;
+			left: 0;
+			background-color: white;
+			opacity: 0;
+			transition: all 1s;
+			z-index: -100;
+
+			&.show {
+				z-index: 100;
+				opacity: 1;
+			}
 		}
 	}
 

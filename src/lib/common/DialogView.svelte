@@ -27,10 +27,11 @@
 
 	const listener = (e: KeyboardEvent) => {
 		console.log(current);
-		if (e.key === 'Enter' || e.key === 'a') {
+		if (e.key === 'Enter') {
 			if (current?.options?.length) {
 				console.log('selecting option', selectedOption);
 				dialog?.selectOption(selectedOption);
+				next();
 			} else if (animate) {
 				next();
 			}
@@ -43,9 +44,23 @@
 
 	onMount(() => {
 		window.addEventListener('keydown', listener);
+		setTimeout(() => {
+			unsubscribe = context.overWorldContext.keys.a?.subscribe((value) => {
+				if (value) {
+					if (current?.options?.length) {
+						console.log('selecting option', selectedOption);
+						dialog?.selectOption(selectedOption);
+						next();
+					} else if (animate) {
+						next();
+					}
+				}
+			});
+		}, 200);
 
 		return () => {
 			window.removeEventListener('keydown', listener);
+			unsubscribe && unsubscribe();
 		};
 	});
 </script>

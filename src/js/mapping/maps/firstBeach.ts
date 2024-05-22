@@ -511,4 +511,4 @@ export const firstBeach = OpenMap.fromScratch(0,'src/assets/maps/First-beach.png
                 new Message('Which one is it already ?')
             ])
         ])
-    ]);
+    ], 'beach');

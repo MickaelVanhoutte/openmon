@@ -42,6 +42,7 @@ export class OpenMap {
 
     public npcs: NPC[] = [];
     public scripts: Script[];
+    public sound?: string;
 
 
     constructor(mapId: number,
@@ -50,7 +51,7 @@ export class OpenMap {
         playerInitialPosition: Position,
         levelRange: number[] = [1, 100],
         jonctions: Jonction[] = [],
-        foreground?: string, battleTile?: number, collisionTile?: number, waterTile?: number, npcs?: NPC[], scripts?: Script[]) {
+        foreground?: string, battleTile?: number, collisionTile?: number, waterTile?: number, npcs?: NPC[], scripts?: Script[], sound?: string) {
         this.mapId = mapId;
         this.background = background;
         this.foreground = foreground;
@@ -71,6 +72,7 @@ export class OpenMap {
         this.jonctions = jonctions;
         this.npcs = npcs || []
         this.scripts = scripts || [];
+        this.sound = sound;
     }
 
     public static fromScratch(mapId: number, background: string, width: number, height: number,
@@ -78,7 +80,7 @@ export class OpenMap {
         playerInitialPosition: Position = new Position(),
         levelRange: number[] = [1, 100],
         jonctions: Jonction[] = [],
-        foreground?: string, battleTile?: number, collisionTile?: number, waterTile?: number, npcs?: NPC[], scripts?: Script[]): OpenMap {
+        foreground?: string, battleTile?: number, collisionTile?: number, waterTile?: number, npcs?: NPC[], scripts?: Script[], sound?: string): OpenMap {
 
 
         return new OpenMap(
@@ -98,7 +100,8 @@ export class OpenMap {
             collisionTile,
             waterTile,
             npcs,
-            scripts
+            scripts,
+            sound
         )
     }
 

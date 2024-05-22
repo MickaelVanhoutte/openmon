@@ -6,6 +6,8 @@ export abstract class Scriptable {
     type: string = 'scriptable';
     finished: boolean = false;
     canceled: boolean = false;
+    conditionIndex: number = -1;
+    selectedOption: number = -1;
 
     abstract play(context: GameContext, onEnd: () => void): any;
 }
@@ -32,13 +34,11 @@ export class Message {
     speaker: string;
 
     options: string[];
-    actions: Scriptable[];
 
-    constructor(text: string, speaker?: string, options?: string[], actions?: Scriptable[]) {
+    constructor(text: string, speaker?: string, options?: string[]) {
         this.text = text;
         this.speaker = speaker || 'System';
         this.options = options || [];
-        this.actions = actions || [];
     }
 }
 
@@ -50,10 +50,11 @@ export class OpenShop extends Scriptable {
     onEnd: () => void = () => {
     }
 
-    constructor(items: Record<string, number>) {
+    constructor(items: Record<string, number>, conditionIndex: number = -1) {
         super();
         this.type = 'OpenShop';
         this.items = items;
+        this.conditionIndex = conditionIndex;
     }
 
     close() {
@@ -78,15 +79,15 @@ export class OpenShop extends Scriptable {
 export class Dialog extends Scriptable {
     messages: Message[] = [];
     current: Message;
-    context?: GameContext;
     onEnd: () => void = () => {
     }
 
-    constructor(messages: Message[]) {
+    constructor(messages: Message[], conditionIndex: number = -1) {
         super();
         this.type = 'Dialog';
         this.messages = messages;
         this.current = messages[0];
+        this.conditionIndex = conditionIndex;
     }
 
     next(): Message | undefined {
@@ -101,31 +102,21 @@ export class Dialog extends Scriptable {
     }
 
     selectOption(index: number): void {
-        console.log(this.current.actions);
-        if (this.current.options?.length === 0 || index > this.current.actions?.length) return;
-        let action = this.current.actions[index];
-        console.log(action, this.context)
-        if (action && this.context) {
-            // @ts-ignore
-            this.context.playingScript.currentAction = action;
-            console.log(action);
-            action.play(this.context, () => {
-                this.next();
-            });
-        }
+        if (this.current.options?.length === 0 || index > this.current.options?.length) return;
+        this.selectedOption = index;
     }
 
     play(context: GameContext, onEnd: () => void): any {
         this.onEnd = onEnd;
-        this.context = context;
         this.current = this.messages[0];
     }
 }
 
 export class HealAll extends Scriptable {
-    constructor() {
+    constructor(conditionIndex: number = -1) {
         super();
         this.type = 'HealAll';
+        this.conditionIndex = conditionIndex;
     }
 
     play(context: GameContext, onEnd: () => void): any {
@@ -136,7 +127,7 @@ export class HealAll extends Scriptable {
         setTimeout(() => {
             this.finished = true;
             onEnd();
-        }, 300);
+        }, 2000);
     }
 }
 
@@ -327,9 +318,11 @@ export class Script {
         this.actions = this.actions.map((action) => {
             switch (action.type) {
                 case 'Dialog':
-                    return new Dialog((action as Dialog).messages);
+                    return new Dialog((action as Dialog).messages, (action as Dialog).conditionIndex);
                 case 'OpenShop':
                     return new OpenShop((action as OpenShop).items);
+                case 'HealAll':
+                    return new HealAll((action as HealAll).conditionIndex);
                 case 'StepBack':
                     return new StepBack();
                 case 'MoveTo':
@@ -352,8 +345,24 @@ export class Script {
     }
 
     play(context: GameContext, index: number = 0) {
+        context.overWorldContext.isPaused = true;
         if (this.playing) {
-            this.currentAction = this.actions[index];
+            if(this.currentAction && this.currentAction.selectedOption > 0){
+                this.currentAction.selectedOption = -1;
+                console.log(this.currentAction.selectedOption);
+                // find next action with matching conditionIndex
+                const nextActionIndex = this.actions.findIndex((action, i) => i > index && action.conditionIndex === this.currentAction?.selectedOption);
+                if (nextActionIndex !== -1) {
+                    this.currentAction = this.actions[nextActionIndex];
+                } else {
+                    // Handle case when no action with matching conditionIndex is found
+                    this.played = true;
+                    this.onEnd();
+                }
+            }else{
+                this.currentAction = this.actions[index];
+            }
+           
 
             if (this.currentAction) {
                 this.currentAction.finished = false;
@@ -366,9 +375,20 @@ export class Script {
                     this.play(context, 0);
                 } else {
                     this.played = true;
+                    context.overWorldContext.isPaused = false;
                     this.onEnd();
                 }
             }
+        }
+    }
+
+    nextAction(context: GameContext){
+        console.log('next action', this.currentAction, this.actions.indexOf(this.currentAction as Scriptable) + 1);
+        if(this.currentAction){
+            this.currentAction.finished = false;
+            this.currentAction.canceled = false;
+            console.log(this.actions.indexOf(this.currentAction as Scriptable) + 1);
+            this.play(context, this.actions.indexOf(this.currentAction as Scriptable) + 1);
         }
     }
 
