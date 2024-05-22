@@ -14,7 +14,7 @@
                 <li>Badges : 0</li>
                 <li>Captured Pokemons : {context.POKEDEX.getCaught()?.length}</li>
                 <li>Viewed Pokemons : {context.POKEDEX.getViewed()?.length}</li>
-                <li>Money : 0$</li>
+                <li>Money : {context.player.bag.money}$</li>
             </ul>
         </div>
 		<div class="col-4 trainer-img">
