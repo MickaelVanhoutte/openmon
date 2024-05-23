@@ -222,12 +222,8 @@ export class OpenMap {
                 elementPosition.x += 1;
                 break;
         }
-
-        let elem = this.elementAt(elementPosition);
-        if (elem && elem.isBehindCounter()) {
-            return elem;
-        }
-        return undefined;
+        
+        return this.elementAt(elementPosition);
     }
 
     public elementBehindCounter(position: Position, direction: 'up' | 'down' | 'left' | 'right'): Interactive | undefined {
@@ -246,7 +242,11 @@ export class OpenMap {
                 elementPosition.x += 2;
                 break;
         }
-        return this.elementAt(elementPosition);
+        let elem = this.elementAt(elementPosition);
+        if (elem && elem.isBehindCounter()) {
+            return elem;
+        }
+        return undefined;
     }
 
     private elementAt(elementPosition: Position): Interactive | undefined {
