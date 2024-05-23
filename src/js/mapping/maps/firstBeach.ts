@@ -1,10 +1,10 @@
-import {OpenMap} from "../maps";
-import {NPC} from "../../characters/npc";
-import {Dialog, GiveItem, Message, MoveToPlayer, Script} from "../../scripting/scripts";
-import {Position} from "../positions";
+import { OpenMap } from "../maps";
+import { NPC } from "../../characters/npc";
+import { Dialog, GiveItem, Message, MoveToPlayer, Script, StartBattle } from "../../scripting/scripts";
+import { Position } from "../positions";
 import { Jonction } from "../collisions";
 
-const monsters = Array.from({length: 233}, (v, k) => k + 1);
+const monsters = Array.from({ length: 233 }, (v, k) => k + 1);
 
 const collisions = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40104, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40104, 0, 0, 0, 0, 0, 0, 0, 40104, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40104, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40104, 40104, 0, 0, 0, 0, 0, 0, 0, 40104, 0,
@@ -486,17 +486,30 @@ const npcs = [
                     new Message('You should head north to the village', 'System'),
                 ])])
         ]
-    )
+    ),
+    new NPC(2, "NPC2", 2, new Position(137, 3), 'down', 'MALE', [112, 114], undefined,
+        new Script(
+            'onSight',
+            [
+                new MoveToPlayer(2),
+                new Dialog([
+                    new Message('I found these pokemons while fishing,'),
+                    new Message('Let\'s see what you got !')
+                ]),
+                new StartBattle(2)
+            ]
+        )
+    ),
 ]
 
-export const firstBeach = OpenMap.fromScratch(0,'src/assets/maps/First-beach.png', 150, 150,
+export const firstBeach = OpenMap.fromScratch(0, 'src/assets/maps/First-beach.png', 150, 150,
     collisions, waterCollision, battle, monsters,
     new Position(78, 57),
     [3, 6], [
-        new Jonction(1,
-            99, [new Position(86, 29)], new Position(9, 12)
-        )
-    ], 'src/assets/maps/First-beach-foreground.png', 39951, 40104, 40111, npcs,
+    new Jonction(1,
+        99, [new Position(86, 29)], new Position(9, 12)
+    )
+], 'src/assets/maps/First-beach-foreground.png', 39951, 40104, 40111, npcs,
     [
         new Script('onGameStart', [
             new Dialog([

@@ -251,23 +251,16 @@ export class MoveToPlayer extends Scriptable {
                     break;
             }
 
-            npc.position.targetPosition = futurePosition;
-            this.waitMvtEnds(context, npc, onEnd);
+            npc.position.setFuturePosition(futurePosition.x, futurePosition.y, () => {  
+                npc.moving = false;
+                this.finished = true;
+                onEnd();
+            });
+        
         } else {
             this.finished = true;
             onEnd();
         }
-    }
-
-    private waitMvtEnds(context: GameContext, npc: NPC, onEnd: () => void) {
-        let unsubscribe = setInterval(() => {
-            if (npc && npc.position.positionOnMap.x === npc.position.targetPosition.x && npc.position.positionOnMap.y === npc.position.targetPosition.y) {
-                clearInterval(unsubscribe);
-                npc.moving = false;
-                this.finished = true;
-                onEnd();
-            }
-        }, 200);
     }
 }
 
@@ -349,7 +342,6 @@ export class Script {
         if (this.playing) {
             if(this.currentAction && this.currentAction.selectedOption > 0){
                 this.currentAction.selectedOption = -1;
-                console.log(this.currentAction.selectedOption);
                 // find next action with matching conditionIndex
                 const nextActionIndex = this.actions.findIndex((action, i) => i > index && action.conditionIndex === this.currentAction?.selectedOption);
                 if (nextActionIndex !== -1) {
@@ -362,7 +354,6 @@ export class Script {
             }else{
                 this.currentAction = this.actions[index];
             }
-           
 
             if (this.currentAction) {
                 this.currentAction.finished = false;

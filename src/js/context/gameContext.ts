@@ -8,7 +8,7 @@ import { Position } from "../mapping/positions";
 import { OverworldContext, SceneType } from "./overworldContext";
 import { BattleContext } from "./battleContext";
 import type { Script } from "../scripting/scripts";
-import type { NPC } from "../characters/npc";
+import { NPC } from "../characters/npc";
 import { ItemsReferences } from "../items/items";
 import { firstBeach } from "../mapping/maps/firstBeach";
 import { writable, type Writable } from "svelte/store";
@@ -361,6 +361,16 @@ export class GameContext {
 
     startBattle(opponent: PokemonInstance | Character) {
         this.overWorldContext.isPaused = true;
+
+        if (opponent instanceof NPC && opponent?.monsterIds?.length > 0) {
+            opponent.monsters = opponent.monsterIds.map((id) => {
+                let level = Math.floor(this.player.monsters.reduce((acc, pkmn) => acc + pkmn.level, 0) / this.player.monsters.length);
+                // randomly add -1 to 2 levels
+                level += Math.floor(Math.random() * 4) - 1;
+                return this.POKEDEX.findById(id).result.instanciate(level);
+            });
+        }
+
         let battleContext = new BattleContext(this.player, opponent, this.settings);
         let unsubscribe = battleContext.events.end.subscribe((result) => {
             if (result) {
