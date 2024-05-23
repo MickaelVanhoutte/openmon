@@ -90,7 +90,6 @@
 					overWorldCtx.frames.debug = !overWorldCtx.frames.debug;
 					break;
 				case 'Escape':
-					if (!context.overWorldContext.isPaused)
 						overWorldCtx.menus.menuOpened
 							? overWorldCtx.closeMenu(MenuType.MAIN)
 							: overWorldCtx.openMenu(MenuType.MAIN);
