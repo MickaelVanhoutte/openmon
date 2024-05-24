@@ -72,26 +72,26 @@
 			/*
           		use "x" to display debug info
       		*/
-			if (overWorldCtx.frames.debug) {
-				canvasCtx.font = '12px Arial';
-				let fps = Math.round((1 / elapsed) * 1000);
+			// if (overWorldCtx.frames.debug) {
+			// 	canvasCtx.font = '12px Arial';
+			// 	let fps = Math.round((1 / elapsed) * 1000);
 
-				let x = canvasWidth / 2 - window.innerWidth / 3.5;
-				let y = canvas.height / 2 - window.innerHeight / 3.5;
+			// 	let x = canvasWidth / 2 - window.innerWidth / 3.5;
+			// 	let y = canvas.height / 2 - window.innerHeight / 3.5;
 
-				canvasCtx.fillStyle = 'black';
-				canvasCtx.fillRect(x, y, 200, 100);
+			// 	canvasCtx.fillStyle = 'black';
+			// 	canvasCtx.fillRect(x, y, 200, 100);
 
-				canvasCtx.fillStyle = 'white';
-				canvasCtx.fillText(`fps: ${fps}`, x + 10, y + 10);
-				canvasCtx.fillText(`Player moving: ${context.player.moving}`, x + 10, y + 20);
-				canvasCtx.fillText(
-					`Player offset: ${context.player.position.positionOnMap.x}, ${context.player.position.positionOnMap.y}`,
-					x + 10,
-					y + 30
-				);
-				canvasCtx.fillText(`paused: ${context.overWorldContext.isPaused}`, x + 10, y + 40);
-			}
+			// 	canvasCtx.fillStyle = 'white';
+			// 	canvasCtx.fillText(`fps: ${fps}`, x + 10, y + 10);
+			// 	canvasCtx.fillText(`Player moving: ${context.player.moving}`, x + 10, y + 20);
+			// 	canvasCtx.fillText(
+			// 		`Player offset: ${context.player.position.positionOnMap.x}, ${context.player.position.positionOnMap.y}`,
+			// 		x + 10,
+			// 		y + 30
+			// 	);
+			// 	canvasCtx.fillText(`paused: ${context.overWorldContext.getPaused()}`, x + 10, y + 40);
+			// }
 		}
 		overWorldCtx.frames.frameId = window.requestAnimationFrame(mainLoop);
 	}

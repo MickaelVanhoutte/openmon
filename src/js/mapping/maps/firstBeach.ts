@@ -1,6 +1,6 @@
 import { OpenMap } from "../maps";
 import { NPC } from "../../characters/npc";
-import { Dialog, GiveItem, Message, MoveToPlayer, Script, StartBattle } from "../../scripting/scripts";
+import { Dialog, GiveItem, GiveMoney, Message, MoveTo, MoveToPlayer, Script, StartBattle } from "../../scripting/scripts";
 import { Position } from "../positions";
 import { Jonction } from "../collisions";
 
@@ -496,9 +496,77 @@ const npcs = [
                     new Message('I found these pokemons while fishing,'),
                     new Message('Let\'s see what you got !')
                 ]),
-                new StartBattle(2)
+                new StartBattle(2),
+                new GiveMoney(100), // TODO condition if win
+                new Dialog([
+                    new Message('You received 100$')
+                ])
             ]
         )
+    ),
+
+    new NPC(3, "NPC3", 2, new Position(122, 85), 'down', 'MALE', [112, 114], undefined,
+        new Script(
+            'onSight',
+            [
+                new MoveToPlayer(3),
+                new Dialog([
+                    new Message('Are you a new trainer ?'),
+                ]),
+                new StartBattle(3),
+                new GiveMoney(100), // TODO condition if win
+                new Dialog([
+                    new Message('You received 100$')
+                ]),
+                new Dialog([
+                    new Message('I guess you\'re not...'),
+                ])
+            ]
+        )
+    ),
+
+    new NPC(4, "NPC4", 2, new Position(98, 58), 'down', 'MALE', [112, 114], undefined,
+        new Script(
+            'onSight',
+            [
+                new MoveToPlayer(4),
+                new Dialog([
+                    new Message('I\'m training here everyday !'),
+                ]),
+                new StartBattle(4),
+                new GiveMoney(100), // TODO condition if win
+                new Dialog([
+                    new Message('You received 100$')
+                ]),
+                new Dialog([
+                    new Message('Let me train now...'),
+                ])
+            ]
+        ),
+        [new Script('onInteract', [
+            new Dialog([
+                new Message('Let me train now...'),
+            ])
+        ], undefined, true)],
+        // new Script(
+        //     'onEnter',
+        //     [
+        //         new MoveTo(4, new Position(97, 58)),
+        //         new MoveTo(4, new Position(96, 58)),
+        //         new MoveTo(4, new Position(95, 58)),
+        //         new MoveTo(4, new Position(94, 58)),
+        //         new MoveTo(4, new Position(93, 58)),
+        //         new MoveTo(4, new Position(92, 58)),
+        //         new MoveTo(4, new Position(91, 58)),
+        //         new MoveTo(4, new Position(92, 58)),
+        //         new MoveTo(4, new Position(93, 58)),
+        //         new MoveTo(4, new Position(94, 58)),
+        //         new MoveTo(4, new Position(95, 58)),
+        //         new MoveTo(4, new Position(96, 58)),
+        //         new MoveTo(4, new Position(97, 58)),
+        //         new MoveTo(4, new Position(98, 58)),
+        //     ], undefined, true
+        // )
     ),
 ]
 

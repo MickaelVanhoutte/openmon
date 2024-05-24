@@ -131,7 +131,7 @@ export class Player implements Character {
             let unsubscribe = setInterval(() => {
                 if (this.follower && !this.follower.moving) {
                     //const savedSpeed = this.running;
-                    context.isPaused = true;
+                    context.setPaused(true, 'followerCharge');
                     this.follower.moving = true;
                     this.follower.position.direction = this.position.direction;
                     let playerSide = this.aroundPlayer(this.playerSide());
@@ -157,7 +157,7 @@ export class Player implements Character {
                                                     if (this.follower) {
                                                         this.follower.position.direction = this.followerOpositeDirection();
                                                         //this.running = savedSpeed;
-                                                        context.isPaused = false;
+                                                        context.setPaused(false, 'followerCharge');
                                                     }
                                                 });
                                             }
@@ -324,7 +324,8 @@ export class Player implements Character {
 
 
             let { centerX, centerY, offsetX, offsetY } = centerObject(ctx, scale, this.position.positionInPx, 16, mapDim);
-            offsetY += 6;
+            offsetY += 12;
+            offsetX += 4;
 
             ctx.save();
             ctx.translate(centerX - offsetX, centerY - offsetY);

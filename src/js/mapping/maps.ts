@@ -337,7 +337,6 @@ export class OpenMap {
                 width: ctx.canvas.width,
                 height: ctx.canvas.height,
             }
-// explain the code below
 
             centerX = screenDimensions.width / 2;
             centerY = screenDimensions.height / 2;
@@ -345,9 +344,9 @@ export class OpenMap {
             offsetX = playerPosition.x;
             offsetY = playerPosition.y;
 
-            let minLeftSide = Math.min(centerX / 2, window.innerWidth / 4 - (16 * .83 / 2));
+            let minLeftSide = Math.min(centerX / 2, window.innerWidth / 4 - (16 * 1 / 2));
             let minRightSide = (image.width * scale) - minLeftSide;
-            let minTopSide = Math.min(centerY, window.innerHeight / 4 - (16 * .83 / 2));
+            let minTopSide = Math.min(centerY, window.innerHeight / 4 - (16 * 1 / 2));
             let minBottomSide = (image.height * scale) - minTopSide;
 
             let leftThreshold = playerPosition.x <= minLeftSide;

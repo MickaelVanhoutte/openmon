@@ -109,8 +109,6 @@ export class NPC implements Character, Interactive {
             height: number
         }) {
 
-            console.log(this.moving);
-
         if (this.moving) {
 
             if (this.frames.max > 1) {
@@ -142,7 +140,6 @@ export class NPC implements Character, Interactive {
             const moveByY = Math.floor((16 * 2.5) / 2 * speed * deltaY);
 
             const distance = Math.sqrt(deltaXPx * deltaXPx + deltaYPx * deltaYPx);
-            console.log(distance)
             if (distance < ((16 * 2.5) / 2 * speed) + 1) {
                 this.position.positionInPx.x = this.position.targetPositionInPx.x;
                 this.position.positionInPx.y = this.position.targetPositionInPx.y;
@@ -159,8 +156,8 @@ export class NPC implements Character, Interactive {
         const relativeY = this.position.positionInPx.y - playerPosition.y;
 
         let { centerX, centerY, offsetX, offsetY } = centerObject(ctx, scale, playerPosition, 16, mapDim);
-        offsetY -= relativeY - 6;
-        offsetX -= relativeX;
+        offsetY -= relativeY - 12;
+        offsetX -= relativeX; 
 
         ctx.save();
         ctx.translate(centerX - offsetX, centerY - offsetY);
