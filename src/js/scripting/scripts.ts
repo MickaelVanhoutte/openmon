@@ -1,6 +1,7 @@
 import type { NPC } from "../characters/npc";
 import { Position } from "../mapping/positions";
 import type { GameContext } from "../context/gameContext";
+import { on } from "@svgdotjs/svg.js";
 
 export abstract class Scriptable {
     type: string = 'scriptable';
@@ -149,11 +150,19 @@ export class MoveTo extends Scriptable {
             npc.direction = npc.position.positionOnMap.x > this.position.x ? 'left' : npc.position.positionOnMap.x < this.position.x ? 'right' : npc.position.positionOnMap.y > this.position.y ? 'up' : 'down';
 
             if (this.moveAllowed(context, this.position)) {
-                npc.position.targetPosition = this.position;
-
-                this.waitMvtEnds(context, npc, onEnd);
+                npc.position.setFuturePosition(this.position.x, this.position.y, () => {
+                    npc.moving = false;
+                    this.finished = true;
+                    onEnd();
+                });
             } else {
-                this.waitUntilAllowed(context, npc, onEnd);
+                if (context.checkForInSightNpc(npc.id)) {
+                    this.finished = true;
+                    onEnd();
+                    context.playScript(npc.mainScript);
+                } else {
+                    this.waitUntilAllowed(context, npc, onEnd);
+                }
             }
 
         } else {
@@ -177,6 +186,8 @@ export class MoveTo extends Scriptable {
                 npc.moving = false;
                 this.finished = true;
                 onEnd();
+            } else {
+                this.waitUntilAllowed(context, npc, onEnd);
             }
         }, 200);
     }
@@ -217,6 +228,23 @@ export class GiveItem extends Scriptable {
     }
 }
 
+export class GiveMoney extends Scriptable {
+    qty: number;
+
+    constructor(qty: number) {
+        super();
+        this.type = 'GiveMoney';
+        this.qty = qty;
+    }
+
+    play(context: GameContext, onEnd: () => void): any {
+        context.player.bag.money += this.qty;
+        this.finished = true;
+        onEnd();
+    }
+
+}
+
 export class MoveToPlayer extends Scriptable {
     npcId: number;
 
@@ -251,12 +279,12 @@ export class MoveToPlayer extends Scriptable {
                     break;
             }
 
-            npc.position.setFuturePosition(futurePosition.x, futurePosition.y, () => {  
+            npc.position.setFuturePosition(futurePosition.x, futurePosition.y, () => {
                 npc.moving = false;
                 this.finished = true;
                 onEnd();
             });
-        
+
         } else {
             this.finished = true;
             onEnd();
@@ -277,11 +305,15 @@ export class StartBattle extends Scriptable {
     play(context: GameContext, onEnd: () => void): any {
         let npc = context.map?.npcs?.find(npc => npc.id === this.npcId);
         if (npc) {
+            context.startBattle(npc, () => {
+                this.finished = true;
+                onEnd();
 
-            context.startBattle(npc);
+            });
+        } else {
+            this.finished = true;
+            onEnd();
         }
-        this.finished = true;
-        onEnd();
     }
 }
 
@@ -332,15 +364,16 @@ export class Script {
         });
     }
 
-    start(context: GameContext) {
+    start(context: GameContext, pause: boolean = true) {
+        console.log('start script', this.actions)
         this.playing = true;
-        this.play(context);
+        this.play(context, 0, pause);
     }
 
-    play(context: GameContext, index: number = 0) {
-        context.overWorldContext.isPaused = true;
+    play(context: GameContext, index: number = 0, pause: boolean = true) {
         if (this.playing) {
-            if(this.currentAction && this.currentAction.selectedOption > 0){
+            context.overWorldContext.setPaused(pause, 'script', this);
+            if (this.currentAction && this.currentAction.selectedOption > 0) {
                 this.currentAction.selectedOption = -1;
                 // find next action with matching conditionIndex
                 const nextActionIndex = this.actions.findIndex((action, i) => i > index && action.conditionIndex === this.currentAction?.selectedOption);
@@ -349,9 +382,10 @@ export class Script {
                 } else {
                     // Handle case when no action with matching conditionIndex is found
                     this.played = true;
+                    context.overWorldContext.setPaused(false, 'script', this);
                     this.onEnd();
                 }
-            }else{
+            } else {
                 this.currentAction = this.actions[index];
             }
 
@@ -359,26 +393,24 @@ export class Script {
                 this.currentAction.finished = false;
                 this.currentAction.canceled = false;
                 this.currentAction.play(context, () => {
-                    this.play(context, index + 1);
+                    this.play(context, index + 1, pause);
                 });
             } else {
                 if (this.replayable && this.triggerType === 'onEnter') {
-                    this.play(context, 0);
+                    this.play(context, 0, pause);
                 } else {
                     this.played = true;
-                    context.overWorldContext.isPaused = false;
+                    context.overWorldContext.setPaused(false, 'script', this);
                     this.onEnd();
                 }
             }
         }
     }
 
-    nextAction(context: GameContext){
-        console.log('next action', this.currentAction, this.actions.indexOf(this.currentAction as Scriptable) + 1);
-        if(this.currentAction){
+    nextAction(context: GameContext) {
+        if (this.currentAction) {
             this.currentAction.finished = false;
             this.currentAction.canceled = false;
-            console.log(this.actions.indexOf(this.currentAction as Scriptable) + 1);
             this.play(context, this.actions.indexOf(this.currentAction as Scriptable) + 1);
         }
     }

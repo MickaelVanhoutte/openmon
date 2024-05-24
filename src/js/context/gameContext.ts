@@ -99,20 +99,18 @@ export class GameContext {
 
         this.bindKeys();
         this.checkForGameStart();
+        this.loadMap(this.map);
     }
 
     bindKeys() {
         this.overWorldContext.keys.a.subscribe((value) => {
-            if (value && !this.overWorldContext.isPaused) {
+            if (value && !this.overWorldContext.getPaused()) {
                 let interactive = this.map?.elementInFront(this.player.position.positionOnMap, this.player.position.direction);
                 let scripts = interactive?.interact(this.player.position.positionOnMap);
-
-                console.log(interactive);
 
                 // interactive behind counters 
                 if (!interactive) {
                     let interactiveBehindCounter = this.map?.elementBehindCounter(this.player.position.positionOnMap, this.player.position.direction);
-                    console.log(interactiveBehindCounter);
                     scripts = interactiveBehindCounter?.interact(this.player.position.positionOnMap);
                 }
 
@@ -151,7 +149,7 @@ export class GameContext {
             return;
         }
 
-        if (value && !this.overWorldContext.isPaused) {
+        if (value && !this.overWorldContext.getPaused()) {
             this.player.position.targetDirection = direction;
             if (this.player.position.targetDirection !== this.player.position.direction) {
                 this.player.position.direction = this.player.position.targetDirection;
@@ -191,9 +189,6 @@ export class GameContext {
 
                     }
                 });
-
-
-
             }
         }
     }
@@ -237,6 +232,11 @@ export class GameContext {
     }
 
     changeMap(jonction: Jonction) {
+        // stop every scripts
+        this.playingScript?.interrupt();
+        this.map?.npcs.forEach(npc => npc.movingScript?.interrupt());
+
+
         let map = OpenMap.fromInstance(this.MAPS[jonction.mapIdx], new Position(0, 0));
         this.player.position.setPosition(jonction.start || new Position(0, 0));
         this.loadMap(map);
@@ -252,6 +252,7 @@ export class GameContext {
         }
 
         let npcOnEnter = map.npcs?.filter((npc) => npc.movingScript);
+        console.log(npcOnEnter)
 
         // TODO set in overWorldCtx
         this.map = map;
@@ -260,12 +261,13 @@ export class GameContext {
             this.overWorldContext.changingMap = false;
 
             if (onEnterScript) {
+                console.log(onEnterScript);
                 this.playScript(onEnterScript);
             }
             if (npcOnEnter?.length > 0) {
                 this.playMvts(npcOnEnter);
             }
-        }, 4000);
+        }, 1000);
         setTimeout(() => {
             //overworldContext.displayChangingMap = false;
             //checkForGameStart();
@@ -308,6 +310,12 @@ export class GameContext {
         }
     }
 
+    checkForInSightNpc(npcId: number): boolean {
+        let npc = this.map?.npcs.find(npc => npc.id === npcId);
+        let haveInSightScript = !!npc && !!npc?.mainScript && (!npc.mainScript.played || npc.mainScript.replayable) && npc.mainScript.triggerType === 'onSight';
+        return !!npc && haveInSightScript && this.haveInSight(npc);
+    }
+
     checkForInSight() {
         if (this.map?.npcs && this.map?.npcs?.length > 0) {
             let npcsWithInSightScript: NPC[] = this.map.npcs.filter(
@@ -318,49 +326,54 @@ export class GameContext {
             );
 
             npcsWithInSightScript.forEach((npc) => {
-                // player is in sight if the npc looks in his direction and is within 3 tiles
-                // get 3 tiles in front of the npc  :
-                let positionsInFront: Position[];
-                if (npc.direction === 'down') {
-                    positionsInFront = [
-                        new Position(npc.position.positionOnMap.x, npc.position.positionOnMap.y + 1),
-                        new Position(npc.position.positionOnMap.x, npc.position.positionOnMap.y + 2),
-                        new Position(npc.position.positionOnMap.x, npc.position.positionOnMap.y + 3)
-                    ];
-                } else if (npc.direction === 'up') {
-                    positionsInFront = [
-                        new Position(npc.position.positionOnMap.x, npc.position.positionOnMap.y - 1),
-                        new Position(npc.position.positionOnMap.x, npc.position.positionOnMap.y - 2),
-                        new Position(npc.position.positionOnMap.x, npc.position.positionOnMap.y - 3)
-                    ];
-                } else if (npc.direction === 'left') {
-                    positionsInFront = [
-                        new Position(npc.position.positionOnMap.x - 1, npc.position.positionOnMap.y),
-                        new Position(npc.position.positionOnMap.x - 2, npc.position.positionOnMap.y),
-                        new Position(npc.position.positionOnMap.x - 3, npc.position.positionOnMap.y)
-                    ];
-                } else {
-                    positionsInFront = [
-                        new Position(npc.position.positionOnMap.x + 1, npc.position.positionOnMap.y),
-                        new Position(npc.position.positionOnMap.x + 2, npc.position.positionOnMap.y),
-                        new Position(npc.position.positionOnMap.x + 3, npc.position.positionOnMap.y)
-                    ];
-                }
-                let inSight = positionsInFront.some(
-                    (p) =>
-                        p.x === this.player.position.positionOnMap.x &&
-                        p.y === this.player.position.positionOnMap.y
-                );
 
-                if (inSight) {
-                    this.playScript(npc.mainScript);
+
+                if (this.haveInSight(npc)) {
+                    let move = npc.movingScript?.interrupt();
+                    this.playScript(npc.mainScript, move);
                 }
             });
         }
     }
 
-    startBattle(opponent: PokemonInstance | Character) {
-        this.overWorldContext.isPaused = true;
+    private haveInSight(npc: NPC): boolean {
+        // player is in sight if the npc looks in his direction and is within 3 tiles
+        // get 3 tiles in front of the npc 
+        let positionsInFront: Position[];
+        if (npc.direction === 'down') {
+            positionsInFront = [
+                new Position(npc.position.positionOnMap.x, npc.position.positionOnMap.y + 1),
+                new Position(npc.position.positionOnMap.x, npc.position.positionOnMap.y + 2),
+                new Position(npc.position.positionOnMap.x, npc.position.positionOnMap.y + 3)
+            ];
+        } else if (npc.direction === 'up') {
+            positionsInFront = [
+                new Position(npc.position.positionOnMap.x, npc.position.positionOnMap.y - 1),
+                new Position(npc.position.positionOnMap.x, npc.position.positionOnMap.y - 2),
+                new Position(npc.position.positionOnMap.x, npc.position.positionOnMap.y - 3)
+            ];
+        } else if (npc.direction === 'left') {
+            positionsInFront = [
+                new Position(npc.position.positionOnMap.x - 1, npc.position.positionOnMap.y),
+                new Position(npc.position.positionOnMap.x - 2, npc.position.positionOnMap.y),
+                new Position(npc.position.positionOnMap.x - 3, npc.position.positionOnMap.y)
+            ];
+        } else {
+            positionsInFront = [
+                new Position(npc.position.positionOnMap.x + 1, npc.position.positionOnMap.y),
+                new Position(npc.position.positionOnMap.x + 2, npc.position.positionOnMap.y),
+                new Position(npc.position.positionOnMap.x + 3, npc.position.positionOnMap.y)
+            ];
+        }
+        let inSight = positionsInFront.some(
+            (p) => p.x === this.player.position.positionOnMap.x &&
+                p.y === this.player.position.positionOnMap.y
+        );
+        return inSight;
+    }
+
+    startBattle(opponent: PokemonInstance | Character, onEnd?: () => void) {
+        this.overWorldContext.setPaused(true, 'battle-start gameContext');
 
         if (opponent instanceof NPC && opponent?.monsterIds?.length > 0) {
             opponent.monsters = opponent.monsterIds.map((id) => {
@@ -404,9 +417,12 @@ export class GameContext {
                 }
                 setTimeout(() => {
                     // End of battle, 2 sec later for fade out
-                    this.overWorldContext.isPaused = false;
+                    this.overWorldContext.setPaused(false, 'battle-end gameContext');
                     this.battleContext.set(undefined);
                     this.hasEvolutions = this.player.monsters.some(pkmn => pkmn.canEvolve());
+                    if (onEnd) {
+                        onEnd();
+                    }
                 }, 2000);
             }
         });
@@ -421,11 +437,11 @@ export class GameContext {
         }, 200);
     }
 
-    playScript(script?: Script, previous?: Script, onEnd?: () => void) {
+    playScript(script?: Script, previous?: Script, onEnd?: () => void, pause: boolean = true) {
         if (script && !this.playingScript) {
             script.onEnd = () => {
                 this.playingScript = undefined;
-                this.overWorldContext.isPaused = false;
+                this.overWorldContext.setPaused(false, 'script-end gameContext');
                 if (previous) {
                     if (onEnd) {
                         previous.onEnd = onEnd;
@@ -439,7 +455,7 @@ export class GameContext {
 
             };
             this.playingScript = script;
-            this.overWorldContext.isPaused = true;
+            this.overWorldContext.setPaused(pause, 'script-start gameContext');
             script.start(this);
         }
     }
@@ -447,7 +463,7 @@ export class GameContext {
 
     playMvts(npcs: (NPC | undefined)[]) {
         npcs.forEach((npc) => {
-            npc?.movingScript?.start(this);
+            npc?.movingScript?.start(this, false);
         });
     }
 

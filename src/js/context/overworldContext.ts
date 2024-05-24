@@ -8,7 +8,7 @@ export class FrameOptions {
     fpsInterval: number = 1000 / 24;
     debug: boolean = false;
     imageScale: number = 2.5;
-    playerScale: number = .83;
+    playerScale: number = 1;
 }
 
 export class Menus {
@@ -69,6 +69,15 @@ export class OverworldContext {
     isPaused: boolean = false;
 
     map: OpenMap;
+
+    setPaused(paused: boolean, caller: string, infos?: any) {
+        console.log('setPaused by ' + caller, paused, infos);
+        this.isPaused = paused;
+    }
+
+    getPaused(): boolean {
+        return this.isPaused;
+    }
 
     startScene(sceneType: SceneType) {
         this.isPaused = true;

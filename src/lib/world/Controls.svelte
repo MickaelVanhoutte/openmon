@@ -17,7 +17,7 @@
 	const jsCallback = (data: any) => {
 		// convert data.angle (radian) to a direction (top, bottom, left, right)
 
-		if (!overWorldCtx.isPaused) {
+		if (!overWorldCtx.getPaused()) {
 			if (data.angle) {
 				let degrees = data.angle * (180 / Math.PI);
 
@@ -46,7 +46,7 @@
 	// Keyboard listeners
 
 	const keyUpListener = (e: KeyboardEvent) => {
-		if (!overWorldCtx.isPaused) {
+		if (!overWorldCtx.getPaused()) {
 			switch (e.key) {
 				case 'ArrowDown':
 					overWorldCtx.keys.unpressKey(KeyMap.Down);
@@ -65,7 +65,7 @@
 	};
 	const keyDownListener = (e: KeyboardEvent) => {
 		overWorldCtx.keys.resetAll();
-		if (!overWorldCtx.isPaused) {
+		if (!overWorldCtx.getPaused()) {
 			switch (e.key) {
 				case 'ArrowDown':
 					lastKey.key = 'ArrowDown';
@@ -170,7 +170,7 @@
 	</label>
 </div>
 
-{#if !overWorldCtx.isPaused}
+{#if !overWorldCtx.getPaused()}
 	<button on:click={() => overWorldCtx.openMenu(MenuType.MAIN)} class="start">start </button>
 {/if}
 
