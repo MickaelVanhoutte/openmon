@@ -17,6 +17,7 @@ import type { Jonction } from "../mapping/collisions";
 import { TourGuideClient } from "@sjmc11/tourguidejs/src/Tour"
 import { GUIDES_STEPS } from "./guides-steps";
 import { pokecenter1 } from "../mapping/maps/pokecenter1";
+import { forest } from "../mapping/maps/forest";
 
 
 /**
@@ -28,6 +29,7 @@ export class GameContext {
     POKEDEX = new Pokedex();
     MAPS: Record<number, OpenMap> = {
         0: firstBeach,
+        1: forest,
         99: pokecenter1
     }
 

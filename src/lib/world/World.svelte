@@ -126,6 +126,15 @@
 		});
 
 		// Player & walker
+		
+
+		context.player.draw(
+			canvasCtx,
+			overWorldCtx.frames.playerScale,
+			mapDimensions,
+			context.map.hasBattleZoneAt(context.player.position.positionOnMap)
+		);
+
 		context.player?.follower?.draw(
 			canvasCtx,
 			context.player.position.positionInPx,
@@ -133,13 +142,6 @@
 			mapDimensions,
 			context.map.hasBattleZoneAt(context.player.follower.position.positionOnMap),
 			context.player.running
-		);
-
-		context.player.draw(
-			canvasCtx,
-			overWorldCtx.frames.playerScale,
-			mapDimensions,
-			context.map.hasBattleZoneAt(context.player.position.positionOnMap)
 		);
 
 		// Foreground
