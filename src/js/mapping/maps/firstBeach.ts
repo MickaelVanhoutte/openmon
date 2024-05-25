@@ -575,8 +575,9 @@ export const firstBeach = OpenMap.fromScratch(0, 'src/assets/maps/First-beach.pn
     new Position(78, 57),
     [3, 6], [
     new Jonction(1,
-        99, [new Position(86, 29)], new Position(9, 12)
-    )
+        99, [new Position(86, 29)], new Position(9, 12),
+    ),
+    new Jonction(2,1, [new Position(141, 0), new Position(142, 0), new Position(143, 0), new Position(144, 0), new Position(145, 0), new Position(146, 0), new Position(147, 0)], new Position(6, 159))
 ], 'src/assets/maps/First-beach-foreground.png', 39951, 40104, 40111, npcs,
     [
         new Script('onGameStart', [
