@@ -213,6 +213,7 @@
 	<img src="src/assets/maps/First-beach-foreground.png" alt="map1-fg"/>
 	<img src="src/assets/maps/pokecenter2.png" alt="pokecenter"/>
 	<img src="src/assets/maps/pokecenter2-foreground.png" alt="pokecenter-fg"/>
+	<img src="src/assets/maps/Forest.png" alt="forest"/>
 {/if}
 
 <style lang="scss">

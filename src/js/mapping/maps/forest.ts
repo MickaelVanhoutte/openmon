@@ -1,14 +1,15 @@
+import type { NPC } from "../../characters/npc";
 import { Script, Dialog, Message } from "../../scripting/scripts";
 import { Jonction } from "../collisions";
 import { OpenMap } from "../maps";
 import { Position } from "../positions";
 
 const monsters = Array.from({ length: 233 }, (v, k) => k + 1);
-const collisions = [];
-const waterCollision = [];
-const battle = [];
-const npcs = [];
-const scripts = [];
+const collisions: number[] = [];
+const waterCollision: number[] = [];
+const battle: number[] = [];
+const npcs: NPC[] = [];
+const scripts: Script[] = [];
 
 export const forest = OpenMap.fromScratch(1, 'src/assets/maps/forest.png', 150, 160,
     collisions, waterCollision, battle, monsters,
