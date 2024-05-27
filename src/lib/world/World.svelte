@@ -159,7 +159,7 @@
 		if(spawned){
 			//console.log('draw spawned');
 			spawned.draw(
-				canvasFgCtx,
+				canvasCtx,
 				context.player.position.positionInPx,
 				overWorldCtx.frames.playerScale,
 				mapDimensions,
