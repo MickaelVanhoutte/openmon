@@ -18,6 +18,7 @@ import { TourGuideClient } from "@sjmc11/tourguidejs/src/Tour"
 import { GUIDES_STEPS } from "./guides-steps";
 import { pokecenter1 } from "../mapping/maps/pokecenter1";
 import { forest } from "../mapping/maps/forest";
+import { OverworldSpawn } from "../characters/overworld-spawn";
 
 
 /**
@@ -48,6 +49,7 @@ export class GameContext {
     playingScript?: Script;
     scriptsByTrigger: Map<string, Script[]> = new Map<string, Script[]>();
     hasEvolutions: boolean = false;
+    spawned?: OverworldSpawn;
 
     viewedGuides: number[];
 
@@ -269,11 +271,49 @@ export class GameContext {
             if (npcOnEnter?.length > 0) {
                 this.playMvts(npcOnEnter);
             }
+
+            this.overworldSpawn();
         }, 1000);
         setTimeout(() => {
             //overworldContext.displayChangingMap = false;
             //checkForGameStart();
         }, 2000);
+    }
+
+    overworldSpawn() {
+        setInterval(() => {
+            if (!this.spawned) {
+                for (let i = -15; i < 15; i++) {
+                    if (Math.random() < 0.05 && !this.spawned) {
+                        let x = Math.random() < 0.5 ? 20 : -20;
+                        let y = i//Math.random() < 0.5 ? 20 : -20;
+                        // destination is the oposite side of x,y
+                        let destY = i //+ (Math.random() > 0.5 ? -1 : 1)///2 * y * -1;
+                        let destX = x < 0 ? 20 : -20;
+
+                        // make positions relative to the player
+                        x += this.player.position.positionOnMap.x;
+                        y += this.player.position.positionOnMap.y;
+                        destX += this.player.position.positionOnMap.x;
+                        destY += this.player.position.positionOnMap.y;
+
+                        console.log('spawning', x, y, destX, destY);
+                        let currentPos = new CharacterPosition(new Position(x, y), destX < this.player.position.positionOnMap.x ? 'left' : 'right', 16, 2.5);
+                        currentPos.setFuturePosition(destX, destY, () => {
+                            console.log('reach target position');
+                            this.spawned = undefined;
+                        });
+                        let pokeId = Math.random() > 0.5 ? 10 : 13;
+                        let spawned = new OverworldSpawn(currentPos,
+                            this.POKEDEX.findById(pokeId).result.instanciate(5),);
+                        this.spawned = spawned;
+                        return;
+                    }
+                }
+            }
+            return;
+
+        }, 5000);
     }
 
 

@@ -39,6 +39,7 @@
 	$: hasShop = currentAction?.type === 'OpenShop';
 	$: currentShop = currentAction?.type === 'OpenShop' ? (currentAction as OpenShop) : undefined;
 	$: isHealing = currentAction?.type === 'HealAll';
+	$: spawned = context.spawned;
 
 	function initContext() {
 		mainLoop();
@@ -152,6 +153,16 @@
 				overWorldCtx.frames.imageScale,
 				context.player.position.positionInPx,
 				mapDimensions
+			);
+		}
+
+		if(spawned){
+			//console.log('draw spawned');
+			spawned.draw(
+				canvasFgCtx,
+				context.player.position.positionInPx,
+				overWorldCtx.frames.playerScale,
+				mapDimensions,
 			);
 		}
 	}

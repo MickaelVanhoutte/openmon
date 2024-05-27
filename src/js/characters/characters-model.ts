@@ -1,5 +1,5 @@
 import type { Bag } from "../items/bag";
-import type { Position } from "../mapping/positions";
+import { Position } from "../mapping/positions";
 import type { PokemonInstance } from "../pokemons/pokedex";
 import type { Script } from "../scripting/scripts";
 import type { MasteryType } from "./mastery-model";
@@ -57,14 +57,14 @@ export class CharacterPosition {
     public setPosition(position: Position, tileSize: number = 16, scale: number = 2.5) {
 
         this.positionOnMap = position;
-        this.positionInPx = { x: position.x * tileSize * scale, y: position.y * tileSize * scale };
+        this.positionInPx = new Position(position.x * tileSize * scale, position.y * tileSize * scale);
         this.targetPosition = position;
-        this.targetPositionInPx = { x: position.x * tileSize * scale, y: position.y * tileSize * scale };
+        this.targetPositionInPx = new Position(position.x * tileSize * scale, position.y * tileSize * scale);
     }
 
     public setFuturePosition(x: number, y: number, onEnd?: () => void, tileSize: number = 16, scale: number = 2.5) {
-        this.targetPosition = { x, y };
-        this.targetPositionInPx = { x: x * tileSize * scale, y: y * tileSize * scale };
+        this.targetPosition = new Position(x, y);
+        this.targetPositionInPx = new Position(x * tileSize * scale, y * tileSize * scale);
 
         // callback when the character reaches the target position
         if (onEnd) {
@@ -75,6 +75,7 @@ export class CharacterPosition {
                 }
             });
         }
+        console.log(this);
     }
 
 }
