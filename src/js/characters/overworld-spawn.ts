@@ -39,7 +39,7 @@ export class OverworldSpawn implements Character {
     draw(ctx: CanvasRenderingContext2D, playerPosition: Position, scale: number, mapDim: {
         width: number,
         height: number
-    }) {
+    }, center: { centerX: number, centerY: number, offsetX: number, offsetY: number } | undefined) {
 
         let id = ("00" + this.pokemon.id).slice(-3);
         id = this.pokemon.isShiny ? id + 's' : id;
@@ -47,13 +47,13 @@ export class OverworldSpawn implements Character {
         let image = this.images[source];
 
         if (image && image.complete) {
-            this.drawImage(ctx, image, playerPosition, this.position.direction, scale, mapDim);
+            this.drawImage(ctx, image, playerPosition, this.position.direction, scale, mapDim, center);
         } else {
             image = new Image();
             image.src = source;
             image.onload = () => {
-                this.images[this.spriteId] = image;
-                this.drawImage(ctx, image, playerPosition, this.position.direction, scale, mapDim);
+                this.images[source] = image;
+                this.drawImage(ctx, image, playerPosition, this.position.direction, scale, mapDim, center);
             }
         }
     }
@@ -62,7 +62,7 @@ export class OverworldSpawn implements Character {
         scale: number, mapDim: {
             width: number,
             height: number
-        }) {
+        }, center: { centerX: number, centerY: number, offsetX: number, offsetY: number } | undefined) {
 
         if (this.moving) {
 
@@ -82,12 +82,12 @@ export class OverworldSpawn implements Character {
         let sY = this.orientationIndexes[orientation] * 64;
 
         if (this.moving) {
-            const speed = RUNNING_SPEED;
+            const speed = WALKING_SPEED;
 
             let deltaX = this.position.targetPosition.x - this.position.positionOnMap.x;
             let deltaY = this.position.targetPosition.y - this.position.positionOnMap.y;
             // max delta to 1 tile
-            //console.log(deltaX, deltaY)
+            
             if (deltaX > 1) {
                 deltaX = 1;
             }
@@ -101,10 +101,12 @@ export class OverworldSpawn implements Character {
                 deltaY = -1;
             }
 
-            const moveByX = Math.floor((16 * 2.5) / 2 * speed * deltaX);
-            const moveByY = Math.floor((16 * 2.5) / 2 * speed * deltaY);
-
-            if(this.position.positionInPx.x === this.position.targetPositionInPx.x){
+            const moveByX = deltaX * 12//Math.floor((16 * 2.5) / 2 * speed * deltaX);
+            const moveByY = deltaY * 12//Math.floor((16 * 2.5) / 2 * speed * deltaY);
+            let reached = this.position.direction === 'right' ?
+                this.position.positionInPx.x >= this.position.targetPositionInPx.x :
+                this.position.positionInPx.x <= this.position.targetPositionInPx.x;
+            if(reached){
                 this.position.positionOnMap = this.position.targetPosition;
                 this.moving = false;
             }else {
@@ -117,12 +119,12 @@ export class OverworldSpawn implements Character {
         const relativeX = this.position.positionInPx.x - playerPosition.x;
         const relativeY = this.position.positionInPx.y - playerPosition.y;
 
-        let { centerX, centerY, offsetX, offsetY } = centerObject(ctx, scale, playerPosition, 16, mapDim);
+        let { centerX, centerY, offsetX, offsetY } = center ? center : centerObject(ctx, scale, playerPosition, 16, mapDim);
         offsetY -= relativeY - 12;
         offsetX -= relativeX;
 
-        ctx.save();
-        ctx.translate(centerX - offsetX, centerY - offsetY);
+        //ctx.save();
+        //ctx.translate(centerX - offsetX, centerY - offsetY);
 
         ctx.drawImage(
             image,
@@ -130,12 +132,12 @@ export class OverworldSpawn implements Character {
             sY,
             64,
             64,
-            0,
-            0,
+            centerX - offsetX,
+            centerY - offsetY,
             64 * scale,
             64 * scale
         );
 
-        ctx.restore();
+        //ctx.restore();
     }
 }

@@ -57,7 +57,7 @@ export class Follower implements Character, Interactive {
     draw(ctx: CanvasRenderingContext2D, playerPosition: Position, scale: number, mapDim: {
         width: number,
         height: number
-    }, drawGrass: boolean, running: boolean) {
+    }, drawGrass: boolean, running: boolean): { centerX: number, centerY: number, offsetX: number, offsetY: number } | undefined {
 
         let id = ("00" + this.pokemon.id).slice(-3);
         id = this.pokemon.isShiny ? id + 's' : id;
@@ -65,22 +65,23 @@ export class Follower implements Character, Interactive {
         let image = this.images[source];
 
         if (image && image.complete) {
-            this.drawImage(ctx, image, playerPosition, scale, mapDim, drawGrass, running);
+            return this.drawImage(ctx, image, playerPosition, scale, mapDim, drawGrass, running);
         } else {
             image = new Image();
             image.src = source;
             image.onload = () => {
                 this.images[source] = image;
-                this.drawImage(ctx, image, playerPosition, scale, mapDim, drawGrass, running);
+                return this.drawImage(ctx, image, playerPosition, scale, mapDim, drawGrass, running);
             }
         }
+        return undefined;
     }
 
     private drawImage(ctx: CanvasRenderingContext2D, image: HTMLImageElement, playerPosition: Position,
         scale: number, mapDim: {
             width: number,
             height: number
-        }, drawGrass: boolean, running: boolean) {
+        }, drawGrass: boolean, running: boolean): { centerX: number, centerY: number, offsetX: number, offsetY: number } {
 
         if (this.moving) {
 
@@ -131,32 +132,8 @@ export class Follower implements Character, Interactive {
         let relativeX = this.position.positionInPx.x - playerPosition.x;
         let relativeY = this.position.positionInPx.y - playerPosition.y;
 
-        // switch (this.position.direction) {
-
-        //     case 'up':
-
-        //         break;
-        //     case 'down':
-
-        //         break;
-        //     case 'left':
-        //         relativeY -= 16 - imageHeight;
-        //         relativeX -= 32 -imageWidth;
-        //         break;
-        //     case 'right':
-        //         relativeY -= 16 - imageHeight;
-        //         relativeX += 16 - imageWidth;
-        //         break;
-        // }
-
+      
         let { centerX, centerY, offsetX, offsetY } = centerObject(ctx, scale, playerPosition, imageWidth, mapDim);
-        //console.log(relativeY, ((image.height / 4 - 16) / 4));
-        //offsetY -= relativeY// adjust for different sprite sizes
-        //offsetX -= relativeX;
-
-        // adjust offset based on size ((image.width / 4 - 16) / 4), positively or negatively depending on direction
-        //offsetX -= (16 * 2.5) - (imageWidth / 2);
-        //offsetY -= (16 * 2.5) - (imageHeight / 2);
 
         switch (this.position.direction) {
             case 'up':
@@ -176,8 +153,8 @@ export class Follower implements Character, Interactive {
                 offsetX -= (32 * scale) - imageWidth / 4;
                 break;
         }
-        ctx.save();
-        ctx.translate(centerX - offsetX, centerY - offsetY);
+        // ctx.save();
+        // ctx.translate(centerX - offsetX, centerY - offsetY);
 
 
         // ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
@@ -189,13 +166,15 @@ export class Follower implements Character, Interactive {
             sY,
             image.width / this.frames.max,
             drawGrass ? image.height / this.frames.max * .85 : image.height / this.frames.max,
-            relativeX,
-            relativeY,
+            centerX - offsetX + relativeX,
+            centerY - offsetY + relativeY,
             imageWidth,
             drawGrass ? imageHeight * .85 : imageHeight
         );
 
-        ctx.restore();
+       // ctx.restore();
+
+        return { centerX, centerY, offsetX, offsetY };
     }
 
 }

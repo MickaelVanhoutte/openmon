@@ -75,7 +75,6 @@ export class CharacterPosition {
                 }
             });
         }
-        console.log(this);
     }
 
 }
