@@ -21,11 +21,11 @@
 	export let savesHolder: SavesHolder;
 
 	let canvas: HTMLCanvasElement;
-	let foregroundCanvas: HTMLCanvasElement;
+	let buffer: HTMLCanvasElement;
+	let bufferCtx: CanvasRenderingContext2D;
+	let canvasCtx: CanvasRenderingContext2D;
 	let wrapper: HTMLDivElement;
 	let canvasWidth: number;
-	let canvasCtx: CanvasRenderingContext2D;
-	let canvasFgCtx: CanvasRenderingContext2D;
 	let sound: Howl;
 	let soundPlaying: boolean;
 
@@ -41,58 +41,16 @@
 	$: isHealing = currentAction?.type === 'HealAll';
 	$: spawned = context.spawned;
 
-	function initContext() {
-		mainLoop();
-		//loadMap(context.map);
-	}
-
 	/*
     Game loop
      */
 	function mainLoop() {
-		canvasCtx.imageSmoothingEnabled = true;
-		canvasCtx.imageSmoothingQuality = 'high';
-
 		let now = Date.now();
 		let elapsed = now - overWorldCtx.frames.then;
 
-		if (
-			elapsed > overWorldCtx.frames.fpsInterval &&
-			context?.map
-			//!battleState?.ending && // TODO ?
-			//!overworldContext.displayChangingMap &&
-		) {
+		if (elapsed > overWorldCtx.frames.fpsInterval && context?.map) {
 			overWorldCtx.frames.then = now - (elapsed % overWorldCtx.frames.fpsInterval);
-
-			canvasCtx.fillStyle = 'black';
-			canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
-			canvasFgCtx.clearRect(0, 0, canvas.width, canvas.height);
-
 			drawElements();
-
-			/*
-          		use "x" to display debug info
-      		*/
-			// if (overWorldCtx.frames.debug) {
-			// 	canvasCtx.font = '12px Arial';
-			// 	let fps = Math.round((1 / elapsed) * 1000);
-
-			// 	let x = canvasWidth / 2 - window.innerWidth / 3.5;
-			// 	let y = canvas.height / 2 - window.innerHeight / 3.5;
-
-			// 	canvasCtx.fillStyle = 'black';
-			// 	canvasCtx.fillRect(x, y, 200, 100);
-
-			// 	canvasCtx.fillStyle = 'white';
-			// 	canvasCtx.fillText(`fps: ${fps}`, x + 10, y + 10);
-			// 	canvasCtx.fillText(`Player moving: ${context.player.moving}`, x + 10, y + 20);
-			// 	canvasCtx.fillText(
-			// 		`Player offset: ${context.player.position.positionOnMap.x}, ${context.player.position.positionOnMap.y}`,
-			// 		x + 10,
-			// 		y + 30
-			// 	);
-			// 	canvasCtx.fillText(`paused: ${context.overWorldContext.getPaused()}`, x + 10, y + 40);
-			// }
 		}
 		overWorldCtx.frames.frameId = window.requestAnimationFrame(mainLoop);
 	}
@@ -107,48 +65,53 @@
 	function drawElements() {
 		if (context.map === undefined) return;
 
+		// Clear
+		bufferCtx.fillRect(0, 0, buffer.width, buffer.height);
+		//canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+
 		// Background
 		let mapDimensions = context.map.draw(
-			canvasCtx,
+			bufferCtx,
 			context.map,
 			overWorldCtx.frames.imageScale,
 			context.player.position.positionInPx,
 			overWorldCtx.frames.debug
 		);
 
-		context.map.npcs.forEach((npc) => {
-			npc.draw(
-				canvasCtx,
-				context.player.position.positionInPx,
-				npc,
-				overWorldCtx.frames.playerScale,
-				mapDimensions
-			);
-		});
-
 		// Player & walker
-		
 
 		context.player.draw(
-			canvasCtx,
+			bufferCtx,
 			overWorldCtx.frames.playerScale,
 			mapDimensions,
 			context.map.hasBattleZoneAt(context.player.position.positionOnMap)
 		);
 
-		context.player?.follower?.draw(
-			canvasCtx,
-			context.player.position.positionInPx,
-			overWorldCtx.frames.playerScale,
-			mapDimensions,
-			context.map.hasBattleZoneAt(context.player.follower.position.positionOnMap),
-			context.player.running
-		);
+		let center: { centerX: number; centerY: number; offsetX: number; offsetY: number } | undefined =
+			context.player?.follower?.draw(
+				bufferCtx,
+				context.player.position.positionInPx,
+				overWorldCtx.frames.playerScale,
+				mapDimensions,
+				context.map.hasBattleZoneAt(context.player.follower.position.positionOnMap),
+				context.player.running
+			);
+
+		context.map.npcs.forEach((npc) => {
+			npc.draw(
+				bufferCtx,
+				context.player.position.positionInPx,
+				npc,
+				overWorldCtx.frames.playerScale,
+				mapDimensions,
+				center
+			);
+		});
 
 		// Foreground
-		if (context.map?.foreground !== undefined) {
+		if (!!context.map?.foreground) {
 			context.map.drawFG(
-				canvasFgCtx,
+				bufferCtx,
 				context.map,
 				overWorldCtx.frames.imageScale,
 				context.player.position.positionInPx,
@@ -156,15 +119,15 @@
 			);
 		}
 
-		if(spawned){
-			//console.log('draw spawned');
-			spawned.draw(
-				canvasCtx,
-				context.player.position.positionInPx,
-				overWorldCtx.frames.playerScale,
-				mapDimensions,
-			);
-		}
+		spawned?.draw(
+			bufferCtx,
+			context.player.position.positionInPx,
+			overWorldCtx.frames.playerScale,
+			mapDimensions,
+			center
+		);
+		
+		canvasCtx.drawImage(buffer, 0, 0, canvas.width, canvas.height);
 	}
 
 	let battleCtx: BattleContext | undefined = undefined;
@@ -186,26 +149,33 @@
 
 	function loadSound() {
 		//if (context.map?.sound) {
-			sound = new Howl({
-				src: ['src/assets/audio/' + context.map?.sound + '.mp3'],
-				autoplay: true,
-				loop: true,
-				volume: 0.5
-			});
-			setTimeout(() => {
-				soundPlaying = sound.playing();
-			}, 200);
+		sound = new Howl({
+			src: ['src/assets/audio/' + context.map?.sound + '.mp3'],
+			autoplay: true,
+			loop: true,
+			volume: 0.5
+		});
+		setTimeout(() => {
+			soundPlaying = sound.playing();
+		}, 200);
 		//}
 	}
 
 	onMount(() => {
 		//@ts-ignore
-		canvasCtx = canvas.getContext('2d');
+		bufferCtx = buffer.getContext('2d');
+		bufferCtx.imageSmoothingEnabled = true;
+		bufferCtx.imageSmoothingQuality = 'high';
+		bufferCtx.fillStyle = 'black';
 		//@ts-ignore
-		canvasFgCtx = foregroundCanvas.getContext('2d');
+		canvasCtx = canvas.getContext('2d');
+		canvasCtx.imageSmoothingEnabled = true;
+		canvasCtx.imageSmoothingQuality = 'high';
+		canvasCtx.fillStyle = 'black';
+
 		canvasWidth = Math.min(window.innerWidth, canvas.width);
-		initContext();
 		loadSound();
+		mainLoop();
 
 		return () => {
 			canvasCtx?.clearRect(0, 0, canvas.width, canvas.height);
@@ -219,8 +189,8 @@
 </script>
 
 <div class="world-wrapper" bind:this={wrapper} class:blur={overWorldCtx.scenes.wakeUp}>
+	<canvas bind:this={buffer} id="buffer" width="1024" height="1024" style="z-index: -2"></canvas>
 	<canvas bind:this={canvas} id="main" width="1024" height="1024"></canvas>
-	<canvas bind:this={foregroundCanvas} id="foreground" width="1024" height="1024"></canvas>
 
 	<Menu bind:context {savesHolder} />
 
@@ -279,9 +249,5 @@
 		left: 50%;
 		top: 50%;
 		transform: translate(-50%, -50%);
-	}
-
-	#foreground  {
-		z-index: 1;
 	}
 </style>

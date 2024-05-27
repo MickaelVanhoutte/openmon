@@ -283,37 +283,39 @@ export class GameContext {
     overworldSpawn() {
         setInterval(() => {
             if (!this.spawned) {
-                for (let i = -15; i < 15; i++) {
-                    if (Math.random() < 0.05 && !this.spawned) {
-                        let x = Math.random() < 0.5 ? 20 : -20;
-                        let y = i//Math.random() < 0.5 ? 20 : -20;
-                        // destination is the oposite side of x,y
-                        let destY = i //+ (Math.random() > 0.5 ? -1 : 1)///2 * y * -1;
-                        let destX = x < 0 ? 20 : -20;
-
-                        // make positions relative to the player
-                        x += this.player.position.positionOnMap.x;
-                        y += this.player.position.positionOnMap.y;
-                        destX += this.player.position.positionOnMap.x;
-                        destY += this.player.position.positionOnMap.y;
-
-                        console.log('spawning', x, y, destX, destY);
-                        let currentPos = new CharacterPosition(new Position(x, y), destX < this.player.position.positionOnMap.x ? 'left' : 'right', 16, 2.5);
-                        currentPos.setFuturePosition(destX, destY, () => {
-                            console.log('reach target position');
-                            this.spawned = undefined;
-                        });
-                        let pokeId = Math.random() > 0.5 ? 10 : 13;
-                        let spawned = new OverworldSpawn(currentPos,
-                            this.POKEDEX.findById(pokeId).result.instanciate(5),);
-                        this.spawned = spawned;
-                        return;
-                    }
+                let direction: 'up' | 'down' | 'left' | 'right' = 'right';
+                let x = (this.player.position.positionOnMap.x - 20) < 0 ? 0 : this.player.position.positionOnMap.x - 20;
+                if (Math.random() > 0.5) {
+                    direction = 'left';
+                    x = (this.player.position.positionOnMap.x + 20) > this.map.width ? this.map.width - 1 : this.player.position.positionOnMap.x + 20;
                 }
-            }
-            return;
+                let y = (Math.floor(Math.random() * 21) - 10) + this.player.position.positionOnMap.y;
+                if (y < 0) {
+                    y = 0;
+                }
+                if (y > this.map.height) {
+                    y = this.map.height - 1;
+                }
 
-        }, 5000);
+                let destX = direction === 'right' ?
+                    (this.player.position.positionOnMap.x + 40) > this.map.width ? this.map.width - 1 : this.player.position.positionOnMap.x + 40 :
+                    (this.player.position.positionOnMap.x - 40) < 0 ? 0 : this.player.position.positionOnMap.x - 40;
+                let destY = y;
+
+                console.log('spawning', x, y, destX, destY);
+                let currentPos = new CharacterPosition(new Position(x, y), direction);
+                currentPos.setFuturePosition(destX, destY, () => {
+                    console.log('reach target position');
+                    this.spawned = undefined;
+                });
+                let possiblePokes = [10, 11, 13, 14, 203, 223, 137, 138, 154 ];
+                // randomly select one :
+                let pokeId = possiblePokes[Math.floor(Math.random() * possiblePokes.length)];
+                let spawned = new OverworldSpawn(currentPos,
+                    this.POKEDEX.findById(pokeId).result.instanciate(5));
+                this.spawned = spawned;
+            }
+        }, 6000);
     }
 
 
