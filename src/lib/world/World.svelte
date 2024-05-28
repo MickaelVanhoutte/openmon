@@ -26,8 +26,6 @@
 	let canvasCtx: CanvasRenderingContext2D;
 	let wrapper: HTMLDivElement;
 	let canvasWidth: number;
-	let sound: Howl;
-	let soundPlaying: boolean;
 
 	/*
     Scripts
@@ -137,17 +135,6 @@
 			battleCtx = value;
 		});
 	}
-	$: if (battleCtx) {
-		battleCtx.events.starting.subscribe((value) => {
-			if (value && sound.playing()) {
-				sound.fade(0.5, 0, 500);
-				setTimeout(() => {
-					sound.stop();
-				}, 500);
-			}
-		});
-	}
-
 
 	onMount(() => {
 		//@ts-ignore
@@ -167,10 +154,6 @@
 		return () => {
 			canvasCtx?.clearRect(0, 0, canvas.width, canvas.height);
 			window.cancelAnimationFrame(overWorldCtx.frames.frameId);
-			sound.fade(0.5, 0, 1000);
-			setTimeout(() => {
-				sound.stop();
-			}, 1000);
 		};
 	});
 </script>

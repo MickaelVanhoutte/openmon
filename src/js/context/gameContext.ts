@@ -56,6 +56,8 @@ export class GameContext {
     viewedGuides: number[];
 
     sound?: Howl;
+    battleStartSound: Howl;
+    battleSound: Howl;
 
     constructor(save: SaveContext) {
         this.id = save.id;
@@ -100,6 +102,19 @@ export class GameContext {
             } else {
                 this.scriptsByTrigger.set(script.triggerType, [script]);
             }
+        });
+
+        this.battleStartSound = new Howl({
+            src: ['src/assets/audio/battle/battle-start.mp3'],
+            autoplay: false,
+            loop: false,
+            volume: 0.5
+        });
+        this.battleSound = new Howl({
+            src: ['src/assets/audio/battle/battle2.mp3'],
+            autoplay: false,
+            loop: true,
+            volume: 0.5
         });
 
         this.bindKeys();
@@ -256,6 +271,17 @@ export class GameContext {
         this.loadMap(map);
     }
 
+    playMapSound(){
+        if (this.map?.sound) {
+            this.sound = new Howl({
+                src: ['src/assets/audio/' + this.map?.sound + '.mp3'],
+                autoplay: true,
+                loop: true,
+                volume: 0.5
+            });
+        }
+    }
+
     loadMap(map: OpenMap) {
         this.overWorldContext.changingMap = true;
         //overworldContext.displayChangingMap = true;
@@ -273,15 +299,7 @@ export class GameContext {
         setTimeout(() => {
             this.overWorldContext.changingMap = false;
 
-            if (this.map?.sound) {
-                this.sound = new Howl({
-                    src: ['src/assets/audio/' + this.map?.sound + '.mp3'],
-                    autoplay: true,
-                    loop: true,
-                    volume: 0.5
-                });
-            }
-
+            this.playMapSound();
 
             if (onEnterScript) {
                 this.playScript(onEnterScript);
@@ -320,10 +338,8 @@ export class GameContext {
                     (this.player.position.positionOnMap.x - 40) < 0 ? 0 : this.player.position.positionOnMap.x - 40;
                 let destY = y;
 
-                console.log('spawning', x, y, destX, destY);
                 let currentPos = new CharacterPosition(new Position(x, y), direction);
                 currentPos.setFuturePosition(destX, destY, () => {
-                    console.log('reach target position');
                     this.spawned = undefined;
                 });
                 let possiblePokes = [10, 11, 13, 14, 203, 137, 138, 154];
@@ -437,6 +453,21 @@ export class GameContext {
     startBattle(opponent: PokemonInstance | Character, onEnd?: () => void) {
         this.overWorldContext.setPaused(true, 'battle-start gameContext');
 
+        if (this.sound && this.sound.playing()) {
+            this.sound.fade(0.5, 0, 500);
+            this.battleStartSound.play();
+            setTimeout(() => {
+                this.sound?.stop();
+                this.battleStartSound.fade(0, 0.5, 500);
+            }, 500);
+        }
+
+        setTimeout(() => {
+            this.battleStartSound.stop();
+            this.battleSound.play();
+        }, 1500);
+
+
         if (opponent instanceof NPC && opponent?.monsterIds?.length > 0) {
             opponent.monsters = opponent.monsterIds.map((id) => {
                 let level = Math.floor(this.player.monsters.reduce((acc, pkmn) => acc + pkmn.level, 0) / this.player.monsters.length);
@@ -449,6 +480,8 @@ export class GameContext {
         let battleContext = new BattleContext(this.player, opponent, this.settings);
         let unsubscribe = battleContext.events.end.subscribe((result) => {
             if (result) {
+                this.battleSound.fade(0.5, 0, 1000);
+                
                 battleContext.events.ending.set(true);
 
                 if (opponent instanceof PokemonInstance) {
@@ -477,10 +510,16 @@ export class GameContext {
                         }
                     }
                 }
+
+                setTimeout(() => {
+                    this.playMapSound();
+                }, 1000);
+
                 setTimeout(() => {
                     // End of battle, 2 sec later for fade out
                     this.overWorldContext.setPaused(false, 'battle-end gameContext');
                     this.battleContext.set(undefined);
+                    this.battleSound.stop();
                     this.hasEvolutions = this.player.monsters.some(pkmn => pkmn.canEvolve());
                     if (onEnd) {
                         onEnd();
