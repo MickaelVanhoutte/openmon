@@ -124,7 +124,8 @@ export class OpenMap {
             map?.collisionTile,
             map?.waterTile,
             map?.npcs,
-            map?.scripts
+            map?.scripts,
+            map?.sound
         )
     }
 

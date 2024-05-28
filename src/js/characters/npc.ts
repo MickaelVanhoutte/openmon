@@ -89,7 +89,6 @@ export class NPC implements Character, Interactive {
         width: number,
         height: number
     }, center: { centerX: number, centerY: number, offsetX: number, offsetY: number } | undefined) {
-
         let image = this.images[npc.spriteId];
         if (image && image.complete) {
             this.drawImage(ctx, image, playerPosition, npc.direction, scale, mapDim, center);
@@ -156,11 +155,11 @@ export class NPC implements Character, Interactive {
         const relativeY = this.position.positionInPx.y - playerPosition.y;
 
         let { centerX, centerY, offsetX, offsetY } = center ? center : centerObject(ctx, scale, playerPosition, 16, mapDim);
-        offsetY -= relativeY - 12;
-        offsetX -= relativeX; 
+        offsetY -= relativeY ;
+        offsetX -= relativeX ;
 
-        // ctx.save();
-        // ctx.translate(centerX - offsetX, centerY - offsetY);
+        ctx.save();
+        ctx.translate(centerX - offsetX, centerY - offsetY);
 
         ctx.drawImage(
             image,
@@ -168,13 +167,13 @@ export class NPC implements Character, Interactive {
             sY,
             64,
             64,
-            centerX - offsetX,
-            centerY - offsetY,
+            0,
+            0,
             64 * scale,
             64 * scale
         );
 
-        //ctx.restore();
+        ctx.restore();
     }
 
 }

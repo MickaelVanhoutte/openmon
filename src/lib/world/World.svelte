@@ -78,35 +78,36 @@
 			overWorldCtx.frames.debug
 		);
 
-		// Player & walker
-
-		context.player.draw(
-			bufferCtx,
-			overWorldCtx.frames.playerScale,
-			mapDimensions,
-			context.map.hasBattleZoneAt(context.player.position.positionOnMap)
-		);
-
-		let center: { centerX: number; centerY: number; offsetX: number; offsetY: number } | undefined =
-			context.player?.follower?.draw(
-				bufferCtx,
-				context.player.position.positionInPx,
-				overWorldCtx.frames.playerScale,
-				mapDimensions,
-				context.map.hasBattleZoneAt(context.player.follower.position.positionOnMap),
-				context.player.running
-			);
-
 		context.map.npcs.forEach((npc) => {
 			npc.draw(
 				bufferCtx,
 				context.player.position.positionInPx,
 				npc,
 				overWorldCtx.frames.playerScale,
-				mapDimensions,
-				center
+				mapDimensions, undefined
 			);
 		});
+
+		// Player & walker
+
+		context.player?.follower?.draw(
+			bufferCtx,
+			context.player.position.positionInPx,
+			overWorldCtx.frames.playerScale,
+			mapDimensions,
+			context.map.hasBattleZoneAt(context.player.follower.position.positionOnMap),
+			context.player.running,
+			undefined
+		);
+
+		let center = context.player.draw(
+			bufferCtx,
+			overWorldCtx.frames.playerScale,
+			mapDimensions,
+			context.map.hasBattleZoneAt(context.player.position.positionOnMap)
+		);
+
+	
 
 		// Foreground
 		if (!!context.map?.foreground) {
@@ -126,7 +127,7 @@
 			mapDimensions,
 			center
 		);
-		
+
 		canvasCtx.drawImage(buffer, 0, 0, canvas.width, canvas.height);
 	}
 
@@ -147,19 +148,6 @@
 		});
 	}
 
-	function loadSound() {
-		//if (context.map?.sound) {
-		sound = new Howl({
-			src: ['src/assets/audio/' + context.map?.sound + '.mp3'],
-			autoplay: true,
-			loop: true,
-			volume: 0.5
-		});
-		setTimeout(() => {
-			soundPlaying = sound.playing();
-		}, 200);
-		//}
-	}
 
 	onMount(() => {
 		//@ts-ignore
@@ -174,7 +162,6 @@
 		canvasCtx.fillStyle = 'black';
 
 		canvasWidth = Math.min(window.innerWidth, canvas.width);
-		loadSound();
 		mainLoop();
 
 		return () => {
