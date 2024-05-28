@@ -18,4 +18,4 @@ export const forest = OpenMap.fromScratch(1, 'src/assets/maps/forest.png', 150, 
     new Jonction(2,
         0, [new Position(2, 159), new Position(3, 159), new Position(4, 159), new Position(5, 159), new Position(6, 159), new Position(7, 159), new Position(8, 159), new Position(9, 159), new Position(10, 159)], new Position(144, 0)
     )
-], undefined, 39951, 40104, 40111, npcs, scripts);
+], undefined, 39951, 40104, 40111, npcs, scripts, 'forest');

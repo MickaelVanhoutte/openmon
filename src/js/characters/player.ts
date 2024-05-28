@@ -243,33 +243,36 @@ export class Player implements Character {
 
     public draw(ctx: CanvasRenderingContext2D, scale: number, mapDim: {
         width: number,
-        height: number
-    }, drawGrass: boolean) {
+        height: number,
+        centerX: number,
+        offsetX: number,
+        centerY: number,
+        offsetY: number
+    }, drawGrass: boolean): { centerX: number, centerY: number, offsetX: number, offsetY: number } | undefined {
 
         if (this.monsters.length > 0) {
             if (this.position.direction === "up") {
-                this.drawPlayer(ctx, scale, mapDim, drawGrass);
+                return this.drawPlayer(ctx, scale, mapDim, drawGrass);
                 //this.walkerDrawer.draw(ctx, playerPosition, this.direction, scale, this.moving, playerPosition, this.monsters[0], mapDim, drawGrass);
             } else {
                 //this.walkerDrawer.draw(ctx, playerPosition, this.direction, scale, this.moving, playerPosition, this.monsters[0], mapDim, drawGrass);
-                this.drawPlayer(ctx, scale, mapDim, drawGrass);
+                return this.drawPlayer(ctx, scale, mapDim, drawGrass);
             }
 
         } else {
-            this.drawPlayer(ctx, scale, mapDim, drawGrass);
+            return this.drawPlayer(ctx, scale, mapDim, drawGrass);
         }
 
     }
 
     private drawPlayer(ctx: CanvasRenderingContext2D, scale: number, mapDim: {
-        width: number;
-        height: number
-    }, drawGrass: boolean) {
-
-        function easeInOutQuad(t: number) {
-            return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-        }
-
+        width: number,
+        height: number,
+        centerX: number,
+        offsetX: number,
+        centerY: number,
+        offsetY: number
+    }, drawGrass: boolean): { centerX: number, centerY: number, offsetX: number, offsetY: number } | undefined {
 
         let sprite = this.running && this.moving ? this.sprite.overworld.running : this.sprite.overworld.walking;
         let img = this.running && this.moving ? this.sprite.worldRunningImg : this.sprite.worldWalkingImg;
@@ -342,7 +345,7 @@ export class Player implements Character {
                 drawGrass ? (sprite?.height || 64) * scale * .80 : (sprite?.height || 64) * scale
             );
             ctx.restore();
-            return { sprite, img, sY };
+            return { centerX, centerY, offsetX, offsetY };
         }
     }
 }

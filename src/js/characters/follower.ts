@@ -57,7 +57,7 @@ export class Follower implements Character, Interactive {
     draw(ctx: CanvasRenderingContext2D, playerPosition: Position, scale: number, mapDim: {
         width: number,
         height: number
-    }, drawGrass: boolean, running: boolean): { centerX: number, centerY: number, offsetX: number, offsetY: number } | undefined {
+    }, drawGrass: boolean, running: boolean, center: { centerX: number, centerY: number, offsetX: number, offsetY: number } | undefined) {
 
         let id = ("00" + this.pokemon.id).slice(-3);
         id = this.pokemon.isShiny ? id + 's' : id;
@@ -65,13 +65,13 @@ export class Follower implements Character, Interactive {
         let image = this.images[source];
 
         if (image && image.complete) {
-            return this.drawImage(ctx, image, playerPosition, scale, mapDim, drawGrass, running);
+            return this.drawImage(ctx, image, playerPosition, scale, mapDim, drawGrass, running, center);
         } else {
             image = new Image();
             image.src = source;
             image.onload = () => {
                 this.images[source] = image;
-                return this.drawImage(ctx, image, playerPosition, scale, mapDim, drawGrass, running);
+                return this.drawImage(ctx, image, playerPosition, scale, mapDim, drawGrass, running, center);
             }
         }
         return undefined;
@@ -81,7 +81,7 @@ export class Follower implements Character, Interactive {
         scale: number, mapDim: {
             width: number,
             height: number
-        }, drawGrass: boolean, running: boolean): { centerX: number, centerY: number, offsetX: number, offsetY: number } {
+        }, drawGrass: boolean, running: boolean, center: { centerX: number, centerY: number, offsetX: number, offsetY: number } | undefined) {
 
         if (this.moving) {
 
@@ -133,7 +133,7 @@ export class Follower implements Character, Interactive {
         let relativeY = this.position.positionInPx.y - playerPosition.y;
 
       
-        let { centerX, centerY, offsetX, offsetY } = centerObject(ctx, scale, playerPosition, imageWidth, mapDim);
+        let { centerX, centerY, offsetX, offsetY } = center ? center :  centerObject(ctx, scale, playerPosition, imageWidth, mapDim);
 
         switch (this.position.direction) {
             case 'up':

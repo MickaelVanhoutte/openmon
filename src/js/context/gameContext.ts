@@ -51,10 +51,11 @@ export class GameContext {
     hasEvolutions: boolean = false;
     spawned?: OverworldSpawn;
 
-    viewedGuides: number[];
-
     // Guides
     tg: TourGuideClient;
+    viewedGuides: number[];
+
+    sound?: Howl;
 
     constructor(save: SaveContext) {
         this.id = save.id;
@@ -236,6 +237,15 @@ export class GameContext {
     }
 
     changeMap(jonction: Jonction) {
+        if (!!this.sound) {
+            this.sound.fade(0.5, 0, 900);
+            setTimeout(() => {
+                this.sound?.stop();
+                this.sound = undefined;
+            }, 900);
+        }
+
+
         // stop every scripts
         this.playingScript?.interrupt();
         this.map?.npcs.forEach(npc => npc.movingScript?.interrupt());
@@ -256,7 +266,6 @@ export class GameContext {
         }
 
         let npcOnEnter = map.npcs?.filter((npc) => npc.movingScript);
-        console.log(npcOnEnter)
 
         // TODO set in overWorldCtx
         this.map = map;
@@ -264,8 +273,17 @@ export class GameContext {
         setTimeout(() => {
             this.overWorldContext.changingMap = false;
 
+            if (this.map?.sound) {
+                this.sound = new Howl({
+                    src: ['src/assets/audio/' + this.map?.sound + '.mp3'],
+                    autoplay: true,
+                    loop: true,
+                    volume: 0.5
+                });
+            }
+
+
             if (onEnterScript) {
-                console.log(onEnterScript);
                 this.playScript(onEnterScript);
             }
             if (npcOnEnter?.length > 0) {
@@ -308,7 +326,7 @@ export class GameContext {
                     console.log('reach target position');
                     this.spawned = undefined;
                 });
-                let possiblePokes = [10, 11, 13, 14, 203, 223, 137, 138, 154 ];
+                let possiblePokes = [10, 11, 13, 14, 203, 137, 138, 154];
                 // randomly select one :
                 let pokeId = possiblePokes[Math.floor(Math.random() * possiblePokes.length)];
                 let spawned = new OverworldSpawn(currentPos,
