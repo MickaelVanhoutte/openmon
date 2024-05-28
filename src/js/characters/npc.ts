@@ -155,8 +155,8 @@ export class NPC implements Character, Interactive {
         const relativeY = this.position.positionInPx.y - playerPosition.y;
 
         let { centerX, centerY, offsetX, offsetY } = center ? center : centerObject(ctx, scale, playerPosition, 16, mapDim);
-        offsetY -= relativeY ;
-        offsetX -= relativeX ;
+        offsetY -= relativeY - 12;
+        offsetX -= relativeX - 4;
 
         ctx.save();
         ctx.translate(centerX - offsetX, centerY - offsetY);
