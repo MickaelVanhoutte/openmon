@@ -204,6 +204,7 @@
 	<!-- load audios -->
 	<audio src="src/assets/audio/intro.mp3" preload="auto" muted></audio>
 	<audio src="src/assets/audio/beach.mp3" preload="auto" muted></audio>
+	<audio src="src/assets/audio/forest.mp3" preload="auto" muted></audio>
 	<audio src="src/assets/audio/save.mp3" preload="auto" muted></audio>
 	<audio src="src/assets/audio/battle/battle-start.mp3" preload="auto" muted></audio>
 	<audio src="src/assets/audio/battle/battle1.mp3" preload="auto" muted></audio>
