@@ -11,7 +11,7 @@ const battle: number[] = [];
 const npcs: NPC[] = [];
 const scripts: Script[] = [];
 
-export const forest = OpenMap.fromScratch(1, 'src/assets/maps/forest.png', 150, 160,
+export const forest = OpenMap.fromScratch(1, 'src/assets/maps/Forest.png', 150, 160,
     collisions, waterCollision, battle, monsters,
     new Position(5, 159),
     [3, 6], [
