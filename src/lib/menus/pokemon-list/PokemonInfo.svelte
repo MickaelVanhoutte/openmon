@@ -10,7 +10,8 @@
 
 	export let zIndex: number;
 
-	let pkmnList: PokemonInstance[] = context.player.monsters;
+	export let pkmnList: PokemonInstance[];
+	//let pkmnList: PokemonInstance[] = context.player.monsters;
 
 	$: selectedMons = pkmnList[selected];
 

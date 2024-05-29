@@ -11,7 +11,8 @@
 
 	export let zIndex: number;
 	export let selectedMove: number;
-	let pkmnList: PokemonInstance[] = context.player.monsters;
+	export let pkmnList: PokemonInstance[];
+	//let pkmnList: PokemonInstance[] = context.player.monsters;
 
 	export let moveEdit: boolean;
 

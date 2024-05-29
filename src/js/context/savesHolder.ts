@@ -1,7 +1,7 @@
 import { MapSave } from "../mapping/maps";
 import { Player } from "../characters/player";
 import { PokemonBox } from "../pokemons/boxes";
-import { PokemonInstance, SavedEntry } from "../pokemons/pokedex";
+import { Pokedex, PokemonInstance, SavedEntry, UnknownMonster } from "../pokemons/pokedex";
 import { Settings } from "../characters/settings";
 import { GameContext } from "./gameContext";
 import { writable, type Writable } from "svelte/store";
@@ -44,6 +44,8 @@ export class SaveContext {
  */
 export class SavesHolder {
 
+    POKEDEX = new Pokedex();
+
     saves: SaveContext[] = [];
 
     _selectedSave: SaveContext | undefined = undefined;
@@ -82,11 +84,24 @@ export class SavesHolder {
         this._selectedSave = this.saves[index];
         this.selectedSave$.set(this.saves[index]);
     }
+    
 
     newGame(spriteId: number, name: string, gender: 'MALE' | 'FEMALE'): SaveContext {
         let boxes: Array<PokemonBox> = new Array<PokemonBox>(32);
+        let index = 1;
         for (let i = 0; i < 32; i++) {
-            boxes[i] = new PokemonBox('Box ' + (i+1), new Array<PokemonInstance | undefined>(36).fill(undefined));
+            let pokeArray = new Array<PokemonInstance | undefined>(36);
+            for(let j = 0; j < 36; j++){
+                let result =  this.POKEDEX.findById(index).result;
+                if(!(result instanceof UnknownMonster)){
+                    pokeArray[j] = result.instanciate(5, 30, false);
+                }else {
+                    pokeArray[j] = undefined;
+                }
+                index++;
+            }
+            console.log(pokeArray);
+            boxes[i] = new PokemonBox('Box ' + (i+1), pokeArray);
         }
 
         let newSave = new SaveContext(

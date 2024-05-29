@@ -351,6 +351,7 @@
 		bind:isBattle
 		bind:battleSummaryOpened
 		bind:zIndex={zIndexNext}
+		bind:pkmnList={context.player.monsters}
 	/>
 {/if}
 
