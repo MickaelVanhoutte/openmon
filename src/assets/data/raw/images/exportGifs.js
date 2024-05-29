@@ -19,7 +19,7 @@ pokedex.forEach((pokemon, index) => {
     let hisuiName = name + '-hisui.gif';
     console.log('/Users/perso/workspace/perso/showdown/sprites/ani/'+normalName);
 
-
+try{
     if (fs.existsSync('/Users/perso/workspace/perso/showdown/sprites/ani/'+hisuiName) && newNumber !== '215' && newNumber !== '724') {
         fs.copyFileSync('/Users/perso/workspace/perso/showdown/sprites/ani/'+hisuiName, '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + '.gif');
         fs.copyFileSync('/Users/perso/workspace/perso/showdown/sprites/ani-shiny/'+hisuiName, '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 's.gif');
@@ -44,7 +44,8 @@ pokedex.forEach((pokemon, index) => {
         miss.push(name);
         console.log('Missing ' + newNumber);
     }
-
+}catch(e){
+}
 
     // if (fs.existsSync(front) && fs.existsSync(frontS) && fs.existsSync(back) && fs.existsSync(backS)) {
     //     // TODO fix nidoran

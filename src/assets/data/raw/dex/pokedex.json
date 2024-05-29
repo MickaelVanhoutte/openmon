@@ -3157,6 +3157,10 @@
       "prev": [
         "56",
         "Level 28"
+      ],
+      "next": [
+        "979",
+        "Level 45"
       ]
     },
     "profile": {
@@ -33999,7 +34003,7 @@
       "next": [
         [
           "625",
-          "Level 52"
+          "Level 38"
         ]
       ]
     },
@@ -34056,7 +34060,11 @@
     "evolution": {
       "prev": [
         "624",
-        "Level 52"
+        "Level 38"
+      ],
+      "next": [
+        "983",
+        "Level 55"
       ]
     },
     "profile": {
@@ -47406,6 +47414,492 @@
       "sprite": "https://raw.githubusercontent.com/Purukitto/pokemon-data.json/master/images/pokedex/sprites/898.png",
       "thumbnail": "https://raw.githubusercontent.com/Purukitto/pokemon-data.json/master/images/pokedex/thumbnails/898.png",
       "hires": "https://raw.githubusercontent.com/Purukitto/pokemon-data.json/master/images/pokedex/hires/898.png"
+    }
+  },
+
+
+
+
+  {
+    "id": 935,
+    "name": {
+      "english": "Charcadet"
+    },
+    "type": [
+      "Fire"
+    ],
+    "base": {
+      "HP": 40,
+      "attack": 50,
+      "defense": 40,
+      "spAttack": 50,
+      "spDefense": 40,
+      "speed": 35
+    },
+    "species": "Fire Child Pokémon",
+    "description": "Its firepower increases when it fights, reaching over 1,800 degrees Fahrenheit. It likes berries that are rich in fat.",
+    "evolution": {
+      "next": [
+        [
+          "936",
+          "use Auspicious Armor"
+        ],
+        [
+          "937",
+          "use Malicious Armor"
+        ]
+      ]
+    },
+    "profile": {
+      "height": "0.6 m",
+      "weight": "10.5 kg",
+      "gender": "50:50",
+      "ability": [
+        [
+          "Flash fire",
+          "false"
+        ],
+        [
+          "Flame body",
+          "false"
+        ]
+      ]
+    }
+  },
+
+  {
+    "id": 936,
+    "name": {
+      "english": "Armarouge"
+    },
+    "type": [
+      "Fire",
+      "Psychic"
+    ],
+    "base": {
+      "HP": 85,
+      "attack": 60,
+      "defense": 100,
+      "spAttack": 125,
+      "spDefense": 80,
+      "speed": 75
+    },
+    "species": "Fire Warrior Pokémon",
+    "description": "This Pokémon clads itself in armor that has been fortified by psychic and fire energy, and it shoots blazing fireballs.",
+    "evolution": {
+      "prev": [
+        [
+          "935",
+          "use Auspicious Armor"
+        ]
+      ]
+    },
+    "profile": {
+      "height": "1.5 m",
+      "weight": "85 kg",
+      "gender": "50:50",
+      "ability": [
+        [
+          "Flash fire",
+          "false"
+        ],
+        [
+          "Weak Armor",
+          "true"
+        ]
+      ]
+    }
+  },
+
+  {
+    "id": 937,
+    "name": {
+      "english": "Ceruledge"
+    },
+    "type": [
+      "Fire",
+      "Ghost"
+    ],
+    "base": {
+      "HP": 75,
+      "attack": 125,
+      "defense": 80,
+      "spAttack": 60,
+      "spDefense": 100,
+      "speed": 85
+    },
+    "species": "Fire Blades Pokémon",
+    "description": "An old set of armor steeped in grudges caused this Pokémon’s evolution. Ceruledge cuts its enemies to pieces without mercy.",
+    "evolution": {
+      "prev": [
+        [
+          "935",
+          "use Auspicious Armor"
+        ]
+      ]
+    },
+    "profile": {
+      "height": "1.6 m",
+      "weight": "62 kg",
+      "gender": "50:50",
+      "ability": [
+        [
+          "Flash fire",
+          "false"
+        ],
+        [
+          "Weak Armor",
+          "true"
+        ]
+      ]
+    }
+  },
+
+
+  {
+    "id": 944,
+    "name": {
+      "english": "Shroodle"
+    },
+    "type": [
+      "Poison",
+      "Normal"
+    ],
+    "base": {
+      "HP": 40,
+      "attack": 65,
+      "defense": 35,
+      "spAttack": 40,
+      "spDefense": 35,
+      "speed": 75
+    },
+    "species": "Toxic Mouse Pokémon",
+    "description": "To keep enemies away from its territory, it paints markings around its nest using a poisonous liquid that has an acrid odor.",
+    "evolution": {
+      "next": [
+        [
+          "945",
+          "Level 28"
+        ]
+      ]
+    },
+    "profile": {
+      "height": "0.2 m",
+      "weight": "0.7 kg",
+      "gender": "50:50",
+      "ability": [
+        [
+          "Unburden",
+          "false"
+        ],
+        [
+          "Pickpocket",
+          "false"
+        ],
+        [
+          "Prankster",
+          "true"
+        ]
+      ]
+    }
+  },
+  {
+    "id": 945,
+    "name": {
+      "english": "Grafaiai"
+    },
+    "type": [
+      "Poison",
+      "Normal"
+    ],
+    "base": {
+      "HP": 63,
+      "attack": 95,
+      "defense": 65,
+      "spAttack": 80,
+      "spDefense": 72,
+      "speed": 110
+    },
+    "species": "Toxic Monkey Pokémon",
+    "description": "Each Grafaiai paints its own individual pattern, and it will paint that same pattern over and over again throughout its life.",
+    "evolution": {
+      "prev": [
+        [
+          "944",
+          "Level 28"
+        ]
+      ]
+    },
+    "profile": {
+      "height": "0.7 m",
+      "weight": "27.2 kg",
+      "gender": "50:50",
+      "ability": [
+        [
+          "Unburden",
+          "false"
+        ],
+        [
+          "Poison Touch",
+          "false"
+        ],
+        [
+          "Prankster",
+          "true"
+        ]
+      ]
+    }
+  },
+
+  
+
+  {
+    "id": 957,
+    "name": {
+      "english": "Tinkatink"
+    },
+    "type": [
+      "Fairy",
+      "Steel"
+    ],
+    "base": {
+      "HP": 50,
+      "attack": 45,
+      "defense": 45,
+      "spAttack": 35,
+      "spDefense": 64,
+      "speed": 58
+    },
+    "species": "Metalsmith Pokémon",
+    "description": "This Pokémon pounds iron scraps together to make a hammer. It will remake the hammer again and again until it’s satisfied with the result.",
+    "evolution": {
+      "next": [
+        [
+          "958",
+          "Level 24"
+        ]
+      ]
+    },
+    "profile": {
+      "height": "0.4 m",
+      "weight": "8.9 kg",
+      "gender": "0:100",
+      "ability": [
+        [
+          "Mold Breaker",
+          "false"
+        ],
+        [
+          "Own Tempo",
+          "false"
+        ],
+        [
+          "Pickpocket",
+          "true"
+        ]
+      ]
+    }
+  },
+
+  {
+    "id": 958,
+    "name": {
+      "english": "Tinkatuff"
+    },
+    "type": [
+      "Fairy",
+      "Steel"
+    ],
+    "base": {
+      "HP": 65,
+      "attack": 55,
+      "defense": 55,
+      "spAttack": 45,
+      "spDefense": 82,
+      "speed": 78
+    },
+    "species": "Hammer Pokémon",
+    "description": "These Pokémon make their homes in piles of scrap metal. They test the strength of each other’s hammers by smashing them together.",
+    "evolution": {
+      "prev": [
+        [
+          "957",
+          "Level 24"
+        ]
+      ],
+      "next": [
+        [
+          "959",
+          "Level 38"
+        ]
+      ]
+    },
+    "profile": {
+      "height": "0.7 m",
+      "weight": "59.1 kg",
+      "gender": "0:100",
+      "ability": [
+        [
+          "Mold Breaker",
+          "false"
+        ],
+        [
+          "Own Tempo",
+          "false"
+        ],
+        [
+          "Pickpocket",
+          "true"
+        ]
+      ]
+    }
+  },
+
+  {
+    "id": 959,
+    "name": {
+      "english": "Tinkaton"
+    },
+    "type": [
+      "Fairy",
+      "Steel"
+    ],
+    "base": {
+      "HP": 85,
+      "attack": 75,
+      "defense": 77,
+      "spAttack": 70,
+      "spDefense": 105,
+      "speed": 94
+    },
+    "species": "Hammer Pokémon",
+    "description": "The hammer tops 220 pounds, yet it gets swung around easily by Tinkaton as it steals whatever it pleases and carries its plunder back home.",
+    "evolution": {
+      "prev": [
+        [
+          "957",
+          "Level 24"
+        ],
+        [
+          "959",
+          "Level 38"
+        ]
+      ]
+    },
+    "profile": {
+      "height": "0.7 m",
+      "weight": "112.8 kg",
+      "gender": "0:100",
+      "ability": [
+        [
+          "Mold Breaker",
+          "false"
+        ],
+        [
+          "Own Tempo",
+          "false"
+        ],
+        [
+          "Pickpocket",
+          "true"
+        ]
+      ]
+    }
+  },
+
+  {
+    "id": 979,
+    "name": {
+      "english": "Annihilape"
+    },
+    "type": [
+      "Fighting",
+      "Ghost"
+    ],
+    "base": {
+      "HP": 110,
+      "attack": 115,
+      "defense": 80,
+      "spAttack": 50,
+      "spDefense": 90,
+      "speed": 90
+    },
+    "species": "Rage Monkey Pokémon",
+    "description": "It imbues its fists with the power of the rage that it kept hidden in its heart. Opponents struck by these imbued fists will be shattered to their core.",
+    "evolution": {
+      "prev": [
+        [
+          "57",
+          "Level 45"
+        ]
+      ]
+    },
+    "profile": {
+      "height": "1.2 m",
+      "weight": "56.0 kg",
+      "gender": "50:50",
+      "ability": [
+        [
+          "Vital Spirit",
+          "false"
+        ],
+        [
+          "Inner Focus",
+          "false"
+        ],
+        [
+          "Defiant",
+          "true"
+        ]
+      ]
+    }
+  },
+
+  {
+    "id": 983,
+    "name": {
+      "english": "Kingambit"
+    },
+    "type": [
+      "Dark",
+      "Steel"
+    ],
+    "base": {
+      "HP": 100,
+      "attack": 135,
+      "defense": 120,
+      "spAttack": 60,
+      "spDefense": 85,
+      "speed": 50
+    },
+    "species": "Big Blade Pokémon",
+    "description": "Though it commands a massive army in battle, it’s not skilled at devising complex strategies. It just uses brute strength to keep pushing.",
+    "evolution": {
+      "prev": [
+        [
+          "625",
+          "Level 55"
+        ]
+      ]
+    },
+    "profile": {
+      "height": "2.0 m",
+      "weight": "120.0 kg",
+      "gender": "50:50",
+      "ability": [
+        [
+          "Defiant",
+          "false"
+        ],
+        [
+          "Supreme Overlord",
+          "false"
+        ],
+        [
+          "Pressure",
+          "true"
+        ]
+      ]
     }
   }
 ]
