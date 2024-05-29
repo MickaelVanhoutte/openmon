@@ -381,10 +381,10 @@ export class PokedexEntry {
             });
     }
 
-    public instanciate(level: number, minIv = 0) {
+    public instanciate(level: number, minIv = 0, forceShiny = false): PokemonInstance {
         // random nature
         let nature = NATURES[Math.floor(Math.random() * NATURES.length)];
-        let shiny = Math.floor(Math.random() * 2) === 0;
+        let shiny = forceShiny ? forceShiny : Math.floor(Math.random() * 2) === 0; // TODO set shiny chance
         let ivs = undefined;
         if (minIv > 0) {
             ivs = new Stats(this.getIvFromMin(minIv), this.getIvFromMin(minIv), this.getIvFromMin(minIv), this.getIvFromMin(minIv), this.getIvFromMin(minIv), this.getIvFromMin(minIv));

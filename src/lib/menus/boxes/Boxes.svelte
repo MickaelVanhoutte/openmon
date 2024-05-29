@@ -396,6 +396,7 @@
 		bind:selected={pkmnListSelectedIndex}
 		bind:isBattle
 		bind:zIndex={zIndexNext}
+		bind:pkmnList={pkmnList}
 	/>
 {/if}
 

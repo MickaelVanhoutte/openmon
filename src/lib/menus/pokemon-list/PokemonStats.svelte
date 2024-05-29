@@ -14,13 +14,14 @@
 	export let statEdit: boolean;
 	export let isBattle: boolean;
 	export let zIndex: number;
+	export let pkmnList: PokemonInstance[];
 
 	let graphWrapper: HTMLDivElement;
 	let graph: HTMLCanvasElement;
 	let editBtn: HTMLButtonElement;
 	let editLines: HTMLTableSectionElement;
 
-	let pkmnList: PokemonInstance[] = context.player.monsters;
+	//let pkmnList: PokemonInstance[] = context.player.monsters;
 
 	$: selectedMons = pkmnList[selected];
 	$: statsKeys = Object.keys(selectedMons.stats).filter(

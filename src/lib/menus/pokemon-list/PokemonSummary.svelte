@@ -16,12 +16,13 @@
 	export let moveEdit = false;
 	export let isBattle: boolean;
 	export let battleSummaryOpened = false;
+	export let pkmnList: (PokemonInstance | undefined)[];
 
 	export let zIndex: number;
 	$: zIndexNext = zIndex + 1;
 
 	let tab = 0;
-	let pkmnList: PokemonInstance[] = context.player.monsters;
+	//let pkmnList: PokemonInstance[] = context.player.monsters;
 
 	const tabs: Record<number, string> = {
 		0: '$POKEMON INFO',
@@ -29,7 +30,8 @@
 		2: '$POKEMON MOVES',
 	};
 
-	$: selectedMons = pkmnList[selected];
+	$: filteredList = <Array<PokemonInstance>>(pkmnList.filter((pkmn) => pkmn !== undefined));
+	$: selectedMons = filteredList[selected];
 	$: evs = selectedMons.evs;
 
 	function back() {
@@ -51,13 +53,13 @@
 	function previous() {
 		selectedMove = 0;
 		statEdit = false;
-		selected = selected === 0 ? pkmnList.length - 1 : selected - 1;
+		selected = selected === 0 ? filteredList.length - 1 : selected - 1;
 	}
 
 	function next() {
 		selectedMove = 0;
 		statEdit = false;
-		selected = selected === pkmnList.length - 1 ? 0 : selected + 1;
+		selected = selected === filteredList.length - 1 ? 0 : selected + 1;
 	}
 
 	const listener = (e: KeyboardEvent) => {
@@ -130,7 +132,7 @@
 
 	<div class="tab-content">
 		{#if tab === 0}
-			<PokemonInfo bind:context bind:selected bind:zIndex={zIndexNext} />
+			<PokemonInfo bind:context bind:selected bind:zIndex={zIndexNext} bind:pkmnList={filteredList} />
 		{:else if tab === 1}
 			<PokemonStats
 				bind:context
@@ -138,6 +140,7 @@
 				bind:statEdit
 				bind:isBattle
 				bind:zIndex={zIndexNext}
+				bind:pkmnList={filteredList}
 			/>
 		{:else if tab === 2}
 			<PokemonSkills
@@ -146,6 +149,7 @@
 				bind:selectedMove
 				bind:moveEdit
 				bind:zIndex={zIndexNext}
+				bind:pkmnList={filteredList}
 			/>
 		{/if}
 	</div>
