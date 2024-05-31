@@ -1,3 +1,4 @@
+import type { GameContext } from "../context/gameContext";
 import type { Bag } from "../items/bag";
 import { Position } from "../mapping/positions";
 import type { PokemonInstance } from "../pokemons/pokedex";
@@ -11,7 +12,7 @@ export const RUNNING_SPEED: number = 1;
 
 export interface Interactive {
     isBehindCounter(): boolean;
-    interact(playerPosition: Position): (Script | undefined)[];
+    interact(playerPosition: Position, gameContext: GameContext): (Script | undefined)[];
 }
 
 export interface Character {

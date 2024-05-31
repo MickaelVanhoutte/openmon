@@ -86,6 +86,18 @@
 			);
 		});
 
+		if(context.map.items.length > 0) {
+			context.map.items.forEach((item) => {
+				item.draw(
+					bufferCtx,
+					context.player.position.positionInPx,
+					overWorldCtx.frames.imageScale,
+					mapDimensions,
+					undefined
+				);
+			});
+		}
+
 		// Player & walker
 
 		context.player?.follower?.draw(
@@ -104,7 +116,6 @@
 			mapDimensions,
 			context.map.hasBattleZoneAt(context.player.position.positionOnMap)
 		);
-
 	
 
 		// Foreground

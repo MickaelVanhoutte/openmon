@@ -6,7 +6,6 @@
 	import { fade, slide } from 'svelte/transition';
 	import { backInOut } from 'svelte/easing';
 	import type { GameContext } from '../../../js/context/gameContext';
-	import { TourGuideClient } from '@sjmc11/tourguidejs/src/Tour';
 	import { GUIDES_STEPS } from '../../../js/context/guides-steps';
 
 	export let context: GameContext;

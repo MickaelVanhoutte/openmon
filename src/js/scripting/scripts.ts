@@ -317,6 +317,23 @@ export class StartBattle extends Scriptable {
     }
 }
 
+export class CustomScriptable extends Scriptable {
+
+    action: (ctx: GameContext) => void;
+
+    constructor(action: (ctx: GameContext) => void){
+        super();
+        this.action = action;
+        this.type = 'CustomScriptable';
+    }
+
+    play(context: GameContext, onEnd: () => void): any {
+        this.action(context);
+        this.finished = true;
+        onEnd();
+    }
+}
+
 export class Script {
     triggerType: 'onEnter' | 'onStep' | 'onInteract' | 'onInteract2' | 'onSight' | 'onGameStart';
     stepPosition?: Position;
@@ -358,6 +375,8 @@ export class Script {
                     return new StartBattle((action as StartBattle).npcId);
                 case 'MoveToPlayer':
                     return new MoveToPlayer((action as MoveToPlayer).npcId);
+                case 'CustomScriptable':
+                    return new CustomScriptable((action as CustomScriptable).action);
                 default:
                     return action;
             }

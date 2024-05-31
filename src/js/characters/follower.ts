@@ -1,3 +1,4 @@
+import type { GameContext } from "../context/gameContext";
 import { Bag } from "../items/bag";
 import type { Position } from "../mapping/positions";
 import { PokemonInstance } from "../pokemons/pokedex";
@@ -41,7 +42,7 @@ export class Follower implements Character, Interactive {
         return followerProto;
     }
 
-    interact(playerPosition: Position): (Script | undefined)[] {
+    interact(playerPosition: Position, gameContext: GameContext): (Script | undefined)[] {
         throw new Error("Method not implemented.");
     }
 

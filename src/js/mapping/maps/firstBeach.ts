@@ -1,8 +1,10 @@
 import { OpenMap } from "../maps";
 import { NPC } from "../../characters/npc";
-import { Dialog, GiveItem, GiveMoney, Message, MoveTo, MoveToPlayer, Script, StartBattle } from "../../scripting/scripts";
+import { CustomScriptable, Dialog, GiveItem, GiveMoney, Message, MoveTo, MoveToPlayer, Script, StartBattle } from "../../scripting/scripts";
 import { Position } from "../positions";
 import { Jonction } from "../collisions";
+import { OverworldItem } from "../../items/overworldItem";
+import { MenuType } from "../../context/overworldContext";
 
 const monsters = Array.from({ length: 233 }, (v, k) => k + 1);
 
@@ -458,35 +460,35 @@ const waterCollision = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
 const npcs = [
-    new NPC(1, "NPC1", 2, new Position(78, 53), 'down', 'MALE', [], undefined,
-        new Script('onInteract', [
-            new MoveToPlayer(1),
-            new Dialog([
-                new Message('Hey ! Are you ok ?', 'System'),
-                new Message('I saw you faint.', 'System'),
-                new Message('Take this with you.', 'System'),
-            ]),
-            new GiveItem(25, 99),
-            new Dialog([
-                new Message('You received 5 Potions', 'System'),
-            ]),
-            new GiveItem(1, 99),
-            new Dialog([
-                new Message('You received 5 Pokeballs', 'System'),
-                new Message('Take care.', 'System'),
-            ]),
-        ]),
-        [
-            new Script('onInteract', [new Dialog([
-                new Message('Something feel strange...', 'System')
-            ])]),
+    // new NPC(1, "NPC1", 2, new Position(78, 53), 'down', 'MALE', [], undefined,
+    //     new Script('onInteract', [
+    //         new MoveToPlayer(1),
+    //         new Dialog([
+    //             new Message('Hey ! Are you ok ?', 'System'),
+    //             new Message('I saw you faint.', 'System'),
+    //             new Message('Take this with you.', 'System'),
+    //         ]),
+    //         new GiveItem(25, 99),
+    //         new Dialog([
+    //             new Message('You received 5 Potions', 'System'),
+    //         ]),
+    //         new GiveItem(1, 99),
+    //         new Dialog([
+    //             new Message('You received 5 Pokeballs', 'System'),
+    //             new Message('Take care.', 'System'),
+    //         ]),
+    //     ]),
+    //     [
+    //         new Script('onInteract', [new Dialog([
+    //             new Message('Something feel strange...', 'System')
+    //         ])]),
 
-            new Script('onInteract', [
-                new Dialog([
-                    new Message('You should head north to the village', 'System'),
-                ])])
-        ]
-    ),
+    //         new Script('onInteract', [
+    //             new Dialog([
+    //                 new Message('You should head north to the village', 'System'),
+    //             ])])
+    //     ]
+    // ),
     new NPC(2, "NPC2", 2, new Position(137, 3), 'down', 'MALE', [112, 114], undefined,
         new Script(
             'onSight',
@@ -577,7 +579,7 @@ export const firstBeach = OpenMap.fromScratch(0, 'src/assets/maps/First-beach.pn
     new Jonction(1,
         99, [new Position(86, 29)], new Position(9, 12),
     ),
-    new Jonction(2,1, [new Position(141, 0), new Position(142, 0), new Position(143, 0), new Position(144, 0), new Position(145, 0), new Position(146, 0), new Position(147, 0)], new Position(6, 159))
+    new Jonction(2, 1, [new Position(141, 0), new Position(142, 0), new Position(143, 0), new Position(144, 0), new Position(145, 0), new Position(146, 0), new Position(147, 0)], new Position(6, 159))
 ], 'src/assets/maps/First-beach-foreground.png', 39951, 40104, 40111, npcs,
     [
         new Script('onGameStart', [
@@ -589,8 +591,99 @@ export const firstBeach = OpenMap.fromScratch(0, 'src/assets/maps/First-beach.pn
                 new Message('Oh my head... It hurts'),
                 new Message('Where am I ?'),
                 new Message('Oh yeah, the beach.'),
-                new Message('Wait! My Pokemon !'),
-                new Message('Which one is it already ?')
+                new Message('Wait! My Stuff !'),
+                new Message('Let\'s pick it up ?')
             ])
         ])
-    ], 'beach');
+    ], 'beach',
+    [
+        new OverworldItem('Pokeball', true, new Position(79, 53), 'src/assets/menus/pokeball.png', undefined, [
+            new Script('onInteract', [
+                new Dialog([
+                    new Message('You found a Pokeball !', 'System'),
+                ]),
+                new CustomScriptable(
+                    (ctx) => {
+                        // Starter
+                        ctx.validateQuestObjective(0, 0);
+                    }
+                ),
+                new CustomScriptable(
+                    (ctx) => {
+                        ctx.overWorldContext.scenes.starterSelection = true;
+                    }
+                )
+            ])
+        ]),
+
+        new OverworldItem('Pokeball', true, new Position(80, 60), 'src/assets/menus/pokeball.png', undefined, [
+            new Script('onInteract', [
+                new Dialog([
+                    new Message('You found your pokedex !', 'System'),
+                ]),
+                new CustomScriptable(
+                    (ctx) => {
+                        // Pokedex
+                        console.log('completing pokedex obj');
+                        ctx.validateQuestObjective(0, 1);
+                        setTimeout(() => {
+                            ctx.overWorldContext.openMenu(MenuType.MAIN);
+                        }, 100);
+                    }
+                ),
+            ])
+        ]),
+
+        new OverworldItem('Pokeball', true, new Position(74, 59), 'src/assets/menus/pokeball.png', undefined, [
+            new Script('onInteract', [
+                new Dialog([
+                    new Message('You found your trainer card !', 'System'),
+                ]),
+                new CustomScriptable(
+                    (ctx) => {
+                        // Trainer card
+                        console.log('completing trainer card obj');
+                        ctx.validateQuestObjective(0, 2);
+                        setTimeout(() => {
+                            ctx.overWorldContext.openMenu(MenuType.MAIN);
+                        }, 100);
+                    }
+                ),
+            ])
+        ]),
+
+        new OverworldItem('Pokeball', true, new Position(72, 56), 'src/assets/menus/pokeball.png', undefined, [
+            new Script('onInteract', [
+                new Dialog([
+                    new Message('You found your bag !', 'System'),
+                ]),
+                new CustomScriptable(
+                    (ctx) => {
+                        // Bag
+                        console.log('completing bag obj');
+                        ctx.validateQuestObjective(0, 3);
+                        setTimeout(() => {
+                            ctx.overWorldContext.openMenu(MenuType.MAIN);
+                        }, 100);
+                    }
+                ),
+            ])
+        ]),
+
+        new OverworldItem('Pokeball', true, new Position(82, 54), 'src/assets/menus/pokeball.png', undefined, [
+            new Script('onInteract', [
+                new Dialog([
+                    new Message('You found your running shoes !', 'System'),
+                ]),
+                new CustomScriptable(
+                    (ctx) => {
+                         // Running shoes
+                         console.log('completing running shoes obj');
+                         ctx.validateQuestObjective(0, 4);
+                    }
+                ),
+            ])
+        ]),
+
+    ]
+);
