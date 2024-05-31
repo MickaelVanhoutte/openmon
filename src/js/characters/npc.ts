@@ -6,6 +6,7 @@ import { Position } from "../mapping/positions";
 import { centerObject, CHARACTER_SPRITES } from "../sprites/sprites";
 import { ComboJauge } from "./player";
 import type { MasteryType } from "./mastery-model";
+import type { GameContext } from "../context/gameContext";
 
 export class NPC implements Character, Interactive {
     id: number;
@@ -52,7 +53,7 @@ export class NPC implements Character, Interactive {
         return 0;
     }
 
-    interact(playerPosition: Position): (Script | undefined)[] {
+    interact(playerPosition: Position, gameContext: GameContext): (Script | undefined)[] {
         let previous = this.movingScript?.interrupt();
         let newScript: Script | undefined;
 

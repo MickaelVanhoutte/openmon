@@ -5,7 +5,7 @@ import { Settings } from "../characters/settings";
 import { Pokedex, PokemonInstance, SavedEntry } from "../pokemons/pokedex";
 import { PokemonBox } from "../pokemons/boxes";
 import { Position } from "../mapping/positions";
-import { OverworldContext, SceneType } from "./overworldContext";
+import { MenuType, OverworldContext, SceneType } from "./overworldContext";
 import { BattleContext } from "./battleContext";
 import type { Script } from "../scripting/scripts";
 import { NPC } from "../characters/npc";
@@ -14,11 +14,12 @@ import { firstBeach } from "../mapping/maps/firstBeach";
 import { writable, type Writable } from "svelte/store";
 import { SaveContext } from "./savesHolder";
 import type { Jonction } from "../mapping/collisions";
-import { TourGuideClient } from "@sjmc11/tourguidejs/src/Tour"
-import { GUIDES_STEPS } from "./guides-steps";
+//import { TourGuideClient } from "@sjmc11/tourguidejs/src/Tour"
+//import { GUIDES_STEPS } from "./guides-steps";
 import { pokecenter1 } from "../mapping/maps/pokecenter1";
 import { forest } from "../mapping/maps/forest";
 import { OverworldSpawn } from "../characters/overworld-spawn";
+import { ObjectiveState, QUESTS, Quest, QuestState } from "../scripting/quests";
 
 
 /**
@@ -43,6 +44,10 @@ export class GameContext {
     map: OpenMap;
     settings: Settings;
 
+    questStates: QuestState[] = [];
+    quests: Quest[] = [];
+    currentQuest: Quest;
+
     overWorldContext: OverworldContext;
     battleContext: Writable<BattleContext | undefined> = writable(undefined);
 
@@ -52,7 +57,7 @@ export class GameContext {
     spawned?: OverworldSpawn;
 
     // Guides
-    tg: TourGuideClient;
+    //tg: TourGuideClient;
     viewedGuides: number[];
 
     sound?: Howl;
@@ -72,25 +77,31 @@ export class GameContext {
 
         this.overWorldContext = new OverworldContext(this.map);
         this.player.position = new CharacterPosition(this.map.playerInitialPosition);
-
         this.viewedGuides = save.viewedGuides;
 
-
-        this.tg = new TourGuideClient({
-            dialogClass: 'guide-dialog',
-            nextLabel: '►',
-            prevLabel: '◄',
-            finishLabel: '✔',
-            showStepProgress: false,
-            closeButton: false,
-            exitOnClickOutside: false,
-            exitOnEscape: false,
-            steps: [GUIDES_STEPS.JOYSTICK, GUIDES_STEPS.KEYBOARD_ARROWS, GUIDES_STEPS.KEYBOARD_AB].filter(step => !this.viewedGuides.includes(step.order || 0))
+        this.questStates = save.questStates;
+        const lastCompleted = this.questStates.filter(q => q.completed).sort((a, b) => a.id - b.id).pop();
+        this.currentQuest = QUESTS.find(q => q.id === lastCompleted?.id) || QUESTS[0];
+        this.quests = QUESTS.map(q => {
+            let questState = this.questStates.find(qs => qs.id === q.id);
+            return new Quest(q.id, q.name, q.description, q.objectives, questState?.completed || false);
         });
 
-        this.tg.onFinish(() => {
-            this.tg.tourSteps.map(step => step.order || 0).forEach(step => this.viewedGuides.push(step));
-        });
+        // this.tg = new TourGuideClient({
+        //     dialogClass: 'guide-dialog',
+        //     nextLabel: '►',
+        //     prevLabel: '◄',
+        //     finishLabel: '✔',
+        //     showStepProgress: false,
+        //     closeButton: false,
+        //     exitOnClickOutside: false,
+        //     exitOnEscape: false,
+        //     steps: [GUIDES_STEPS.JOYSTICK, GUIDES_STEPS.KEYBOARD_ARROWS, GUIDES_STEPS.KEYBOARD_AB].filter(step => !this.viewedGuides.includes(step.order || 0))
+        // });
+
+        // this.tg.onFinish(() => {
+        //     this.tg.tourSteps.map(step => step.order || 0).forEach(step => this.viewedGuides.push(step));
+        // });
 
         let allScripts: Script[] = this.map.scripts
             .concat(this.map.npcs.map((npc) => npc.mainScript).filter((script) => script !== undefined) as Script[])
@@ -122,16 +133,53 @@ export class GameContext {
         this.loadMap(this.map);
     }
 
+    validateQuestObjective(questId: number, objectiveId: number) {
+        let quest = this.quests.find(q => q.id === questId);
+        let objective = quest?.objectives.find(o => o.id === objectiveId);
+        console.log(objective);
+        if (objective) {
+            objective.complete();
+            let questState = this.questStates.find(qs => qs.id === questId);
+            if (questState) {
+                let obj = questState.objectives.find(o => o.id === objectiveId);
+                if (obj) {
+                    obj.completed = true;
+                    if (questState.objectives.every(o => o.completed)) {
+                        questState.completed = true;
+                    }
+                }
+            } else if (!!quest) {
+                this.questStates.push(new QuestState(questId, false, quest.objectives.map(o => new ObjectiveState(o.id, o.completed))));
+            }
+        }
+    }
+
+    isMenuAvailable(menuKey: MenuType): boolean {
+        switch (menuKey) {
+            case MenuType.POKEMON_LIST:
+            case MenuType.BOX:
+                return this.questStates.find(q => q.id === 0)?.objectives[0].completed || false;
+            case MenuType.POKEDEX:
+                return this.questStates.find(q => q.id === 0)?.objectives[1].completed || false;
+            case MenuType.TRAINER:
+                return this.questStates.find(q => q.id === 0)?.objectives[2].completed || false;
+            case MenuType.BAG:
+                return this.questStates.find(q => q.id === 0)?.objectives[3].completed || false;
+            default:
+                return false;
+        }
+    }
+
     bindKeys() {
         this.overWorldContext.keys.a.subscribe((value) => {
             if (value && !this.overWorldContext.getPaused()) {
                 let interactive = this.map?.elementInFront(this.player.position.positionOnMap, this.player.position.direction);
-                let scripts = interactive?.interact(this.player.position.positionOnMap);
+                let scripts = interactive?.interact(this.player.position.positionOnMap, this);
 
                 // interactive behind counters 
                 if (!interactive) {
                     let interactiveBehindCounter = this.map?.elementBehindCounter(this.player.position.positionOnMap, this.player.position.direction);
-                    scripts = interactiveBehindCounter?.interact(this.player.position.positionOnMap);
+                    scripts = interactiveBehindCounter?.interact(this.player.position.positionOnMap, this);
                 }
 
                 let newScript = scripts?.[0];
@@ -224,13 +272,13 @@ export class GameContext {
                 this.overWorldContext.endScene(SceneType.WAKE_UP);
                 if (script) {
                     this.playScript(script, undefined, () => {
-                        this.overWorldContext.startScene(SceneType.STARTER_SELECTION);
-                        let unsub = setInterval(() => {
-                            if (!this.overWorldContext.scenes.starterSelection) {
-                                this.tg.start();
-                                clearInterval(unsub);
-                            }
-                        }, 2000);
+                        // this.overWorldContext.startScene(SceneType.STARTER_SELECTION);
+                        // let unsub = setInterval(() => {
+                        //     if (!this.overWorldContext.scenes.starterSelection) {
+                        //         //this.tg.start();
+                        //         clearInterval(unsub);
+                        //     }
+                        // }, 2000);
                     });
 
                 }
@@ -238,7 +286,7 @@ export class GameContext {
             }, 5000);
             return true;
         } else {
-            this.tg.start();
+            //this.tg.start();
         }
         return false;
     }
@@ -271,7 +319,7 @@ export class GameContext {
         this.loadMap(map);
     }
 
-    playMapSound(){
+    playMapSound() {
         if (this.map?.sound) {
             this.sound = new Howl({
                 src: ['src/assets/audio/' + this.map?.sound + '.mp3'],
@@ -481,7 +529,7 @@ export class GameContext {
         let unsubscribe = battleContext.events.end.subscribe((result) => {
             if (result) {
                 this.battleSound.fade(0.5, 0, 1000);
-                
+
                 battleContext.events.ending.set(true);
 
                 if (opponent instanceof PokemonInstance) {
@@ -591,7 +639,7 @@ export class GameContext {
     }
 
     toSaveContext(): SaveContext {
-        return new SaveContext(this.id, Date.now(), new MapSave(this.map.mapId), this.player, this.boxes, this.settings, this.isNewGame, this.viewedGuides, this.POKEDEX.exportForSave());
+        return new SaveContext(this.id, Date.now(), new MapSave(this.map.mapId), this.player, this.boxes, this.settings, this.isNewGame, this.viewedGuides, this.POKEDEX.exportForSave(), this.questStates);
     }
 }
 

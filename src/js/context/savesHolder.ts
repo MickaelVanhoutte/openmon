@@ -5,6 +5,8 @@ import { Pokedex, PokemonInstance, SavedEntry, UnknownMonster } from "../pokemon
 import { Settings } from "../characters/settings";
 import { GameContext } from "./gameContext";
 import { writable, type Writable } from "svelte/store";
+import { ObjectiveState, QuestState } from "../scripting/quests";
+import { QUESTS } from "../scripting/quests";
 
 /**
  * One save in storage
@@ -21,8 +23,11 @@ export class SaveContext {
     isNewGame: boolean;
     viewedGuides: number[];
     savedEntry: SavedEntry[];
+    questStates: QuestState[] = [];
+    // TODO store script played
 
-    constructor(id: number, updated: number, currentMap: MapSave, player: Player, boxes: Array<PokemonBox>, settings: Settings, isNewGame: boolean = false, viewedGuides: number[] = [], savedEntry: SavedEntry[] = []) {
+
+    constructor(id: number, updated: number, currentMap: MapSave, player: Player, boxes: Array<PokemonBox>, settings: Settings, isNewGame: boolean = false, viewedGuides: number[] = [], savedEntry: SavedEntry[] = [], questStates: QuestState[] = []) {
         this.id = id;
         this.updated = updated;
         this.currentMap = currentMap;
@@ -32,6 +37,7 @@ export class SaveContext {
         this.isNewGame = isNewGame;
         this.viewedGuides = viewedGuides;
         this.savedEntry = savedEntry;
+        this.questStates = questStates;
     }
 
     toGameContext(): GameContext {
@@ -71,10 +77,19 @@ export class SavesHolder {
                 });
                 return box;
             });
+            save.questStates = save.questStates?.map((questState) => {
+                Object.setPrototypeOf(questState, QuestState.prototype);
+                questState.objectives = questState.objectives.map((objectiveState) => {
+                    Object.setPrototypeOf(objectiveState, ObjectiveState.prototype);
+                    return objectiveState;
+                });
+                return questState;
+            }) || [];
         });
         this.saves = this.saves.sort((a, b) => b.updated - a.updated);
     }
 
+    // TODO: fix, seems to remove the bad one
     removeSave(index: number) {
         this.saves.splice(index, 1);
         this.persist();
@@ -110,7 +125,10 @@ export class SavesHolder {
             Player.fromScratch(spriteId, name, gender),
             boxes,
             new Settings(),
-            true
+            true,
+            [],
+            [],
+            QUESTS.map(q => q.toState())
         );
         this.saves.push(newSave);
         this.persist();

@@ -14,7 +14,14 @@
 
 	const isBattle = false;
 
-	let selected: number | undefined ;
+	let selected: number | undefined;
+	const menusToFilter = [MenuType.MAIN, MenuType.SUMMARY, MenuType.SWITCH];
+
+	$: menuEntries = Object.values(MenuType)
+		.filter((key) => !menusToFilter.includes(<MenuType>key))
+		.filter((key) => context.isMenuAvailable(<MenuType>key));
+
+	$: console.log(menuEntries);
 
 	function saveCurrent() {
 		savesHolder.persist(context.toSaveContext());
@@ -48,9 +55,9 @@
 	const listener = (e: KeyboardEvent) => {
 		if (context.overWorldContext.menus.menuOpened) {
 			if (e.key === 'ArrowDown') {
-				selected = selected === 0 ? 5 : selected - 1;
+				selected = selected === 0 ? menuEntries.length : selected - 1;
 			} else if (e.key === 'ArrowUp') {
-				selected = selected === 5 ? 0 : selected + 1;
+				selected = selected === menuEntries.length ? 0 : selected + 1;
 			} else if (e.key === 'Enter' || e.key === 'a') {
 				if (selected === 0) {
 					openList();
@@ -91,33 +98,39 @@
 	<div class="grid">
 		<ul id="hexGrid">
 			<li class="hex">
-				<div class="hexIn" class:selected={selected === 1}>
-					<button class="hexLink" on:click={() => openBoxes()}>
-						<img src="src/assets/menus/boxes.png" alt="pc boxes" />
-						<span class="title">Boxes</span>
-						<span class="img"></span>
-					</button>
-				</div>
+				{#if menuEntries.includes(MenuType.BOX)}
+					<div class="hexIn" class:selected={selected === 1}>
+						<button class="hexLink" on:click={() => openBoxes()}>
+							<img src="src/assets/menus/boxes.png" alt="pc boxes" />
+							<span class="title">Boxes</span>
+							<span class="img"></span>
+						</button>
+					</div>
+				{/if}
 			</li>
 
 			<li class="hex">
-				<div class="hexIn" class:selected={selected === 2}>
-					<button class="hexLink" on:click={() => openBag()}>
-						<img src="src/assets/menus/bag.png" alt="bag" />
-						<span class="title">Bag</span>
-						<span class="img"></span>
-					</button>
-				</div>
+				{#if menuEntries.includes(MenuType.BAG)}
+					<div class="hexIn" class:selected={selected === 2}>
+						<button class="hexLink" on:click={() => openBag()}>
+							<img src="src/assets/menus/bag.png" alt="bag" />
+							<span class="title">Bag</span>
+							<span class="img"></span>
+						</button>
+					</div>
+				{/if}
 			</li>
 
 			<li class="hex">
-				<div class="hexIn" class:selected={selected === 0}>
-					<button class="hexLink" on:click={() => openList()}>
-						<img src="src/assets/menus/pokeball.png" alt="pokemons" />
-						<span class="title">Pokémons</span>
-						<span class="img"></span>
-					</button>
-				</div>
+				{#if menuEntries.includes(MenuType.POKEMON_LIST)}
+					<div class="hexIn" class:selected={selected === 0}>
+						<button class="hexLink" on:click={() => openList()}>
+							<img src="src/assets/menus/pokeball.png" alt="pokemons" />
+							<span class="title">Pokémons</span>
+							<span class="img"></span>
+						</button>
+					</div>
+				{/if}
 			</li>
 
 			<li class="hex">
@@ -125,13 +138,15 @@
 			</li>
 
 			<li class="hex">
-				<div class="hexIn" class:selected={selected === 3}>
-					<button class="hexLink" on:click={() => pokedex()}>
-						<img src="src/assets/menus/pokedex.png" alt="pc boxes" />
-						<span class="title">Pokedex</span>
-						<span class="img"></span>
-					</button>
-				</div>
+				{#if menuEntries.includes(MenuType.POKEDEX)}
+					<div class="hexIn" class:selected={selected === 3}>
+						<button class="hexLink" on:click={() => pokedex()}>
+							<img src="src/assets/menus/pokedex.png" alt="pc boxes" />
+							<span class="title">Pokedex</span>
+							<span class="img"></span>
+						</button>
+					</div>
+				{/if}
 			</li>
 
 			<li class="hex">
@@ -145,13 +160,15 @@
 			</li>
 
 			<li class="hex">
-				<div class="hexIn" class:selected={selected === 4}>
-					<button class="hexLink" on:click={() => trainer()}>
-						<img src="src/assets/menus/trainer.png" alt="trainer" />
-						<span class="title">Trainer</span>
-						<span class="img"></span>
-					</button>
-				</div>
+				{#if menuEntries.includes(MenuType.TRAINER)}
+					<div class="hexIn" class:selected={selected === 4}>
+						<button class="hexLink" on:click={() => trainer()}>
+							<img src="src/assets/menus/trainer.png" alt="trainer" />
+							<span class="title">Trainer</span>
+							<span class="img"></span>
+						</button>
+					</div>
+				{/if}
 			</li>
 
 			<li class="hex">

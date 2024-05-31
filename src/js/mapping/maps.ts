@@ -3,6 +3,7 @@ import { Script } from "../scripting/scripts";
 import type { NPC } from "../characters/npc";
 import { Position } from "./positions";
 import type { Interactive } from "../characters/characters-model";
+import type { OverworldItem } from "../items/overworldItem";
 
 export class MapSave {
     mapId: number;
@@ -44,6 +45,7 @@ export class OpenMap {
     public scripts: Script[];
     public sound?: string;
 
+    public items: OverworldItem[] = [];
 
     constructor(mapId: number,
         background: string, width: number, height: number,
@@ -51,7 +53,7 @@ export class OpenMap {
         playerInitialPosition: Position,
         levelRange: number[] = [1, 100],
         jonctions: Jonction[] = [],
-        foreground?: string, battleTile?: number, collisionTile?: number, waterTile?: number, npcs?: NPC[], scripts?: Script[], sound?: string) {
+        foreground?: string, battleTile?: number, collisionTile?: number, waterTile?: number, npcs?: NPC[], scripts?: Script[], sound?: string, items?: OverworldItem[]) {
         this.mapId = mapId;
         this.background = background;
         this.foreground = foreground;
@@ -73,6 +75,7 @@ export class OpenMap {
         this.npcs = npcs || []
         this.scripts = scripts || [];
         this.sound = sound;
+        this.items = items || [];
     }
 
     public static fromScratch(mapId: number, background: string, width: number, height: number,
@@ -80,7 +83,7 @@ export class OpenMap {
         playerInitialPosition: Position = new Position(),
         levelRange: number[] = [1, 100],
         jonctions: Jonction[] = [],
-        foreground?: string, battleTile?: number, collisionTile?: number, waterTile?: number, npcs?: NPC[], scripts?: Script[], sound?: string): OpenMap {
+        foreground?: string, battleTile?: number, collisionTile?: number, waterTile?: number, npcs?: NPC[], scripts?: Script[], sound?: string, items?: OverworldItem[]): OpenMap {
 
 
         return new OpenMap(
@@ -101,7 +104,8 @@ export class OpenMap {
             waterTile,
             npcs,
             scripts,
-            sound
+            sound,
+            items
         )
     }
 
@@ -125,7 +129,8 @@ export class OpenMap {
             map?.waterTile,
             map?.npcs,
             map?.scripts,
-            map?.sound
+            map?.sound,
+            map.items
         )
     }
 
@@ -187,7 +192,8 @@ export class OpenMap {
             this.npcAt(position) ||
             this.waterZones.some((boundary) => {
                 return boundary.position.x === position.x && boundary.position.y === position.y; // && TODO : trigger surf ?
-            });
+            })
+            || (this.itemAt(position) !== undefined && this.itemAt(position)?.isBlocking());
     }
 
     jonctionAt(position: Position): Jonction | undefined {
@@ -207,6 +213,12 @@ export class OpenMap {
         });
     }
 
+    public itemAt(position: Position): OverworldItem | undefined {
+        return this.items?.find((item) => {
+            return item.position.x === position.x && item.position.y === position.y;
+        });
+    }
+
     public elementInFront(position: Position, direction: 'up' | 'down' | 'left' | 'right'): Interactive | undefined {
         let elementPosition = new Position(position.x, position.y);
         switch (direction) {
@@ -223,7 +235,7 @@ export class OpenMap {
                 elementPosition.x += 1;
                 break;
         }
-        
+
         return this.elementAt(elementPosition);
     }
 
@@ -253,7 +265,7 @@ export class OpenMap {
     private elementAt(elementPosition: Position): Interactive | undefined {
         return this.npcs?.find((npc) => {
             return npc.position.positionOnMap.x === elementPosition.x && npc.position.positionOnMap.y === elementPosition.y;
-        });
+        }) || this.itemAt(elementPosition);
     }
 
 
@@ -415,7 +427,6 @@ export class OpenMap {
             }
 
         }
-
 
         ctx.restore();
 
