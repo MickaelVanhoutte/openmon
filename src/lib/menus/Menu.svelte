@@ -236,7 +236,7 @@
 		transition: all 0.2s ease-in-out;
 
 		&.open {
-			z-index: 9;
+			z-index: 10;
 			opacity: 1;
 		}
 

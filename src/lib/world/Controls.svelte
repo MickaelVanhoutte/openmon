@@ -110,6 +110,7 @@
 
 	function toggleQuests() {
 		displayedQuests = !displayedQuests;
+		console.log(displayedQuests);
 	}
 
 	onMount(() => {
@@ -155,7 +156,7 @@
 
 <div class="joysticks" bind:this={joysticks}></div>
 
-<div class="quests">
+<div class="quests" class:overlay={displayedQuests}>
 	<button class="toggle" on:click={() => toggleQuests()}>
 		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
 			><path
@@ -168,7 +169,7 @@
 		<div class="quest-list">
 			{#if context.currentQuest}
 				<div class="quest">
-					<h3>{context.currentQuest?.name}</h3>
+					<h4>{context.currentQuest?.name}</h4>
 					<p>{context.currentQuest?.description}</p>
 				</div>
 				{#each context.currentQuest?.objectives as obj}
@@ -178,18 +179,17 @@
 							{#if obj.completed}
 								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
 									><path
-										d="M9.9997 15.1709L19.1921 5.97852L20.6063 7.39273L9.9997 17.9993L3.63574 11.6354L5.04996 10.2212L9.9997 15.1709Z"
+										d="M4 3H20C20.5523 3 21 3.44772 21 4V20C21 20.5523 20.5523 21 20 21H4C3.44772 21 3 20.5523 3 20V4C3 3.44772 3.44772 3 4 3ZM5 5V19H19V5H5ZM11.0026 16L6.75999 11.7574L8.17421 10.3431L11.0026 13.1716L16.6595 7.51472L18.0737 8.92893L11.0026 16Z"
 									></path></svg
 								>
 							{:else}
 								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
 									><path
-										d="M11.9997 10.5865L16.9495 5.63672L18.3637 7.05093L13.4139 12.0007L18.3637 16.9504L16.9495 18.3646L11.9997 13.4149L7.04996 18.3646L5.63574 16.9504L10.5855 12.0007L5.63574 7.05093L7.04996 5.63672L11.9997 10.5865Z"
+										d="M4 3H20C20.5523 3 21 3.44772 21 4V20C21 20.5523 20.5523 21 20 21H4C3.44772 21 3 20.5523 3 20V4C3 3.44772 3.44772 3 4 3ZM5 5V19H19V5H5Z"
 									></path></svg
 								>
 							{/if}
 						</span>
-						
 					</div>
 				{/each}
 			{:else}
@@ -201,7 +201,7 @@
 	{/if}
 </div>
 
-{#if context.flags.getFlag(FlagEntry.RUNNING_SHOES_UNLOCKED)}
+{#if context.flags.getFlag(FlagEntry.RUNNING_SHOES_UNLOCKED) && !displayedQuests}
 	<div class="run-toggle">
 		{#if context.player?.running}
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
@@ -228,7 +228,7 @@
 	</div>
 {/if}
 
-{#if !overWorldCtx.getPaused()}
+{#if !overWorldCtx.getPaused() && !displayedQuests}
 	<button on:click={() => overWorldCtx.openMenu(MenuType.MAIN)} class="start">start </button>
 {/if}
 
@@ -236,6 +236,29 @@
 
 <style lang="scss">
 	.quests {
+		$paper-color: #f1ede9;
+		$paper-line: #94acd4;
+
+		&.overlay::after {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			display: block;
+			width: 100dvw;
+			height: 100dvh;
+
+			background: rgba(44, 56, 69, 0.6);
+			background: radial-gradient(
+				circle,
+				rgba(0, 0, 0, 0.1) 0%,
+				rgba(0, 0, 0, 0.6) 36%,
+				rgba(0, 0, 0, 0.75) 50%,
+				rgb(0, 0, 0) 100%
+			);
+			z-index: 8;
+		}
+
 		.toggle {
 			position: absolute;
 			top: 2%;
@@ -245,7 +268,7 @@
 			padding: 8px;
 			border-radius: 4px;
 			width: 40px;
-			z-index: 100;
+			z-index: 9;
 			border: none;
 		}
 
@@ -253,11 +276,13 @@
 			position: absolute;
 			top: 2%;
 			left: calc(4% + 40px);
-			background-color: rgba(44, 56, 69, 0.95);
+			background: #333;
 			color: white;
+			font-size: 22px;
+			outline: 0;
 			padding: 8px;
 			border-radius: 4px;
-			z-index: 100;
+			z-index: 9;
 			max-height: 96dvh;
 			max-width: 60dvw;
 			overflow: auto;
@@ -265,27 +290,34 @@
 			.quest {
 				margin-bottom: 8px;
 
-				h3 {
-					margin: 0;
+				h4 {
+					text-align: center;
 				}
-				
 			}
 
 			.obj {
-					display: flex;
-					justify-content: space-between;
-					align-items: center;
-					
-					&:not(:last-child) {
-						border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-					}
-					
-					svg {
-						height: 32px;
-						width: 32px;
-						color: white;
-					}
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+
+				background: repeating-linear-gradient(
+					$paper-color,
+					$paper-color 31px,
+					$paper-line 31px,
+					$paper-line 32px
+				);
+				color: black;
+				line-height: 32px;
+				outline: 0;
+				font-size: 22px;
+				padding: 0 8px;
+
+				svg {
+					height: 32px;
+					width: 32px;
+					color: black;
 				}
+			}
 		}
 	}
 

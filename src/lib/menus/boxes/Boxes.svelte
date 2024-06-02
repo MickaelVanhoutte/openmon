@@ -430,7 +430,7 @@
 			rgba(3, 84, 142, 1) 42%,
 			rgba(0, 195, 230, 1) 100%
 		);
-		z-index: 9;
+		z-index: 10;
 
 		display: flex;
 		flex-direction: row;

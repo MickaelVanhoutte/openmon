@@ -88,7 +88,7 @@ export class SavesHolder {
                 return questState;
             }) || [];
 
-            save.flags = new Flags(save.flags?.flags)
+            save.flags = save?.flags ? new Flags(save?.flags?.flags) : new Flags();
 
         });
         this.saves = this.saves.sort((a, b) => b.updated - a.updated);

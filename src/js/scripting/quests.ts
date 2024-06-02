@@ -11,14 +11,12 @@ export class Flags {
         if (flags) {
             this.flags = flags;
             Object.setPrototypeOf(this.flags, Map.prototype);
-            console.log(this);
         } else {
             
             this.flags = new Map();
             Object.values(FlagEntry).forEach(f => {
                 this.flags.set(<FlagEntry>f, false);
             });
-            console.log('init flags', this.flags);
         }
     }
 
