@@ -19,7 +19,8 @@ import type { Jonction } from "../mapping/collisions";
 import { pokecenter1 } from "../mapping/maps/pokecenter1";
 import { forest } from "../mapping/maps/forest";
 import { OverworldSpawn } from "../characters/overworld-spawn";
-import { ObjectiveState, QUESTS, Quest, QuestState } from "../scripting/quests";
+import { Flags, Objective, ObjectiveState, QUESTS, Quest, QuestState } from "../scripting/quests";
+import { Notifications } from "../scripting/notifications";
 
 
 /**
@@ -47,6 +48,7 @@ export class GameContext {
     questStates: QuestState[] = [];
     quests: Quest[] = [];
     currentQuest: Quest;
+    flags: Flags;
 
     overWorldContext: OverworldContext;
     battleContext: Writable<BattleContext | undefined> = writable(undefined);
@@ -64,12 +66,15 @@ export class GameContext {
     battleStartSound: Howl;
     battleSound: Howl;
 
+    notifications: Notifications = new Notifications();
+
     constructor(save: SaveContext) {
         this.id = save.id;
         this.POKEDEX = new Pokedex(save.savedEntry);
         this.player = Player.fromInstance(save.player);
         this.boxes = save.boxes.map((box) => new PokemonBox(box.name, box.values.map((pkmn) => pkmn ? pkmn as PokemonInstance : undefined)));
         this.map = OpenMap.fromInstance(this.MAPS[save.currentMap.mapId], save.isNewGame ? this.MAPS[save.currentMap.mapId].playerInitialPosition : save.player.position.positionOnMap);
+        this.map.items = this.map.items.filter(i => !save.currentMap.pickedItems.includes(i.id || 0));
         this.settings = save.settings;
         this.isNewGame = save.isNewGame;
         this.created = save.created;
@@ -81,11 +86,14 @@ export class GameContext {
 
         this.questStates = save.questStates;
         const lastCompleted = this.questStates.filter(q => q.completed).sort((a, b) => a.id - b.id).pop();
-        this.currentQuest = QUESTS.find(q => q.id === lastCompleted?.id) || QUESTS[0];
         this.quests = QUESTS.map(q => {
             let questState = this.questStates.find(qs => qs.id === q.id);
-            return new Quest(q.id, q.name, q.description, q.objectives, questState?.completed || false);
+            return new Quest(q.id, q.name, q.description, q.objectives
+                .map(o => new Objective(o.id, o.description, questState?.objectives.find(questObj => questObj.id === o.id)?.completed || false))
+                , questState?.completed || false);
         });
+        this.currentQuest = this.quests.find(q => q.id === lastCompleted?.id) || this.quests[0];
+        this.flags = save.flags;
 
         // this.tg = new TourGuideClient({
         //     dialogClass: 'guide-dialog',
@@ -136,7 +144,6 @@ export class GameContext {
     validateQuestObjective(questId: number, objectiveId: number) {
         let quest = this.quests.find(q => q.id === questId);
         let objective = quest?.objectives.find(o => o.id === objectiveId);
-        console.log(objective);
         if (objective) {
             objective.complete();
             let questState = this.questStates.find(qs => qs.id === questId);
@@ -144,8 +151,10 @@ export class GameContext {
                 let obj = questState.objectives.find(o => o.id === objectiveId);
                 if (obj) {
                     obj.completed = true;
-                    if (questState.objectives.every(o => o.completed)) {
+                    this.notifications.notify(`Objective completed: ${objective.description}`);
+                    if (quest && questState.objectives.every(o => o.completed)) {
                         questState.completed = true;
+                        this.notifications.notify(`Quest completed: ${quest.name}`);
                     }
                 }
             } else if (!!quest) {
@@ -266,27 +275,21 @@ export class GameContext {
         if (this.isNewGame && !this.overWorldContext.scenes.wakeUp) {
             let script = this.scriptsByTrigger.get('onGameStart')?.at(0);
             this.overWorldContext.startScene(SceneType.WAKE_UP);
-            setTimeout(() => {
-                this.isNewGame = false;
 
+            setTimeout(() => {
                 this.overWorldContext.endScene(SceneType.WAKE_UP);
+                this.isNewGame = false;
                 if (script) {
                     this.playScript(script, undefined, () => {
-                        // this.overWorldContext.startScene(SceneType.STARTER_SELECTION);
-                        // let unsub = setInterval(() => {
-                        //     if (!this.overWorldContext.scenes.starterSelection) {
-                        //         //this.tg.start();
-                        //         clearInterval(unsub);
-                        //     }
-                        // }, 2000);
+                        this.notifications.notify('Current quest: ' + this.currentQuest.name);
                     });
-
                 }
-
             }, 5000);
+
             return true;
         } else {
             //this.tg.start();
+            this.notifications.notify('Current quest: ' + this.currentQuest.name);
         }
         return false;
     }
@@ -639,7 +642,7 @@ export class GameContext {
     }
 
     toSaveContext(): SaveContext {
-        return new SaveContext(this.id, Date.now(), new MapSave(this.map.mapId), this.player, this.boxes, this.settings, this.isNewGame, this.viewedGuides, this.POKEDEX.exportForSave(), this.questStates);
+        return new SaveContext(this.id, Date.now(), new MapSave(this.map.mapId, this.map.items.filter(i => i.pickedUp).map(i => i.id || 0)), this.player, this.boxes, this.settings, this.isNewGame, this.viewedGuides, this.POKEDEX.exportForSave(), this.questStates, this.flags);
     }
 }
 

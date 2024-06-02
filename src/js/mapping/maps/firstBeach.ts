@@ -5,6 +5,7 @@ import { Position } from "../positions";
 import { Jonction } from "../collisions";
 import { OverworldItem } from "../../items/overworldItem";
 import { MenuType } from "../../context/overworldContext";
+import { FlagEntry } from "../../scripting/quests";
 
 const monsters = Array.from({ length: 233 }, (v, k) => k + 1);
 
@@ -604,12 +605,6 @@ export const firstBeach = OpenMap.fromScratch(0, 'src/assets/maps/First-beach.pn
                 ]),
                 new CustomScriptable(
                     (ctx) => {
-                        // Starter
-                        ctx.validateQuestObjective(0, 0);
-                    }
-                ),
-                new CustomScriptable(
-                    (ctx) => {
                         ctx.overWorldContext.scenes.starterSelection = true;
                     }
                 )
@@ -626,9 +621,9 @@ export const firstBeach = OpenMap.fromScratch(0, 'src/assets/maps/First-beach.pn
                         // Pokedex
                         console.log('completing pokedex obj');
                         ctx.validateQuestObjective(0, 1);
-                        setTimeout(() => {
-                            ctx.overWorldContext.openMenu(MenuType.MAIN);
-                        }, 100);
+                        // setTimeout(() => {
+                        //     ctx.overWorldContext.openMenu(MenuType.MAIN);
+                        // }, 100);
                     }
                 ),
             ])
@@ -644,9 +639,9 @@ export const firstBeach = OpenMap.fromScratch(0, 'src/assets/maps/First-beach.pn
                         // Trainer card
                         console.log('completing trainer card obj');
                         ctx.validateQuestObjective(0, 2);
-                        setTimeout(() => {
-                            ctx.overWorldContext.openMenu(MenuType.MAIN);
-                        }, 100);
+                        // setTimeout(() => {
+                        //     ctx.overWorldContext.openMenu(MenuType.MAIN);
+                        // }, 100);
                     }
                 ),
             ])
@@ -662,9 +657,9 @@ export const firstBeach = OpenMap.fromScratch(0, 'src/assets/maps/First-beach.pn
                         // Bag
                         console.log('completing bag obj');
                         ctx.validateQuestObjective(0, 3);
-                        setTimeout(() => {
-                            ctx.overWorldContext.openMenu(MenuType.MAIN);
-                        }, 100);
+                        // setTimeout(() => {
+                        //     ctx.overWorldContext.openMenu(MenuType.MAIN);
+                        // }, 100);
                     }
                 ),
             ])
@@ -679,7 +674,11 @@ export const firstBeach = OpenMap.fromScratch(0, 'src/assets/maps/First-beach.pn
                     (ctx) => {
                          // Running shoes
                          console.log('completing running shoes obj');
+                         ctx.flags.setFlag(FlagEntry.RUNNING_SHOES_UNLOCKED, true);
                          ctx.validateQuestObjective(0, 4);
+                            // setTimeout(() => {
+                            //     ctx.flags.setFlag(FlagEntry.RUNNING_SHOES_UNLOCKED, true);
+                            // }, 100);
                     }
                 ),
             ])

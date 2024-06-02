@@ -7,6 +7,7 @@ import type { AItem } from "./items-model";
 
 export class OverworldItem implements Interactive {
 
+    id?: number;
     item?: AItem;
     name: string;
     visible: boolean;

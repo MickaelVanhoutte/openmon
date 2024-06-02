@@ -1,9 +1,5 @@
 
 export enum FlagEntry {
-    POKEMON_MENU_UNLOCKED,
-    POKEDEX_MENU_UNLOCKED,
-    BAG_MENU_UNLOCKED,
-    TRAINER_MENU_UNLOCKED,
     RUNNING_SHOES_UNLOCKED,
     COMBO_MOVES_UNLOCKED
 }
@@ -11,11 +7,19 @@ export enum FlagEntry {
 export class Flags {
     flags: Map<FlagEntry, boolean>;
 
-    constructor() {
-        this.flags = new Map();
-        Object.values(FlagEntry).forEach(f => {
-            this.flags.set(<FlagEntry>f, false);
-        });
+    constructor(flags?: Map<FlagEntry, boolean>) {
+        if (flags) {
+            this.flags = flags;
+            Object.setPrototypeOf(this.flags, Map.prototype);
+            console.log(this);
+        } else {
+            
+            this.flags = new Map();
+            Object.values(FlagEntry).forEach(f => {
+                this.flags.set(<FlagEntry>f, false);
+            });
+            console.log('init flags', this.flags);
+        }
     }
 
     setFlag(flag: FlagEntry, value: boolean) {
@@ -96,7 +100,7 @@ export const QUESTS = [
             new Objective(2, "Find your Trainer Card"),
             new Objective(3, "Find your Bag"),
             new Objective(4, "Find your Running Shoes"),
-            new Objective(5, "Discover what happened here"),
+            // new Objective(5, "Discover what happened here"),
         ]
     ),
     new Quest(1, "The first step", "Reach the village in the forest",

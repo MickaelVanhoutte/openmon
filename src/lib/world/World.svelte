@@ -26,6 +26,7 @@
 	let canvasCtx: CanvasRenderingContext2D;
 	let wrapper: HTMLDivElement;
 	let canvasWidth: number;
+	let currentMessages: string[] = [];
 
 	/*
     Scripts
@@ -82,11 +83,12 @@
 				context.player.position.positionInPx,
 				npc,
 				overWorldCtx.frames.playerScale,
-				mapDimensions, undefined
+				mapDimensions,
+				undefined
 			);
 		});
 
-		if(context.map.items.length > 0) {
+		if (context.map.items.length > 0) {
 			context.map.items.forEach((item) => {
 				item.draw(
 					bufferCtx,
@@ -116,7 +118,6 @@
 			mapDimensions,
 			context.map.hasBattleZoneAt(context.player.position.positionOnMap)
 		);
-	
 
 		// Foreground
 		if (!!context.map?.foreground) {
@@ -161,6 +162,9 @@
 
 		canvasWidth = Math.min(window.innerWidth, canvas.width);
 		mainLoop();
+		context.notifications.subscribe((value) => {
+			currentMessages = value;
+		});
 
 		return () => {
 			canvasCtx?.clearRect(0, 0, canvas.width, canvas.height);
@@ -186,6 +190,14 @@
 
 	<Controls {context} {overWorldCtx} />
 	<ScenesView {context} {canvasWidth} />
+
+	{#if currentMessages.length > 0}
+		<div class="notifications">
+			{#each currentMessages as message}
+				<div class="notification">{message}</div>
+			{/each}
+		</div>
+	{/if}
 </div>
 
 <style lang="scss">
@@ -201,6 +213,28 @@
 
 		&.blur {
 			animation: blurry 5s linear infinite;
+		}
+
+		.notifications {
+			position: absolute;
+			top: 2%;
+			left: calc(4% + 40px);
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: flex-start;
+			z-index: 100;
+
+			.notification {
+				background-color: rgba(0, 0, 0, 0.5);
+				color: white;
+				padding: 8px;
+				border-radius: 4px;
+				
+				&:not(:last-child) {
+					margin-bottom: 4px;
+				}
+			}
 		}
 
 		.healing {
