@@ -7,10 +7,12 @@ import type { OverworldItem } from "../items/overworldItem";
 
 export class MapSave {
     mapId: number;
+    pickedItems: number[] = [];
     //scriptsStates
 
-    constructor(mapId: number) {
+    constructor(mapId: number, pickedItems: number[] = []) {
         this.mapId = mapId;
+        this.pickedItems = pickedItems;
     }
 }
 
@@ -75,7 +77,10 @@ export class OpenMap {
         this.npcs = npcs || []
         this.scripts = scripts || [];
         this.sound = sound;
-        this.items = items || [];
+        this.items = items?.map((item, index) => {
+            item.id = index;
+            return item;
+        }) || [];
     }
 
     public static fromScratch(mapId: number, background: string, width: number, height: number,

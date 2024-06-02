@@ -5,7 +5,7 @@ import { Pokedex, PokemonInstance, SavedEntry, UnknownMonster } from "../pokemon
 import { Settings } from "../characters/settings";
 import { GameContext } from "./gameContext";
 import { writable, type Writable } from "svelte/store";
-import { ObjectiveState, QuestState } from "../scripting/quests";
+import { FlagEntry, Flags, ObjectiveState, QuestState } from "../scripting/quests";
 import { QUESTS } from "../scripting/quests";
 
 /**
@@ -24,10 +24,11 @@ export class SaveContext {
     viewedGuides: number[];
     savedEntry: SavedEntry[];
     questStates: QuestState[] = [];
+    flags: Flags;
     // TODO store script played
 
 
-    constructor(id: number, updated: number, currentMap: MapSave, player: Player, boxes: Array<PokemonBox>, settings: Settings, isNewGame: boolean = false, viewedGuides: number[] = [], savedEntry: SavedEntry[] = [], questStates: QuestState[] = []) {
+    constructor(id: number, updated: number, currentMap: MapSave, player: Player, boxes: Array<PokemonBox>, settings: Settings, isNewGame: boolean = false, viewedGuides: number[] = [], savedEntry: SavedEntry[] = [], questStates: QuestState[] = [], flags: Flags) {
         this.id = id;
         this.updated = updated;
         this.currentMap = currentMap;
@@ -38,6 +39,7 @@ export class SaveContext {
         this.viewedGuides = viewedGuides;
         this.savedEntry = savedEntry;
         this.questStates = questStates;
+        this.flags = flags;
     }
 
     toGameContext(): GameContext {
@@ -62,7 +64,7 @@ export class SavesHolder {
     constructor() {
         this.saves = localStorage.getItem('saves-v2')?.length &&
             // @ts-ignore
-            JSON.parse(localStorage.getItem('saves-v2')) || [];
+            JSON.parse(localStorage.getItem('saves-v2'), this.reviver) || [];
         this.saves.forEach((save) => {
             Object.setPrototypeOf(save, SaveContext.prototype);
             Object.setPrototypeOf(save.player, Player.prototype);
@@ -85,6 +87,9 @@ export class SavesHolder {
                 });
                 return questState;
             }) || [];
+
+            save.flags = new Flags(save.flags?.flags)
+
         });
         this.saves = this.saves.sort((a, b) => b.updated - a.updated);
     }
@@ -99,24 +104,23 @@ export class SavesHolder {
         this._selectedSave = this.saves[index];
         this.selectedSave$.set(this.saves[index]);
     }
-    
+
 
     newGame(spriteId: number, name: string, gender: 'MALE' | 'FEMALE'): SaveContext {
         let boxes: Array<PokemonBox> = new Array<PokemonBox>(32);
         let index = 1;
         for (let i = 0; i < 32; i++) {
             let pokeArray = new Array<PokemonInstance | undefined>(36);
-            for(let j = 0; j < 36; j++){
-                let result =  this.POKEDEX.findById(index).result;
-                if(!(result instanceof UnknownMonster)){
+            for (let j = 0; j < 36; j++) {
+                let result = this.POKEDEX.findById(index).result;
+                if (!(result instanceof UnknownMonster)) {
                     pokeArray[j] = result.instanciate(5, 30, false);
-                }else {
+                } else {
                     pokeArray[j] = undefined;
                 }
                 index++;
             }
-            console.log(pokeArray);
-            boxes[i] = new PokemonBox('Box ' + (i+1), pokeArray);
+            boxes[i] = new PokemonBox('Box ' + (i + 1), pokeArray);
         }
 
         let newSave = new SaveContext(
@@ -128,7 +132,8 @@ export class SavesHolder {
             true,
             [],
             [],
-            QUESTS.map(q => q.toState())
+            QUESTS.map(q => q.toState()),
+            new Flags()
         );
         this.saves.push(newSave);
         this.persist();
@@ -138,12 +143,33 @@ export class SavesHolder {
     }
 
     persist(save?: SaveContext) {
+        console.log(save);
         if (save && this.saves.find(sv => sv.id === save.id)) {
             // @ts-ignore
             this.saves[this.saves.indexOf(this.saves.find(sv => sv.id === save.id))] = save;
         }
-        let encoded = JSON.stringify(this.saves); // todo encode
+        let encoded = JSON.stringify(this.saves, this.replacer); // todo encode
+        console.log(encoded);
         localStorage.setItem('saves-v2', encoded);
     }
 
+    replacer(key: any, value: any) {
+        if (value instanceof Map) {
+            return {
+                dataType: 'Map',
+                value: Array.from(value.entries()), // or with spread: value: [...value]
+            };
+        } else {
+            return value;
+        }
+    }
+
+    reviver(key: any, value: any) {
+        if (typeof value === 'object' && value !== null) {
+            if (value.dataType === 'Map') {
+                return new Map(value.value);
+            }
+        }
+        return value;
+    }
 }

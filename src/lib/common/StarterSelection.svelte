@@ -26,7 +26,7 @@
 	let currentIndex = 0;
 	let currentPokemon = monsters[0];
 
-	$: dialog = new Dialog([new Message(`Is ${currentPokemon.name} your starter?`)]);
+	$: dialog = new Dialog([new Message(`Hmm... Is ${currentPokemon.name} my Pokemon ?`)]);
 
 	function prev() {
 		angle -= 360 / monsters?.length;
@@ -45,6 +45,7 @@
 		context.POKEDEX.setCaught(currentPokemon.id);
 		context.player.setFollower(context.player.monsters[0]);
 		context.overWorldContext.endScene(SceneType.STARTER_SELECTION);
+		context.validateQuestObjective(0, 0);
 	}
 
 	const keyDownListener = (e: KeyboardEvent) => {

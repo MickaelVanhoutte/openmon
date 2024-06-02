@@ -21,7 +21,6 @@
 		.filter((key) => !menusToFilter.includes(<MenuType>key))
 		.filter((key) => context.isMenuAvailable(<MenuType>key));
 
-	$: console.log(menuEntries);
 
 	function saveCurrent() {
 		savesHolder.persist(context.toSaveContext());
