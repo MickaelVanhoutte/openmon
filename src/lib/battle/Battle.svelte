@@ -76,24 +76,43 @@
 				let move: ComboMove = value.move;
 				let animTarget = value.target === 'opponent' ? opponent : ally;
 				let animInitiator = value.initiator === 'ally' ? ally : opponent;
-				addPartner(value.target === 'opponent' ? 'ally' : 'opponent', move.pokemon2).then((partner) => {
-
-					animateEntry(partner, value.target === 'opponent' ? 'ally' : 'opponent', true).then(() => {
-					animateMove(move.move2, value.initiator, animTarget, partner, scene, spriteFxPartner, fx);
-					animateMove(move.move1, value.initiator, animTarget, animInitiator, scene, spriteFx, fx)
-					.then(() => {
-							animateRun(partner, value.target === 'opponent' ? 'ally' : 'opponent')
-							.then(() => {
-								partner.remove();
-							});
-						});
-					});
-				});
+				addPartner(value.target === 'opponent' ? 'ally' : 'opponent', move.pokemon2).then(
+					(partner) => {
+						animateEntry(partner, value.target === 'opponent' ? 'ally' : 'opponent', true).then(
+							() => {
+								animateMove(
+									move.move2,
+									value.initiator,
+									animTarget,
+									partner,
+									scene,
+									spriteFxPartner,
+									fx
+								);
+								animateMove(
+									move.move1,
+									value.initiator,
+									animTarget,
+									animInitiator,
+									scene,
+									spriteFx,
+									fx
+								).then(() => {
+									animateRun(partner, value.target === 'opponent' ? 'ally' : 'opponent').then(
+										() => {
+											partner.remove();
+										}
+									);
+								});
+							}
+						);
+					}
+				);
 			} else {
 				let animTarget = value.target === 'opponent' ? opponent : ally;
 				let animInitiator = value.initiator === 'ally' ? ally : opponent;
 				animateMove(value.move, value.initiator, animTarget, animInitiator, scene, spriteFx, fx);
-			} 
+			}
 		}
 	});
 
@@ -101,18 +120,18 @@
 		return new Promise((resolve, reject) => {
 			let partner = document.createElement('img') as HTMLImageElement;
 			partner.classList.add(target + '-partner-sprite');
-			if(target === 'opponent') {
+			if (target === 'opponent') {
 				partner.src =
-				(pokemon.isShiny
-					? pokemon.sprites?.male?.front?.shiny1
-					: pokemon.sprites?.male?.front?.frame1) || 'src/assets/monsters/bw/0.png';
-			}else{
+					(pokemon.isShiny
+						? pokemon.sprites?.male?.front?.shiny1
+						: pokemon.sprites?.male?.front?.frame1) || 'src/assets/monsters/bw/0.png';
+			} else {
 				partner.src =
-				(pokemon.isShiny
-					? pokemon.sprites?.male?.back?.shiny1
-					: pokemon.sprites?.male?.back?.frame1) || 'src/assets/monsters/bw/0.png';
+					(pokemon.isShiny
+						? pokemon.sprites?.male?.back?.shiny1
+						: pokemon.sprites?.male?.back?.frame1) || 'src/assets/monsters/bw/0.png';
 			}
-			
+
 			partner.onload = () => {
 				let scale = Math.max(Math.min(partner.naturalHeight / 200, 0.9), 0.1);
 				partner.style.setProperty('--scale', scale + '');
@@ -227,11 +246,11 @@
 		// set events
 		battleCtx.events.pokemonChange.subscribe((owner) => {
 			if (owner) {
-				if(owner === battleCtx.player){
+				if (owner === battleCtx.player) {
 					animateRun(ally, 'ally').then(() => {
 						battleLoopContext.allydrawn = false;
 					});
-				}else{
+				} else {
 					animateRun(opponent, 'opponent').then(() => {
 						battleLoopContext.opponentdrawn = false;
 					});
@@ -319,6 +338,18 @@
 		font-size: 23px;
 		position: absolute;
 		z-index: -1;
+
+		// &:after {
+		// 	content: '';
+		// 	position: absolute;
+		// 	left: 0;
+		// 	top: 0;
+		// 	width: 100dvw;
+		// 	height: 108dvh;
+		// 	border-radius: 30p;
+		// 	border: 31px solid rgba(0, 0, 0, 0.6);
+		// 	box-shadow: inset 5px 5px 33px 72px rgba(0, 0, 0, 0.6);
+		// }
 	}
 
 	.wrapper :global(.fx) {
@@ -370,7 +401,6 @@
 		left: 0;
 	}
 
-
 	.wrapper :global(.opponent-partner-sprite) {
 		position: absolute;
 		z-index: 6;
@@ -382,8 +412,6 @@
 		left: 0;
 	}
 
-
-
 	.wrapper .battle-bg {
 		z-index: 0;
 		width: 100%;
@@ -391,6 +419,6 @@
 		position: absolute;
 		top: 0;
 		left: 0;
-		filter: opacity(.9) blur(2px);
+		//filter: opacity(0.9) blur(2px);
 	}
 </style>

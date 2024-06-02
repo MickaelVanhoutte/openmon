@@ -101,7 +101,7 @@
 			rgba(0, 195, 230, 1) 100%
 		);
 		color: #fff;
-		z-index: 9;
+		z-index: 10;
 
 		.nav {
 			height: 46px;
