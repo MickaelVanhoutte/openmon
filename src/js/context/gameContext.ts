@@ -7,7 +7,7 @@ import { PokemonBox } from "../pokemons/boxes";
 import { Position } from "../mapping/positions";
 import { MenuType, OverworldContext, SceneType } from "./overworldContext";
 import { BattleContext } from "./battleContext";
-import type { Script } from "../scripting/scripts";
+import { Dialog, Message, Script } from "../scripting/scripts";
 import { NPC } from "../characters/npc";
 import { ItemsReferences } from "../items/items";
 import { firstBeach } from "../mapping/maps/firstBeach";
@@ -47,7 +47,7 @@ export class GameContext {
 
     questStates: QuestState[] = [];
     quests: Quest[] = [];
-    currentQuest: Quest;
+    currentQuest?: Quest;
     flags: Flags;
 
     overWorldContext: OverworldContext;
@@ -90,7 +90,7 @@ export class GameContext {
             let questState = this.questStates.find(qs => qs.id === q.id);
             return new Quest(q.id, q.name, q.description, q.objectives
                 .map(o => new Objective(o.id, o.description, questState?.objectives.find(questObj => questObj.id === o.id)?.completed || false))
-                , questState?.completed || false);
+                , q.area, q.leaveMessage, questState?.completed || false);
         });
         this.currentQuest = this.quests.find(q => q.id === lastCompleted?.id) || this.quests[0];
         this.flags = save.flags;
@@ -155,6 +155,11 @@ export class GameContext {
                     if (quest && questState.objectives.every(o => o.completed)) {
                         questState.completed = true;
                         this.notifications.notify(`Quest completed: ${quest.name}`);
+
+                        this.currentQuest = this.quests.find(q => q.id === questId + 1) || undefined;
+                        if (this.currentQuest) {
+                            this.notifications.notify(`New quest: ${this.currentQuest.name}`);
+                        }
                     }
                 }
             } else if (!!quest) {
@@ -248,26 +253,45 @@ export class GameContext {
 
             if (!this.map.hasBoundaryAt(futurePosition)) {
 
-                this.player.moving = true;
-                this.player.position.setFuturePosition(futureX, futureY, () => {
-                    // on reach destination
-                    this.checkForStepInScript();
-                    this.checkForJunction();
-                    this.checkForBattle();
-                    this.checkForInSight();
+                if (this.currentQuest && this.hasQuestLimit(futurePosition)) {
+                    this.playScript(new Script('onStep',
+                        [
+                            new Dialog([new Message(this.currentQuest.leaveMessage)]),
+                        ]
+                    ));
 
-                    // wait for the follower to end it's movement before setting next
+                } else {
 
 
-                    if (this.player.follower) {
-                        this.player.follower.position.direction = this.player.position.direction;
-                        this.player.follower.moving = true;
-                        this.player.follower.position.setFuturePosition(savedPosition.x, savedPosition.y);
+                    this.player.moving = true;
+                    this.player.position.setFuturePosition(futureX, futureY, () => {
+                        // on reach destination
+                        this.checkForStepInScript();
+                        this.checkForJunction();
+                        this.checkForBattle();
+                        this.checkForInSight();
 
-                    }
-                });
+                        // wait for the follower to end it's movement before setting next
+
+
+                        if (this.player.follower) {
+                            this.player.follower.position.direction = this.player.position.direction;
+                            this.player.follower.moving = true;
+                            this.player.follower.position.setFuturePosition(savedPosition.x, savedPosition.y);
+
+                        }
+                    });
+                }
             }
         }
+    }
+
+    hasQuestLimit(futurePosition: Position): boolean {
+        return !!this.currentQuest && !!this.currentQuest.area && this.isOutsideQuestBounds(futurePosition, this.currentQuest.area);
+    }
+
+    isOutsideQuestBounds(futurePosition: Position, area: { start: Position; end: Position; }): boolean {
+        return futurePosition.x < area.start.x || futurePosition.x > area.end.x || futurePosition.y < area.start.y || futurePosition.y > area.end.y;
     }
 
     checkForGameStart(): boolean {
@@ -281,7 +305,9 @@ export class GameContext {
                 this.isNewGame = false;
                 if (script) {
                     this.playScript(script, undefined, () => {
-                        this.notifications.notify('Current quest: ' + this.currentQuest.name);
+                        if (this.currentQuest) {
+                            this.notifications.notify('Current quest: ' + this.currentQuest.name);
+                        }
                     });
                 }
             }, 5000);
@@ -289,7 +315,9 @@ export class GameContext {
             return true;
         } else {
             //this.tg.start();
-            this.notifications.notify('Current quest: ' + this.currentQuest.name);
+            if (this.currentQuest) {
+                this.notifications.notify('Current quest: ' + this.currentQuest.name);
+            }
         }
         return false;
     }
