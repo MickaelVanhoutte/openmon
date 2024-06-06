@@ -1,3 +1,4 @@
+import type { Position } from "../mapping/positions";
 
 export enum FlagEntry {
     RUNNING_SHOES_UNLOCKED,
@@ -12,7 +13,7 @@ export class Flags {
             this.flags = flags;
             Object.setPrototypeOf(this.flags, Map.prototype);
         } else {
-            
+
             this.flags = new Map();
             Object.values(FlagEntry).forEach(f => {
                 this.flags.set(<FlagEntry>f, false);
@@ -63,13 +64,17 @@ export class Quest {
     description: string;
     objectives: Objective[];
     completed: boolean;
+    area?: { start: Position, end: Position };
+    leaveMessage: string;
 
 
-    constructor(id: number, name: string, description: string, objectives: Objective[], completed: boolean = false) {
+    constructor(id: number, name: string, description: string, objectives: Objective[], area?: { start: Position, end: Position }, leaveMessage: string = 'I shouldn\'t leave', completed: boolean = false) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.objectives = objectives;
+        this.area = area;
+        this.leaveMessage = leaveMessage;
         this.completed = completed;
     }
 
@@ -99,12 +104,14 @@ export const QUESTS = [
             new Objective(3, "Find your Bag"),
             new Objective(4, "Find your Running Shoes"),
             // new Objective(5, "Discover what happened here"),
-        ]
+        ],
+        { start: { x: 65, y: 50 }, end: { x: 85, y: 65 } },
+        'I should find my stuff before leaving'
     ),
     new Quest(1, "The first step", "Reach the village in the forest",
         [
             new Objective(0, "Reach the village in the forest"),
             new Objective(1, "Talk to the villagers"),
-        ]
+        ],
     )
 ]
