@@ -22,11 +22,14 @@
 
 	let canvas: HTMLCanvasElement;
 	let buffer: HTMLCanvasElement;
+	let minimap: HTMLCanvasElement;
 	let bufferCtx: CanvasRenderingContext2D;
 	let canvasCtx: CanvasRenderingContext2D;
+	let minimapCtx: CanvasRenderingContext2D;
 	let wrapper: HTMLDivElement;
 	let canvasWidth: number;
 	let currentMessages: string[] = [];
+	let mapEnlarged = false;
 
 	/*
     Scripts
@@ -66,6 +69,7 @@
 
 		// Clear
 		bufferCtx.fillRect(0, 0, buffer.width, buffer.height);
+		minimapCtx.fillRect(0, 0, minimap.width, minimap.height);
 		//canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
 
 		// Background
@@ -75,6 +79,14 @@
 			overWorldCtx.frames.imageScale,
 			context.player.position.positionInPx,
 			overWorldCtx.frames.debug
+		);
+
+		context.map.drawMini(
+			minimapCtx,
+			context.map,
+			overWorldCtx.frames.imageScale,
+			context.player.position.positionOnMap,
+			mapEnlarged
 		);
 
 		context.map.npcs.forEach((npc) => {
@@ -148,6 +160,11 @@
 		});
 	}
 
+	function enlargeMap(){
+		mapEnlarged = !mapEnlarged;
+		overWorldCtx.setPaused(mapEnlarged, 'map-enlarge');
+	}
+
 	onMount(() => {
 		//@ts-ignore
 		bufferCtx = buffer.getContext('2d');
@@ -159,6 +176,12 @@
 		canvasCtx.imageSmoothingEnabled = true;
 		canvasCtx.imageSmoothingQuality = 'high';
 		canvasCtx.fillStyle = 'black';
+
+		//@ts-ignore
+		minimapCtx = minimap.getContext('2d');
+		minimapCtx.imageSmoothingEnabled = true;
+		minimapCtx.imageSmoothingQuality = 'high';
+		minimapCtx.fillStyle = 'black';
 
 		canvasWidth = Math.min(window.innerWidth, canvas.width);
 		mainLoop();
@@ -177,7 +200,29 @@
 	<canvas bind:this={buffer} id="buffer" width="1024" height="1024" style="z-index: -2"></canvas>
 	<canvas bind:this={canvas} id="main" width="1024" height="1024"></canvas>
 
-	<Menu bind:context {savesHolder} />
+	<div class="minimap-wrapper" class:enlarged={overWorldCtx.menus.mapOpened && mapEnlarged}>
+		<canvas
+			bind:this={minimap}
+			id="minimap"
+			width="1024"
+			height="{1024 * (window.innerHeight / window.innerWidth)}"
+			style="z-index: 5"
+			class:opened={overWorldCtx.menus.mapOpened}
+		></canvas>
+		<button
+			class="enlarge"
+			class:opened={overWorldCtx.menus.mapOpened}
+			on:click={() => enlargeMap()}
+		>
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+				><path
+					d="M17.5858 5H14V3H21V10H19V6.41421L14.7071 10.7071L13.2929 9.29289L17.5858 5ZM3 14H5V17.5858L9.29289 13.2929L10.7071 14.7071L6.41421 19H10V21H3V14Z"
+				></path></svg
+			>
+		</button>
+	</div>
+
+	<Menu bind:context/>
 
 	{#if hasDialog}
 		<DialogView bind:dialog={currentDialog} {context} />
@@ -188,7 +233,7 @@
 
 	<div class="healing" class:show={isHealing}></div>
 
-	<Controls {context} {overWorldCtx} />
+	<Controls {context} {overWorldCtx} {savesHolder} />
 	<ScenesView {context} {canvasWidth} />
 
 	{#if currentMessages.length > 0}
@@ -217,20 +262,20 @@
 
 		.notifications {
 			position: absolute;
-			top: 2%;
-			left: calc(4% + 40px);
+			top: calc(4% + 40px);
+			left: 2%;
 			display: flex;
 			flex-direction: column;
 			justify-content: center;
 			align-items: flex-start;
-			z-index: 100;
+			z-index: 7;
 
 			.notification {
 				background-color: rgba(0, 0, 0, 0.5);
 				color: white;
 				padding: 8px;
 				border-radius: 4px;
-				
+
 				&:not(:last-child) {
 					margin-bottom: 4px;
 				}
@@ -264,5 +309,68 @@
 		left: 50%;
 		top: 50%;
 		transform: translate(-50%, -50%);
+
+		&#minimap {
+			position: relative;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			border: 1px solid black;
+			border-radius: 4px;
+			box-shadow: 0 0 4px black;
+			transform: none;
+			visibility: hidden;
+
+			&.opened {
+				visibility: visible;
+			}
+		}
+	}
+
+	.minimap-wrapper {
+		position: absolute;
+		top: calc(4% + 40px);
+		left: 2%;
+		z-index: 7;
+
+		width: 33dvw;
+		max-height: 33dvh;
+		overflow: hidden;
+
+		&.enlarged {
+			top: 5dvh;
+			left: 5dvw;
+			width: 90dvw;
+			max-height: 90dvh;
+			z-index: 10;
+			
+			box-shadow: 0 0 8px black;
+
+			.enlarge {
+				height: 32px;
+				width: 32px;
+			}
+		}
+
+		.enlarge {
+			position: absolute;
+			top: 0;
+			right: 0;
+			background-color: rgba(0, 0, 0, 0.75);
+			color: white;
+			border: 1px solid black;
+			height: 24px;
+			width: 24px;
+			border-radius: 4px;
+			padding: 4px;
+			z-index: 6;
+			cursor: pointer;
+			visibility: hidden;
+
+			&.opened {
+				visibility: visible;
+			}
+		}
 	}
 </style>

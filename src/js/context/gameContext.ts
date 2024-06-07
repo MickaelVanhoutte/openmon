@@ -92,7 +92,7 @@ export class GameContext {
                 .map(o => new Objective(o.id, o.description, questState?.objectives.find(questObj => questObj.id === o.id)?.completed || false))
                 , q.area, q.leaveMessage, questState?.completed || false);
         });
-        this.currentQuest = this.quests.find(q => q.id === lastCompleted?.id) || this.quests[0];
+        this.currentQuest = this.quests.find(q => q.id === (lastCompleted?.id || 0) + 1) || this.quests[0];
         this.flags = save.flags;
 
         // this.tg = new TourGuideClient({
