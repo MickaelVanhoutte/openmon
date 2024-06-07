@@ -276,7 +276,7 @@ export class OpenMap {
 
     private images: Record<string, HTMLImageElement> = {};
 
-    draw(ctx: CanvasRenderingContext2D, map: OpenMap, scale: number, playerPosition: Position, debug: boolean = true): {
+    draw(ctx: CanvasRenderingContext2D, map: OpenMap, scale: number, playerPosition: Position, debug: boolean = false): {
         width: number,
         height: number,
         centerX: number,
@@ -323,6 +323,24 @@ export class OpenMap {
         }
     }
 
+    drawMini(ctx: CanvasRenderingContext2D, map: OpenMap, scale: number, playerPosition: Position, enlargedMap: boolean = false) {
+        if (map.background !== undefined) {
+            let image = this.images[map.background];
+            if (image && image.complete) {
+                this.drawMiniImage(ctx, image, map, scale, playerPosition, false, enlargedMap);
+            } else {
+                image = new Image();
+                image.src = map.background;
+                image.onload = () => {
+                    if (map.background) {
+                        this.images[map.background] = image;
+                        this.drawMiniImage(ctx, image, map, scale, playerPosition, false, enlargedMap);
+                    }
+                }
+            }
+        }
+    }
+
 
     private drawImage(ctx: CanvasRenderingContext2D, image: HTMLImageElement, map: OpenMap, scale: number, playerPosition: Position, debug: boolean = false, mapDim?: {
         width: number,
@@ -339,8 +357,6 @@ export class OpenMap {
         centerY: number,
         offsetY: number
     } {
-
-
 
         let centerX, centerY, offsetX = 0, offsetY = 0;
 
@@ -436,5 +452,68 @@ export class OpenMap {
         ctx.restore();
 
         return { width: image.width * scale, height: image.height * scale, centerX, offsetX, centerY, offsetY };
+    }
+
+    private drawMiniImage(ctx: CanvasRenderingContext2D, image: HTMLImageElement, map: OpenMap, scaleInit: number, playerPosition: Position, debug: boolean = false, enlargedMap: boolean = false) {
+        const scale = 1 * (enlargedMap ? .8 : 1);
+        let centerX, centerY, offsetX = 0, offsetY = 0;
+        let playerPos = new Position(playerPosition.x * 16 * scale, playerPosition.y * 16 * scale);
+
+
+        let screenDimensions = {
+            width: ctx.canvas.width,
+            height: ctx.canvas.height,
+        }
+
+        centerX = screenDimensions.width / 2;
+        centerY = screenDimensions.height / 2;
+
+        offsetX = playerPos.x;
+        offsetY = playerPos.y;
+
+        let minLeftSide = Math.min(centerX / 2, window.innerWidth / 4 - (16 * 1 / 2));
+        let minRightSide = (image.width * scale) - minLeftSide;
+        let minTopSide = Math.min(centerY, window.innerHeight / 4 - (16 * 1 / 2));
+        let minBottomSide = (image.height * scale) - minTopSide;
+
+        let leftThreshold = playerPos.x <= minLeftSide;
+        let rightThreshold = playerPos.x > minRightSide;
+        let topThreshold = playerPos.y <= minTopSide;
+        let bottomThreshold = playerPos.y > minBottomSide;
+
+        if (leftThreshold) {
+            offsetX = minLeftSide;
+        }
+        if (topThreshold) {
+            offsetY = minTopSide;
+        }
+        if (rightThreshold) {
+            offsetX = minRightSide;
+        }
+        if (bottomThreshold) {
+            offsetY = minBottomSide;
+        }
+
+
+        ctx.save();
+        ctx.translate(centerX - offsetX, centerY - offsetY);
+
+
+        ctx.drawImage(image,
+            0,
+            0,
+            image.width,
+            image.height,
+            0,
+            0,
+            image.width * scale,
+            image.height * scale,
+        );
+
+        ctx.fillStyle = 'blue';
+        ctx.fillRect(playerPos.x - (12 * scale), playerPos.y - (12 * scale), 24 * scale, 24 * scale);
+        ctx.fillStyle = 'black';
+
+        ctx.restore();
     }
 }
