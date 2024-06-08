@@ -6,6 +6,8 @@
 	import type { GameContext } from '../../js/context/gameContext';
 	import { FlagEntry } from '../../js/scripting/quests';
 	import type { SavesHolder } from '../../js/context/savesHolder';
+	import { backInOut } from 'svelte/easing';
+	import { fade, slide } from 'svelte/transition';
 
 	export let context: GameContext;
 	export let overWorldCtx: OverworldContext;
@@ -17,6 +19,7 @@
 	let joystick: JoystickController;
 	let i = 0;
 	let displayedQuests = false;
+	let menu = false;
 	// Joystick listener
 	const jsCallback = (data: any) => {
 		// convert data.angle (radian) to a direction (top, bottom, left, right)
@@ -116,13 +119,12 @@
 	}
 
 	function toggleMap() {
-		// if (overWorldCtx.menus.mapOpened) {
-		// 	overWorldCtx.closeMenu(MenuType.MAP);
-		// } else {
-		// 	overWorldCtx.openMenu(MenuType.MAP);
-		// }
 		overWorldCtx.toggleMenu(MenuType.MAP);
 		console.log(overWorldCtx.menus.mapOpened);
+	}
+
+	function toggleMenu() {
+		menu = !menu;
 	}
 
 	function save() {
@@ -174,13 +176,7 @@
 <div class="joysticks" bind:this={joysticks}></div>
 
 <div class="quests" class:overlay={displayedQuests}>
-	<button class="toggle" on:click={() => toggleQuests()}>
-		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-			><path
-				d="M8.00008 6V9H5.00008V6H8.00008ZM3.00008 4V11H10.0001V4H3.00008ZM13.0001 4H21.0001V6H13.0001V4ZM13.0001 11H21.0001V13H13.0001V11ZM13.0001 18H21.0001V20H13.0001V18ZM10.7072 16.2071L9.29297 14.7929L6.00008 18.0858L4.20718 16.2929L2.79297 17.7071L6.00008 20.9142L10.7072 16.2071Z"
-			></path></svg
-		>
-	</button>
+	
 
 	<!-- Might be a component -->
 	{#if displayedQuests}
@@ -219,16 +215,29 @@
 	{/if}
 </div>
 
-<button class="menu-btn full-right" on:click={() => toggleMap()}>
-	<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-		><path
-			d="M2 5L9 2L15 5L21.303 2.2987C21.5569 2.18992 21.8508 2.30749 21.9596 2.56131C21.9862 2.62355 22 2.69056 22 2.75827V19L15 22L9 19L2.69696 21.7013C2.44314 21.8101 2.14921 21.6925 2.04043 21.4387C2.01375 21.3765 2 21.3094 2 21.2417V5ZM6 11V13H8V11H6ZM10 11V13H12V11H10ZM16 10.9393L14.7626 9.7019L13.7019 10.7626L14.9393 12L13.7019 13.2374L14.7626 14.2981L16 13.0607L17.2374 14.2981L18.2981 13.2374L17.0607 12L18.2981 10.7626L17.2374 9.7019L16 10.9393Z"
-		></path></svg
-	>
-</button>
 
 <nav class="menu">
-	<button class="menu-btn" on:click={() => overWorldCtx.toggleMenu(MenuType.POKEMON_LIST)}>
+
+	<button class="menu-btn" on:click={() => toggleMenu()}>
+		{#if menu}
+		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M21 17.9996V19.9996H3V17.9996H21ZM7 3.5V13.5L2 8.49955L7 3.5ZM21 10.9996V12.9996H12V10.9996H21ZM21 3.99955V5.99955H12V3.99955H21Z"></path></svg>
+		{:else}
+		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M21 17.9996V19.9996H3V17.9996H21ZM17 3.5L22 8.49955L17 13.5V3.5ZM12 10.9996V12.9996H3V10.9996H12ZM12 3.99955V5.99955H3V3.99955H12Z"></path></svg>
+		{/if}
+		
+	</button>
+
+	{#if menu}
+
+	<button class="menu-btn" on:click={() => toggleQuests()} style="color: #daba2e" data-title="quests" in:slide={{ duration: 500, delay: 100, axis: 'x', easing: backInOut }} out:slide={{ duration: 500, delay: 100, axis: 'x', easing: backInOut }}>
+		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+			><path
+				d="M8.00008 6V9H5.00008V6H8.00008ZM3.00008 4V11H10.0001V4H3.00008ZM13.0001 4H21.0001V6H13.0001V4ZM13.0001 11H21.0001V13H13.0001V11ZM13.0001 18H21.0001V20H13.0001V18ZM10.7072 16.2071L9.29297 14.7929L6.00008 18.0858L4.20718 16.2929L2.79297 17.7071L6.00008 20.9142L10.7072 16.2071Z"
+			></path></svg
+		>
+	</button>
+
+	<button class="menu-btn" on:click={() => overWorldCtx.toggleMenu(MenuType.POKEMON_LIST)} style="color: #d4344b" data-title="team" in:slide={{ duration: 500, delay: 100, axis: 'x', easing: backInOut }} out:slide={{ duration: 500, delay: 100, axis: 'x', easing: backInOut }}>
 		<!-- <img src="src/assets/menus/pokeball.png" alt="pokemons" /> -->
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
@@ -255,7 +264,7 @@
 			</g>
 		</svg>
 	</button>
-	<button class="menu-btn" on:click={() => overWorldCtx.openMenu(MenuType.BAG)}>
+	<button class="menu-btn" on:click={() => overWorldCtx.openMenu(MenuType.BAG)} style="color: #e57f15" data-title="bag" in:slide={{ duration: 500, delay: 100, axis: 'x', easing: backInOut }} out:slide={{ duration: 500, delay: 100, axis: 'x', easing: backInOut }}>
 		<!-- <img src="src/assets/menus/bag.png" alt="bag" /> -->
 		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
 			><path
@@ -263,7 +272,7 @@
 			></path></svg
 		>
 	</button>
-	<button class="menu-btn" on:click={() => overWorldCtx.openMenu(MenuType.BOX)}>
+	<button class="menu-btn" on:click={() => overWorldCtx.openMenu(MenuType.BOX)} style="color: #594ae5" data-title="boxes" in:slide={{ duration: 500, delay: 100, axis: 'x', easing: backInOut }} out:slide={{ duration: 500, delay: 100, axis: 'x', easing: backInOut }}>
 		<!-- <img src="src/assets/menus/boxes.png" alt="pc boxes" /> -->
 		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
 			><path
@@ -271,7 +280,7 @@
 			></path></svg
 		>
 	</button>
-	<button class="menu-btn" on:click={() => overWorldCtx.openMenu(MenuType.POKEDEX)}>
+	<button class="menu-btn" on:click={() => overWorldCtx.openMenu(MenuType.POKEDEX)}  style="color: #f6411b" data-title="dex" in:slide={{ duration: 500, delay: 100, axis: 'x', easing: backInOut }} out:slide={{ duration: 500, delay: 100, axis: 'x', easing: backInOut }}>
 		<!-- <img src="src/assets/menus/pokedex.png" alt="pc boxes" /> -->
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
@@ -292,7 +301,7 @@
 			</g>
 		</svg>
 	</button>
-	<button class="menu-btn" on:click={() => overWorldCtx.openMenu(MenuType.TRAINER)}>
+	<button class="menu-btn" on:click={() => overWorldCtx.openMenu(MenuType.TRAINER)} style="color: #10ad6f" data-title="trainer" in:slide={{ duration: 500, delay: 100, axis: 'x', easing: backInOut }} out:slide={{ duration: 500, delay: 100, axis: 'x', easing: backInOut }}>
 		<!-- <img src="src/assets/menus/trainer.png" alt="trainer" /> -->
 		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
 			><path
@@ -300,7 +309,16 @@
 			></path></svg
 		>
 	</button>
-	<button class="menu-btn" on:click={() => save()}>
+
+	<button class="menu-btn" on:click={() => toggleMap()} style="color: rgb(90 177 66)" data-title="map" in:slide={{ duration: 500, delay: 100, axis: 'x', easing: backInOut }} out:slide={{ duration: 500, delay: 100, axis: 'x', easing: backInOut }}>
+		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+			><path
+				d="M2 5L9 2L15 5L21.303 2.2987C21.5569 2.18992 21.8508 2.30749 21.9596 2.56131C21.9862 2.62355 22 2.69056 22 2.75827V19L15 22L9 19L2.69696 21.7013C2.44314 21.8101 2.14921 21.6925 2.04043 21.4387C2.01375 21.3765 2 21.3094 2 21.2417V5ZM6 11V13H8V11H6ZM10 11V13H12V11H10ZM16 10.9393L14.7626 9.7019L13.7019 10.7626L14.9393 12L13.7019 13.2374L14.7626 14.2981L16 13.0607L17.2374 14.2981L18.2981 13.2374L17.0607 12L18.2981 10.7626L17.2374 9.7019L16 10.9393Z"
+			></path></svg
+		>
+	</button>
+
+	<button class="menu-btn" on:click={() => save()} style="color:#05aab3" data-title="save" in:slide={{ duration: 500, delay: 100, axis: 'x', easing: backInOut }} out:slide={{ duration: 500, delay: 100, axis: 'x', easing: backInOut }}>
 		<!-- <img src="src/assets/menus/save.png" alt="save" /> -->
 		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
 			><path
@@ -308,6 +326,7 @@
 			></path></svg
 		>
 	</button>
+	{/if}
 </nav>
 
 {#if context.flags.getFlag(FlagEntry.RUNNING_SHOES_UNLOCKED) && !displayedQuests}
@@ -340,10 +359,20 @@
 <div class="ab-buttons" bind:this={abButtonsC}></div>
 
 <style lang="scss">
+
+@keyframes appear {
+			from {
+				opacity: 0;
+			}
+			to {
+				opacity: 1;
+			}
+		}
+
 	nav.menu {
 		position: absolute;
 		top: 2%;
-		left: calc(4% + 40px);
+		left: 2%;
 		z-index: 7;
 		display: flex;
 		flex-direction: row;
@@ -356,11 +385,12 @@
 		background-color: rgba(44, 56, 69, 0.95);
 		color: white;
 		padding: 8px;
-		border-radius: 4px;
-		width: 40px;
-		height: 40px;
+		border-radius: 8px;
+		width: 48px;
+		height: 48px;
 		margin-bottom: 8px;
 		border: none;
+		box-shadow: 0px 3px 4px rgba(0, 0, 0, 0.5);
 
 		svg {
 			height: 100%;
@@ -372,6 +402,27 @@
 			top: 2%;
 			right: 2%;
 		}
+
+		&:after {
+			content: attr(data-title);
+			position: absolute;
+			bottom: -10px;
+			left: 50%;
+			transform: translateX(-50%);
+			color: white;
+			padding: 4px;
+			border-radius: 4px;
+			font-size: 16px;
+			width: 100%;
+			opacity: 0;
+			font-weight: bold;
+			text-transform: uppercase;
+			text-shadow: 0px 3px 4px rgba(0, 0, 0, 1);
+			animation: appear 0.5s forwards;
+			animation-delay: .5s;
+		}
+
+		
 	}
 
 	.quests {
@@ -395,7 +446,7 @@
 				rgba(0, 0, 0, 0.75) 50%,
 				rgb(0, 0, 0) 100%
 			);
-			z-index: 8;
+			z-index: 6;
 		}
 
 		.toggle {
@@ -405,16 +456,30 @@
 			background-color: rgba(44, 56, 69, 0.95);
 			color: white;
 			padding: 8px;
-			border-radius: 4px;
-			width: 40px;
-			height: 40px;
+			border-radius: 50% 50% 0 0;
+			width: 48px;
+			height: 48px;
 			z-index: 9;
 			border: none;
+
+			&:after {
+			content: attr(data-title);
+			position: absolute;
+			bottom: -10px;
+			left: 50%;
+			transform: translateX(-50%);
+			background: rgba(44, 56, 69, 0.95);
+			color: white;
+			padding: 4px;
+			border-radius: 4px;
+			font-size: 12px;
+			width: 100%;
+		}
 		}
 
 		.quest-list {
 			position: absolute;
-			top: calc(4% + 40px);
+			top: calc(4% + 56px);
 			left: 2%;
 			background: #333;
 			color: white;
@@ -488,7 +553,7 @@
 		$lightGrey: rgba(44, 56, 69, 0.95);
 
 		.switch {
-			height: 24px;
+			height: 28px;
 			display: block;
 			position: relative;
 			cursor: pointer;
@@ -517,15 +582,15 @@
 					&:before {
 						top: 0;
 						left: 0;
-						width: 42px;
-						height: 24px;
+						width: 46px;
+						height: 28px;
 						background: $lightGrey;
 						transition: all 0.3s ease;
 					}
 
 					&:after {
-						width: 18px;
-						height: 18px;
+						width: 22px;
+						height: 22px;
 						background: #fff;
 						top: 3px;
 						left: 3px;
