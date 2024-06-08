@@ -122,16 +122,17 @@ export class ABButtons {
 
         let buttonA = document.createElement("button");
         buttonA.style.fontFamily= "pokemon, serif";
-        buttonA.style.padding = '12px 16px';
+        buttonA.style.padding = '14px 20px';
         buttonA.style.backgroundColor = "rgba(44, 56, 69, 0.95)";
         buttonA.style.border = "1px solid black";
         buttonA.style.borderRadius = "50%";
         buttonA.style.cursor = "pointer";
         buttonA.style.outline = "none";
-        buttonA.style.fontSize = "20px";
+        buttonA.style.fontSize = "26px";
         buttonA.style.color = "white";
         buttonA.style.fontWeight = "bold";
         buttonA.style.marginLeft = "50%";
+        buttonA.style.boxShadow = "0 0 10px 0 rgba(0, 0, 0, 0.5)";
         buttonA.textContent = "A";
         if(!buttonA.ontouchstart) {
             buttonA.addEventListener("mousedown", () => {
@@ -164,16 +165,17 @@ export class ABButtons {
 
         let buttonB = document.createElement("button");
         buttonB.style.fontFamily= "pokemon, serif";
-        buttonB.style.padding = '12px 16px';
+        buttonB.style.padding = '14px 20px';
         buttonB.style.backgroundColor = "rgba(44, 56, 69, 0.95)";
         buttonB.style.border = "1px solid black";
         buttonB.style.borderRadius = "50%";
         buttonB.style.cursor = "pointer";
         buttonB.style.outline = "none";
-        buttonB.style.fontSize = "20px";
+        buttonB.style.fontSize = "26px";
         buttonB.style.color = "white";
         buttonB.style.fontWeight = "bold";
         buttonB.style.marginRight = "50%";
+        buttonB.style.boxShadow = "0 0 10px 0 rgba(0, 0, 0, 0.5)";
         buttonB.textContent = "B";
 
         if(!buttonB.ontouchstart) {
