@@ -105,7 +105,7 @@ export const QUESTS = [
             new Objective(4, "Find your Running Shoes"),
             // new Objective(5, "Discover what happened here"),
         ],
-        { start: { x: 65, y: 50 }, end: { x: 85, y: 65 } },
+        { start: { x: 121, y: 79 }, end: { x: 146, y: 103 } },
         'I should find my stuff before leaving'
     ),
     new Quest(1, "The first step", "Reach the village in the forest",

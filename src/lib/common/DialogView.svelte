@@ -12,7 +12,16 @@
 	let unsubscribe: Unsubscriber;
 
 	$: current = dialog?.current || undefined;
+	$: if (current?.speaker) {
+		if (current.speaker === 'follower' && context.player.follower) {
+			let id = ('00' + context.player.follower.pokemon.id).slice(-3);
+			src = "url('src/assets/monsters/pokedex/" + id + ".png')";
+		} else {
+			src = '';
+		}
+	}
 	let selectedOption = 0;
+	let src: string = '';
 
 	function next() {
 		let tmp = dialog?.next();
@@ -65,6 +74,16 @@
 	});
 </script>
 
+{#if current?.speaker && current?.speaker === 'self'}
+	<div class="speaker-wrapper">
+		<div class="speaker" style="background-image: url('src/assets/characts/faces/ethan.jpg')"></div>
+	</div>
+{/if}
+{#if current?.speaker && current?.speaker === 'follower'}
+	<div class="speaker-wrapper">
+		<div class="speaker follower" style="background-image: {src.replaceAll('"', '')}"></div>
+	</div>
+{/if}
 <div class="dialog">
 	<div class="dialog-content">
 		<div class="dialog-text" class:animate bind:this={text}>
@@ -138,6 +157,24 @@
 				}
 			}
 		}
+	}
+	.speaker-wrapper {
+		background-color: #54506c;
+		position: absolute;
+		bottom: 27dvh;
+		left: 1dvw;
+		width: 20dvw;
+		height: 25dvh;
+		z-index: 7;
+		border-radius: 8px;
+	}
+
+	.speaker {
+		border-radius: 8px;
+		border: 2px solid black;
+		background-size: cover;
+		background-position: top;
+		height: 100%;
 	}
 	.dialog {
 		position: absolute;

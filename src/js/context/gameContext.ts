@@ -1,6 +1,6 @@
 import { MapSave, OpenMap } from "../mapping/maps";
 import { Player } from "../characters/player";
-import { CharacterPosition, type Character } from "../characters/characters-model";
+import { CharacterPosition, type Character, type Interactive } from "../characters/characters-model";
 import { Settings } from "../characters/settings";
 import { Pokedex, PokemonInstance, SavedEntry } from "../pokemons/pokedex";
 import { PokemonBox } from "../pokemons/boxes";
@@ -92,7 +92,11 @@ export class GameContext {
                 .map(o => new Objective(o.id, o.description, questState?.objectives.find(questObj => questObj.id === o.id)?.completed || false))
                 , q.area, q.leaveMessage, questState?.completed || false);
         });
-        this.currentQuest = this.quests.find(q => q.id === (lastCompleted?.id || 0) + 1) || this.quests[0];
+        if(lastCompleted?.id){
+            this.currentQuest = this.quests.find(q => q.id === (lastCompleted?.id + 1) ) || this.quests[0];
+        }else {
+            this.currentQuest = this.quests[0];
+        }
         this.flags = save.flags;
 
         // this.tg = new TourGuideClient({
@@ -187,7 +191,7 @@ export class GameContext {
     bindKeys() {
         this.overWorldContext.keys.a.subscribe((value) => {
             if (value && !this.overWorldContext.getPaused()) {
-                let interactive = this.map?.elementInFront(this.player.position.positionOnMap, this.player.position.direction);
+                let interactive = this.map?.elementInFront(this.player.position.positionOnMap, this.player.position.direction) || this.followerInFront();
                 let scripts = interactive?.interact(this.player.position.positionOnMap, this);
 
                 // interactive behind counters 
@@ -224,6 +228,27 @@ export class GameContext {
         });
 
 
+    }
+    followerInFront(): Interactive | undefined {
+        let elementPosition = new Position(this.player.position.positionOnMap.x, this.player.position.positionOnMap.y);
+        switch (this.player.position.direction) {
+            case 'up':
+                elementPosition.y -= 1;
+                break;
+            case 'down':
+                elementPosition.y += 1;
+                break;
+            case 'left':
+                elementPosition.x -= 1;
+                break;
+            case 'right':
+                elementPosition.x += 1;
+                break;
+        }
+        if(this.player.follower && this.player.follower.position.positionOnMap.x === elementPosition.x && this.player.follower.position.positionOnMap.y === elementPosition.y){
+            return this.player.follower;
+        }
+        return undefined;
     }
 
     handleDirectionKey(value: boolean, direction: 'up' | 'down' | 'left' | 'right') {
@@ -262,7 +287,6 @@ export class GameContext {
 
                 } else {
 
-
                     this.player.moving = true;
                     this.player.position.setFuturePosition(futureX, futureY, () => {
                         // on reach destination
@@ -273,12 +297,11 @@ export class GameContext {
 
                         // wait for the follower to end it's movement before setting next
 
-
                         if (this.player.follower) {
+                            this.player.follower.stepCounter += 1;
                             this.player.follower.position.direction = this.player.position.direction;
                             this.player.follower.moving = true;
                             this.player.follower.position.setFuturePosition(savedPosition.x, savedPosition.y);
-
                         }
                     });
                 }

@@ -97,9 +97,11 @@ export class ItemsReferences {
     public static REVIVE = 29;
 
     public references: Record<number, AItem> = {}
+    public ids: number[] = [];
 
     constructor() {
         itemsJson.forEach((item: any) => {
+            this.ids.push(item.id);
             switch (item.categoryId) {
                 case ItemsReferences.POKEBALL:
                     this.references[item.id] = new Pokeball(item.id, item.categoryId, item.name, item.description, item.power);
