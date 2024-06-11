@@ -2,7 +2,7 @@ import type { GameContext } from "../context/gameContext";
 import { Bag } from "../items/bag";
 import type { Position } from "../mapping/positions";
 import { PokemonInstance } from "../pokemons/pokedex";
-import type { Script } from "../scripting/scripts";
+import { Dialog, GiveItem, Message, Script } from "../scripting/scripts";
 import { centerObject } from "../sprites/sprites";
 import { WALKING_SPEED, type Character, CharacterPosition, type Interactive, RUNNING_SPEED } from "./characters-model";
 import type { MasteryType } from "./mastery-model";
@@ -21,9 +21,18 @@ export class Follower implements Character, Interactive {
     pokemon: PokemonInstance;
     comboJauge: ComboJauge = new ComboJauge();
 
+    interactions: string[] = []
+
+    stepCounter = 0;
+
     constructor(position: CharacterPosition, pokemon: PokemonInstance) {
         this.position = position;
         this.pokemon = pokemon;
+        this.interactions = [
+            `${this.pokemon.name} is happy to be with you!`,
+            `${this.pokemon.name} is following you!`,
+            `${this.pokemon.name} wants to play!`,
+        ];
     }
     getMasteryBonus(type: MasteryType): number {
         return 0;
@@ -42,8 +51,29 @@ export class Follower implements Character, Interactive {
         return followerProto;
     }
 
+
+
     interact(playerPosition: Position, gameContext: GameContext): (Script | undefined)[] {
-        throw new Error("Method not implemented.");
+        if (this.stepCounter > 100) {
+            // TODO: add a selection of items, based on level
+            let max = Object.keys(gameContext.ITEMS.references).length;
+            let idx = Math.floor(Math.random() * (max - 0 + 1)) + 0;
+            let id = gameContext.ITEMS.ids[idx];
+            if (gameContext.ITEMS.getItem(id)) {
+                this.stepCounter = 0;
+                return [new Script('onInteract', [
+                    new GiveItem(id, 1),
+                    new Dialog([
+                        new Message(`${this.pokemon.name} found a ${gameContext.ITEMS.getItem(id)?.name}!`, 'follower'),
+                    ]),
+                ])];
+            }
+        }
+        return [new Script('onInteract', [
+            new Dialog([
+                new Message(this.interactions[Math.floor(Math.random() * this.interactions.length)], 'follower'),
+            ]),
+        ])];
     }
 
     private orientationIndexes = {
@@ -133,8 +163,8 @@ export class Follower implements Character, Interactive {
         let relativeX = this.position.positionInPx.x - playerPosition.x;
         let relativeY = this.position.positionInPx.y - playerPosition.y;
 
-      
-        let { centerX, centerY, offsetX, offsetY } = center ? center :  centerObject(ctx, scale, playerPosition, imageWidth, mapDim);
+
+        let { centerX, centerY, offsetX, offsetY } = center ? center : centerObject(ctx, scale, playerPosition, imageWidth, mapDim);
 
         switch (this.position.direction) {
             case 'up':
@@ -173,7 +203,7 @@ export class Follower implements Character, Interactive {
             drawGrass ? imageHeight * .85 : imageHeight
         );
 
-       // ctx.restore();
+        // ctx.restore();
 
         return { centerX, centerY, offsetX, offsetY };
     }
