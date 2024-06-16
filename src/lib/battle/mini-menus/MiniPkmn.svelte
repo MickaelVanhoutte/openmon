@@ -387,7 +387,7 @@
 		left: 1%;
 		width: 98%;
 		height: 98%;
-		background-color: rgba(88, 83, 100, .85);
+		background-color: rgba(88, 83, 100, .95);
 		box-shadow: 0 0 10px 5px rgba(0, 0, 0, 0.7);
 		z-index: var(--zIndex, 100);
 		border-radius: 8px;
@@ -416,7 +416,8 @@
 				}
 
 				img {
-					height: calc(100% - 26px);
+					//height: calc(100% - 26px);
+                    max-height: 15dvh;
 				}
 
 				&.selected {
@@ -438,7 +439,7 @@
 				display: flex;
 				flex-direction: row;
 				justify-content: space-between;
-				width: 100%;
+                width: calc(98dvw / 8);
 
 				.hp {
 					width: 100%;
@@ -448,7 +449,7 @@
 					align-items: center;
 					justify-content: space-evenly;
 					border-radius: 5px;
-					padding: 2px;
+					padding: 2px 4px;
 
 					& > span {
 						font-size: 20px;
@@ -657,6 +658,10 @@
 		&.selected {
 			background-color: var(--color); //rgba(255, 255, 255, 0.95);
 			color: #123;
+
+            .move-type svg {
+                color: #123;
+            }
 		}
     }
 

@@ -913,7 +913,7 @@
 	.actions2,
 	.moves2 {
 		width: 30%;
-		height: 35%;
+		height: 50%;
 		position: absolute;
 		bottom: -20%;
 		right: 3%;
@@ -1013,12 +1013,12 @@
 	}
 
 	.combo {
-		width: 63%;
+		width: 60%;
 		height: 7dvh;
 		display: flex;
 		justify-content: flex-end;
 		position: absolute;
-		right: 32%;
+		right: 34.5%;
 		bottom: 29%;
 		transform: skew(-15deg);
 		opacity: 0;
@@ -1170,7 +1170,7 @@
 		position: absolute;
 		left: 3%;
 		bottom: 1%;
-		width: 63%;
+		width: 60%;
 		height: 27%;
 		display: flex;
 		justify-content: flex-end;
@@ -1293,7 +1293,7 @@
 	.combo-btn {
 		position: absolute;
 		right: -1%;
-		bottom: 38%;
+		bottom: 55%;
 		height: 8dvh;
 		width: 20dvh;
 		background-color: rgba(44, 56, 69, 0.85);
@@ -1303,6 +1303,7 @@
 		align-items: center;
 		justify-content: center;
 		transform: skew(-15deg);
+		z-index: 9;
 
 		&.shine {
 			animation: sparkle 3s infinite;
