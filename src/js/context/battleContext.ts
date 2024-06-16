@@ -73,7 +73,7 @@ export class BattleContext {
         this.addToStack(new EndTurnChecks(this.opponentPokemon));
         this.addToStack(new EndTurnChecks(this.playerPokemon));
 
-        if (action.type === ActionType.ITEM || action.type === ActionType.RUN) {
+        if (action.type === ActionType.ITEM || action.type === ActionType.RUN || action.type === ActionType.SWITCH) {
             this.addToStack(opponentAction);
             // we pop from list, player starts first
             this.addToStack(action);
@@ -134,6 +134,9 @@ export class BattleContext {
                     break;
                 case ActionType.XP_WIN:
                     sleepTime = 300;
+                    break;
+                case ActionType.LEVEL_UP:
+                    sleepTime = 1000;
                     break;
                 case ActionType.PLAY_ANIMATION:
                     sleepTime = 1800;

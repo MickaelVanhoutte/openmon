@@ -2,7 +2,6 @@ import { gsap } from 'gsap';
 import type { Move } from '../../pokemons/pokedex';
 
 export function animateEntry(target: HTMLImageElement, source: 'ally' | 'opponent', partner: boolean = false): gsap.core.Timeline {
-console.log('animateEntry', target, source, partner);
     return gsap.timeline().fromTo(target,
         {
             left: source === 'ally' ? -target.getBoundingClientRect().width : window.innerWidth,
@@ -497,7 +496,7 @@ function animateThrow(move: Move,
                 left: source === 'ally' ?
                     target.getBoundingClientRect().right - target.getBoundingClientRect().width / 2 - spriteSize / 2 :
                     target.getBoundingClientRect().left + target.getBoundingClientRect().width / 2 + spriteSize / 2,
-                bottom: source === 'ally' ? 'calc(45% - ' + spriteSize / 2 + 'px)' : 'calc(25% + ' + spriteSize / 2 + 'px)',
+                bottom: '50%',//source === 'ally' ? 'calc(45% - ' + spriteSize / 2 + 'px)' : 'calc(25% + ' + spriteSize / 2 + 'px)',
                 duration: Math.min(.5, 1.5 / repeat),
                 delay: 0,
             }).set(target, {
@@ -519,7 +518,7 @@ function animateThrow(move: Move,
                 width: spriteSize + 'px',
                 height: spriteSize + 'px',
                 left: target.getBoundingClientRect().right - target.getBoundingClientRect().width / 2 - (192 / 2),
-                bottom: source === 'ally' ? '35%' : '15%',
+                bottom: '50%',//source === 'ally' ? '35%' : '15%',
                 scale: 1,
                 opacity: 1,
                 visibility: 'visible',
@@ -560,7 +559,7 @@ function animateSpriteFromTarget(
         width: spriteSize + 'px',
         height: spriteSize + 'px',
         left: target.getBoundingClientRect().left + target.getBoundingClientRect().width / 2 - (192 / 2),
-        bottom: source === 'ally' ? '35%' : '15%',
+        bottom: '50%',//source === 'ally' ? '35%' : '15%',
         filter: 'hue-rotate(' + angle + 'deg)',
         opacity: 1,
         visibility: 'visible',
@@ -587,7 +586,7 @@ function animateSpriteFromTarget(
     })
         .to(spriteFx, {
             left: initiator.getBoundingClientRect().left + initiator.getBoundingClientRect().width / 2 - (spriteSize / 2),
-            bottom: source === 'ally' ? '15%' : '35%',
+            bottom: '50%',//source === 'ally' ? '15%' : '35%',
             ease: 'expo.in',
             duration: .5,
         })
@@ -760,7 +759,7 @@ function animateSpriteToTarget(
             left: source === 'ally' ?
                 target.getBoundingClientRect().right - target.getBoundingClientRect().width / 2 - spriteSize / 2 :
                 target.getBoundingClientRect().left + target.getBoundingClientRect().width / 2 - spriteSize / 2,
-            bottom: source === 'ally' ? 'calc(45% - ' + spriteSize / 2 + 'px)' : 'calc(25% - ' + spriteSize / 2 + 'px)',
+            bottom:  '50%',//source === 'ally' ? 'calc(45% - ' + spriteSize / 2 + 'px)' : 'calc(25% - ' + spriteSize / 2 + 'px)',
             duration: 1.4,
             scale: .8,
             delay: 0,
@@ -812,7 +811,8 @@ function animateSpriteOnTarget(
         width: spriteSize + 'px',
         height: spriteSize + 'px',
         left: target.getBoundingClientRect().left + target.getBoundingClientRect().width / 2 - (spriteSize / 2),
-        bottom: source === 'ally' ? '35%' : '15%',
+        bottom: '50%',
+        //bottom: source === 'ally' ? '35%' : '15%',
         opacity: 1,
         visibility: 'visible',
         scale: 1,
@@ -861,7 +861,7 @@ function animateSpriteDash(
             left: source === 'ally' ?
                 target.getBoundingClientRect().left - initiator.getBoundingClientRect().width * 2 / 3 :
                 target.getBoundingClientRect().right - initiator.getBoundingClientRect().width * 2 / 3,
-            bottom: source === 'ally' ? '35%' : '15%',
+            //bottom: source === 'ally' ? '35%' : '15%',
             duration: .4
         }
     ).set(spriteFx, {
@@ -927,7 +927,7 @@ function animateSpriteDash(
             left: source === 'ally' ?
                 window.innerWidth * 0.25 - target.getBoundingClientRect().width / 2
                 : window.innerWidth * 0.75 - target.getBoundingClientRect().width / 2,
-            bottom: source === 'ally' ? '15%' : '35%',
+            //bottom: source === 'ally' ? '15%' : '35%',
             duration: .3,
             delay: .1
         }

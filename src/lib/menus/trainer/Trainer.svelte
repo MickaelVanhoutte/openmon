@@ -4,6 +4,8 @@
 	import { MenuType } from '../../../js/context/overworldContext';
 	import TrainerCard from './TrainerCard.svelte';
 	import TrainerMastery from './TrainerMastery.svelte';
+	import { backInOut } from 'svelte/easing';
+	import { fade, slide } from 'svelte/transition';
 
 	export let context: GameContext;
 	let optionsOpened = false;
@@ -42,7 +44,8 @@
 	});
 </script>
 
-<div class="trainer">
+<div class="trainer" in:slide={{ duration: 500, delay: 100, axis: 'x', easing: backInOut }}
+out:fade>
 	<nav class="nav">
 		<div class="nav-left">
 			<a class="brand">{context.player.name}</a>

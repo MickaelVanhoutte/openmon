@@ -185,7 +185,8 @@
 <div class="quests" class:overlay={displayedQuests}>
 	<!-- Might be a component -->
 	{#if displayedQuests}
-		<div class="quest-list">
+		<div class="quest-list" in:slide={{ duration: 300, axis: 'y', easing: backInOut }}
+		out:fade>
 			{#if context.currentQuest}
 				<div class="quest">
 					<h4>{context.currentQuest?.name}</h4>

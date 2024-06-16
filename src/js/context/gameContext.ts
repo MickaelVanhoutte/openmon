@@ -92,9 +92,10 @@ export class GameContext {
                 .map(o => new Objective(o.id, o.description, questState?.objectives.find(questObj => questObj.id === o.id)?.completed || false))
                 , q.area, q.leaveMessage, questState?.completed || false);
         });
-        if(lastCompleted?.id){
-            this.currentQuest = this.quests.find(q => q.id === (lastCompleted?.id + 1) ) || this.quests[0];
-        }else {
+        console.log(lastCompleted);
+        if (lastCompleted) {
+            this.currentQuest = this.quests.find(q => q.id === (lastCompleted?.id + 1)) || this.quests[0];
+        } else {
             this.currentQuest = this.quests[0];
         }
         this.flags = save.flags;
@@ -245,7 +246,7 @@ export class GameContext {
                 elementPosition.x += 1;
                 break;
         }
-        if(this.player.follower && this.player.follower.position.positionOnMap.x === elementPosition.x && this.player.follower.position.positionOnMap.y === elementPosition.y){
+        if (this.player.follower && this.player.follower.position.positionOnMap.x === elementPosition.x && this.player.follower.position.positionOnMap.y === elementPosition.y) {
             return this.player.follower;
         }
         return undefined;
@@ -444,7 +445,7 @@ export class GameContext {
                 currentPos.setFuturePosition(destX, destY, () => {
                     this.spawned = undefined;
                 });
-                let possiblePokes = [10, 11, 13, 14, 203, 137, 138, 154];
+                let possiblePokes = [10, 11, 13, 14, 212, 143, 144, 160];
                 // randomly select one :
                 let pokeId = possiblePokes[Math.floor(Math.random() * possiblePokes.length)];
                 let spawned = new OverworldSpawn(currentPos,

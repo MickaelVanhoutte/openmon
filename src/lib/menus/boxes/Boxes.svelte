@@ -5,6 +5,8 @@
 	import PokemonSummary from '../pokemon-list/PokemonSummary.svelte';
 	import type { GameContext } from '../../../js/context/gameContext';
 	import { MenuType } from '../../../js/context/overworldContext';
+	import { backInOut } from 'svelte/easing';
+	import { fade, slide } from 'svelte/transition';
 
 	let selectZone: 'party' | 'box' | 'box-change' = 'box';
 	export let context: GameContext;
@@ -259,7 +261,8 @@
 	});
 </script>
 
-<div class="boxes">
+<div class="boxes"  in:slide={{ duration: 500, delay: 100, axis: 'x', easing: backInOut }}
+out:fade>
 	<div class="party">
 		<div class="title">
 			<button class="cancel" on:click={() => context.overWorldContext.closeMenu(MenuType.BOX)}>

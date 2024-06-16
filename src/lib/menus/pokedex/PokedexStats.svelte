@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { inlineSvg } from '@svelte-put/inline-svg';
 	import { typeChart } from '../../../js/battle/battle-model';
 	import { PokedexEntry } from '../../../js/pokemons/pokedex';
 	import { backInOut } from 'svelte/easing';
@@ -51,7 +52,8 @@
 								{#each pokemon.types as type}
 									<div class="type" style="--tcolor:{typeChart[type].color}">
 										<span>{type}</span>
-										<img alt={type} src="src/assets/types/{type}.svg" />
+										<svg use:inlineSvg={`src/assets/types/${type}.svg`} fill="currentColor"> </svg>
+										<!-- <img alt={type} src="src/assets/types/{type}.svg" /> -->
 									</div>
 								{/each}
 							{:else}
@@ -382,7 +384,7 @@
 			span {
 				color: white;
 			}
-			img {
+			svg {
 				height: 22px;
 				width: auto;
 			}

@@ -106,10 +106,10 @@
 	.enemy-info {
 		z-index: 7;
 
-		height: 60%;
+		height: 50%;
 		width: 25%;
 		position: absolute;
-		top: 8%;
+		top: 3%;
 		right: -30%;
 
 		border-radius: 10px;

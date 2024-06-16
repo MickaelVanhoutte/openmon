@@ -4,6 +4,7 @@
 	import { backInOut } from 'svelte/easing';
 	import { slide } from 'svelte/transition';
 	import Modal from '../../common/Modal.svelte';
+	import { inlineSvg } from '@svelte-put/inline-svg';
 
 	export let pokemon: PokedexEntry;
 
@@ -63,7 +64,8 @@
 							<td>
 								<div class="types">
 									<div class="type" style="--tcolor:{typeChart[move.type].color}">
-										<img alt={move.type} src="src/assets/types/{move.type}.svg" />
+										<!-- <img alt={move.type} src="src/assets/types/{move.type}.svg" /> -->
+										<svg use:inlineSvg={`src/assets/types/${move.type}.svg`} fill="currentColor"> </svg>
 									</div>
 								</div>
 							</td>
@@ -210,7 +212,7 @@
 			span {
 				color: white;
 			}
-			img {
+			img,svg {
 				height: 22px;
 				width: auto;
 			}

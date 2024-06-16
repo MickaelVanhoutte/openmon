@@ -145,42 +145,7 @@
 
 	function draw() {
 		drawInterval = setInterval(() => {
-			// if (!battleLoopContext.bgDrawn) {
-			// 	let opponentGrass = document.createElement('img') as HTMLImageElement;
-			// 	opponentGrass.src = 'src/assets/battle/opponent-sand.png';
-			// 	opponentGrass.classList.add('opponent-grass');
-
-			// 	let allyGrass = document.createElement('img') as HTMLImageElement;
-			// 	allyGrass.src = 'src/assets/battle/opponent-sand.png';
-			// 	allyGrass.classList.add('ally-grass');
-
-			// 	Promise.all([
-			// 		new Promise((resolve) => {
-			// 			opponentGrass.onload = resolve;
-			// 		}),
-			// 		new Promise((resolve) => {
-			// 			allyGrass.onload = resolve;
-			// 		})
-			// 	]).then(() => {
-			// 		gifsWrapper.appendChild(opponentGrass);
-			// 		gifsWrapper.appendChild(allyGrass);
-			// 		opponentGrassHeight = opponentGrass.naturalHeight;
-			// 		opponentGrass.style.setProperty('--width', opponentGrass.naturalWidth + 'px');
-			// 		opponentGrass.style.setProperty('--height', opponentGrass.naturalHeight + 'px');
-			// 		console.log(window.innerHeight);
-			// 		// calculate grassHeight based on window height
-			// 		allyGrassHeight =
-			// 			(allyGrass.naturalHeight * (window.innerHeight * 1.5)) / window.innerWidth;
-			// 		allyGrass.style.setProperty('--width', allyGrass.naturalWidth + 'px');
-			// 		allyGrass.style.setProperty('--height', allyGrass.naturalHeight + 'px');
-			// 		battleLoopContext.bgDrawn = true;
-			// 	});
-			// }
-
-			// TODO : animation
-			//if (!battleState?.pokemonsAppearing) {
-
-			// animated gifs, handle them outside the canvas
+			
 			// TODO : handle gender/shinys
 			if (!battleLoopContext.opponentdrawn && battleLoopContext.bgDrawn) {
 				if (!opponent) {
@@ -196,11 +161,13 @@
 							: battleCtx?.opponentPokemon.sprites?.male?.front.frame1) ||
 						'src/assets/monsters/bw/0.png';
 					opponent.onload = () => {
+						let scale = .5;
 						//let scale = Math.min(battleCtx?.opponentPokemon.height / 4, 1);
-						//let scale = Math.max(Math.min(battleCtx?.opponentPokemon.height / 3, .7), 0.2);
-						let scale = Math.max(Math.min(opponent.naturalHeight / 200, 0.9), 0.1);
+						//let scale = Math.max(Math.min(battleCtx?.opponentPokemon.height / 3, .6), 0.4);
+						//let scale = Math.max(Math.min(opponent.naturalHeight / 200, 0.9), 0.1);
 						//console.log(battleCtx?.opponentPokemon.name, opponent.naturalHeight / 100, scale);
-						opponent.style.transform = 'scale(' + scale + ')';
+						console.log('opponent', scale, opponent.naturalHeight);
+						opponent.style.transform = 'scale(' + scale + ') translateY(50%)';
 						opponent.style.setProperty('--scale', scale + '');
 						opponent.style.setProperty('--width', opponent.naturalWidth + 'px');
 						opponent.style.setProperty('--height', opponent.naturalHeight + 'px');
@@ -223,11 +190,13 @@
 						'src/assets/monsters/bw/0.png';
 
 					ally.onload = () => {
+						let scale = .5;
 						//let scale = Math.min(battleCtx?.playerPokemon.height / 4, 1);
-						let scale = Math.max(Math.min(ally.naturalHeight / 200, 1), 0.2);
-						//let scale = Math.max(Math.min(battleCtx?.playerPokemon.height / 3, .9), 0.3);
+						//let scale = Math.max(Math.min(ally.naturalHeight / 200, 1), 0.2);
+						//let scale = Math.max(Math.min(battleCtx?.playerPokemon.height / 3, .7), 0.4);
 						//console.log(battleCtx?.playerPokemon.name, ally.naturalHeight / 100, scale);
-						ally.style.transform = 'scale(' + scale + ')';
+						console.log('ally', scale, ally.naturalHeight);
+						ally.style.transform = 'scale(' + scale + ') translateY(65%)';
 						ally.style.setProperty('--scale', scale + '');
 						ally.style.setProperty('--width', ally.naturalWidth + 'px');
 						ally.style.setProperty('--height', ally.naturalHeight + 'px');
@@ -278,7 +247,7 @@
 			class="battle-bg"
 			bind:this={scene}
 			alt="background"
-			src="src/assets/battle/bg-beach.png"
+			src="src/assets/battle/bg-beach6.jpg"
 		/>
 		<div class="fx" bind:this={spriteFx}></div>
 		<div class="fx" bind:this={spriteFxPartner}></div>
@@ -368,15 +337,94 @@
 		transform-origin: bottom left;
 	}
 
+	@keyframes impatience {
+		0% {
+			margin-bottom: 0;
+			margin-left: 0;
+		}
+		10% {
+			margin-bottom: 2px;
+			margin-left: 0;
+		}
+		20% {
+			margin-bottom: 0;
+			margin-left: 0;
+		}
+		30% {
+			margin-bottom: 2px;
+			margin-left: 0;
+		}
+		40% {
+			margin-bottom: 0;
+			margin-left: 0;
+		}
+		50% {
+			margin-bottom: 2px;
+			margin-left: 0;
+		}
+		60% {
+			margin-bottom: 0;
+			margin-left: 0;
+		}
+		70% {
+			margin-bottom: 2px;
+			margin-left: 0;
+		}
+		80% {
+			margin-bottom: 0;
+			margin-left: 0;
+		}
+		83% {
+			margin-bottom: 2px;
+			margin-left: 0;
+		}
+		86% {
+			margin-bottom: 0;
+			margin-left: 4px;
+		}
+		89% {
+			margin-bottom: 2px;
+			margin-left: 0;
+		}
+		92% {
+			margin-bottom: 0;
+			margin-left: -4px;
+		}
+		95% {
+			margin-bottom: 2px;
+			margin-left: 0;
+		}
+		100% {
+			margin-bottom: 0;
+			margin-left: 0;
+		}
+	}
+
 	.wrapper :global(.ally-sprite) {
 		position: absolute;
+		display: block;
 		z-index: 8;
 		height: 100%;
 		width: auto;
-		transform: scale(var(--scale));
+		transform: scale(var(--scale)) translateY(65%);
 		transform-origin: bottom left;
-		bottom: 15%;
+		bottom: 50%;
 		left: 0;
+		animation: impatience 8s infinite;
+		animation-delay: 1.5s;
+	}
+
+	.wrapper :global(.ally-sprite::after) {
+		content: '';
+            position: absolute;
+            bottom: -10px; /* Adjust this value to position the shadow correctly */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px; /* Adjust the width to match the character's width */
+            height: 20px; /* Adjust the height for the desired shadow size */
+            background: rgba(0, 0, 0, 0.5); /* Adjust the color and opacity for a shadow effect */
+            border-radius: 50%; /* Make the shadow oval-shaped */
+            border: 1px solid red; /* Debugging: Add a border to see the element */
 	}
 
 	.wrapper :global(.ally-partner-sprite) {
@@ -384,10 +432,12 @@
 		z-index: 7;
 		height: 100%;
 		width: auto;
-		transform: scale(var(--scale));
+		transform: scale(var(--scale))  translateY(62%);
 		transform-origin: bottom left;
-		bottom: 16%;
+		bottom: 50%;
 		left: 0;
+		animation: impatience 8s infinite;
+		animation-delay: 1.6s;
 	}
 
 	.wrapper :global(.opponent-sprite) {
@@ -395,10 +445,12 @@
 		z-index: 7;
 		height: 100%;
 		width: auto;
-		transform: scale(var(--scale));
+		transform: scale(var(--scale))  translateY(50%);
 		transform-origin: bottom left;
-		bottom: 35%;
+		bottom: 50%;
 		left: 0;
+		animation: impatience 8s infinite;
+		animation-delay: 2s;
 	}
 
 	.wrapper :global(.opponent-partner-sprite) {
@@ -406,10 +458,12 @@
 		z-index: 6;
 		height: 100%;
 		width: auto;
-		transform: scale(var(--scale));
+		transform: scale(var(--scale))  translateY(47%);
 		transform-origin: bottom left;
-		bottom: 37%;
+		bottom: 50%;
 		left: 0;
+		animation: impatience 8s infinite;
+		animation-delay: 1.8s;
 	}
 
 	.wrapper .battle-bg {
@@ -419,6 +473,6 @@
 		position: absolute;
 		top: 0;
 		left: 0;
-		//filter: opacity(0.9) blur(2px);
+		filter: blur(1px);
 	}
 </style>

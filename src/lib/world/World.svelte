@@ -10,6 +10,8 @@
 	import Controls from './Controls.svelte';
 	import type { BattleContext } from '../../js/context/battleContext';
 	import Shop from '../common/Shop.svelte';
+	    import { backInOut } from 'svelte/easing';
+	import { fade, slide } from 'svelte/transition';
 
 	/**
 	 * Overworld component.
@@ -113,23 +115,44 @@
 		}
 
 		// Player & walker
-
-		context.player?.follower?.draw(
-			bufferCtx,
-			context.player.position.positionInPx,
-			overWorldCtx.frames.playerScale,
-			mapDimensions,
-			context.map.hasBattleZoneAt(context.player.follower.position.positionOnMap),
-			context.player.running,
-			undefined
-		);
-
-		let center = context.player.draw(
-			bufferCtx,
-			overWorldCtx.frames.playerScale,
-			mapDimensions,
-			context.map.hasBattleZoneAt(context.player.position.positionOnMap)
-		);
+		let center;
+		//if follower y < player y, draw follower first
+		if (
+			context.player.follower &&
+			context.player.follower.position.positionOnMap.y < context.player.position.positionOnMap.y
+		) {
+			context.player?.follower?.draw(
+				bufferCtx,
+				context.player.position.positionInPx,
+				overWorldCtx.frames.playerScale,
+				mapDimensions,
+				context.map.hasBattleZoneAt(context.player.follower.position.positionOnMap),
+				context.player.running,
+				undefined
+			);
+			center = context.player.draw(
+				bufferCtx,
+				overWorldCtx.frames.playerScale,
+				mapDimensions,
+				context.map.hasBattleZoneAt(context.player.position.positionOnMap)
+			);
+		} else {
+			center = context.player.draw(
+				bufferCtx,
+				overWorldCtx.frames.playerScale,
+				mapDimensions,
+				context.map.hasBattleZoneAt(context.player.position.positionOnMap)
+			);
+			context.player?.follower?.draw(
+				bufferCtx,
+				context.player.position.positionInPx,
+				overWorldCtx.frames.playerScale,
+				mapDimensions,
+				context.map.hasBattleZoneAt(context.player.follower.position.positionOnMap),
+				context.player.running,
+				undefined
+			);
+		}
 
 		// Foreground
 		if (!!context.map?.foreground) {
@@ -160,7 +183,7 @@
 		});
 	}
 
-	function enlargeMap(){
+	function enlargeMap() {
 		mapEnlarged = !mapEnlarged;
 		overWorldCtx.setPaused(mapEnlarged, 'map-enlarge');
 	}
@@ -205,7 +228,7 @@
 			bind:this={minimap}
 			id="minimap"
 			width="1024"
-			height="{1024 * (window.innerHeight / window.innerWidth)}"
+			height={1024 * (window.innerHeight / window.innerWidth)}
 			style="z-index: 5"
 			class:opened={overWorldCtx.menus.mapOpened}
 		></canvas>
@@ -222,7 +245,7 @@
 		</button>
 	</div>
 
-	<Menu bind:context/>
+	<Menu bind:context />
 
 	{#if hasDialog}
 		<DialogView bind:dialog={currentDialog} {context} />
@@ -237,7 +260,8 @@
 	<ScenesView {context} {canvasWidth} />
 
 	{#if currentMessages.length > 0}
-		<div class="notifications">
+		<div class="notifications" in:slide={{ duration: 500, delay: 100, axis: 'y', easing: backInOut }}
+		out:fade>
 			{#each currentMessages as message}
 				<div class="notification">{message}</div>
 			{/each}
@@ -344,7 +368,7 @@
 			width: 90dvw;
 			max-height: 90dvh;
 			z-index: 10;
-			
+
 			box-shadow: 0 0 8px black;
 
 			.enlarge {
