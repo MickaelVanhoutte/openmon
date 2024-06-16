@@ -1,5 +1,7 @@
 import fs from "fs";
-import pokemons from '../dex/pokedex-animatedV3.json' assert {type: 'json'};
+import pokemons from '/Users/perso/workspace/perso/openmon/src/assets/data/final/beta/pokedex-animatedV3.json' assert {type: 'json'};
+
+let missing = [];
 
 pokemons.forEach((pokemon, index) => {
     let regionalId = ("00" + pokemon.regionalId).slice(-3);
@@ -17,35 +19,40 @@ pokemons.forEach((pokemon, index) => {
 
     let alolanFile = folder + 'A.png';
     let alolanShinyFile = folder + 'As.png';
-
+    
     if (fs.existsSync(hisuiFile)) {
-        fs.copyFileSync(hisuiFile, '../../../monsters/walking/' + newId + '.png');
+        fs.copyFileSync(hisuiFile, '/Users/perso/workspace/perso/openmon/src/assets/monsters/walking/' + newId + '.png');
         if (fs.existsSync(hisuiShinyFile)) {
             console.log('copied ' + pokemon.name + ' - ' + hisuiShinyFile);
-            fs.copyFileSync(hisuiShinyFile, '../../../monsters/walking/' + newId + 's.png');
+            fs.copyFileSync(hisuiShinyFile, '/Users/perso/workspace/perso/openmon/src/assets/monsters/walking/' + newId + 's.png');
         } else {
-            fs.copyFileSync(hisuiFile, '../../../monsters/walking/' + newId + 's.png');
+            fs.copyFileSync(hisuiFile, '/Users/perso/workspace/perso/openmon/src/assets/monsters/walking/' + newId + 's.png');
         }
 
     } else if (fs.existsSync(galarFile)) {
         console.log('copied ' + pokemon.name + ' - ' + galarFile);
-        fs.copyFileSync(galarFile, '../../../monsters/walking/' + newId + '.png');
+        fs.copyFileSync(galarFile, '/Users/perso/workspace/perso/openmon/src/assets/monsters/walking/' + newId + '.png');
         if (fs.existsSync(galarShinyFile)) {
-            fs.copyFileSync(galarShinyFile, '../../../monsters/walking/' + newId + 's.png');
+            fs.copyFileSync(galarShinyFile, '/Users/perso/workspace/perso/openmon/src/assets/monsters/walking/' + newId + 's.png');
         } else {
-            fs.copyFileSync(galarFile, '../../../monsters/walking/' + newId + 's.png');
+            fs.copyFileSync(galarFile, '/Users/perso/workspace/perso/openmon/src/assets/monsters/walking/' + newId + 's.png');
         }
     } else if (fs.existsSync(alolanFile) && fs.existsSync(alolanShinyFile)) {
-        fs.copyFileSync(alolanFile, '../../../monsters/walking/' + newId + '.png');
+        fs.copyFileSync(alolanFile, '/Users/perso/workspace/perso/openmon/src/assets/monsters/walking/' + newId + '.png');
         console.log('copied ' + pokemon.name + ' - ' + alolanShinyFile)
-        fs.copyFileSync(alolanShinyFile, '../../../monsters/walking/' + newId + 's.png');
+        fs.copyFileSync(alolanShinyFile, '/Users/perso/workspace/perso/openmon/src/assets/monsters/walking/' + newId + 's.png');
     } else if (fs.existsSync(normalFile) && fs.existsSync(shinyFile)) {
         console.log('copied ' + pokemon.name + ' - ' + normalFile)
-        fs.copyFileSync(normalFile, '../../../monsters/walking/' + newId + '.png');
-        fs.copyFileSync(shinyFile, '../../../monsters/walking/' + newId + 's.png');
+        fs.copyFileSync(normalFile, '/Users/perso/workspace/perso/openmon/src/assets/monsters/walking/' + newId + '.png');
+        fs.copyFileSync(shinyFile, '/Users/perso/workspace/perso/openmon/src/assets/monsters/walking/' + newId + 's.png');
     } else {
         console.log('Missing :' + regionalId + ' ' + pokemon.name);
+        missing.push(regionalId + " - " + pokemon.name);
     }
+});
+
+missing.forEach((miss) => {
+    console.log(miss);
 });
 
 // for(let i = 1; i <= 251; i++){

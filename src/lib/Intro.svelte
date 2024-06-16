@@ -351,7 +351,7 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		height: 101vh;
+		height: 100.1vh;
 		width: 100dvw;
 		background-color: #fff;
 		position: absolute;

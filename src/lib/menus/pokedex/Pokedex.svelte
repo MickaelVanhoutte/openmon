@@ -5,6 +5,8 @@
 	import type { PokedexSearchResult } from '../../../js/pokemons/pokedex';
 	import PokedexDetail from './PokedexDetail.svelte';
 	import { typeChart } from '../../../js/battle/battle-model';
+	import { backInOut } from 'svelte/easing';
+	import { fade, slide } from 'svelte/transition';
 
 	export let context: GameContext;
 	// viewed / caught
@@ -88,8 +90,9 @@
 	});
 </script>
 
-<div class="pokedex">
-	<div class="row head">
+<div class="pokedex" in:slide={{ duration: 500, delay: 100, axis: 'x', easing: backInOut }}
+out:fade>
+	<!-- <div class="row head">
 		<div class="col-2 back">
 			<button on:click={() => context.overWorldContext.closeMenu(MenuType.POKEDEX)}>
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
@@ -120,8 +123,8 @@
 				on:input={search}
 			/>
 		</div>
-	</div>
-	<div class="row content">
+	</div> -->
+	<!-- <div class="row content">
 		<div class="col-6 preview">
 			<div class="image">
 				{#if selectedPokemon?.id}
@@ -164,11 +167,11 @@
 					</button>
 				</div>
 			{/each}
-		</div>
+		</div> -->
 
-		<!-- <div style="display: flex; flex-wrap: wrap;overflow-y: scroll;overflow-x: hidden;height: 100dvh;">
+		<div style="display: flex; flex-wrap: wrap;overflow-y: scroll;overflow-x: hidden;height: 100dvh;">
 			{#each filtered as pokemon}
-				<div style="position:relative; width: calc(100% / 9); overflow:hidden; box-sizing:border-box; height: auto; border: 1px solid black;
+				<div style="position:relative; min-height:25dvh; width: calc(100% / 3); overflow:hidden; box-sizing:border-box; height: auto; border: 1px solid black;
 				background: linear-gradient(
     to bottom,
     {typeChart[pokemon.types[0]].color} 0%,
@@ -176,26 +179,30 @@
 	 {typeChart[pokemon.types[1]]?.color || typeChart[pokemon.types[0]].color} 50%,
 	 {typeChart[pokemon.types[1]]?.color || typeChart[pokemon.types[0]].color} 100%
   );">
-					<img
-						style="width: 100%; opacity: 0" 
-						src={`src/assets/monsters/pokedex/${('00' + pokemon?.id).slice(-3)}s.png`}
-					/>
+					<!-- <img
+						style="width: 100%; opacity: 0.1" 
+						src={`src/assets/monsters/pokedex/${('00' + pokemon?.id).slice(-3)}.png`}
+					/> -->
+
+					<!-- <img
+						style="position: absolute; top: 0; left: 0; filter: brightness(1); opacity: .8;"
+						src={`src/assets/monsters/walking/${('00' + pokemon?.id).slice(-3)}.png`}
+					/> -->
 
 					<img
-						style="width: 50%; position: absolute; top: 0; left: 0; filter: brightness(1); opacity: .8;"
-						src={`src/assets/monsters/walking/${('00' + pokemon?.id).slice(-3)}s.png`}
+						style="width: 80%; height:auto; position: absolute; top: 50%; left: 25%; z-index:2; transform:translate(-50%, -50%); filter: brightness(1);"
+						src={`src/assets/monsters/static/${('00' + pokemon?.id).slice(-3)}.png`}
 					/>
-
 					<img
-						style="max-width: 80%; height:auto; position: absolute; top: 50%; left: 66%; transform:translate(-50%, -50%); filter: brightness(1);"
-						src={`src/assets/monsters/animated/${('00' + pokemon?.id).slice(-3)}s.gif`}
+						style="width: 80%; height:auto; position: absolute; top: 50%; left: 66%; opacity:.7; z-index:1; transform:translate(-50%, -50%); filter: brightness(1);"
+						src={`src/assets/monsters/static/${('00' + pokemon?.id).slice(-3)}b.png`}
 					/>
 					<span style="position: absolute; bottom:4px; left: 50%;
 					transform: translate(-50%, 0%); font-size:12px; color: black">{pokemon.regionalId} {pokemon.id}</span>
 				</div>
 			{/each}
-		</div> -->
-	</div>
+		</div>
+	<!-- </div> -->
 </div>
 
 {#if detailOpened}

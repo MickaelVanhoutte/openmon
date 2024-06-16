@@ -116,7 +116,7 @@
 		z-index: 7;
 
 		position: absolute;
-		top: 8%;
+		top: 3%;
 		left: -30%;
 
 		font-size: 20px;
@@ -125,7 +125,7 @@
 			appear 0.5s ease-in forwards,
 			bounce 2s ease-in-out infinite;
 
-		height: 60%;
+		height: 50%;
 		width: 25%;
 		perspective: 100dvw;
 

@@ -12,34 +12,37 @@ pokedex.forEach((pokemon, index) => {
         name = name.replace('♂', 'm');
     }
     let newNumber = ("00" + (index + 1)).slice(-3);
-    console.log(name);
-    let normalName = name + '.gif';
-    let galarName = name + '-galar.gif';
-    let alolanName = name + '-alola.gif';
-    let hisuiName = name + '-hisui.gif';
-    console.log('/Users/perso/workspace/perso/showdown/sprites/ani/'+normalName);
+    //console.log(name);
+    let normalName = name + '.png';
+    let galarName = name + '-galar.png';
+    let alolanName = name + '-alola.png';
+    let hisuiName = name + '-hisui.png';
+    //console.log('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5/'+normalName);
 
 
-    if (fs.existsSync('/Users/perso/workspace/perso/showdown/sprites/ani/'+hisuiName) && newNumber !== '215' && newNumber !== '724') {
-        fs.copyFileSync('/Users/perso/workspace/perso/showdown/sprites/ani/'+hisuiName, '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + '.gif');
-        fs.copyFileSync('/Users/perso/workspace/perso/showdown/sprites/ani-shiny/'+hisuiName, '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 's.gif');
-        fs.copyFileSync('/Users/perso/workspace/perso/showdown/sprites/ani-back/'+hisuiName, '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 'b.gif');
-        fs.copyFileSync('/Users/perso/workspace/perso/showdown/sprites/ani-back-shiny/'+hisuiName, '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 'sb.gif');
-    }else if (fs.existsSync('/Users/perso/workspace/perso/showdown/sprites/ani/'+galarName)) {
-        fs.copyFileSync('/Users/perso/workspace/perso/showdown/sprites/ani/'+galarName, '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + '.gif');
-        fs.copyFileSync('/Users/perso/workspace/perso/showdown/sprites/ani-shiny/'+galarName, '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 's.gif');
-        fs.copyFileSync('/Users/perso/workspace/perso/showdown/sprites/ani-back/'+galarName, '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 'b.gif');
-        fs.copyFileSync('/Users/perso/workspace/perso/showdown/sprites/ani-back-shiny/'+galarName, '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 'sb.gif');
-    } else if (fs.existsSync('/Users/perso/workspace/perso/showdown/sprites/ani/'+alolanName)  && newNumber !== '165') {
-        fs.copyFileSync('/Users/perso/workspace/perso/showdown/sprites/ani/'+alolanName, '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + '.gif');
-        fs.copyFileSync('/Users/perso/workspace/perso/showdown/sprites/ani-shiny/'+alolanName, '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 's.gif');
-        fs.copyFileSync('/Users/perso/workspace/perso/showdown/sprites/ani-back/'+alolanName, '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 'b.gif');
-        fs.copyFileSync('/Users/perso/workspace/perso/showdown/sprites/ani-back-shiny/'+alolanName, '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 'sb.gif');
-    } else if (fs.existsSync('/Users/perso/workspace/perso/showdown/sprites/ani/'+normalName)) {
-        fs.copyFileSync('/Users/perso/workspace/perso/showdown/sprites/ani/'+normalName, '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + '.gif');
-        fs.copyFileSync('/Users/perso/workspace/perso/showdown/sprites/ani-shiny/'+normalName, '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 's.gif');
-        fs.copyFileSync('/Users/perso/workspace/perso/showdown/sprites/ani-back/'+normalName, '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 'b.gif');
-        fs.copyFileSync('/Users/perso/workspace/perso/showdown/sprites/ani-back-shiny/'+normalName, '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 'sb.gif');
+    if (fs.existsSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5/'+hisuiName) && newNumber !== '091' && newNumber !== '003') {
+        console.log('export hisuian' + newNumber + ' ' + hisuiName)
+        fs.copyFileSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5/'+hisuiName, '/Users/perso/workspace/perso/openmon/src/assets/monsters/static/' + newNumber + '.png');
+        fs.copyFileSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5-shiny/'+hisuiName, '/Users/perso/workspace/perso/openmon/src/assets/monsters/static/' + newNumber + 's.png');
+        fs.copyFileSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5-back/'+hisuiName, '/Users/perso/workspace/perso/openmon/src/assets/monsters/static/' + newNumber + 'b.png');
+        fs.copyFileSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5-back-shiny/'+hisuiName, '/Users/perso/workspace/perso/openmon/src/assets/monsters/static/' + newNumber + 'sb.png');
+    }else if (fs.existsSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5/'+galarName) && newNumber != '171') {
+        console.log('export galar' + newNumber + ' ' + galarName)
+        fs.copyFileSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5/'+galarName, '/Users/perso/workspace/perso/openmon/src/assets/monsters/static/' + newNumber + '.png');
+        fs.copyFileSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5-shiny/'+galarName, '/Users/perso/workspace/perso/openmon/src/assets/monsters/static/' + newNumber + 's.png');
+        fs.copyFileSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5-back/'+galarName, '/Users/perso/workspace/perso/openmon/src/assets/monsters/static/' + newNumber + 'b.png');
+        fs.copyFileSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5-back-shiny/'+galarName, '/Users/perso/workspace/perso/openmon/src/assets/monsters/static/' + newNumber + 'sb.png');
+    } else if (fs.existsSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5/'+alolanName)  && newNumber !== '165') {
+        console.log('export alolan' + newNumber + ' ' + alolanName)
+        fs.copyFileSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5/'+alolanName, '/Users/perso/workspace/perso/openmon/src/assets/monsters/static/' + newNumber + '.png');
+        fs.copyFileSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5-shiny/'+alolanName, '/Users/perso/workspace/perso/openmon/src/assets/monsters/static/' + newNumber + 's.png');
+        fs.copyFileSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5-back/'+alolanName, '/Users/perso/workspace/perso/openmon/src/assets/monsters/static/' + newNumber + 'b.png');
+        fs.copyFileSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5-back-shiny/'+alolanName, '/Users/perso/workspace/perso/openmon/src/assets/monsters/static/' + newNumber + 'sb.png');
+    } else if (fs.existsSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5/'+normalName)) {
+        fs.copyFileSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5/'+normalName, '/Users/perso/workspace/perso/openmon/src/assets/monsters/static/' + newNumber + '.png');
+        fs.copyFileSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5-shiny/'+normalName, '/Users/perso/workspace/perso/openmon/src/assets/monsters/static/' + newNumber + 's.png');
+        fs.copyFileSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5-back/'+normalName, '/Users/perso/workspace/perso/openmon/src/assets/monsters/static/' + newNumber + 'b.png');
+        fs.copyFileSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5-back-shiny/'+normalName, '/Users/perso/workspace/perso/openmon/src/assets/monsters/static/' + newNumber + 'sb.png');
     } else {
         miss.push(name);
         console.log('Missing ' + newNumber);

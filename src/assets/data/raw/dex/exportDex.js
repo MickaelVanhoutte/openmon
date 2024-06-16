@@ -112,12 +112,12 @@ function exportPokemons() {
                 sprites: {
                     male: {
                         front: {
-                            frame1: `src/assets/monsters/animated/${''+ newNumber}.gif`,
-                            shiny1: `src/assets/monsters/animated/${''+ newNumber}s.gif`,
+                            frame1: `src/assets/monsters/static/${''+ newNumber}.png`,
+                            shiny1: `src/assets/monsters/static/${''+ newNumber}s.png`,
                         },
                         back: {
-                            frame1: `src/assets/monsters/animated/${''+ newNumber}b.gif`,
-                            shiny1: `src/assets/monsters/animated/${''+ newNumber}sb.gif`,
+                            frame1: `src/assets/monsters/static/${''+ newNumber}b.png`,
+                            shiny1: `src/assets/monsters/static/${''+ newNumber}sb.png`,
                         },
                     }
                 }
