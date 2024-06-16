@@ -515,7 +515,7 @@
 			flex-direction: row;
 			// height: 66%;
 			gap: 2%;
-			padding: 2%;
+			//padding: 2%;
             border-top: 1px solid rgba(255, 255, 255, 0.3);
 
 			.actions {
@@ -611,6 +611,7 @@
 				flex-direction: column;
 				flex-wrap: wrap;
 				gap: 8%;
+                padding: 2% 0;
 
 				p {
 					margin: 6px 0;
