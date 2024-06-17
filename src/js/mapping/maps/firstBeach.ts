@@ -1,6 +1,6 @@
 import { OpenMap } from "../maps";
 import { NPC } from "../../characters/npc";
-import { CustomScriptable, Dialog, GiveItem, GiveMoney, Message, MoveTo, MoveToPlayer, Script, StartBattle } from "../../scripting/scripts";
+import { CustomScriptable, Dialog, GiveItem, GiveMoney, HealAll, Message, MoveTo, MoveToPlayer, OpenShop, Script, StartBattle } from "../../scripting/scripts";
 import { Position } from "../positions";
 import { Jonction } from "../collisions";
 import { OverworldItem } from "../../items/overworldItem";
@@ -460,6 +460,13 @@ const waterCollision = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
+const shopItems: Record<string, number> = {
+};
+shopItems['4'] = 150;
+shopItems['17'] = 150;
+shopItems['33'] = 500;
+shopItems['28'] = 1250;
+
 const npcs = [
     // new NPC(1, "NPC1", 2, new Position(78, 53), 'down', 'MALE', [], undefined,
     //     new Script('onInteract', [
@@ -527,6 +534,34 @@ const npcs = [
     //         ]
     //     )
     // ),
+
+    new NPC(991, "NPC1", 2, new Position(86, 27), 'down', 'MALE', undefined, undefined,
+
+        new Script('onInteract2', [
+            new Dialog([
+                new Message('Would you like to rest your Pokemon?', 'healer', ['Sure', 'No, thanks']),
+            ]),
+            new HealAll(0),
+            new Dialog([new Message('Feel free to come back anytime!', 'bye')])
+        ], undefined,
+            true),
+        undefined,
+        undefined,
+        true
+    ),
+    new NPC(992, "NPC2", 2, new Position(84, 26), 'down', 'MALE', undefined, undefined,
+        new Script('onInteract2', [
+            new Dialog([
+                new Message('I just received plenty of merchandise, want to take a look ?', 'shop', ['Sure', 'No, thanks'])
+            ]),
+            new OpenShop(shopItems, 0),
+            new Dialog([new Message('Feel free to come back anytime!', 'bye')])
+        ], undefined,
+            true),
+        undefined,
+        undefined,
+        true
+    )
 
     new NPC(4, "NPC4", 2, new Position(98, 58), 'down', 'MALE', [112, 114], undefined,
         new Script(
@@ -664,9 +699,9 @@ export const firstBeach = OpenMap.fromScratch(0, 'src/assets/maps/First-beach.pn
                 ]),
                 new CustomScriptable(
                     (ctx) => {
-                         // Running shoes
-                         ctx.flags.setFlag(FlagEntry.RUNNING_SHOES_UNLOCKED, true);
-                         ctx.validateQuestObjective(0, 4);
+                        // Running shoes
+                        ctx.flags.setFlag(FlagEntry.RUNNING_SHOES_UNLOCKED, true);
+                        ctx.validateQuestObjective(0, 4);
                     }
                 ),
             ])

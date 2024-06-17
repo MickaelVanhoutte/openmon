@@ -443,7 +443,7 @@
 
 	<button
 		class="combo-btn"
-		class:shine={!comboDisabled}
+		class:shine={!comboDisabled  && !disabled}
 		class:close={!!currentCombo}
 		on:click={() => toggleCombo()}
 		disabled={comboDisabled}
@@ -543,7 +543,7 @@
 				class="move-btn move"
 				style="--color:{typeChart[move.type].color}; --offset: {index * 3}%"
 				{disabled}
-				class:selected={selectedMoveIdx === index}
+				class:selected={!disabled && selectedMoveIdx === index}
 				on:click={() => launchMove(index, move)}
 			>
 				<span class="move-type" style="--offset: {index * 1.5}%">
