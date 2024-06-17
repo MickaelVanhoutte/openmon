@@ -402,7 +402,7 @@
 			display: flex;
 			justify-content: space-around;
 			//height: 34%;
-			
+			max-height: 35%;
 
 			.pkmn {
 				display: flex;
@@ -513,6 +513,7 @@
 		.body {
 			display: flex;
 			flex-direction: row;
+            height: -webkit-fill-available;
 			// height: 66%;
 			gap: 2%;
 			//padding: 2%;
@@ -524,6 +525,7 @@
 				gap: 8px;
 				width: calc(100% / 3);
 				align-items: center;
+                font-size: clamp(16px, 5dvh, 32px);
 
 				.switch {
 					display: flex;
@@ -581,7 +583,8 @@
 				align-items: center;
 				flex-direction: column;
 				flex-wrap: wrap;
-				font-size: 26px;
+				font-size: 22px;
+                max-height: 60dvh;
 
 				span {
 					width: 50%;
@@ -674,7 +677,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		font-size: 20px;
+		font-size: clamp(16px, 5dvh, 32px);
 		padding: 0 3%;
 		transition: transform 0.5s ease-in-out;
 
