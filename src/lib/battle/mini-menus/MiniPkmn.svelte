@@ -190,7 +190,7 @@
 					<div class="hp">
 						<span>HP</span>
 						<div class="progressbar-wrapper">
-							
+							<span class="hp-value">{poke.currentHp} / {poke.currentStats.hp}</span>
 								<div
 									class="progressbar"
 									class:warning={((poke.currentHp / poke.currentStats.hp) * 100) <= 50}
@@ -453,19 +453,27 @@
 
 					& > span {
 						font-size: 20px;
-						padding: 0 12px;
+						padding: 0 6px;
 						font-weight: bold;
 					}
 
 					.progressbar-wrapper {
-						height: 14px;
+						height: 16px;
 						width: 100%;
 						background-color: #595b59;
 						border-radius: 4px;
 						//border: 2px solid white;
 
+						position: relative;
+
 						.hp-value {
 							position: absolute;
+							//mix-blend-mode: difference;
+							font-size: clamp(12px, 1vw, 20px);
+							color: white;
+							left: 50%;
+							top: 50%;
+							transform: translate(-50%, -50%);
 						}
 
 						.progressbar {

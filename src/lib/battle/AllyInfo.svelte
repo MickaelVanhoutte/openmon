@@ -122,8 +122,7 @@
 		font-size: 20px;
 
 		animation:
-			appear 0.5s ease-in forwards,
-			bounce 2s ease-in-out infinite;
+			appear 0.5s ease-in forwards;
 
 		height: 50%;
 		width: 25%;

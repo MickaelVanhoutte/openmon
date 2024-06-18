@@ -1,8 +1,8 @@
-import type {PokemonInstance} from "../pokemons/pokedex";
+import type { PokemonInstance } from "../pokemons/pokedex";
 import itemsJson from "../../assets/data/final/beta/usable-items.json";
-import {Player} from "../characters/player";
-import {AItem, ItemUsageResult} from "./items-model";
-import type {BattleContext} from "../context/battleContext";
+import { Player } from "../characters/player";
+import { AItem, ItemUsageResult } from "./items-model";
+import type { BattleContext } from "../context/battleContext";
 
 
 export class Pokeball extends AItem {
@@ -20,30 +20,31 @@ export class Pokeball extends AItem {
     }
 
     apply(target: PokemonInstance, current: PokemonInstance): ItemUsageResult {
-        if (current) {
-            let currentHp = target.currentHp;
-            let maxHp = target.currentStats.hp;
-            let captureRate = target.captureRate;
-            let bonus = this.power;
-            let statusBonus = 1;
-            if (target.status) {
-                statusBonus = 1.5;
-                // sleep/freeze
-                if (target.status.move_effect_id === 2 || target.status.move_effect_id === 6) {
-                    statusBonus = 2;
-                }
-            }
-
-            let success = (( 1 + ( maxHp * 3 - currentHp * 2 ) * captureRate * this.power * statusBonus ) / ( maxHp * 3 )) / 256;
-
-            //console.log(success);
-            return new ItemUsageResult(Math.random() < success);
+        if (current && target) {
+            return new ItemUsageResult(Math.random() < getCaptureRate(target, this.power));
         }
 
-
-        throw new Error("Method not implemented.");
+        throw new Error("Missing target or current");
     }
 }
+
+export function getCaptureRate(target: PokemonInstance, power: number): number {
+    let currentHp = target.currentHp;
+    let maxHp = target.currentStats.hp;
+    let captureRate = target.captureRate;
+
+    let statusBonus = 1;
+    if (target.status) {
+        statusBonus = 1.5;
+        // sleep/freeze
+        if (target.status.move_effect_id === 2 || target.status.move_effect_id === 6) {
+            statusBonus = 2;
+        }
+    }
+
+    return ((1 + (maxHp * 3 - currentHp * 2) * captureRate * power * statusBonus) / (maxHp * 3)) / 256;
+}
+
 
 export class HealingItem extends AItem {
 
