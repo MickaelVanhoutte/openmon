@@ -16,6 +16,7 @@
 	import { MenuType, OverworldContext } from '../../js/context/overworldContext';
 	import { inlineSvg } from '@svelte-put/inline-svg';
 	import MiniPkmn from './mini-menus/MiniPkmn.svelte';
+	import MiniBag from './mini-menus/MiniBag.svelte';
 
 	export let context: GameContext;
 	export let battleCtx: BattleContext;
@@ -251,11 +252,12 @@
 		if (!battleCtx) {
 			return;
 		}
-		if (battleSwitchOpened || changePokemon || combo) {
+		if (battleSwitchOpened || changePokemon || combo || battleBagOpened) {
 			if (e.key === 'Escape') {
 				battleSwitchOpened = false;
 				changePokemon = false;
 				combo = false;
+				battleBagOpened = false;
 			} else {
 				return;
 			}
@@ -299,7 +301,6 @@
 				}
 			} else if (e.key === 'Escape') {
 				moveOpened = false;
-				show = false;
 				showAdd = false;
 				showInfoBack = false;
 			}
@@ -322,10 +323,10 @@
 	});
 </script>
 
-<!-- <div class="action-bar" class:show> -->
+
 <div
 	class="info"
-	class:show={show && !moveOpened && !(battleSwitchOpened || changePokemon || combo)}
+	class:show={show && !moveOpened && !(battleSwitchOpened || changePokemon || combo || battleBagOpened)}
 >
 	<div class="_inner">
 		<span>
@@ -384,15 +385,19 @@
 			<div class="wrapper">
 				<div class="_desc">
 					{#if !!currentCombo}
-					<div class="head">
-						<span>Types: {currentCombo.move.type}, {battleCtx?.playerPokemon?.moves[selectedMoveIdx]
-							.type}</span>
-						<span>Pwr. {currentCombo.move.power / 2 +
-							battleCtx?.playerPokemon?.moves[selectedMoveIdx].power}
-						({currentCombo.move.power | 0} * 0.5 + {battleCtx?.playerPokemon?.moves[
-							selectedMoveIdx
-						].power | 0})</span>
-					</div>
+						<div class="head">
+							<span
+								>Types: {currentCombo.move.type}, {battleCtx?.playerPokemon?.moves[selectedMoveIdx]
+									.type}</span
+							>
+							<span
+								>Pwr. {currentCombo.move.power / 2 +
+									battleCtx?.playerPokemon?.moves[selectedMoveIdx].power}
+								({currentCombo.move.power | 0} * 0.5 + {battleCtx?.playerPokemon?.moves[
+									selectedMoveIdx
+								].power | 0})</span
+							>
+						</div>
 						<hr />
 						<ul style="font-size: 18px">
 							<li>
@@ -443,7 +448,7 @@
 
 	<button
 		class="combo-btn"
-		class:shine={!comboDisabled  && !disabled}
+		class:shine={!comboDisabled && !disabled}
 		class:close={!!currentCombo}
 		on:click={() => toggleCombo()}
 		disabled={comboDisabled}
@@ -568,64 +573,6 @@
 		{/each}
 	</div>
 {:else}
-	<!-- <div class="actions" class:show>
-		<button
-			class="action-btn"
-			style="--color:#dc5959; --color2:#431515"
-			{disabled}
-			on:click={() => {
-				moveOpened = true;
-				showInfoBack = true;
-				showAdd = true;
-			}}
-			on:mouseenter={() => {
-				selectedOptionIdx = 0;
-			}}
-			class:selected={selectedOptionIdx === 0}
-		>
-			FIGHT
-		</button>
-
-		<button
-			class="action-btn"
-			style="--color:#eca859; --color2:#4f310d"
-			{disabled}
-			class:selected={selectedOptionIdx === 1}
-			on:click={() => openBag()}
-			on:mouseenter={() => {
-				selectedOptionIdx = 1;
-			}}
-		>
-			BAG
-		</button>
-
-		<button
-			class="action-btn"
-			style="--color:#7EAF53; --color2:#11420a"
-			{disabled}
-			class:selected={selectedOptionIdx === 2}
-			on:click={() => switchOpen()}
-			on:mouseenter={() => {
-				selectedOptionIdx = 2;
-			}}
-		>
-			POKEMONS
-		</button>
-
-		<button
-			class="action-btn"
-			style="--color:#599bdc; --color2:#092536"
-			{disabled}
-			class:selected={selectedOptionIdx === 3}
-			on:click={() => escape()}
-			on:mouseenter={() => {
-				selectedOptionIdx = 3;
-			}}
-		>
-			RUN
-		</button>
-	</div> -->
-
 	<div class="actions2" class:show>
 		<button
 			class="action2-btn"
@@ -639,7 +586,7 @@
 			on:mouseenter={() => {
 				selectedOptionIdx = 0;
 			}}
-			class:selected={selectedOptionIdx === 0}
+			class:selected={!disabled && selectedOptionIdx === 0}
 		>
 			FIGHT
 		</button>
@@ -648,7 +595,7 @@
 			class="action2-btn"
 			style="--color:#eca859; --color2:#4f310d; --offset: 3%"
 			{disabled}
-			class:selected={selectedOptionIdx === 1}
+			class:selected={!disabled && selectedOptionIdx === 1}
 			on:click={() => openBag()}
 			on:mouseenter={() => {
 				selectedOptionIdx = 1;
@@ -661,7 +608,7 @@
 			class="action2-btn"
 			style="--color:#7EAF53; --color2:#11420a; --offset: 6%"
 			{disabled}
-			class:selected={selectedOptionIdx === 2}
+			class:selected={!disabled && selectedOptionIdx === 2}
 			on:click={() => switchOpen()}
 			on:mouseenter={() => {
 				selectedOptionIdx = 2;
@@ -674,7 +621,7 @@
 			class="action2-btn"
 			style="--color:#599bdc; --color2:#092536; --offset: 9%"
 			{disabled}
-			class:selected={selectedOptionIdx === 3}
+			class:selected={!disabled && selectedOptionIdx === 3}
 			on:click={() => escape()}
 			on:mouseenter={() => {
 				selectedOptionIdx = 3;
@@ -716,7 +663,11 @@
 				combo = false;
 			}}
 		>
-		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M10.5859 12L2.79297 4.20706L4.20718 2.79285L12.0001 10.5857L19.793 2.79285L21.2072 4.20706L13.4143 12L21.2072 19.7928L19.793 21.2071L12.0001 13.4142L4.20718 21.2071L2.79297 19.7928L10.5859 12Z"></path></svg>
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+				><path
+					d="M10.5859 12L2.79297 4.20706L4.20718 2.79285L12.0001 10.5857L19.793 2.79285L21.2072 4.20706L13.4143 12L21.2072 19.7928L19.793 21.2071L12.0001 13.4142L4.20718 21.2071L2.79297 19.7928L10.5859 12Z"
+				></path></svg
+			>
 		</button>
 	{/if}
 
@@ -742,13 +693,33 @@
 {/if}
 
 {#if battleBagOpened}
-	<Bag
+	<button
+		class="back-mini-pkmn-btn"
+		on:click={() => {
+			battleBagOpened = false;
+		}}
+	>
+		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+			><path
+				d="M10.5859 12L2.79297 4.20706L4.20718 2.79285L12.0001 10.5857L19.793 2.79285L21.2072 4.20706L13.4143 12L21.2072 19.7928L19.793 21.2071L12.0001 13.4142L4.20718 21.2071L2.79297 19.7928L10.5859 12Z"
+			></path></svg
+		>
+	</button>
+
+	<MiniBag
+		bind:context
+		bind:currentPkmn={battleCtx.playerPokemon}
+		bind:battleCtx={battleCtx}
+		zIndex={zIndexNext}
+		onChange={(result) => sendObjectAction(result)}
+	/>
+	<!-- <Bag
 		bind:context
 		{isBattle}
 		bind:battleBagOpened
 		zIndex={zIndexNext}
 		onChange={(result) => sendObjectAction(result)}
-	/>
+	/> -->
 {/if}
 
 <style lang="scss">
@@ -1331,7 +1302,7 @@
 		right: 1%;
 		height: 8dvh;
 		width: 6dvw;
-		background-color: rgba(44, 56, 69, 0.75);
+		background-color: transparent;
 		border-radius: 6px;
 		color: white;
 		overflow: hidden;

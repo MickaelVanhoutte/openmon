@@ -117,8 +117,7 @@
 		font-size: 24px;
 
 		animation:
-			appear 0.5s ease-in forwards,
-			bounce 2s ease-in-out infinite;
+			appear 0.5s ease-in forwards;
 
 			perspective: 100dvw;
 		.rotate {
