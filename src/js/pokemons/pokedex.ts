@@ -635,13 +635,13 @@ export class PokemonInstance extends PokedexEntry {
     get battleStats(): Stats {
         return new Stats(
             this.currentStats.hp,
-            this.currentStats.attack * (this.statsChanges.attack >= 0 ? (2 + this.statsChanges.attack / 2) : (2 / 2 + this.statsChanges.attack)),
-            this.currentStats.defense * (this.statsChanges.defense >= 0 ? (2 + this.statsChanges.defense / 2) : (2 / 2 + this.statsChanges.defense)),
-            this.currentStats.specialAttack * (this.statsChanges.specialAttack >= 0 ? (2 + this.statsChanges.specialAttack / 2) : (2 / 2 + this.statsChanges.specialAttack)),
-            this.currentStats.specialDefense * (this.statsChanges.specialDefense >= 0 ? (2 + this.statsChanges.specialDefense / 2) : (2 / 2 + this.statsChanges.specialDefense)),
-            this.currentStats.speed * (this.statsChanges.speed >= 0 ? (2 + this.statsChanges.speed / 2) : (2 / 2 + this.statsChanges.speed)),
-            this.currentStats.evasion * (this.statsChanges.evasion >= 0 ? (3 + this.statsChanges.evasion / 3) : (3 / 3 + this.statsChanges.evasion)),
-            this.currentStats.accuracy * (this.statsChanges.accuracy >= 0 ? (3 + this.statsChanges.accuracy / 3) : (3 / 3 + this.statsChanges.accuracy)),
+            this.currentStats.attack * (this.statsChanges.attack >= 0 ? (2 + this.statsChanges.attack / 2) : (2 / (-2 + this.statsChanges.attack) * -1)),
+            this.currentStats.defense * (this.statsChanges.defense >= 0 ? (2 + this.statsChanges.defense / 2) : (2 / (-2 + this.statsChanges.defense) * -1)),
+            this.currentStats.specialAttack * (this.statsChanges.specialAttack >= 0 ? (2 + this.statsChanges.specialAttack / 2) : (2 / (-2 + this.statsChanges.specialAttack) * -1)),
+            this.currentStats.specialDefense * (this.statsChanges.specialDefense >= 0 ? (2 + this.statsChanges.specialDefense / 2) : (2 / (-2 + this.statsChanges.specialDefense) * -1)),
+            this.currentStats.speed * (this.statsChanges.speed >= 0 ? (2 + this.statsChanges.speed / 2) : (2 / (-2 + this.statsChanges.speed) * -1)),
+            this.currentStats.evasion * (this.statsChanges.evasion >= 0 ? (3 + this.statsChanges.evasion / 3) : (3 / (-3 + this.statsChanges.evasion) * -1)),
+            this.currentStats.accuracy * (this.statsChanges.accuracy >= 0 ? (3 + this.statsChanges.accuracy / 3) : (3 / (-3 + this.statsChanges.accuracy) * -1)),
         );
     }
 

@@ -161,7 +161,7 @@
 							: battleCtx?.opponentPokemon.sprites?.male?.front.frame1) ||
 						'src/assets/monsters/bw/0.png';
 					opponent.onload = () => {
-						let scale = .5;
+						let scale = .6;
 						//let scale = Math.min(battleCtx?.opponentPokemon.height / 4, 1);
 						//let scale = Math.max(Math.min(battleCtx?.opponentPokemon.height / 3, .6), 0.4);
 						//let scale = Math.max(Math.min(opponent.naturalHeight / 200, 0.9), 0.1);
@@ -190,7 +190,7 @@
 						'src/assets/monsters/bw/0.png';
 
 					ally.onload = () => {
-						let scale = .5;
+						let scale = .65;
 						//let scale = Math.min(battleCtx?.playerPokemon.height / 4, 1);
 						//let scale = Math.max(Math.min(ally.naturalHeight / 200, 1), 0.2);
 						//let scale = Math.max(Math.min(battleCtx?.playerPokemon.height / 3, .7), 0.4);
@@ -406,7 +406,7 @@
 		z-index: 8;
 		height: 100%;
 		width: auto;
-		transform: scale(var(--scale)) translateY(65%);
+		transform: scale(var(--scale)) translateY(62%);
 		transform-origin: bottom left;
 		bottom: 50%;
 		left: 0;
@@ -432,7 +432,7 @@
 		z-index: 7;
 		height: 100%;
 		width: auto;
-		transform: scale(var(--scale))  translateY(62%);
+		transform: scale(var(--scale))  translateY(59%);
 		transform-origin: bottom left;
 		bottom: 50%;
 		left: 0;
