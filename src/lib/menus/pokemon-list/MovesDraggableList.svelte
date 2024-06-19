@@ -77,7 +77,7 @@
 		flex-direction: column;
 		position: relative;
 		gap: 4%;
-		padding: 1% 3%;
+		padding: 1% 10%;
 		height: 100%;
 		box-sizing: border-box;
 		align-items: flex-end;

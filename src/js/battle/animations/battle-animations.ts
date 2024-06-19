@@ -85,8 +85,6 @@ export function animateMove(
     spriteFx: HTMLDivElement,
     fx: HTMLImageElement[]): gsap.core.Timeline | Promise<gsap.core.Timeline> {
 
-    console.log('animating', move.name);
-
     switch (move.name) {
 
         // contact moves
@@ -193,6 +191,7 @@ export function animateMove(
         case 'steel-wing':
         case 'beat-up':
         case 'power-trip':
+        case 'flare-blitz':
             return animateSpriteDash(move, source, target, initiator, scene, spriteFx, 'impact-sprite', 4, 192, 1, 1);
         case 'double-slap':
         case 'double-hit':
@@ -250,7 +249,6 @@ export function animateMove(
         // fire
         case 'ember':
         case 'flamethrower':
-        case 'flare-blitz':
         case 'flame-wheel':
         case 'v-create':
         case 'heat-wave':
@@ -484,7 +482,8 @@ function animateThrow(move: Move,
             left: source === 'ally' ?
                 initiator.getBoundingClientRect().right - spriteSize / 2 :
                 initiator.getBoundingClientRect().left + spriteSize / 2,
-            bottom: source === 'ally' ? 'calc(25% - ' + spriteSize / 2 + 'px)' : 'calc(45% + ' + spriteSize / 2 + 'px)',
+            //bottom: source === 'ally' ? 'calc(25% - ' + spriteSize / 2 + 'px)' : 'calc(45% + ' + spriteSize / 2 + 'px)',
+            bottom: '50%',
             opacity: 1,
             height: spriteSize + 'px',
             width: spriteSize + 'px',
@@ -511,7 +510,7 @@ function animateThrow(move: Move,
 
         if (afterEffect !== undefined) {
             tl.set(spriteFx, {
-                background: 'url(src/assets/battle/fx/elements/water.png)',
+                background: 'url(src/assets/battle/fx/elements/'+afterEffect+'.png)',
                 backgroundRepeat: 'no-repeat',
                 backgroundPosition: '0 0',
                 backgroundSize: 'cover',
@@ -619,10 +618,11 @@ function animateBeam(
         .set(spriteFx, {
             background: 'url(src/assets/battle/fx/beam.png)',
             left: source === 'ally' ?
-                initiator.getBoundingClientRect().right :
-                initiator.getBoundingClientRect().left,
+                initiator.getBoundingClientRect().right - 20 :
+                initiator.getBoundingClientRect().left + 20,
             top: source === 'ally' ? initiator.getBoundingClientRect().bottom - initiator.getBoundingClientRect().height / 2 - 192 / 2 :
                 -(initiator.getBoundingClientRect().bottom - initiator.getBoundingClientRect().height / 2 - 192 / 2),
+            //bottom: '50%',
             opacity: 1,
             backgroundRepeat: 'no-repeat',
             backgroundSize: 'cover',
@@ -636,7 +636,7 @@ function animateBeam(
             duration: .2,
         }, 'fx')
         .to(spriteFx, {
-            width: '50dvw',
+            width: '80dvw',
             left: source === 'ally' ? initiator.getBoundingClientRect().right : 'calc(' + initiator.getBoundingClientRect().left + '-' + spriteFx.getBoundingClientRect().width + ')',
             backgroundRepeat: 'no-repeat',
             backgroundSize: 'cover',
@@ -741,7 +741,8 @@ function animateSpriteToTarget(
         left: source === 'ally' ?
             initiator.getBoundingClientRect().right - spriteSize / 2 :
             initiator.getBoundingClientRect().left + spriteSize / 2,
-        bottom: source === 'ally' ? 'calc(30% - ' + spriteSize / 2 + 'px)' : 'calc(50% + ' + spriteSize / 2 + 'px)',
+        bottom: 'calc(45% - ' + spriteSize / 2 + 'px)',
+        //bottom: '50%',
         opacity: 1,
         filter: 'hue-rotate(' + angle + 'deg)',
         height: spriteSize + 'px',
@@ -759,7 +760,8 @@ function animateSpriteToTarget(
             left: source === 'ally' ?
                 target.getBoundingClientRect().right - target.getBoundingClientRect().width / 2 - spriteSize / 2 :
                 target.getBoundingClientRect().left + target.getBoundingClientRect().width / 2 - spriteSize / 2,
-            bottom:  '50%',//source === 'ally' ? 'calc(45% - ' + spriteSize / 2 + 'px)' : 'calc(25% - ' + spriteSize / 2 + 'px)',
+            //bottom:  '50%',//source === 'ally' ? 'calc(45% - ' + spriteSize / 2 + 'px)' : 'calc(25% - ' + spriteSize / 2 + 'px)',
+            bottom: 'calc(45% - ' + spriteSize / 2 + 'px)',
             duration: 1.4,
             scale: .8,
             delay: 0,
@@ -811,7 +813,7 @@ function animateSpriteOnTarget(
         width: spriteSize + 'px',
         height: spriteSize + 'px',
         left: target.getBoundingClientRect().left + target.getBoundingClientRect().width / 2 - (spriteSize / 2),
-        bottom: '50%',
+        bottom: 'calc(45% - ' + spriteSize / 2 + 'px)',
         //bottom: source === 'ally' ? '35%' : '15%',
         opacity: 1,
         visibility: 'visible',
@@ -862,6 +864,7 @@ function animateSpriteDash(
                 target.getBoundingClientRect().left - initiator.getBoundingClientRect().width * 2 / 3 :
                 target.getBoundingClientRect().right - initiator.getBoundingClientRect().width * 2 / 3,
             //bottom: source === 'ally' ? '35%' : '15%',
+            bottom: '50%',
             duration: .4
         }
     ).set(spriteFx, {
@@ -873,6 +876,7 @@ function animateSpriteDash(
         height: spriteSize + 'px',
         left: target.getBoundingClientRect().right - target.getBoundingClientRect().width / 2 - (192 * scale / 2),
         bottom: source === 'ally' ? '35%' : '15%',
+        //bottom: '50%',
         scale: scale,
         opacity: 1,
         visibility: 'visible',
@@ -903,7 +907,7 @@ function animateSpriteDash(
 
     if (afterEffect !== undefined) {
         tl.set(spriteFx, {
-            background: 'url(src/assets/battle/fx/elements/water.png)',
+            background: 'url(src/assets/battle/fx/elements/'+afterEffect+'.png)',
             backgroundRepeat: 'no-repeat',
             backgroundPosition: '0 0',
             backgroundSize: 'cover',
@@ -911,6 +915,7 @@ function animateSpriteDash(
             height: spriteSize + 'px',
             left: target.getBoundingClientRect().right - target.getBoundingClientRect().width / 2 - (192 * scale / 2),
             bottom: source === 'ally' ? '35%' : '15%',
+            //bottom: '50%',
             scale: 1,
             opacity: 1,
             visibility: 'visible',
@@ -928,6 +933,7 @@ function animateSpriteDash(
                 window.innerWidth * 0.25 - target.getBoundingClientRect().width / 2
                 : window.innerWidth * 0.75 - target.getBoundingClientRect().width / 2,
             //bottom: source === 'ally' ? '15%' : '35%',
+            bottom: '50%',
             duration: .3,
             delay: .1
         }
@@ -963,6 +969,7 @@ function getAfterEffect(move: Move) {
             afterEffect = undefined;
             break;
     }
+    console.log(move.type, afterEffect);
     return afterEffect;
 }
 
