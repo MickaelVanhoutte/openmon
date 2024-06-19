@@ -894,7 +894,7 @@
 		gap: 4%;
 		display: flex;
 		flex-direction: column;
-		z-index: 2;
+		z-index: 8;
 		transform: skew(-15deg);
 		transition: transform 0.5s ease-in-out;
 

@@ -45,37 +45,6 @@ export function animateRun(target: HTMLImageElement, source: 'ally' | 'opponent'
         .play();
 }
 
-// testing
-export function animateMove2(
-    move: Move,
-    source: 'ally' | 'opponent',
-    target: HTMLImageElement,
-    initiator: HTMLImageElement,
-    scene: HTMLImageElement,
-    spriteFx: HTMLDivElement,
-    fx: HTMLImageElement[]) {
-    return animateSpriteToTarget(move, source, target, initiator, scene, spriteFx, 'waterdrop-sprite', 3, 192);
-    // animateContactSprite(move, source, target, initiator, scene, spriteFx, 'impact-sprite', 4, 192, 1, 1);
-    //animateContact(move, source, target, initiator, scene, [fx[0]], ['foot']);
-    //animateContact(move, source, target, initiator, scene, [fx[0]], ['fist']);
-    //animateContact(move, source, target, initiator, scene, [fx[0]], ['leftchop']); // todo, animate as sprite
-    //animateContact(move, source, target, initiator, scene, [fx[0]], ['impact']);
-    //animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'shadowball-sprite', 6, 192);
-    //animateSpriteDistance(move, source, target, initiator, scene, spriteFx, 'ice-sprite', 6, 192);
-    //animateContactSprite(move, source, target, initiator, scene, spriteFx, 'crunch-sprite', 6, 192, .4, 2);
-    //animateContactSprite(move, source, target, initiator, scene, spriteFx, 'slash-sprite', 6, 192,1, 1); // todo improve slash sprite
-    //animateContactSprite(move, source, target, initiator, scene, spriteFx, 'claws-sprite', 5, 192,.8, 1); // todo fix claws sprite
-    //animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'fire-sprite', 8, 192);
-    //animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'poison-sprite', 9, 192);
-    //animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'rock-sprite', 7, 192);
-    //animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'shadowball-sprite', 6, 192);
-    //animateSpriteDistance(move, source, target, initiator, scene, spriteFx, 'thunderball-sprite', 6, 192);
-    //animateSpriteDistance(move, source, target, initiator, scene, spriteFx, 'thunder-sprite', 6, 192);
-    //animateSpriteDistance(move, source, target, initiator, scene, spriteFx, 'vines-sprite', 6, 192);
-    //animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'water-sprite', 8, 192);
-    //animateSpriteFrom(move, source, target, initiator, scene, spriteFx, 'wind-sprite', 8, 192);
-}
-
 export function animateMove(
     move: Move,
     source: 'ally' | 'opponent',
@@ -85,6 +54,7 @@ export function animateMove(
     spriteFx: HTMLDivElement,
     fx: HTMLImageElement[]): gsap.core.Timeline | Promise<gsap.core.Timeline> {
 
+        //return animateBeam(move, source, target, initiator, scene, spriteFx);
     switch (move.name) {
 
         // contact moves
@@ -558,7 +528,8 @@ function animateSpriteFromTarget(
         width: spriteSize + 'px',
         height: spriteSize + 'px',
         left: target.getBoundingClientRect().left + target.getBoundingClientRect().width / 2 - (192 / 2),
-        bottom: '50%',//source === 'ally' ? '35%' : '15%',
+        //bottom: '50%',//source === 'ally' ? '35%' : '15%',
+        top: initiator.getBoundingClientRect().bottom - initiator.getBoundingClientRect().height / 2 - 192 / 2,
         filter: 'hue-rotate(' + angle + 'deg)',
         opacity: 1,
         visibility: 'visible',
@@ -584,8 +555,9 @@ function animateSpriteFromTarget(
         delay: .1,
     })
         .to(spriteFx, {
-            left: initiator.getBoundingClientRect().left + initiator.getBoundingClientRect().width / 2 - (spriteSize / 2),
-            bottom: '50%',//source === 'ally' ? '15%' : '35%',
+            left: target.getBoundingClientRect().left + target.getBoundingClientRect().width / 2 - (spriteSize / 2),
+            //bottom: '50%',//source === 'ally' ? '15%' : '35%',
+            top: target.getBoundingClientRect().bottom - target.getBoundingClientRect().height / 2 - 192 / 2,
             ease: 'expo.in',
             duration: .5,
         })
@@ -618,10 +590,10 @@ function animateBeam(
         .set(spriteFx, {
             background: 'url(src/assets/battle/fx/beam.png)',
             left: source === 'ally' ?
-                initiator.getBoundingClientRect().right - 20 :
-                initiator.getBoundingClientRect().left + 20,
-            top: source === 'ally' ? initiator.getBoundingClientRect().bottom - initiator.getBoundingClientRect().height / 2 - 192 / 2 :
-                -(initiator.getBoundingClientRect().bottom - initiator.getBoundingClientRect().height / 2 - 192 / 2),
+                initiator.getBoundingClientRect().right - (spriteSize / 2) :
+                initiator.getBoundingClientRect().left + spriteSize / 2,
+            //top: initiator.getBoundingClientRect().bottom - initiator.getBoundingClientRect().height / 2 - 192 / 2,
+            bottom: source === 'ally' ? 'calc(40% - ' + spriteSize / 2 + 'px)' : 'calc(45% + ' + spriteSize / 2 + 'px)' ,
             //bottom: '50%',
             opacity: 1,
             backgroundRepeat: 'no-repeat',
@@ -741,8 +713,7 @@ function animateSpriteToTarget(
         left: source === 'ally' ?
             initiator.getBoundingClientRect().right - spriteSize / 2 :
             initiator.getBoundingClientRect().left + spriteSize / 2,
-        bottom: 'calc(45% - ' + spriteSize / 2 + 'px)',
-        //bottom: '50%',
+        bottom: source === 'ally' ? 'calc(40% - ' + spriteSize / 2 + 'px)' : 'calc(45% + ' + spriteSize / 2 + 'px)' ,
         opacity: 1,
         filter: 'hue-rotate(' + angle + 'deg)',
         height: spriteSize + 'px',
@@ -760,7 +731,6 @@ function animateSpriteToTarget(
             left: source === 'ally' ?
                 target.getBoundingClientRect().right - target.getBoundingClientRect().width / 2 - spriteSize / 2 :
                 target.getBoundingClientRect().left + target.getBoundingClientRect().width / 2 - spriteSize / 2,
-            //bottom:  '50%',//source === 'ally' ? 'calc(45% - ' + spriteSize / 2 + 'px)' : 'calc(25% - ' + spriteSize / 2 + 'px)',
             bottom: 'calc(45% - ' + spriteSize / 2 + 'px)',
             duration: 1.4,
             scale: .8,

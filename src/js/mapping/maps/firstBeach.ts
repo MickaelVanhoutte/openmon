@@ -561,7 +561,7 @@ const npcs = [
         undefined,
         undefined,
         true
-    )
+    ),
 
     new NPC(4, "NPC4", 2, new Position(98, 58), 'down', 'MALE', [112, 114], undefined,
         new Script(
