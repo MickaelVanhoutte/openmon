@@ -92,7 +92,7 @@
 
 <div class="pokedex" in:slide={{ duration: 500, delay: 100, axis: 'x', easing: backInOut }}
 out:fade>
-	<div class="row head">
+	<!-- <div class="row head">
 		<div class="col-2 back">
 			<button on:click={() => context.overWorldContext.closeMenu(MenuType.POKEDEX)}>
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
@@ -167,9 +167,9 @@ out:fade>
 					</button>
 				</div>
 			{/each}
-		</div> 
+		</div>  -->
 
-		<!-- <div style="display: flex; flex-wrap: wrap;overflow-y: scroll;overflow-x: hidden;height: 100dvh;">
+		<div style="display: flex; flex-wrap: wrap;overflow-y: scroll;overflow-x: hidden;height: 100dvh;">
 			{#each filtered as pokemon}
 				<div style="position:relative; min-height:25dvh; width: calc(100% / 3); overflow:hidden; box-sizing:border-box; height: auto; border: 1px solid black;
 				background: linear-gradient(
@@ -198,12 +198,12 @@ out:fade>
 						src={`src/assets/monsters/static/${('00' + pokemon?.id).slice(-3)}b.png`}
 					/>
 					<span style="position: absolute; bottom:4px; left: 50%;
-					transform: translate(-50%, 0%); font-size:12px; color: black">{pokemon.regionalId} {pokemon.id}</span>
+					transform: translate(-50%, 0%); font-size:16px; color: black">{pokemon.regionalId} {pokemon.id}</span>
 				</div>
 			{/each}
-		</div> -->
+		</div>
 	</div>
-</div>
+<!-- </div> -->
 
 {#if detailOpened}
 	<PokedexDetail pokemon={selectedPokemon} bind:filtered bind:selectedIdx bind:detailOpened />

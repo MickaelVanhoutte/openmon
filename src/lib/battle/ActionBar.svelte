@@ -29,8 +29,8 @@
 
 	let currentMessage: String | undefined;
 	let disabled = false;
-	let selectedMoveIdx = 0;
-	let selectedOptionIdx = 0;
+	let selectedMoveIdx: number | undefined = undefined;
+	let selectedOptionIdx: number | undefined = undefined;
 	let combo = false;
 	let currentCombo: { pokemon: PokemonInstance; move: MoveInstance } | undefined = undefined;
 	let changePokemon = false;
@@ -270,19 +270,36 @@
 		) {
 			if (e.key === 'ArrowUp') {
 				if (moveOpened) {
+					
+					if(selectedMoveIdx === undefined) {
+						selectedMoveIdx = 0;
+					}
+
 					selectedMoveIdx =
 						selectedMoveIdx === 0 ? battleCtx.playerPokemon.moves.length - 1 : selectedMoveIdx - 1;
 				} else {
+					if(selectedOptionIdx === undefined) {
+						selectedOptionIdx = 0;
+					}
+
 					selectedOptionIdx = selectedOptionIdx === 0 ? 3 : selectedOptionIdx - 1;
 				}
 			} else if (e.key === 'ArrowDown') {
+
+				if(selectedMoveIdx === undefined) {
+					selectedMoveIdx = 0;
+				}
+
 				if (moveOpened) {
 					selectedMoveIdx =
 						selectedMoveIdx === battleCtx.playerPokemon.moves.length - 1 ? 0 : selectedMoveIdx + 1;
 				} else {
+					if(selectedOptionIdx === undefined) {
+						selectedOptionIdx = 0;
+					}
 					selectedOptionIdx = selectedOptionIdx === 3 ? 0 : selectedOptionIdx + 1;
 				}
-			} else if (e.key === 'Enter') {
+			} else if (e.key === 'Enter' && selectedMoveIdx !== undefined) {
 				if (moveOpened) {
 					launchMove(selectedMoveIdx, battleCtx.playerPokemon.moves[selectedMoveIdx]);
 				} else {

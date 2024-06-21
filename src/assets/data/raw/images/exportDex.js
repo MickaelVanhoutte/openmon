@@ -1,8 +1,8 @@
 import fs from "fs";
-import ids from '../dex/pokemon-ids.json' assert {type: 'json'};
+import pokedex from '../../final/beta/pokedex-animatedV3.json' assert {type: 'json'};
 
-ids.forEach((id, index) => {
-    let number = ("00" + id).slice(-3);
+pokedex.forEach((pokemon, index) => {
+    let number = ("00" + pokemon.regionalId).slice(-3);
     let folder = '/Users/perso/workspace/perso/Pokemon/assets/images/' + number;
     let normalFile = folder + '.png';
     let galarFile = folder + '-Galar.png';
@@ -11,11 +11,13 @@ ids.forEach((id, index) => {
 
     let newNumber = ("00" + (index + 1)).slice(-3);
 
-    if (fs.existsSync(hisuiFile) && number !== '215' && number !== '724') {
+console.log('number', number, pokemon.region);
+
+    if (pokemon.region === 'hisuian' && fs.existsSync(hisuiFile)) {
         fs.copyFileSync(hisuiFile, '/Users/perso/workspace/perso/openmon/src/assets/monsters/pokedex/' + newNumber + '.png');
-    }else if (fs.existsSync(galarFile)) {
+    } else if (pokemon.region === 'galarian' && fs.existsSync(galarFile)) {
         fs.copyFileSync(galarFile, '/Users/perso/workspace/perso/openmon/src/assets/monsters/pokedex/' + newNumber + '.png');
-    } else if (fs.existsSync(alolanFile)) {
+    } else if (pokemon.region === 'alolan' && fs.existsSync(alolanFile)) {
         fs.copyFileSync(alolanFile, '/Users/perso/workspace/perso/openmon/src/assets/monsters/pokedex/' + newNumber + '.png');
     } else if (fs.existsSync(normalFile)) {
         fs.copyFileSync(normalFile, '/Users/perso/workspace/perso/openmon/src/assets/monsters/pokedex/' + newNumber + '.png');

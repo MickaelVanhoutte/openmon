@@ -161,14 +161,24 @@
 							: battleCtx?.opponentPokemon.sprites?.male?.front.frame1) ||
 						'src/assets/monsters/bw/0.png';
 					opponent.onload = () => {
-						let scale = .6;
+						let pkmnHeight = battleCtx?.opponentPokemon.height;
+	
+						let imgHeight = opponent.naturalHeight;
+						let screenHeight = window.innerHeight/ 3.5;
+						let scale = Math.min(imgHeight / screenHeight, .7);
+						//let scale = .6//Math.min(Math.floor(imgHeight/ screenHeight * pkmnHeight), 6);
+						console.log({pkmnHeight, imgHeight, screenHeight, scale, });
+						// let scale = Math.floor((screenHeight/imgHeight));
+
+
+						//let scale = .6;
 						//let scale = Math.min(battleCtx?.opponentPokemon.height / 4, 1);
 						//let scale = Math.max(Math.min(battleCtx?.opponentPokemon.height / 3, .6), 0.4);
 						//let scale = Math.max(Math.min(opponent.naturalHeight / 200, 0.9), 0.1);
 						//console.log(battleCtx?.opponentPokemon.name, opponent.naturalHeight / 100, scale);
-						console.log('opponent', scale, opponent.naturalHeight);
-						opponent.style.transform = 'scale(' + scale + ') translateY(50%)';
-						opponent.style.setProperty('--scale', scale + '');
+						// console.log('opponent', scale, opponent.naturalHeight);
+						 opponent.style.transform = 'scale(' + scale + ')';
+						 opponent.style.setProperty('--scale', scale + '');
 						opponent.style.setProperty('--width', opponent.naturalWidth + 'px');
 						opponent.style.setProperty('--height', opponent.naturalHeight + 'px');
 						gifsWrapper.appendChild(opponent);
@@ -190,13 +200,27 @@
 						'src/assets/monsters/bw/0.png';
 
 					ally.onload = () => {
-						let scale = .65;
+
+						let pkmnHeight = battleCtx?.playerPokemon.height;
+						console.log('pkmnHeight', pkmnHeight);
+						let imgHeight = ally.naturalHeight;
+						let screenHeight = window.innerHeight / 3.5;
+						let scale = Math.min(imgHeight / screenHeight, .7);
+						//let scale = .65//Math.min(Math.floor(imgHeight / screenHeight * pkmnHeight), 6);
+						console.log({pkmnHeight, imgHeight, screenHeight, scale, });
+						//let imgHeight = ally.naturalHeight;
+						//let screenHeight = Math.min(window.innerHeight, 500 ) * 2 / 3;
+						// calculate scale but respect the image height 
+						
+
+						//let scale = Math.floor((screenHeight/imgHeight));
+						//let scale = .65;
 						//let scale = Math.min(battleCtx?.playerPokemon.height / 4, 1);
 						//let scale = Math.max(Math.min(ally.naturalHeight / 200, 1), 0.2);
 						//let scale = Math.max(Math.min(battleCtx?.playerPokemon.height / 3, .7), 0.4);
 						//console.log(battleCtx?.playerPokemon.name, ally.naturalHeight / 100, scale);
-						console.log('ally', scale, ally.naturalHeight);
-						ally.style.transform = 'scale(' + scale + ') translateY(65%)';
+						//console.log('ally', scale, ally.naturalHeight);
+						ally.style.transform = 'scale(' + scale + ')';
 						ally.style.setProperty('--scale', scale + '');
 						ally.style.setProperty('--width', ally.naturalWidth + 'px');
 						ally.style.setProperty('--height', ally.naturalHeight + 'px');
@@ -404,11 +428,15 @@
 		position: absolute;
 		display: block;
 		z-index: 8;
+		// max-width: calc(100dvw / 5);
+		// max-height: 80%;
+		// height: auto;
+		image-rendering: pixelated;
 		height: 100%;
 		width: auto;
-		transform: scale(var(--scale)) translateY(62%);
+		transform: scale(var(--scale));
 		transform-origin: bottom left;
-		bottom: 50%;
+		bottom: 20%;
 		left: 0;
 		animation: impatience 8s infinite;
 		animation-delay: 1.5s;
@@ -432,9 +460,9 @@
 		z-index: 7;
 		height: 100%;
 		width: auto;
-		transform: scale(var(--scale))  translateY(59%);
+		transform: scale(var(--scale));
 		transform-origin: bottom left;
-		bottom: 50%;
+		bottom: 35%;
 		left: 0;
 		animation: impatience 8s infinite;
 		animation-delay: 1.6s;
@@ -445,9 +473,13 @@
 		z-index: 7;
 		height: 100%;
 		width: auto;
+		// max-width: calc(100dvw / 5);
+		// max-height: 80%;
+		// height: auto;
+		image-rendering: pixelated;
 		transform: scale(var(--scale))  translateY(50%);
 		transform-origin: bottom left;
-		bottom: 50%;
+		bottom: 35%;
 		left: 0;
 		animation: impatience 8s infinite;
 		animation-delay: 2s;

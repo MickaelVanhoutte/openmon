@@ -28,15 +28,26 @@ const typeById = {
 
 function exportPokemons() {
 
-    let pIds = ids.map(id => Number(id));
-    let pokemons = pokedex.filter(p => ids.includes(Number(p.id)));
+    let pIds = ids.map(id => id.split('-')[0]).map(id => Number(id));
+    let pokemons = pokedex.filter(p => pIds.includes(Number(p.id)));
     let moveAss = moveAssociations;
     let xp = pokemonWithXp;
     let species = pokemonSpecies;
     let result = [];
 
-    pIds.forEach((id, index) => {
-        let pokemon = pokemons.find((p) => Number.parseInt(p.id) === id);
+    ids.forEach((id, index) => {
+        let type = id.split('-')[1] || 'normal';
+        if(type === 'h'){
+            type = 'hisuian';
+        }else if(type === 'a'){
+            type = 'alolan';
+        }else if(type === 'g'){
+            type = 'galarian';
+        }
+        let number = Number(id.split('-')[0]);
+
+        
+        let pokemon = pokemons.find((p) => Number.parseInt(p.id) === number);
         let moves = moveAss.filter((move) => Number.parseInt(move.pokemon_id) === pokemon.id) || [];
         let xpData = xp.find((p) => p.id === pokemon.id);
         let pokedexNumber = ("00" + pokemon.id).slice(-3);
@@ -69,7 +80,7 @@ function exportPokemons() {
             let entry = {
                 id: Number(newNumber),
                 regionalId: Number(pokedexNumber),
-                
+                region: type,
                 name: pokemon.name.english,
                 types: pokemon.type.map((type) => type.toLowerCase()),
                 abilities: pokemon.profile.ability.map((ability) => ability[0]),
@@ -112,12 +123,12 @@ function exportPokemons() {
                 sprites: {
                     male: {
                         front: {
-                            frame1: `src/assets/monsters/static/${''+ newNumber}.png`,
-                            shiny1: `src/assets/monsters/static/${''+ newNumber}s.png`,
+                            frame1: `src/assets/monsters/animated/${''+ newNumber}.gif`,
+                            shiny1: `src/assets/monsters/animated/${''+ newNumber}s.gif`,
                         },
                         back: {
-                            frame1: `src/assets/monsters/static/${''+ newNumber}b.png`,
-                            shiny1: `src/assets/monsters/static/${''+ newNumber}sb.png`,
+                            frame1: `src/assets/monsters/animated/${''+ newNumber}b.gif`,
+                            shiny1: `src/assets/monsters/animated/${''+ newNumber}sb.gif`,
                         },
                     }
                 }
