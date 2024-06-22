@@ -447,7 +447,7 @@
 					img {
 						transition-delay: 0.2s;
 						width: auto;
-						max-height: 80%;
+						height: 50%;
 						margin: auto;
 					}
 				}
