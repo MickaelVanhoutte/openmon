@@ -672,7 +672,7 @@ out:fade>
 					}
 
 					img {
-						height: 90%;
+						max-height: 90%;
 					}
 
 					&.selected {

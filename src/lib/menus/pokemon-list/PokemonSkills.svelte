@@ -163,7 +163,7 @@
 
 					img {
 						width: auto;
-						max-height: 80%;
+						height: 50%;
 						margin: auto;
 					}
 				}

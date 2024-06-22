@@ -579,6 +579,7 @@
 						display: flex;
 						flex-direction: column;
 						align-items: center;
+						width: 33%;
 						//text-shadow: 2px 1px 1px black;
 					}
 

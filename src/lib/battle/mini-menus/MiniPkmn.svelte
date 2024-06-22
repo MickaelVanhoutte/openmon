@@ -417,7 +417,7 @@
 
 				img {
 					//height: calc(100% - 26px);
-                    max-height: 15dvh;
+                    height: 15dvh;
 				}
 
 				&.selected {
