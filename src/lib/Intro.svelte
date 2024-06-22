@@ -8,11 +8,12 @@
 	let horde: HTMLDivElement;
 	let sound: Howl;
 	let soundPlaying = false;
-	let all = Array.from({ length: 249 }, (_, i) => i).map((i) => ('00' + (i + 1)).slice(-3));
-	let pkmnListShuffled: number[] = fisherYates(Array.from({ length: 249 }, (_, i) => i)).slice(
-		0,
-		35
-	);
+	let all = Array.from({ length: 237 }, (_, i) => i).map((i) => ('00' + (i + 1)).slice(-3)).reverse();
+	let pkmnListShuffled: number[] = [...all].map((i) => parseInt(i));
+	// let pkmnListShuffled: number[] = fisherYates(Array.from({ length: 249 }, (_, i) => i)).slice(
+	// 	0,
+	// 	35
+	// );
 
 	let loaded = false;
 	let animationFinished = false;
