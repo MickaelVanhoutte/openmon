@@ -171,34 +171,36 @@ out:fade>
 
 		<div style="display: flex; flex-wrap: wrap;overflow-y: scroll;overflow-x: hidden;height: 100dvh;">
 			{#each filtered as pokemon}
-				<div style="position:relative; min-height:25dvh; width: calc(100% / 3); overflow:hidden; box-sizing:border-box; height: auto; border: 1px solid black;
+				<div style="position:relative; min-height:25dvh; width: calc(100% / 9); overflow:hidden; box-sizing:border-box; height: auto; border: 1px solid black;
 				background: linear-gradient(
     to bottom,
     {typeChart[pokemon.types[0]].color} 0%,
 	{typeChart[pokemon.types[0]].color} 50%,
 	 {typeChart[pokemon.types[1]]?.color || typeChart[pokemon.types[0]].color} 50%,
 	 {typeChart[pokemon.types[1]]?.color || typeChart[pokemon.types[0]].color} 100%
-  );">
-				 <img
+  );"
+  class:hide={pokemon.types.includes('')}
+  >
+				 <!-- <img
 						style="width: 100%; opacity: 0.1" 
 						src={`src/assets/monsters/pokedex/${('00' + pokemon?.id).slice(-3)}.png`}
-					/> 
+					/>  -->
 
 					 <img
-						style="position: absolute; top: 0; left: 0; filter: brightness(1); opacity: .8;"
+						style="position: absolute; top: 0; left: 0; filter: brightness(1); opacity: .3;"
 						src={`src/assets/monsters/walking/${('00' + pokemon?.id).slice(-3)}.png`}
 					/> 
 
 					<img
-						style="width: 80%; height:auto; position: absolute; top: 50%; left: 25%; z-index:2; transform:translate(-50%, -50%); filter: brightness(1);"
-						src={`src/assets/monsters/static/${('00' + pokemon?.id).slice(-3)}.png`}
+						style="width: auto; height:80%; position: absolute; top: 50%; left: 50%; z-index:2; transform:translate(-50%, -50%); filter: brightness(1);"
+						src={`src/assets/monsters/animated/${('00' + pokemon?.id).slice(-3)}.gif`}
 					/>
-					<img
-						style="width: 80%; height:auto; position: absolute; top: 50%; left: 66%; opacity:.7; z-index:1; transform:translate(-50%, -50%); filter: brightness(1);"
-						src={`src/assets/monsters/static/${('00' + pokemon?.id).slice(-3)}b.png`}
-					/>
+					<!-- <img
+						style="width: auto; height:60%; position: absolute; top: 50%; left: 66%; opacity:.7; z-index:1; transform:translate(-50%, -50%); filter: brightness(1);"
+						src={`src/assets/monsters/animated/${('00' + pokemon?.id).slice(-3)}b.gif`}
+					/> -->
 					<span style="position: absolute; bottom:4px; left: 50%;
-					transform: translate(-50%, 0%); font-size:16px; color: black">{pokemon.regionalId} {pokemon.id}</span>
+					transform: translate(-50%, 0%); font-size:18px; color: white; z-index: 10; font-weight: bold; ">{pokemon.regionalId} {pokemon.id}</span>
 				</div>
 			{/each}
 		</div>
@@ -210,6 +212,13 @@ out:fade>
 {/if}
 
 <style lang="scss">
+
+	.hide {
+		img {
+		opacity: .1;
+		}
+	}
+
 	.pokedex {
 		position: absolute;
 		top: 0;

@@ -62,7 +62,7 @@ pokedex.forEach((pokemon, index) => {
         } else {
 
 
-            convertAndSave('https://play.pokemonshowdown.com/sprites/gen5/' + hisuiName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + '.gif');
+            convertAndSave('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5/' + hisuiName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + '.gif');
             converted.push(hisuiName);
         
         }
@@ -70,7 +70,7 @@ pokedex.forEach((pokemon, index) => {
             fs.copyFileSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5ani-shiny/' + hisuiName + '.gif', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 's.gif');
         } else {
 
-            convertAndSave('https://play.pokemonshowdown.com/sprites/gen5-shiny/' + hisuiName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 's.gif');
+            convertAndSave('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5-shiny/' + hisuiName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 's.gif');
 
             converted.push(hisuiName + '-shiny');
             //fs.copyFileSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5-shiny/' + hisuiName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/static/' + newNumber + 's.gif');
@@ -80,7 +80,7 @@ pokedex.forEach((pokemon, index) => {
             fs.copyFileSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5ani-back/' + hisuiName + '.gif', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 'b.gif');
         } else {
 
-            convertAndSave('https://play.pokemonshowdown.com/sprites/gen5-back/' + hisuiName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 'b.gif');
+            convertAndSave('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5-back/' + hisuiName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 'b.gif');
 
             converted.push(hisuiName + '-back');
 
@@ -91,7 +91,7 @@ pokedex.forEach((pokemon, index) => {
             fs.copyFileSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5ani-back-shiny/' + hisuiName + '.gif', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 'sb.gif');
         } else {
 
-            convertAndSave('https://play.pokemonshowdown.com/sprites/gen5-back-shiny/' + hisuiName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 'sb.gif');
+            convertAndSave('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5-back-shiny/' + hisuiName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 'sb.gif');
 
             converted.push(hisuiName + '-back-shiny');
             //fs.copyFileSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5-back-shiny/' + hisuiName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/static/' + newNumber + 'sb.gif');
@@ -102,7 +102,7 @@ pokedex.forEach((pokemon, index) => {
             fs.copyFileSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5ani/' + galarName + '.gif', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + '.gif');
         } else {
 
-            convertAndSave('https://play.pokemonshowdown.com/sprites/gen5/' + galarName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + '.gif');
+            convertAndSave('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5/' + galarName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + '.gif');
 
 
             converted.push(galarName);
@@ -113,7 +113,7 @@ pokedex.forEach((pokemon, index) => {
             fs.copyFileSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5ani-shiny/' + galarName + '.gif', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 's.gif');
         } else {
 
-            convertAndSave('https://play.pokemonshowdown.com/sprites/gen5-shiny/' + galarName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 's.gif');
+            convertAndSave('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5-shiny/' + galarName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 's.gif');
 
             converted.push(galarName + '-shiny');
             //fs.copyFileSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5-shiny/' + galarName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/static/' + newNumber + 's.gif');
@@ -123,7 +123,7 @@ pokedex.forEach((pokemon, index) => {
             fs.copyFileSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5ani-back/' + galarName + '.gif', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 'b.gif');
         } else {
             
-            convertAndSave('https://play.pokemonshowdown.com/sprites/gen5-back/' + galarName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 'b.gif');
+            convertAndSave('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5-back/' + galarName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 'b.gif');
             converted.push(galarName + '-back');
             // fs.copyFileSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5-back/' + galarName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/static/' + newNumber + 'b.gif');
         }
@@ -132,7 +132,7 @@ pokedex.forEach((pokemon, index) => {
             fs.copyFileSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5ani-back-shiny/' + galarName + '.gif', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 'sb.gif');
         } else {
             
-            convertAndSave('https://play.pokemonshowdown.com/sprites/gen5-back-shiny/' + galarName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 'sb.gif');
+            convertAndSave('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5-back-shiny/' + galarName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 'sb.gif');
             converted.push(galarName + '-back-shiny');
             //fs.copyFileSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5-back-shiny/' + galarName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/static/' + newNumber + 'sb.gif');
         }
@@ -142,7 +142,7 @@ pokedex.forEach((pokemon, index) => {
             fs.copyFileSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5ani/' + alolanName + '.gif', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + '.gif');
         } else {
             
-            convertAndSave('https://play.pokemonshowdown.com/sprites/gen5/' + alolanName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + '.gif');
+            convertAndSave('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5/' + alolanName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + '.gif');
             converted.push(alolanName);
             //fs.copyFileSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5/' + alolanName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/static/' + newNumber + '.gif');
         }
@@ -151,7 +151,7 @@ pokedex.forEach((pokemon, index) => {
             fs.copyFileSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5ani-shiny/' + alolanName + '.gif', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 's.gif');
         } else {
             
-            convertAndSave('https://play.pokemonshowdown.com/sprites/gen5-shiny/' + alolanName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 's.gif');
+            convertAndSave('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5-shiny/' + alolanName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 's.gif');
             converted.push(alolanName + '-shiny');
             // fs.copyFileSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5-shiny/' + alolanName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/static/' + newNumber + 's.gif');
         }
@@ -160,7 +160,7 @@ pokedex.forEach((pokemon, index) => {
             fs.copyFileSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5ani-back/' + alolanName + '.gif', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 'b.gif');
         } else {
            
-            convertAndSave('https://play.pokemonshowdown.com/sprites/gen5-back/' + alolanName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 'b.gif');
+            convertAndSave('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5-back/' + alolanName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 'b.gif');
 
             converted.push(alolanName + '-back');
             //fs.copyFileSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5-back/' + alolanName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/static/' + newNumber + 'b.gif');
@@ -170,7 +170,7 @@ pokedex.forEach((pokemon, index) => {
             fs.copyFileSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5ani-back-shiny/' + alolanName + '.gif', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 'sb.gif');
         } else {
             
-            convertAndSave('https://play.pokemonshowdown.com/sprites/gen5-back-shiny/' + alolanName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 'sb.gif');
+            convertAndSave('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5-back-shiny/' + alolanName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 'sb.gif');
             converted.push(alolanName + '-back-shiny');
             //fs.copyFileSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5-back-shiny/' + alolanName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/static/' + newNumber + 'sb.gif');
         }
@@ -180,7 +180,7 @@ pokedex.forEach((pokemon, index) => {
             fs.copyFileSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5ani/' + normalName + '.gif', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + '.gif');
         } else {
             
-            convertAndSave('https://play.pokemonshowdown.com/sprites/gen5/' + normalName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + '.gif');
+            convertAndSave('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5/' + normalName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + '.gif');
             converted.push(normalName);
             //fs.copyFileSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5/' + normalName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/static/' + newNumber + '.gif');
         }
@@ -189,7 +189,7 @@ pokedex.forEach((pokemon, index) => {
             fs.copyFileSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5ani-shiny/' + normalName + '.gif', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 's.gif');
         } else {
             
-            convertAndSave('https://play.pokemonshowdown.com/sprites/gen5-shiny/' + normalName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 's.gif');
+            convertAndSave('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5-shiny/' + normalName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 's.gif');
             converted.push(normalName + '-shiny');
             // fs.copyFileSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5-shiny/' + normalName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/static/' + newNumber + 's.gif');
 
@@ -199,7 +199,7 @@ pokedex.forEach((pokemon, index) => {
             fs.copyFileSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5ani-back/' + normalName + '.gif', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 'b.gif');
         } else {
             
-            convertAndSave('https://play.pokemonshowdown.com/sprites/gen5-back/' + normalName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 'b.gif');
+            convertAndSave('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5-back/' + normalName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 'b.gif');
 
             converted.push(normalName + '-back');
             //fs.copyFileSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5-back/' + normalName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/static/' + newNumber + 'b.gif');
@@ -209,7 +209,7 @@ pokedex.forEach((pokemon, index) => {
             fs.copyFileSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5ani-back-shiny/' + normalName + '.gif', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 'sb.gif');
         } else {
             
-            convertAndSave('https://play.pokemonshowdown.com/sprites/gen5-back-shiny/' + normalName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 'sb.gif');
+            convertAndSave('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5-back-shiny/' + normalName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/animated/' + newNumber + 'sb.gif');
 
             converted.push(normalName + '-back-shiny');
             //fs.copyFileSync('/Users/perso/workspace/perso/showdown/play.pokemonshowdown.com/sprites/gen5-back-shiny/' + normalName + '.png', '/Users/perso/workspace/perso/openmon/src/assets/monsters/static/' + newNumber + 'sb.gif');
@@ -238,7 +238,11 @@ console.log(converted.join('\n'));
 
 function convertAndSave(source, dest){
 
-    exec("magick "+source+" -gravity center -background none -extent `identify -format '%wx%h' "+source+"` -coalesce "+des+" ");
+    console.log('convertAndSave', source, dest);
+  
+    exec("magick -dispose 2 '"+source+"' -trim -layers TrimBounds '"+dest+"'", (error, stdout, stderr) => {
+        stderr && console.log(stderr);
+    });
 
     // convertapi.convert('gif', {
     //     Files: [source]

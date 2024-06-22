@@ -505,6 +505,7 @@
 		position: absolute;
 		top: 0;
 		left: 0;
-		filter: blur(1px);
+		//filter: blur(1px);
+		image-rendering: pixelated;
 	}
 </style>

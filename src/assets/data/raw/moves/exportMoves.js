@@ -170,9 +170,13 @@ function exportMoves() {
 
   let movesAssociationArray = [];
 
-  pokemonIds.forEach((id) => {
-    let pokemonMoves = movesAssociation.filter((move) => Number.parseInt(move.pokemon_id) === (moveIdMapping[id] || id))
-      .filter((move) => Number.parseInt(move.pokemon_move_method_id) === 1 && (Number(move.version_group_id) >= 20));
+  pokemonIds.map(id => id.split('-')[0]).map(id => Number(id)).forEach((id) => {
+    
+    let pkMappedId = moveIdMapping[id] || id;
+    let pokemonMoves = movesAssociation
+    .filter((move) => Number.parseInt(move.pokemon_id) === pkMappedId)
+      .filter((move) => Number.parseInt(move.pokemon_move_method_id) === 1);
+      pokemonMoves = [ ...new Set(pokemonMoves)] 
 
       console.log(id, pokemonMoves.length);
 

@@ -1,22 +1,27 @@
 import ids from './pokemon-ids.json' assert {type: 'json'};
-import pokedex from './pokedex.json' assert {type: 'json'};
-
+import pokedex from '../../final/beta/pokedex-animatedV3.json' assert {type: 'json'};
+import babar from 'babar';
+import blessed from 'blessed';
+import contrib from 'blessed-contrib';
 // to map of types, number of pokemons for this type 
 
-let types = ids.map(id => {
-    return pokedex.find(pokemon => pokemon.id === id);
-}).reduce((acc, pokemon) => {
+let types = 
+// ids.map(id => {
+//     return pokedex.find(pokemon => pokemon.id === id);
+// })
+pokedex
+.reduce((acc, pokemon) => {
     //console.log(pokemon.name?.english);
 
-    let type = pokemon.type[0];
+    let type = pokemon.types[0];
     if (acc[type]) {
         acc[type]++;
     } else {
         acc[type] = 1;
     }
 
-    if (pokemon.type[1]) {
-        type = pokemon.type[1];
+    if (pokemon.types[1]) {
+        type = pokemon.types[1];
         if (acc[type]) {
             acc[type]++;
         } else {
@@ -33,14 +38,25 @@ let types = ids.map(id => {
 types = Object.entries(types).sort((a, b) => a[1] - b[1]);
 
 console.log(ids?.length);
-console.log(types);
+
+let screen = blessed.screen()
+     , bar = contrib.bar(
+        { label: 'Pokemons by type'
+        , barWidth: 6
+        , barSpacing: 8
+        , xOffset: 0
+        , maxHeight: 9})
+     screen.append(bar) //must append before setting data
+     bar.setData(
+        { titles: types.map((type, idx) => type[0].substring(0, 6))
+        , data: types.map(type => type[1])})
+   screen.render()
 
 // get every pokemons with higher sp.attack than attack
 let spAttack = [];
 let attack = [];
-ids.map(id => {
-    let pk = pokedex.find(pokemon => pokemon.id === id);
-    if (pk.base.spAttack > pk.base.attack) {
+pokedex.map(pk => {
+    if (pk?.stats.specialAttack > pk?.stats.attack) {
         spAttack.push(pk);
     }else {
         attack.push(pk);
