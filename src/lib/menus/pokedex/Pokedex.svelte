@@ -23,7 +23,11 @@
 	let selectedType: string | undefined = undefined;
 
 	$: if (!detailOpened && elements?.length > 0) {
-		wrapper.scrollTop = elements[selectedIdx]?.offsetTop - 142;
+		if (selectedIdx === 0) {
+			wrapper.scrollTop = 0;
+		} else {
+			wrapper.scrollTop = elements[selectedIdx]?.offsetTop - 142;
+		}
 	}
 
 	const openDetail = () => {
@@ -90,9 +94,12 @@
 	});
 </script>
 
-<div class="pokedex" in:slide={{ duration: 500, delay: 100, axis: 'x', easing: backInOut }}
-out:fade>
-	<!-- <div class="row head">
+<div
+	class="pokedex"
+	in:slide={{ duration: 500, delay: 100, axis: 'x', easing: backInOut }}
+	out:fade
+>
+	<div class="row head">
 		<div class="col-2 back">
 			<button on:click={() => context.overWorldContext.closeMenu(MenuType.POKEDEX)}>
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
@@ -123,8 +130,8 @@ out:fade>
 				on:input={search}
 			/>
 		</div>
-	</div> 
-	 <div class="row content">
+	</div>
+	<div class="row content">
 		<div class="col-6 preview">
 			<div class="image">
 				{#if selectedPokemon?.id}
@@ -144,7 +151,7 @@ out:fade>
 				</span>
 			</div>
 		</div>
-		 <div class="col-6 list" bind:this={wrapper}>
+		<div class="col-6 list" bind:this={wrapper}>
 			{#each filtered as pokemon, index}
 				<div
 					class:selected={selectedPokemon?.id === pokemon.id}
@@ -167,9 +174,11 @@ out:fade>
 					</button>
 				</div>
 			{/each}
-		</div>  -->
+		</div>
+	</div>
+</div>
 
-		<div style="display: flex; flex-wrap: wrap;overflow-y: scroll;overflow-x: hidden;height: 100dvh;">
+<!-- <div style="display: flex; flex-wrap: wrap;overflow-y: scroll;overflow-x: hidden;height: 100dvh;">
 			{#each filtered as pokemon}
 				<div style="position:relative; min-height:25dvh; width: calc(100% / 9); overflow:hidden; box-sizing:border-box; height: auto; border: 1px solid black;
 				background: linear-gradient(
@@ -181,10 +190,10 @@ out:fade>
   );"
   class:hide={pokemon.types.includes('')}
   >
-				 <!-- <img
+				 <img
 						style="width: 100%; opacity: 0.1" 
 						src={`src/assets/monsters/pokedex/${('00' + pokemon?.id).slice(-3)}.png`}
-					/>  -->
+					/> 
 
 					 <img
 						style="position: absolute; top: 0; left: 0; filter: brightness(1); opacity: .3;"
@@ -195,27 +204,25 @@ out:fade>
 						style="width: auto; height:80%; position: absolute; top: 50%; left: 50%; z-index:2; transform:translate(-50%, -50%); filter: brightness(1);"
 						src={`src/assets/monsters/animated/${('00' + pokemon?.id).slice(-3)}.gif`}
 					/>
-					<!-- <img
+					<img
 						style="width: auto; height:60%; position: absolute; top: 50%; left: 66%; opacity:.7; z-index:1; transform:translate(-50%, -50%); filter: brightness(1);"
 						src={`src/assets/monsters/animated/${('00' + pokemon?.id).slice(-3)}b.gif`}
-					/> -->
+					/>
 					<span style="position: absolute; bottom:4px; left: 50%;
 					transform: translate(-50%, 0%); font-size:18px; color: white; z-index: 10; font-weight: bold; ">{pokemon.regionalId} {pokemon.id}</span>
 				</div>
 			{/each}
 		</div>
-	</div>
-<!-- </div> -->
+	</div> -->
 
 {#if detailOpened}
 	<PokedexDetail pokemon={selectedPokemon} bind:filtered bind:selectedIdx bind:detailOpened />
 {/if}
 
 <style lang="scss">
-
 	.hide {
 		img {
-		opacity: .1;
+			opacity: 0.1;
 		}
 	}
 
