@@ -42,8 +42,11 @@ function getNewMoves(originalPokemon, patchedPokemon) {
     if(newMoves.length === ogMoves.length){
         return [];
     }
-    //console.log('found new moves for ' + patchedPokemon.name.english + ' ' + (newMoves.length - ogMoves.length) + ' new moves');
-    result = newMoves.filter((move) => ogMoves.find(og => og.move_id === move.move_id) === undefined).map(m => {
+   // console.log('found new moves for ' + patchedPokemon.name.english + ' ' + (newMoves.length - ogMoves.length) + ' new moves');
+
+    result = newMoves.filter( 
+        move => !ogMoves.find( ogMove => move.move_id === ogMove.move_id && move.pokemon_move_method_id === ogMove.pokemon_move_method_id)
+    ).map(m => {
         return {
             name : moves.find(move => move.id === Number.parseInt(m.move_id)).identifier,
             lvl : m.level
