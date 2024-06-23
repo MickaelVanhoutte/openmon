@@ -1065,7 +1065,7 @@
       "defense": 75,
       "spAttack": 40,
       "spDefense": 80,
-      "speed": 87
+      "speed": 97
     },
     "species": "Mouse Pokémon",
     "description": "Its whiskers are essential for maintaining its balance. No matter how friendly you are, it will get angry and bite you if you touch its whiskers.",
@@ -1502,11 +1502,11 @@
     ],
     "base": {
       "HP": 75,
-      "attack": 100,
+      "attack": 110,
       "defense": 120,
       "spAttack": 25,
       "spDefense": 72,
-      "speed": 75
+      "speed": 88
     },
     "species": "Mouse Pokémon",
     "description": "Thanks to its thick claws, it’s good at climbing trees. There are plenty of Sandslash that park themselves in trees and go right to sleep.",
@@ -2640,7 +2640,7 @@
       "Poison"
     ],
     "base": {
-      "HP": 60,
+      "HP": 64,
       "attack": 55,
       "defense": 50,
       "spAttack": 40,
@@ -4349,7 +4349,7 @@
       "Fairy"
     ],
     "base": {
-      "HP": 65,
+      "HP": 68,
       "attack": 100,
       "defense": 70,
       "spAttack": 80,
@@ -5196,8 +5196,7 @@
       "french": "Spectrum"
     },
     "type": [
-      "Ghost",
-      "Poison"
+      "Ghost"
     ],
     "base": {
       "HP": 45,
@@ -5250,8 +5249,7 @@
       "french": "Ectoplasma"
     },
     "type": [
-      "Ghost",
-      "Poison"
+      "Ghost"
     ],
     "base": {
       "HP": 60,
@@ -5861,10 +5859,10 @@
       "Ghost"
     ],
     "base": {
-      "HP": 70,
-      "attack": 98,
+      "HP": 76,
+      "attack": 115,
       "defense": 110,
-      "spAttack": 50,
+      "spAttack": 30,
       "spDefense": 80,
       "speed": 45
     },
@@ -6933,7 +6931,7 @@
       "attack": 50,
       "defense": 55,
       "spAttack": 115,
-      "spDefense": 95,
+      "spDefense": 105,
       "speed": 95
     },
     "species": "Human Shape Pokémon",
@@ -7250,7 +7248,7 @@
     },
     "type": [
       "Water",
-      "Flying"
+      "Dragon"
     ],
     "base": {
       "HP": 95,
@@ -7357,12 +7355,12 @@
       "Normal"
     ],
     "base": {
-      "HP": 48,
-      "attack": 48,
-      "defense": 48,
-      "spAttack": 48,
-      "spDefense": 48,
-      "speed": 48
+      "HP": 58,
+      "attack": 58,
+      "defense": 58,
+      "spAttack": 58,
+      "spDefense": 58,
+      "speed": 58
     },
     "species": "Transform Pokémon",
     "description": "It transforms into whatever it sees. If the thing it’s transforming into isn’t right in front of it, Ditto relies on its memory—so sometimes it fails.",
@@ -8162,7 +8160,8 @@
       "french": "Minidraco"
     },
     "type": [
-      "Dragon"
+      "Dragon",
+      "Water"
     ],
     "base": {
       "HP": 41,
@@ -8216,15 +8215,16 @@
       "french": "Draco"
     },
     "type": [
-      "Dragon"
+      "Dragon",
+      "Water"
     ],
     "base": {
-      "HP": 61,
+      "HP": 86,
       "attack": 84,
-      "defense": 65,
-      "spAttack": 70,
-      "spDefense": 70,
-      "speed": 70
+      "defense": 75,
+      "spAttack": 105,
+      "spDefense": 100,
+      "speed": 92
     },
     "species": "Dragon Pokémon",
     "description": "Some say that if you see it at the start of the year, flying through the sky and twisting its body, you’ll be healthy all year long.",
@@ -10211,7 +10211,7 @@
     "base": {
       "HP": 100,
       "attack": 50,
-      "defense": 80,
+      "defense": 90,
       "spAttack": 60,
       "spDefense": 80,
       "speed": 50
@@ -12303,6 +12303,7 @@
       "french": "Corayon"
     },
     "type": [
+      "Water",
       "Ghost"
     ],
     "base": {
@@ -12315,7 +12316,14 @@
     },
     "species": "Coral Pokémon",
     "description": "In Alola, where their natural enemies Mareanie are plentiful, many Corsola have stubby branches on their heads.",
-    "evolution": {},
+    "evolution": {
+      "next": [
+        [
+          "864",
+          "Level 38"
+        ]
+      ]
+    },
     "profile": {
       "height": "0.6 m",
       "weight": "5 kg",
@@ -15688,7 +15696,7 @@
     },
     "type": [
       "Bug",
-      "Flying"
+      "Water"
     ],
     "base": {
       "HP": 80,
@@ -16438,7 +16446,7 @@
       "french": "Azurill"
     },
     "type": [
-      "Normal",
+      "Water",
       "Fairy"
     ],
     "base": {
@@ -16724,7 +16732,7 @@
     "base": {
       "HP": 75,
       "attack": 85,
-      "defense": 95,
+      "defense": 105,
       "spAttack": 35,
       "spDefense": 75,
       "speed": 50
@@ -17008,7 +17016,7 @@
       "attack": 65,
       "defense": 85,
       "spAttack": 60,
-      "spDefense": 75,
+      "spDefense": 95,
       "speed": 80
     },
     "species": "Meditate Pokémon",
@@ -17593,7 +17601,7 @@
     "base": {
       "HP": 70,
       "attack": 120,
-      "defense": 60,
+      "defense": 75,
       "spAttack": 75,
       "spDefense": 40,
       "speed": 102
@@ -17870,7 +17878,7 @@
       "Fire"
     ],
     "base": {
-      "HP": 70,
+      "HP": 75,
       "attack": 85,
       "defense": 140,
       "spAttack": 85,
@@ -18080,6 +18088,7 @@
       "french": "Kraknoix"
     },
     "type": [
+      "Bug",
       "Ground"
     ],
     "base": {
@@ -18137,7 +18146,7 @@
       "french": "Vibraninf"
     },
     "type": [
-      "Ground",
+      "Bug",
       "Dragon"
     ],
     "base": {
@@ -18191,16 +18200,16 @@
       "french": "Libégon"
     },
     "type": [
-      "Ground",
+      "Bug",
       "Dragon"
     ],
     "base": {
       "HP": 90,
-      "attack": 100,
+      "attack": 105,
       "defense": 80,
       "spAttack": 80,
       "spDefense": 80,
-      "speed": 100
+      "speed": 110
     },
     "species": "Mystic Pokémon",
     "description": "People continue to have their hearts stolen by its enchanting songs and find themselves stranded in the desert.",
@@ -19230,7 +19239,8 @@
       "french": "Milobellus"
     },
     "type": [
-      "Water"
+      "Water",
+      "Fairy"
     ],
     "base": {
       "HP": 95,
@@ -19432,15 +19442,16 @@
       "french": "Branette"
     },
     "type": [
-      "Ghost"
+      "Ghost",
+      "Dark"
     ],
     "base": {
-      "HP": 64,
+      "HP": 88,
       "attack": 115,
       "defense": 75,
       "spAttack": 83,
       "spDefense": 83,
-      "speed": 65
+      "speed": 78
     },
     "species": "Marionette Pokémon",
     "description": "Resentment at being cast off made it spring into being. Some say that treating it well will satisfy it, and it will once more become a stuffed toy.",
@@ -21723,8 +21734,8 @@
       "french": "Étouraptor"
     },
     "type": [
-      "Normal",
-      "Flying"
+      "Flying",
+      "Fighting"
     ],
     "base": {
       "HP": 85,
@@ -22112,7 +22123,8 @@
       "french": "Luxray"
     },
     "type": [
-      "Electric"
+      "Electric",
+      "Dark"
     ],
     "base": {
       "HP": 80,
@@ -29630,10 +29642,10 @@
       "Poison"
     ],
     "base": {
-      "HP": 60,
+      "HP": 70,
       "attack": 100,
       "defense": 95,
-      "spAttack": 55,
+      "spAttack": 50,
       "spDefense": 70,
       "speed": 112
     },
@@ -31966,9 +31978,9 @@
       "HP": 68,
       "attack": 75,
       "defense": 65,
-      "spAttack": 75,
+      "spAttack": 92,
       "spDefense": 65,
-      "speed": 113
+      "speed": 118
     },
     "species": "Sky Squirrel Pokémon",
     "description": "As it flies, it scatters electricity around, so bird Pokémon keep their distance. That’s why Emolga can keep all its food to itself.",
@@ -32456,7 +32468,7 @@
       "attack": 72,
       "defense": 70,
       "spAttack": 108,
-      "spDefense": 60,
+      "spDefense": 65,
       "speed": 92
     },
     "species": "EleSpider Pokémon",
@@ -42012,7 +42024,7 @@
       "Dragon"
     ],
     "base": {
-      "HP": 60,
+      "HP": 65,
       "attack": 78,
       "defense": 135,
       "spAttack": 91,
@@ -43469,7 +43481,8 @@
       "french": "Zeraora"
     },
     "type": [
-      "Electric"
+      "Electric",
+      "Fighting"
     ],
     "base": {
       "HP": 88,
@@ -46032,7 +46045,7 @@
       "Steel"
     ],
     "base": {
-      "HP": 74,
+      "HP": 84,
       "attack": 110,
       "defense": 110,
       "spAttack": 50,
@@ -46081,12 +46094,13 @@
       "french": "Corayôme"
     },
     "type": [
+      "Water",
       "Ghost"
     ],
     "base": {
       "HP": 60,
-      "attack": 95,
-      "defense": 50,
+      "attack": 85,
+      "defense": 65,
       "spAttack": 145,
       "spDefense": 130,
       "speed": 30

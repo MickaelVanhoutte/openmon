@@ -20,7 +20,7 @@ pokemons.forEach((pokemon, index) => {
     let alolanFile = folder + 'A.png';
     let alolanShinyFile = folder + 'As.png';
     
-    if (fs.existsSync(hisuiFile)) {
+    if (pokemon.region === 'hisuian' && fs.existsSync(hisuiFile)) {
         fs.copyFileSync(hisuiFile, '/Users/perso/workspace/perso/openmon/src/assets/monsters/walking/' + newId + '.png');
         if (fs.existsSync(hisuiShinyFile)) {
             console.log('copied ' + pokemon.name + ' - ' + hisuiShinyFile);
@@ -29,7 +29,7 @@ pokemons.forEach((pokemon, index) => {
             fs.copyFileSync(hisuiFile, '/Users/perso/workspace/perso/openmon/src/assets/monsters/walking/' + newId + 's.png');
         }
 
-    } else if (fs.existsSync(galarFile)) {
+    } else if (pokemon.region === 'galarian' &&  fs.existsSync(galarFile)) {
         console.log('copied ' + pokemon.name + ' - ' + galarFile);
         fs.copyFileSync(galarFile, '/Users/perso/workspace/perso/openmon/src/assets/monsters/walking/' + newId + '.png');
         if (fs.existsSync(galarShinyFile)) {
@@ -37,10 +37,18 @@ pokemons.forEach((pokemon, index) => {
         } else {
             fs.copyFileSync(galarFile, '/Users/perso/workspace/perso/openmon/src/assets/monsters/walking/' + newId + 's.png');
         }
-    } else if (fs.existsSync(alolanFile) && fs.existsSync(alolanShinyFile)) {
+    } else if (pokemon.region === 'alolan' &&  fs.existsSync(alolanFile)) {
         fs.copyFileSync(alolanFile, '/Users/perso/workspace/perso/openmon/src/assets/monsters/walking/' + newId + '.png');
         console.log('copied ' + pokemon.name + ' - ' + alolanShinyFile)
         fs.copyFileSync(alolanShinyFile, '/Users/perso/workspace/perso/openmon/src/assets/monsters/walking/' + newId + 's.png');
+
+        if ( fs.existsSync(alolanShinyFile)) {
+            fs.copyFileSync(alolanShinyFile, '/Users/perso/workspace/perso/openmon/src/assets/monsters/walking/' + newId + 's.png');
+        } else {
+            fs.copyFileSync(alolanFile, '/Users/perso/workspace/perso/openmon/src/assets/monsters/walking/' + newId + 's.png');
+        }
+
+
     } else if (fs.existsSync(normalFile) && fs.existsSync(shinyFile)) {
         console.log('copied ' + pokemon.name + ' - ' + normalFile)
         fs.copyFileSync(normalFile, '/Users/perso/workspace/perso/openmon/src/assets/monsters/walking/' + newId + '.png');

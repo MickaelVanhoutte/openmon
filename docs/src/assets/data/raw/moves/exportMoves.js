@@ -1,7 +1,7 @@
 import fs from "fs";
 import moves from "./moves.json" assert {type: "json"};
 import moveEffects from "./move-effects.json" assert {type: "json"};
-import movesAssFromJson from "./pokemon-moves.json" assert {type: "json"};
+import movesAssFromJson from "./pokemon-moves-patched.json" assert {type: "json"};
 import pokemonIds from "../dex/pokemon-ids.json" assert {type: "json"};
 
 
@@ -170,9 +170,13 @@ function exportMoves() {
 
   let movesAssociationArray = [];
 
-  pokemonIds.forEach((id) => {
-    let pokemonMoves = movesAssociation.filter((move) => Number.parseInt(move.pokemon_id) === (moveIdMapping[id] || id))
-      .filter((move) => Number.parseInt(move.pokemon_move_method_id) === 1 && (Number(move.version_group_id) >= 20));
+  pokemonIds.map(id => id.split('-')[0]).map(id => Number(id)).forEach((id) => {
+    
+    let pkMappedId = moveIdMapping[id] || id;
+    let pokemonMoves = movesAssociation
+    .filter((move) => Number.parseInt(move.pokemon_id) === pkMappedId)
+      .filter((move) => Number.parseInt(move.pokemon_move_method_id) === 1 || Number.parseInt(move.pokemon_move_method_id) === 2);
+      pokemonMoves = [ ...new Set(pokemonMoves)] 
 
       console.log(id, pokemonMoves.length);
 
@@ -196,7 +200,8 @@ function exportMoves() {
               target: targets.find((t) => t.id === moveFound.target_id).identifier,
               effect: moveEffectFound,
               effectChance: moveFound.effect_chance === '' ? 100 : moveFound.effect_chance,
-              description: moveEffectFound.short_effect
+              description: moveEffectFound.short_effect,
+              method: move.pokemon_move_method_id
             },
             level: move.level
           });
@@ -242,8 +247,7 @@ function exportMoves() {
     ));
   });
   console.log(movesAssociationArray.length);
-
-  fs.writeFile("./move-associations.json", JSON.stringify(movesAssociationArray), (error) => {
+  fs.writeFile("/Users/perso/workspace/perso/openmon/src/assets/data/final/beta/move-associations.json", JSON.stringify(movesAssociationArray), (error) => {
     // throwing the error
     // in case of a writing problem
     if (error) {
