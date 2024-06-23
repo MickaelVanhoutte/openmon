@@ -27,12 +27,12 @@ const movesCat = {
     1: 'status'
 }
 
-let cat = 2;
-let type = 12;
+let cat = 3;
+let type = 16;
 
 let movesFromJson = moves;
 //|| move.damage_class_id === 1
-movesFromJson.filter((move) => move.type_id === type && (move.damage_class_id === cat || move.damage_class_id === 1))
+movesFromJson.filter((move) => move.type_id === type && (move.damage_class_id === cat))
 .sort((a, b) => a.identifier.localeCompare(b.identifier))
 .forEach((move) => {
     console.log(move.id, move.identifier, (move.power || '/' ), move.pp, (move.accuracy || '/'));
