@@ -53,7 +53,7 @@
 					</tr>
 				</thead>
 				<tbody>
-					{#each pokemon.moves as move}
+					{#each pokemon.moves.filter(m => m.method === 1) as move}
 						<tr on:click={() => openModal(move)}>
 							<td>
 								{pokemon.viewed ? move.level : '???'}
