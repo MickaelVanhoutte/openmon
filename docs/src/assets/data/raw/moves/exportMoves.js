@@ -1,5 +1,5 @@
 import fs from "fs";
-import moves from "./moves.json" assert {type: "json"};
+import moves from "./moves-patched.json" assert {type: "json"};
 import moveEffects from "./move-effects.json" assert {type: "json"};
 import movesAssFromJson from "./pokemon-moves-patched.json" assert {type: "json"};
 import pokemonIds from "../dex/pokemon-ids.json" assert {type: "json"};
@@ -175,17 +175,17 @@ function exportMoves() {
     let pkMappedId = moveIdMapping[id] || id;
     let pokemonMoves = movesAssociation
     .filter((move) => Number.parseInt(move.pokemon_id) === pkMappedId)
-      .filter((move) => Number.parseInt(move.pokemon_move_method_id) === 1 || Number.parseInt(move.pokemon_move_method_id) === 2);
+      .filter((move) => Number.parseInt(move.pokemon_move_method_id) === 1 || Number.parseInt(move.pokemon_move_method_id) === 2 || Number.parseInt(move.pokemon_move_method_id) === 10);
       pokemonMoves = [ ...new Set(pokemonMoves)] 
 
       console.log(id, pokemonMoves.length);
 
       pokemonMoves.forEach((move) => {
         let moveFound = movesFromJson.find((m) => m.id === Number.parseInt(move.move_id));
-        let moveEffectFound = moveEffectsFromJson.find((m) => m.move_effect_id === moveFound.effect_id);
+        let moveEffectFound = moveEffectsFromJson.find((m) => m.move_effect_id === moveFound?.effect_id);
         //console.log(moveFound);
 
-        if (typeById[moveFound.type_id] && moveEffectFound) {
+        if (moveFound && typeById[moveFound.type_id] && moveEffectFound) {
           movesAssociationArray.push({
             pokemon_id: id,
             move: {

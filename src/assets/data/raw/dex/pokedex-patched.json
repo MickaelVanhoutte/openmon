@@ -6982,12 +6982,12 @@
       "Electric"
     ],
     "base": {
-      "HP": 65,
-      "attack": 83,
-      "defense": 57,
-      "spAttack": 95,
-      "spDefense": 85,
-      "speed": 105
+      "HP": 68,
+      "attack": 115,
+      "defense": 85,
+      "spAttack": 65,
+      "spDefense": 70,
+      "speed": 98
     },
     "species": "Electric Pokémon",
     "description": "While it’s often blamed for power outages, the truth is the cause of outages is more often an error on the part of the electric company.",
@@ -7039,12 +7039,12 @@
       "Fire"
     ],
     "base": {
-      "HP": 65,
-      "attack": 95,
-      "defense": 57,
-      "spAttack": 100,
+      "HP": 68,
+      "attack": 65,
+      "defense": 70,
+      "spAttack": 115,
       "spDefense": 85,
-      "speed": 93
+      "speed": 98
     },
     "species": "Spitfire Pokémon",
     "description": "The hotter the place, the better they feel. Magmar in Alola are said to be hardier than those in other areas.",
@@ -7401,12 +7401,12 @@
       "Normal"
     ],
     "base": {
-      "HP": 55,
-      "attack": 55,
-      "defense": 50,
+      "HP": 100,
+      "attack": 100,
+      "defense": 70,
       "spAttack": 45,
-      "spDefense": 65,
-      "speed": 55
+      "spDefense": 70,
+      "speed": 100
     },
     "species": "Evolution Pokémon",
     "description": "Its genes are easily influenced by its surroundings. Even its face starts to look like that of its Trainer.",
@@ -19388,12 +19388,12 @@
       "Ghost"
     ],
     "base": {
-      "HP": 44,
+      "HP": 64,
       "attack": 75,
-      "defense": 35,
-      "spAttack": 63,
-      "spDefense": 33,
-      "speed": 45
+      "defense": 45,
+      "spAttack": 60,
+      "spDefense": 43,
+      "speed": 55
     },
     "species": "Puppet Pokémon",
     "description": "There’s a proverb that says, “Shun the house where Shuppet gather in the growing dusk.”",
@@ -25457,11 +25457,11 @@
     ],
     "base": {
       "HP": 75,
-      "attack": 123,
-      "defense": 67,
-      "spAttack": 95,
-      "spDefense": 85,
-      "speed": 95
+      "attack": 65,
+      "defense": 85,
+      "spAttack": 125,
+      "spDefense": 90,
+      "speed": 105
     },
     "species": "Thunderbolt Pokémon",
     "description": "A single Electivire can provide enough electricity for all the buildings in a big city for a year.",
@@ -25508,11 +25508,11 @@
     ],
     "base": {
       "HP": 75,
-      "attack": 95,
-      "defense": 67,
-      "spAttack": 125,
-      "spDefense": 95,
-      "speed": 83
+      "attack": 125,
+      "defense": 90,
+      "spAttack": 65,
+      "spDefense": 85,
+      "speed": 105
     },
     "species": "Blast Pokémon",
     "description": "Magmortar takes down its enemies by shooting fireballs, which burn them to a blackened crisp. It avoids this method when hunting prey.",
