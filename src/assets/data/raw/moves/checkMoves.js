@@ -20,7 +20,7 @@ const typeById = {
     15: 'ice',
     16: 'dragon',
     17: 'dark',
-    18: 'dragon'
+    18: 'fairy'
 }
 
 const movesCat = {

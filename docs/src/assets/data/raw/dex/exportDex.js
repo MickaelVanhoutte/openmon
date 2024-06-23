@@ -1,5 +1,5 @@
 import ids from './pokemon-ids.json' assert {type: 'json'};
-import pokedex from './pokedex.json' assert {type: 'json'};
+import pokedex from './pokedex-patched.json' assert {type: 'json'};
 import pokemonWithXp from './poke-withXp.json' assert {type: 'json'};
 import pokemonSpecies from './species.json' assert {type: 'json'};
 import moveAssociations from '../moves/move-associations.json' assert {type: 'json'};

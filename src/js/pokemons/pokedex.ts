@@ -436,8 +436,9 @@ export class Move {
     public effectChance: number;
     public description: string;
     public level: number;
+    public method: number;
 
-    constructor(id: number, name: string, type: string, category: 'physical' | 'special' | 'no-damage', power: number, accuracy: number, pp: number, priority: number, /*target: string,*/ effect: MoveEffect, effectChance: number, description: string, level: number) {
+    constructor(id: number, name: string, type: string, category: 'physical' | 'special' | 'no-damage', power: number, accuracy: number, pp: number, priority: number, /*target: string,*/ effect: MoveEffect, effectChance: number, description: string, level: number, method: number = 1) {
         this.id = id;
         this.name = name;
         this.type = type;
@@ -451,6 +452,7 @@ export class Move {
         this.effectChance = effectChance;
         this.description = description;
         this.level = level;
+        this.method = method;
     }
 }
 
@@ -840,6 +842,6 @@ export class PokemonInstance extends PokedexEntry {
 
     private selectLatestMoves(pokedexEntry: PokedexEntry) {
         // get 4 last moves based on current level
-        return pokedexEntry.moves.filter((move) => move.level <= this.level).slice(-4).map((move) => new MoveInstance(move.id, move.name, move.type, move.category, move.power, move.accuracy, move.pp, move.priority, move.effect, move.effectChance, move.description, move.level));
+        return pokedexEntry.moves.filter((move) => move.level <= this.level && move.method === 1).slice(-4).map((move) => new MoveInstance(move.id, move.name, move.type, move.category, move.power, move.accuracy, move.pp, move.priority, move.effect, move.effectChance, move.description, move.level));
     }
 }

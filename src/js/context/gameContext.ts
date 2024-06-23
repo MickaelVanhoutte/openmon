@@ -445,7 +445,7 @@ export class GameContext {
                 currentPos.setFuturePosition(destX, destY, () => {
                     this.spawned = undefined;
                 });
-                let possiblePokes = [10, 11, 13, 14, 212, 143, 144, 160];
+                let possiblePokes = [10, 11, 13, 14, 72, 149, 165, 207];
                 // randomly select one :
                 let pokeId = possiblePokes[Math.floor(Math.random() * possiblePokes.length)];
                 let spawned = new OverworldSpawn(currentPos,

@@ -1,8 +1,8 @@
 import ids from './pokemon-ids.json' assert {type: 'json'};
-import pokedex from './pokedex.json' assert {type: 'json'};
+import pokedex from './pokedex-patched.json' assert {type: 'json'};
 import pokemonWithXp from './poke-withXp.json' assert {type: 'json'};
 import pokemonSpecies from './species.json' assert {type: 'json'};
-import moveAssociations from '../moves/move-associations.json' assert {type: 'json'};
+import moveAssociations from '/Users/perso/workspace/perso/openmon/src/assets/data/final/beta/move-associations.json' assert {type: 'json'};
 import * as fs from "fs";
 
 const typeById = {
@@ -101,6 +101,7 @@ function exportPokemons() {
                         effectChance: move.move.effectChance,
                         description: move.move.description,
                         level: Number.parseInt(move.level),
+                        method: Number.parseInt(move.move.method)
                     }
                 }),
                 stats: {
