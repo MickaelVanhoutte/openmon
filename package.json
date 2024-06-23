@@ -22,7 +22,7 @@
     "@types/howler": "^2.2.11",
     "@xyflow/svelte": "^0.1.0",
     "blessed": "^0.1.81",
-    "blessed-contrib": "^1.0.11",
+    "blessed-contrib": "^4.0.0",
     "dependency-cruiser": "^16.2.3",
     "graphviz": "^0.0.9",
     "image-size": "^1.1.1",
