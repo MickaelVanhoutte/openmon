@@ -398,9 +398,9 @@
 			</button>
 		</div>
 
-		<div class="move-desc show">
+		<div class="move-desc" >
 			<div class="wrapper">
-				<div class="_desc">
+				<div class="_desc" class:show={selectedMoveIdx !== undefined}>
 					{#if !!currentCombo}
 						<div class="head">
 							<span
@@ -440,12 +440,12 @@
 						</ul>
 					{:else}
 						<div class="head">
-							<span>Acc. {battleCtx?.playerPokemon?.moves[selectedMoveIdx].accuracy} %</span>
-							<span>Pwr. {battleCtx?.playerPokemon?.moves[selectedMoveIdx].power}</span>
+							<span>Acc. {battleCtx?.playerPokemon?.moves[selectedMoveIdx]?.accuracy} %</span>
+							<span>Pwr. {battleCtx?.playerPokemon?.moves[selectedMoveIdx]?.power}</span>
 						</div>
 						<hr />
 						<p class="desc-txt">
-							{battleCtx?.playerPokemon?.moves[selectedMoveIdx].description
+							{battleCtx?.playerPokemon?.moves[selectedMoveIdx]?.description
 								?.replaceAll(mechanicRegex, '')
 								?.replaceAll(
 									effectRegex,
@@ -454,8 +454,8 @@
 						</p>
 						<img
 							class="move-cat"
-							src={`src/assets/moves-cat/${battleCtx?.playerPokemon?.moves[selectedMoveIdx].category}.png`}
-							alt={battleCtx?.playerPokemon?.moves[selectedMoveIdx].category}
+							src={`src/assets/moves-cat/${battleCtx?.playerPokemon?.moves[selectedMoveIdx]?.category}.png`}
+							alt={battleCtx?.playerPokemon?.moves[selectedMoveIdx]?.category}
 						/>
 					{/if}
 				</div>
@@ -1252,6 +1252,12 @@
 				box-sizing: border-box;
 				position: relative;
 				overflow: hidden;
+
+				visibility: hidden;
+
+				&.show {
+					visibility: visible;
+				}
 
 				hr {
 					margin: 0.5rem 0;
