@@ -13,6 +13,8 @@
 	// search
 	// list
 
+	let showFullDexImg = true; // debug
+
 	let wrapper: HTMLDivElement;
 	let elements: HTMLElement[] = [];
 	let selectedIdx = 0;
@@ -99,7 +101,8 @@
 	in:slide={{ duration: 500, delay: 100, axis: 'x', easing: backInOut }}
 	out:fade
 >
-	<div class="row head">
+{#if showFullDexImg}
+	 <div class="row head">
 		<div class="col-2 back">
 			<button on:click={() => context.overWorldContext.closeMenu(MenuType.POKEDEX)}>
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
@@ -177,7 +180,9 @@
 		</div>
 	</div>
 
-	<!-- <div style="display: flex; flex-wrap: wrap;overflow-y: scroll;overflow-x: hidden;height: 100dvh;">
+	{:else}
+
+	 <div style="display: flex; flex-wrap: wrap;overflow-y: scroll;overflow-x: hidden;height: 100dvh;">
 		{#each filtered as pokemon}
 			<div
 				style="position:relative; height:calc(100dvw / 16); width: calc(100dvw / 16); overflow:hidden; box-sizing:border-box; height: auto; border: 1px solid black;
@@ -212,7 +217,8 @@
 				>
 			</div>
 		{/each}
-	</div> -->
+	</div> 
+	{/if}
 
 </div>
 

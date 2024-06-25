@@ -10749,7 +10749,7 @@
       ],
       "ability": [
         [
-          "speed Boost",
+          "Speed Boost",
           "false"
         ],
         [
@@ -14091,7 +14091,7 @@
           "false"
         ],
         [
-          "speed Boost",
+          "Speed Boost",
           "true"
         ]
       ],
@@ -14149,7 +14149,7 @@
           "false"
         ],
         [
-          "speed Boost",
+          "Speed Boost",
           "true"
         ]
       ],
@@ -14201,7 +14201,7 @@
           "false"
         ],
         [
-          "speed Boost",
+          "Speed Boost",
           "true"
         ]
       ],
@@ -16097,7 +16097,7 @@
       ],
       "ability": [
         [
-          "speed Boost",
+          "Speed Boost",
           "false"
         ],
         [
@@ -17574,7 +17574,7 @@
           "false"
         ],
         [
-          "speed Boost",
+          "Speed Boost",
           "true"
         ]
       ],
@@ -17626,7 +17626,7 @@
           "false"
         ],
         [
-          "speed Boost",
+          "Speed Boost",
           "true"
         ]
       ],
@@ -25639,7 +25639,7 @@
       ],
       "ability": [
         [
-          "speed Boost",
+          "Speed Boost",
           "false"
         ],
         [
@@ -29555,7 +29555,7 @@
           "false"
         ],
         [
-          "speed Boost",
+          "Speed Boost",
           "true"
         ]
       ],
@@ -29617,7 +29617,7 @@
           "false"
         ],
         [
-          "speed Boost",
+          "Speed Boost",
           "true"
         ]
       ],
@@ -29673,7 +29673,7 @@
           "false"
         ],
         [
-          "speed Boost",
+          "Speed Boost",
           "true"
         ]
       ],
@@ -37674,10 +37674,10 @@
       "Normal"
     ],
     "base": {
-      "HP": 44,
+      "HP": 54,
       "attack": 38,
-      "defense": 33,
-      "spAttack": 61,
+      "defense": 43,
+      "spAttack": 65,
       "spDefense": 43,
       "speed": 70
     },
@@ -37730,13 +37730,13 @@
     },
     "type": [
       "Electric",
-      "Normal"
+      "Fire"
     ],
     "base": {
-      "HP": 62,
+      "HP": 72,
       "attack": 55,
-      "defense": 52,
-      "spAttack": 109,
+      "defense": 66,
+      "spAttack": 110,
       "spDefense": 94,
       "speed": 109
     },
@@ -45641,11 +45641,11 @@
       "gender": "Genderless",
       "ability": [
         [
-          "Weak-armor",
+          "Weak Armor",
           "false"
         ],
         [
-          "Cursed-body",
+          "Cursed Body",
           "true"
         ]
       ]
@@ -45689,11 +45689,11 @@
       "gender": "Genderless",
       "ability": [
         [
-          "Weak-armor",
+          "Weak Armor",
           "false"
         ],
         [
-          "Cursed-body",
+          "Cursed Body",
           "true"
         ]
       ]
@@ -46066,15 +46066,15 @@
       "gender": "50.0:50.0",
       "ability": [
         [
-          "Battle-armor",
+          "Battle Armor",
           "false"
         ],
         [
-          "Tough-claws",
+          "Tough Claws",
           "false"
         ],
         [
-          "Steely-spirit",
+          "Steely Spirit",
           "true"
         ]
       ]
@@ -46119,11 +46119,11 @@
       "gender": "25.0:75.0",
       "ability": [
         [
-          "Weak-armor",
+          "Weak Armor",
           "false"
         ],
         [
-          "Perish-body",
+          "Perish Body",
           "true"
         ]
       ]
@@ -46358,7 +46358,7 @@
       "gender": "Genderless",
       "ability": [
         [
-          "Battle-armor",
+          "Battle Armor",
           "false"
         ],
         [
@@ -46943,7 +46943,7 @@
       "gender": "50.0:50.0",
       "ability": [
         [
-          "Clear-body",
+          "Clear Body",
           "false"
         ],
         [
@@ -46951,7 +46951,7 @@
           "false"
         ],
         [
-          "Cursed-body",
+          "Cursed Body",
           "true"
         ]
       ]
@@ -47002,7 +47002,7 @@
       "gender": "50.0:50.0",
       "ability": [
         [
-          "Clear-body",
+          "Clear Body",
           "false"
         ],
         [
@@ -47010,7 +47010,7 @@
           "false"
         ],
         [
-          "Cursed-body",
+          "Cursed Body",
           "true"
         ]
       ]
@@ -47055,7 +47055,7 @@
       "gender": "50.0:50.0",
       "ability": [
         [
-          "Clear-body",
+          "Clear Body",
           "false"
         ],
         [
@@ -47063,7 +47063,7 @@
           "false"
         ],
         [
-          "Cursed-body",
+          "Cursed Body",
           "true"
         ]
       ]

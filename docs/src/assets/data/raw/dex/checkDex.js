@@ -1,15 +1,9 @@
 import ids from './pokemon-ids.json' assert {type: 'json'};
 import pokedex from '../../final/beta/pokedex-animatedV3.json' assert {type: 'json'};
-import babar from 'babar';
 import blessed from 'blessed';
 import contrib from 'blessed-contrib';
-// to map of types, number of pokemons for this type 
 
-let types = 
-// ids.map(id => {
-//     return pokedex.find(pokemon => pokemon.id === id);
-// })
-pokedex
+let types = pokedex
 .reduce((acc, pokemon) => {
     //console.log(pokemon.name?.english);
 
@@ -42,13 +36,13 @@ console.log(ids?.length);
 let screen = blessed.screen()
      , bar = contrib.bar(
         { label: 'Pokemons by type'
-        , barWidth: 6
-        , barSpacing: 8
+        , barWidth: 5
+        , barSpacing: 6
         , xOffset: 0
         , maxHeight: 9})
      screen.append(bar) //must append before setting data
      bar.setData(
-        { titles: types.map((type, idx) => type[0].substring(0, 6))
+        { titles: types.map((type, idx) => type[0].substring(0, 5))
         , data: types.map(type => type[1])})
    screen.render()
 
