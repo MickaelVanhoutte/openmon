@@ -14,7 +14,15 @@
 		0,
 		35
 	);
-
+	let messages = [
+		'',
+		'Porygon is generating a digital masterpiece!',
+		'Gengar is playing tricks with the data!',
+		'Training Magikarp... this might take a while!',
+		'Slowpoke is trying to hurry... almost there!',
+		'Snorlax is waking up... slowly...',
+	];
+	let messageIdx = 0;
 	let loaded = false;
 	let animationFinished = false;
 	let ready = false;
@@ -56,6 +64,9 @@
 	}
 
 	onMount(() => {
+		setInterval(() => {
+			messageIdx = messageIdx === messages.length - 1 ? 0 : messageIdx + 1;
+		}, 2500);
 		loadSound();
 		setTimeout(() => {
 			animationFinished = true;
@@ -65,7 +76,7 @@
 					ready = true;
 				}
 			}, 300);
-		}, 9000);
+		}, 14000);
 		horde.addEventListener('click', () => {
 			if (ready) started = true;
 		});
@@ -131,7 +142,7 @@
 		{#if ready}
 			Touch to start
 		{:else}
-			Loading assets...
+			{messages[messageIdx]}
 		{/if}
 	</span>
 
@@ -452,13 +463,23 @@
 
 		.title {
 			position: absolute;
+			// top: 38%;
+			// left: 50%;
+			// transform: translateX(-50%);
+			// z-index: 100;
+			// text-align: center;
+			// margin: 0;
+			// font-size: clamp(120px, 240px, 32dvh);
+			// opacity: 0;
+
 			top: 38%;
 			left: 50%;
 			transform: translateX(-50%);
 			z-index: 100;
 			text-align: center;
 			margin: 0;
-			font-size: clamp(120px, 240px, 32dvh);
+			font-size: 3000px;
+			scale: 8;
 			opacity: 0;
 		}
 
@@ -495,11 +516,24 @@
 			-webkit-background-clip: text;
 			-webkit-text-fill-color: transparent;
 			animation:
-				fadeIn 2s ease-in-out forwards,
+				front-to-middle 6s ease-in-out forwards,
 				textclip 4s linear forwards;
-			animation-delay: 8s, 12s;
+			animation-delay: 8s, 15s;
 			display: inline-block;
 			font-weight: 900;
+		}
+
+		@keyframes front-to-middle {
+			from {
+				font-size: 3000px;
+				scale: 8;
+				opacity: 0;
+			}
+			to {
+				font-size: clamp(120px, 240px, 32dvh);
+				scale: 1;
+				opacity: 1;
+			}
 		}
 
 		@keyframes textclip {
@@ -517,10 +551,10 @@
 			font-size: 4rem;
 			color: white;
 			text-shadow: 0 0 2px #fff;
-			z-index: 120;
+			z-index: 97;
 			opacity: 0;
 			animation: blink 8s ease-in-out infinite;
-			animation-delay: 10s;
+			animation-delay: 3s;
 		}
 
 		.horde {

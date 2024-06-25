@@ -13,7 +13,7 @@
 	// search
 	// list
 
-	let showFullDexImg = true; // debug
+	let showFullDexImg = false; // debug
 
 	let wrapper: HTMLDivElement;
 	let elements: HTMLElement[] = [];
@@ -101,7 +101,7 @@
 	in:slide={{ duration: 500, delay: 100, axis: 'x', easing: backInOut }}
 	out:fade
 >
-{#if showFullDexImg}
+{#if !showFullDexImg}
 	 <div class="row head">
 		<div class="col-2 back">
 			<button on:click={() => context.overWorldContext.closeMenu(MenuType.POKEDEX)}>

@@ -27,8 +27,8 @@ const movesCat = {
     1: 'status'
 }
 
-let cat = 1;
-let type = 10;
+let cat = 2;
+let type = 13;
 
 let movesFromJson = moves;
 //|| move.damage_class_id === 1
