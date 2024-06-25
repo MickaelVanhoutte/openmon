@@ -4,8 +4,28 @@
 	import { PokedexEntry } from '../../../js/pokemons/pokedex';
 	import { backInOut } from 'svelte/easing';
 	import { slide } from 'svelte/transition';
+	import Modal from '../../common/Modal.svelte';
+	import abilities from '../../../assets/data/final/beta/abilities.json';
 
 	export let pokemon: PokedexEntry;
+	let abilityName: string;
+	let abilityDesc: string;
+	let showModal = false;
+	const mechanicRegex = /\{mechanic:.*?\}/g;
+
+
+	function openModal(ab: string): any {
+		abilityName = ab;
+		abilityDesc = abilities
+					.find((ability) => ability.names === ab)
+					?.description.replace(mechanicRegex, '')
+					.replace(/\[/g, '')
+					.replace(/\]/g, '');
+
+		showModal = true;
+	}
+
+
 </script>
 
 <div
@@ -36,7 +56,9 @@
 						<div class="abilities">
 							{#if pokemon.viewed}
 								{#each pokemon.abilities as ability}
-									<span class="ability">{ability}</span>
+									<span class="ability" on:click={() => openModal(ability)}>
+										{ability}
+									</span>
 								{/each}
 							{:else}
 								<span>???</span>
@@ -182,6 +204,17 @@
 		</div>
 	</div>
 </div>
+
+<Modal bind:showModal>
+	<h3 slot="header" style="margin: 2% 0">
+		{abilityName}
+	</h3>
+
+	<p style="margin: 0">
+		{abilityDesc}
+	</p>
+
+</Modal>
 
 <style lang="scss">
 	.row {
