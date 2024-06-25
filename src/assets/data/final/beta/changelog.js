@@ -21,7 +21,7 @@ finalDex.forEach((pokemon) => {
         ){
             changes.push({
                 id: pokemon.id,
-                name: patchedPokemon.name.french,
+                name: patchedPokemon.name.english,
                 totalStats: finalTotalStats,
                 originalTotalStats: OgTotalStats,
                 types: typesIfDifferent,
