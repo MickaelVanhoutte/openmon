@@ -19,7 +19,6 @@
 		'Porygon is generating a digital masterpiece!',
 		'Gengar is playing tricks with the data!',
 		'Training Magikarp... this might take a while!',
-		'Slowpoke is trying to hurry... almost there!',
 		'Snorlax is waking up... slowly...',
 	];
 	let messageIdx = 0;
@@ -66,7 +65,7 @@
 	onMount(() => {
 		setInterval(() => {
 			messageIdx = messageIdx === messages.length - 1 ? 0 : messageIdx + 1;
-		}, 2500);
+		}, 3000);
 		loadSound();
 		setTimeout(() => {
 			animationFinished = true;
@@ -372,6 +371,7 @@
 		z-index: 100;
 		overflow: hidden;
 		perspective: 100dvw;
+		font-size: 22px;
 
 		.sound {
 			position: absolute;
@@ -548,7 +548,8 @@
 			bottom: 28%;
 			left: 50%;
 			transform: translateX(-50%);
-			font-size: 4rem;
+			//font-size: 4rem;
+			font-size: clamp(1rem, 3dvw, 4rem);
 			color: white;
 			text-shadow: 0 0 2px #fff;
 			z-index: 97;
@@ -644,7 +645,7 @@
 			}
 			.touch {
 				bottom: 33%;
-				font-size: 2.5rem;
+				//font-size: 2.5rem;
 			}
 			.horde {
 				.sprite.pokemon {
