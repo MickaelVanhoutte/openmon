@@ -34,7 +34,7 @@ export class ExperienceCalculator {
         return entry?.experience || 0;
     }
 
-    public howMuchIGet(current: PokemonInstance, opponent: PokemonInstance, participated: number, isTrainer: boolean = false, xpShare: boolean = false) {
+    public howMuchIGet(opponent: PokemonInstance, participated: number, isTrainer: boolean = false, xpShare: boolean = false) {
         let b = opponent.baseXp;
         let l = opponent.level;
         let a = isTrainer ? 1.5 : 1;

@@ -11,12 +11,18 @@ export enum TurnPhase {
     END = 'END'
 }
 
+export enum BattleType {
+    SINGLE,
+    DOUBLE,
+    //HORDE
+}
+
 export class BattleAnimation {
     move: Move;
-    target: 'ally' | 'opponent';
-    initiator: 'ally' | 'opponent';
+    target: PokemonInstance;
+    initiator: PokemonInstance;
 
-    constructor(move: Move, target: 'ally' | 'opponent', initiator: 'ally' | 'opponent') {
+    constructor(move: Move, target: PokemonInstance, initiator: PokemonInstance) {
         this.move = move;
         this.target = target;
         this.initiator = initiator;

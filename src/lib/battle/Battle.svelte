@@ -74,15 +74,15 @@
 		if (value) {
 			if (value.move instanceof ComboMove) {
 				let move: ComboMove = value.move;
-				let animTarget = value.target === 'opponent' ? opponent : ally;
-				let animInitiator = value.initiator === 'ally' ? ally : opponent;
-				addPartner(value.target === 'opponent' ? 'ally' : 'opponent', move.pokemon2).then(
+				let animTarget = battleCtx.getPokemonSide(value.target) === 'opponent' ? opponent : ally;
+				let animInitiator = battleCtx.getPokemonSide(value.initiator) === 'ally' ? ally : opponent;
+				addPartner(battleCtx.getPokemonSide(value.target) === 'opponent' ? 'ally' : 'opponent', move.pokemon2).then(
 					(partner) => {
-						animateEntry(partner, value.target === 'opponent' ? 'ally' : 'opponent', true).then(
+						animateEntry(partner, battleCtx.getPokemonSide(value.target) === 'opponent' ? 'ally' : 'opponent', true).then(
 							() => {
 								animateMove(
 									move.move2,
-									value.initiator,
+									battleCtx.getPokemonSide(value.initiator),
 									animTarget,
 									partner,
 									scene,
@@ -91,14 +91,14 @@
 								);
 								animateMove(
 									move.move1,
-									value.initiator,
+									battleCtx.getPokemonSide(value.initiator),
 									animTarget,
 									animInitiator,
 									scene,
 									spriteFx,
 									fx
 								).then(() => {
-									animateRun(partner, value.target === 'opponent' ? 'ally' : 'opponent').then(
+									animateRun(partner, battleCtx.getPokemonSide(value.target) === 'opponent' ? 'ally' : 'opponent').then(
 										() => {
 											partner.remove();
 										}
@@ -109,9 +109,9 @@
 					}
 				);
 			} else {
-				let animTarget = value.target === 'opponent' ? opponent : ally;
-				let animInitiator = value.initiator === 'ally' ? ally : opponent;
-				animateMove(value.move, value.initiator, animTarget, animInitiator, scene, spriteFx, fx);
+				let animTarget = battleCtx.getPokemonSide(value.target) === 'opponent' ? opponent : ally;
+				let animInitiator = battleCtx.getPokemonSide(value.initiator) === 'ally' ? ally : opponent;
+				animateMove(value.move, battleCtx.getPokemonSide(value.initiator), animTarget, animInitiator, scene, spriteFx, fx);
 			}
 		}
 	});
@@ -156,12 +156,12 @@
 					// scale based on pokemon height
 
 					opponent.src =
-						(battleCtx?.opponentPokemon.isShiny
-							? battleCtx?.opponentPokemon.sprites?.male?.front.shiny1
-							: battleCtx?.opponentPokemon.sprites?.male?.front.frame1) ||
+						(battleCtx?.oppSide[0].isShiny
+							? battleCtx?.oppSide[0].sprites?.male?.front.shiny1
+							: battleCtx?.oppSide[0].sprites?.male?.front.frame1) ||
 						'src/assets/monsters/bw/0.png';
 					opponent.onload = () => {
-						let pkmnHeight = battleCtx?.opponentPokemon.height;
+						let pkmnHeight = battleCtx?.oppSide[0].height;
 	
 						let imgHeight = opponent.naturalHeight;
 						let screenHeight = window.innerHeight/ 3.5;
@@ -172,10 +172,10 @@
 
 
 						//let scale = .6;
-						//let scale = Math.min(battleCtx?.opponentPokemon.height / 4, 1);
-						//let scale = Math.max(Math.min(battleCtx?.opponentPokemon.height / 3, .6), 0.4);
+						//let scale = Math.min(battleCtx?.oppSide[0].height / 4, 1);
+						//let scale = Math.max(Math.min(battleCtx?.oppSide[0].height / 3, .6), 0.4);
 						//let scale = Math.max(Math.min(opponent.naturalHeight / 200, 0.9), 0.1);
-						//console.log(battleCtx?.opponentPokemon.name, opponent.naturalHeight / 100, scale);
+						//console.log(battleCtx?.oppSide[0].name, opponent.naturalHeight / 100, scale);
 						// console.log('opponent', scale, opponent.naturalHeight);
 						 opponent.style.transform = 'scale(' + scale + ')';
 						 opponent.style.setProperty('--scale', scale + '');
@@ -194,14 +194,14 @@
 				}
 				if (ally) {
 					ally.src =
-						(battleCtx?.playerPokemon.isShiny
-							? battleCtx?.playerPokemon.sprites?.male?.back.shiny1
-							: battleCtx?.playerPokemon.sprites?.male?.back.frame1) ||
+						(battleCtx?.playerSide[0].isShiny
+							? battleCtx?.playerSide[0].sprites?.male?.back.shiny1
+							: battleCtx?.playerSide[0].sprites?.male?.back.frame1) ||
 						'src/assets/monsters/bw/0.png';
 
 					ally.onload = () => {
 
-						let pkmnHeight = battleCtx?.playerPokemon.height;
+						let pkmnHeight = battleCtx?.playerSide[0].height;
 						console.log('pkmnHeight', pkmnHeight);
 						let imgHeight = ally.naturalHeight;
 						let screenHeight = window.innerHeight / 3.5;
@@ -215,10 +215,10 @@
 
 						//let scale = Math.floor((screenHeight/imgHeight));
 						//let scale = .65;
-						//let scale = Math.min(battleCtx?.playerPokemon.height / 4, 1);
+						//let scale = Math.min(battleCtx?.playerSide[0].height / 4, 1);
 						//let scale = Math.max(Math.min(ally.naturalHeight / 200, 1), 0.2);
-						//let scale = Math.max(Math.min(battleCtx?.playerPokemon.height / 3, .7), 0.4);
-						//console.log(battleCtx?.playerPokemon.name, ally.naturalHeight / 100, scale);
+						//let scale = Math.max(Math.min(battleCtx?.playerSide[0].height / 3, .7), 0.4);
+						//console.log(battleCtx?.playerSide[0].name, ally.naturalHeight / 100, scale);
 						//console.log('ally', scale, ally.naturalHeight);
 						ally.style.transform = 'scale(' + scale + ')';
 						ally.style.setProperty('--scale', scale + '');

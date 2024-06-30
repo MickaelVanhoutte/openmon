@@ -38,7 +38,7 @@
 
 
 	battleCtx.currentAction.subscribe((_value) => {
-		pokemon = battleCtx?.playerPokemon;
+		pokemon = battleCtx?.playerSide[0];
 		currentHp = pokemon?.currentHp || 0;
 		percent = Math.floor((currentHp * 100) / pokemon.currentStats.hp);
 		expPercent = Math.floor((pokemon?.currentXp * 100) / pokemon?.xpToNextLevel);
