@@ -1,4 +1,4 @@
-import { BattleEvents, BattleResult, TurnHistory, TurnPhase, typeChart } from "../battle/battle-model";
+import { BattleEvents, BattleResult, BattleType, TurnHistory, TurnPhase, typeChart } from "../battle/battle-model";
 import { Move, PokemonInstance } from "../pokemons/pokedex";
 import { Player } from "../characters/player";
 import { type Character } from "../characters/characters-model";
@@ -20,9 +20,14 @@ export class BattleContext {
 
     player: Player;
     opponent: PokemonInstance | Character;
-    playerPokemon: PokemonInstance;
-    opponentPokemon: PokemonInstance;
+    //playerPokemon: PokemonInstance;
+    //opponentPokemon: PokemonInstance;
 
+    playerSide: PokemonInstance[] = [];
+    oppSide: PokemonInstance[] = [];
+
+
+    battleType: BattleType;
     settings: Settings;
 
     events: BattleEvents;
@@ -30,6 +35,8 @@ export class BattleContext {
     escapeAttempts: number = 0;
     participants: Set<PokemonInstance> = new Set<PokemonInstance>();
 
+    opponentTurnActions: ActionV2Interface[] = [];
+    playerTurnActions: ActionV2Interface[] = [];
     actionStack: ActionStack = new ActionStack();
     turnCount: number = 0;
     turnHistory: TurnHistory[] = [];
@@ -45,64 +52,123 @@ export class BattleContext {
         return this.opponent instanceof PokemonInstance;
     }
 
-    constructor(player: Player, opponent: PokemonInstance | Character, settings: Settings) {
+    constructor(player: Player, opponent: PokemonInstance | Character, settings: Settings, battleType: BattleType = BattleType.SINGLE) {
         this.player = player;
         this.opponent = opponent;
         this.settings = settings;
         this.events = new BattleEvents();
+        this.battleType = battleType;
+        //this.playerPokemon = this.player.monsters.find(poke => !poke.fainted) || this.player.monsters[0];
+        //this.opponentPokemon = opponent instanceof PokemonInstance ? opponent : (opponent as Player).monsters.find(poke => !poke.fainted) || (opponent as Player).monsters[0];
+        let teamSize = 1;
+        if(battleType === BattleType.DOUBLE && opponent instanceof Player) {
+            teamSize = 2;   
+        }
 
-        this.playerPokemon = this.player.monsters.find(poke => !poke.fainted) || this.player.monsters[0];
-        this.opponentPokemon = opponent instanceof PokemonInstance ? opponent : (opponent as Player).monsters.find(poke => !poke.fainted) || (opponent as Player).monsters[0];
+        this.playerSide = this.player.monsters.filter(poke => !poke.fainted).slice(0, teamSize);
 
-        this.participants.add(this.playerPokemon);
+        if(opponent instanceof PokemonInstance) {
+            this.oppSide = [opponent];
+        }else {
+            this.oppSide = (opponent as Player).monsters.filter(poke => !poke.fainted).slice(0, teamSize);
+        }
+
+        if(this.playerSide?.length !== teamSize || this.oppSide?.length !== teamSize) {
+            throw new Error('Not enough pokemons to start the battle');
+        }
+
+        this.playerSide.forEach(poke => this.participants.add(poke));
         this.prepareNewTurn();
     }
 
-    startTurn(action: ActionV2Interface) {
+    setPlayerAction(action: ActionV2Interface) {
+        this.playerTurnActions.push(action);
+
+        if(this.playerTurnActions.length === this.playerSide.length) {
+            this.startTurn();
+        }
+    }
+
+    startTurn(){
         this.isPlayerTurn.set(false);
         this.turnCount++;
         this.turnPhases.set(TurnPhase.UPKEEP);
 
-        let opponentAction = this.selectOpponentAction();
+        this.oppSide.forEach(poke => {
+            let oppAction = this.selectOpponentAction(poke);
+            this.opponentTurnActions.push(oppAction);
+        });
 
-        // who's the fastest ?
-        let playerSpeed = this.playerPokemon.battleStats.speed;
-        let opponentSpeed = this.opponentPokemon.battleStats.speed;
+        let actions = this.sortActions(this.playerTurnActions, this.opponentTurnActions);
+        
+        this.oppSide.forEach(poke => {
+            this.addToStack(new EndTurnChecks(poke));
+        });
+        this.playerSide.forEach(poke => {
+            this.addToStack(new EndTurnChecks(poke));
+        });
 
-        // end turn actions
-        this.addToStack(new EndTurnChecks(this.opponentPokemon));
-        this.addToStack(new EndTurnChecks(this.playerPokemon));
-
-        if (action.type === ActionType.ITEM || action.type === ActionType.RUN || action.type === ActionType.SWITCH) {
-            this.addToStack(opponentAction);
-            // we pop from list, player starts first
+        actions.forEach(action => {
             this.addToStack(action);
-        } else if (playerSpeed > opponentSpeed) {
-            this.addToStack(opponentAction);
-            this.addToStack(action);
-        } else if (playerSpeed < opponentSpeed) {
-            this.addToStack(action);
-            this.addToStack(opponentAction);
-        } else {
-            // random order
-            let random = Math.random() >= 0.5;
-            if (random) {
-                this.addToStack(opponentAction);
-                this.addToStack(action);
-            } else {
-                this.addToStack(action);
-                this.addToStack(opponentAction);
-            }
-        }
-        this.turnHistory.push(new TurnHistory(this.turnCount, action.initiator, action.type, action.type === ActionType.ATTACK ?
-            action.move?.name : undefined));
-        this.turnHistory.push(new TurnHistory(this.turnCount, this.opponent, opponentAction.type, action.type === ActionType.ATTACK ?
-            opponentAction?.move?.name : undefined));
+        });
 
+        // this.turnHistory.push(new TurnHistory(this.turnCount, action.initiator, action.type, action.type === ActionType.ATTACK ?
+        //     action.move?.name : undefined));
+        // this.turnHistory.push(new TurnHistory(this.turnCount, this.opponent, opponentAction.type, action.type === ActionType.ATTACK ?
+        //     opponentAction?.move?.name : undefined));
+        this.playerTurnActions = [];
+        this.opponentTurnActions = [];
         this.turnPhases.set(TurnPhase.MAIN);
+
+        console.log('DEBUG, stack : ', this.actionStack.stack);
 
         this.executeAction(this.actionStack.pop());
     }
+
+    sortActions(playerActions: ActionV2Interface[], opponentActions: ActionV2Interface[]): ActionV2Interface[] {
+        // rules : 
+        // - run first
+        // - switch actions first, fastest first
+        // - item first, player first
+        // - attack, speed order
+        let actions: ActionV2Interface[] = [];
+
+        // Player can run only if wild
+        let playerRun = playerActions.find(action => action.type === ActionType.RUN);
+        let playerSwitches = playerActions.filter(action => action.type === ActionType.SWITCH);
+        let playerItems = playerActions.filter(action => action.type === ActionType.ITEM);
+        let playerAttacks = playerActions.filter(action => action.type === ActionType.ATTACK);
+
+        // Opponent cannot run
+        let opponentSwitches = opponentActions.filter(action => action.type === ActionType.SWITCH);
+        let opponentItems = opponentActions.filter(action => action.type === ActionType.ITEM);
+        let opponentAttacks = opponentActions.filter(action => action.type === ActionType.ATTACK);
+
+        let attacks = playerAttacks.concat(opponentAttacks);
+        let switches = playerSwitches.concat(opponentSwitches);
+        let items = playerItems.concat(opponentItems);
+
+        switches = switches.sort((a, b) => {
+            return b.initiator.battleStats.speed - a.initiator.battleStats.speed;
+        });
+        items = items.sort((a, b) => {
+            return b.initiator.battleStats.speed - a.initiator.battleStats.speed;
+        });
+        attacks = attacks.sort((a, b) => {
+            return b.initiator.battleStats.speed - a.initiator.battleStats.speed;
+        });
+
+        if(playerRun){
+            actions.push(playerRun);
+        }else {
+            actions.push(...switches);
+            actions.push(...items);
+            actions.push(...attacks);
+        }
+
+        return actions;
+    }
+
 
     /**
      * Action executions, recursive, until stack is empty
@@ -116,8 +182,6 @@ export class BattleContext {
             if (action.type === ActionType.END_CHECKS) {
                 this.turnPhases.set(TurnPhase.END);
             }
-
-            //console.log('executing ' + action?.type, action);
             action.execute(this);
 
             // TODO wait for input ? (or settings, auto/manual)
@@ -133,13 +197,13 @@ export class BattleContext {
                     sleepTime = 1000;
                     break;
                 case ActionType.XP_WIN:
-                    sleepTime = 300;
+                    sleepTime = 500;
                     break;
                 case ActionType.LEVEL_UP:
                     sleepTime = 1000;
                     break;
                 case ActionType.PLAY_ANIMATION:
-                    sleepTime = 1800;
+                    sleepTime = 2000;
                     break;
                 default:
                     break;
@@ -159,7 +223,7 @@ export class BattleContext {
     private prepareNewTurn() {
         this.turnPhases.set(TurnPhase.UPKEEP);
         this.isPlayerTurn.set(true);
-        this.currentMessage.set(`What should ${this.playerPokemon.name} do ?`);
+        this.currentMessage.set(`What will you do ?`);
     }
 
     public addToStack(action: ActionV2Interface) {
@@ -171,55 +235,66 @@ export class BattleContext {
     }
 
     // TODO : Should be in NPC (trainer extends NPC ?) class
-    private selectOpponentAction(): ActionV2Interface {
-        let random = Math.floor(Math.random() * this.opponentPokemon.moves.length);
-        let move = this.opponentPokemon.moves[random];
+    private selectOpponentAction(poke: PokemonInstance): ActionV2Interface {
+        let random = Math.floor(Math.random() * poke.moves.length);
+        let move = poke.moves[random];
         let action: ActionV2Interface;
 
         if (this.settings.difficulty === 'NORMAL') {
-            action = new Attack(move, 'ally', this.opponentPokemon);
+            // random ally pokemon
+            let randomAlly = this.playerSide[Math.floor(Math.random() * this.playerSide.length)];
+            action = new Attack(move, randomAlly, poke);
         } else {
 
-            let previousTurn = this.turnHistory.findLast((turn: TurnHistory) => turn.turn < this.turnCount && turn.initiator === this.opponentPokemon && turn.actionType === 'Attack');
+            let previousTurn = this.turnHistory.findLast((turn: TurnHistory) => turn.turn < this.turnCount && turn.initiator === poke && turn.actionType === 'Attack');
             if (previousTurn) {
                 //let previousMove = previousTurn.move;
                 // need more infos on the move (is it a stat boost...) TODO
             }
 
+            // find a move that is strong against a pokemon from playerSide
+            // check first 
+            let target = this.playerSide[0];
 
-            let matchTargetTypes = this.playerPokemon?.types.length === 2 ?
-                this.opponentPokemon.moves.find((move: Move) => move.type === this.playerPokemon.types[0] && move.power > 0) :
-                this.opponentPokemon.moves.find((move: Move) => (move.type === this.playerPokemon.types[0] || move.type === this.playerPokemon.types[1]) && move.power > 0);
+            let matchTargetTypes = target?.types.length === 2 ?
+                poke.moves.find((move: Move) => move.type === target.types[0] && move.power > 0) :
+                poke.moves.find((move: Move) => (move.type === target.types[0] || move.type === target.types[1]) && move.power > 0);
+
+            if(!matchTargetTypes && this.playerSide.length > 1) {
+                target = this.playerSide[1];
+                matchTargetTypes = target?.types.length === 2 ?
+                poke.moves.find((move: Move) => move.type === target.types[0] && move.power > 0) :
+                poke.moves.find((move: Move) => (move.type === target.types[0] || move.type === target.types[1]) && move.power > 0);
+            }
 
 
             if (this.opponent instanceof NPC) {
                 // is there a better poke to switch in based on types chart ?
-                let bestPoke = this.findBestPokemon(this.opponent.monsters, this.playerPokemon)
-                if (this.isWeakAgainst(this.opponentPokemon, this.playerPokemon) && bestPoke) {
-                    action = new Switch(bestPoke, this.opponent);
-                } else if (this.opponentPokemon.currentHp < this.opponentPokemon.stats.hp / 4 && this.havePotions(this.opponent)) {
+                let bestPoke = this.findBestPokemon(this.opponent.monsters, target)
+                if (this.isWeakAgainst(poke, target) && bestPoke) {
+                    action = new Switch(poke, bestPoke, this.opponent);
+                } else if (poke.currentHp < poke.stats.hp / 4 && this.havePotions(this.opponent)) {
                     // else if low hp && bag contains potions
                     let itemId = this.opponent.bag.getPocketByCategory(27)?.[0];
-                    action = new UseItem(itemId, this.opponentPokemon, this.opponentPokemon, this.opponent);
+                    action = new UseItem(itemId, poke, poke, this.opponent);
                 }
                 // select the best move
                 if (matchTargetTypes && matchTargetTypes.power > 0) {
-                    action = new Attack(matchTargetTypes, 'ally', this.opponentPokemon);
+                    action = new Attack(matchTargetTypes, target, poke);
                 } else {
-                    action = new Attack(move, 'ally', this.opponentPokemon);
+                    action = new Attack(move, target, poke);
                 }
 
             } else {
                 // select the best move
                 if (matchTargetTypes && matchTargetTypes.power > 0) {
-                    action = new Attack(matchTargetTypes, 'ally', this.opponentPokemon);
+                    action = new Attack(matchTargetTypes, target, poke);
                 } else {
-                    action = new Attack(move, 'ally', this.opponentPokemon);
+                    action = new Attack(move, target, poke);
                 }
 
             }
         }
-        //console.log('opponent action', action);
         return action;
     }
 
@@ -256,9 +331,9 @@ export class BattleContext {
                 return !(action.initiator === target);
             });
 
-            if (target === this.opponentPokemon) {
+            if (this.oppSide.includes(target)) {
                 this.events.opponentPokemonFaint.set(target);
-                let xp = EXPERIENCE_CHART.howMuchIGet(this.playerPokemon, target, this.participants.size, !this.isWild, this.settings.xpShare);
+                let xp = EXPERIENCE_CHART.howMuchIGet(target, this.participants.size, !this.isWild, this.settings.xpShare);
 
                 if (this.settings.xpShare) {
                     let nonParticipants = this.player.monsters.filter((monster: PokemonInstance) => !this.participants.has(monster));
@@ -282,7 +357,7 @@ export class BattleContext {
                 }
 
             } else {
-                this.events.playerPokemonFaint.set(this.playerPokemon);
+                this.events.playerPokemonFaint.set(target);
             }
 
             actions.push(new Message(target.name + ' fainted!', initiator));
@@ -293,6 +368,10 @@ export class BattleContext {
     public fromTypeChart(type1: string, type2: string): number {
         //@ts-ignore
         return typeChart[type1.toLowerCase()][type2.toLowerCase()] as number;
+    }
+
+    public getPokemonSide(pokemon: PokemonInstance): 'ally' | 'opponent' {
+        return this.playerSide.includes(pokemon) ? 'ally' : 'opponent';
     }
 
 }

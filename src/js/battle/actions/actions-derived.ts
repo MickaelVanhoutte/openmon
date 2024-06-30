@@ -30,21 +30,27 @@ export class ChangePokemon implements ActionV2Interface {
     public type: ActionType;
     public description: string;
     public initiator: PokemonInstance;
+    public target: PokemonInstance;
     public owner: Character;
 
-    constructor(initiator: PokemonInstance, owner: Character) {
+    constructor(initiator: PokemonInstance, target: PokemonInstance, owner: Character) {
         this.type = ActionType.SWITCH_EFFECT;
         this.description = 'Change the current pokemon';
         this.initiator = initiator;
+        this.target = target;
         this.owner = owner;
     }
 
     execute(ctx: BattleContext): void {
-        if (this.owner instanceof Player) {
-            ctx.playerPokemon = this.initiator;
-            ctx.participants.add(ctx.playerPokemon);
-        } else {
-            ctx.opponentPokemon = this.initiator;
+        if(this.owner instanceof Player) {
+           //replace initiator with target in  ctx.playerSide
+            let index = ctx.playerSide.findIndex((monster: PokemonInstance) => monster === this.initiator);
+            ctx.playerSide[index] = this.target;
+            ctx.participants.add(this.target);
+        }else {
+            //replace initiator with target in  ctx.opponentSide
+            let index = ctx.oppSide.findIndex((monster: PokemonInstance) => monster === this.initiator);
+            ctx.oppSide[index] = this.target;
         }
         // order to change sprite to component
         ctx.events.pokemonChange.set(this.owner);
@@ -55,10 +61,10 @@ export class ApplyEffect implements ActionV2Interface {
     public type: ActionType;
     public description: string;
     public moveEffect?: MoveEffect;
-    public target: 'opponent' | 'ally';
+    public target: PokemonInstance;
     public initiator: PokemonInstance;
 
-    constructor(moveEffect: MoveEffect, target: 'opponent' | 'ally', initiator: PokemonInstance) {
+    constructor(moveEffect: MoveEffect, target: PokemonInstance, initiator: PokemonInstance) {
         this.type = ActionType.APPLY_EFFECT;
         this.description = 'Apply Effect';
         this.moveEffect = moveEffect;
@@ -67,11 +73,10 @@ export class ApplyEffect implements ActionV2Interface {
     }
 
     execute(ctx: BattleContext): void {
-        let target = this.initiator === ctx.playerPokemon ? ctx.opponentPokemon : ctx.playerPokemon;
-        if (!target.fainted && this.moveEffect) {
-            let result = MOVE_EFFECT_APPLIER.apply(this.moveEffect, [target], this.initiator);
+        if (!this.target.fainted && this.moveEffect) {
+            let result = MOVE_EFFECT_APPLIER.apply(this.moveEffect, [this.target], this.initiator);
             if (result?.effect) {
-                target.status = result.effect;
+                this.target.status = result.effect;
             }
             if (result?.message) {
                 ctx.addToStack(new Message(result.message, this.initiator));
@@ -84,10 +89,10 @@ export class PlayAnimation implements ActionV2Interface {
     public type: ActionType;
     public description: string;
     public move: Move;
-    public target: 'opponent' | 'ally';
+    public target: PokemonInstance;
     public initiator: PokemonInstance;
 
-    constructor(move: Move, target: 'opponent' | 'ally', initiator: PokemonInstance) {
+    constructor(move: Move, target: PokemonInstance, initiator: PokemonInstance) {
         this.type = ActionType.PLAY_ANIMATION;
         this.description = 'Play Animation';
         this.move = move;
@@ -97,8 +102,8 @@ export class PlayAnimation implements ActionV2Interface {
     execute(ctx: BattleContext): void {
         ctx.events.animateAttack.set({
             move: this.move,
-            target: this.target === 'opponent' ? 'opponent' : 'ally',
-            initiator: this.initiator === ctx.playerPokemon ? 'ally' : 'opponent'
+            target: this.target,
+            initiator: this.initiator
         });
     }
 }
@@ -107,10 +112,10 @@ export class RemoveHP implements ActionV2Interface {
     public type: ActionType;
     public description: string;
     public damages: number;
-    public target: 'opponent' | 'ally';
+    public target: PokemonInstance;
     public initiator: PokemonInstance;
 
-    constructor(damages: number, target: 'opponent' | 'ally', initiator: PokemonInstance) {
+    constructor(damages: number, target: PokemonInstance, initiator: PokemonInstance) {
         this.type = ActionType.REMOVE_HP;
         this.description = 'Remove HP';
         this.damages = damages;
@@ -119,13 +124,10 @@ export class RemoveHP implements ActionV2Interface {
     }
 
     execute(ctx: BattleContext): void {
-        const target = this.target === 'opponent' ?
-            ctx.opponentPokemon :
-            ctx.playerPokemon;
+       
+        this.target.currentHp = this.target.currentHp - this.damages;
 
-        target.currentHp = target.currentHp - this.damages;
-
-        let actions = ctx.checkFainted(target, this.initiator);
+        let actions = ctx.checkFainted(this.target, this.initiator);
         if (actions) {
             actions.forEach((action: ActionV2Interface) => {
                 ctx.addToStack(action);
@@ -249,10 +251,9 @@ export class EndTurnChecks implements ActionV2Interface {
     execute(ctx: BattleContext): void {
         // end turn effects (burn, poison..)
         let actions: ActionV2Interface[] = [];
-        let opponent = this.initiator === ctx.playerPokemon ? ctx.opponentPokemon : ctx.playerPokemon;
         if (!this.initiator.fainted && this.initiator.status && this.initiator.status.when === 'end-turn') {
-            let effect = this.initiator.status.playEffect(this.initiator, opponent);
-            actions = ctx.checkFainted(this.initiator, opponent);
+            let effect = this.initiator.status.playEffect(this.initiator);
+            actions = ctx.checkFainted(this.initiator, this.initiator);
 
             if (effect?.message) {
                 actions.push(new Message(effect.message, this.initiator));
@@ -272,21 +273,23 @@ export class EndTurnChecks implements ActionV2Interface {
             ctx.battleResult.win = false;
             ctx.addToStack(new EndBattle(this.initiator));
             ctx.addToStack(new Message('You lost the battle...', this.initiator));
-        } else if (ctx.opponentPokemon.fainted && ctx.opponent instanceof NPC) {
+        } else if (!!ctx.oppSide.find(pk => pk.fainted) && ctx.opponent instanceof NPC) {
+            //@ts-ignore
+            let faintedIdx = ctx.oppSide.indexOf(ctx.oppSide.find(pk => pk.fainted));
             if (ctx.settings?.difficulty === 'NORMAL') {
                 // random non fainted
                 let nonFainted = ctx.opponent.monsters.filter((monster: PokemonInstance) => !monster.fainted);
-                ctx.opponentPokemon = nonFainted[Math.floor(Math.random() * nonFainted.length)];
+                ctx.oppSide[faintedIdx] = nonFainted[Math.floor(Math.random() * nonFainted.length)];
             } else {
                 // non fainted with best type advantage
                 let nonFainted = ctx.opponent.monsters.filter((monster: PokemonInstance) => !monster.fainted);
-                let bestTypeAdvantage = ctx.findBestPokemon(ctx.opponent.monsters, ctx.playerPokemon);
-                ctx.opponentPokemon = bestTypeAdvantage || nonFainted[Math.floor(Math.random() * nonFainted.length)];
+                let bestTypeAdvantage = ctx.findBestPokemon(ctx.opponent.monsters, ctx.playerSide[0]); // TODO should check all player side (mutualize code with battleContext)
+                ctx.oppSide[faintedIdx] = bestTypeAdvantage || nonFainted[Math.floor(Math.random() * nonFainted.length)];
             }
-            ctx.addToStack(new Message(`${ctx.opponent.name} sent out ${ctx.opponentPokemon.name}!`, ctx.opponentPokemon));
+            ctx.addToStack(new Message(`${ctx.opponent.name} sent out ${ctx.oppSide[faintedIdx].name}!`, ctx.oppSide[faintedIdx]));
             ctx.events.pokemonChange.set(ctx.opponent);
-        } else if (ctx.playerPokemon.fainted) {
-            ctx.events.playerPokemonFaint.set(ctx.playerPokemon);
+        } else if (!!ctx.playerSide.find(pk => pk.fainted)) {
+            ctx.events.playerPokemonFaint.set(ctx.playerSide.find(pk => pk.fainted));
         }
         if (actions) {
             actions.forEach((action: ActionV2Interface) => {

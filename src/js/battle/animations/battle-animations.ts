@@ -627,7 +627,7 @@ function animateBeam(
             visibility: 'hidden',
             delay: .1,
         }).set(scene, {
-            opacity: .85,
+            opacity: 1,
         })
 
     return tl.play();

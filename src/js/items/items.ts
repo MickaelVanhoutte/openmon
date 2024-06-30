@@ -19,8 +19,8 @@ export class Pokeball extends AItem {
         return !(!ctx || ctx.opponent instanceof Player);
     }
 
-    apply(target: PokemonInstance, current: PokemonInstance): ItemUsageResult {
-        if (current && target) {
+    apply(target: PokemonInstance): ItemUsageResult {
+        if (target) {
             return new ItemUsageResult(Math.random() < getCaptureRate(target, this.power));
         }
 

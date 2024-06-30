@@ -125,7 +125,7 @@
 
 	function escape() {
 		if (battleCtx) {
-			battleCtx.startTurn(new RunAway(battleCtx.playerPokemon));
+			battleCtx.setPlayerAction(new RunAway(battleCtx.playerSide[0]));
 		}
 	}
 
@@ -145,11 +145,11 @@
 		} else if (battleCtx) {
 			// TODO if currentCombo, send combo action
 			if (!!currentCombo) {
-				battleCtx.startTurn(
+				battleCtx.setPlayerAction(
 					new Attack(
 						new ComboMove(move, currentCombo.move, currentCombo.pokemon),
 						'opponent',
-						battleCtx.playerPokemon
+						battleCtx.playerSide[0]
 					)
 				);
 				infoOpened = false;
@@ -159,7 +159,7 @@
 				showAdd = false;
 				return;
 			} else {
-				battleCtx.startTurn(new Attack(move, 'opponent', battleCtx.playerPokemon));
+				battleCtx.setPlayerAction(new Attack(move, battleCtx.oppSide[0] , battleCtx.playerSide[0]));
 				moveOpened = false;
 				showAdd = false;
 			}
@@ -172,27 +172,27 @@
 
 	function sendSwitchAction(newMonster: PokemonInstance) {
 		battleSwitchOpened = false;
-		if (battleCtx?.playerPokemon) {
-			battleCtx?.startTurn(new Switch(newMonster, battleCtx.player));
+		if (battleCtx?.playerSide[0]) {
+			battleCtx?.setPlayerAction(new Switch(newMonster, battleCtx.player));
 		}
 	}
 
 	function send(pokemon: PokemonInstance) {
 		// TODO this code should be in the battle state
-		if (battleCtx && battleCtx?.playerPokemon) {
+		if (battleCtx && battleCtx?.playerSide[0]) {
 			let pkmnIndex = battleCtx.player.monsters.indexOf(pokemon);
 			// exchange 0 and pkmnIndex in the array
 			[battleCtx.player.monsters[0], battleCtx.player.monsters[pkmnIndex]] = [
 				battleCtx.player.monsters[pkmnIndex],
 				battleCtx.player.monsters[0]
 			];
-			battleCtx.playerPokemon = battleCtx.player.monsters[0];
-			battleCtx.participants.add(battleCtx.playerPokemon);
+			battleCtx.playerSide[0] = battleCtx.player.monsters[0];
+			battleCtx.participants.add( battleCtx.playerSide[0]);
 			changePokemon = false;
 			selectedOptionIdx = 0;
 			selectedMoveIdx = 0;
 			battleCtx.events.pokemonChange.set(battleCtx.player);
-			battleCtx.currentMessage.set(`What should ${battleCtx.playerPokemon.name} do?`);
+			battleCtx.currentMessage.set(`What should ${ battleCtx.playerSide[0].name} do?`);
 			//BATTLE_STATE.set(new BattleContext(battleState));
 			//battleLoopContext.allydrawn = false;
 		}
@@ -219,9 +219,9 @@
 		battleBagOpened = false;
 		let itm = context.ITEMS.getItem(result.item)?.instanciate();
 		if (result.target && battleCtx) {
-			if (itm && battleCtx && itm.doesApply(result.target, battleCtx?.playerPokemon, battleCtx)) {
-				battleCtx?.startTurn(
-					new UseItem(result.item, result.target, battleCtx.playerPokemon, battleCtx.player)
+			if (itm && battleCtx && itm.doesApply(result.target,  battleCtx.playerSide[0], battleCtx)) {
+				battleCtx?.setPlayerAction(
+					new UseItem(result.item, result.target,  battleCtx.playerSide[0], battleCtx.player)
 				);
 				overWorldCtx.closeMenu(MenuType.BAG);
 			} else {
@@ -231,13 +231,13 @@
 		} else if (
 			itm instanceof Pokeball &&
 			battleCtx &&
-			itm.doesApply(battleCtx.opponentPokemon, battleCtx.playerPokemon, battleCtx)
+			itm.doesApply(battleCtx.opponentPokemon,  battleCtx.playerSide[0], battleCtx)
 		) {
-			battleCtx?.startTurn(
+			battleCtx?.setPlayerAction(
 				new UseItem(
 					result.item,
-					battleCtx.opponentPokemon,
-					battleCtx.playerPokemon,
+					battleCtx.oppSide[0],
+					battleCtx.playerSide[0],
 					battleCtx.player
 				)
 			);
@@ -276,7 +276,7 @@
 					}
 
 					selectedMoveIdx =
-						selectedMoveIdx === 0 ? battleCtx.playerPokemon.moves.length - 1 : selectedMoveIdx - 1;
+						selectedMoveIdx === 0 ?  battleCtx.playerSide[0].moves.length - 1 : selectedMoveIdx - 1;
 				} else {
 					if(selectedOptionIdx === undefined) {
 						selectedOptionIdx = 0;
@@ -292,7 +292,7 @@
 
 				if (moveOpened) {
 					selectedMoveIdx =
-						selectedMoveIdx === battleCtx.playerPokemon.moves.length - 1 ? 0 : selectedMoveIdx + 1;
+						selectedMoveIdx ===  battleCtx.playerSide[0].moves.length - 1 ? 0 : selectedMoveIdx + 1;
 				} else {
 					if(selectedOptionIdx === undefined) {
 						selectedOptionIdx = 0;
@@ -301,7 +301,7 @@
 				}
 			} else if (e.key === 'Enter' && selectedMoveIdx !== undefined) {
 				if (moveOpened) {
-					launchMove(selectedMoveIdx, battleCtx.playerPokemon.moves[selectedMoveIdx]);
+					launchMove(selectedMoveIdx,  battleCtx.playerSide[0].moves[selectedMoveIdx]);
 				} else {
 					if (selectedOptionIdx === 0) {
 						moveOpened = true;
@@ -404,13 +404,13 @@
 					{#if !!currentCombo}
 						<div class="head">
 							<span
-								>Types: {currentCombo.move.type}, {battleCtx?.playerPokemon?.moves[selectedMoveIdx]
+								>Types: {currentCombo.move.type}, { battleCtx.playerSide[0]?.moves[selectedMoveIdx]
 									.type}</span
 							>
 							<span
 								>Pwr. {currentCombo.move.power / 2 +
-									battleCtx?.playerPokemon?.moves[selectedMoveIdx].power}
-								({currentCombo.move.power | 0} * 0.5 + {battleCtx?.playerPokemon?.moves[
+									 battleCtx.playerSide[0]?.moves[selectedMoveIdx].power}
+								({currentCombo.move.power | 0} * 0.5 + { battleCtx.playerSide[0]?.moves[
 									selectedMoveIdx
 								].power | 0})</span
 							>
@@ -428,34 +428,34 @@
 									)}
 							</li>
 							<li>
-								{battleCtx?.playerPokemon?.moves[selectedMoveIdx].effect.effect
+								{ battleCtx.playerSide[0]?.moves[selectedMoveIdx].effect.effect
 									?.replace(mechanicRegex, '')
 									?.replace(
 										effectRegex,
-										(battleCtx?.playerPokemon?.moves[selectedMoveIdx].effectChance * 1.5 > 100
+										( battleCtx.playerSide[0]?.moves[selectedMoveIdx].effectChance * 1.5 > 100
 											? 100
-											: battleCtx?.playerPokemon?.moves[selectedMoveIdx].effectChance * 1.5) + ''
+											:  battleCtx.playerSide[0]?.moves[selectedMoveIdx].effectChance * 1.5) + ''
 									)}
 							</li>
 						</ul>
 					{:else}
 						<div class="head">
-							<span>Acc. {battleCtx?.playerPokemon?.moves[selectedMoveIdx]?.accuracy} %</span>
-							<span>Pwr. {battleCtx?.playerPokemon?.moves[selectedMoveIdx]?.power}</span>
+							<span>Acc. {battleCtx?.playerSide[0]?.moves[selectedMoveIdx]?.accuracy} %</span>
+							<span>Pwr. {battleCtx?.playerSide[0]?.moves[selectedMoveIdx]?.power}</span>
 						</div>
 						<hr />
 						<p class="desc-txt">
-							{battleCtx?.playerPokemon?.moves[selectedMoveIdx]?.description
+							{battleCtx?.playerSide[0]?.moves[selectedMoveIdx]?.description
 								?.replaceAll(mechanicRegex, '')
 								?.replaceAll(
 									effectRegex,
-									battleCtx?.playerPokemon?.moves[selectedMoveIdx].effectChance + ''
+									battleCtx?.playerSide[0]?.moves[selectedMoveIdx].effectChance + ''
 								)}
 						</p>
 						<img
 							class="move-cat"
-							src={`src/assets/moves-cat/${battleCtx?.playerPokemon?.moves[selectedMoveIdx]?.category}.png`}
-							alt={battleCtx?.playerPokemon?.moves[selectedMoveIdx]?.category}
+							src={`src/assets/moves-cat/${battleCtx?.playerSide[0]?.moves[selectedMoveIdx]?.category}.png`}
+							alt={battleCtx?.playerSide[0]?.moves[selectedMoveIdx]?.category}
 						/>
 					{/if}
 				</div>
@@ -560,7 +560,7 @@
 	</button>
 
 	<div class="moves2" class:show>
-		{#each battleCtx?.playerPokemon?.moves as move, index}
+		{#each battleCtx?.playerSide[0]?.moves as move, index}
 			<button
 				class="move-btn move"
 				style="--color:{typeChart[move.type].color}; --offset: {index * 3}%"
@@ -690,7 +690,7 @@
 
 	<MiniPkmn
 		bind:context
-		bind:currentPkmn={battleCtx.playerPokemon}
+		bind:currentPkmn={battleCtx.playerSide[0]}
 		bind:type={menuType}
 		zIndex={zIndexNext}
 		onCombo={(cb) => {
@@ -725,7 +725,7 @@
 
 	<MiniBag
 		bind:context
-		bind:currentPkmn={battleCtx.playerPokemon}
+		bind:currentPkmn={battleCtx.playerSide[0]}
 		bind:battleCtx={battleCtx}
 		zIndex={zIndexNext}
 		onChange={(result) => sendObjectAction(result)}

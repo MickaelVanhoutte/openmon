@@ -1,7 +1,7 @@
 import "@abraham/reflection";
-import {injectable, injectAll, registry, singleton} from "tsyringe";
-import type {PokemonInstance} from "./pokedex";
-import {MoveEffect} from "./pokedex";
+import { injectable, injectAll, registry, singleton } from "tsyringe";
+import type { PokemonInstance } from "./pokedex";
+import { MoveEffect } from "./pokedex";
 
 export class EffectResult {
     message?: string; // TODO duo battles ? string[] required and check effect chance here
@@ -33,13 +33,13 @@ export interface Effect {
     turnsPassed: number;
     healed: boolean;
 
-    apply(target: PokemonInstance[], user: PokemonInstance): EffectResult;
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult;
 
-    playEffect(target: PokemonInstance, user: PokemonInstance): EffectForTurn;
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn;
 }
 
 @injectable()
-@registry([{token: 'Effect', useClass: RegularDamageEffect}])
+@registry([{ token: 'Effect', useClass: RegularDamageEffect }])
 class RegularDamageEffect implements Effect {
     move_effect_id: number = 1;
     abr: string = '';
@@ -53,12 +53,12 @@ class RegularDamageEffect implements Effect {
     constructor() {
     }
 
-    apply(target: PokemonInstance[], user: PokemonInstance): EffectResult {
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
         //console.log('RegularDamageEffect');
         return new EffectResult();
     }
 
-    playEffect(target: PokemonInstance, user: PokemonInstance): EffectForTurn {
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
         // nothing
         return new EffectForTurn();
     }
@@ -66,7 +66,7 @@ class RegularDamageEffect implements Effect {
 }
 
 @injectable()
-@registry([{token: 'Effect', useClass: Sleep}])
+@registry([{ token: 'Effect', useClass: Sleep }])
 class Sleep implements Effect {
     move_effect_id: number = 2;
     abr: string = 'SLP';
@@ -80,14 +80,14 @@ class Sleep implements Effect {
     constructor() {
     }
 
-    apply(target: PokemonInstance[], user: PokemonInstance): EffectResult {
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
         console.log('Sleep');
         let sleep = new Sleep();
         sleep.duration = Math.floor(Math.random() * 4) + 2;
         return new EffectResult(sleep, `${target[0].name} fell asleep`);
     }
 
-    playEffect(target: PokemonInstance, user: PokemonInstance): EffectForTurn {
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
         this.turnsPassed++;
 
         if (this.turnsPassed >= this.duration) {
@@ -100,7 +100,7 @@ class Sleep implements Effect {
 
 
 @injectable()
-@registry([{token: 'Effect', useClass: Poison}])
+@registry([{ token: 'Effect', useClass: Poison }])
 class Poison implements Effect {
     move_effect_id: number = 3;
     abr: string = 'PSN';
@@ -114,14 +114,14 @@ class Poison implements Effect {
     constructor() {
     }
 
-    apply(target: PokemonInstance[], user: PokemonInstance): EffectResult {
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
         console.log('Poison');
         let poison = new Poison();
         poison.damages = Math.floor(target[0].currentStats.hp / 16);
         return new EffectResult(poison, `${target[0].name} is poisoned`);
     }
 
-    playEffect(target: PokemonInstance, user: PokemonInstance): EffectForTurn {
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
         target.removeHp(this.damages);
         return new EffectForTurn(true, `${target.name} is hurt by poison`);
     }
@@ -137,7 +137,7 @@ class Poison implements Effect {
 */
 
 @injectable()
-@registry([{token: 'Effect', useClass: Burn}])
+@registry([{ token: 'Effect', useClass: Burn }])
 class Burn implements Effect {
     move_effect_id = 5;
     abr: string = 'BRN';
@@ -151,14 +151,14 @@ class Burn implements Effect {
     constructor() {
     }
 
-    apply(target: PokemonInstance[], user: PokemonInstance): EffectResult {
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
         console.log('burn');
         let burn = new Burn();
         burn.damages = Math.floor(target[0].currentStats.hp / 16);
         return new EffectResult(burn, `${target[0].name} is burnt`);
     }
 
-    playEffect(target: PokemonInstance, user: PokemonInstance): EffectForTurn {
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
         target.removeHp(this.damages);
         return new EffectForTurn(true, `${target.name} is hurt by burn`);
     }
@@ -166,7 +166,7 @@ class Burn implements Effect {
 }
 
 @injectable()
-@registry([{token: 'Effect', useClass: Freeze}])
+@registry([{ token: 'Effect', useClass: Freeze }])
 class Freeze implements Effect {
     move_effect_id = 6;
     abr: string = 'FRZ';
@@ -181,11 +181,11 @@ class Freeze implements Effect {
 
     }
 
-    apply(target: PokemonInstance[], user: PokemonInstance): EffectResult {
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
         return new EffectResult(new Freeze(), `${target[0].name} is frozen`);
     }
 
-    playEffect(target: PokemonInstance, user: PokemonInstance): EffectForTurn {
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
         if (Math.random() < 0.2) {
             this.healed = true;
             target.status = undefined;
@@ -196,7 +196,7 @@ class Freeze implements Effect {
 }
 
 @injectable()
-@registry([{token: 'Effect', useClass: Paralyze}])
+@registry([{ token: 'Effect', useClass: Paralyze }])
 class Paralyze implements Effect {
     move_effect_id = 7;
     abr: string = 'PAR';
@@ -210,12 +210,12 @@ class Paralyze implements Effect {
     constructor() {
     }
 
-    apply(target: PokemonInstance[], user: PokemonInstance): EffectResult {
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
         console.log('paralyse');
         return new EffectResult(new Paralyze(), `${target[0].name} is paralyzed`);
     }
 
-    playEffect(target: PokemonInstance, user: PokemonInstance): EffectForTurn {
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
         let canPlay = Math.random() < 0.25;
         return new EffectForTurn(canPlay, canPlay ? undefined : `${target.name} is fully paralyzed`);
     }
@@ -244,7 +244,7 @@ class Paralyze implements Effect {
 */
 
 @injectable()
-@registry([{token: 'Effect', useClass: RaiseAttack}])
+@registry([{ token: 'Effect', useClass: RaiseAttack }])
 class RaiseAttack implements Effect {
     move_effect_id: number = 11;
     abr: string = 'ATK+';
@@ -255,18 +255,21 @@ class RaiseAttack implements Effect {
     turnsPassed: number = 0;
     healed = false;
 
-    apply(target: PokemonInstance[], user: PokemonInstance): EffectResult {
-        user.changeBattleStats('attack', 1);
-        return new EffectResult(undefined, `${user.name}'s attack rose`);
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        if (user) {
+            user.changeBattleStats('attack', 1);
+            return new EffectResult(undefined, `${user.name}'s attack rose`);
+        }
+        return new EffectResult();
     }
 
-    playEffect(target: PokemonInstance, user: PokemonInstance): EffectForTurn {
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
         return new EffectForTurn();
     }
 }
 
 @injectable()
-@registry([{token: 'Effect', useClass: RaiseDefense}])
+@registry([{ token: 'Effect', useClass: RaiseDefense }])
 class RaiseDefense implements Effect {
     move_effect_id: number = 12;
     abr: string = 'DEF+';
@@ -277,18 +280,21 @@ class RaiseDefense implements Effect {
     turnsPassed: number = 0;
     healed = false;
 
-    apply(target: PokemonInstance[], user: PokemonInstance): EffectResult {
-        user.changeBattleStats('defense', 1);
-        return new EffectResult(undefined, `${user.name}'s defense rose`);
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        if (user) {
+            user.changeBattleStats('defense', 1);
+            return new EffectResult(undefined, `${user.name}'s defense rose`);
+        }
+        return new EffectResult();
     }
 
-    playEffect(target: PokemonInstance, user: PokemonInstance): EffectForTurn {
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
         return new EffectForTurn();
     }
 }
 
 @injectable()
-@registry([{token: 'Effect', useClass: RaiseSPAttack}])
+@registry([{ token: 'Effect', useClass: RaiseSPAttack }])
 class RaiseSPAttack implements Effect {
     move_effect_id: number = 14;
     abr: string = 'DEF+';
@@ -299,18 +305,21 @@ class RaiseSPAttack implements Effect {
     turnsPassed: number = 0;
     healed = false;
 
-    apply(target: PokemonInstance[], user: PokemonInstance): EffectResult {
-        user.changeBattleStats('specialAttack', 1);
-        return new EffectResult(undefined, `${user.name}'s special attack rose`);
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        if (user) {
+            user.changeBattleStats('specialAttack', 1);
+            return new EffectResult(undefined, `${user.name}'s special attack rose`);
+        }
+        return new EffectResult();
     }
 
-    playEffect(target: PokemonInstance, user: PokemonInstance): EffectForTurn {
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
         return new EffectForTurn();
     }
 }
 
 @injectable()
-@registry([{token: 'Effect', useClass: RaiseEvasion}])
+@registry([{ token: 'Effect', useClass: RaiseEvasion }])
 class RaiseEvasion implements Effect {
     move_effect_id: number = 17;
     abr: string = 'DEF+';
@@ -321,12 +330,15 @@ class RaiseEvasion implements Effect {
     turnsPassed: number = 0;
     healed = false;
 
-    apply(target: PokemonInstance[], user: PokemonInstance): EffectResult {
-        user.changeBattleStats('evasion', 1);
-        return new EffectResult(undefined, `${user.name}'s evasion rose`);
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        if (user) {
+            user.changeBattleStats('evasion', 1);
+            return new EffectResult(undefined, `${user.name}'s evasion rose`);
+        }
+        return new EffectResult();
     }
 
-    playEffect(target: PokemonInstance, user: PokemonInstance): EffectForTurn {
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
         return new EffectForTurn();
     }
 }
@@ -341,7 +353,7 @@ class RaiseEvasion implements Effect {
 */
 
 @injectable()
-@registry([{token: 'Effect', useClass: LowerAttack}])
+@registry([{ token: 'Effect', useClass: LowerAttack }])
 class LowerAttack implements Effect {
     move_effect_id: number = 19;
     abr: string = 'ATK-';
@@ -352,18 +364,21 @@ class LowerAttack implements Effect {
     turnsPassed: number = 0;
     healed = false;
 
-    apply(target: PokemonInstance[], user: PokemonInstance): EffectResult {
-        target[0].changeBattleStats('attack', -1);
-        return new EffectResult(undefined, `${target[0].name}'s attack dropped`);
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        if (user) {
+            target[0].changeBattleStats('attack', -1);
+            return new EffectResult(undefined, `${target[0].name}'s attack dropped`);
+        }
+        return new EffectResult();
     }
 
-    playEffect(target: PokemonInstance, user: PokemonInstance): EffectForTurn {
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
         return new EffectForTurn();
     }
 }
 
 @injectable()
-@registry([{token: 'Effect', useClass: LowerDefense}])
+@registry([{ token: 'Effect', useClass: LowerDefense }])
 class LowerDefense implements Effect {
     move_effect_id: number = 20;
     abr: string = 'DEF-';
@@ -374,18 +389,21 @@ class LowerDefense implements Effect {
     turnsPassed: number = 0;
     healed = false;
 
-    apply(target: PokemonInstance[], user: PokemonInstance): EffectResult {
-        target[0].changeBattleStats('defense', -1);
-        return new EffectResult(undefined, `${target[0].name}'s defense dropped`);
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        if (user) {
+            target[0].changeBattleStats('defense', -1);
+            return new EffectResult(undefined, `${target[0].name}'s defense dropped`);
+        }
+        return new EffectResult();
     }
 
-    playEffect(target: PokemonInstance, user: PokemonInstance): EffectForTurn {
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
         return new EffectForTurn();
     }
 }
 
 @injectable()
-@registry([{token: 'Effect', useClass: LowerSpeed}])
+@registry([{ token: 'Effect', useClass: LowerSpeed }])
 class LowerSpeed implements Effect {
     move_effect_id: number = 21;
     abr: string = 'SPE-';
@@ -396,18 +414,21 @@ class LowerSpeed implements Effect {
     turnsPassed: number = 0;
     healed = false;
 
-    apply(target: PokemonInstance[], user: PokemonInstance): EffectResult {
-        target[0].changeBattleStats('speed', -1);
-        return new EffectResult(undefined, `${target[0].name}'s speed dropped`);
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        if (user) {
+            target[0].changeBattleStats('speed', -1);
+            return new EffectResult(undefined, `${target[0].name}'s speed dropped`);
+        }
+        return new EffectResult();
     }
 
-    playEffect(target: PokemonInstance, user: PokemonInstance): EffectForTurn {
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
         return new EffectForTurn();
     }
 }
 
 @injectable()
-@registry([{token: 'Effect', useClass: LowerAccuracy}])
+@registry([{ token: 'Effect', useClass: LowerAccuracy }])
 class LowerAccuracy implements Effect {
     move_effect_id: number = 24;
     abr: string = 'ACC-';
@@ -418,18 +439,21 @@ class LowerAccuracy implements Effect {
     turnsPassed: number = 0;
     healed = false;
 
-    apply(target: PokemonInstance[], user: PokemonInstance): EffectResult {
-        target[0].changeBattleStats('accuracy', -1);
-        return new EffectResult(undefined, `${target[0].name}'s accuracy dropped`);
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        if (user) {
+            target[0].changeBattleStats('accuracy', -1);
+            return new EffectResult(undefined, `${target[0].name}'s accuracy dropped`);
+        }
+        return new EffectResult();
     }
 
-    playEffect(target: PokemonInstance, user: PokemonInstance): EffectForTurn {
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
         return new EffectForTurn();
     }
 }
 
 @injectable()
-@registry([{token: 'Effect', useClass: LowerEvasion}])
+@registry([{ token: 'Effect', useClass: LowerEvasion }])
 class LowerEvasion implements Effect {
     move_effect_id: number = 25;
     abr: string = 'EVA-';
@@ -440,12 +464,15 @@ class LowerEvasion implements Effect {
     turnsPassed: number = 0;
     healed = false;
 
-    apply(target: PokemonInstance[], user: PokemonInstance): EffectResult {
-        target[0].changeBattleStats('evasion', -1);
-        return new EffectResult(undefined, `${target[0].name}'s evasion dropped`);
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        if (user) {
+            target[0].changeBattleStats('evasion', -1);
+            return new EffectResult(undefined, `${target[0].name}'s evasion dropped`);
+        }
+        return new EffectResult();
     }
 
-    playEffect(target: PokemonInstance, user: PokemonInstance): EffectForTurn {
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
         return new EffectForTurn();
     }
 }

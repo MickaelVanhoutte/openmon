@@ -1,4 +1,4 @@
-import movesAss from "./move-associations.json" assert {type: "json"};
+import movesAss from "../../final/beta/move-associations.json" assert {type: "json"};
 import moves from "./moves.json" assert {type: "json"};
 import fs from "fs";
 
@@ -36,14 +36,20 @@ for (let i = 0; i < movesFromJson.length; i++) {
     uniqueMoves.add(movesFromJson[i].move.id);
 }
 
-console.log(uniqueMoves.size);
+console.log(`${uniqueMoves.size} unique moves`);
 
+// unique effects
+
+let uniqueEffects = new Set([]);
 let movesUniq = [];
 uniqueMoves = Array.from(uniqueMoves);
 uniqueMoves.forEach((move) => {
     let m = moves.find((m) => m.id === move);
+    uniqueEffects.add(m.effect_id);
     movesUniq.push({ id: m.id, name: m.identifier, type: typeById[m.type_id], cat: movesCat[m.damage_class_id], power: m.power, impl: false });
 });
+
+console.log(`${uniqueEffects.size} unique effects`);
 
 // sort by type and cat
 

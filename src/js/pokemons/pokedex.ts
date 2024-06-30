@@ -760,7 +760,7 @@ export class PokemonInstance extends PokedexEntry {
     }
 
     public howMuchXpWon(opponent: PokemonInstance, participated: number = 1, fromTrainer: boolean = false, xpShare: boolean): number {
-        return EXPERIENCE_CHART.howMuchIGet(this, opponent, participated, fromTrainer, xpShare);
+        return EXPERIENCE_CHART.howMuchIGet(this, participated, fromTrainer, xpShare);
     }
 
     public addXpResult(totalXp: number, evs: number): { levelup: boolean, xpLeft: number, newMove: string[] } {

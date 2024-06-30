@@ -26,19 +26,20 @@ export class RunAway implements ActionV2Interface {
             // randomized based on opponent speed
             ctx.escapeAttempts++;
             const random = Math.random() * 255;
-            const f = Math.floor((ctx.opponentPokemon.battleStats.speed * 128) / ctx.playerPokemon.battleStats.speed) + 30 * ctx.escapeAttempts * random;
+            const avgPokeSpeed = ctx.oppSide.reduce((total, next) => total + next.battleStats.speed, 0) / ctx.oppSide.length;
+            const f = Math.floor((avgPokeSpeed * 128) / this.initiator.battleStats.speed) + 30 * ctx.escapeAttempts * random;
 
             if (f > 255) {
                 ctx.clearStack();
                 ctx.battleResult.win = true;
                 ctx.events.runnaway.set(true);
-                ctx.addToStack(new EndBattle(ctx.playerPokemon));
-                ctx.addToStack(new Message('You ran away safely!', ctx.playerPokemon));
+                ctx.addToStack(new EndBattle(this.initiator));
+                ctx.addToStack(new Message('You ran away safely!', this.initiator));
             } else {
-                ctx.addToStack(new Message('Failed to run away!', ctx.playerPokemon));
+                ctx.addToStack(new Message('Failed to run away!', this.initiator));
             }
         } else {
-            ctx.addToStack(new Message('You can\'t run away from a trainer battle!', ctx.playerPokemon));
+            ctx.addToStack(new Message('You can\'t run away from a trainer battle!', this.initiator));
         }
     }
 }
@@ -47,21 +48,22 @@ export class Switch implements ActionV2Interface {
     type: ActionType;
     description: string;
     initiator: PokemonInstance;
+    target: PokemonInstance;
     public owner: Character;
 
-    constructor(initiator: PokemonInstance, owner: Character) {
+    constructor(initiator: PokemonInstance, target: PokemonInstance, owner: Character) {
         this.type = ActionType.SWITCH;
         this.description = 'Switch';
         this.initiator = initiator;
+        this.target = target;
         this.owner = owner;
     }
 
     execute(ctx: BattleContext): void {
         // Note : actions are pushed in reverse since they are popped from last to first
-        ctx.addToStack(new ChangePokemon(this.initiator, this.owner));
-        ctx.addToStack(new Message(`${this.initiator.name}, go!`, this.initiator));
-        let current = this.owner instanceof Player ? ctx.playerPokemon : ctx.opponentPokemon;
-        ctx.addToStack(new Message(`${current.name}, come back!`, this.initiator));
+        ctx.addToStack(new ChangePokemon(this.initiator, this.target, this.owner));
+        ctx.addToStack(new Message(`${this.target.name}, go!`, this.target));
+        ctx.addToStack(new Message(`${this.initiator.name}, come back!`, this.initiator));
     }
 }
 
@@ -70,10 +72,10 @@ export class Attack implements ActionV2Interface {
     public name: string;
     public description: string;
     public move: MoveInstance | ComboMove;
-    public target: 'opponent' | 'ally';
+    public target: PokemonInstance;
     public initiator: PokemonInstance;
 
-    constructor(move: MoveInstance | ComboMove, target: 'opponent' | 'ally', initiator: PokemonInstance) {
+    constructor(move: MoveInstance | ComboMove, target: PokemonInstance, initiator: PokemonInstance) {
         console.log(move, initiator, target);
         this.type = ActionType.ATTACK;
         this.name = move.name;
@@ -85,15 +87,14 @@ export class Attack implements ActionV2Interface {
 
     execute(ctx: BattleContext): void {
         const attacker = this.initiator;
-        const target = this.target === 'opponent' ? ctx.opponentPokemon : ctx.playerPokemon;
-        const controller = this.target === 'opponent' ? ctx.player : ctx.opponent;
+        const controller = ctx.playerSide.includes(this.target) ? ctx.player : ctx.opponent;
 
         const actionsToPush: ActionV2Interface[] = [];
         const success = this.accuracyApplies(this.move);
 
         // start turn statuses (sleep, paralysis..)
         if (attacker.status?.when === 'start-turn') {
-            let effect = attacker.status.playEffect(attacker, target);
+            let effect = attacker.status.playEffect(attacker, this.target);
 
             if (effect?.message) {
                 actionsToPush.push(new Message(effect.message, attacker));
@@ -109,7 +110,7 @@ export class Attack implements ActionV2Interface {
 
         if (success) {
 
-            const result = this.calculateDamage(attacker, target, this.move, ctx, controller, 1);
+            const result = this.calculateDamage(attacker, this.target, this.move, ctx, controller, 1);
 
             if (this.move instanceof ComboMove) {
                 let move: ComboMove = this.move;
@@ -122,7 +123,7 @@ export class Attack implements ActionV2Interface {
                 if (controller instanceof Player) {
                     comboDmgModifier = controller.getMasteryBonus(MasteryType.COMBO_DAMAGE);
                 }
-                const result2 = this.calculateDamage(attacker, target, move.move2, ctx, controller, .5 + (comboDmgModifier / 100));
+                const result2 = this.calculateDamage(attacker, this.target, move.move2, ctx, controller, .5 + (comboDmgModifier / 100));
 
                 actionsToPush.push(new PlayAnimation(this.move, this.target, this.initiator));
 
@@ -136,7 +137,7 @@ export class Attack implements ActionV2Interface {
                 });
 
                 if (result2.immune) {
-                    actionsToPush.push(new Message(move.move2.name + ' doesn\'t affect ' + target.name + '...', this.initiator));
+                    actionsToPush.push(new Message(move.move2.name + ' doesn\'t affect ' + this.target.name + '...', this.initiator));
                 } else if (result2.notVeryEffective) {
                     actionsToPush.push(new Message(move.move2.name + ' is not very effective...', this.initiator));
                 } else if (result2.superEffective) {
@@ -147,7 +148,7 @@ export class Attack implements ActionV2Interface {
                 }
 
                 if (result.immune) {
-                    actionsToPush.push(new Message(move.move1.name + ' doesn\'t affect ' + target.name + '...', this.initiator));
+                    actionsToPush.push(new Message(move.move1.name + ' doesn\'t affect ' + this.target.name + '...', this.initiator));
                 } else if (result.notVeryEffective) {
                     actionsToPush.push(new Message(move.move1.name + ' is not very effective...', this.initiator));
                 } else if (result.superEffective) {
@@ -176,7 +177,7 @@ export class Attack implements ActionV2Interface {
                     actionsToPush.push(new PlayAnimation(this.move, this.target, this.initiator));
                 }
                 if (result.immune) {
-                    actionsToPush.push(new Message('It doesn\'t affect ' + target.name + '...', this.initiator));
+                    actionsToPush.push(new Message('It doesn\'t affect ' + this.target.name + '...', this.initiator));
                 } else if (result.notVeryEffective) {
                     actionsToPush.push(new Message('It\'s not very effective...', this.initiator));
                 } else if (result.superEffective) {
@@ -311,7 +312,7 @@ export class UseItem implements ActionV2Interface {
         }
 
         if (item instanceof Pokeball) {
-            let result = item.apply(this.target, ctx.playerPokemon);
+            let result = item.apply(this.target);
             if (result.success) {
                 ctx.battleResult.caught = this.target;
                 ctx.battleResult.win = true;
