@@ -7,7 +7,7 @@
 		type PokemonInstance
 	} from '../../js/pokemons/pokedex';
 	import type { GameContext } from '../../js/context/gameContext';
-	import { typeChart } from '../../js/battle/battle-model';
+	import { BattleType, typeChart } from '../../js/battle/battle-model';
 	import { BattleContext } from '../../js/context/battleContext';
 	import { Attack, RunAway, Switch, UseItem } from '../../js/battle/actions/actions-selectable';
 	import PokemonList from '../menus/pokemon-list/PokemonList.svelte';
@@ -22,6 +22,8 @@
 	export let battleCtx: BattleContext;
 	export let overWorldCtx: OverworldContext;
 	let moveOpened = false;
+	let targetSelectOpened = false;
+	let possibleTargets: PokemonInstance[] = [];
 	let infoOpened = false;
 	let showInfoBack = false;
 	let show = false;
@@ -31,6 +33,7 @@
 	let disabled = false;
 	let selectedMoveIdx: number | undefined = undefined;
 	let selectedOptionIdx: number | undefined = undefined;
+	let selectedTargetIdx: number | undefined = undefined;
 	let combo = false;
 	let currentCombo: { pokemon: PokemonInstance; move: MoveInstance } | undefined = undefined;
 	let changePokemon = false;
@@ -125,7 +128,7 @@
 
 	function escape() {
 		if (battleCtx) {
-			battleCtx.setPlayerAction(new RunAway(battleCtx.playerSide[0]));
+			battleCtx.setPlayerAction(new RunAway(battleCtx.playerSide[battleCtx.actionIdx]));
 		}
 	}
 
@@ -139,30 +142,110 @@
 		battleBagOpened = true;
 	}
 
-	function launchMove(idx: number, move: MoveInstance) {
-		if (idx != selectedMoveIdx) {
+	function launchMove(idx: number, move: MoveInstance, selectedTargets?: PokemonInstance[]) {
+		if (!selectedTargets && idx !== selectedMoveIdx) {
 			selectedMoveIdx = idx;
-		} else if (battleCtx) {
+			return;
+		}
+
+		let targets: PokemonInstance[] = [];
+
+		if (selectedTargets) {
+			targets = selectedTargets;
+		} else if (
+			move.target === 'user-or-ally' ||
+			move.target === 'selected-pokemon' ||
+			(move.target === 'specific-moves' &&
+				move.name === 'curse' &&
+				battleCtx.playerSide[battleCtx.actionIdx]?.types?.includes('ghost') &&
+				battleCtx.battleType === BattleType.DOUBLE &&
+				!selectedTargets)
+		) {
+			// display targetSelection
+			targets = [battleCtx.oppSide[0]];
+			if (move.target === 'user-or-ally') {
+				possibleTargets = battleCtx.playerSide.filter((p) => !!p && !p?.fainted);
+			}
+
+			if (move.target === 'selected-pokemon') {
+				possibleTargets = battleCtx.oppSide.filter((p) => !!p && !p?.fainted);
+			}
+
+			if (move.target === 'specific-moves') {
+				possibleTargets = battleCtx.oppSide.filter((p) =>!!p && !p?.fainted);
+			}
+
+			if(possibleTargets?.length === 1){
+				selectedTargetIdx = 0;
+				targets = possibleTargets;
+			}else {
+				targetSelectOpened = true;
+				return; // open menu and recall this function with selectedTargets
+			}
+
+		} else {
+			if (move.target === 'all-opponents') {
+				targets = battleCtx.oppSide.filter((p) =>!!p && !p?.fainted);
+			} else if (move.target === 'all-allies') {
+				// no matching move for now TODO
+				targets = battleCtx.playerSide;
+			} else if (move.target === 'user-and-allies') {
+				targets = battleCtx.player.monsters.filter((p) =>!!p && !p?.fainted);
+			} else if (move.target === 'random-opponent') {
+				targets = battleCtx.oppSide.filter((p) =>!!p && !p?.fainted).at(Math.floor(Math.random() * battleCtx.oppSide.length));
+			} else if (move.target === 'all-other-pokemon') {
+				targets = [...battleCtx.oppSide, ...battleCtx.playerSide].filter(
+					(p) => p !== battleCtx.playerSide[battleCtx.actionIdx]
+				);
+			} else if (move.target === 'ally') {
+				targets = [
+					battleCtx.playerSide.filter(
+						(p) => !!p && p !== battleCtx.playerSide[battleCtx.actionIdx] && !p?.fainted
+					)[0]
+				];
+			} else if (move.target === 'all-pokemon') {
+				targets = [...battleCtx.oppSide, ...battleCtx.playerSide].filter((p) => !!p && !p?.fainted);
+			} else if (move.target === 'user') {
+				targets = [battleCtx.playerSide[battleCtx.actionIdx]];
+			} else if (move.target === 'specific-move') {
+				if (
+					move.name === 'curse' &&
+					!battleCtx.playerSide[battleCtx.actionIdx].types?.includes('ghost')
+				) {
+					targets = [battleCtx.playerSide[battleCtx.actionIdx]];
+				}
+				// else (mirror-coat, counter, etc.) -> depend on who hits the user
+			}
+			//else no target (fields)
+		}
+
+		if (battleCtx) {
 			// TODO if currentCombo, send combo action
 			if (!!currentCombo) {
 				battleCtx.setPlayerAction(
 					new Attack(
 						new ComboMove(move, currentCombo.move, currentCombo.pokemon),
-						'opponent',
-						battleCtx.playerSide[0]
+						targets,
+						battleCtx.playerSide[battleCtx.actionIdx]
 					)
 				);
-				infoOpened = false;
+
 				currentCombo = undefined;
 				combo = false;
-				moveOpened = false;
-				showAdd = false;
+
 				return;
 			} else {
-				battleCtx.setPlayerAction(new Attack(move, battleCtx.oppSide[0] , battleCtx.playerSide[0]));
-				moveOpened = false;
-				showAdd = false;
+				battleCtx.setPlayerAction(
+					new Attack(move, targets, battleCtx.playerSide[battleCtx.actionIdx])
+				);
 			}
+
+			selectedTargetIdx = undefined;
+			possibleTargets = [];
+			targetSelectOpened = false;
+			infoOpened = false;
+			moveOpened = false;
+			showAdd = false;
 		}
 	}
 
@@ -172,29 +255,29 @@
 
 	function sendSwitchAction(newMonster: PokemonInstance) {
 		battleSwitchOpened = false;
-		if (battleCtx?.playerSide[0]) {
-			battleCtx?.setPlayerAction(new Switch(newMonster, battleCtx.player));
+		if (battleCtx?.playerSide[battleCtx.actionIdx]) {
+			battleCtx?.setPlayerAction(
+				new Switch(battleCtx.playerSide[battleCtx.actionIdx], newMonster, battleCtx.player)
+			);
 		}
 	}
 
-	function send(pokemon: PokemonInstance) {
+	function send(pokemon: PokemonInstance, replaced: PokemonInstance) {
 		// TODO this code should be in the battle state
-		if (battleCtx && battleCtx?.playerSide[0]) {
-			let pkmnIndex = battleCtx.player.monsters.indexOf(pokemon);
-			// exchange 0 and pkmnIndex in the array
-			[battleCtx.player.monsters[0], battleCtx.player.monsters[pkmnIndex]] = [
-				battleCtx.player.monsters[pkmnIndex],
-				battleCtx.player.monsters[0]
+		if (battleCtx) {
+			let replacedIdx = battleCtx.playerSide.indexOf(replaced);
+			let pkmnIdx = battleCtx.player.monsters.indexOf(pokemon);
+			[battleCtx.player.monsters[replacedIdx], battleCtx.player.monsters[pkmnIdx]] = [
+				battleCtx.player.monsters[pkmnIdx],
+				battleCtx.player.monsters[replacedIdx]
 			];
-			battleCtx.playerSide[0] = battleCtx.player.monsters[0];
-			battleCtx.participants.add( battleCtx.playerSide[0]);
+			battleCtx.playerSide[replacedIdx] = battleCtx.player.monsters[replacedIdx];
+			battleCtx.participants.add(battleCtx.playerSide[replacedIdx]);
 			changePokemon = false;
 			selectedOptionIdx = 0;
 			selectedMoveIdx = 0;
-			battleCtx.events.pokemonChange.set(battleCtx.player);
-			battleCtx.currentMessage.set(`What should ${ battleCtx.playerSide[0].name} do?`);
-			//BATTLE_STATE.set(new BattleContext(battleState));
-			//battleLoopContext.allydrawn = false;
+			battleCtx.events.pokemonChange.set(replaced);
+			battleCtx.currentMessage.set(`What should ${battleCtx.playerSide[replacedIdx].name} do?`);
 		}
 	}
 
@@ -218,10 +301,23 @@
 	function sendObjectAction(result: { item: number; target?: PokemonInstance }) {
 		battleBagOpened = false;
 		let itm = context.ITEMS.getItem(result.item)?.instanciate();
+		let pokemonIdx = 0;
+		if (result.target) {
+			pokemonIdx = battleCtx?.playerSide.indexOf(result.target);
+		}
 		if (result.target && battleCtx) {
-			if (itm && battleCtx && itm.doesApply(result.target,  battleCtx.playerSide[0], battleCtx)) {
+			if (
+				itm &&
+				battleCtx &&
+				itm.doesApply(result.target, battleCtx.playerSide[pokemonIdx], battleCtx)
+			) {
 				battleCtx?.setPlayerAction(
-					new UseItem(result.item, result.target,  battleCtx.playerSide[0], battleCtx.player)
+					new UseItem(
+						result.item,
+						result.target,
+						battleCtx.playerSide[pokemonIdx],
+						battleCtx.player
+					)
 				);
 				overWorldCtx.closeMenu(MenuType.BAG);
 			} else {
@@ -231,13 +327,13 @@
 		} else if (
 			itm instanceof Pokeball &&
 			battleCtx &&
-			itm.doesApply(battleCtx.opponentPokemon,  battleCtx.playerSide[0], battleCtx)
+			itm.doesApply(target, battleCtx.playerSide[pokemonIdx], battleCtx)
 		) {
 			battleCtx?.setPlayerAction(
 				new UseItem(
 					result.item,
-					battleCtx.oppSide[0],
-					battleCtx.playerSide[0],
+					target,
+					battleCtx.playerSide[pokemonIdx],
 					battleCtx.player
 				)
 			);
@@ -269,39 +365,62 @@
 			!disabled
 		) {
 			if (e.key === 'ArrowUp') {
-				if (moveOpened) {
-					
-					if(selectedMoveIdx === undefined) {
+				if (moveOpened && targetSelectOpened) {
+					if (selectedTargetIdx === undefined) {
+						selectedTargetIdx = 0;
+					}
+					selectedTargetIdx =
+						selectedTargetIdx === 0 ? possibleTargets.length - 1 : selectedTargetIdx - 1;
+				} else if (moveOpened) {
+					if (selectedMoveIdx === undefined) {
 						selectedMoveIdx = 0;
 					}
 
 					selectedMoveIdx =
-						selectedMoveIdx === 0 ?  battleCtx.playerSide[0].moves.length - 1 : selectedMoveIdx - 1;
+						selectedMoveIdx === 0
+							? battleCtx.playerSide[battleCtx.actionIdx].moves.length - 1
+							: selectedMoveIdx - 1;
 				} else {
-					if(selectedOptionIdx === undefined) {
+					if (selectedOptionIdx === undefined) {
 						selectedOptionIdx = 0;
 					}
 
 					selectedOptionIdx = selectedOptionIdx === 0 ? 3 : selectedOptionIdx - 1;
 				}
 			} else if (e.key === 'ArrowDown') {
-
-				if(selectedMoveIdx === undefined) {
+				if (selectedMoveIdx === undefined) {
 					selectedMoveIdx = 0;
 				}
 
-				if (moveOpened) {
+				if (moveOpened && targetSelectOpened) {
+					if (selectedTargetIdx === undefined) {
+						selectedTargetIdx = 0;
+					}
+					selectedTargetIdx =
+						selectedTargetIdx === possibleTargets.length - 1 ? 0 : selectedTargetIdx + 1;
+				} else if (moveOpened) {
 					selectedMoveIdx =
-						selectedMoveIdx ===  battleCtx.playerSide[0].moves.length - 1 ? 0 : selectedMoveIdx + 1;
+						selectedMoveIdx === battleCtx.playerSide[battleCtx.actionIdx].moves.length - 1
+							? 0
+							: selectedMoveIdx + 1;
 				} else {
-					if(selectedOptionIdx === undefined) {
+					if (selectedOptionIdx === undefined) {
 						selectedOptionIdx = 0;
 					}
 					selectedOptionIdx = selectedOptionIdx === 3 ? 0 : selectedOptionIdx + 1;
 				}
 			} else if (e.key === 'Enter' && selectedMoveIdx !== undefined) {
-				if (moveOpened) {
-					launchMove(selectedMoveIdx,  battleCtx.playerSide[0].moves[selectedMoveIdx]);
+				if (moveOpened && targetSelectOpened && selectedTargetIdx !== undefined) {
+					launchMove(
+						selectedMoveIdx,
+						battleCtx.playerSide[battleCtx.actionIdx].moves[selectedMoveIdx],
+						[possibleTargets[selectedTargetIdx]]
+					);
+				} else if (moveOpened) {
+					launchMove(
+						selectedMoveIdx,
+						battleCtx.playerSide[battleCtx.actionIdx].moves[selectedMoveIdx]
+					);
 				} else {
 					if (selectedOptionIdx === 0) {
 						moveOpened = true;
@@ -317,9 +436,14 @@
 					}
 				}
 			} else if (e.key === 'Escape') {
-				moveOpened = false;
-				showAdd = false;
-				showInfoBack = false;
+				if (!moveOpened && !showAdd && !showInfoBack && !targetSelectOpened && battleCtx.playerTurnActions?.length > 0) {
+					battleCtx.cancelLastAction();
+				}else {
+					targetSelectOpened = false;
+					moveOpened = false;
+					showAdd = false;
+					showInfoBack = false;
+				}
 			}
 		}
 	};
@@ -333,17 +457,24 @@
 				changePokemon = true;
 			}
 		});
+		return () => {
+			window.removeEventListener('keydown', listener);
+		};
 	});
 
-	onDestroy(() => {
-		window.removeEventListener('keydown', listener);
-	});
 </script>
 
+{#if battleCtx?.playerTurnActions?.length > 0 && battleCtx?.playerSide?.length > 1 && !moveOpened && !targetSelectOpened}
+	<div class="cancel-wrapper">	
+		<button class="cancel-last button" on:click={()=> battleCtx.cancelLastAction()}>Cancel</button>
+	</div>
+{/if}
 
 <div
 	class="info"
-	class:show={show && !moveOpened && !(battleSwitchOpened || changePokemon || combo || battleBagOpened)}
+	class:show={show &&
+		!moveOpened &&
+		!(battleSwitchOpened || changePokemon || combo || battleBagOpened)}
 >
 	<div class="_inner">
 		<span>
@@ -388,6 +519,7 @@
 				on:click={() => {
 					moveOpened = false;
 					showAdd = false;
+					targetSelectOpened = false;
 				}}
 			>
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
@@ -398,21 +530,21 @@
 			</button>
 		</div>
 
-		<div class="move-desc" >
+		<div class="move-desc">
 			<div class="wrapper">
 				<div class="_desc" class:show={selectedMoveIdx !== undefined}>
 					{#if !!currentCombo}
 						<div class="head">
 							<span
-								>Types: {currentCombo.move.type}, { battleCtx.playerSide[0]?.moves[selectedMoveIdx]
-									.type}</span
+								>Types: {currentCombo.move.type}, {battleCtx.playerSide[battleCtx.actionIdx]?.moves[
+									selectedMoveIdx
+								].type}</span
 							>
 							<span
 								>Pwr. {currentCombo.move.power / 2 +
-									 battleCtx.playerSide[0]?.moves[selectedMoveIdx].power}
-								({currentCombo.move.power | 0} * 0.5 + { battleCtx.playerSide[0]?.moves[
-									selectedMoveIdx
-								].power | 0})</span
+									battleCtx.playerSide[battleCtx.actionIdx]?.moves[selectedMoveIdx].power}
+								({currentCombo.move.power | 0} * 0.5 + {battleCtx.playerSide[battleCtx.actionIdx]
+									?.moves[selectedMoveIdx].power | 0})</span
 							>
 						</div>
 						<hr />
@@ -428,34 +560,45 @@
 									)}
 							</li>
 							<li>
-								{ battleCtx.playerSide[0]?.moves[selectedMoveIdx].effect.effect
+								{battleCtx.playerSide[battleCtx.actionIdx]?.moves[selectedMoveIdx].effect.effect
 									?.replace(mechanicRegex, '')
 									?.replace(
 										effectRegex,
-										( battleCtx.playerSide[0]?.moves[selectedMoveIdx].effectChance * 1.5 > 100
+										(battleCtx.playerSide[battleCtx.actionIdx]?.moves[selectedMoveIdx]
+											.effectChance *
+											1.5 >
+										100
 											? 100
-											:  battleCtx.playerSide[0]?.moves[selectedMoveIdx].effectChance * 1.5) + ''
+											: battleCtx.playerSide[battleCtx.actionIdx]?.moves[selectedMoveIdx]
+													.effectChance * 1.5) + ''
 									)}
 							</li>
 						</ul>
 					{:else}
 						<div class="head">
-							<span>Acc. {battleCtx?.playerSide[0]?.moves[selectedMoveIdx]?.accuracy} %</span>
-							<span>Pwr. {battleCtx?.playerSide[0]?.moves[selectedMoveIdx]?.power}</span>
+							<span
+								>Acc. {battleCtx?.playerSide[battleCtx.actionIdx]?.moves[selectedMoveIdx]?.accuracy}
+								%</span
+							>
+							<span
+								>Pwr. {battleCtx?.playerSide[battleCtx.actionIdx]?.moves[selectedMoveIdx]
+									?.power}</span
+							>
 						</div>
 						<hr />
 						<p class="desc-txt">
-							{battleCtx?.playerSide[0]?.moves[selectedMoveIdx]?.description
+							{battleCtx?.playerSide[battleCtx.actionIdx]?.moves[selectedMoveIdx]?.description
 								?.replaceAll(mechanicRegex, '')
 								?.replaceAll(
 									effectRegex,
-									battleCtx?.playerSide[0]?.moves[selectedMoveIdx].effectChance + ''
+									battleCtx?.playerSide[battleCtx.actionIdx]?.moves[selectedMoveIdx].effectChance +
+										''
 								)}
 						</p>
 						<img
 							class="move-cat"
-							src={`src/assets/moves-cat/${battleCtx?.playerSide[0]?.moves[selectedMoveIdx]?.category}.png`}
-							alt={battleCtx?.playerSide[0]?.moves[selectedMoveIdx]?.category}
+							src={`src/assets/moves-cat/${battleCtx?.playerSide[battleCtx.actionIdx]?.moves[selectedMoveIdx]?.category}.png`}
+							alt={battleCtx?.playerSide[battleCtx.actionIdx]?.moves[selectedMoveIdx]?.category}
 						/>
 					{/if}
 				</div>
@@ -559,36 +702,54 @@
 		{/if}
 	</button>
 
-	<div class="moves2" class:show>
-		{#each battleCtx?.playerSide[0]?.moves as move, index}
-			<button
-				class="move-btn move"
-				style="--color:{typeChart[move.type].color}; --offset: {index * 3}%"
-				{disabled}
-				class:selected={!disabled && selectedMoveIdx === index}
-				on:click={() => launchMove(index, move)}
-			>
-				<span class="move-type" style="--offset: {index * 1.5}%">
-					<!-- <img src={`src/assets/types/${move.type}.svg`} alt={move.type} /> -->
+	{#if !targetSelectOpened}
+		<div class="moves2" class:show>
+			{#each battleCtx?.playerSide[battleCtx.actionIdx]?.moves as move, index}
+				<button
+					class="move-btn move"
+					style="--color:{typeChart[move.type].color}; --offset: {index * 3}%"
+					{disabled}
+					class:selected={!disabled && selectedMoveIdx === index}
+					on:click={() => launchMove(index, move)}
+				>
+					<span class="move-type" style="--offset: {index * 1.5}%">
+						<svg use:inlineSvg={`src/assets/types/${move.type}.svg`} fill="currentColor"> </svg>
+					</span>
+					<span class="move-name">{move.name.toUpperCase()}</span>
 
+					<span class="move-pp">
+						{move.currentPp}/{move.pp}
+					</span>
+				</button>
+			{/each}
+		</div>
+	{:else}
+		<!-- targets -->
+		<div class="moves2" class:show>
+			{#each possibleTargets as target, index}
+				<button
+					class="move-btn target-btn move"
+					style="--offset: {index * 3}%; --color: {battleCtx.getPokemonSide(target) === 'ally'
+						? '#7EAF53'
+						: '#dc5959'}"
+					class:selected={selectedTargetIdx === index}
+					on:click={() =>
+						launchMove(index, battleCtx?.playerSide[battleCtx.actionIdx]?.moves[selectedMoveIdx], [
+							target
+						])}
+				>
+					<!-- <span class="move-type" style="--offset: {index * 1.5}%">
 					<svg use:inlineSvg={`src/assets/types/${move.type}.svg`} fill="currentColor"> </svg>
-				</span>
-				<span class="move-name">{move.name.toUpperCase()}</span>
+				</span> -->
+					<span class="move-name">{target.name.toUpperCase()}</span>
 
-				<span class="move-pp">
+					<!-- <span class="move-pp">
 					{move.currentPp}/{move.pp}
-				</span>
-
-				<!-- <span class="move-cat">
-					<img src={`src/assets/moves-cat/${move.category}.png`} alt={move.category} />
 				</span> -->
-
-				<!-- <span class="move-power">
-					pwr. {move.power}
-				</span> -->
-			</button>
-		{/each}
-	</div>
+				</button>
+			{/each}
+		</div>
+	{/if}
 {:else}
 	<div class="actions2" class:show>
 		<button
@@ -690,7 +851,7 @@
 
 	<MiniPkmn
 		bind:context
-		bind:currentPkmn={battleCtx.playerSide[0]}
+		bind:currentPkmn={battleCtx.playerSide[battleCtx.actionIdx]}
 		bind:type={menuType}
 		zIndex={zIndexNext}
 		onCombo={(cb) => {
@@ -725,18 +886,11 @@
 
 	<MiniBag
 		bind:context
-		bind:currentPkmn={battleCtx.playerSide[0]}
-		bind:battleCtx={battleCtx}
+		bind:currentPkmn={battleCtx.playerSide[battleCtx.actionIdx]}
+		bind:battleCtx
 		zIndex={zIndexNext}
 		onChange={(result) => sendObjectAction(result)}
 	/>
-	<!-- <Bag
-		bind:context
-		{isBattle}
-		bind:battleBagOpened
-		zIndex={zIndexNext}
-		onChange={(result) => sendObjectAction(result)}
-	/> -->
 {/if}
 
 <style lang="scss">
@@ -848,6 +1002,38 @@
 		}
 	}
 
+	.cancel-wrapper {
+		z-index: 9;
+		transform: skew(-15deg);
+		position: absolute;
+		left: 5%;
+		bottom: 28%;
+
+		.cancel-last.button {
+			//height: calc(100% / 16);
+			background-color: rgba(44, 56, 69, 0.65);
+			border-left: 6px solid var(--color);
+			color: white;
+			display: flex;
+			text-transform: uppercase;
+			justify-content: flex-start;
+			align-items: center;
+			padding: 0 20px;
+			font-size: 36px;
+			border-radius: 4px;
+			transition: transform 0.5s ease-in-out;
+
+			&:hover,
+			&.selected {
+				transform: translateX(0);
+				background-color: rgba(255, 255, 255, 0.85);
+				color: #123;
+				justify-content: center;
+				animation: float 2s infinite;
+			}
+		}
+	}
+
 	.info {
 		width: 62%;
 		position: absolute;
@@ -911,7 +1097,7 @@
 		gap: 4%;
 		display: flex;
 		flex-direction: column;
-		z-index: 8;
+		z-index: 9;
 		transform: skew(-15deg);
 		transition: transform 0.5s ease-in-out;
 
@@ -940,7 +1126,8 @@
 			}
 		}
 
-		.move-btn {
+		.move-btn,
+		.target-btn {
 			width: 100%;
 			//margin-right: var(--offset);
 			height: calc(76% / 4);
@@ -952,6 +1139,10 @@
 			transform: translateX(30%);
 			font-size: 20px;
 			transition: transform 0.5s ease-in-out;
+
+			&.target-btn {
+				background-color: var(--color);
+			}
 
 			&:hover,
 			&.selected {

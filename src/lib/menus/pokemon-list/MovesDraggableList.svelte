@@ -26,6 +26,7 @@
 						item.accuracy,
 						item.pp,
 						item.priority,
+						item.target,
 						item.effect,
 						item.effectChance,
 						item.description,
@@ -35,7 +36,7 @@
 			: e.detail.items;
 	}
 
-	function remove(index) {
+	function remove(index: number) {
 		if (!removable || list?.length === 1) return;
 		list = list.filter((_, i) => i !== index);
 	}

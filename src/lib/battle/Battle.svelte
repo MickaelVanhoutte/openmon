@@ -4,6 +4,7 @@
 	import EnemyInfo from './EnemyInfo.svelte';
 	import AllyInfo from './AllyInfo.svelte';
 	import { BattleContext } from '../../js/context/battleContext';
+	import { BattleType } from "../../js/battle/battle-model";
 	import type { GameContext } from '../../js/context/gameContext';
 	import type { OverworldContext } from '../../js/context/overworldContext';
 	import {
@@ -49,36 +50,40 @@
 		bgDrawn: true
 	};
 
-	let ally: HTMLImageElement;
-	let opponent: HTMLImageElement;
+	let ally: HTMLImageElement[] = [];
+	let opponent: HTMLImageElement[] = [];
 
 	battleCtx.events.playerPokemonFaint.subscribe((value) => {
 		if (value && ally) {
-			animateFaint(ally);
+			animateFaint(ally[battleCtx.playerSide.indexOf(value)]);
 		}
 	});
 
 	battleCtx.events.opponentPokemonFaint.subscribe((value) => {
 		if (value && opponent) {
-			animateFaint(opponent);
+			animateFaint(opponent[battleCtx.oppSide.indexOf(value)]);
 		}
 	});
 
 	battleCtx.events.runnaway.subscribe((value) => {
 		if (value) {
-			animateRun(ally, 'ally');
+			animateRun(ally[0], 'ally');
+			if(ally[1]){
+				animateRun(ally[1], 'ally');
+			}
 		}
 	});
 
 	battleCtx.events.animateAttack.subscribe((value) => {
 		if (value) {
+			let animTarget = battleCtx.getPokemonSide(value.target) === 'opponent' ? opponent[battleCtx.oppSide.indexOf(value.target)] : ally[battleCtx.playerSide.indexOf(value.target)];
+			let animInitiator = battleCtx.getPokemonSide(value.initiator) === 'ally' ? ally[battleCtx.playerSide.indexOf(value.initiator)] : opponent[battleCtx.oppSide.indexOf(value.initiator)];
+
 			if (value.move instanceof ComboMove) {
 				let move: ComboMove = value.move;
-				let animTarget = battleCtx.getPokemonSide(value.target) === 'opponent' ? opponent : ally;
-				let animInitiator = battleCtx.getPokemonSide(value.initiator) === 'ally' ? ally : opponent;
 				addPartner(battleCtx.getPokemonSide(value.target) === 'opponent' ? 'ally' : 'opponent', move.pokemon2).then(
 					(partner) => {
-						animateEntry(partner, battleCtx.getPokemonSide(value.target) === 'opponent' ? 'ally' : 'opponent', true).then(
+						animateEntry(partner, battleCtx.getPokemonSide(value.target) === 'opponent' ? 'ally' : 'opponent', battleCtx.playerSide.length, true, battleCtx.battleType === BattleType.DOUBLE).then(
 							() => {
 								animateMove(
 									move.move2,
@@ -109,8 +114,6 @@
 					}
 				);
 			} else {
-				let animTarget = battleCtx.getPokemonSide(value.target) === 'opponent' ? opponent : ally;
-				let animInitiator = battleCtx.getPokemonSide(value.initiator) === 'ally' ? ally : opponent;
 				animateMove(value.move, battleCtx.getPokemonSide(value.initiator), animTarget, animInitiator, scene, spriteFx, fx);
 			}
 		}
@@ -146,89 +149,78 @@
 	function draw() {
 		drawInterval = setInterval(() => {
 			
-			// TODO : handle gender/shinys
 			if (!battleLoopContext.opponentdrawn && battleLoopContext.bgDrawn) {
-				if (!opponent) {
-					opponent = document.createElement('img') as HTMLImageElement;
-					opponent.classList.add('opponent-sprite');
-				}
-				if (opponent) {
-					// scale based on pokemon height
-
-					opponent.src =
-						(battleCtx?.oppSide[0].isShiny
-							? battleCtx?.oppSide[0].sprites?.male?.front.shiny1
-							: battleCtx?.oppSide[0].sprites?.male?.front.frame1) ||
+				if(opponent?.length !== battleCtx.oppSide.length){
+					battleCtx.oppSide.forEach((element, idx) => {
+						let img = document.createElement('img') as HTMLImageElement;
+						img.addEventListener('click', () => {
+							console.log('clicked' + element.name);
+						});
+						img.classList.add('opponent-sprite');
+						img.style.setProperty('--offSet', `${idx}`);
+						opponent[idx] = img;
+					});
+				}else{
+					opponent.forEach((element, idx) => {
+						element.src =
+						(battleCtx?.oppSide[idx].isShiny
+							? battleCtx?.oppSide[idx].sprites?.male?.front.shiny1
+							: battleCtx?.oppSide[idx].sprites?.male?.front.frame1) ||
 						'src/assets/monsters/bw/0.png';
-					opponent.onload = () => {
-						let pkmnHeight = battleCtx?.oppSide[0].height;
-	
-						let imgHeight = opponent.naturalHeight;
-						let screenHeight = window.innerHeight/ 3.5;
-						let scale = Math.min(imgHeight / screenHeight, .7);
-						//let scale = .6//Math.min(Math.floor(imgHeight/ screenHeight * pkmnHeight), 6);
-						console.log({pkmnHeight, imgHeight, screenHeight, scale, });
-						// let scale = Math.floor((screenHeight/imgHeight));
-
-
-						//let scale = .6;
-						//let scale = Math.min(battleCtx?.oppSide[0].height / 4, 1);
-						//let scale = Math.max(Math.min(battleCtx?.oppSide[0].height / 3, .6), 0.4);
-						//let scale = Math.max(Math.min(opponent.naturalHeight / 200, 0.9), 0.1);
-						//console.log(battleCtx?.oppSide[0].name, opponent.naturalHeight / 100, scale);
-						// console.log('opponent', scale, opponent.naturalHeight);
-						 opponent.style.transform = 'scale(' + scale + ')';
-						 opponent.style.setProperty('--scale', scale + '');
-						opponent.style.setProperty('--width', opponent.naturalWidth + 'px');
-						opponent.style.setProperty('--height', opponent.naturalHeight + 'px');
-						gifsWrapper.appendChild(opponent);
-						battleLoopContext.opponentdrawn = true;
-						animateEntry(opponent, 'opponent');
-					};
-				}
-			}
-			if (!battleLoopContext.allydrawn && battleLoopContext.bgDrawn) {
-				if (!ally) {
-					ally = document.createElement('img') as HTMLImageElement;
-					ally.classList.add('ally-sprite');
-				}
-				if (ally) {
-					ally.src =
-						(battleCtx?.playerSide[0].isShiny
-							? battleCtx?.playerSide[0].sprites?.male?.back.shiny1
-							: battleCtx?.playerSide[0].sprites?.male?.back.frame1) ||
-						'src/assets/monsters/bw/0.png';
-
-					ally.onload = () => {
-
-						let pkmnHeight = battleCtx?.playerSide[0].height;
-						console.log('pkmnHeight', pkmnHeight);
-						let imgHeight = ally.naturalHeight;
-						let screenHeight = window.innerHeight / 3.5;
-						let scale = Math.min(imgHeight / screenHeight, .7);
-						//let scale = .65//Math.min(Math.floor(imgHeight / screenHeight * pkmnHeight), 6);
-						console.log({pkmnHeight, imgHeight, screenHeight, scale, });
-						//let imgHeight = ally.naturalHeight;
-						//let screenHeight = Math.min(window.innerHeight, 500 ) * 2 / 3;
-						// calculate scale but respect the image height 
+						element.onload = () => {
+							let imgHeight = element.naturalHeight;
+							let screenHeight = window.innerHeight/ 2.3;
+							let scale = Math.min(imgHeight / screenHeight, .7);
 						
-
-						//let scale = Math.floor((screenHeight/imgHeight));
-						//let scale = .65;
-						//let scale = Math.min(battleCtx?.playerSide[0].height / 4, 1);
-						//let scale = Math.max(Math.min(ally.naturalHeight / 200, 1), 0.2);
-						//let scale = Math.max(Math.min(battleCtx?.playerSide[0].height / 3, .7), 0.4);
-						//console.log(battleCtx?.playerSide[0].name, ally.naturalHeight / 100, scale);
-						//console.log('ally', scale, ally.naturalHeight);
-						ally.style.transform = 'scale(' + scale + ')';
-						ally.style.setProperty('--scale', scale + '');
-						ally.style.setProperty('--width', ally.naturalWidth + 'px');
-						ally.style.setProperty('--height', ally.naturalHeight + 'px');
-						gifsWrapper.appendChild(ally);
-						battleLoopContext.allydrawn = true;
-						animateEntry(ally, 'ally');
-					};
+							element.style.transform = 'scale(' + scale + ')';
+							element.style.setProperty('--scale', scale + '');
+							element.style.setProperty('--width', element.naturalWidth + 'px');
+							element.style.setProperty('--height', element.naturalHeight + 'px');
+							gifsWrapper.appendChild(element);
+							
+							animateEntry(element, 'opponent', idx, false, battleCtx.battleType === BattleType.DOUBLE);
+						};
+					});
+					battleLoopContext.opponentdrawn = true;
 				}
+
+			}
+
+
+			if (!battleLoopContext.allydrawn && battleLoopContext.bgDrawn) {
+				if(ally?.length !== battleCtx.playerSide.length){
+					battleCtx.playerSide.forEach((element, idx) => {
+						let img = document.createElement('img') as HTMLImageElement;
+						img.addEventListener('click', () => {
+							console.log('clicked' + element.name);
+						});
+						img.classList.add('ally-sprite');
+						img.style.setProperty('--offSet', `${idx}`);
+						ally[idx] = img;
+					});
+				}else{
+					ally.forEach((element, idx) => {
+						element.src =
+						(battleCtx?.playerSide[idx].isShiny
+							? battleCtx?.playerSide[idx].sprites?.male?.back.shiny1
+							: battleCtx?.playerSide[idx].sprites?.male?.back.frame1) ||
+						'src/assets/monsters/bw/0.png';
+						element.onload = () => {
+							let imgHeight = element.naturalHeight;
+							let screenHeight = window.innerHeight/ 2.6;
+							let scale = Math.min(imgHeight / screenHeight, .7);
+						
+							element.style.transform = 'scale(' + scale + ')';
+							element.style.setProperty('--scale', scale + '');
+							element.style.setProperty('--width', element.naturalWidth + 'px');
+							element.style.setProperty('--height', element.naturalHeight + 'px');
+							gifsWrapper.appendChild(element);
+							animateEntry(element, 'ally', idx, false, battleCtx.battleType === BattleType.DOUBLE);
+						};
+					});
+					battleLoopContext.allydrawn = true;
+				}
+
 			}
 
 			// }
@@ -237,14 +229,14 @@
 
 	onMount(() => {
 		// set events
-		battleCtx.events.pokemonChange.subscribe((owner) => {
-			if (owner) {
-				if (owner === battleCtx.player) {
-					animateRun(ally, 'ally').then(() => {
+		battleCtx.events.pokemonChange.subscribe((pkmn) => {
+			if (pkmn) {
+				if (battleCtx.getPokemonSide(pkmn) === 'ally') {
+					animateRun(ally[battleCtx.playerSide.indexOf(pkmn)], 'ally').then(() => {
 						battleLoopContext.allydrawn = false;
 					});
 				} else {
-					animateRun(opponent, 'opponent').then(() => {
+					animateRun(ally[battleCtx.oppSide.indexOf(pkmn)], 'opponent').then(() => {
 						battleLoopContext.opponentdrawn = false;
 					});
 				}
@@ -306,10 +298,19 @@
 			src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
 		/>
 	</div>
-
 	<!-- UI -->
-	<EnemyInfo {battleCtx} />
-	<AllyInfo {battleCtx} />
+	<EnemyInfo {battleCtx} idx={0}/>
+	<AllyInfo {battleCtx} idx={0}/>
+
+	{#if battleCtx.battleType === BattleType.DOUBLE}
+		{#if battleCtx.oppSide[1]}
+			<EnemyInfo {battleCtx} idx={1}/>
+		{/if}
+		{#if battleCtx.playerSide[1]}
+			<AllyInfo {battleCtx} idx={1}/>
+		{/if}
+	{/if}
+
 	<ActionBar bind:context bind:battleCtx bind:overWorldCtx={context.overWorldContext} />
 </div>
 
@@ -331,18 +332,6 @@
 		font-size: 23px;
 		position: absolute;
 		z-index: -1;
-
-		// &:after {
-		// 	content: '';
-		// 	position: absolute;
-		// 	left: 0;
-		// 	top: 0;
-		// 	width: 100dvw;
-		// 	height: 108dvh;
-		// 	border-radius: 30p;
-		// 	border: 31px solid rgba(0, 0, 0, 0.6);
-		// 	box-shadow: inset 5px 5px 33px 72px rgba(0, 0, 0, 0.6);
-		// }
 	}
 
 	.wrapper :global(.fx) {
@@ -352,6 +341,7 @@
 		bottom: 0;
 		left: 0;
 		z-index: 9;
+		pointer-events: none;
 	}
 	.wrapper :global(div.fx) {
 		background-repeat: no-repeat;
@@ -359,6 +349,7 @@
 		background-size: cover;
 		scale: 0.2;
 		transform-origin: bottom left;
+		pointer-events: none;
 	}
 
 	@keyframes impatience {
@@ -427,32 +418,16 @@
 	.wrapper :global(.ally-sprite) {
 		position: absolute;
 		display: block;
-		z-index: 8;
-		// max-width: calc(100dvw / 5);
-		// max-height: 80%;
-		// height: auto;
+		z-index: calc(8 + var(--offSet) * -1);
 		image-rendering: pixelated;
 		height: 100%;
 		width: auto;
 		transform: scale(var(--scale));
 		transform-origin: bottom left;
-		bottom: 20%;
+		bottom: calc(20% + (var(--offSet) * 5%));
 		left: 0;
-		animation: impatience 8s infinite;
-		animation-delay: 1.5s;
-	}
-
-	.wrapper :global(.ally-sprite::after) {
-		content: '';
-            position: absolute;
-            bottom: -10px; /* Adjust this value to position the shadow correctly */
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80px; /* Adjust the width to match the character's width */
-            height: 20px; /* Adjust the height for the desired shadow size */
-            background: rgba(0, 0, 0, 0.5); /* Adjust the color and opacity for a shadow effect */
-            border-radius: 50%; /* Make the shadow oval-shaped */
-            border: 1px solid red; /* Debugging: Add a border to see the element */
+		animation: impatience calc(8s + var(--offSet) * 1.5s) infinite;
+		animation-delay: calc(1.5s + var(--offSet) * 1.5s);
 	}
 
 	.wrapper :global(.ally-partner-sprite) {
@@ -466,23 +441,21 @@
 		left: 0;
 		animation: impatience 8s infinite;
 		animation-delay: 1.6s;
+		pointer-events: none;
 	}
 
 	.wrapper :global(.opponent-sprite) {
 		position: absolute;
-		z-index: 7;
+		z-index: calc(5 + var(--offSet));
 		height: 100%;
 		width: auto;
-		// max-width: calc(100dvw / 5);
-		// max-height: 80%;
-		// height: auto;
 		image-rendering: pixelated;
 		transform: scale(var(--scale))  translateY(50%);
 		transform-origin: bottom left;
-		bottom: 35%;
+		bottom: calc(35% - (var(--offSet) * -5%));
 		left: 0;
-		animation: impatience 8s infinite;
-		animation-delay: 2s;
+		animation: impatience calc(8s + var(--offSet) * 1.5s) infinite;
+		animation-delay: calc(2s + var(--offSet) * 1.5s);
 	}
 
 	.wrapper :global(.opponent-partner-sprite) {
@@ -496,6 +469,7 @@
 		left: 0;
 		animation: impatience 8s infinite;
 		animation-delay: 1.8s;
+		pointer-events: none;
 	}
 
 	.wrapper .battle-bg {
@@ -507,5 +481,6 @@
 		left: 0;
 		//filter: blur(1px);
 		image-rendering: pixelated;
+		pointer-events: none;
 	}
 </style>

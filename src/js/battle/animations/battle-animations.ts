@@ -1,7 +1,7 @@
 import { gsap } from 'gsap';
 import type { Move } from '../../pokemons/pokedex';
 
-export function animateEntry(target: HTMLImageElement, source: 'ally' | 'opponent', partner: boolean = false): gsap.core.Timeline {
+export function animateEntry(target: HTMLImageElement, source: 'ally' | 'opponent',idx: number = 0, partner: boolean = false, double: boolean = false): gsap.core.Timeline {
     return gsap.timeline().fromTo(target,
         {
             left: source === 'ally' ? -target.getBoundingClientRect().width : window.innerWidth,
@@ -9,8 +9,8 @@ export function animateEntry(target: HTMLImageElement, source: 'ally' | 'opponen
         },
         {
             left: source === 'ally' ?
-                window.innerWidth * (partner ? 0.18 : 0.25) - target.getBoundingClientRect().width / 2
-                : window.innerWidth * (partner ? 0.68 : 0.75) - target.getBoundingClientRect().width / 2,
+                window.innerWidth * (partner ? 0.18 : (0.25 + (idx * 0.1) + (idx === 0 && double ? 0.1 : 0))) - target.getBoundingClientRect().width / 2 - (idx * window.innerWidth * 0.2)
+                : window.innerWidth * (partner ? 0.68 : (0.75 - (idx * 0.12) - (idx === 0 && double ? 0.1 : 0))) - target.getBoundingClientRect().width / 2 + (idx *  window.innerWidth * 0.2),
             duration: 2,
         }).to(target, {
             filter: 'brightness(1)',
@@ -54,6 +54,11 @@ export function animateMove(
     spriteFx: HTMLDivElement,
     fx: HTMLImageElement[]): gsap.core.Timeline | Promise<gsap.core.Timeline> {
 
+        const initialPos = {
+            bottom: initiator.style.bottom,
+            left: initiator.getBoundingClientRect().left,
+        }
+
         //return animateBeam(move, source, target, initiator, scene, spriteFx);
     switch (move.name) {
 
@@ -72,7 +77,7 @@ export function animateMove(
         case 'triple-axel':
         case 'thunderous-kick':
         case 'axe-kick':
-            return animateSpriteDash(move, source, target, initiator, scene, spriteFx, 'foot-sprite', 5, 192, 1, 1);
+            return animateSpriteDash(move, source, target, initiator,initialPos, scene, spriteFx, 'foot-sprite', 5, 192, 1, 1);
         case 'comet-punch':
         case 'mega-punch':
         case 'fire-punch':
@@ -91,7 +96,7 @@ export function animateMove(
         case 'power-up-punch':
         case 'plasma-fists':
         case 'force-palm':
-            return animateSpriteDash(move, source, target, initiator, scene, spriteFx, 'fist-sprite', 5, 192, 1, 1);
+            return animateSpriteDash(move, source, target, initiator,initialPos, scene, spriteFx, 'fist-sprite', 5, 192, 1, 1);
         case 'karate-chop':
         case 'cross-chop':
         case 'rock-smash':
@@ -101,7 +106,7 @@ export function animateMove(
         case 'dual-chop':
         case 'throat-chop':
         case 'rage-fist':
-            return animateSpriteDash(move, source, target, initiator, scene, spriteFx, 'chop-sprite', 4, 192, 1, 1);
+            return animateSpriteDash(move, source, target, initiator,initialPos, scene, spriteFx, 'chop-sprite', 4, 192, 1, 1);
         case 'pound':
         case 'tackle':
         case 'slam':
@@ -162,10 +167,10 @@ export function animateMove(
         case 'beat-up':
         case 'power-trip':
         case 'flare-blitz':
-            return animateSpriteDash(move, source, target, initiator, scene, spriteFx, 'impact-sprite', 4, 192, 1, 1);
+            return animateSpriteDash(move, source, target, initiator,initialPos, scene, spriteFx, 'impact-sprite', 4, 192, 1, 1);
         case 'double-slap':
         case 'double-hit':
-            return animateSpriteDash(move, source, target, initiator, scene, spriteFx, 'impact-sprite', 4, 192, 1, 2);
+            return animateSpriteDash(move, source, target, initiator,initialPos, scene, spriteFx, 'impact-sprite', 4, 192, 1, 2);
         case 'scratch':
         case 'cut':
         case 'slash':
@@ -177,15 +182,15 @@ export function animateMove(
         case 'guillotine':
         case 'cross-poison':
         case 'psycho-cut':
-            return animateSpriteDash(move, source, target, initiator, scene, spriteFx, 'slash-sprite', 5, 192, 1, 1);
+            return animateSpriteDash(move, source, target, initiator,initialPos, scene, spriteFx, 'slash-sprite', 5, 192, 1, 1);
         case 'fury-swipes':
-            return animateSpriteDash(move, source, target, initiator, scene, spriteFx, 'slash-sprite', 5, 192, 1, 2);
+            return animateSpriteDash(move, source, target, initiator,initialPos, scene, spriteFx, 'slash-sprite', 5, 192, 1, 2);
         case 'metal-claw':
         case 'shadow-claw':
         case 'dragon-claw':
         case 'crush-claw':
         case 'hone-claws':
-            return animateSpriteDash(move, source, target, initiator, scene, spriteFx, 'claws-sprite', 8, 192, 1, 1);
+            return animateSpriteDash(move, source, target, initiator,initialPos, scene, spriteFx, 'claws-sprite', 8, 192, 1, 1);
         case 'bite':
         case 'crunch':
         case 'fire-fang':
@@ -196,7 +201,7 @@ export function animateMove(
         case 'psychic-fang':
         case 'hyper-fang':
         case 'super-fang':
-            return animateSpriteDash(move, source, target, initiator, scene, spriteFx, 'crunch-sprite', 6, 192, .6, 2);
+            return animateSpriteDash(move, source, target, initiator,initialPos, scene, spriteFx, 'crunch-sprite', 6, 192, .6, 2);
         // from initiator
         // electrik
         case 'thunder-shock':
@@ -351,7 +356,7 @@ export function animateMove(
 
         case 'drain-punch':
         case 'horn-leech':
-            return animateSpriteDash(move, source, target, initiator, scene, spriteFx, 'fist-sprite', 5, 192, 1, 1)
+            return animateSpriteDash(move, source, target, initiator,initialPos, scene, spriteFx, 'fist-sprite', 5, 192, 1, 1)
                 .then(() => animateSpriteFromTarget(move, source, target, initiator, scene, spriteFx, 'drain-sprite', 8)
                     .then(() => animateSpriteSelf(move, source, target, initiator, scene, spriteFx, 'heal-sprite', 7)));
 
@@ -359,7 +364,7 @@ export function animateMove(
             return animateRun(initiator, source);
         case 'u-turn':
         case 'volt-switch':
-            return animateSpriteDash(move, source, target, initiator, scene, spriteFx, 'impact-sprite', 4, 192, 1, 1)
+            return animateSpriteDash(move, source, target, initiator,initialPos, scene, spriteFx, 'impact-sprite', 4, 192, 1, 1)
                 .then(() => animateRun(initiator, source));
 
         // heal 
@@ -819,6 +824,7 @@ function animateSpriteDash(
     source: 'ally' | 'opponent',
     target: HTMLImageElement,
     initiator: HTMLImageElement,
+    initialPos: { bottom: string, left: number },
     scene: HTMLDivElement,
     spriteFx: HTMLDivElement,
     fxImage: string,
@@ -833,8 +839,9 @@ function animateSpriteDash(
             left: source === 'ally' ?
                 target.getBoundingClientRect().left - initiator.getBoundingClientRect().width * 2 / 3 :
                 target.getBoundingClientRect().right - initiator.getBoundingClientRect().width * 2 / 3,
+                bottom: target.getBoundingClientRect().y,
             //bottom: source === 'ally' ? '35%' : '15%',
-            bottom: '50%',
+           // bottom: '50%',
             duration: .4
         }
     ).set(spriteFx, {
@@ -899,11 +906,10 @@ function animateSpriteDash(
     }, 'element+=.4').to(
         initiator,
         {
-            left: source === 'ally' ?
-                window.innerWidth * 0.25 - target.getBoundingClientRect().width / 2
-                : window.innerWidth * 0.75 - target.getBoundingClientRect().width / 2,
+            left: initialPos.left,
+            bottom: initialPos.bottom,
             //bottom: source === 'ally' ? '15%' : '35%',
-            bottom: '50%',
+           // bottom: '50%',
             duration: .3,
             delay: .1
         }

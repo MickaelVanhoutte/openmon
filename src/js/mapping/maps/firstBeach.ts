@@ -6,6 +6,7 @@ import { Jonction } from "../collisions";
 import { OverworldItem } from "../../items/overworldItem";
 import { MenuType, SceneType } from "../../context/overworldContext";
 import { FlagEntry } from "../../scripting/quests";
+import { BattleType } from "../../battle/battle-model";
 
 const monsters = Array.from({ length: 233 }, (v, k) => k + 1);
 
@@ -571,7 +572,7 @@ const npcs = [
                 new Dialog([
                     new Message('I\'m training here everyday !'),
                 ]),
-                new StartBattle(4),
+                new StartBattle(4, BattleType.DOUBLE),
                 new GiveMoney(100), // TODO condition if win
                 new Dialog([
                     new Message('You received 100$')
