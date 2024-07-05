@@ -76,7 +76,7 @@
 				}
 			}, 300);
 		}, 14000);
-		horde.addEventListener('click', () => {
+		intro.addEventListener('click', () => {
 			if (ready) started = true;
 		});
 

@@ -431,14 +431,16 @@ export class Move {
     public accuracy: number;
     public pp: number;
     public priority: number;
-    /*public target: string;*/
+    public target: string;
     public effect: MoveEffect;
     public effectChance: number;
     public description: string;
     public level: number;
     public method: number;
 
-    constructor(id: number, name: string, type: string, category: 'physical' | 'special' | 'no-damage', power: number, accuracy: number, pp: number, priority: number, /*target: string,*/ effect: MoveEffect, effectChance: number, description: string, level: number, method: number = 1) {
+    constructor(id: number, name: string, type: string, category: 'physical' | 'special' | 'no-damage', power: number, accuracy: number, pp: number, priority: number,
+        target: "all-opponents" | "selected-pokemon" | "users-field" | "user" | "user-and-allies" | "entire-field" | "random-opponent" | "all-other-pokemon" | "specific-move" | "opponents-field" | "ally" | "all-pokemon" | "user-or-ally",
+        effect: MoveEffect, effectChance: number, description: string, level: number, method: number = 1) {
         this.id = id;
         this.name = name;
         this.type = type;
@@ -447,7 +449,7 @@ export class Move {
         this.accuracy = accuracy;
         this.pp = pp;
         this.priority = priority;
-        /*this.target = target;*/
+        this.target = target;
         this.effect = effect;
         this.effectChance = effectChance;
         this.description = description;
@@ -574,6 +576,7 @@ export class ComboMove extends Move {
             100,
             move1.pp,
             move1.priority,
+            move1.target as "all-opponents" | "selected-pokemon" | "users-field" | "user" | "user-and-allies" | "entire-field" | "random-opponent" | "all-other-pokemon" | "specific-move" | "opponents-field" | "ally" | "all-pokemon" | "user-or-ally",
             move1.effect,
             move1.effectChance * 1.5 > 100 ? 100 : move1.effectChance * 1.5,
             `Combo`,
@@ -587,15 +590,17 @@ export class ComboMove extends Move {
         // effectChance haves 50% bonus (max 100%)
         this.effectsChances.push(move1.effectChance * 1.5 > 100 ? 100 : move1.effectChance * 1.5);
         this.effectsChances.push(move2.effectChance * 1.5 > 100 ? 100 : move2.effectChance * 1.5);
-    } 
+    }
 
 }
 
 export class MoveInstance extends Move {
     public currentPp: number;
 
-    constructor(id: number, name: string, type: string, category: 'physical' | 'special' | 'no-damage', power: number, accuracy: number, pp: number, priority: number, /*target: string,*/ effect: MoveEffect, effectChance: number, description: string, level: number) {
-        super(id, name, type, category, power, accuracy, pp, priority, /*target,*/ effect, effectChance, description, level);
+    constructor(id: number, name: string, type: string, category: 'physical' | 'special' | 'no-damage', power: number, accuracy: number, pp: number, priority: number, target: string, effect: MoveEffect, effectChance: number, description: string, level: number) {
+        super(id, name, type, category, power, accuracy, pp, priority,
+             target as "all-opponents" | "selected-pokemon" | "users-field" | "user" | "user-and-allies" | "entire-field" | "random-opponent" | "all-other-pokemon" | "specific-move" | "opponents-field" | "ally" | "all-pokemon" | "user-or-ally",
+             effect, effectChance, description, level);
         this.currentPp = pp;
     }
 }
@@ -800,23 +805,23 @@ export class PokemonInstance extends PokedexEntry {
         }
     }
 
-    public levelUp(): {oldStats?: Stats, newStats?: Stats, moves?: Move[]} {
+    public levelUp(): { oldStats?: Stats, newStats?: Stats, moves?: Move[] } {
         if (this.level >= 100) {
             return {};
         }
-        let oldStats = {...this.currentStats};
+        let oldStats = { ...this.currentStats };
 
         let currentHp = this.currentStats.hp;
         this.level += 1;
         this.updateCurrentStats();
-        let newStats = {...this.currentStats};
+        let newStats = { ...this.currentStats };
 
         // heal added hp
         currentHp = this.currentStats.hp - currentHp;
         this.currentHp += currentHp;
         this.currentXp = 0;
 
-        return {oldStats, newStats, moves: this.checkForNewMoves()};
+        return { oldStats, newStats, moves: this.checkForNewMoves() };
 
         // TODO
         //this.checkForNewMoves();
@@ -842,6 +847,6 @@ export class PokemonInstance extends PokedexEntry {
 
     private selectLatestMoves(pokedexEntry: PokedexEntry) {
         // get 4 last moves based on current level
-        return pokedexEntry.moves.filter((move) => move.level <= this.level && move.method === 1).slice(-4).map((move) => new MoveInstance(move.id, move.name, move.type, move.category, move.power, move.accuracy, move.pp, move.priority, move.effect, move.effectChance, move.description, move.level));
+        return pokedexEntry.moves.filter((move) => move.level <= this.level && move.method === 1).slice(-4).map((move) => new MoveInstance(move.id, move.name, move.type, move.category, move.power, move.accuracy, move.pp, move.priority, move.target, move.effect, move.effectChance, move.description, move.level));
     }
 }

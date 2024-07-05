@@ -46,7 +46,7 @@ uniqueMoves = Array.from(uniqueMoves);
 uniqueMoves.forEach((move) => {
     let m = moves.find((m) => m.id === move);
     uniqueEffects.add(m.effect_id);
-    movesUniq.push({ id: m.id, name: m.identifier, type: typeById[m.type_id], cat: movesCat[m.damage_class_id], power: m.power, impl: false });
+    movesUniq.push({ id: m.id, name: m.identifier, type: typeById[m.type_id], cat: movesCat[m.damage_class_id], power: m.power, impl: false, target: m.target_id});
 });
 
 console.log(`${uniqueEffects.size} unique effects`);
@@ -79,3 +79,10 @@ let todos = movesUniq.filter(move => !move.impl);
 fs.writeFileSync('/Users/perso/workspace/perso/openmon/src/js/battle/animations/missing-moves.json', JSON.stringify(todos));
 console.log('implemented : ', movesUniq.filter(move => move.impl).length);
 console.log('todo : ', movesUniq.filter(move => !move.impl).length);
+
+
+let targetUniq = new Set(movesUniq.filter(move => move.target === 1));
+
+targetUniq.forEach(target => {
+    console.log(target);
+});

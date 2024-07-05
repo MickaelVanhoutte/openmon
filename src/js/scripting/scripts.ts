@@ -1,7 +1,7 @@
 import type { NPC } from "../characters/npc";
 import { Position } from "../mapping/positions";
 import type { GameContext } from "../context/gameContext";
-import { on } from "@svgdotjs/svg.js";
+import { BattleType } from "../battle/battle-model";
 
 export abstract class Scriptable {
     type: string = 'scriptable';
@@ -295,17 +295,20 @@ export class MoveToPlayer extends Scriptable {
 export class StartBattle extends Scriptable {
 
     npcId: number;
+    battleType: BattleType;
 
-    constructor(npcId: number) {
+    constructor(npcId: number, battleType: BattleType = BattleType.SINGLE) {
         super();
         this.type = 'StartBattle';
         this.npcId = npcId;
+        this.battleType = battleType;
+        console.log('StartBattle', npcId, battleType)
     }
 
     play(context: GameContext, onEnd: () => void): any {
         let npc = context.map?.npcs?.find(npc => npc.id === this.npcId);
         if (npc) {
-            context.startBattle(npc, () => {
+            context.startBattle(npc, this.battleType, () => {
                 this.finished = true;
                 onEnd();
 
@@ -372,7 +375,7 @@ export class Script {
                 case 'GiveItem':
                     return new GiveItem((action as GiveItem).itemId, (action as GiveItem).qty);
                 case 'StartBattle':
-                    return new StartBattle((action as StartBattle).npcId);
+                    return new StartBattle((action as StartBattle).npcId, (action as StartBattle).battleType);
                 case 'MoveToPlayer':
                     return new MoveToPlayer((action as MoveToPlayer).npcId);
                 case 'CustomScriptable':

@@ -42,18 +42,23 @@ export class ChangePokemon implements ActionV2Interface {
     }
 
     execute(ctx: BattleContext): void {
+        let pokemonChanged: PokemonInstance | undefined;
         if(this.owner instanceof Player) {
            //replace initiator with target in  ctx.playerSide
-            let index = ctx.playerSide.findIndex((monster: PokemonInstance) => monster === this.initiator);
+            let index = ctx.playerSide.findIndex((monster: PokemonInstance | undefined) => monster === this.initiator);
+            pokemonChanged = ctx.playerSide[index];
             ctx.playerSide[index] = this.target;
             ctx.participants.add(this.target);
         }else {
             //replace initiator with target in  ctx.opponentSide
-            let index = ctx.oppSide.findIndex((monster: PokemonInstance) => monster === this.initiator);
+            let index = ctx.oppSide.findIndex((monster: PokemonInstance | undefined) => monster === this.initiator);
+            pokemonChanged = ctx.oppSide[index];
             ctx.oppSide[index] = this.target;
         }
         // order to change sprite to component
-        ctx.events.pokemonChange.set(this.owner);
+        if(pokemonChanged){
+            ctx.events.pokemonChange.set(pokemonChanged);
+        }
     }
 }
 
@@ -273,23 +278,41 @@ export class EndTurnChecks implements ActionV2Interface {
             ctx.battleResult.win = false;
             ctx.addToStack(new EndBattle(this.initiator));
             ctx.addToStack(new Message('You lost the battle...', this.initiator));
-        } else if (!!ctx.oppSide.find(pk => pk.fainted) && ctx.opponent instanceof NPC) {
+        } else if (!!ctx.oppSide.find(pk => pk?.fainted) && ctx.opponent instanceof NPC) {
             //@ts-ignore
             let faintedIdx = ctx.oppSide.indexOf(ctx.oppSide.find(pk => pk.fainted));
             if (ctx.settings?.difficulty === 'NORMAL') {
                 // random non fainted
-                let nonFainted = ctx.opponent.monsters.filter((monster: PokemonInstance) => !monster.fainted);
-                ctx.oppSide[faintedIdx] = nonFainted[Math.floor(Math.random() * nonFainted.length)];
+                let nonFainted = ctx.opponent.monsters.filter((monster: PokemonInstance) => !monster.fainted)
+                                                      .filter(poke => !ctx.oppSide.includes(poke));
+                        console.log(nonFainted);
+                if(nonFainted.length === 0) {
+                    ctx.oppSide[faintedIdx] = undefined;
+                }else{
+                    ctx.oppSide[faintedIdx] = nonFainted[Math.floor(Math.random() * nonFainted.length)];
+                    ctx.addToStack(new Message(`${ctx.opponent.name} sent out ${ctx.oppSide[faintedIdx]?.name}!`, ctx.oppSide[faintedIdx]));
+                    ctx.events.pokemonChange.set(ctx.oppSide[faintedIdx]);
+                }
             } else {
-                // non fainted with best type advantage
-                let nonFainted = ctx.opponent.monsters.filter((monster: PokemonInstance) => !monster.fainted);
-                let bestTypeAdvantage = ctx.findBestPokemon(ctx.opponent.monsters, ctx.playerSide[0]); // TODO should check all player side (mutualize code with battleContext)
-                ctx.oppSide[faintedIdx] = bestTypeAdvantage || nonFainted[Math.floor(Math.random() * nonFainted.length)];
+                // non fainted, non already on board with best type advantage
+                let nonFainted = ctx.opponent.monsters.filter((monster: PokemonInstance) => !monster.fainted)
+                                                      .filter(poke => poke !== ctx.oppSide[faintedIdx]);
+                let bestTypeAdvantage = ctx.findBestPokemon(ctx.opponent.monsters, ctx.playerSide?.find(pk => !!pk && !pk.fainted)); // TODO should check all player side (mutualize code with battleContext)
+                if(bestTypeAdvantage){
+                    ctx.oppSide[faintedIdx] = bestTypeAdvantage;
+                    ctx.addToStack(new Message(`${ctx.opponent.name} sent out ${ctx.oppSide[faintedIdx]?.name}!`, ctx.oppSide[faintedIdx]));
+                    ctx.events.pokemonChange.set(ctx.oppSide[faintedIdx]);
+                }else if(nonFainted){
+                    ctx.oppSide[faintedIdx] = nonFainted[Math.floor(Math.random() * nonFainted.length)]
+                    ctx.addToStack(new Message(`${ctx.opponent.name} sent out ${ctx.oppSide[faintedIdx]?.name}!`, ctx.oppSide[faintedIdx]));
+            ctx.events.pokemonChange.set(ctx.oppSide[faintedIdx]);
+                }else {
+                    ctx.oppSide[faintedIdx] = undefined;
+                }
             }
-            ctx.addToStack(new Message(`${ctx.opponent.name} sent out ${ctx.oppSide[faintedIdx].name}!`, ctx.oppSide[faintedIdx]));
-            ctx.events.pokemonChange.set(ctx.opponent);
-        } else if (!!ctx.playerSide.find(pk => pk.fainted)) {
-            ctx.events.playerPokemonFaint.set(ctx.playerSide.find(pk => pk.fainted));
+            
+        } else if (!!ctx.playerSide.find(pk => pk?.fainted)) {
+            ctx.events.playerPokemonFaint.set(ctx.playerSide.find(pk => pk?.fainted));
         }
         if (actions) {
             actions.forEach((action: ActionV2Interface) => {

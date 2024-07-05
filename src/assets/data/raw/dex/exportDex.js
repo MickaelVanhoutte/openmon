@@ -97,6 +97,7 @@ function exportPokemons() {
                         accuracy: move.move.accuracy,
                         pp: move.move.pp,
                         priority: move.move.priority,
+                        target: move.move.target,
                         effect: move.move.effect,
                         effectChance: move.move.effectChance,
                         description: move.move.description,

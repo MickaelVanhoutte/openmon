@@ -1,13 +1,10 @@
 <script lang="ts">
-	/**
-	 * Ally HP bar
-	 * TODO : status style, team pokeballs;
-	 */
-
+	import { BattleType } from '../../js/battle/battle-model';
 	import { BattleContext } from '../../js/context/battleContext';
 	import type { PokemonInstance } from '../../js/pokemons/pokedex';
 
 	export let battleCtx: BattleContext;
+	export let idx: number;
 
 	let currentHp = 0;
 	let percent = 0;
@@ -22,31 +19,32 @@
 		speed: 'Spe',
 		hp: 'HP',
 		accuracy: 'Acc',
-		evasion: 'Eva',
+		evasion: 'Eva'
 	};
 
 	const statsMultiplier = {
-		attack: ((value: number) => (value + 2) / 2),
-		defense: ((value: number) => (value + 2) / 2),
-		specialAttack: ((value: number) => (value + 2) / 2),
-		specialDefense: ((value: number) => (value + 2) / 2),
-		speed: ((value: number) => (value + 2) / 2),
-		hp: ((value: number) => (value + 2) / 2),
-		accuracy: ((value: number) => (value + 3) / 3),
-		evasion: ((value: number) => (value + 3) / 3)
+		attack: (value: number) => (value + 2) / 2,
+		defense: (value: number) => (value + 2) / 2,
+		specialAttack: (value: number) => (value + 2) / 2,
+		specialDefense: (value: number) => (value + 2) / 2,
+		speed: (value: number) => (value + 2) / 2,
+		hp: (value: number) => (value + 2) / 2,
+		accuracy: (value: number) => (value + 3) / 3,
+		evasion: (value: number) => (value + 3) / 3
 	};
 
-
 	battleCtx.currentAction.subscribe((_value) => {
-		pokemon = battleCtx?.playerSide[0];
-		currentHp = pokemon?.currentHp || 0;
-		percent = Math.floor((currentHp * 100) / pokemon.currentStats.hp);
-		expPercent = Math.floor((pokemon?.currentXp * 100) / pokemon?.xpToNextLevel);
+		if(battleCtx?.playerSide[idx]){
+			pokemon = battleCtx?.playerSide[idx];
+			currentHp = pokemon?.currentHp || 0;
+			percent = Math.floor((currentHp * 100) / pokemon.currentStats.hp);
+			expPercent = Math.floor((pokemon?.currentXp * 100) / pokemon?.xpToNextLevel);
+		}
 	});
 </script>
 
-<div class="ally-info">
-	<div class="rotate">
+<div class="ally-info" style="--offSet:{idx};" class:double={battleCtx.battleType === BattleType.DOUBLE}>
+	<div class="rotate" style="--rotate:{idx === 0 ? '40deg' : '-40deg'}">
 		<div class="name-lvl">
 			<div class="status">
 				{#if pokemon?.status}
@@ -82,10 +80,13 @@
 
 		<div class="stats">
 			{#each Object.entries(pokemon.statsChanges) as [stat, value], index}
-			{#if statsFormat[stat] && statsMultiplier[stat](value) !== 1}
-				<div class="mult" style="--color:{statsMultiplier[stat](value) >= 1 ? '#7EAF53' : '#dc5959'}">
-					{statsFormat[stat]} : {statsMultiplier[stat](value)}x
-				</div>
+				{#if statsFormat[stat] && statsMultiplier[stat](value) !== 1}
+					<div
+						class="mult"
+						style="--color:{statsMultiplier[stat](value) >= 1 ? '#7EAF53' : '#dc5959'}"
+					>
+						{statsFormat[stat]} : {statsMultiplier[stat](value)}x
+					</div>
 				{/if}
 			{/each}
 		</div>
@@ -93,41 +94,32 @@
 </div>
 
 <style lang="scss">
-	@keyframes appear {
+	@keyframes fadeIn {
 		from {
-			left: -30%;
+			opacity: 0;
 		}
 		to {
-			left: 2%;
-		}
-	}
-
-	@keyframes bounce {
-		0%,
-		100% {
-			transform: translateY(0);
-		}
-		50% {
-			transform: translateY(-2px);
+			opacity: 1;
 		}
 	}
 
 	.ally-info {
 		z-index: 7;
-
 		position: absolute;
 		top: 3%;
-		left: -30%;
-
+		left: 2%;
 		font-size: 20px;
-
-		animation:
-			appear 0.5s ease-in forwards;
-
+		animation: fadeIn 0.5s ease-in forwards;
+		opacity: 0;
 		height: 50%;
 		width: 25%;
 		perspective: 100dvw;
+		pointer-events: none;
 
+		&.double {
+			left: calc(22% + var(--offSet)* -1 * 22%);
+		}
+		
 		.rotate {
 			height: 100%;
 			width: 100%;
@@ -149,8 +141,8 @@
 					font-size: 16px;
 					color: var(--color);
 					text-shadow: 1px 0px 0px var(--color);
-    				letter-spacing: 1.5px;
-					background-color: rgba(255, 255, 255, .85);
+					letter-spacing: 1.5px;
+					background-color: rgba(255, 255, 255, 0.85);
 					border-radius: 4px;
 					padding: 4px;
 				}

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { BattleContext } from '../../js/context/battleContext';
 	import type { PokemonInstance } from '../../js/pokemons/pokedex';
+	import { BattleType } from '../../js/battle/battle-model';
 
 	/**
 	 * Opponent HP bar
@@ -9,6 +10,7 @@
 	 */
 
 	export let battleCtx: BattleContext;
+	export let idx: number;
 
 	let currentHp = 0;
 	let percent = 0;
@@ -22,30 +24,31 @@
 		speed: 'Spe',
 		hp: 'HP',
 		accuracy: 'Acc',
-		evasion: 'Eva',
+		evasion: 'Eva'
 	};
 
 	const statsMultiplier = {
-		attack: ((value: number) => (value + 2) / 2),
-		defense: ((value: number) => (value + 2) / 2),
-		specialAttack: ((value: number) => (value + 2) / 2),
-		specialDefense: ((value: number) => (value + 2) / 2),
-		speed: ((value: number) => (value + 2) / 2),
-		hp: ((value: number) => (value + 2) / 2),
-		accuracy: ((value: number) => (value + 3) / 3),
-		evasion: ((value: number) => (value + 3) / 3)
+		attack: (value: number) => (value + 2) / 2,
+		defense: (value: number) => (value + 2) / 2,
+		specialAttack: (value: number) => (value + 2) / 2,
+		specialDefense: (value: number) => (value + 2) / 2,
+		speed: (value: number) => (value + 2) / 2,
+		hp: (value: number) => (value + 2) / 2,
+		accuracy: (value: number) => (value + 3) / 3,
+		evasion: (value: number) => (value + 3) / 3
 	};
 
-
 	battleCtx.currentAction.subscribe((_value) => {
-		pokemon = battleCtx?.oppSide[0];
-		currentHp = pokemon?.currentHp || 0;
-		percent = Math.floor((currentHp * 100) / pokemon.currentStats.hp);
+		if(battleCtx?.oppSide[idx]){
+			pokemon = battleCtx?.oppSide[idx];
+			currentHp = pokemon?.currentHp || 0;
+			percent = Math.floor((currentHp * 100) / pokemon.currentStats.hp);
+		}
 	});
 </script>
 
-<div class="enemy-info">
-	<div class="rotate">
+<div class="enemy-info" style="--offSet:{idx};" class:double={battleCtx.battleType === BattleType.DOUBLE}>
+	<div class="rotate" style="--rotate:{idx === 0 ? '-40deg' : '40deg'}">
 		<div class="name-lvl">
 			<div class="status">
 				{#if pokemon?.status}
@@ -73,10 +76,13 @@
 		</div>
 		<div class="stats">
 			{#each Object.entries(pokemon.statsChanges) as [stat, value], index}
-			{#if statsFormat[stat] && statsMultiplier[stat](value) !== 1}
-				<div class="mult" style="--color:{statsMultiplier[stat](value) >= 1 ? '#7EAF53' : '#dc5959'}">
-					{statsFormat[stat]} : {statsMultiplier[stat](value)}x
-				</div>
+				{#if statsFormat[stat] && statsMultiplier[stat](value) !== 1}
+					<div
+						class="mult"
+						style="--color:{statsMultiplier[stat](value) >= 1 ? '#7EAF53' : '#dc5959'}"
+					>
+						{statsFormat[stat]} : {statsMultiplier[stat](value)}x
+					</div>
 				{/if}
 			{/each}
 		</div>
@@ -84,22 +90,12 @@
 </div>
 
 <style lang="scss">
-	@keyframes appear {
+	@keyframes fadeIn {
 		from {
-			right: -30%;
+			opacity: 0;
 		}
 		to {
-			right: 2%;
-		}
-	}
-
-	@keyframes bounce {
-		0%,
-		100% {
-			transform: translateY(0);
-		}
-		50% {
-			transform: translateY(-2px);
+			opacity: 1;
 		}
 	}
 
@@ -110,16 +106,18 @@
 		width: 25%;
 		position: absolute;
 		top: 3%;
-		right: -30%;
-
+		right: 2%;
+		opacity: 0;
 		border-radius: 10px;
-
 		font-size: 24px;
+		animation: fadeIn 0.5s ease-in forwards;
+		perspective: 100dvw;
+		pointer-events: none;
 
-		animation:
-			appear 0.5s ease-in forwards;
+		&.double {
+			right: calc(22% + var(--offSet) * -1 * 22%);
+		}
 
-			perspective: 100dvw;
 		.rotate {
 			height: 100%;
 			width: 100%;
@@ -142,8 +140,8 @@
 					font-size: 16px;
 					color: var(--color);
 					text-shadow: 1px 0px 0px var(--color);
-    				letter-spacing: 1.5px;
-					background-color: rgba(255, 255, 255, .85);
+					letter-spacing: 1.5px;
+					background-color: rgba(255, 255, 255, 0.85);
 					border-radius: 4px;
 					padding: 4px;
 				}

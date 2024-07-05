@@ -21,6 +21,7 @@ import { forest } from "../mapping/maps/forest";
 import { OverworldSpawn } from "../characters/overworld-spawn";
 import { Flags, Objective, ObjectiveState, QUESTS, Quest, QuestState } from "../scripting/quests";
 import { Notifications } from "../scripting/notifications";
+import { BattleType } from "../battle/battle-model";
 
 
 /**
@@ -487,7 +488,7 @@ export class GameContext {
             let monster = this.map.randomMonster();
             // level can be base on player medium level of his team
             let level = Math.floor(this.player.monsters.reduce((acc, pkmn) => acc + pkmn.level, 0) / this.player.monsters.length);
-            this.startBattle(this.POKEDEX.findById(monster.id).result.instanciate(level - 1));//monster.level
+            this.startBattle(this.POKEDEX.findById(monster.id).result.instanciate(level - 1), BattleType.SINGLE);//monster.level
         }
     }
 
@@ -553,7 +554,7 @@ export class GameContext {
         return inSight;
     }
 
-    startBattle(opponent: PokemonInstance | Character, onEnd?: () => void) {
+    startBattle(opponent: PokemonInstance | Character, battleType: BattleType, onEnd?: () => void) {
         this.overWorldContext.setPaused(true, 'battle-start gameContext');
 
         if (this.sound && this.sound.playing()) {
@@ -570,6 +571,11 @@ export class GameContext {
             this.battleSound.play();
         }, 1500);
 
+        console.log(battleType)
+        if(battleType === BattleType.DOUBLE && this.player.monsters.length < 2){
+            battleType = BattleType.SINGLE;
+        }
+        console.log(battleType)
 
         if (opponent instanceof NPC && opponent?.monsterIds?.length > 0) {
             opponent.monsters = opponent.monsterIds.map((id) => {
@@ -580,7 +586,7 @@ export class GameContext {
             });
         }
 
-        let battleContext = new BattleContext(this.player, opponent, this.settings);
+        let battleContext = new BattleContext(this.player, opponent, this.settings, battleType);
         let unsubscribe = battleContext.events.end.subscribe((result) => {
             if (result) {
                 this.battleSound.fade(0.5, 0, 1000);
