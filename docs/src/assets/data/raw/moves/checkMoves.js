@@ -1,4 +1,4 @@
-import movesAss from "./move-associations.json" assert {type: "json"};
+import movesAss from "../../final/beta/move-associations.json" assert {type: "json"};
 import moves from "./moves.json" assert {type: "json"};
 import fs from "fs";
 
@@ -36,14 +36,20 @@ for (let i = 0; i < movesFromJson.length; i++) {
     uniqueMoves.add(movesFromJson[i].move.id);
 }
 
-console.log(uniqueMoves.size);
+console.log(`${uniqueMoves.size} unique moves`);
 
+// unique effects
+
+let uniqueEffects = new Set([]);
 let movesUniq = [];
 uniqueMoves = Array.from(uniqueMoves);
 uniqueMoves.forEach((move) => {
     let m = moves.find((m) => m.id === move);
-    movesUniq.push({ id: m.id, name: m.identifier, type: typeById[m.type_id], cat: movesCat[m.damage_class_id], power: m.power, impl: false });
+    uniqueEffects.add(m.effect_id);
+    movesUniq.push({ id: m.id, name: m.identifier, type: typeById[m.type_id], cat: movesCat[m.damage_class_id], power: m.power, impl: false, target: m.target_id});
 });
+
+console.log(`${uniqueEffects.size} unique effects`);
 
 // sort by type and cat
 
@@ -73,3 +79,10 @@ let todos = movesUniq.filter(move => !move.impl);
 fs.writeFileSync('/Users/perso/workspace/perso/openmon/src/js/battle/animations/missing-moves.json', JSON.stringify(todos));
 console.log('implemented : ', movesUniq.filter(move => move.impl).length);
 console.log('todo : ', movesUniq.filter(move => !move.impl).length);
+
+
+let targetUniq = new Set(movesUniq.filter(move => move.target === 1));
+
+targetUniq.forEach(target => {
+    console.log(target);
+});
