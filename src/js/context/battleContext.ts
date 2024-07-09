@@ -62,21 +62,21 @@ export class BattleContext {
         //this.playerPokemon = this.player.monsters.find(poke => !poke.fainted) || this.player.monsters[0];
         //this.opponentPokemon = opponent instanceof PokemonInstance ? opponent : (opponent as Player).monsters.find(poke => !poke.fainted) || (opponent as Player).monsters[0];
         let teamSize = 1;
-        if(battleType === BattleType.DOUBLE && opponent instanceof NPC) {
-            teamSize = 2;   
+        if (battleType === BattleType.DOUBLE && opponent instanceof NPC) {
+            teamSize = 2;
         }
 
         this.playerSide = this.player.monsters.filter(poke => !poke.fainted).slice(0, teamSize);
 
-        if(opponent instanceof PokemonInstance) {
+        if (opponent instanceof PokemonInstance) {
             this.oppSide = [opponent];
-        }else {
+        } else {
             this.oppSide = (opponent as Player).monsters.filter(poke => !poke.fainted).slice(0, teamSize);
         }
         console.log('DEBUG, player side : ', this.playerSide);
         console.log('DEBUG, opp side : ', this.oppSide);
 
-        if(this.playerSide?.length !== teamSize || this.oppSide?.length !== teamSize) {
+        if (this.playerSide?.length !== teamSize || this.oppSide?.length !== teamSize) {
             throw new Error('Not enough pokemons to start the battle');
         }
 
@@ -86,26 +86,26 @@ export class BattleContext {
 
     setPlayerAction(action: ActionV2Interface) {
         this.playerTurnActions.push(action);
-        
-        if(this.actionIdx !== this.playerSide.length - 1) {
+
+        if (this.actionIdx !== this.playerSide.length - 1) {
             this.actionIdx++;
             this.currentMessage.set(`What should ${this.playerSide[this.actionIdx]?.name} do ?`);
         }
 
-        if(this.playerTurnActions.length === this.playerSide.length) {
+        if (this.playerTurnActions.length === this.playerSide.length) {
             this.startTurn();
         }
     }
 
-    cancelLastAction(){
-        if(this.playerTurnActions.length > 0) {
+    cancelLastAction() {
+        if (this.playerTurnActions.length > 0) {
             this.playerTurnActions.pop();
             this.actionIdx--;
             this.currentMessage.set(`What should ${this.playerSide[this.actionIdx]?.name} do ?`);
         }
     }
 
-    startTurn(){
+    startTurn() {
         this.isPlayerTurn.set(false);
         this.actionIdx = 0;
         this.turnCount++;
@@ -117,7 +117,7 @@ export class BattleContext {
         });
 
         let actions = this.sortActions(this.playerTurnActions, this.opponentTurnActions);
-        
+
         this.oppSide.filter(poke => !!poke && !poke.fainted).forEach(poke => {
             this.addToStack(new EndTurnChecks(poke));
         });
@@ -175,11 +175,11 @@ export class BattleContext {
             return a.initiator.battleStats.speed - b.initiator.battleStats.speed;
         });
 
-    
+
         actions.push(...attacks);
         actions.push(...items);
         actions.push(...switches);
-        if(playerRun !== undefined){
+        if (playerRun !== undefined) {
             actions.push(playerRun);
         }
 
@@ -251,71 +251,74 @@ export class BattleContext {
         this.actionStack.clear();
     }
 
+    public calculateTypeEffectiveness(type: string, types: string[]) {
+        return types?.reduce((acc, type2) => {
+            const effectiveness = this.fromTypeChart(type, type2);
+            return acc * effectiveness;
+        }, 1) || 1;
+    }
+
     // TODO : Should be in NPC (trainer extends NPC ?) class
     private selectOpponentAction(poke: PokemonInstance): ActionV2Interface {
         // TODO : targets calculation
         let random = Math.floor(Math.random() * poke.moves.length);
+        let isBest = false;
         let move = poke.moves[random];
         let action: ActionV2Interface;
 
-        if (this.settings.difficulty === 'NORMAL') {
-            // random ally pokemon
-            let randomAlly = this.playerSide.filter(poke => !!poke && !poke.fainted);
-            if(randomAlly?.length > 0){
-                action = new Attack(move, randomAlly[0], poke);
-            }
+        let found = this.getPossibleTargets(poke, move);
+        if (found.selectOne) {
+            // random target
+            let randomTarget = found.possibleTargets[Math.floor(Math.random() * found.possibleTargets.length)];
+            action = new Attack(move, [randomTarget], poke);
         } else {
+            action = new Attack(move, found.possibleTargets, poke);
+        }
 
-            let previousTurn = this.turnHistory.findLast((turn: TurnHistory) => turn.turn < this.turnCount && turn.initiator === poke && turn.actionType === 'Attack');
-            if (previousTurn) {
-                //let previousMove = previousTurn.move;
-                // need more infos on the move (is it a stat boost...) TODO
-            }
 
-            // find a move that is strong against a pokemon from playerSide
-            // check first 
-            let target = this.playerSide[0];
+        if (this.settings.difficulty !== 'NORMAL') {
 
-            let matchTargetTypes = target?.types.length === 2 ?
-                poke.moves.find((move: Move) => move.type === target?.types[0] && move.power > 0) :
-                poke.moves.find((move: Move) => (move.type === target?.types[0] || move.type === target?.types[1]) && move.power > 0);
+             // find a move whose type is super effective against one of allyside
+             let bestTarget = this.playerSide.find(pkmn => !!pkmn && !pkmn.fainted);
+             let bestMove = poke.moves.find((move: Move) => {
+                return this.playerSide.filter(pkmn => !!pkmn && !pkmn.fainted).some((ally: PokemonInstance) => {
+                     let effectiveness = this.calculateTypeEffectiveness(move.type, ally.types);
+                     if(effectiveness > 1 && move.power > 0) {
+                         bestTarget = ally;
+                         isBest = true;
+                         return true;
+                     }
+                 }); 
+             }) || move;
 
-            if(!matchTargetTypes && this.playerSide.length > 1) {
-                target = this.playerSide[1];
-                matchTargetTypes = target?.types.length === 2 ?
-                poke.moves.find((move: Move) => move.type === target?.types[0] && move.power > 0) :
-                poke.moves.find((move: Move) => (move.type === target?.types[0] || move.type === target?.types[1]) && move.power > 0);
-            }
+             let found = this.getPossibleTargets(poke, bestMove);
+             if (found.selectOne) {
+                 // random target
+                 action = new Attack(move, [bestTarget], poke);
+             } else {
+                 action = new Attack(move, found.possibleTargets, poke);
+             }
 
-            if(target){
-                if (this.opponent instanceof NPC) {
-                    // is there a better poke to switch in based on types chart ?
-                    let bestPoke = this.findBestPokemon(this.opponent.monsters, target)
-                    if (this.isWeakAgainst(poke, target) && bestPoke) {
-                        action = new Switch(poke, bestPoke, this.opponent);
-                    } else if (poke.currentHp < poke.stats.hp / 4 && this.havePotions(this.opponent)) {
-                        // else if low hp && bag contains potions
-                        let itemId = this.opponent.bag.getPocketByCategory(27)?.[0];
-                        action = new UseItem(itemId, poke, poke, this.opponent);
-                    }
-                    // select the best move
-                    if (matchTargetTypes && matchTargetTypes.power > 0) {
-                        action = new Attack(matchTargetTypes, [target], poke);
-                    } else {
-                        action = new Attack(move, [target], poke);
-                    }
 
-                } else {
-                    // select the best move
-                    if (matchTargetTypes && matchTargetTypes.power > 0) {
-                        action = new Attack(matchTargetTypes, [target], poke);
-                    } else {
-                        action = new Attack(move, [target], poke);
-                    }
+            if (this.opponent instanceof NPC) {
 
+                // may switch or heal
+                let havePotions = this.havePotions(this.opponent);
+                let haveLowHp = this.oppSide.some(pkmn => !!pkmn && pkmn.currentHp < pkmn.stats.hp / 4);
+                let betterMons: PokemonInstance|undefined = this.opponent.monsters.filter(pkmn => !!pkmn && !pkmn.fainted).find(pkmn => {
+                    return this.playerSide.some(ally => !!ally && !ally.fainted && this.isWeakAgainst(ally, pkmn));
+                });
+                
+                if (haveLowHp && havePotions) {
+                    let itemId = this.opponent.bag.getPocketByCategory(27)?.[0];
+                    action = new UseItem(itemId, poke, poke, this.opponent);
+                }else if(betterMons) {
+                    action = new Switch(poke, betterMons, this.opponent);
                 }
+
             }
         }
+
         return action;
     }
 
@@ -323,7 +326,7 @@ export class BattleContext {
         // find a poke which have a type that is strong against playerPokemon
         return monsters.find(poke => {
             !poke.fainted &&
-            !this.oppSide.includes(poke) &&
+                !this.oppSide.includes(poke) &&
                 poke.types.some(type => playerPokemon?.weaknesses.includes(type));
         });
     }
@@ -354,20 +357,20 @@ export class BattleContext {
             });
 
             // Redirect to another target if double and other side length > 1
-            if(this.battleType === BattleType.DOUBLE){
-                let actionsWithTarget  = this.actionStack.stack.filter((action: ActionV2Interface) => {
+            if (this.battleType === BattleType.DOUBLE) {
+                let actionsWithTarget = this.actionStack.stack.filter((action: ActionV2Interface) => {
                     return !(action.type === ActionType.ATTACK && (action as Attack).target.includes(target));
                 });
                 actionsWithTarget.forEach(action => {
-                    if(action.type === ActionType.ATTACK) {
+                    if (action.type === ActionType.ATTACK) {
                         let attack = action as Attack;
                         let targetSide = this.getPokemonSide(target) === 'ally' ? this.playerSide : this.oppSide;
 
-                        if(attack.target.includes(target)) {
+                        if (attack.target.includes(target)) {
                             let newTarget = targetSide.find(poke => !!poke && poke !== target);
-                            if(newTarget) {
+                            if (newTarget) {
                                 attack.target = [newTarget];
-                            }else{
+                            } else {
                                 // remove from stack
                                 this.actionStack.stack = this.actionStack.stack.filter(action => action !== attack)
                             }
@@ -375,7 +378,7 @@ export class BattleContext {
                     }
                 });
             }
-            
+
             // .filter(action => {
             //     return !(action.type === ActionType.ATTACK && (action as Attack).target.includes(target));
             // });
@@ -423,4 +426,65 @@ export class BattleContext {
         return this.playerSide.includes(pokemon) ? 'ally' : 'opponent';
     }
 
+    public getPossibleTargets(initiator: PokemonInstance, move: Move): { possibleTargets: PokemonInstance[], selectOne: boolean } {
+        let possibleTargets: PokemonInstance[] = [];
+        let selectOne = false;
+
+        if (initiator) {
+
+            let currentSide = this.getPokemonSide(initiator) === 'ally' ? this.playerSide : this.oppSide;
+            let opponentSide = this.getPokemonSide(initiator) === 'ally' ? this.oppSide : this.playerSide;
+            currentSide = currentSide.filter(poke => !!poke && !poke.fainted);
+            opponentSide = opponentSide.filter(poke => !!poke && !poke.fainted);
+
+
+            if (move.target === 'all-opponents') {
+                possibleTargets = opponentSide;
+            } else if (move.target === 'all-allies') {
+                // no matching move for now TODO
+                possibleTargets = currentSide;
+            } else if (move.target === 'user-and-allies') {
+                possibleTargets = currentSide;
+            } else if (move.target === 'random-opponent') {
+                possibleTargets = opponentSide[Math.floor(Math.random() * opponentSide.length)];
+            } else if (move.target === 'all-other-pokemon') {
+                possibleTargets = [...opponentSide, ...currentSide].filter(
+                    (p) => p !== initiator
+                );
+            } else if (move.target === 'ally') {
+                possibleTargets = [
+                    currentSide.filter(
+                        (p) => p !== initiator
+                    )
+                ];
+            } else if (move.target === 'all-pokemon') {
+                possibleTargets = [...opponentSide, ...currentSide];
+            } else if (move.target === 'user') {
+                possibleTargets = [initiator];
+            } else if (move.target === 'specific-move') {
+                if (move.name === 'curse') {
+                    if (initiator.types.includes('ghost')) {
+                        possibleTargets = opponentSide;
+                        selectOne = true;
+                    } else {
+                        possibleTargets = [initiator];
+                    }
+                } else {
+                    // else (mirror-coat, counter, etc.) -> depend on who hits the user
+                    // need to change at runtime
+                    possibleTargets = [initiator];
+                }
+
+            } else if (move.target === 'user-or-ally') {
+                possibleTargets = currentSide;
+                selectOne = true;
+            } else if (move.target === 'selected-pokemon') {
+                possibleTargets = opponentSide;
+                selectOne = true;
+            }
+            //else no target (fields)
+        }
+
+        return { possibleTargets, selectOne };
+    }
 }

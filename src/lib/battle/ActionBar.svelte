@@ -148,79 +148,24 @@
 			return;
 		}
 
-		let targets: PokemonInstance[] = [];
+		console.log({ selectedTargets }, { move });
 
-		if (selectedTargets) {
-			targets = selectedTargets;
-		} else if (
-			move.target === 'user-or-ally' ||
-			move.target === 'selected-pokemon' ||
-			(move.target === 'specific-moves' &&
-				move.name === 'curse' &&
-				battleCtx.playerSide[battleCtx.actionIdx]?.types?.includes('ghost') &&
-				battleCtx.battleType === BattleType.DOUBLE &&
-				!selectedTargets)
-		) {
-			// display targetSelection
-			targets = [battleCtx.oppSide[0]];
-			if (move.target === 'user-or-ally') {
-				possibleTargets = battleCtx.playerSide.filter((p) => !!p && !p?.fainted);
-			}
+		let targets: PokemonInstance[];
 
-			if (move.target === 'selected-pokemon') {
-				possibleTargets = battleCtx.oppSide.filter((p) => !!p && !p?.fainted);
-			}
-
-			if (move.target === 'specific-moves') {
-				possibleTargets = battleCtx.oppSide.filter((p) =>!!p && !p?.fainted);
-			}
-
-			if(possibleTargets?.length === 1){
-				selectedTargetIdx = 0;
-				targets = possibleTargets;
-			}else {
-				targetSelectOpened = true;
-				return; // open menu and recall this function with selectedTargets
-			}
-
+		if (selectedTargets && selectedTargets.length > 0) {
+			targets = [...selectedTargets];
 		} else {
-			if (move.target === 'all-opponents') {
-				targets = battleCtx.oppSide.filter((p) =>!!p && !p?.fainted);
-			} else if (move.target === 'all-allies') {
-				// no matching move for now TODO
-				targets = battleCtx.playerSide;
-			} else if (move.target === 'user-and-allies') {
-				targets = battleCtx.player.monsters.filter((p) =>!!p && !p?.fainted);
-			} else if (move.target === 'random-opponent') {
-				targets = battleCtx.oppSide.filter((p) =>!!p && !p?.fainted).at(Math.floor(Math.random() * battleCtx.oppSide.length));
-			} else if (move.target === 'all-other-pokemon') {
-				targets = [...battleCtx.oppSide, ...battleCtx.playerSide].filter(
-					(p) => p !== battleCtx.playerSide[battleCtx.actionIdx]
-				);
-			} else if (move.target === 'ally') {
-				targets = [
-					battleCtx.playerSide.filter(
-						(p) => !!p && p !== battleCtx.playerSide[battleCtx.actionIdx] && !p?.fainted
-					)[0]
-				];
-			} else if (move.target === 'all-pokemon') {
-				targets = [...battleCtx.oppSide, ...battleCtx.playerSide].filter((p) => !!p && !p?.fainted);
-			} else if (move.target === 'user') {
-				targets = [battleCtx.playerSide[battleCtx.actionIdx]];
-			} else if (move.target === 'specific-move') {
-				if (
-					move.name === 'curse' &&
-					!battleCtx.playerSide[battleCtx.actionIdx].types?.includes('ghost')
-				) {
-					targets = [battleCtx.playerSide[battleCtx.actionIdx]];
-				}
-				// else (mirror-coat, counter, etc.) -> depend on who hits the user
+			let found = battleCtx.getPossibleTargets(battleCtx.playerSide[battleCtx.actionIdx], move);
+			if (found.selectOne) {
+				targetSelectOpened = true;
+				possibleTargets = found.possibleTargets;
+				return;
+			} else {
+				targets = found.possibleTargets;
 			}
-			//else no target (fields)
 		}
 
-		if (battleCtx) {
-			// TODO if currentCombo, send combo action
+		if (battleCtx && targets) {
 			if (!!currentCombo) {
 				battleCtx.setPlayerAction(
 					new Attack(
@@ -241,6 +186,7 @@
 			}
 
 			selectedTargetIdx = undefined;
+			selectedMoveIdx = undefined;
 			possibleTargets = [];
 			targetSelectOpened = false;
 			infoOpened = false;
@@ -330,12 +276,7 @@
 			itm.doesApply(target, battleCtx.playerSide[pokemonIdx], battleCtx)
 		) {
 			battleCtx?.setPlayerAction(
-				new UseItem(
-					result.item,
-					target,
-					battleCtx.playerSide[pokemonIdx],
-					battleCtx.player
-				)
+				new UseItem(result.item, target, battleCtx.playerSide[pokemonIdx], battleCtx.player)
 			);
 			overWorldCtx.closeMenu(MenuType.BAG);
 		} else {
@@ -368,36 +309,34 @@
 				if (moveOpened && targetSelectOpened) {
 					if (selectedTargetIdx === undefined) {
 						selectedTargetIdx = 0;
+					} else {
+						selectedTargetIdx =
+							selectedTargetIdx === 0 ? possibleTargets.length - 1 : selectedTargetIdx - 1;
 					}
-					selectedTargetIdx =
-						selectedTargetIdx === 0 ? possibleTargets.length - 1 : selectedTargetIdx - 1;
 				} else if (moveOpened) {
 					if (selectedMoveIdx === undefined) {
 						selectedMoveIdx = 0;
+					} else {
+						selectedMoveIdx =
+							selectedMoveIdx === 0
+								? battleCtx.playerSide[battleCtx.actionIdx].moves.length - 1
+								: selectedMoveIdx - 1;
 					}
-
-					selectedMoveIdx =
-						selectedMoveIdx === 0
-							? battleCtx.playerSide[battleCtx.actionIdx].moves.length - 1
-							: selectedMoveIdx - 1;
 				} else {
 					if (selectedOptionIdx === undefined) {
 						selectedOptionIdx = 0;
+					} else {
+						selectedOptionIdx = selectedOptionIdx === 0 ? 3 : selectedOptionIdx - 1;
 					}
-
-					selectedOptionIdx = selectedOptionIdx === 0 ? 3 : selectedOptionIdx - 1;
 				}
 			} else if (e.key === 'ArrowDown') {
-				if (selectedMoveIdx === undefined) {
-					selectedMoveIdx = 0;
-				}
-
 				if (moveOpened && targetSelectOpened) {
 					if (selectedTargetIdx === undefined) {
 						selectedTargetIdx = 0;
+					} else {
+						selectedTargetIdx =
+							selectedTargetIdx === possibleTargets.length - 1 ? 0 : selectedTargetIdx + 1;
 					}
-					selectedTargetIdx =
-						selectedTargetIdx === possibleTargets.length - 1 ? 0 : selectedTargetIdx + 1;
 				} else if (moveOpened) {
 					selectedMoveIdx =
 						selectedMoveIdx === battleCtx.playerSide[battleCtx.actionIdx].moves.length - 1
@@ -406,8 +345,9 @@
 				} else {
 					if (selectedOptionIdx === undefined) {
 						selectedOptionIdx = 0;
+					} else {
+						selectedOptionIdx = selectedOptionIdx === 3 ? 0 : selectedOptionIdx + 1;
 					}
-					selectedOptionIdx = selectedOptionIdx === 3 ? 0 : selectedOptionIdx + 1;
 				}
 			} else if (e.key === 'Enter' && selectedMoveIdx !== undefined) {
 				if (moveOpened && targetSelectOpened && selectedTargetIdx !== undefined) {
@@ -436,9 +376,15 @@
 					}
 				}
 			} else if (e.key === 'Escape') {
-				if (!moveOpened && !showAdd && !showInfoBack && !targetSelectOpened && battleCtx.playerTurnActions?.length > 0) {
+				if (
+					!moveOpened &&
+					!showAdd &&
+					!showInfoBack &&
+					!targetSelectOpened &&
+					battleCtx.playerTurnActions?.length > 0
+				) {
 					battleCtx.cancelLastAction();
-				}else {
+				} else {
 					targetSelectOpened = false;
 					moveOpened = false;
 					showAdd = false;
@@ -448,12 +394,19 @@
 		}
 	};
 
+	function haveRemainingPokemons() {
+		return (
+			battleCtx.player.monsters?.filter((p) => !!p && !p.fainted)?.length >
+			(battleCtx.battleType === BattleType.SINGLE ? 1 : 2)
+		);
+	}
+
 	onMount(() => {
 		show = true;
 		window.addEventListener('keydown', listener);
 
 		battleCtx.events.playerPokemonFaint.subscribe((pkmn) => {
-			if (pkmn && !battleCtx?.player.monsters.every((p) => p.fainted)) {
+			if (pkmn && haveRemainingPokemons()) {
 				changePokemon = true;
 			}
 		});
@@ -461,12 +414,11 @@
 			window.removeEventListener('keydown', listener);
 		};
 	});
-
 </script>
 
 {#if battleCtx?.playerTurnActions?.length > 0 && battleCtx?.playerSide?.length > 1 && !moveOpened && !targetSelectOpened}
-	<div class="cancel-wrapper">	
-		<button class="cancel-last button" on:click={()=> battleCtx.cancelLastAction()}>Cancel</button>
+	<div class="cancel-wrapper">
+		<button class="cancel-last button" on:click={() => battleCtx.cancelLastAction()}>Cancel</button>
 	</div>
 {/if}
 
@@ -725,7 +677,7 @@
 		</div>
 	{:else}
 		<!-- targets -->
-		<div class="moves2" class:show>
+		<div class="moves2 target-select" class:show>
 			{#each possibleTargets as target, index}
 				<button
 					class="move-btn target-btn move"
@@ -742,6 +694,21 @@
 					<svg use:inlineSvg={`src/assets/types/${move.type}.svg`} fill="currentColor"> </svg>
 				</span> -->
 					<span class="move-name">{target.name.toUpperCase()}</span>
+					<span
+						class="effectiveness"
+						style="--eff-color: {battleCtx?.calculateTypeEffectiveness(
+							battleCtx?.playerSide[battleCtx.actionIdx]?.moves[selectedMoveIdx].type,
+							target.types
+						) > 1
+							? 'yellow'
+							: 'transparent'}"
+					>
+						x
+						{battleCtx?.calculateTypeEffectiveness(
+							battleCtx?.playerSide[battleCtx.actionIdx]?.moves[selectedMoveIdx].type,
+							target.types
+						)}
+					</span>
 
 					<!-- <span class="move-pp">
 					{move.currentPp}/{move.pp}
@@ -1101,6 +1068,10 @@
 		transform: skew(-15deg);
 		transition: transform 0.5s ease-in-out;
 
+		&.target-select {
+			justify-content: center;
+		}
+
 		.action2-btn {
 			width: 100%;
 			//margin-right: var(--offset);
@@ -1141,7 +1112,24 @@
 			transition: transform 0.5s ease-in-out;
 
 			&.target-btn {
-				background-color: var(--color);
+				border-left: 12px solid var(--color);
+				justify-content: flex-start;
+				gap: 10%;
+
+				&:hover,
+				&.selected {
+					background-color: rgba(44, 56, 69, 0.65);
+					color: white;
+				}
+
+				span:first-child {
+					margin-left: 10%;
+				}
+				span:last-child {
+					font-size: 26px;
+					font-weight: bold;
+					text-shadow: 0px 0px 5px var(--eff-color, transparent);
+				}
 			}
 
 			&:hover,
@@ -1150,10 +1138,7 @@
 				background-color: var(--color); //rgba(255, 255, 255, 0.95);
 				color: #123;
 				animation: float 3s infinite;
-
-				.move-type {
-					//background-color: rgba(44, 56, 69, 0.45);
-				}
+				opacity: 1;
 			}
 
 			.move-type {
