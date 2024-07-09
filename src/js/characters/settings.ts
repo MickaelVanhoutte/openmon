@@ -1,7 +1,7 @@
 export class Settings {
 
     xpShare: boolean = true;
-    difficulty: 'NORMAL' | 'HARD' = 'NORMAL';
+    difficulty: 'NORMAL' | 'HARD' = 'HARD';
     gameMode: GameMode = GameMode.CLASSIC;
 
     constructor() {
