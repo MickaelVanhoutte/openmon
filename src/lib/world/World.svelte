@@ -287,7 +287,7 @@
 		.notifications {
 			position: absolute;
 			top: calc(4% + 56px);
-			left: 2%;
+			left: 1%;
 			display: flex;
 			flex-direction: column;
 			justify-content: center;
@@ -355,7 +355,7 @@
 	.minimap-wrapper {
 		position: absolute;
 		top: calc(4% + 56px);
-		left: 2%;
+		left: 1%;
 		z-index: 7;
 
 		width: 33dvw;

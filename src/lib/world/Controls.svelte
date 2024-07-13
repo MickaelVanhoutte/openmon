@@ -455,7 +455,7 @@
 	nav.menu {
 		position: absolute;
 		top: 2%;
-		left: 2%;
+		left: 1%;
 		z-index: 7;
 		display: flex;
 		flex-direction: row;
@@ -533,7 +533,7 @@
 		.toggle {
 			position: absolute;
 			top: 2%;
-			left: 2%;
+			left: 1%;
 			background-color: rgba(44, 56, 69, 0.95);
 			color: white;
 			padding: 8px;
@@ -561,7 +561,7 @@
 		.quest-list {
 			position: absolute;
 			top: calc(4% + 56px);
-			left: 2%;
+			left: 1%;
 			background: #333;
 			color: white;
 			font-size: 22px;
