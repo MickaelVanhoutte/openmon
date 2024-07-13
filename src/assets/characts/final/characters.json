@@ -1,0 +1,158 @@
+[
+    {
+        "id": 1,
+        "name": "Ethan",
+        "playable": true,
+        "full": {
+            "source": "src/assets/characts/final/full/ethan.png",
+            "startX": 0,
+            "startY": 0,
+            "height": 76,
+            "width": 128,
+            "frameNumber": 1
+        },
+        "face": {
+            "source": "src/assets/characts/final/faces/ethan.png",
+            "startX": 0,
+            "startY": 0,
+            "height": 100,
+            "width": 100,
+            "frameNumber": 1
+        },
+        "throwing": {
+            "source": "src/assets/characts/final/throwing/ethan.png",
+            "startX": 0,
+            "startY": 0,
+            "height": 128,
+            "width": 640,
+            "frameNumber": 1
+        },
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/ethan.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 64,
+                "width": 64,
+                "frameNumber": 4
+            },
+            "running": {
+                "source": "src/assets/characts/final/running/ethan.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 64,
+                "width": 64,
+                "frameNumber": 4
+            },
+            "biking": {
+                "source": "src/assets/characts/final/biking/ethan.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 64,
+                "width": 64,
+                "frameNumber": 4
+            },
+            "surfing": {
+                "source": "src/assets/characts/final/surfing/ethan.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 64,
+                "width": 64,
+                "frameNumber": 4
+            }
+        }
+    },
+    {
+        "id": 2,
+        "name": "Lyra",
+        "playable": true,
+        "full": {
+            "source": "src/assets/characts/final/full/lyra.png",
+            "startX": 0,
+            "startY": 0,
+            "height": 76,
+            "width": 128,
+            "frameNumber": 1
+        },
+        "face": {
+            "source": "src/assets/characts/final/faces/lyra.png",
+            "startX": 0,
+            "startY": 0,
+            "height": 100,
+            "width": 100,
+            "frameNumber": 1
+        },
+        "throwing": {
+            "source": "src/assets/characts/final/throwing/lyra.png",
+            "startX": 0,
+            "startY": 0,
+            "height": 128,
+            "width": 640,
+            "frameNumber": 1
+        },
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/lyra.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 64,
+                "width": 64,
+                "frameNumber": 4
+            },
+            "running": {
+                "source": "src/assets/characts/final/running/lyra.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 64,
+                "width": 64,
+                "frameNumber": 4
+            },
+            "biking": {
+                "source": "src/assets/characts/final/biking/lyra.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 64,
+                "width": 64,
+                "frameNumber": 4
+            },
+            "surfing": {
+                "source": "src/assets/characts/final/surfing/lyra.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 64,
+                "width": 64,
+                "frameNumber": 4
+            }
+        }
+    },
+    {
+        "id": 3,
+        "name": "Rich boy",
+        "full": {
+            "source": "src/assets/characts/final/full/rich-boy.png",
+            "startX": 0,
+            "startY": 0,
+            "height": 76,
+            "width": 128,
+            "frameNumber": 1
+        },
+        "face": {
+            "source": "src/assets/characts/final/faces/rich-boy.png",
+            "startX": 0,
+            "startY": 0,
+            "height": 100,
+            "width": 100,
+            "frameNumber": 1
+        },
+        "overworld": {
+          "walking": {
+            "source": "src/assets/characts/final/walking/rich-boy.png",
+            "startX": 0,
+            "startY": 0,
+            "height": 64,
+            "width": 64,
+            "frameNumber": 4
+          }
+        }
+      }
+]

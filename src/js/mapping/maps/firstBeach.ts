@@ -498,7 +498,7 @@ const npcs = [
     //             ])])
     //     ]
     // ),
-    new NPC(2, "NPC2", 2, new Position(137, 3), 'down', 'MALE', [112, 114], undefined,
+    new NPC(2, "NPC2", 3, new Position(137, 3), 'down', 'MALE', [112, 114], undefined,
         new Script(
             'onSight',
             [
@@ -536,7 +536,7 @@ const npcs = [
     //     )
     // ),
 
-    new NPC(991, "NPC1", 2, new Position(86, 27), 'down', 'MALE', undefined, undefined,
+    new NPC(991, "NPC1", 3, new Position(86, 27), 'down', 'MALE', undefined, undefined,
 
         new Script('onInteract2', [
             new Dialog([
@@ -550,7 +550,7 @@ const npcs = [
         undefined,
         true
     ),
-    new NPC(992, "NPC2", 2, new Position(84, 26), 'down', 'MALE', undefined, undefined,
+    new NPC(992, "NPC2", 3, new Position(84, 26), 'down', 'MALE', undefined, undefined,
         new Script('onInteract2', [
             new Dialog([
                 new Message('I just received plenty of merchandise, want to take a look ?', 'shop', ['Sure', 'No, thanks'])
@@ -564,7 +564,7 @@ const npcs = [
         true
     ),
 
-    new NPC(4, "NPC4", 2, new Position(98, 58), 'down', 'MALE', [112, 114], undefined,
+    new NPC(4, "NPC4", 3, new Position(98, 58), 'down', 'MALE', [112, 114], undefined,
         new Script(
             'onSight',
             [
@@ -640,9 +640,24 @@ export const firstBeach = OpenMap.fromScratch(0, 'src/assets/maps/First-beach.pn
                 ]),
                 new CustomScriptable(
                     (ctx) => {
-                        ctx.overWorldContext.startScene(SceneType.STARTER_SELECTION);
+                        //ctx.overWorldContext.startScene(SceneType.STARTER_SELECTION);
+                        ctx.player.monsters[0]= ctx.POKEDEX.findById(50).result?.instanciate(6, 20, true);
+                        ctx.POKEDEX.setCaught(50);
+                        ctx.player.setFollower(ctx.player.monsters[0]);
+                        ctx.validateQuestObjective(0, 0);
                     }
-                )
+                ),
+                new CustomScriptable(
+                    (ctx) => {
+                       // reverse ctx.player.position.direction 
+                       ctx.player.position.direction = ctx.player.reverseDirection();
+                    }
+                ),
+                new Dialog([
+                    new Message('Eevee !', 'self'),
+                    new Message('Hopefuly I found you', 'self'),
+                    new Message('Eeee ! 🤍', 'follower'),
+                ])
             ])
         ]),
 

@@ -76,7 +76,7 @@
 
 {#if current?.speaker && current?.speaker === 'self'}
 	<div class="speaker-wrapper">
-		<div class="speaker" style="background-image: url('src/assets/characts/faces/ethan.jpg')"></div>
+		<div class="speaker" style="background-image: url({context.player.sprite.face.source})"></div>
 	</div>
 {/if}
 {#if current?.speaker && current?.speaker === 'follower'}
@@ -84,6 +84,7 @@
 		<div class="speaker follower" style="background-image: {src.replaceAll('"', '')}"></div>
 	</div>
 {/if}
+
 <div class="dialog">
 	<div class="dialog-content">
 		<div class="dialog-text" class:animate bind:this={text}>

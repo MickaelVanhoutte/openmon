@@ -502,7 +502,7 @@ let npcScript: Script = new Script('onInteract', [
 ]);
 const npcs: NPC[] = [
     new NPC(
-        6, 'demo', 2, new Position(7, 152), 'down', 'MALE', [1], undefined, npcScript, undefined, undefined, false)
+        6, 'demo', 3, new Position(7, 152), 'down', 'MALE', [1], undefined, npcScript, undefined, undefined, false)
 ];
 const scripts: Script[] = [];
 
