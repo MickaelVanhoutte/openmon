@@ -65,10 +65,11 @@ export class SavesHolder {
     currentVersion = 1;
 
     constructor() {
+        console.log(JSON.parse(localStorage.getItem('saves'), this.reviver));
         this.saves = localStorage.getItem('saves')?.length &&
             // @ts-ignore
-            JSON.parse(localStorage.getItem('saves'), this.reviver) || [];
-        this.saves.filter(s => !!s.version && s.version === this.currentVersion).forEach((save) => {
+            JSON.parse(localStorage.getItem('saves'), this.reviver).filter(s => s.version && s.version === this.currentVersion) || [];
+        this.saves.forEach((save) => {
             Object.setPrototypeOf(save, SaveContext.prototype);
             Object.setPrototypeOf(save.player, Player.prototype);
             save.player.setPrototypes();
@@ -153,7 +154,7 @@ export class SavesHolder {
         }
         let encoded = JSON.stringify(this.saves, this.replacer); // todo encode
         console.log(encoded);
-        localStorage.setItem('saves-v2', encoded);
+        localStorage.setItem('saves', encoded);
     }
 
     replacer(key: any, value: any) {

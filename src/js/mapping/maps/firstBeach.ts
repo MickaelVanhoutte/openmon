@@ -504,8 +504,8 @@ const npcs = [
             [
                 new MoveToPlayer(2),
                 new Dialog([
-                    new Message('I found these pokemons while fishing,'),
-                    new Message('Let\'s see what you got !')
+                    new Message('I found these pokemons while fishing,', '3'),
+                    new Message('Let\'s see what you got !', '3')
                 ]),
                 new StartBattle(2),
                 new GiveMoney(100), // TODO condition if win
@@ -540,10 +540,10 @@ const npcs = [
 
         new Script('onInteract2', [
             new Dialog([
-                new Message('Would you like to rest your Pokemon?', 'healer', ['Sure', 'No, thanks']),
+                new Message('Would you like to rest your Pokemon?', '3', ['Sure', 'No, thanks']),
             ]),
             new HealAll(0),
-            new Dialog([new Message('Feel free to come back anytime!', 'bye')])
+            new Dialog([new Message('Feel free to come back anytime!', '3')])
         ], undefined,
             true),
         undefined,
@@ -553,10 +553,10 @@ const npcs = [
     new NPC(992, "NPC2", 3, new Position(84, 26), 'down', 'MALE', undefined, undefined,
         new Script('onInteract2', [
             new Dialog([
-                new Message('I just received plenty of merchandise, want to take a look ?', 'shop', ['Sure', 'No, thanks'])
+                new Message('I just received plenty of merchandise, want to take a look ?', '3', ['Sure', 'No, thanks'])
             ]),
             new OpenShop(shopItems, 0),
-            new Dialog([new Message('Feel free to come back anytime!', 'bye')])
+            new Dialog([new Message('Feel free to come back anytime!', '3'),])
         ], undefined,
             true),
         undefined,
@@ -570,21 +570,21 @@ const npcs = [
             [
                 new MoveToPlayer(4),
                 new Dialog([
-                    new Message('I\'m training here everyday !'),
+                    new Message('I\'m training here everyday !', '3'),
                 ]),
                 new StartBattle(4, BattleType.DOUBLE),
                 new GiveMoney(100), // TODO condition if win
                 new Dialog([
-                    new Message('You received 100$')
+                    new Message('You received 100$', 'System')
                 ]),
                 new Dialog([
-                    new Message('Let me train now...'),
+                    new Message('Let me train now...', '3'),
                 ])
             ]
         ),
         [new Script('onInteract', [
             new Dialog([
-                new Message('Let me train now...'),
+                new Message('Let me train now...', '3'),
             ])
         ], undefined, true)],
         // new Script(

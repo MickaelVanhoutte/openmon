@@ -3,6 +3,7 @@
 	import type { Dialog } from '../../js/scripting/scripts';
 	import type { Unsubscriber } from 'svelte/store';
 	import type { GameContext } from '../../js/context/gameContext';
+	import { CHARACTER_SPRITES } from '../../js/sprites/sprites';
 
 	export let dialog: Dialog | undefined;
 	export let context: GameContext;
@@ -15,21 +16,25 @@
 	$: if (current?.speaker) {
 		if (current.speaker === 'follower' && context.player.follower) {
 			let id = ('00' + context.player.follower.pokemon.id).slice(-3);
-			src = "url('src/assets/monsters/pokedex/" + id + ".png')";
-		} else {
-			src = '';
+			src = 'src/assets/monsters/pokedex/' + id + '.png';
+		} else if (current.speaker !== 'self' && Number(current.speaker)) {
+			console.log('getting sprite', current.speaker)
+			let sprite = CHARACTER_SPRITES.getSprite(Number.parseInt(current.speaker));
+			src = sprite.full.source;
+			npcName = sprite.name;
 		}
 	}
 	let selectedOption = 0;
 	let src: string = '';
+	let npcName = '';
 
 	function next() {
 		let tmp = dialog?.next();
 		if (tmp) {
 			current = tmp;
-			text.classList.remove('animate');
+			text.classList?.remove('animate');
 			setTimeout(() => {
-				if (animate) text.classList.add('animate');
+				if (animate) text.classList?.add('animate');
 			}, 100);
 		}
 	}
@@ -75,13 +80,23 @@
 </script>
 
 {#if current?.speaker && current?.speaker === 'self'}
-	<div class="speaker-wrapper">
-		<div class="speaker" style="background-image: url({context.player.sprite.face.source})"></div>
+	<img src={context.player.sprite.full.source} alt="speaker" class="speaker-img" />
+	<div class="speaker-name">
+		{context.player.name}
 	</div>
-{/if}
-{#if current?.speaker && current?.speaker === 'follower'}
-	<div class="speaker-wrapper">
-		<div class="speaker follower" style="background-image: {src.replaceAll('"', '')}"></div>
+{:else if current?.speaker && current?.speaker === 'follower'}
+	<img src={src.replaceAll('"', '')} alt="speaker" class="speaker-img" />
+	<div class="speaker-name">
+		{context.player.monsters[0].name}
+	</div>
+
+{:else if current?.speaker === 'System'}
+
+	<!-- todo: NPC, system, map change -->
+{:else if !Number.isNaN(current?.speaker)}
+	<img {src} alt="speaker" class="speaker-img" />
+	<div class="speaker-name">
+		{npcName}
 	</div>
 {/if}
 
@@ -159,35 +174,46 @@
 			}
 		}
 	}
-	.speaker-wrapper {
-		background-color: #54506c;
+
+	.speaker-img {
+		position: absolute;
+		//bottom: 15dvh;
+		top: calc(4% + 48px);
+		left: 1dvw;
+		max-height: 60dvh;
+		z-index: 5;
+		border-radius: 8px;
+		border: 1px solid black;
+		background: rgba(0, 0, 0, 0.5);
+	}
+
+	.speaker-name {
 		position: absolute;
 		bottom: 27dvh;
 		left: 1dvw;
-		width: 20dvw;
-		height: 25dvh;
 		z-index: 7;
-		border-radius: 8px;
+		font-size: 32px;
+		font-weight: 500;
+		color: black;
+		border: 1px solid #262626;
+		border-radius: 0 8px 8px 0;
+		padding: 4px;
+		min-width: 20dvw;
+		text-align: center;
+		background: rgba(220, 231, 233, 1);
 	}
 
-	.speaker {
-		border-radius: 8px;
-		border: 2px solid black;
-		background-size: cover;
-		background-position: top;
-		height: 100%;
-	}
 	.dialog {
 		position: absolute;
 		bottom: 1dvh;
 		left: 1dvw;
-		width: 98dvw;
+		width: calc(92dvw - 110px);
 		height: 25dvh;
 		z-index: 7;
 
 		background: rgb(220, 231, 233);
 		border: 2px solid #54506c;
-		border-radius: 8px;
+		border-radius: 0 8px 8px 8px;
 		box-sizing: border-box;
 		padding: 2%;
 		font-size: 32px;
