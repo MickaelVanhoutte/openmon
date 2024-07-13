@@ -29,7 +29,7 @@ shopItems['28'] = 1250;
 
 
 const npcs: NPC[] = [
-    new NPC(991, "NPC1", 2, new Position(9, 4), 'down', 'MALE', undefined, undefined,
+    new NPC(991, "NPC1", 3, new Position(9, 4), 'down', 'MALE', undefined, undefined,
 
         new Script('onInteract2', [
             new Dialog([
@@ -44,7 +44,7 @@ const npcs: NPC[] = [
         undefined,
         true
     ),
-    new NPC(992, "NPC2", 2, new Position(3, 9), 'down', 'MALE', undefined, undefined,
+    new NPC(992, "NPC2", 3, new Position(3, 9), 'down', 'MALE', undefined, undefined,
         new Script('onInteract2', [
             new Dialog([
                 new Message('I just received plenty of merchandise, want to take a look ?', 'shop', ['Sure', 'No, thanks'])

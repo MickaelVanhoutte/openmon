@@ -240,6 +240,19 @@ export class Player implements Character {
         return { x, y };
     }
 
+    public reverseDirection(): "up" | "down" | "left" | "right" {
+        switch (this.position.direction) {
+            case "up":
+                return "down";
+            case "down":
+                return "up";
+            case "left":
+                return "right";
+            case "right":
+                return "left";
+        }
+    }
+
 
     public draw(ctx: CanvasRenderingContext2D, scale: number, mapDim: {
         width: number,

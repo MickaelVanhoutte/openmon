@@ -109,7 +109,7 @@
 					}}
 					on:focus={() => (selected = save)}
 				>
-					<img src={save.player.sprite.front.source} alt={save.player.name} />
+					<img src={save.player.sprite.face.source} alt={save.player.name} />
 					{#each save.player.monsters as mon}
 						<img
 							src={mon.sprites?.male?.front?.[mon.isShiny ? 'shiny1' : 'frame1']}

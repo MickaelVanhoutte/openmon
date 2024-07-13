@@ -18,7 +18,7 @@
             </ul>
         </div>
 		<div class="col-4 trainer-img">
-			<img src="src/assets/characts/1.png" alt="trainer" />
+			<img src="{context.player.sprite.full.source}" alt="trainer" />
 		</div>
 	</div>
 </div>
@@ -65,6 +65,9 @@
                 img {
                     height: 100%;
                     width: auto;
+					position: absolute;
+					bottom: 0;
+					right: 0;
                 }
             }
 

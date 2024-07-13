@@ -1,18 +1,14 @@
-import charactersJson from "../../assets/characts/characts.json";
+import charactersJson from "../../assets/characts/final/characters.json";
 import { Position } from "../mapping/positions";
 
 export class SpriteFromSheet {
     source: string;
-    startX: number;
-    startY: number;
     height: number;
     width: number;
     frameNumber: number = 4;
 
-    constructor(source: string, startX: number, startY: number, height: number, width: number, frameNumber: number = 4) {
+    constructor(source: string, height: number, width: number, frameNumber: number = 4) {
         this.source = source;
-        this.startX = startX;
-        this.startY = startY;
         this.height = height;
         this.width = width;
         this.frameNumber = frameNumber;
@@ -22,6 +18,7 @@ export class SpriteFromSheet {
 export class SpritesHolder {
 
     private spritesByCharacter: Record<number, PlayerSprite> = {};
+    public ready = false;
 
     constructor() {
         charactersJson.forEach(value => {
@@ -29,33 +26,52 @@ export class SpritesHolder {
                 value.id,
                 value.name,
                 new SpriteFromSheet(
-                    value.front.source,
-                    value.front.startX,
-                    value.front.startY,
-                    value.front.height,
-                    value.front.width,
-                    value.front.frameNumber
+                    value.full.source,
+                    value.full.height,
+                    value.full.width,
+                    value.full.frameNumber
+                ),
+                new SpriteFromSheet(
+                    value.face.source,
+                    value.face.height,
+                    value.face.width,
+                    value.face.frameNumber
                 ),
                 {
                     walking: new SpriteFromSheet(
                         value.overworld.walking.source,
-                        value.overworld.walking.startX,
-                        value.overworld.walking.startY,
                         value.overworld.walking.height,
                         value.overworld.walking.width,
                         value.overworld.walking.frameNumber
                     ),
                     running: value.overworld.running ? new SpriteFromSheet(
                         value.overworld.running.source,
-                        value.overworld.running.startX,
-                        value.overworld.running.startY,
                         value.overworld.running.height,
                         value.overworld.running.width,
                         value.overworld.running.frameNumber
+                    ) : undefined,
+                    biking: value.overworld.biking ? new SpriteFromSheet(
+                        value.overworld.biking.source,
+                        value.overworld.biking.height,
+                        value.overworld.biking.width,
+                        value.overworld.biking.frameNumber
+                    ) : undefined,
+                    surfing: value.overworld.surfing ? new SpriteFromSheet(
+                        value.overworld.surfing.source,
+                        value.overworld.surfing.height,
+                        value.overworld.surfing.width,
+                        value.overworld.surfing.frameNumber
                     ) : undefined
-                }
+                },
+                value.throwing ? new SpriteFromSheet(
+                    value.throwing.source,
+                    value.throwing.height,
+                    value.throwing.width,
+                    value.throwing.frameNumber
+                ) : undefined,
             )
         });
+        this.ready = true;
     }
 
     getSprite(id: number): PlayerSprite {
@@ -104,13 +120,19 @@ export class PlayerSprite {
 
     public id: number;
     public name: string;
-    public front: SpriteFromSheet;
+    public full: SpriteFromSheet;
+    public face: SpriteFromSheet;
+    public throwing?: SpriteFromSheet;
     public overworld: {
         walking: SpriteFromSheet,
         running?: SpriteFromSheet
+        biking?: SpriteFromSheet,
+        surfing?: SpriteFromSheet
     };
 
-    public frontImg: HTMLImageElement;
+    public fullImg: HTMLImageElement;
+    public faceImg: HTMLImageElement;
+    public throwingImg?: HTMLImageElement;
     public worldWalkingImg: HTMLImageElement;
     public worldRunningImg?: HTMLImageElement;
 
@@ -123,17 +145,30 @@ export class PlayerSprite {
         "up": 3,
     }
 
-    constructor(id: number, name: string, front: SpriteFromSheet, overworld: {
+    constructor(id: number, name: string, full: SpriteFromSheet, face: SpriteFromSheet, overworld: {
         walking: SpriteFromSheet,
-        running?: SpriteFromSheet
-    }) {
+        running?: SpriteFromSheet,
+        biking?: SpriteFromSheet,
+        surfing?: SpriteFromSheet
+    }, throwing?: SpriteFromSheet) {
         this.id = id;
         this.name = name;
-        this.front = front;
+        this.full = full;
+        this.face = face;
         this.overworld = overworld;
 
-        this.frontImg = new Image();
-        this.frontImg.src = front.source;
+        this.fullImg = new Image();
+        this.fullImg.src = full.source;
+
+        this.faceImg = new Image();
+        this.faceImg.src = face.source;
+
+        if(throwing){
+            this.throwing = throwing;
+            this.throwingImg = new Image();
+            this.throwingImg.src = throwing.source;
+        }
+
         this.worldWalkingImg = new Image();
         this.worldWalkingImg.src = overworld.walking.source;
 

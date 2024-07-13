@@ -1,15 +1,18 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { SavesHolder } from '../../js/context/savesHolder';
+	import { CHARACTER_SPRITES } from '../../js/sprites/sprites';
 
 	/**
 	 * Player creation component
 	 * lots todo here (design, classes, etc)
 	 */
 
-	let playerName = 'Ethan';
-	let playerClasses = ['conqueror'];
-	let selected = playerClasses[0];
+	let selected = 1;
+	let templates = [1, 2];
+	$:sprite = CHARACTER_SPRITES.getSprite(selected);
+	let playerName = '';
+
 	export let savesHolder: SavesHolder;
 	let sound: Howl;
 	let soundPlaying: boolean;
@@ -24,11 +27,10 @@
 		setTimeout(() => {
 			soundPlaying = sound.playing();
 		}, 200);
-		console.log(sound);
 	}
 
 	function handleSubmit() {
-		savesHolder.newGame(1, playerName, 'MALE');
+		savesHolder.newGame(selected, playerName, selected === 0 ? 'MALE' : 'FEMALE');
 	}
 
 	onMount(() => {
@@ -47,19 +49,24 @@
 		<div class="firefly"></div>
 	{/each}
 
+	<img src={sprite.full.source} alt="player" class="preview"/>
+	<img src="src/assets/monsters/pokedex/050.png" alt="player" class="preview-poke"/>
+
 	<form on:submit|preventDefault={handleSubmit}>
 		<h1>New game</h1>
-		<select bind:value={selected}>
-			{#each playerClasses as pClass}
-				<option value={pClass}>
-					{pClass}
+		<label for="template">Are you a</label>
+		<select id="template" bind:value={selected}>
+			{#each templates as template}
+				<option value={template}>
+					{template === 1 ? 'Boy' : 'Girl'}
 				</option>
 			{/each}
 		</select>
 
-		<input bind:value={playerName} />
+		<label for="name">What's your name?</label>
+		<input id="name" placeholder={sprite.name} bind:value={playerName} />
 
-		<button type="submit">Start</button>
+		<button type="submit" disabled={playerName?.length === 0}>Start</button>
 	</form>
 </div>
 
@@ -87,12 +94,35 @@
 			#0f0c29
 		); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
 
+		h1 {
+			margin: .35em 0;
+		}
+
 		form {
 			max-width: 40%;
 			margin: 0 auto;
 			display: flex;
 			flex-direction: column;
 			gap: 16px;
+			position: relative;
+			z-index: 2;
+		}
+
+		.preview {
+			position: absolute;
+			right: -7%;
+			top: 0;
+			z-index: 0;
+			height: 100%;
+		}
+
+		.preview-poke {
+			position: absolute;
+			left: 0;
+			bottom: 10%;
+			z-index: 0;
+			height: 60%;
+			filter: blur(1px);
 		}
 	}
 </style>

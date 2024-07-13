@@ -13,14 +13,14 @@
 	// search
 	// list
 
-	let showFullDexImg = false; // debug
+	let showFullDexImg = true; // debug
 
 	let wrapper: HTMLDivElement;
 	let elements: HTMLElement[] = [];
 	let selectedIdx = 0;
 	let searchTerm: string = '';
 	$: selectedPokemon = filtered[selectedIdx];
-	let filtered = context.POKEDEX.entries;
+	let filtered = context.POKEDEX.entries//.filter(p => !p.types.includes('fire') && !p.types.includes('grass') && !p.types.includes('water') && p.id < 208);
 	let detailOpened = false;
 	let selectedType: string | undefined = undefined;
 
@@ -185,7 +185,7 @@
 	 <div style="display: flex; flex-wrap: wrap;overflow-y: scroll;overflow-x: hidden;height: 100dvh;">
 		{#each filtered as pokemon}
 			<div
-				style="position:relative; height:calc(100dvw / 16); width: calc(100dvw / 16); overflow:hidden; box-sizing:border-box; height: auto; border: 1px solid black;
+				style="position:relative; height:calc(100dvw / 9); width: calc(100dvw / 9); overflow:hidden; box-sizing:border-box; height: auto; border: 1px solid black;
 				background: linear-gradient(
     to bottom,
     {typeChart[pokemon.types[0]].color} 0%,
@@ -201,14 +201,14 @@
 					>{pokemon.name}</span
 				>
 				<img
-					style="width: 100%; opacity: 0.1"
+					style="width: 100%; opacity: 1"
 					src={`src/assets/monsters/pokedex/${('00' + pokemon?.id).slice(-3)}.png`}
 				/>
 
-				<img
+				<!-- <img
 					style="width: auto; height:80%; position: absolute; top: 50%; left: 50%; z-index:2; transform:translate(-50%, -50%); filter: brightness(1);"
 					src={`src/assets/monsters/animated/${('00' + pokemon?.id).slice(-3)}.gif`}
-				/>
+				/> -->
 
 				<span
 					style="position: absolute; bottom:4px; left: 50%;
