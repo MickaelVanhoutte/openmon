@@ -14,6 +14,7 @@ import { QUESTS } from "../scripting/quests";
 export class SaveContext {
 
     id: number = 0;
+    version: number = 1;
     created: number = Date.now();
     updated: number = Date.now();
     currentMap: MapSave;
@@ -60,12 +61,14 @@ export class SavesHolder {
     selectedSave$: Writable<SaveContext | undefined> = writable(undefined);
 
     requestNexGame$: Writable<boolean> = writable(false);
+    
+    currentVersion = 1;
 
     constructor() {
-        this.saves = localStorage.getItem('saves-v2')?.length &&
+        this.saves = localStorage.getItem('saves')?.length &&
             // @ts-ignore
-            JSON.parse(localStorage.getItem('saves-v2'), this.reviver) || [];
-        this.saves.forEach((save) => {
+            JSON.parse(localStorage.getItem('saves'), this.reviver) || [];
+        this.saves.filter(s => !!s.version && s.version === this.currentVersion).forEach((save) => {
             Object.setPrototypeOf(save, SaveContext.prototype);
             Object.setPrototypeOf(save.player, Player.prototype);
             save.player.setPrototypes();
