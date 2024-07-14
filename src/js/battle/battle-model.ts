@@ -36,7 +36,7 @@ export class BattleEvents {
     end: Writable<BattleResult | undefined> = writable(undefined);
     battleEnded: boolean = false;
 
-    pokemonChange: Writable<PokemonInstance | undefined> = writable(undefined);
+    pokemonChange: Writable<{side: 'ally' | 'opponent', idx: number} | undefined> = writable(undefined);
     playerPokemonFaint: Writable<PokemonInstance | undefined> = writable(undefined);
     opponentPokemonFaint: Writable<PokemonInstance | undefined> = writable(undefined);
     runnaway: Writable<boolean> = writable(false);

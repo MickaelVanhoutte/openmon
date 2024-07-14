@@ -222,7 +222,7 @@
 			changePokemon = false;
 			selectedOptionIdx = 0;
 			selectedMoveIdx = 0;
-			battleCtx.events.pokemonChange.set(replaced);
+			battleCtx.events.pokemonChange.set({side: 'ally', idx: replacedIdx});
 			battleCtx.currentMessage.set(`What should ${battleCtx.playerSide[replacedIdx].name} do?`);
 		}
 	}
