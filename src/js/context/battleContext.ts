@@ -87,12 +87,12 @@ export class BattleContext {
     setPlayerAction(action: ActionV2Interface) {
         this.playerTurnActions.push(action);
 
-        if (this.actionIdx !== this.playerSide.length - 1) {
+        if (this.actionIdx !== this.playerSide?.filter(poke => !!poke && !poke.fainted).length - 1) {
             this.actionIdx++;
             this.currentMessage.set(`What should ${this.playerSide[this.actionIdx]?.name} do ?`);
         }
 
-        if (this.playerTurnActions.length === this.playerSide.length) {
+        if (this.playerTurnActions.length === this.playerSide?.filter(poke => !!poke && !poke.fainted).length) {
             this.startTurn();
         }
     }
@@ -107,22 +107,28 @@ export class BattleContext {
 
     startTurn() {
         this.isPlayerTurn.set(false);
-        this.actionIdx = 0;
+        this.actionIdx = this.playerSide.findIndex(poke => !!poke && !poke.fainted);
         this.turnCount++;
         this.turnPhases.set(TurnPhase.UPKEEP);
 
         this.oppSide.filter(poke => !!poke && !poke.fainted).forEach(poke => {
             let oppAction = this.selectOpponentAction(poke);
-            this.opponentTurnActions.push(oppAction);
+            if (oppAction) {
+                this.opponentTurnActions.push(oppAction);
+            }
         });
 
         let actions = this.sortActions(this.playerTurnActions, this.opponentTurnActions);
 
         this.oppSide.filter(poke => !!poke && !poke.fainted).forEach(poke => {
-            this.addToStack(new EndTurnChecks(poke));
+            if (poke) {
+                this.addToStack(new EndTurnChecks(poke));
+            }
         });
         this.playerSide.filter(poke => !!poke && !poke.fainted).forEach(poke => {
-            this.addToStack(new EndTurnChecks(poke));
+            if (poke) {
+                this.addToStack(new EndTurnChecks(poke));
+            }
         });
 
         actions.forEach(action => {
@@ -240,6 +246,7 @@ export class BattleContext {
     private prepareNewTurn() {
         this.turnPhases.set(TurnPhase.UPKEEP);
         this.isPlayerTurn.set(true);
+        this.actionIdx = this.playerSide.findIndex(poke => !!poke && !poke.fainted);
         this.currentMessage.set(`What should ${this.playerSide[this.actionIdx]?.name} you do ?`);
     }
 
@@ -259,67 +266,72 @@ export class BattleContext {
     }
 
     // TODO : Should be in NPC (trainer extends NPC ?) class
-    private selectOpponentAction(poke: PokemonInstance): ActionV2Interface {
-        // TODO : targets calculation
-        let random = Math.floor(Math.random() * poke.moves.length);
-        let isBest = false;
-        let move = poke.moves[random];
-        let action: ActionV2Interface;
+    private selectOpponentAction(poke?: PokemonInstance): ActionV2Interface | undefined {
+        if (poke && !poke.fainted) {
+            // TODO : targets calculation
+            let random = Math.floor(Math.random() * poke.moves.length);
+            let isBest = false;
+            let move = poke.moves[random];
+            let action: ActionV2Interface;
 
-        let found = this.getPossibleTargets(poke, move);
-        if (found.selectOne) {
-            // random target
-            let randomTarget = found.possibleTargets[Math.floor(Math.random() * found.possibleTargets.length)];
-            action = new Attack(move, [randomTarget], poke);
-        } else {
-            action = new Attack(move, found.possibleTargets, poke);
-        }
-
-
-        if (this.settings.difficulty !== 'NORMAL') {
-
-             // find a move whose type is super effective against one of allyside
-             let bestTarget = this.playerSide.find(pkmn => !!pkmn && !pkmn.fainted);
-             let bestMove = poke.moves.find((move: Move) => {
-                return this.playerSide.filter(pkmn => !!pkmn && !pkmn.fainted).some((ally: PokemonInstance) => {
-                     let effectiveness = this.calculateTypeEffectiveness(move.type, ally.types);
-                     if(effectiveness > 1 && move.power > 0) {
-                         bestTarget = ally;
-                         isBest = true;
-                         return true;
-                     }
-                 }); 
-             }) || move;
-
-             let found = this.getPossibleTargets(poke, bestMove);
-             if (found.selectOne) {
-                 // random target
-                 action = new Attack(move, [bestTarget], poke);
-             } else {
-                 action = new Attack(move, found.possibleTargets, poke);
-             }
+            let found = this.getPossibleTargets(poke, move);
+            if (found.selectOne) {
+                // random target
+                let randomTarget = found.possibleTargets[Math.floor(Math.random() * found.possibleTargets.length)];
+                action = new Attack(move, [randomTarget], poke);
+            } else {
+                action = new Attack(move, found.possibleTargets, poke);
+            }
 
 
-            if (this.opponent instanceof NPC) {
+            if (this.settings.difficulty !== 'NORMAL') {
 
-                // may switch or heal
-                let havePotions = this.havePotions(this.opponent);
-                let haveLowHp = this.oppSide.some(pkmn => !!pkmn && pkmn.currentHp < pkmn.stats.hp / 4);
-                let betterMons: PokemonInstance|undefined = this.opponent.monsters.filter(pkmn => !!pkmn && !pkmn.fainted).find(pkmn => {
-                    return this.playerSide.some(ally => !!ally && !ally.fainted && this.isWeakAgainst(ally, pkmn));
-                });
-                
-                if (haveLowHp && havePotions) {
-                    let itemId = this.opponent.bag.getPocketByCategory(27)?.[0];
-                    action = new UseItem(itemId, poke, poke, this.opponent);
-                }else if(betterMons) {
-                    action = new Switch(poke, betterMons, this.opponent);
+                // find a move whose type is super effective against one of allyside
+                let bestTarget = this.playerSide.find(pkmn => !!pkmn && !pkmn.fainted);
+                let bestMove = poke.moves.find((move: Move) => {
+                    return this.playerSide.filter(pkmn => !!pkmn && !pkmn.fainted).some((ally: PokemonInstance) => {
+                        let effectiveness = this.calculateTypeEffectiveness(move.type, ally.types);
+                        if (effectiveness > 1 && move.power > 0) {
+                            bestTarget = ally;
+                            isBest = true;
+                            return true;
+                        }
+                    });
+                }) || move;
+
+                let found = this.getPossibleTargets(poke, bestMove);
+                if (found.selectOne) {
+                    // random target
+                    action = new Attack(move, [bestTarget], poke);
+                } else {
+                    action = new Attack(move, found.possibleTargets, poke);
                 }
 
+
+                if (this.opponent instanceof NPC) {
+
+                    // may switch or heal
+                    let hasAlreadySwitchedThisTurn = this.opponentTurnActions.find(action => action.type === ActionType.SWITCH);
+                    let hasAlreadyUsedItemThisTurn = this.opponentTurnActions.find(action => action.type === ActionType.ITEM);
+                    let havePotions = this.havePotions(this.opponent);
+                    let haveLowHp = this.oppSide.some(pkmn => !!pkmn && pkmn.currentHp < pkmn.stats.hp / 4);
+                    let betterMons: PokemonInstance | undefined = this.opponent.monsters.filter(pkmn => !!pkmn && !pkmn.fainted && !this.oppSide.includes(pkmn)).find(pkmn => {
+                        return this.playerSide.some(ally => !!ally && !ally.fainted && this.isWeakAgainst(ally, pkmn));
+                    });
+
+                    if (haveLowHp && havePotions && !hasAlreadyUsedItemThisTurn) {
+                        let itemId = this.opponent.bag.getPocketByCategory(27)?.[0];
+                        action = new UseItem(itemId, poke, poke, this.opponent);
+                    } else if (betterMons && !hasAlreadySwitchedThisTurn) {
+                        action = new Switch(poke, betterMons, this.opponent);
+                    }
+                }
             }
+
+            return action;
         }
 
-        return action;
+        return undefined;
     }
 
     public findBestPokemon(monsters: PokemonInstance[], playerPokemon?: PokemonInstance): PokemonInstance | undefined {

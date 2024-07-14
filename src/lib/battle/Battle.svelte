@@ -229,14 +229,14 @@
 
 	onMount(() => {
 		// set events
-		battleCtx.events.pokemonChange.subscribe((pkmn) => {
-			if (pkmn) {
-				if (battleCtx.getPokemonSide(pkmn) === 'ally') {
-					animateRun(ally[battleCtx.playerSide.indexOf(pkmn)], 'ally').then(() => {
+		battleCtx.events.pokemonChange.subscribe((change) => {
+			if (change) {
+				if (change?.side === 'ally') {
+					animateRun(ally[change?.idx], 'ally').then(() => {
 						battleLoopContext.allydrawn = false;
 					});
 				} else {
-					animateRun(ally[battleCtx.oppSide.indexOf(pkmn)], 'opponent').then(() => {
+					animateRun(opponent[change?.idx], 'opponent').then(() => {
 						battleLoopContext.opponentdrawn = false;
 					});
 				}

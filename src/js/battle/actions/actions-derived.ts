@@ -43,21 +43,25 @@ export class ChangePokemon implements ActionV2Interface {
 
     execute(ctx: BattleContext): void {
         let pokemonChanged: PokemonInstance | undefined;
+        let idx = 0;
+        let side: 'ally' | 'opponent' = 'ally';
         if(this.owner instanceof Player) {
            //replace initiator with target in  ctx.playerSide
-            let index = ctx.playerSide.findIndex((monster: PokemonInstance | undefined) => monster === this.initiator);
-            pokemonChanged = ctx.playerSide[index];
-            ctx.playerSide[index] = this.target;
+            side = 'ally';
+            idx = ctx.playerSide.findIndex((monster: PokemonInstance | undefined) => monster === this.initiator);
+            pokemonChanged = ctx.playerSide[idx];
+            ctx.playerSide[idx] = this.target;
             ctx.participants.add(this.target);
         }else {
             //replace initiator with target in  ctx.opponentSide
-            let index = ctx.oppSide.findIndex((monster: PokemonInstance | undefined) => monster === this.initiator);
-            pokemonChanged = ctx.oppSide[index];
-            ctx.oppSide[index] = this.target;
+            side = 'opponent';
+            idx = ctx.oppSide.findIndex((monster: PokemonInstance | undefined) => monster === this.initiator);
+            pokemonChanged = ctx.oppSide[idx];
+            ctx.oppSide[idx] = this.target;
         }
         // order to change sprite to component
         if(pokemonChanged){
-            ctx.events.pokemonChange.set(pokemonChanged);
+            ctx.events.pokemonChange.set({side, idx});
         }
     }
 }
@@ -285,27 +289,29 @@ export class EndTurnChecks implements ActionV2Interface {
                 // random non fainted
                 let nonFainted = ctx.opponent.monsters.filter((monster: PokemonInstance) => !monster.fainted)
                                                       .filter(poke => !ctx.oppSide.includes(poke));
-                        console.log(nonFainted);
+        
                 if(nonFainted.length === 0) {
                     ctx.oppSide[faintedIdx] = undefined;
                 }else{
                     ctx.oppSide[faintedIdx] = nonFainted[Math.floor(Math.random() * nonFainted.length)];
                     ctx.addToStack(new Message(`${ctx.opponent.name} sent out ${ctx.oppSide[faintedIdx]?.name}!`, ctx.oppSide[faintedIdx]));
-                    ctx.events.pokemonChange.set(ctx.oppSide[faintedIdx]);
+                    ctx.events.pokemonChange.set({side: 'opponent', idx: faintedIdx});
                 }
             } else {
                 // non fainted, non already on board with best type advantage
                 let nonFainted = ctx.opponent.monsters.filter((monster: PokemonInstance) => !monster.fainted)
-                                                      .filter(poke => poke !== ctx.oppSide[faintedIdx]);
+                                                      .filter(poke => !ctx.oppSide.includes(poke));
                 let bestTypeAdvantage = ctx.findBestPokemon(ctx.opponent.monsters, ctx.playerSide?.find(pk => !!pk && !pk.fainted)); // TODO should check all player side (mutualize code with battleContext)
+                
+                console.log({nonFainted, bestTypeAdvantage});
                 if(bestTypeAdvantage){
                     ctx.oppSide[faintedIdx] = bestTypeAdvantage;
                     ctx.addToStack(new Message(`${ctx.opponent.name} sent out ${ctx.oppSide[faintedIdx]?.name}!`, ctx.oppSide[faintedIdx]));
-                    ctx.events.pokemonChange.set(ctx.oppSide[faintedIdx]);
+                    ctx.events.pokemonChange.set({side: 'opponent', idx: faintedIdx});
                 }else if(nonFainted){
                     ctx.oppSide[faintedIdx] = nonFainted[Math.floor(Math.random() * nonFainted.length)]
                     ctx.addToStack(new Message(`${ctx.opponent.name} sent out ${ctx.oppSide[faintedIdx]?.name}!`, ctx.oppSide[faintedIdx]));
-            ctx.events.pokemonChange.set(ctx.oppSide[faintedIdx]);
+                    ctx.events.pokemonChange.set({side: 'opponent', idx: faintedIdx});
                 }else {
                     ctx.oppSide[faintedIdx] = undefined;
                 }
