@@ -13,7 +13,7 @@
 	// search
 	// list
 
-	let showFullDexImg = true; // debug
+	let showFullDexImg = false; // debug
 
 	let wrapper: HTMLDivElement;
 	let elements: HTMLElement[] = [];
