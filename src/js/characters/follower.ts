@@ -164,7 +164,7 @@ export class Follower implements Character, Interactive {
         let relativeY = this.position.positionInPx.y - playerPosition.y;
 
 
-        let { centerX, centerY, offsetX, offsetY } = center ? center : centerObject(ctx, scale, playerPosition, imageWidth, mapDim);
+        let { centerX, centerY, offsetX, offsetY } = center ? center : centerObject(ctx, scale, scale, playerPosition, imageWidth, imageHeight, mapDim);
 
         switch (this.position.direction) {
             case 'up':
@@ -274,7 +274,7 @@ export class PokeWalkerSpriteDrawer {
         const relativeX = walkerPosition.x - playerPosition.x;
         const relativeY = walkerPosition.y - playerPosition.y;
 
-        let { centerX, centerY, offsetX, offsetY } = centerObject(ctx, scale, playerPosition, 16, mapDim);
+        let { centerX, centerY, offsetX, offsetY } = centerObject(ctx, scale, scale, playerPosition, 16, 16, mapDim);
         offsetY -= relativeY - 6;
         offsetX -= relativeX;
 
