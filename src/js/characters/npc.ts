@@ -3,7 +3,7 @@ import { CharacterPosition, type Character, WALKING_SPEED, type Interactive } fr
 import { Bag } from "../items/bag";
 import type { PokemonInstance } from "../pokemons/pokedex";
 import { Position } from "../mapping/positions";
-import { centerObject, CHARACTER_SPRITES } from "../sprites/sprites";
+import { centerObject, CHARACTER_SPRITES, PlayerSprite } from "../sprites/sprites";
 import { ComboJauge } from "./player";
 import type { MasteryType } from "./mastery-model";
 import type { GameContext } from "../context/gameContext";
@@ -11,6 +11,7 @@ import type { GameContext } from "../context/gameContext";
 export class NPC implements Character, Interactive {
     id: number;
     spriteId: number;
+    spriteSheet: PlayerSprite;
     name: string;
     gender: 'MALE' | 'FEMALE';
     monsterIds: number[];
@@ -34,6 +35,7 @@ export class NPC implements Character, Interactive {
         this.id = id;
         this.name = name;
         this.spriteId = spriteId;
+        this.spriteSheet = CHARACTER_SPRITES.getSprite(spriteId);
         this.position = new CharacterPosition(position, direction);
         this.gender = gender;
         this.monsterIds = monstersIds || [];
@@ -95,7 +97,7 @@ export class NPC implements Character, Interactive {
             this.drawImage(ctx, image, playerPosition, npc.direction, scale, mapDim, center);
         } else {
             image = new Image();
-            image.src = CHARACTER_SPRITES.getSprite(npc.spriteId).overworld.walking.source;
+            image.src = this.spriteSheet.overworld.walking.source;
             image.onload = () => {
                 this.images[npc.spriteId] = image;
                 this.drawImage(ctx, image, playerPosition, npc.direction, scale, mapDim, center);
@@ -109,6 +111,13 @@ export class NPC implements Character, Interactive {
             height: number
         }, center: { centerX: number, centerY: number, offsetX: number, offsetY: number } | undefined) {
 
+
+        const frameNumber = this.spriteSheet.overworld.walking.frameNumber;
+        const frameWidth = this.spriteSheet.overworld.walking.width;
+        const frameHeight = this.spriteSheet.overworld.walking.height;
+        const scaleX = frameWidth < 64 ? 56 / frameWidth * scale : scale;
+        const scaleY = frameHeight < 64 ? 56 / frameHeight * scale : scale;
+        const finalScale = Math.min(scaleX, scaleY);
         if (this.moving) {
 
             if (this.frames.max > 1) {
@@ -124,7 +133,7 @@ export class NPC implements Character, Interactive {
             this.frames.val = 0;
         }
 
-        let sY = this.orientationIndexes[orientation] * 64;
+        let sY = this.orientationIndexes[orientation] * (this.spriteSheet.overworld.walking.height);
 
         if (this.moving) {
             const speed = WALKING_SPEED;
@@ -155,23 +164,23 @@ export class NPC implements Character, Interactive {
         const relativeX = this.position.positionInPx.x - playerPosition.x;
         const relativeY = this.position.positionInPx.y - playerPosition.y;
 
-        let { centerX, centerY, offsetX, offsetY } = center ? center : centerObject(ctx, scale, playerPosition, 16, mapDim);
-        offsetY -= relativeY - 12;
-        offsetX -= relativeX - 4;
+        let { centerX, centerY, offsetX, offsetY } = center ? center : centerObject(ctx, scaleX, scaleY, playerPosition, frameWidth / 4, frameHeight / 4, mapDim);
+        offsetY -= relativeY - (frameHeight < 64 ? (frameHeight / 6) : frameHeight / 5);
+        offsetX -= relativeX - (frameWidth < 64 ? -(frameWidth / 4) : frameWidth / 16);
 
         ctx.save();
         ctx.translate(centerX - offsetX, centerY - offsetY);
 
         ctx.drawImage(
             image,
-            this.frames.val * (64),
+            this.frames.val * (this.spriteSheet.overworld.walking.width),
             sY,
-            64,
-            64,
+            this.spriteSheet.overworld.walking.width,
+            this.spriteSheet.overworld.walking.height,
             0,
             0,
-            64 * scale,
-            64 * scale
+            this.spriteSheet.overworld.walking.width * finalScale,
+            this.spriteSheet.overworld.walking.height * finalScale
         );
 
         ctx.restore();

@@ -564,13 +564,13 @@ const npcs = [
         true
     ),
 
-    new NPC(4, "NPC4", 3, new Position(98, 58), 'down', 'MALE', [112, 114], undefined,
+    new NPC(4, "NPC4", 4, new Position(98, 58), 'down', 'MALE', [112, 114], undefined,
         new Script(
             'onSight',
             [
                 new MoveToPlayer(4),
                 new Dialog([
-                    new Message('I\'m training here everyday !', '3'),
+                    new Message('I\'m training here everyday !', '4'),
                 ]),
                 new StartBattle(4, BattleType.DOUBLE),
                 new GiveMoney(100), // TODO condition if win
@@ -578,13 +578,13 @@ const npcs = [
                     new Message('You received 100$', 'System')
                 ]),
                 new Dialog([
-                    new Message('Let me train now...', '3'),
+                    new Message('Let me train now...', '4'),
                 ])
             ]
         ),
         [new Script('onInteract', [
             new Dialog([
-                new Message('Let me train now...', '3'),
+                new Message('Let me train now...', '4'),
             ])
         ], undefined, true)],
         // new Script(

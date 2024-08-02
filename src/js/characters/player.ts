@@ -339,7 +339,7 @@ export class Player implements Character {
             }
 
 
-            let { centerX, centerY, offsetX, offsetY } = centerObject(ctx, scale, this.position.positionInPx, 16, mapDim);
+            let { centerX, centerY, offsetX, offsetY } = centerObject(ctx, scale, scale, this.position.positionInPx, 16, 16, mapDim);
             offsetY += 12;
             offsetX += 4;
 

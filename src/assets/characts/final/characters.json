@@ -154,5 +154,27 @@
             "frameNumber": 4
           }
         }
+      },
+      {
+        "id": 4,
+        "name": "Parasol lady",
+        "full": {
+            "source": "src/assets/characts/final/full/parasol-lady.png",
+            "startX": 0,
+            "startY": 0,
+            "height": 160,
+            "width": 160,
+            "frameNumber": 1
+        },
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/parasol-lady.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 48,
+                "width": 32,
+                "frameNumber": 4
+            }
+        }
       }
 ]

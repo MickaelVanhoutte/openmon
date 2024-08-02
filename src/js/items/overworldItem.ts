@@ -80,7 +80,7 @@ export class OverworldItem implements Interactive {
         const relativeX = positionInPx.x - playerPosition.x;
         const relativeY = positionInPx.y - playerPosition.y;
 
-        let { centerX, centerY, offsetX, offsetY } = center ? center : centerObject(ctx, scale, playerPosition, 16, mapDim);
+        let { centerX, centerY, offsetX, offsetY } = center ? center : centerObject(ctx, scale, scale, playerPosition, 16, 16, mapDim);
         offsetY -= relativeY + 16;
         offsetX -= relativeX + 16;
 
