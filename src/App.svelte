@@ -9,6 +9,7 @@
 	import type { GameContext } from './js/context/gameContext';
 	import type { BattleContext } from './js/context/battleContext';
 	import Intro from './lib/Intro.svelte';
+	import { DEBUG } from './js/env';
 
 	/**
 	 * Main component, handling screens transitions
@@ -17,7 +18,7 @@
 	const savesHolder = new SavesHolder();
 	let gameContext: GameContext;
 	let newGame: boolean = false;
-	let started: boolean = false;
+	let started: boolean = false || DEBUG;
 
 	savesHolder.selectedSave$.subscribe((value: SaveContext | undefined) => {
 		if (value) {

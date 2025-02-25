@@ -180,7 +180,7 @@
 		//bottom: 15dvh;
 		top: calc(4% + 48px);
 		left: 1dvw;
-		max-height: 60dvh;
+		height: 60dvh;
 		z-index: 5;
 		border-radius: 8px;
 		border: 1px solid black;

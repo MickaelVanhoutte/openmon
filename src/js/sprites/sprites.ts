@@ -31,12 +31,6 @@ export class SpritesHolder {
                     value.full.width,
                     value.full.frameNumber
                 ),
-                new SpriteFromSheet(
-                    value.face.source,
-                    value.face.height,
-                    value.face.width,
-                    value.face.frameNumber
-                ),
                 {
                     walking: new SpriteFromSheet(
                         value.overworld.walking.source,
@@ -69,6 +63,12 @@ export class SpritesHolder {
                     value.throwing.width,
                     value.throwing.frameNumber
                 ) : undefined,
+                value.face ? new SpriteFromSheet(
+                    value.face.source,
+                    value.face.height,
+                    value.face.width,
+                    value.face.frameNumber
+                ) : undefined
             )
         });
         this.ready = true;
@@ -79,22 +79,22 @@ export class SpritesHolder {
     }
 }
 
-export function centerObject(canvas: CanvasRenderingContext2D, scale: number, objectPosition: Position, objectWidth: number, mapDim: {
+export function centerObject(canvas: CanvasRenderingContext2D, scaleX: number, scaleY: number, objectPosition: Position, objectWidth: number, objectHeight: number, mapDim: {
     width: number;
     height: number
 }) {
-    let centerX = canvas.canvas.width / 2 - objectWidth * scale / 2;
+    let centerX = canvas.canvas.width / 2 - objectWidth * scaleX / 2;
     // canvas half - half character height scaled
-    let centerY = canvas.canvas.height / 2 - objectWidth * scale / 2;
+    let centerY = canvas.canvas.height / 2 - objectHeight * scaleY / 2;
 
     let offsetX = 0;
     let offsetY = 0;
 
     // translate near the edges
-    let minLeftSide = Math.min(centerX / 2, window.innerWidth / 4 - (objectWidth * scale / 2));
-    let minTopSide = Math.min(centerY / 2, window.innerHeight / 4 - (objectWidth * scale / 2));
-    let minRightSide = mapDim.width - Math.min(centerX / 2, window.innerWidth / 4 - (objectWidth * scale / 2));
-    let minBottomSide = mapDim.height - Math.min(centerY / 2, window.innerHeight / 4 - (objectWidth * scale / 2));
+    let minLeftSide = Math.min(centerX / 2, window.innerWidth / 4 - (objectWidth * scaleX / 2));
+    let minTopSide = Math.min(centerY / 2, window.innerHeight / 4 - (objectHeight * scaleY / 2));
+    let minRightSide = mapDim.width - Math.min(centerX / 2, window.innerWidth / 4 - (objectWidth * scaleX / 2));
+    let minBottomSide = mapDim.height - Math.min(centerY / 2, window.innerHeight / 4 - (objectWidth * scaleY / 2));
 
     let leftThreshold = objectPosition.x < minLeftSide;
     let topThreshold = objectPosition.y < minTopSide;
@@ -121,7 +121,7 @@ export class PlayerSprite {
     public id: number;
     public name: string;
     public full: SpriteFromSheet;
-    public face: SpriteFromSheet;
+    public face?: SpriteFromSheet;
     public throwing?: SpriteFromSheet;
     public overworld: {
         walking: SpriteFromSheet,
@@ -131,7 +131,7 @@ export class PlayerSprite {
     };
 
     public fullImg: HTMLImageElement;
-    public faceImg: HTMLImageElement;
+    public faceImg?: HTMLImageElement;
     public throwingImg?: HTMLImageElement;
     public worldWalkingImg: HTMLImageElement;
     public worldRunningImg?: HTMLImageElement;
@@ -145,12 +145,12 @@ export class PlayerSprite {
         "up": 3,
     }
 
-    constructor(id: number, name: string, full: SpriteFromSheet, face: SpriteFromSheet, overworld: {
+    constructor(id: number, name: string, full: SpriteFromSheet, overworld: {
         walking: SpriteFromSheet,
         running?: SpriteFromSheet,
         biking?: SpriteFromSheet,
         surfing?: SpriteFromSheet
-    }, throwing?: SpriteFromSheet) {
+    }, throwing?: SpriteFromSheet, face?: SpriteFromSheet) {
         this.id = id;
         this.name = name;
         this.full = full;
@@ -160,8 +160,10 @@ export class PlayerSprite {
         this.fullImg = new Image();
         this.fullImg.src = full.source;
 
-        this.faceImg = new Image();
-        this.faceImg.src = face.source;
+        if(face){
+            this.faceImg = new Image();
+            this.faceImg.src = face.source;
+        }
 
         if(throwing){
             this.throwing = throwing;
