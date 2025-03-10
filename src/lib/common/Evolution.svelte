@@ -27,15 +27,10 @@
 			let circles = [...circlesWrap.children] as HTMLDivElement[];
 			let bubbles = [...bubblesWrap.children] as HTMLDivElement[];
 
-			currentSprite =
-				(poke?.sprites && poke?.sprites[poke?.gender]?.front[poke.isShiny? 'shiny1' : 'frame1']) ||
-				poke?.sprites?.male?.front[poke.isShiny? 'shiny1' : 'frame1'];
+			currentSprite = poke.getSprite();
 			let nextResult =
-				poke?.evolution[0]?.id && context.POKEDEX.findById(poke?.evolution[0]?.id)?.result;
-			nextSprite =
-				(nextResult && nextResult?.sprites && nextResult?.sprites[poke?.gender]?.front[nextResult.isShiny? 'shiny1' : 'frame1']) ||
-				(nextResult && nextResult?.sprites?.male?.front[nextResult.isShiny? 'shiny1' : 'frame1']) ||
-				'';
+				poke?.evolution[0]?.id && context.POKEDEX.findById(poke?.evolution[0]?.id)?.result?.instanciate(poke.level, 0, poke.isShiny);
+			nextSprite = nextResult?.getSprite();
 
 			if (currentSprite && nextSprite) {
 				console.log('setting classes');

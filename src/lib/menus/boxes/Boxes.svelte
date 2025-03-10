@@ -287,8 +287,7 @@ out:fade>
 					{#if firstSelection?.moving && selectZone === 'party' && over === i}
 						<img
 							class="moving"
-							src={firstSelection.selected.sprites[firstSelection.selected?.gender]?.front[firstSelection.selected.isShiny? 'shiny1' : 'frame1'] ||
-								firstSelection.selected.sprites.male?.front[firstSelection.selected.isShiny? 'shiny1' : 'frame1']}
+							src={firstSelection.selected?.getSprite()}
 							alt="moving pokemon"
 						/>
 					{/if}
@@ -298,8 +297,7 @@ out:fade>
 							<span>Lv. {pokemon?.level}</span>
 						</div>
 						<img
-							src={pokemon?.sprites[pokemon?.gender]?.front[pokemon.isShiny? 'shiny1' : 'frame1'] ||
-								pokemon?.sprites.male?.front[pokemon.isShiny? 'shiny1' : 'frame1']}
+							src={pokemon.getSprite()}
 							alt={pokemon?.name}
 						/>
 					{/if}
@@ -322,8 +320,7 @@ out:fade>
 			{#if firstSelection?.moving && selectZone === 'box-change'}
 				<img
 					class="moving"
-					src={firstSelection?.selected?.sprites[firstSelection?.selected?.gender]?.front[firstSelection?.selected?.isShiny? 'shiny1' : 'frame1'] ||
-						firstSelection?.selected?.sprites.male?.front[firstSelection?.selected?.isShiny? 'shiny1' : 'frame1']}
+					src={firstSelection?.selected?.getSprite()}
 					alt="moving pokemon"
 				/>
 			{/if}
@@ -355,8 +352,7 @@ out:fade>
 					{#if firstSelection?.moving && selectZone === 'box' && over === index}
 						<img
 							class="moving"
-							src={firstSelection.selected.sprites[firstSelection.selected?.gender]?.front[firstSelection.selected.isShiny? 'shiny1' : 'frame1'] ||
-								firstSelection.selected.sprites.male?.front[firstSelection.selected.isShiny? 'shiny1' : 'frame1']}
+							src={firstSelection?.selected?.getSprite}
 							alt="moving pokemon"
 						/>
 					{/if}
@@ -372,7 +368,7 @@ out:fade>
 					</div>
 					{#if entry instanceof PokemonInstance && !(firstSelection?.selected === entry && firstSelection.moving)}
 						<img
-							src={entry.sprites[entry?.gender]?.front[entry.isShiny? 'shiny1' : 'frame1'] || entry.sprites.male?.front[entry.isShiny? 'shiny1' : 'frame1']}
+							src={entry.getSprite()}
 							alt={entry.name}
 						/>
 					{/if}

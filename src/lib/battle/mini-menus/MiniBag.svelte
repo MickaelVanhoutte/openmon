@@ -98,8 +98,7 @@
 						<div class="poke">
 							<button {disabled} class="button" on:click={() => useItem(idx)}>Use</button>
 							<img
-								src={poke?.sprites?.[poke?.gender]?.front[poke.isShiny ? 'shiny1' : 'frame1'] ||
-									poke?.sprites?.male?.front[poke.isShiny ? 'shiny1' : 'frame1']}
+								src={poke.getSprite()}
 								alt={poke.name}
 							/>
 							<div class="hp-status">

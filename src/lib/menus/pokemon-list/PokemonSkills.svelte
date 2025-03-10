@@ -36,8 +36,7 @@
 		<div class="img-wrapper">
 			<div class="img-bg">
 				<img
-					src={selectedMons.sprites[selectedMons?.gender]?.front[selectedMons.isShiny? 'shiny1' : 'frame1'] ||
-						selectedMons.sprites.male?.front[selectedMons.isShiny? 'shiny1' : 'frame1']}
+					src={selectedMons.getSprite()}
 					alt="{selectedMons.name} img"
 				/>
 			</div>

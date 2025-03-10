@@ -223,8 +223,7 @@
 				<div class="header">
 					<div class="img-wrapper">
 						<img
-							src={first?.sprites?.[first?.gender]?.front[first.isShiny? 'shiny1' : 'frame1'] ||
-								first?.sprites?.male?.front[first.isShiny? 'shiny1' : 'frame1']}
+							src={first?.getSprite()}
 							alt={first?.name}
 						/>
 					</div>
@@ -262,8 +261,7 @@
 					<div class="header">
 						<div class="img-wrapper">
 							<img
-								src={monster?.sprites?.[monster?.gender]?.front[monster.isShiny? 'shiny1' : 'frame1'] ||
-									monster?.sprites?.male?.front[monster.isShiny? 'shiny1' : 'frame1']}
+								src={monster?.getSprite()}
 								alt={monster.name}
 							/>
 						</div>

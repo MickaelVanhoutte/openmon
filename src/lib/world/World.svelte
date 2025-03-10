@@ -10,7 +10,7 @@
 	import Controls from './Controls.svelte';
 	import type { BattleContext } from '../../js/context/battleContext';
 	import Shop from '../common/Shop.svelte';
-	    import { backInOut } from 'svelte/easing';
+	import { backInOut } from 'svelte/easing';
 	import { fade, slide } from 'svelte/transition';
 
 	/**
@@ -28,6 +28,7 @@
 	let bufferCtx: CanvasRenderingContext2D;
 	let canvasCtx: CanvasRenderingContext2D;
 	let minimapCtx: CanvasRenderingContext2D;
+	let ctx: CanvasRenderingContext2D;
 	let wrapper: HTMLDivElement;
 	let canvasWidth: number;
 	let currentMessages: string[] = [];
@@ -184,13 +185,13 @@
 			var init = [];
 			var maxParts = 1000;
 			for(var a = 0; a < maxParts; a++) {
-			init.push({
-				x: Math.random() * w,
-				y: Math.random() * h,
-				l: Math.random() * 1,
-				xs: -4 + Math.random() * 4 + 2,
-				ys: Math.random() * 10 + 10
-			})
+				init.push({
+					x: Math.random() * w,
+					y: Math.random() * h,
+					l: Math.random() * 1,
+					xs: -4 + Math.random() * 4 + 2,
+					ys: Math.random() * 10 + 10
+				})
 			}
 			
 			var particles = [];
@@ -199,27 +200,27 @@
 			}
 			
 			function draw() {
-			ctx.clearRect(0, 0, w, h);
-			for(var c = 0; c < particles.length; c++) {
-				var p = particles[c];
-				ctx.beginPath();
-				ctx.moveTo(p.x, p.y);
-				ctx.lineTo(p.x + p.l * p.xs, p.y + p.l * p.ys);
-				ctx.stroke();
-			}
-			move();
+				bufferCtx.clearRect(0, 0, w, h);
+				for(var c = 0; c < particles.length; c++) {
+					var p = particles[c];
+					bufferCtx.beginPath();
+					bufferCtx.moveTo(p.x, p.y);
+					bufferCtx.lineTo(p.x + p.l * p.xs, p.y + p.l * p.ys);
+					bufferCtx.stroke();
+				}
+				move();
 			}
 			
 			function move() {
-			for(var b = 0; b < particles.length; b++) {
-				var p = particles[b];
-				p.x += p.xs;
-				p.y += p.ys;
-				if(p.x > w || p.y > h) {
-				p.x = Math.random() * w;
-				p.y = -20;
+				for(var b = 0; b < particles.length; b++) {
+					var p = particles[b];
+					p.x += p.xs;
+					p.y += p.ys;
+					if(p.x > w || p.y > h) {
+						p.x = Math.random() * w;
+						p.y = -20;
+					}
 				}
-			}
 			}
 			
 			setInterval(draw, 30);
@@ -264,7 +265,9 @@
 		});
 
 		return () => {
-			canvasCtx?.clearRect(0, 0, canvas.width, canvas.height);
+			if(canvasCtx){
+				canvasCtx?.clearRect(0, 0, canvas.width, canvas.height);
+			}
 			window.cancelAnimationFrame(overWorldCtx.frames.frameId);
 		};
 	});

@@ -181,8 +181,7 @@
 				class:selected={poke === selectedMons}
 			>
 				<img
-					src={poke?.sprites?.[poke?.gender]?.front[poke.isShiny ? 'shiny1' : 'frame1'] ||
-						poke?.sprites?.male?.front[poke.isShiny ? 'shiny1' : 'frame1']}
+					src={poke.getSprite()}
 					alt={poke.name}
 				/>
 				<span>{poke.name}</span>
