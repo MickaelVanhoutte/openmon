@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { fly } from 'svelte/transition';
 	import { onMount } from 'svelte';
 	import { SaveContext, SavesHolder } from '../../js/context/savesHolder';
 
@@ -66,7 +67,7 @@
 </script>
 
 <div class="load-screen">
-	{#each Array.from({ length: 15 }) as i}
+	{#each Array.from({ length: 8 }) as i}
 		<div class="firefly"></div>
 	{/each}
 
@@ -192,7 +193,7 @@
 			align-items: center;
 			gap: 8px;
 
-			overflow-y: scroll;
+			overflow-y: auto;
 
 			.save-wrapper {
 				//width: 100%;

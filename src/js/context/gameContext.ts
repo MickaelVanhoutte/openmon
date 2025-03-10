@@ -69,6 +69,13 @@ export class GameContext {
 
     notifications: Notifications = new Notifications();
 
+    weather?: {
+        started: Date,
+        type: 'SANDSTORM' | 'RAIN' | 'SNOW',
+        intervalId: number,
+        running: boolean
+    };
+
     constructor(save: SaveContext) {
         this.id = save.id;
         this.POKEDEX = new Pokedex(save.savedEntry);
@@ -145,6 +152,28 @@ export class GameContext {
         this.bindKeys();
         this.checkForGameStart();
         this.loadMap(this.map);
+        this.startWeatherLoop();
+    }
+
+    startWeatherLoop(){
+        this.weather = {
+            type: 'RAIN',
+            started: new Date,
+            running: true,
+            intervalId: 1
+        }
+        // if(this.weather){
+        //     if(this.weather.running){
+        //         // check date to stop it
+        //         let stop = false;
+        //         if(stop){
+        //             this.weather.running = false;
+        //         }
+        //     }
+        // }else {
+
+        // }
+    
     }
 
     validateQuestObjective(questId: number, objectiveId: number) {
