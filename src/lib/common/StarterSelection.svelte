@@ -133,7 +133,7 @@
 				<img
 					class="image"
 					alt="poke-{monster.id}"
-					src={monster.sprites?.male?.front?.frame1}
+					src={monster.getSprite()}
 					class:current={monster.id === currentPokemon.id}
 				/>
 			</div>

@@ -113,7 +113,7 @@
 					<img src={save.player.sprite.face.source} alt={save.player.name} />
 					{#each save.player.monsters as mon}
 						<img
-							src={mon.sprites?.male?.front?.[mon.isShiny ? 'shiny1' : 'frame1']}
+							src={mon.getSprite()}
 							alt={mon.name}
 						/>
 					{/each}

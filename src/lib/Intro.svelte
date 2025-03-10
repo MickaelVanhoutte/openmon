@@ -8,12 +8,8 @@
 	let horde: HTMLDivElement;
 	let sound: Howl;
 	let soundPlaying = false;
-	let all = Array.from({ length: 237 }, (_, i) => i).map((i) => ('00' + (i + 1)).slice(-3)).reverse();
-	//let pkmnListShuffled: number[] = [...all].map((i) => parseInt(i));
-	let pkmnListShuffled: number[] = fisherYates(Array.from({ length: 249 }, (_, i) => i)).slice(
-		0,
-		35
-	);
+	let all = Array.from({ length: 237 }, (_, i) => ('00' + (i + 1)).slice(-3)).reverse();
+	let pkmnListShuffled: number[] = fisherYates(Array.from({ length: 249 }, (_, i) => i)).slice(0, 20);
 	let messages = [
 		'',
 		'Porygon is generating a digital masterpiece!',
@@ -25,28 +21,20 @@
 	let loaded = false;
 	let animationFinished = false;
 	let ready = false;
+	let messageInterval: number;
+	let readyCheckInterval: number;
 
-	function fisherYates(array) {
-		var count = array.length,
-			randomnumber,
-			temp;
-		while (count) {
-			randomnumber = (Math.random() * count--) | 0;
-			temp = array[count];
-			array[count] = array[randomnumber];
-			array[randomnumber] = temp;
+	function fisherYates(array: number[]): number[] {
+		for (let i = array.length - 1; i > 0; i--) {
+			const j = Math.floor(Math.random() * (i + 1));
+			[array[i], array[j]] = [array[j], array[i]];
 		}
 		return array;
 	}
 
 	function toggleSound() {
-		if (!soundPlaying) {
-			sound.mute(false);
-			soundPlaying = true;
-		} else {
-			sound.mute(true);
-			soundPlaying = false;
-		}
+		soundPlaying = !soundPlaying;
+		sound.mute(!soundPlaying);
 	}
 
 	function loadSound() {
@@ -54,33 +42,64 @@
 			src: ['src/assets/audio/intro.mp3'],
 			autoplay: true,
 			loop: true,
-			volume: 0.5
+			volume: 0.5,
+			preload: true
 		});
-		setTimeout(() => {
+		sound.once('load', () => {
 			soundPlaying = sound.playing();
-		}, 200);
-		console.log(sound);
+		});
+	}
+
+	async function preloadAssets() {
+		// const imagePromises = all.flatMap(i => [
+		// 	preloadImage(`src/assets/monsters/walking/${i}.png`),
+		// 	preloadImage(`src/assets/monsters/walking/${i}s.png`),
+		// 	preloadImage(`src/assets/monsters/animated/${i}.gif`),
+		// 	preloadImage(`src/assets/monsters/animated/${i}b.gif`),
+		// 	preloadImage(`src/assets/monsters/animated/${i}s.gif`),
+		// 	preloadImage(`src/assets/monsters/animated/${i}sb.gif`),
+		// 	preloadImage(`src/assets/monsters/pokedex/${i}sb.png`)
+		// ]);
+
+		// await Promise.all(imagePromises);
+		loaded = true;
+	}
+
+	function preloadImage(src: string): Promise<void> {
+		return new Promise((resolve) => {
+			const img = new Image();
+			img.onload = () => resolve();
+			img.onerror = () => resolve();
+			img.src = src;
+		});
 	}
 
 	onMount(() => {
-		setInterval(() => {
+		preloadAssets();
+		
+		messageInterval = setInterval(() => {
 			messageIdx = messageIdx === messages.length - 1 ? 0 : messageIdx + 1;
 		}, 3000);
+
 		loadSound();
+
 		setTimeout(() => {
 			animationFinished = true;
-			let int = setInterval(() => {
+			readyCheckInterval = setInterval(() => {
 				if (loaded && animationFinished) {
-					clearInterval(int);
+					clearInterval(readyCheckInterval);
 					ready = true;
 				}
 			}, 300);
 		}, 14000);
+
 		intro.addEventListener('click', () => {
 			if (ready) started = true;
 		});
 
 		return () => {
+			clearInterval(messageInterval);
+			clearInterval(readyCheckInterval);
 			sound.fade(0.5, 0, 1000);
 			setTimeout(() => {
 				sound.stop();
@@ -89,10 +108,10 @@
 	});
 </script>
 
-<svelte:window on:load={() => (loaded = true)} />
+<svelte:window on:load={() => preloadAssets()} />
 
 <div class="intro" bind:this={intro} out:fade>
-	{#each Array.from({ length: 8 }) as i}
+	{#each Array.from({ length: 5 }) as i}
 		<div class="firefly"></div>
 	{/each}
 
@@ -149,86 +168,40 @@
 		{#each pkmnListShuffled as i, index}
 			<i
 				class="sprite pokemon move"
-				style="animation: poke-move {Math.random() * (20 - 13 + 1) +
-					13}s linear forwards;-webkit-animation-delay: {(index * 2 + Math.random() * 2).toFixed(
-					3
-				)}s; z-index: {i};"
+				style="animation: poke-move {13 + Math.random() * 7}s linear forwards;
+					-webkit-animation-delay: {(index * 2 + Math.random() * 2).toFixed(3)}s;
+					z-index: {i};
+					will-change: transform, opacity;"
 			>
 				<i
-					style="will-change: background-position; animation: anim-sprite 0.5s infinite steps(1); background: url('src/assets/monsters/walking/{(
-						'00' +
-						(i + 1)
-					).slice(-3)}{Math.random() > 0.5 ? 's' : ''}.png')"
+					style="will-change: background-position;
+						animation: anim-sprite 0.5s infinite steps(1);
+						background: url('src/assets/monsters/walking/{('00' + (i + 1)).slice(-3)}{Math.random() > 0.5 ? 's' : ''}.png')"
 				></i>
 			</i>
 		{/each}
 	</div>
 </div>
 
-<!-- Preloading assets -->
 {#if !started}
-	{#each all as i}
-		<img
-			src={`src/assets/monsters/walking/${i}.png`}
-			alt={`pokemon ${i}`}
-			style="display: none"
-			loading="lazy"
-		/>
-		<img
-			src={`src/assets/monsters/walking/${i}s.png`}
-			alt={`pokemon ${i}`}
-			style="display: none"
-			loading="lazy"
-		/>
-		<img
-			src={`src/assets/monsters/animated/${i}.gif`}
-			alt={`pokemon ${i}`}
-			style="display: none"
-			loading="lazy"
-		/>
-		<img
-			src={`src/assets/monsters/animated/${i}b.gif`}
-			alt={`pokemon ${i}`}
-			style="display: none"
-			loading="lazy"
-		/>
-		<img
-			src={`src/assets/monsters/animated/${i}s.gif`}
-			alt={`pokemon ${i}`}
-			style="display: none"
-			loading="lazy"
-		/>
-		<img
-			src={`src/assets/monsters/animated/${i}sb.gif`}
-			alt={`pokemon ${i}`}
-			style="display: none"
-			loading="lazy"
-		/>
-		<img
-			src={`src/assets/monsters/pokedex/${i}sb.png`}
-			alt={`pokemon ${i}`}
-			style="display: none"
-			loading="lazy"
-		/>
-	{/each}
 
-	<!-- load audios -->
-	<audio src="src/assets/audio/intro.mp3" preload="auto" muted></audio>
-	<audio src="src/assets/audio/beach.mp3" preload="auto" muted></audio>
-	<audio src="src/assets/audio/forest.mp3" preload="auto" muted></audio>
-	<audio src="src/assets/audio/save.mp3" preload="auto" muted></audio>
-	<audio src="src/assets/audio/battle/battle-start.mp3" preload="auto" muted></audio>
-	<audio src="src/assets/audio/battle/battle1.mp3" preload="auto" muted></audio>
-
-	<!-- load maps -->
-	<img src="src/assets/maps/First-beach.png" alt="map1"/>
-	<img src="src/assets/maps/First-beach-foreground.png" alt="map1-fg"/>
-	<img src="src/assets/maps/pokecenter2.png" alt="pokecenter"/>
-	<img src="src/assets/maps/pokecenter2-foreground.png" alt="pokecenter-fg"/>
-	<img src="src/assets/maps/Forest.png" alt="forest"/>
+	<audio src="src/assets/audio/intro.mp3" preload="auto" style="display: none"></audio>
+	<audio src="src/assets/audio/beach.mp3" preload="auto" style="display: none"></audio>
+	<audio src="src/assets/audio/forest.mp3" preload="auto" style="display: none"></audio>
+	<audio src="src/assets/audio/save.mp3" preload="auto" style="display: none"></audio>
+	<audio src="src/assets/audio/battle/battle-start.mp3" preload="auto" style="display: none"></audio>
+	<audio src="src/assets/audio/battle/battle1.mp3" preload="auto" style="display: none"></audio>
 {/if}
 
 <style lang="scss">
+	.sprite {
+		will-change: transform, opacity;
+	}
+
+	.pokemon {
+		contain: paint;
+	}
+
 	@keyframes -global-poke-move {
 		0% {
 			transform: translateX(0);
@@ -415,34 +388,54 @@
 		}
 
 		.darkrai {
-			will-change: transform, opacity, filter, bottom;
+			will-change: transform, opacity;
 			position: absolute;
 			bottom: 22%;
 			left: 3%;
 			width: 100%;
 			max-width: 24dvw;
 			opacity: 0;
-			transform: translateX(-100%) rotate(15deg) scale(0.55) rotateY(0) translateY(0);
-			animation:
-				fromLeft 6s ease-in-out forwards,
-				shadow1 3s ease-in-out infinite alternate;
+			transform: translateX(-100%);
+			filter: drop-shadow(0 0 4px #4444dd);
+			animation: slide-in-left 1.5s ease-out forwards;
 			animation-delay: 6s;
 			z-index: 96;
 		}
 		.diancie {
-			will-change: transform, opacity, filter, bottom;
+			will-change: transform, opacity;
 			position: absolute;
 			bottom: 22%;
 			right: 3%;
 			width: 100%;
 			max-width: 24dvw;
 			opacity: 0;
-			transform: translateX(100%) rotate(-15deg) scale(0.55) rotateY(0) translateY(0);
-			animation:
-				fromRight 6s ease-in-out forwards,
-				shadow2 3s ease-in-out infinite alternate;
-			animation-delay: 6s, 6.4s;
+			transform: translateX(100%);
+			filter: drop-shadow(0 0 4px #7f7fef);
+			animation: slide-in-right 1.5s ease-out forwards;
+			animation-delay: 6s;
 			z-index: 96;
+		}
+
+		@keyframes slide-in-left {
+			0% {
+				opacity: 0;
+				transform: translateX(-100%);
+			}
+			100% {
+				opacity: 0.85;
+				transform: translateX(0);
+			}
+		}
+
+		@keyframes slide-in-right {
+			0% {
+				opacity: 0;
+				transform: translateX(100%);
+			}
+			100% {
+				opacity: 0.95;
+				transform: translateX(0);
+			}
 		}
 
 		.logo {
@@ -463,42 +456,20 @@
 
 		.title {
 			position: absolute;
-			// top: 38%;
-			// left: 50%;
-			// transform: translateX(-50%);
-			// z-index: 100;
-			// text-align: center;
-			// margin: 0;
-			// font-size: clamp(120px, 240px, 32dvh);
-			// opacity: 0;
-
-			top: 38%;
+			top: 50%;
 			left: 50%;
-			transform: translateX(-50%);
+			transform: translate(-50%, -50%);
 			z-index: 100;
 			text-align: center;
 			margin: 0;
-			font-size: 3000px;
-			scale: 8;
+			font-size: clamp(120px, 240px, 32dvh);
 			opacity: 0;
-		}
-
-		.combo {
-			will-change: opacity;
-			position: absolute;
-			top: 44%;
-			left: 67%;
-			transform: translateX(-50%);
-			z-index: 99;
-			height: 35%;
-			width: auto;
-			opacity: 0;
-			animation: fadeIn 3s ease-in-out forwards;
-			animation-delay: 10s;
+			transform-origin: center;
+			will-change: transform, opacity;
 		}
 
 		.animate-charcter {
-			will-change: filter, background-position, opacity;
+			will-change: transform, opacity;
 			text-transform: uppercase;
 			background-image: linear-gradient(
 				-225deg,
@@ -507,39 +478,36 @@
 				#50107a 67%,
 				#2d1b6f 100%
 			);
-			background-size: auto auto;
-			background-clip: border-box;
 			background-size: 200% auto;
-			color: #fff;
 			background-clip: text;
-			text-fill-color: transparent;
 			-webkit-background-clip: text;
 			-webkit-text-fill-color: transparent;
 			animation:
-				front-to-middle 6s ease-in-out forwards,
+				title-appear 2s cubic-bezier(.22,.68,0,1.31) forwards,
 				textclip 4s linear forwards;
 			animation-delay: 8s, 15s;
 			display: inline-block;
 			font-weight: 900;
 		}
 
-		@keyframes front-to-middle {
-			from {
-				font-size: 3000px;
-				scale: 8;
+		@keyframes title-appear {
+			0% {
 				opacity: 0;
+				transform: translate(-50%, -50%) scale(0.1);
 			}
-			to {
-				font-size: clamp(120px, 240px, 32dvh);
-				scale: 1;
+			50% {
+				opacity: 0.5;
+				transform: translate(-50%, -50%) scale(1.2);
+			}
+			100% {
 				opacity: 1;
+				transform: translate(-50%, -50%) scale(1);
 			}
 		}
 
 		@keyframes textclip {
 			to {
 				background-position: 200% center;
-				//filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 1px #000);
 			}
 		}
 
@@ -548,7 +516,6 @@
 			bottom: 28%;
 			left: 50%;
 			transform: translateX(-50%);
-			//font-size: 4rem;
 			font-size: clamp(1rem, 3dvw, 4rem);
 			color: white;
 			text-shadow: 0 0 2px #fff;
@@ -559,55 +526,40 @@
 		}
 
 		.horde {
-			//display: none;
-			//position: absolute;
-
-			background: #0f0c29; /* fallback for old browsers */
+			background: #0f0c29;
 			background: -webkit-linear-gradient(
 				to right,
 				#24243e,
 				#5b53b2,
 				#0f0c29
-			); /* Chrome 10-25, Safari 5.1-6 */
+			);
 			background: linear-gradient(
 				to right,
 				#24243e,
 				#5b53b2,
 				#0f0c29
-			); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+			);
 
 			position: fixed;
-			//z-index: 9999;
-			left: 0;
-			right: 0;
-			top: 0;
-			bottom: 0;
-			//background: #1d1f20;
+			inset: 0;
+			width: 100%;
+			height: 100%;
+			overflow: hidden;
 
 			.sprite {
 				position: absolute;
-				bottom: 6%;
-				left: 0%;
+				left: 0;
+				bottom: 10%;
 				opacity: 0;
+				min-height: 128px;
+				padding: 32px;
+				width: auto;
+				box-sizing: border-box;
 
 				&.pokemon {
-					margin-bottom: -3px;
 					&.move {
 						will-change: transform, opacity;
 					}
-					// &:after {
-					// 	content: '';
-					// 	width: 80%;
-					// 	height: 2px;
-					// 	position: absolute;
-					// 	z-index: -1;
-					// 	border-radius: 50%;
-					// 	margin-left: -40%;
-					// 	bottom: -22%;
-					// 	left: 40%;
-					// 	background: rgba(0, 0, 0, 0.5);
-					// 	box-shadow: 0 0 2px 1px rgba(0, 0, 0, 0.6);
-					// }
 					i {
 						display: block;
 						width: 64px;
@@ -616,6 +568,7 @@
 						background-size: contain;
 						background-position: 0 -128px;
 						transform: scale(1.5);
+						image-rendering: pixelated;
 					}
 				}
 			}
@@ -638,22 +591,16 @@
 				top: 35%;
 				font-size: clamp(60px, 160px, 30dvh);
 			}
-			.combo {
-				top: 45%;
-				left: 69%;
-				height: 40%;
-			}
 			.touch {
 				bottom: 33%;
-				//font-size: 2.5rem;
 			}
 			.horde {
 				.sprite.pokemon {
-					bottom: 0;
-					top: calc(100dvh - 80px);
-
+					min-height: 96px;
+					padding: 24px;
+					bottom: 8%;
 					i {
-						scale: 0.8;
+						transform: scale(1);
 					}
 				}
 			}

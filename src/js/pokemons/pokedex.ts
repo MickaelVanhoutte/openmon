@@ -282,6 +282,7 @@ export class PokedexEntry {
     public id: number;
     public regionalId: number;
     public name: string;
+    public normalizedName: string;
     public types: string[];
     public abilities: string[];
     public moves: Move[];
@@ -324,6 +325,17 @@ export class PokedexEntry {
         this.id = id;
         this.regionalId = regionalId;
         this.name = name;
+        this.normalizedName = name
+        .replace('♀', '-f')
+        .replace('♂', '-m')
+        .replace('-', '')
+        .replace('. ', '')
+        .replace('\'', '')
+        .replace(' ', '')
+        .replace('.', '')
+        .replaceAll('é', 'e')
+        .replace(':', '')
+        .toLowerCase();
         this.types = types;
         this.abilities = abilities;
         this.moves = moves;
@@ -396,6 +408,10 @@ export class PokedexEntry {
     private getIvFromMin(min: number): number {
         return Math.floor(Math.random() * (32 - min) + min);
     }
+
+    getSprite(): string {
+        return `src/assets/monsters/static/sprites/${this.normalizedName}.png`
+	}
 }
 
 export class UnknownMonster extends PokedexEntry {
@@ -848,5 +864,13 @@ export class PokemonInstance extends PokedexEntry {
     private selectLatestMoves(pokedexEntry: PokedexEntry) {
         // get 4 last moves based on current level
         return pokedexEntry.moves.filter((move) => move.level <= this.level && move.method === 1).slice(-4).map((move) => new MoveInstance(move.id, move.name, move.type, move.category, move.power, move.accuracy, move.pp, move.priority, move.target, move.effect, move.effectChance, move.description, move.level));
+    }
+
+
+    public getSprite(back?: boolean): string {
+        if(this.isShiny){
+            return `src/assets/monsters/static/sprites-shiny${(back ? '-back/' : '/') + this.normalizedName}.png`
+        }
+        return `src/assets/monsters/static/sprites${(back ? '-back/' : '/') + this.normalizedName}.png`
     }
 }

@@ -184,12 +184,6 @@ export class Follower implements Character, Interactive {
                 offsetX -= (32 * scale) - imageWidth / 4;
                 break;
         }
-        // ctx.save();
-        // ctx.translate(centerX - offsetX, centerY - offsetY);
-
-
-        // ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
-        // ctx.fillRect(relativeX, relativeY, imageWidth, imageHeight);
 
         ctx.drawImage(
             image,
@@ -202,8 +196,6 @@ export class Follower implements Character, Interactive {
             imageWidth,
             drawGrass ? imageHeight * .85 : imageHeight
         );
-
-        // ctx.restore();
 
         return { centerX, centerY, offsetX, offsetY };
     }

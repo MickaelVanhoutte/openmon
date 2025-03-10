@@ -67,10 +67,9 @@
 
 	battleCtx.events.runnaway.subscribe((value) => {
 		if (value) {
-			animateRun(ally[0], 'ally');
-			if(ally[1]){
+			animateRun(ally[0], 'ally').then(() => {
 				animateRun(ally[1], 'ally');
-			}
+			});
 		}
 	});
 
@@ -124,15 +123,9 @@
 			let partner = document.createElement('img') as HTMLImageElement;
 			partner.classList.add(target + '-partner-sprite');
 			if (target === 'opponent') {
-				partner.src =
-					(pokemon.isShiny
-						? pokemon.sprites?.male?.front?.shiny1
-						: pokemon.sprites?.male?.front?.frame1) || 'src/assets/monsters/bw/0.png';
+				partner.src = pokemon.getSprite();
 			} else {
-				partner.src =
-					(pokemon.isShiny
-						? pokemon.sprites?.male?.back?.shiny1
-						: pokemon.sprites?.male?.back?.frame1) || 'src/assets/monsters/bw/0.png';
+				partner.src = pokemon.getSprite(true);
 			}
 
 			partner.onload = () => {
@@ -162,15 +155,11 @@
 					});
 				}else{
 					opponent.forEach((element, idx) => {
-						element.src =
-						(battleCtx?.oppSide[idx].isShiny
-							? battleCtx?.oppSide[idx].sprites?.male?.front.shiny1
-							: battleCtx?.oppSide[idx].sprites?.male?.front.frame1) ||
-						'src/assets/monsters/bw/0.png';
+						element.src = battleCtx?.oppSide[idx]?.getSprite();
 						element.onload = () => {
 							let imgHeight = element.naturalHeight;
-							let screenHeight = window.innerHeight/ 2.3;
-							let scale = Math.min(imgHeight / screenHeight, .7);
+							let screenHeight = window.innerHeight;
+							let scale = Math.min(imgHeight / (screenHeight * 0.15), 0.5);
 						
 							element.style.transform = 'scale(' + scale + ')';
 							element.style.setProperty('--scale', scale + '');
@@ -201,14 +190,11 @@
 				}else{
 					ally.forEach((element, idx) => {
 						element.src =
-						(battleCtx?.playerSide[idx].isShiny
-							? battleCtx?.playerSide[idx].sprites?.male?.back.shiny1
-							: battleCtx?.playerSide[idx].sprites?.male?.back.frame1) ||
-						'src/assets/monsters/bw/0.png';
+						battleCtx?.playerSide[idx]?.getSprite(true);
 						element.onload = () => {
 							let imgHeight = element.naturalHeight;
-							let screenHeight = window.innerHeight/ 2.6;
-							let scale = Math.min(imgHeight / screenHeight, .7);
+							let screenHeight = window.innerHeight;
+							let scale = Math.min(imgHeight / (screenHeight * 0.15), 0.5);
 						
 							element.style.transform = 'scale(' + scale + ')';
 							element.style.setProperty('--scale', scale + '');
@@ -424,7 +410,7 @@
 		width: auto;
 		transform: scale(var(--scale));
 		transform-origin: bottom left;
-		bottom: calc(20% + (var(--offSet) * 5%));
+		bottom: calc(var(--offSet) * 5%);
 		left: 0;
 		animation: impatience calc(8s + var(--offSet) * 1.5s) infinite;
 		animation-delay: calc(1.5s + var(--offSet) * 1.5s);
@@ -452,7 +438,7 @@
 		image-rendering: pixelated;
 		transform: scale(var(--scale))  translateY(50%);
 		transform-origin: bottom left;
-		bottom: calc(35% - (var(--offSet) * -5%));
+		bottom: calc(20% - (var(--offSet) * -5%));
 		left: 0;
 		animation: impatience calc(8s + var(--offSet) * 1.5s) infinite;
 		animation-delay: calc(2s + var(--offSet) * 1.5s);
