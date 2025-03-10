@@ -496,7 +496,7 @@ export class BattleContext {
             }
             //else no target (fields)
         }
-
+        selectOne = selectOne && possibleTargets.length > 1;
         return { possibleTargets, selectOne };
     }
 }

@@ -177,8 +177,7 @@
 
 	.speaker-img {
 		position: absolute;
-		//bottom: 15dvh;
-		top: calc(4% + 48px);
+		bottom: 20dvh;
 		left: 1dvw;
 		height: 60dvh;
 		z-index: 5;
