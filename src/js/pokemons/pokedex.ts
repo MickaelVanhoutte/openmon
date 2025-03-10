@@ -638,6 +638,7 @@ export class PokemonInstance extends PokedexEntry {
     public nature: Nature;
     public gender: 'male' | 'female' | 'unknown';
     public heldItem: any = {}; // TODO
+    public lastMove?: MoveInstance;
 
     public isShiny: boolean = false;
 
@@ -690,6 +691,7 @@ export class PokemonInstance extends PokedexEntry {
             this.gender = fromInstance.gender;
             this.evsToDistribute = fromInstance.evsToDistribute;
             this.heldItem = fromInstance.heldItem;
+            this.lastMove = fromInstance.lastMove;
         } else {
             this.currentAbility = this.abilities[Math.floor(Math.random() * this.abilities.length)];
             this.evs = new Stats();
