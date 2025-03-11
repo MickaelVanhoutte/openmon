@@ -1,6 +1,6 @@
 import "@abraham/reflection";
 import { injectable, injectAll, registry, singleton } from "tsyringe";
-import type { PokemonInstance } from "./pokedex";
+import { PokemonInstance, MoveInstance } from "./pokedex";
 import { MoveEffect } from "./pokedex";
 
 export enum EffectTiming {
@@ -531,30 +531,6 @@ class RaiseSpecialDefense implements Effect {
     }
 }
 
-@injectable()
-@registry([{ token: 'Effect', useClass: RaiseEvasion }])
-class RaiseEvasion implements Effect {
-    move_effect_id: number = 17;
-    abr: string = 'DEF+';
-    duration: number = 0;
-    when: EffectTiming = EffectTiming.AFTER_MOVE;
-    damages: number = 0;
-
-    turnsPassed: number = 0;
-    healed = false;
-
-    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-        if (user) {
-            user.changeBattleStats('evasion', 1);
-            return new EffectResult(undefined, `${user.name}'s evasion rose`);
-        }
-        return new EffectResult();
-    }
-
-    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
-        return new EffectForTurn();
-    }
-}
 
 @injectable()
 @registry([{ token: 'Effect', useClass: NeverMiss }])
@@ -654,30 +630,6 @@ class LowerSpeed implements Effect {
     }
 }
 
-@injectable()
-@registry([{ token: 'Effect', useClass: LowerAccuracy }])
-class LowerAccuracy implements Effect {
-    move_effect_id: number = 24;
-    abr: string = 'ACC-';
-    duration: number = 0;
-    when: EffectTiming = EffectTiming.AFTER_MOVE;
-    damages: number = 0;
-
-    turnsPassed: number = 0;
-    healed = false;
-
-    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-        if (user) {
-            target[0].changeBattleStats('accuracy', -1);
-            return new EffectResult(undefined, `${target[0].name}'s accuracy dropped`);
-        }
-        return new EffectResult();
-    }
-
-    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
-        return new EffectForTurn();
-    }
-}
 
 @injectable()
 @registry([{ token: 'Effect', useClass: LowerSpecialAttack }])
@@ -730,6 +682,31 @@ class LowerSpecialDefense implements Effect {
 }
 
 @injectable()
+@registry([{ token: 'Effect', useClass: LowerAccuracy }])
+class LowerAccuracy implements Effect {
+    move_effect_id: number = 24;
+    abr: string = 'ACC-';
+    duration: number = 0;
+    when: EffectTiming = EffectTiming.AFTER_MOVE;
+    damages: number = 0;
+
+    turnsPassed: number = 0;
+    healed = false;
+
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        if (user) {
+            target[0].changeBattleStats('accuracy', -1);
+            return new EffectResult(undefined, `${target[0].name}'s accuracy dropped`);
+        }
+        return new EffectResult();
+    }
+
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
+        return new EffectForTurn();
+    }
+}
+
+@injectable()
 @registry([{ token: 'Effect', useClass: LowerEvasion }])
 class LowerEvasion implements Effect {
     move_effect_id: number = 25;
@@ -755,10 +732,10 @@ class LowerEvasion implements Effect {
 }
 
 @injectable()
-@registry([{ token: 'Effect', useClass: RaiseAccuracy }])
-class RaiseAccuracy implements Effect {
+@registry([{ token: 'Effect', useClass: RaiseAllStats }])
+class RaiseAllStats implements Effect {
     move_effect_id: number = 26;
-    abr: string = 'ACC+';
+    abr: string = 'ALL+';
     duration: number = 0;
     when: EffectTiming = EffectTiming.AFTER_MOVE;
     damages: number = 0;
@@ -768,8 +745,12 @@ class RaiseAccuracy implements Effect {
 
     apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
         if (user) {
-            user.changeBattleStats('accuracy', 1);
-            return new EffectResult(undefined, `${user.name}'s accuracy rose!`);
+            user.changeBattleStats('attack', 1);
+            user.changeBattleStats('defense', 1);
+            user.changeBattleStats('specialAttack', 1);
+            user.changeBattleStats('specialDefense', 1);
+            user.changeBattleStats('speed', 1);
+            return new EffectResult(undefined, `${user.name}'s stats all rose!`);
         }
         return new EffectResult();
     }
@@ -1003,40 +984,34 @@ class PayDay implements Effect {
     }
 }
 
-@injectable()
-@registry([{ token: 'Effect', useClass: LightScreen }])
-class LightScreen implements Effect {
-    move_effect_id: number = 36;
-    abr: string = 'LSC';
-    duration: number = 5;  // 5 turns by default, 8 with Light Clay
-    when: EffectTiming = EffectTiming.BEFORE_MOVE;
-    damages: number = 0;
 
-    turnsPassed: number = 0;
+@injectable()
+@registry([{ token: 'Effect', useClass: Reflect }])
+class Reflect implements Effect {
+    move_effect_id = 36;
+    abr = "RFL";
+    duration = 5;
+    when: EffectTiming = EffectTiming.AFTER_MOVE;
+    damages = 0;
+    turnsPassed = 0;
     healed = false;
 
-    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-        if (user) {
-            let lightScreen = new LightScreen();
-            // Check for Light Clay (would need to be implemented in item system)
-            // if (user.hasItem('Light Clay')) {
-            //     lightScreen.duration = 8;
-            // }
-            return new EffectResult(lightScreen, `Light Screen raised ${user.name}'s team's Special Defense!`);
+    apply(targets: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        if (!user) {
+            return new EffectResult();
         }
-        return new EffectResult();
+        // Reflect reduces physical damage by half for 5 turns
+        // In double battles, the reduction is 1/3 (not implemented yet)
+        // If the user is holding Light Clay, the barrier lasts for 8 turns
+        if (user.hasEffect('Reflect')) {
+            return new EffectResult(undefined, "But it failed!");
+        }
+        this.duration = user.hasItem('Light Clay') ? 8 : 5;
+        return new EffectResult(this, "A barrier appeared!");
     }
 
     playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
-        this.turnsPassed++;
-        
-        if (this.turnsPassed >= this.duration) {
-            this.healed = true;
-            return new EffectForTurn(true, `The Light Screen wore off!`);
-        }
-        
-        // The actual damage reduction should be handled in the damage calculation
-        return new EffectForTurn(true);
+        return new EffectForTurn();
     }
 }
 
@@ -1069,6 +1044,118 @@ class TriStatus implements Effect {
                 return new EffectResult(new Paralyze(), `${target[0].name} was paralyzed!`);
             }
         }
+        return new EffectResult();
+    }
+
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
+        return new EffectForTurn();
+    }
+}
+
+@injectable()
+@registry([{ token: 'Effect', useClass: Recharge }])
+class Recharge implements Effect {
+    move_effect_id: number = 38;
+    abr: string = 'RCH';
+    duration: number = 1;
+    when: EffectTiming = EffectTiming.BEFORE_MOVE;
+    damages: number = 0;
+
+    turnsPassed: number = 0;
+    healed = false;
+
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        return new EffectResult(this, `${user?.name} must recharge!`);
+    }
+
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
+        this.turnsPassed++;
+        if (this.turnsPassed >= this.duration) {
+            this.healed = true;
+            return new EffectForTurn(true);
+        }
+        return new EffectForTurn(false, `${user?.name} must recharge!`);
+    }
+}
+
+@injectable()
+@registry([{ token: 'Effect', useClass: Rage }])
+class Rage implements Effect {
+    move_effect_id: number = 39;
+    abr: string = 'RAG';
+    duration: number = -1;
+    when: EffectTiming = EffectTiming.AFTER_MOVE;
+    damages: number = 0;
+
+    turnsPassed: number = 0;
+    healed = false;
+
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        if (user) {
+            return new EffectResult(this, `${user.name} is getting angry!`);
+        }
+        return new EffectResult();
+    }
+
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
+        if (user) {
+            user.changeBattleStats('attack', 1);
+            return new EffectForTurn(true, `${user.name}'s rage is building!`);
+        }
+        return new EffectForTurn();
+    }
+}
+
+@injectable()
+@registry([{ token: 'Effect', useClass: Mimic }])
+class Mimic implements Effect {
+    move_effect_id: number = 40;
+    abr: string = 'MIM';
+    duration: number = -1;
+    when: EffectTiming = EffectTiming.AFTER_MOVE;
+    damages: number = 0;
+
+    turnsPassed: number = 0;
+    healed = false;
+
+    // List of moves that cannot be mimicked
+    private readonly IGNORED_MOVES = new Set([
+        'chatter', 'metronome', 'mimic', 'sketch', 'struggle', 'transform'
+    ]);
+
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        if (!target[0]?.lastMove) {
+            return new EffectResult(undefined, "But it failed!");
+        }
+
+        // Check if the move can be mimicked
+        if (this.IGNORED_MOVES.has(target[0].lastMove.name.toLowerCase())) {
+            return new EffectResult(undefined, "The move cannot be mimicked!");
+        }
+
+        // Create a copy of the last move with 5 PP
+        const mimickedMove = new MoveInstance(
+            target[0].lastMove.id,
+            target[0].lastMove.name,
+            target[0].lastMove.type,
+            target[0].lastMove.category,
+            target[0].lastMove.power,
+            target[0].lastMove.accuracy,
+            5, // PP is set to 5
+            target[0].lastMove.priority,
+            target[0].lastMove.target,
+            target[0].lastMove.effect,
+            target[0].lastMove.effectChance,
+            target[0].lastMove.description,
+            target[0].lastMove.level
+        );
+
+        // Replace one of the user's moves with the mimicked move
+        if (user && user.moves.length > 0) {
+            user.moves[0] = mimickedMove;
+            return new EffectResult(undefined, `${user.name} learned ${target[0].lastMove.name}!`);
+        }
+
         return new EffectResult();
     }
 
@@ -1267,6 +1354,665 @@ export class StatProtect implements Effect {
 
     playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
         return new EffectForTurn(true, "The mist prevents stat changes!");
+    }
+}
+
+@injectable()
+@registry([{ token: 'Effect', useClass: FocusEnergy }])
+class FocusEnergy implements Effect {
+    move_effect_id: number = 48;
+    abr: string = 'FOC';
+    duration: number = -1;  // Lasts until the user leaves the field
+    when: EffectTiming = EffectTiming.AFTER_MOVE;
+    damages: number = 0;
+
+    turnsPassed: number = 0;
+    healed = false;
+
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        if (!user) {
+            return new EffectResult();
+        }
+
+        // Check if user already has Focus Energy
+        if (user.status?.abr === 'FOC') {
+            return new EffectResult(undefined, "But it failed!");
+        }
+
+        return new EffectResult(this, `${user.name} is getting pumped!`);
+    }
+
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
+        return new EffectForTurn(true);
+    }
+}
+
+@injectable()
+@registry([{ token: 'Effect', useClass: Recoil }])
+class Recoil implements Effect {
+    move_effect_id: number = 49;
+    abr: string = 'RCL';
+    duration: number = 0;
+    when: EffectTiming = EffectTiming.AFTER_MOVE;
+    damages: number = 0;
+
+    turnsPassed: number = 0;
+    healed = false;
+
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        if (user && this.damages > 0) {
+            // User takes 1/4 of the damage it inflicted as recoil
+            const recoilDamage = Math.floor(this.damages / 4);
+            user.removeHp(recoilDamage);
+            return new EffectResult(undefined, `${user.name} is hit with recoil!`);
+        }
+        return new EffectResult();
+    }
+
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
+        return new EffectForTurn();
+    }
+}
+
+@injectable()
+@registry([{ token: 'Effect', useClass: SimpleConfuse }])
+class SimpleConfuse implements Effect {
+    move_effect_id: number = 50;
+    abr: string = 'CNF';
+    duration: number = 0;
+    when: EffectTiming = EffectTiming.BEFORE_MOVE;
+    damages: number = 0;
+
+    turnsPassed: number = 0;
+    healed = false;
+
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        // Confusion lasts 2-5 turns
+        let confusion = new Confusion();
+        confusion.duration = Math.floor(Math.random() * 4) + 2;
+        return new EffectResult(confusion, `${target[0].name} became confused!`);
+    }
+
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
+        return new EffectForTurn();
+    }
+}
+
+@injectable()
+@registry([{ token: 'Effect', useClass: RaiseAttack2 }])
+class RaiseAttack2 implements Effect {
+    move_effect_id: number = 51;
+    abr: string = 'ATK++';
+    duration: number = 0;
+    when: EffectTiming = EffectTiming.AFTER_MOVE;
+    damages: number = 0;
+
+    turnsPassed: number = 0;
+    healed = false;
+
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        if (user) {
+            user.changeBattleStats('attack', 2);
+            return new EffectResult(undefined, `${user.name}'s attack sharply rose!`);
+        }
+        return new EffectResult();
+    }
+
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
+        return new EffectForTurn();
+    }
+}
+
+@injectable()
+@registry([{ token: 'Effect', useClass: RaiseDefense2 }])
+class RaiseDefense2 implements Effect {
+    move_effect_id: number = 52;
+    abr: string = 'DEF++';
+    duration: number = 0;
+    when: EffectTiming = EffectTiming.AFTER_MOVE;
+    damages: number = 0;
+
+    turnsPassed: number = 0;
+    healed = false;
+
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        if (user) {
+            user.changeBattleStats('defense', 2);
+            return new EffectResult(undefined, `${user.name}'s defense sharply rose!`);
+        }
+        return new EffectResult();
+    }
+
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
+        return new EffectForTurn();
+    }
+}
+
+@injectable()
+@registry([{ token: 'Effect', useClass: RaiseSpeed2 }])
+class RaiseSpeed2 implements Effect {
+    move_effect_id: number = 53;
+    abr: string = 'SPE++';
+    duration: number = 0;
+    when: EffectTiming = EffectTiming.AFTER_MOVE;
+    damages: number = 0;
+
+    turnsPassed: number = 0;
+    healed = false;
+
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        if (user) {
+            user.changeBattleStats('speed', 2);
+            return new EffectResult(undefined, `${user.name}'s speed sharply rose!`);
+        }
+        return new EffectResult();
+    }
+
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
+        return new EffectForTurn();
+    }
+}
+
+@injectable()
+@registry([{ token: 'Effect', useClass: RaiseSpecialAttack2 }])
+class RaiseSpecialAttack2 implements Effect {
+    move_effect_id: number = 54;
+    abr: string = 'SPA++';
+    duration: number = 0;
+    when: EffectTiming = EffectTiming.AFTER_MOVE;
+    damages: number = 0;
+
+    turnsPassed: number = 0;
+    healed = false;
+
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        if (user) {
+            user.changeBattleStats('specialAttack', 2);
+            return new EffectResult(undefined, `${user.name}'s special attack sharply rose!`);
+        }
+        return new EffectResult();
+    }
+
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
+        return new EffectForTurn();
+    }
+}
+
+@injectable()
+@registry([{ token: 'Effect', useClass: RaiseSpecialDefense2 }])
+class RaiseSpecialDefense2 implements Effect {
+    move_effect_id: number = 55;
+    abr: string = 'SPD++';
+    duration: number = 0;
+    when: EffectTiming = EffectTiming.AFTER_MOVE;
+    damages: number = 0;
+
+    turnsPassed: number = 0;
+    healed = false;
+
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        if (user) {
+            user.changeBattleStats('specialDefense', 2);
+            return new EffectResult(undefined, `${user.name}'s special defense sharply rose!`);
+        }
+        return new EffectResult();
+    }
+
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
+        return new EffectForTurn();
+    }
+}
+
+
+@injectable()
+@registry([{ token: 'Effect', useClass: RaiseAccuracy }])
+class RaiseAccuracy implements Effect {
+    move_effect_id: number = 56;
+    abr: string = 'ACC';
+    duration: number = -1;
+    when: EffectTiming = EffectTiming.AFTER_MOVE;
+    damages: number = 0;
+
+    turnsPassed: number = 0;
+    healed = false;
+
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        if (user) {
+            user.changeBattleStats('accuracy', 1);
+            return new EffectResult(undefined, `${user.name}'s accuracy rose!`);
+        }
+        return new EffectResult();
+    }
+
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
+        return new EffectForTurn();
+    }
+}
+
+@injectable()
+@registry([{ token: 'Effect', useClass: RaiseEvasion }])
+class RaiseEvasion implements Effect {
+    move_effect_id: number = 57;
+    abr: string = 'EVA';
+    duration: number = -1;
+    when: EffectTiming = EffectTiming.AFTER_MOVE;
+    damages: number = 0;
+
+    turnsPassed: number = 0;
+    healed = false;
+
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        if (user) {
+            user.changeBattleStats('evasion', 1);
+            return new EffectResult(undefined, `${user.name}'s evasiveness rose!`);
+        }
+        return new EffectResult();
+    }
+
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
+        return new EffectForTurn();
+    }
+}
+
+@injectable()
+@registry([{ token: "Effect", useValue: "Transform" }])
+export class Transform implements Effect {
+    move_effect_id = 58;
+    abr = "TRN";
+    duration = -1;
+    when: EffectTiming = EffectTiming.AFTER_MOVE;
+    damages = 0;
+    turnsPassed = 0;
+    healed = false;
+
+    apply(targets: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        if (!targets || targets.length === 0 || !user) {
+            return new EffectResult();
+        }
+
+        const target = targets[0];
+        
+        // Copy only necessary attributes
+        user.types = [...target.types];
+        user.moves = target.moves.map(move => new MoveInstance(
+            move.id,
+            move.name,
+            move.type,
+            move.category,
+            move.power,
+            move.accuracy,
+            5, // PP is set to 5 for all moves
+            move.priority,
+            move.target,
+            move.effect,
+            move.effectChance,
+            move.description,
+            move.level
+        ));
+        
+        // Copy current stats (except HP)
+        const oldHp = user.currentStats.hp;
+        const oldCurrentHp = user.currentHp;
+        user.stats = { ...target.stats };
+        user.currentStats = { ...target.currentStats };
+        user.currentStats.hp = oldHp;
+        user.currentHp = oldCurrentHp;
+        
+        // Set sprite to target's sprite
+        user.sprites = target.sprites;
+        
+        return new EffectResult(undefined, `${user.name} transformed into ${target.name}!`);
+    }
+
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
+        return new EffectForTurn();
+    }
+}
+
+@injectable()
+@registry([{ token: "Effect", useValue: "LowerAttack2" }])
+export class LowerAttack2 implements Effect {
+    move_effect_id = 59;
+    abr = "ATK--";
+    duration = 0;
+    when: EffectTiming = EffectTiming.AFTER_MOVE;
+    damages = 0;
+    turnsPassed = 0;
+    healed = false;
+
+    apply(targets: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        if (!targets || targets.length === 0) {
+            return new EffectResult();
+        }
+        targets[0].changeBattleStats('attack', -2);
+        return new EffectResult(undefined, `${targets[0].name}'s Attack fell sharply!`);
+    }
+
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
+        return new EffectForTurn();
+    }
+}
+
+@injectable()
+@registry([{ token: "Effect", useValue: "LowerDefense2" }])
+export class LowerDefense2 implements Effect {
+    move_effect_id = 60;
+    abr = "DEF--";
+    duration = 0;
+    when: EffectTiming = EffectTiming.AFTER_MOVE;
+    damages = 0;
+    turnsPassed = 0;
+    healed = false;
+
+    apply(targets: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        if (!targets || targets.length === 0) {
+            return new EffectResult();
+        }
+        targets[0].changeBattleStats('defense', -2);
+        return new EffectResult(undefined, `${targets[0].name}'s Defense fell sharply!`);
+    }
+
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
+        return new EffectForTurn();
+    }
+}
+
+@injectable()
+@registry([{ token: "Effect", useValue: "LowerSpeed2" }])
+export class LowerSpeed2 implements Effect {
+    move_effect_id = 61;
+    abr = "SPE--";
+    duration = 0;
+    when: EffectTiming = EffectTiming.AFTER_MOVE;
+    damages = 0;
+    turnsPassed = 0;
+    healed = false;
+
+    apply(targets: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        if (!targets || targets.length === 0) {
+            return new EffectResult();
+        }
+        targets[0].changeBattleStats('speed', -2);
+        return new EffectResult(undefined, `${targets[0].name}'s Speed fell sharply!`);
+    }
+
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
+        return new EffectForTurn();
+    }
+}
+
+@injectable()
+@registry([{ token: "Effect", useValue: "LowerSpecialAttack2" }])
+export class LowerSpecialAttack2 implements Effect {
+    move_effect_id = 62;
+    abr = "SPA--";
+    duration = 0;
+    when: EffectTiming = EffectTiming.AFTER_MOVE;
+    damages = 0;
+    turnsPassed = 0;
+    healed = false;
+
+    apply(targets: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        if (!targets || targets.length === 0) {
+            return new EffectResult();
+        }
+        targets[0].changeBattleStats('specialAttack', -2);
+        return new EffectResult(undefined, `${targets[0].name}'s Special Attack fell sharply!`);
+    }
+
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
+        return new EffectForTurn();
+    }
+}
+
+@injectable()
+@registry([{ token: "Effect", useValue: "LowerSpecialDefense2" }])
+export class LowerSpecialDefense2 implements Effect {
+    move_effect_id = 63;
+    abr = "SPD--";
+    duration = 0;
+    when: EffectTiming = EffectTiming.AFTER_MOVE;
+    damages = 0;
+    turnsPassed = 0;
+    healed = false;
+
+    apply(targets: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        if (!targets || targets.length === 0) {
+            return new EffectResult();
+        }
+        targets[0].changeBattleStats('specialDefense', -2);
+        return new EffectResult(undefined, `${targets[0].name}'s Special Defense fell sharply!`);
+    }
+
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
+        return new EffectForTurn();
+    }
+}
+
+@injectable()
+@registry([{ token: 'Effect', useClass: LowerAccuracy2 }])
+class LowerAccuracy2 implements Effect {
+    move_effect_id: number = 64;
+    abr: string = 'ACC-2';
+    duration: number = -1;
+    when: EffectTiming = EffectTiming.AFTER_MOVE;
+    damages: number = 0;
+
+    turnsPassed: number = 0;
+    healed = false;
+
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        if (target[0]) {
+            target[0].changeBattleStats('accuracy', -2);
+            return new EffectResult(undefined, `${target[0].name}'s accuracy harshly fell!`);
+        }
+        return new EffectResult();
+    }
+
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
+        return new EffectForTurn();
+    }
+}
+
+@injectable()
+@registry([{ token: 'Effect', useClass: LowerEvasion2 }])
+class LowerEvasion2 implements Effect {
+    move_effect_id: number = 65;
+    abr: string = 'EVA-2';
+    duration: number = -1;
+    when: EffectTiming = EffectTiming.AFTER_MOVE;
+    damages: number = 0;
+
+    turnsPassed: number = 0;
+    healed = false;
+
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        if (target[0]) {
+            target[0].changeBattleStats('evasion', -2);
+            return new EffectResult(undefined, `${target[0].name}'s evasiveness harshly fell!`);
+        }
+        return new EffectResult();
+    }
+
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
+        return new EffectForTurn();
+    }
+}
+
+@injectable()
+@registry([{ token: "Effect", useValue: "LightScreen" }])
+export class LightScreen implements Effect {
+    move_effect_id = 66;
+    abr = "LSCR";
+    duration = 5;
+    when: EffectTiming = EffectTiming.AFTER_MOVE;
+    damages = 0;
+    turnsPassed = 0;
+    healed = false;
+
+    apply(targets: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        if (!user) {
+            return new EffectResult();
+        }
+        // Light Screen reduces physical damage by half for 5 turns
+        // In double battles, the reduction is 1/3 (not implemented yet)
+        // If the user is holding Light Clay, the barrier lasts for 8 turns
+        if (user.hasEffect('LightScreen')) {
+            return new EffectResult(undefined, "But it failed!");
+        }
+        this.duration = user.hasItem('Light Clay') ? 8 : 5;
+        return new EffectResult(this, "A barrier of light appeared!");
+    }
+
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
+        return new EffectForTurn();
+    }
+}
+
+@injectable()
+@registry([{ token: "Effect", useClass: BreakScreens }])
+class BreakScreens implements Effect {
+    move_effect_id: number = 67;
+    abr: string = 'BRK';
+    duration: number = 0;
+    when: EffectTiming = EffectTiming.AFTER_MOVE;
+    damages: number = 0;
+
+    turnsPassed: number = 0;
+    healed = false;
+
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        // The actual screen breaking should be handled by the battle system
+        // This is just the effect definition
+        return new EffectResult(undefined, "The protective barriers were broken!");
+    }
+
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
+        return new EffectForTurn();
+    }
+}
+
+@injectable()
+@registry([{ token: "Effect", useClass: DelayedSleep }])
+class DelayedSleep implements Effect {
+    move_effect_id: number = 68;
+    abr: string = 'SLP';
+    duration: number = 0;
+    when: EffectTiming = EffectTiming.AFTER_MOVE;
+    damages: number = 0;
+
+    turnsPassed: number = 0;
+    healed = false;
+
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        // This effect is handled in the move execution logic
+        // It allows the move to skip its charging turn
+        return new EffectResult();
+    }
+
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
+        return new EffectForTurn(true);
+    }
+}
+
+@injectable()
+@registry([{ token: "Effect", useClass: DropItem }])
+class DropItem implements Effect {
+    move_effect_id: number = 69;
+    abr: string = 'DRP';
+    duration: number = 0;
+    when: EffectTiming = EffectTiming.AFTER_MOVE;
+    damages: number = 0;
+
+    turnsPassed: number = 0;
+    healed = false;
+
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        // The actual item dropping should be handled by the battle system
+        // This is just the effect definition
+        if (target[0].hasItem()) {
+            return new EffectResult(undefined, `${target[0].name} dropped its item!`);
+        }
+        return new EffectResult();
+    }
+
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
+        return new EffectForTurn();
+    }
+}
+
+@injectable()
+@registry([{ token: "Effect", useClass: ChanceToLowerDefense }])
+class ChanceToLowerDefense implements Effect {
+    move_effect_id: number = 70;
+    abr: string = 'LDEF';
+    duration: number = 0;
+    when: EffectTiming = EffectTiming.AFTER_MOVE;
+    damages: number = 0;
+
+    turnsPassed: number = 0;
+    healed = false;
+
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        // The actual chance to lower defense logic is handled in the battle system
+        // This is just the effect definition
+        return new EffectResult(undefined, "The chance to lower defense is handled in the battle system!");
+    }
+
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
+        return new EffectForTurn();
+    }
+}
+
+@injectable()
+@registry([{ token: "Effect", useClass: ChanceToLowerSpeed }])
+class ChanceToLowerSpeed implements Effect {
+    move_effect_id: number = 71;
+    abr: string = 'LSPE';
+    duration: number = 0;
+    when: EffectTiming = EffectTiming.AFTER_MOVE;
+    damages: number = 0;
+
+    turnsPassed: number = 0;
+    healed = false;
+
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        if (target[0]) {
+            // The actual chance to lower speed logic is handled in the battle system
+            // This is just the effect definition
+            return new EffectResult(undefined, "The chance to lower speed is handled in the battle system!");
+        }
+        return new EffectResult();
+    }
+
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
+        return new EffectForTurn();
+    }
+}
+
+@injectable()
+@registry([{ token: "Effect", useClass: ChanceToLowerSpAtk }])
+class ChanceToLowerSpAtk implements Effect {
+    move_effect_id: number = 72;
+    abr: string = 'LSPA';
+    duration: number = 0;
+    when: EffectTiming = EffectTiming.AFTER_MOVE;
+    damages: number = 0;
+
+    turnsPassed: number = 0;
+    healed = false;
+
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        if (target[0]) {
+            // The actual chance to lower special attack logic is handled in the battle system
+            // This is just the effect definition
+            return new EffectResult(undefined, "The chance to lower special attack is handled in the battle system!");
+        }
+        return new EffectResult();
+    }
+
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
+        return new EffectForTurn();
     }
 }
 
