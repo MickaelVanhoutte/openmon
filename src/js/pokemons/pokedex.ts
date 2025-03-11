@@ -863,6 +863,14 @@ export class PokemonInstance extends PokedexEntry {
         this.xpToNextLevel = EXPERIENCE_CHART.howMuchINeed(this.level, this.growthRateId);
     }
 
+    public hasEffect(effectName: string): boolean {
+        return this.status?.constructor.name === effectName;
+    }
+
+    public hasItem(itemName: string): boolean {
+        return this.heldItem?.name === itemName;
+    }
+
     private selectLatestMoves(pokedexEntry: PokedexEntry) {
         // get 4 last moves based on current level
         return pokedexEntry.moves.filter((move) => move.level <= this.level && move.method === 1).slice(-4).map((move) => new MoveInstance(move.id, move.name, move.type, move.category, move.power, move.accuracy, move.pp, move.priority, move.target, move.effect, move.effectChance, move.description, move.level));
