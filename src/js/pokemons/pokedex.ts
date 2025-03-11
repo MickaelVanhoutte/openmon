@@ -639,6 +639,9 @@ export class PokemonInstance extends PokedexEntry {
     public gender: 'male' | 'female' | 'unknown';
     public heldItem: any = {}; // TODO
     public lastMove?: MoveInstance;
+    public lastDamageTaken?: number;
+    public lastAttacker?: PokemonInstance;
+    public selectedMove?: MoveInstance;
 
     public isShiny: boolean = false;
 
@@ -882,5 +885,21 @@ export class PokemonInstance extends PokedexEntry {
             return `src/assets/monsters/static/sprites-shiny${(back ? '-back/' : '/') + this.normalizedName}.png`
         }
         return `src/assets/monsters/static/sprites${(back ? '-back/' : '/') + this.normalizedName}.png`
+    }
+
+    public hasType(type: string): boolean {
+        return this.types.includes(type);
+    }
+
+    public restoreHp(amount: number) {
+        this.heal(amount);
+    }
+
+    public setHp(amount: number) {
+        this.currentHp = Math.min(amount, this.currentStats.hp);
+        if (this.currentHp <= 0) {
+            this.currentHp = 0;
+            this.fainted = true;
+        }
     }
 }

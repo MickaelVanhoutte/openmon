@@ -2282,6 +2282,368 @@ class RageEffect implements Effect {
     }
 }
 
+@injectable()
+@registry([{ token: "Effect", useClass: Mimic2 }])
+class Mimic2 implements Effect {
+    move_effect_id: number = 83;
+    abr: string = 'MIM2';
+    duration: number = -1;  // Lasts until the user switches out
+    when: EffectTiming = EffectTiming.AFTER_MOVE;
+    damages: number = 0;
+
+    turnsPassed: number = 0;
+    healed = false;
+
+    // List of moves that cannot be mimicked
+    private readonly IGNORED_MOVES = new Set([
+        'chatter', 'metronome', 'mimic', 'sketch', 'struggle'
+    ]);
+
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        if (!target[0]?.lastMove) {
+            return new EffectResult(undefined, "But it failed!");
+        }
+
+        // Check if the move can be mimicked
+        if (this.IGNORED_MOVES.has(target[0].lastMove.name.toLowerCase())) {
+            return new EffectResult(undefined, "The move cannot be mimicked!");
+        }
+
+        // This represents copying the last used move with 5 PP
+        return new EffectResult(this, `${user?.name} copied ${target[0].lastMove.name}!`);
+    }
+
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
+        return new EffectForTurn();
+    }
+}
+
+@injectable()
+@registry([{ token: "Effect", useClass: Metronome }])
+class Metronome implements Effect {
+    move_effect_id: number = 84;
+    abr: string = 'MTR';
+    duration: number = 0;
+    when: EffectTiming = EffectTiming.BEFORE_MOVE;
+    damages: number = 0;
+
+    turnsPassed: number = 0;
+    healed = false;
+
+    // List of moves that cannot be selected by Metronome
+    private readonly IGNORED_MOVES = new Set([
+        'assist', 'chatter', 'copycat', 'counter', 'covet', 'destiny-bond', 
+        'detect', 'endure', 'feint', 'focus-punch', 'follow-me', 'helping-hand', 
+        'me-first', 'metronome', 'mimic', 'mirror-coat', 'mirror-move', 'protect', 
+        'quick-guard', 'sketch', 'sleep-talk', 'snatch', 'struggle', 'switcheroo', 
+        'thief', 'trick', 'wide-guard'
+    ]);
+
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        if (!user) {
+            return new EffectResult();
+        }
+        
+        // In a real implementation, this would randomly select a move
+        // and execute it, excluding moves in IGNORED_MOVES
+        return new EffectResult(this, `${user.name} used Metronome!`);
+    }
+
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
+        return new EffectForTurn();
+    }
+}
+
+@injectable()
+@registry([{ token: "Effect", useClass: LeechSeed }])
+class LeechSeed implements Effect {
+    move_effect_id: number = 85;
+    abr: string = 'SEED';
+    duration: number = -1;  // Lasts until the Pokémon leaves the field
+    when: EffectTiming = EffectTiming.END_TURN;
+    damages: number = 0;
+
+    turnsPassed: number = 0;
+    healed = false;
+
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        if (!target[0]) {
+            return new EffectResult();
+        }
+
+        // Check if target is Grass type (immune to Leech Seed)
+        if (target[0].hasType('Grass')) {
+            return new EffectResult(undefined, "It doesn't affect the target!");
+        }
+
+        return new EffectResult(this, `${target[0].name} was seeded!`);
+    }
+
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
+        if (!target || !user) {
+            return new EffectForTurn();
+        }
+
+        // Calculate damage (1/8 of target's max HP)
+        const damage = Math.floor(target.stats.hp / 8);
+        
+        // Damage target and heal user
+        target.removeHp(damage);
+        user.restoreHp(damage);
+        
+        return new EffectForTurn(true, `${target.name}'s health is sapped by Leech Seed!`);
+    }
+}
+
+@injectable()
+@registry([{ token: "Effect", useClass: Splash }])
+class Splash implements Effect {
+    move_effect_id: number = 86;
+    abr: string = 'SPL';
+    duration: number = 0;
+    when: EffectTiming = EffectTiming.AFTER_MOVE;
+    damages: number = 0;
+
+    turnsPassed: number = 0;
+    healed = false;
+
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        // Splash does nothing
+        return new EffectResult(undefined, "But nothing happened!");
+    }
+
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
+        return new EffectForTurn();
+    }
+}
+
+@injectable()
+@registry([{ token: "Effect", useClass: Disable }])
+class Disable implements Effect {
+    move_effect_id: number = 87;
+    abr: string = 'DSB';
+    duration: number = 0;  // Duration is randomly set in apply
+    when: EffectTiming = EffectTiming.BEFORE_MOVE;
+    damages: number = 0;
+
+    turnsPassed: number = 0;
+    healed = false;
+    disabledMove: string = '';
+
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        if (!target[0] || !target[0].lastMove) {
+            return new EffectResult(undefined, "But it failed!");
+        }
+
+        // Set a random duration between 4-7 turns
+        this.duration = Math.floor(Math.random() * 4) + 4;
+        this.disabledMove = target[0].lastMove.name;
+
+        return new EffectResult(this, `${target[0].name}'s ${this.disabledMove} was disabled!`);
+    }
+
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
+        this.turnsPassed++;
+        
+        if (this.turnsPassed >= this.duration) {
+            this.healed = true;
+            return new EffectForTurn(true, `${target.name}'s ${this.disabledMove} is no longer disabled!`);
+        }
+        
+        // Prevent using the disabled move
+        if (target.selectedMove?.name === this.disabledMove) {
+            return new EffectForTurn(false, `${target.name}'s ${this.disabledMove} is disabled!`);
+        }
+        
+        return new EffectForTurn();
+    }
+}
+
+@injectable()
+@registry([{ token: "Effect", useClass: LevelDamage }])
+class LevelDamage implements Effect {
+    move_effect_id: number = 88;
+    abr: string = 'LVL';
+    duration: number = 0;
+    when: EffectTiming = EffectTiming.AFTER_MOVE;
+    damages: number = 0;
+
+    turnsPassed: number = 0;
+    healed = false;
+
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        if (!user || !target[0]) {
+            return new EffectResult();
+        }
+
+        // Damage equal to user's level
+        this.damages = user.level;
+        
+        // Apply damage
+        target[0].removeHp(this.damages);
+        
+        return new EffectResult(undefined, `${target[0].name} took ${this.damages} damage!`);
+    }
+
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
+        return new EffectForTurn();
+    }
+}
+
+@injectable()
+@registry([{ token: "Effect", useClass: RandomDamage }])
+class RandomDamage implements Effect {
+    move_effect_id: number = 89;
+    abr: string = 'RND';
+    duration: number = 0;
+    when: EffectTiming = EffectTiming.AFTER_MOVE;
+    damages: number = 0;
+
+    turnsPassed: number = 0;
+    healed = false;
+
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        if (!user || !target[0]) {
+            return new EffectResult();
+        }
+
+        // Random damage between 50% and 150% of user's level
+        const baseLevel = user.level;
+        const percentage = (Math.floor(Math.random() * 11) + 5) * 10; // 50% to 150% in increments of 10%
+        this.damages = Math.floor(baseLevel * percentage / 100);
+        
+        // Apply damage
+        target[0].removeHp(this.damages);
+        
+        return new EffectResult(undefined, `${target[0].name} took ${this.damages} damage!`);
+    }
+
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
+        return new EffectForTurn();
+    }
+}
+
+@injectable()
+@registry([{ token: "Effect", useClass: Counter }])
+class Counter implements Effect {
+    move_effect_id: number = 90;
+    abr: string = 'CNT';
+    duration: number = 0;
+    when: EffectTiming = EffectTiming.AFTER_MOVE;
+    damages: number = 0;
+
+    turnsPassed: number = 0;
+    healed = false;
+
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        if (!user || !target[0]) {
+            return new EffectResult();
+        }
+
+        // In a real implementation, this would check if the user was hit by a physical move
+        // and return double the damage. For now, we'll just simulate it.
+        const lastDamageTaken = user.lastDamageTaken || 0;
+        
+        if (lastDamageTaken <= 0 || !user.lastAttacker) {
+            return new EffectResult(undefined, "But it failed!");
+        }
+        
+        // Double the damage
+        this.damages = lastDamageTaken * 2;
+        
+        // Apply damage to the last attacker
+        user.lastAttacker.removeHp(this.damages);
+        
+        return new EffectResult(undefined, `${user.lastAttacker.name} took ${this.damages} damage!`);
+    }
+
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
+        return new EffectForTurn();
+    }
+}
+
+@injectable()
+@registry([{ token: "Effect", useClass: Encore }])
+class Encore implements Effect {
+    move_effect_id: number = 91;
+    abr: string = 'ENC';
+    duration: number = 0;
+    when: EffectTiming = EffectTiming.BEFORE_MOVE;
+    damages: number = 0;
+
+    turnsPassed: number = 0;
+    healed = false;
+    encoreMove: string = '';
+
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        if (!target[0] || !target[0].lastMove) {
+            return new EffectResult(undefined, "But it failed!");
+        }
+
+        // Set a random duration between 4-8 turns
+        this.duration = Math.floor(Math.random() * 5) + 4;
+        this.encoreMove = target[0].lastMove.name;
+
+        // Check if the move can be encored
+        const IGNORED_MOVES = new Set([
+            'encore', 'mimic', 'mirror-move', 'sketch', 'struggle', 'transform'
+        ]);
+
+        if (IGNORED_MOVES.has(this.encoreMove.toLowerCase())) {
+            return new EffectResult(undefined, "But it failed!");
+        }
+
+        return new EffectResult(this, `${target[0].name} got an encore!`);
+    }
+
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
+        this.turnsPassed++;
+        
+        if (this.turnsPassed >= this.duration) {
+            this.healed = true;
+            return new EffectForTurn(true, `${target.name}'s encore ended!`);
+        }
+        
+        // Force the target to use the encored move
+        return new EffectForTurn(true, `${target.name} is forced to use ${this.encoreMove}!`);
+    }
+}
+
+@injectable()
+@registry([{ token: "Effect", useClass: PainSplit }])
+class PainSplit implements Effect {
+    move_effect_id: number = 92;
+    abr: string = 'PSP';
+    duration: number = 0;
+    when: EffectTiming = EffectTiming.AFTER_MOVE;
+    damages: number = 0;
+
+    turnsPassed: number = 0;
+    healed = false;
+
+    apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
+        if (!user || !target[0]) {
+            return new EffectResult();
+        }
+
+        // Calculate the average HP
+        const totalHP = user.currentHp + target[0].currentHp;
+        const averageHP = Math.floor(totalHP / 2);
+        
+        // Set both Pokémon to the average HP
+        const userOldHP = user.currentHp;
+        const targetOldHP = target[0].currentHp;
+        
+        user.setHp(averageHP);
+        target[0].setHp(averageHP);
+        
+        return new EffectResult(undefined, `The battlers shared their pain!`);
+    }
+
+    playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
+        return new EffectForTurn();
+    }
+}
 
 class UnknownEffect implements Effect {
     damages: number = 0;
