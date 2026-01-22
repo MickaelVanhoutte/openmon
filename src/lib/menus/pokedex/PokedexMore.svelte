@@ -27,7 +27,8 @@
 >
 	<div class="column weaknesses">
 		<h4>Weaknesses & Resistances</h4>
-		<table>
+	<table>
+		<tbody>
 			<tr>
 				<td>0x</td>
 				<td>
@@ -103,7 +104,8 @@
 					</div>
 				</td>
 			</tr>
-		</table>
+		</tbody>
+	</table>
 	</div>
 	<div class="column evolutions">
 		<h4>Evolutions</h4>

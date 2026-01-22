@@ -14,14 +14,13 @@ import { firstBeach } from "../mapping/maps/firstBeach";
 import { writable, type Writable } from "svelte/store";
 import { SaveContext } from "./savesHolder";
 import type { Jonction } from "../mapping/collisions";
-//import { TourGuideClient } from "@sjmc11/tourguidejs/src/Tour"
-//import { GUIDES_STEPS } from "./guides-steps";
 import { pokecenter1 } from "../mapping/maps/pokecenter1";
 import { forest } from "../mapping/maps/forest";
 import { OverworldSpawn } from "../characters/overworld-spawn";
 import { Flags, Objective, ObjectiveState, QUESTS, Quest, QuestState } from "../scripting/quests";
 import { Notifications } from "../scripting/notifications";
 import { BattleType } from "../battle/battle-model";
+import { AudioManager, QuestManager, ScriptRunner } from "./managers";
 
 
 /**
@@ -54,18 +53,17 @@ export class GameContext {
     overWorldContext: OverworldContext;
     battleContext: Writable<BattleContext | undefined> = writable(undefined);
 
-    playingScript?: Script;
-    scriptsByTrigger: Map<string, Script[]> = new Map<string, Script[]>();
+    // Manager classes
+    audioManager: AudioManager;
+    questManager: QuestManager;
+    scriptRunner: ScriptRunner;
+
     hasEvolutions: boolean = false;
     spawned?: OverworldSpawn;
 
     // Guides
     //tg: TourGuideClient;
     viewedGuides: number[];
-
-    sound?: Howl;
-    battleStartSound: Howl;
-    battleSound: Howl;
 
     notifications: Notifications = new Notifications();
 
@@ -92,62 +90,20 @@ export class GameContext {
         this.player.position = new CharacterPosition(this.map.playerInitialPosition);
         this.viewedGuides = save.viewedGuides;
 
-        this.questStates = save.questStates;
-        const lastCompleted = this.questStates.filter(q => q.completed).sort((a, b) => a.id - b.id).pop();
-        this.quests = QUESTS.map(q => {
-            let questState = this.questStates.find(qs => qs.id === q.id);
-            return new Quest(q.id, q.name, q.description, q.objectives
-                .map(o => new Objective(o.id, o.description, questState?.objectives.find(questObj => questObj.id === o.id)?.completed || false))
-                , q.area, q.leaveMessage, questState?.completed || false);
-        });
-        console.log(lastCompleted);
-        if (lastCompleted) {
-            this.currentQuest = this.quests.find(q => q.id === (lastCompleted?.id + 1)) || this.quests[0];
-        } else {
-            this.currentQuest = this.quests[0];
-        }
-        this.flags = save.flags;
+        // Initialize managers
+        this.audioManager = new AudioManager();
+        this.questManager = new QuestManager(save.questStates, save.flags, this.notifications);
+        this.scriptRunner = new ScriptRunner();
 
-        // this.tg = new TourGuideClient({
-        //     dialogClass: 'guide-dialog',
-        //     nextLabel: '►',
-        //     prevLabel: '◄',
-        //     finishLabel: '✔',
-        //     showStepProgress: false,
-        //     closeButton: false,
-        //     exitOnClickOutside: false,
-        //     exitOnEscape: false,
-        //     steps: [GUIDES_STEPS.JOYSTICK, GUIDES_STEPS.KEYBOARD_ARROWS, GUIDES_STEPS.KEYBOARD_AB].filter(step => !this.viewedGuides.includes(step.order || 0))
-        // });
+        // Sync quest data from manager to GameContext (for backwards compatibility)
+        this.questStates = this.questManager.questStates;
+        this.quests = this.questManager.quests;
+        this.currentQuest = this.questManager.currentQuest;
+        this.flags = this.questManager.flags;
 
-        // this.tg.onFinish(() => {
-        //     this.tg.tourSteps.map(step => step.order || 0).forEach(step => this.viewedGuides.push(step));
-        // });
-
-        let allScripts: Script[] = this.map.scripts
-            .concat(this.map.npcs.map((npc) => npc.mainScript).filter((script) => script !== undefined) as Script[])
-            .concat(this.map.npcs.map((npc) => npc.dialogScripts).flat().filter((script) => script !== undefined) as Script[])
-            .concat(this.map.npcs.map((npc) => npc.movingScript).filter((script) => script !== undefined) as Script[]);
-        allScripts.forEach((script) => {
-            if (this.scriptsByTrigger.has(script.triggerType)) {
-                this.scriptsByTrigger.get(script.triggerType)?.push(script);
-            } else {
-                this.scriptsByTrigger.set(script.triggerType, [script]);
-            }
-        });
-
-        this.battleStartSound = new Howl({
-            src: ['src/assets/audio/battle/battle-start.mp3'],
-            autoplay: false,
-            loop: false,
-            volume: 0.5
-        });
-        this.battleSound = new Howl({
-            src: ['src/assets/audio/battle/battle2.mp3'],
-            autoplay: false,
-            loop: true,
-            volume: 0.5
-        });
+        // Index scripts using ScriptRunner
+        const allScripts = this.scriptRunner.collectAllScripts(this.map.scripts, this.map.npcs);
+        this.scriptRunner.indexScripts(allScripts);
 
         this.bindKeys();
         this.checkForGameStart();
@@ -351,7 +307,7 @@ export class GameContext {
     checkForGameStart(): boolean {
 
         if (this.isNewGame && !this.overWorldContext.scenes.wakeUp) {
-            let script = this.scriptsByTrigger.get('onGameStart')?.at(0);
+            let script = this.scriptRunner.getByTrigger('onGameStart');
             this.overWorldContext.startScene(SceneType.WAKE_UP);
 
             setTimeout(() => {
@@ -359,9 +315,7 @@ export class GameContext {
                 this.isNewGame = false;
                 if (script) {
                     this.playScript(script, undefined, () => {
-                        if (this.currentQuest) {
-                            this.notifications.notify('Current quest: ' + this.currentQuest.name);
-                        }
+                        this.questManager.notifyCurrentQuest();
                     });
                 }
             }, 5000);
@@ -369,9 +323,7 @@ export class GameContext {
             return true;
         } else {
             //this.tg.start();
-            if (this.currentQuest) {
-                this.notifications.notify('Current quest: ' + this.currentQuest.name);
-            }
+            this.questManager.notifyCurrentQuest();
         }
         return false;
     }
@@ -385,19 +337,15 @@ export class GameContext {
     }
 
     changeMap(jonction: Jonction) {
-        if (!!this.sound) {
-            this.sound.fade(0.5, 0, 900);
-            setTimeout(() => {
-                this.sound?.stop();
-                this.sound = undefined;
-            }, 900);
-        }
+        // Fade out map audio
+        this.audioManager.fadeOutMapSound();
 
-
-        // stop every scripts
-        this.playingScript?.interrupt();
+        // Stop all scripts
+        this.scriptRunner.interruptCurrent();
         this.map?.npcs.forEach(npc => npc.movingScript?.interrupt());
 
+        // Clear script index and re-index for new map
+        this.scriptRunner.clear();
 
         let map = OpenMap.fromInstance(this.MAPS[jonction.mapIdx], new Position(0, 0));
         this.player.position.setPosition(jonction.start || new Position(0, 0));
@@ -405,14 +353,7 @@ export class GameContext {
     }
 
     playMapSound() {
-        if (this.map?.sound) {
-            this.sound = new Howl({
-                src: ['src/assets/audio/' + this.map?.sound + '.mp3'],
-                autoplay: true,
-                loop: true,
-                volume: 0.5
-            });
-        }
+        this.audioManager.playMapSound(this.map?.sound);
     }
 
     loadMap(map: OpenMap) {
@@ -429,6 +370,10 @@ export class GameContext {
         // TODO set in overWorldCtx
         this.map = map;
 
+        // Re-index scripts for the new map
+        const allScripts = this.scriptRunner.collectAllScripts(map.scripts, map.npcs);
+        this.scriptRunner.indexScripts(allScripts);
+
         setTimeout(() => {
             this.overWorldContext.changingMap = false;
 
@@ -438,7 +383,7 @@ export class GameContext {
                 this.playScript(onEnterScript);
             }
             if (npcOnEnter?.length > 0) {
-                this.playMvts(npcOnEnter);
+                this.scriptRunner.playMovements(npcOnEnter, this);
             }
 
             this.overworldSpawn();
@@ -488,7 +433,7 @@ export class GameContext {
 
     checkForStepInScript() {
         let stepScript: Script | undefined;
-        if (this.map?.scripts && this.map.scripts?.length > 0 && !this.playingScript) {
+        if (this.map?.scripts && this.map.scripts?.length > 0 && !this.scriptRunner.isPlaying()) {
             // TODO allow range of positions
             stepScript = this.map.scripts.find(
                 (s) =>
@@ -586,18 +531,11 @@ export class GameContext {
     startBattle(opponent: PokemonInstance | Character, battleType: BattleType, onEnd?: () => void) {
         this.overWorldContext.setPaused(true, 'battle-start gameContext');
 
-        if (this.sound && this.sound.playing()) {
-            this.sound.fade(0.5, 0, 500);
-            this.battleStartSound.play();
-            setTimeout(() => {
-                this.sound?.stop();
-                this.battleStartSound.fade(0, 0.5, 500);
-            }, 500);
-        }
+        // Handle audio transition to battle
+        this.audioManager.startBattleTransition();
 
         setTimeout(() => {
-            this.battleStartSound.stop();
-            this.battleSound.play();
+            this.audioManager.playBattleMusic();
         }, 1500);
 
         console.log(battleType)
@@ -618,7 +556,7 @@ export class GameContext {
         let battleContext = new BattleContext(this.player, opponent, this.settings, battleType);
         let unsubscribe = battleContext.events.end.subscribe((result) => {
             if (result) {
-                this.battleSound.fade(0.5, 0, 1000);
+                this.audioManager.fadeOutBattleMusic();
 
                 battleContext.events.ending.set(true);
 
@@ -657,7 +595,7 @@ export class GameContext {
                     // End of battle, 2 sec later for fade out
                     this.overWorldContext.setPaused(false, 'battle-end gameContext');
                     this.battleContext.set(undefined);
-                    this.battleSound.stop();
+                    this.audioManager.stopBattleMusic();
                     this.hasEvolutions = this.player.monsters.some(pkmn => pkmn.canEvolve());
                     if (onEnd) {
                         onEnd();
@@ -677,33 +615,12 @@ export class GameContext {
     }
 
     playScript(script?: Script, previous?: Script, onEnd?: () => void, pause: boolean = true) {
-        if (script && !this.playingScript) {
-            script.onEnd = () => {
-                this.playingScript = undefined;
-                this.overWorldContext.setPaused(false, 'script-end gameContext');
-                if (previous) {
-                    if (onEnd) {
-                        previous.onEnd = onEnd;
-                    }
-                    previous?.resume(this);
-                } else {
-                    if (onEnd) {
-                        onEnd();
-                    }
-                }
-
-            };
-            this.playingScript = script;
-            this.overWorldContext.setPaused(pause, 'script-start gameContext');
-            script.start(this);
-        }
+        this.scriptRunner.play(script, this, this.overWorldContext, previous, onEnd, pause);
     }
 
 
     playMvts(npcs: (NPC | undefined)[]) {
-        npcs.forEach((npc) => {
-            npc?.movingScript?.start(this, false);
-        });
+        this.scriptRunner.playMovements(npcs, this);
     }
 
     // TODO : rework following code
