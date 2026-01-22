@@ -39,72 +39,74 @@
 
 	<div class="infos">
 		<table>
-			<tr>
-				<td class="head">Pokedex ID</td>
-				<td>{('00' + selectedMons.id).slice(-3)}</td>
-			</tr>
-			<tr>
-				<td class="head">Name</td>
-				<td>{selectedMons.name}</td>
-			</tr>
-			<tr>
-				<td class="head">Type</td>
-				<td class="types">
-					{#each selectedMons.types as type}
-						<span style="--bg:{typeChart[type].color}" class="type">{type.toUpperCase()}</span>
-					{/each}
-				</td>
-			</tr>
-			<tr>
-				<td class="head">Original trainer</td>
-				<td>{context.player.name}</td>
-			</tr>
-			<tr>
-				<td class="head">Nature</td>
-				<td class="nature">
-					<span>{selectedMons.nature.identifier.toUpperCase()}</span>
-					<div>
-						<span style="color: #fb607c"
-							>+ {selectedMons.nature.increasedStatId
-								.replace(/attack/i, 'atk')
-								.replace(/defense/i, 'def')
-								.replace('special', 'sp.')
-								.toUpperCase()}</span
-						>
-						<span style="color: #50aeff"
-							>- {selectedMons.nature.decreasedStatId
-								.replace(/attack/i, 'atk')
-								.replace(/defense/i, 'def')
-								.replace('special', 'sp.')
-								.toUpperCase()}</span
-						>
-					</div>
-				</td>
-			</tr>
-
-			<tr>
-				<td class="head">Exp.</td>
-				<td class="experience">
-					<div>{selectedMons.currentXp} / {selectedMons.xpToNextLevel}</div>
-					<div class="exp">
-						<div class="progressbar-wrapper">
-							<div class="progressbar" style="--width:{expPercent + '%'}"></div>
-						</div>
-					</div>
-				</td>
-			</tr>
-
-			<tr>
-				<td class="head">Held item</td>
-				<td>{selectedMons.heldItem?.name || 'None'}</td>
-			</tr>
-			{#if selectedMons.heldItem?.name}
+			<tbody>
 				<tr>
-					<td colspan="2">
-						{selectedMons.heldItem?.description}
+					<td class="head">Pokedex ID</td>
+					<td>{('00' + selectedMons.id).slice(-3)}</td>
+				</tr>
+				<tr>
+					<td class="head">Name</td>
+					<td>{selectedMons.name}</td>
+				</tr>
+				<tr>
+					<td class="head">Type</td>
+					<td class="types">
+						{#each selectedMons.types as type}
+							<span style="--bg:{typeChart[type].color}" class="type">{type.toUpperCase()}</span>
+						{/each}
 					</td>
 				</tr>
-			{/if}
+				<tr>
+					<td class="head">Original trainer</td>
+					<td>{context.player.name}</td>
+				</tr>
+				<tr>
+					<td class="head">Nature</td>
+					<td class="nature">
+						<span>{selectedMons.nature.identifier.toUpperCase()}</span>
+						<div>
+							<span style="color: #fb607c"
+								>+ {selectedMons.nature.increasedStatId
+									.replace(/attack/i, 'atk')
+									.replace(/defense/i, 'def')
+									.replace('special', 'sp.')
+									.toUpperCase()}</span
+							>
+							<span style="color: #50aeff"
+								>- {selectedMons.nature.decreasedStatId
+									.replace(/attack/i, 'atk')
+									.replace(/defense/i, 'def')
+									.replace('special', 'sp.')
+									.toUpperCase()}</span
+							>
+						</div>
+					</td>
+				</tr>
+
+				<tr>
+					<td class="head">Exp.</td>
+					<td class="experience">
+						<div>{selectedMons.currentXp} / {selectedMons.xpToNextLevel}</div>
+						<div class="exp">
+							<div class="progressbar-wrapper">
+								<div class="progressbar" style="--width:{expPercent + '%'}"></div>
+							</div>
+						</div>
+					</td>
+				</tr>
+
+				<tr>
+					<td class="head">Held item</td>
+					<td>{selectedMons.heldItem?.name || 'None'}</td>
+				</tr>
+				{#if selectedMons.heldItem?.name}
+					<tr>
+						<td colspan="2">
+							{selectedMons.heldItem?.description}
+						</td>
+					</tr>
+				{/if}
+			</tbody>
 		</table>
 	</div>
 </div>

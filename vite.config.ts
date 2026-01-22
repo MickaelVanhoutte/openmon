@@ -1,8 +1,6 @@
 import { defineConfig } from 'vite'
 import { svelte } from '@sveltejs/vite-plugin-svelte'
-import sveltePreprocess from "svelte-preprocess";
 import {esbuildDecorators} from "@anatine/esbuild-decorators";
-import typescript from '@rollup/plugin-typescript';
 import { VitePWA } from 'vite-plugin-pwa'
 
 const noAttr = () => {
@@ -30,6 +28,9 @@ export default defineConfig({
 	},
   plugins: [
 	VitePWA({ registerType: 'autoUpdate',
+	workbox: {
+		maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB limit
+	},
 	manifest: {
         name: 'Pokemon Unison',
         short_name: 'Unison',
@@ -46,13 +47,11 @@ export default defineConfig({
         ]
       }
 	 }),
-    typescript(),
 		esbuildDecorators({
 				tsconfig: "./tsconfig.json",
 			}
 		),
 		svelte({
-			preprocess: sveltePreprocess(),
 			emitCss: false,
 			inspector: false,
 			compilerOptions: {

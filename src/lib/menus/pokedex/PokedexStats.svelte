@@ -37,169 +37,173 @@
 	<div class="main row">
 		<div class="desc">
 			<table>
-				<tr>
-					<td>ID</td>
-					<td>#{('00' + pokemon?.id).slice(-3)}</td>
-				</tr>
-				<tr>
-					<td>Height</td>
-					<td>{pokemon.height}m</td>
-				</tr>
+				<tbody>
+					<tr>
+						<td>ID</td>
+						<td>#{('00' + pokemon?.id).slice(-3)}</td>
+					</tr>
+					<tr>
+						<td>Height</td>
+						<td>{pokemon.height}m</td>
+					</tr>
 
-				<tr>
-					<td>Weight</td>
-					<td>{pokemon.weight}kg</td>
-				</tr>
-				<tr>
-					<td>Abilities</td>
-					<td>
-						<div class="abilities">
-							{#if pokemon.viewed}
-								{#each pokemon.abilities as ability}
-									<span class="ability" on:click={() => openModal(ability)}>
-										{ability}
-									</span>
-								{/each}
-							{:else}
-								<span>???</span>
-							{/if}
-						</div>
-					</td>
-				</tr>
-				<tr>
-					<td>Type</td>
-					<td>
-						<div class="types">
-							{#if pokemon.viewed}
-								{#each pokemon.types as type}
-									<div class="type" style="--tcolor:{typeChart[type].color}">
-										<span>{type}</span>
-										<svg use:inlineSvg={`src/assets/types/${type}.svg`} fill="currentColor"> </svg>
-										<!-- <img alt={type} src="src/assets/types/{type}.svg" /> -->
-									</div>
-								{/each}
-							{:else}
-								<span>???</span>
-							{/if}
-						</div>
-					</td>
-				</tr>
+					<tr>
+						<td>Weight</td>
+						<td>{pokemon.weight}kg</td>
+					</tr>
+					<tr>
+						<td>Abilities</td>
+						<td>
+							<div class="abilities">
+								{#if pokemon.viewed}
+									{#each pokemon.abilities as ability}
+										<span class="ability" on:click={() => openModal(ability)}>
+											{ability}
+										</span>
+									{/each}
+								{:else}
+									<span>???</span>
+								{/if}
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td>Type</td>
+						<td>
+							<div class="types">
+								{#if pokemon.viewed}
+									{#each pokemon.types as type}
+										<div class="type" style="--tcolor:{typeChart[type].color}">
+											<span>{type}</span>
+											<svg use:inlineSvg={`src/assets/types/${type}.svg`} fill="currentColor"> </svg>
+											<!-- <img alt={type} src="src/assets/types/{type}.svg" /> -->
+										</div>
+									{/each}
+								{:else}
+									<span>???</span>
+								{/if}
+							</div>
+						</td>
+					</tr>
+				</tbody>
 			</table>
 		</div>
 		<div class="stats">
 			<table>
-				<tr>
-					<td>HP</td>
-					<td>
-						<div class="progress">
-							<div
-								class="determinate"
-								data-value={pokemon.viewed ? pokemon.stats.hp : '???'}
-								style="width: {pokemon.viewed? ((pokemon.stats.hp / 255) * 100) : 0}%; --tcolor1: {typeChart[
-									pokemon.types[0]
-								].color}; --tcolor2: {pokemon.types?.length > 1
-									? typeChart[pokemon.types[1]].color
-									: typeChart[pokemon.types[0]].color}"
-							></div>
-						</div>
-					</td>
-				</tr>
-				<tr>
-					<td>Atk</td>
-					<td>
-						<div class="progress">
-							<div
-								class="determinate"
-								data-value={pokemon.viewed ? pokemon.stats.attack : '???'}
-								style="width: {pokemon.viewed? ((pokemon.stats.attack / 255) * 100) : 0}%; --tcolor1: {typeChart[
-									pokemon.types[0]
-								].color}; --tcolor2: {pokemon.types?.length > 1
-									? typeChart[pokemon.types[1]].color
-									: typeChart[pokemon.types[0]].color}"
-							></div>
-						</div>
-					</td>
-				</tr>
-				<tr>
-					<td>Def</td>
-					<td>
-						<div class="progress">
-							<div
-								class="determinate"
-								data-value={pokemon.viewed ? pokemon.stats.defense : '???'}
-								style="width: {pokemon.viewed? ((pokemon.stats.defense / 255) * 100) : 0}%; --tcolor1: {typeChart[
-									pokemon.types[0]
-								].color}; --tcolor2: {pokemon.types?.length > 1
-									? typeChart[pokemon.types[1]].color
-									: typeChart[pokemon.types[0]].color}"
-							></div>
-						</div>
-					</td>
-				</tr>
-				<tr>
-					<td>Sp.A</td>
-					<td>
-						<div class="progress">
-							<div
-								class="determinate"
-								data-value={pokemon.viewed ? pokemon.stats.specialAttack : '???'}
-								style="width: {pokemon.viewed? ((pokemon.stats.specialAttack / 255) * 100) : 0}%; --tcolor1: {typeChart[
-									pokemon.types[0]
-								].color}; --tcolor2: {pokemon.types?.length > 1
-									? typeChart[pokemon.types[1]].color
-									: typeChart[pokemon.types[0]].color}"
-							></div>
-						</div>
-					</td>
-				</tr>
-				<tr>
-					<td>Sp.D</td>
-					<td>
-						<div class="progress">
-							<div
-								class="determinate"
-								data-value={pokemon.viewed ? pokemon.stats.specialDefense : '???'}
-								style="width: {pokemon.viewed? ((pokemon.stats.specialDefense / 255) * 100) : 0}%; --tcolor1: {typeChart[
-									pokemon.types[0]
-								].color}; --tcolor2: {pokemon.types?.length > 1
-									? typeChart[pokemon.types[1]].color
-									: typeChart[pokemon.types[0]].color}"
-							></div>
-						</div>
-					</td>
-				</tr>
-				<tr>
-					<td>Speed</td>
-					<td>
-						<div class="progress">
-							<div
-								class="determinate"
-								data-value={pokemon.viewed ? pokemon.stats.speed : '???'}
-								style="width: {pokemon.viewed? ((pokemon.stats.speed / 255) * 100) : 0}%; --tcolor1: {typeChart[
-									pokemon.types[0]
-								].color}; --tcolor2: {pokemon.types?.length > 1
-									? typeChart[pokemon.types[1]].color
-									: typeChart[pokemon.types[0]].color}"
-							></div>
-						</div>
-					</td>
-				</tr>
-				<tr>
-					<td>Total</td>
-					<td>
-						<div class="progress">
-							<div
-								class="determinate"
-								data-value={pokemon.viewed ? pokemon.stats.total : '???'}
-								style="width: {pokemon.viewed? ((pokemon.stats.total / 800) * 100) : 0}%; --tcolor1: {typeChart[
-									pokemon.types[0]
-								].color}; --tcolor2: {pokemon.types?.length > 1
-									? typeChart[pokemon.types[1]].color
-									: typeChart[pokemon.types[0]].color}"
-							></div>
-						</div>
-					</td>
-				</tr>
+				<tbody>
+					<tr>
+						<td>HP</td>
+						<td>
+							<div class="progress">
+								<div
+									class="determinate"
+									data-value={pokemon.viewed ? pokemon.stats.hp : '???'}
+									style="width: {pokemon.viewed? ((pokemon.stats.hp / 255) * 100) : 0}%; --tcolor1: {typeChart[
+										pokemon.types[0]
+									].color}; --tcolor2: {pokemon.types?.length > 1
+										? typeChart[pokemon.types[1]].color
+										: typeChart[pokemon.types[0]].color}"
+								></div>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td>Atk</td>
+						<td>
+							<div class="progress">
+								<div
+									class="determinate"
+									data-value={pokemon.viewed ? pokemon.stats.attack : '???'}
+									style="width: {pokemon.viewed? ((pokemon.stats.attack / 255) * 100) : 0}%; --tcolor1: {typeChart[
+										pokemon.types[0]
+									].color}; --tcolor2: {pokemon.types?.length > 1
+										? typeChart[pokemon.types[1]].color
+										: typeChart[pokemon.types[0]].color}"
+								></div>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td>Def</td>
+						<td>
+							<div class="progress">
+								<div
+									class="determinate"
+									data-value={pokemon.viewed ? pokemon.stats.defense : '???'}
+									style="width: {pokemon.viewed? ((pokemon.stats.defense / 255) * 100) : 0}%; --tcolor1: {typeChart[
+										pokemon.types[0]
+									].color}; --tcolor2: {pokemon.types?.length > 1
+										? typeChart[pokemon.types[1]].color
+										: typeChart[pokemon.types[0]].color}"
+								></div>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td>Sp.A</td>
+						<td>
+							<div class="progress">
+								<div
+									class="determinate"
+									data-value={pokemon.viewed ? pokemon.stats.specialAttack : '???'}
+									style="width: {pokemon.viewed? ((pokemon.stats.specialAttack / 255) * 100) : 0}%; --tcolor1: {typeChart[
+										pokemon.types[0]
+									].color}; --tcolor2: {pokemon.types?.length > 1
+										? typeChart[pokemon.types[1]].color
+										: typeChart[pokemon.types[0]].color}"
+								></div>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td>Sp.D</td>
+						<td>
+							<div class="progress">
+								<div
+									class="determinate"
+									data-value={pokemon.viewed ? pokemon.stats.specialDefense : '???'}
+									style="width: {pokemon.viewed? ((pokemon.stats.specialDefense / 255) * 100) : 0}%; --tcolor1: {typeChart[
+										pokemon.types[0]
+									].color}; --tcolor2: {pokemon.types?.length > 1
+										? typeChart[pokemon.types[1]].color
+										: typeChart[pokemon.types[0]].color}"
+								></div>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td>Speed</td>
+						<td>
+							<div class="progress">
+								<div
+									class="determinate"
+									data-value={pokemon.viewed ? pokemon.stats.speed : '???'}
+									style="width: {pokemon.viewed? ((pokemon.stats.speed / 255) * 100) : 0}%; --tcolor1: {typeChart[
+										pokemon.types[0]
+									].color}; --tcolor2: {pokemon.types?.length > 1
+										? typeChart[pokemon.types[1]].color
+										: typeChart[pokemon.types[0]].color}"
+								></div>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td>Total</td>
+						<td>
+							<div class="progress">
+								<div
+									class="determinate"
+									data-value={pokemon.viewed ? pokemon.stats.total : '???'}
+									style="width: {pokemon.viewed? ((pokemon.stats.total / 800) * 100) : 0}%; --tcolor1: {typeChart[
+										pokemon.types[0]
+									].color}; --tcolor2: {pokemon.types?.length > 1
+										? typeChart[pokemon.types[1]].color
+										: typeChart[pokemon.types[0]].color}"
+								></div>
+							</div>
+						</td>
+					</tr>
+				</tbody>
 			</table>
 		</div>
 	</div>
