@@ -1,20 +1,38 @@
 {
-  "extends": "@tsconfig/svelte/tsconfig.json",
-  "compilerOptions": {
-    "target": "ESNext",
-    "useDefineForClassFields": true,
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "allowJs": true,
-    "checkJs": true,
-    "isolatedModules": true,
-    "sourceMap": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true
-  },
-  "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.svelte"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+	"extends": "@tsconfig/svelte/tsconfig.json",
+	"compilerOptions": {
+		"target": "ESNext",
+		"useDefineForClassFields": true,
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"resolveJsonModule": true,
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true,
+		"allowJs": true,
+		"checkJs": true,
+		"isolatedModules": true,
+		"sourceMap": true,
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"strict": true,
+		"noImplicitAny": true,
+		"strictNullChecks": true,
+		"strictFunctionTypes": true,
+		"strictBindCallApply": true,
+		"strictPropertyInitialization": true,
+		"noImplicitThis": true,
+		"alwaysStrict": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noImplicitReturns": true,
+		"noFallthroughCasesInSwitch": true,
+		"forceConsistentCasingInFileNames": true,
+		"paths": {
+			"$lib/*": ["./src/lib/*"],
+			"$js/*": ["./src/js/*"]
+		},
+		"types": ["vitest/globals"]
+	},
+	"include": ["src/**/*.ts", "src/**/*.js", "src/**/*.svelte", "vitest.config.ts"],
+	"references": [{ "path": "./tsconfig.node.json" }]
 }

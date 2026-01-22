@@ -1,4 +1,8 @@
-# Ignore files for PNPM, NPM and YARN
-pnpm-lock.yaml
+dist/
+docs/
+node_modules/
+*.min.js
+*.min.css
 package-lock.json
+pnpm-lock.yaml
 yarn.lock

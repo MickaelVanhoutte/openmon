@@ -6,13 +6,16 @@ Guidelines for AI coding agents working in this Pokemon web game codebase.
 
 | Technology  | Details              |
 |-------------|----------------------|
-| Framework   | Svelte 4.2.8         |
-| Language    | TypeScript 5.x       |
-| Build Tool  | Vite 5.0.8           |
+| Framework   | Svelte 5.48.0        |
+| Language    | TypeScript 5.x (strict mode) |
+| Build Tool  | Vite 7.x             |
 | Styling     | SCSS + Chota CSS     |
 | Audio       | Howler.js            |
 | DI          | tsyringe             |
 | Animations  | GSAP, AnimeJS        |
+| Testing     | Vitest               |
+| Linting     | ESLint 9 (flat config) |
+| Formatting  | Prettier             |
 
 ## Build/Lint/Test Commands
 
@@ -22,11 +25,14 @@ npm run dev          # Dev server at http://localhost:5173/
 npm run build        # Production build + GitHub Pages prep
 npm run preview      # Preview production build
 npm run check        # Run svelte-check for TypeScript validation
-npx eslint src/      # ESLint (no dedicated script)
+npm run lint         # Run ESLint
+npm run lint:fix     # Run ESLint with auto-fix
+npm run format       # Format code with Prettier
+npm run format:check # Check formatting
+npm run test         # Run tests in watch mode
+npm run test:run     # Run tests once
 npm run graph        # Generate dependency graph
 ```
-
-**Testing:** No tests configured. If adding tests, use Vitest.
 
 ## Code Style (Prettier)
 
@@ -37,25 +43,26 @@ npm run graph        # Generate dependency graph
 
 ## TypeScript Configuration
 
+- **Strict mode enabled** (all strict checks active)
 - Target/Module: ESNext
 - **Experimental decorators enabled** (required for tsyringe)
 - **Decorator metadata emission enabled**
-- Allows and checks JavaScript files
+- Path aliases: `$lib/*` → `./src/lib/*`, `$js/*` → `./src/js/*`
 
 ## Import Organization
 
 ```typescript
 // 1. Third-party
-import "@abraham/reflection";
-import { writable, type Writable } from "svelte/store";
-import { container } from "tsyringe";
+import '@abraham/reflection';
+import { writable, type Writable } from 'svelte/store';
+import { container } from 'tsyringe';
 
 // 2. Internal models
-import { PokemonInstance, Move } from "../pokemons/pokedex";
-import type { Character } from "../characters/characters-model";
+import { PokemonInstance, Move } from '../pokemons/pokedex';
+import type { Character } from '../characters/characters-model';
 
 // 3. Assets
-import pokedexJson from "../../assets/data/final/beta/pokedex-animatedV3.json";
+import pokedexJson from '../../assets/data/final/beta/pokedex-animatedV3.json';
 ```
 
 ## Naming Conventions
@@ -72,27 +79,59 @@ import pokedexJson from "../../assets/data/final/beta/pokedex-animatedV3.json";
 | Enums             | PascalCase        | `BattleType`, `TurnPhase`        |
 | Enum values       | UPPER_SNAKE_CASE  | `BattleType.SINGLE`              |
 
-## Svelte Component Structure
+## Svelte 5 Component Structure (Runes)
+
+**New components should use Svelte 5 runes syntax:**
 
 ```svelte
 <script lang="ts">
     import { onMount } from 'svelte';
-    import { SomeClass } from '../../js/path/to/file';
+    import type { Snippet } from 'svelte';
+    import { SomeClass } from '$js/path/to/file';
 
-    export let propName: PropType;
-    let localState: StateType;
+    interface Props {
+        requiredProp: string;
+        optionalProp?: number;
+        children?: Snippet;
+    }
 
-    someStore.subscribe((value) => { /* Handle */ });
+    let { requiredProp, optionalProp = 10, children }: Props = $props();
 
-    function handleEvent() { /* Implementation */ }
+    let localState = $state(0);
+    let derivedValue = $derived(localState * 2);
+
+    $effect(() => {
+        console.log('State changed:', localState);
+    });
+
+    function handleEvent() {
+        localState++;
+    }
 </script>
 
-<div class="component-class"><!-- Template --></div>
+<button onclick={handleEvent}>Click me</button>
+
+{#if children}
+    {@render children()}
+{/if}
 
 <style>
-    .component-class { /* Scoped styles */ }
+    button { /* Scoped styles */ }
 </style>
 ```
+
+### Svelte 5 Migration Reference
+
+| Svelte 4 | Svelte 5 |
+|----------|----------|
+| `let count = 0` | `let count = $state(0)` |
+| `$: doubled = count * 2` | `let doubled = $derived(count * 2)` |
+| `$: { console.log(count) }` | `$effect(() => { console.log(count) })` |
+| `export let name` | `let { name } = $props()` |
+| `on:click={handler}` | `onclick={handler}` |
+| `createEventDispatcher()` | Callback props |
+| `<slot />` | `{@render children?.()}` |
+| `onMount/onDestroy` | Still fully supported |
 
 ## Class-Based Models
 
@@ -116,24 +155,27 @@ export class PokedexEntry {
 - Use early returns for validation
 - Return wrapper objects for search results (e.g., `PokedexSearchResult`)
 - Use optional chaining (`?.`) and nullish coalescing (`??`)
+- Use type guards to narrow `undefined` types
 
 ```typescript
 findById(id: number): PokedexSearchResult {
     if (id === undefined || id === null || id < 1) {
         return new PokedexSearchResult(new UnknownMonster());
     }
-    let entry = this.entries.find((entry) => entry.id === id);
+    const entry = this.entries.find((entry) => entry.id === id);
     return entry?.id ? new PokedexSearchResult(entry) : new PokedexSearchResult(new UnknownMonster());
 }
 ```
 
 ## State Management
 
-Use Svelte writable stores:
+Use Svelte writable stores for cross-component state:
 ```typescript
-import { writable, type Writable } from "svelte/store";
+import { writable, type Writable } from 'svelte/store';
 battleContext: Writable<BattleContext | undefined> = writable(undefined);
 ```
+
+For component-local state, use `$state()` rune.
 
 ## Directory Structure
 
@@ -143,17 +185,22 @@ src/
 ├── main.ts             # Entry point
 ├── app.scss            # Global styles
 ├── js/                 # Game logic & models
+│   ├── __tests__/      # Unit tests
 │   ├── battle/         # Battle system
 │   ├── characters/     # Player, NPC, follower
+│   ├── commands/       # Input controls, joystick
 │   ├── context/        # Game/Battle/Overworld contexts
 │   ├── items/          # Item system
 │   ├── mapping/        # Maps and collisions
-│   ├── pokemons/       # Pokedex, moves, experience
-│   └── scripting/      # Scripts, quests
+│   ├── pokemons/       # Pokedex, moves, effects, experience
+│   │   └── effects/    # Effect type definitions
+│   ├── scripting/      # Scripts, quests
+│   └── sprites/        # Sprite management
 ├── lib/                # Svelte UI components
 │   ├── battle/         # Battle screen
-│   ├── common/         # Shared components
-│   ├── menus/          # Game menus
+│   ├── common/         # Shared components (Modal, DialogView, etc.)
+│   ├── menus/          # Game menus (Pokedex, Bag, Pokemon list)
+│   ├── saves/          # Save/Load components
 │   └── world/          # Overworld components
 └── assets/             # Images, audio, JSON data
 ```
@@ -162,8 +209,8 @@ src/
 
 ### Dependency Injection
 ```typescript
-import "@abraham/reflection";
-import { container } from "tsyringe";
+import '@abraham/reflection';
+import { container } from 'tsyringe';
 const instance = container.resolve(SomeClass);
 ```
 
@@ -177,6 +224,21 @@ Set `DEBUG = true` in `src/js/env.ts` to skip intro sequences.
 
 ## ESLint Configuration
 
-Extends: `eslint:recommended`, `plugin:@typescript-eslint/recommended`, `plugin:svelte/recommended`, `prettier`
+Uses ESLint 9 flat config (`eslint.config.js`):
+- Extends: `@eslint/js`, `typescript-eslint`, `eslint-plugin-svelte`, `prettier`
+- Key rules: `no-explicit-any` (warn), `eqeqeq` (error), `curly` (error), `prefer-const` (error)
 
-Svelte files use `svelte-eslint-parser` with TypeScript parser.
+## Testing
+
+Tests use Vitest with jsdom environment:
+```typescript
+import { describe, it, expect } from 'vitest';
+
+describe('Example', () => {
+    it('should work', () => {
+        expect(1 + 1).toBe(2);
+    });
+});
+```
+
+Place test files in `src/js/__tests__/` with `.test.ts` or `.spec.ts` extension.
