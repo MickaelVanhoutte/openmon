@@ -1,23 +1,48 @@
 <script lang="ts">
-	export let showModal: boolean;
+	import type { Snippet } from 'svelte';
 
-	let dialog: HTMLDialogElement;
+	interface Props {
+		showModal: boolean;
+		header?: Snippet;
+		children?: Snippet;
+	}
 
-	$: if (dialog && showModal) dialog.showModal();
-	$: if (dialog && !showModal) dialog.close();
+	let { showModal = $bindable(), header, children }: Props = $props();
+
+	let dialog: HTMLDialogElement | undefined = $state();
+
+	$effect(() => {
+		if (dialog && showModal) {
+			dialog.showModal();
+		}
+	});
+
+	$effect(() => {
+		if (dialog && !showModal) {
+			dialog.close();
+		}
+	});
+
+	function handleClose() {
+		showModal = false;
+	}
+
+	function handleBackdropClick() {
+		dialog?.close();
+	}
 </script>
 
-<!-- svelte-ignore a11y-click-events-have-key-events a11y-no-noninteractive-element-interactions -->
+<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_noninteractive_element_interactions -->
 <dialog
 	class="modal"
 	bind:this={dialog}
-	on:close={() => (showModal = false)}
-	on:click|self={() => dialog.close()}
+	onclose={handleClose}
+	onclick={(e) => e.target === dialog && handleBackdropClick()}
 >
-	<!-- svelte-ignore a11y-no-static-element-interactions -->
-	<div on:click|stopPropagation>
-		<!-- svelte-ignore a11y-autofocus -->
-		<button class="close" autofocus on:click={() => dialog.close()}>
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
+	<div onclick={(e) => e.stopPropagation()}>
+		<!-- svelte-ignore a11y_autofocus -->
+		<button class="close" autofocus onclick={() => dialog?.close()}>
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
 				><path
 					d="M10.5859 12L2.79297 4.20706L4.20718 2.79285L12.0001 10.5857L19.793 2.79285L21.2072 4.20706L13.4143 12L21.2072 19.7928L19.793 21.2071L12.0001 13.4142L4.20718 21.2071L2.79297 19.7928L10.5859 12Z"
@@ -25,9 +50,13 @@
 			></button
 		>
 
-		<slot name="header" />
+		{#if header}
+			{@render header()}
+		{/if}
 		<hr />
-		<slot />
+		{#if children}
+			{@render children()}
+		{/if}
 		<hr />
 	</div>
 </dialog>

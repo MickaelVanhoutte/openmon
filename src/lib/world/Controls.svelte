@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { MenuType, type OverworldContext } from '../../js/context/overworldContext';
 	import { ABButtons, KeyMap, lastKey } from '../../js/commands/controls';
-	import { JoystickController } from '../../js/commands/js-control';
+	import { JoystickController } from '../../js/commands/joystick-controller';
 	import type { GameContext } from '../../js/context/gameContext';
 	import { FlagEntry } from '../../js/scripting/quests';
 	import type { SavesHolder } from '../../js/context/savesHolder';
