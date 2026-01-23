@@ -3,15 +3,19 @@
 	import { BattleContext } from '../../js/context/battleContext';
 	import type { PokemonInstance } from '../../js/pokemons/pokedex';
 
-	export let battleCtx: BattleContext;
-	export let idx: number;
+	interface Props {
+		battleCtx: BattleContext;
+		idx: number;
+	}
 
-	let currentHp = 0;
-	let percent = 0;
-	let expPercent = 0;
-	let pokemon: PokemonInstance;
+	let { battleCtx, idx }: Props = $props();
 
-	const statsFormat = {
+	let currentHp = $state(0);
+	let percent = $state(0);
+	let expPercent = $state(0);
+	let pokemon: PokemonInstance | undefined = $state();
+
+	const statsFormat: Record<string, string> = {
 		attack: 'Atk',
 		defense: 'Def',
 		specialAttack: 'SpA',
@@ -22,7 +26,7 @@
 		evasion: 'Eva'
 	};
 
-	const statsMultiplier = {
+	const statsMultiplier: Record<string, (value: number) => number> = {
 		attack: (value: number) => (value + 2) / 2,
 		defense: (value: number) => (value + 2) / 2,
 		specialAttack: (value: number) => (value + 2) / 2,
@@ -33,13 +37,16 @@
 		evasion: (value: number) => (value + 3) / 3
 	};
 
-	battleCtx.currentAction.subscribe((_value) => {
-		if(battleCtx?.playerSide[idx]){
-			pokemon = battleCtx?.playerSide[idx];
-			currentHp = pokemon?.currentHp || 0;
-			percent = Math.floor((currentHp * 100) / pokemon.currentStats.hp);
-			expPercent = Math.floor((pokemon?.currentXp * 100) / pokemon?.xpToNextLevel);
-		}
+	$effect(() => {
+		const unsubscribe = battleCtx.currentAction.subscribe(() => {
+			if (battleCtx?.playerSide[idx]) {
+				pokemon = battleCtx?.playerSide[idx];
+				currentHp = pokemon?.currentHp || 0;
+				percent = Math.floor((currentHp * 100) / (pokemon?.currentStats.hp || 1));
+				expPercent = Math.floor(((pokemon?.currentXp || 0) * 100) / (pokemon?.xpToNextLevel || 1));
+			}
+		});
+		return () => unsubscribe();
 	});
 </script>
 
@@ -78,18 +85,20 @@
 			</div>
 		</div>
 
-		<div class="stats">
-			{#each Object.entries(pokemon.statsChanges) as [stat, value], index}
-				{#if statsFormat[stat] && statsMultiplier[stat](value) !== 1}
-					<div
-						class="mult"
-						style="--color:{statsMultiplier[stat](value) >= 1 ? '#7EAF53' : '#dc5959'}"
-					>
-						{statsFormat[stat]} : {statsMultiplier[stat](value)}x
-					</div>
-				{/if}
-			{/each}
-		</div>
+		{#if pokemon?.statsChanges}
+			<div class="stats">
+				{#each Object.entries(pokemon.statsChanges) as [stat, value]}
+					{#if statsFormat[stat] && statsMultiplier[stat](value) !== 1}
+						<div
+							class="mult"
+							style="--color:{statsMultiplier[stat](value) >= 1 ? '#7EAF53' : '#dc5959'}"
+						>
+							{statsFormat[stat]} : {statsMultiplier[stat](value)}x
+						</div>
+					{/if}
+				{/each}
+			</div>
+		{/if}
 	</div>
 </div>
 
@@ -176,14 +185,11 @@
 			.exp {
 				width: 98%;
 				display: flex;
-				//border: 2px solid rgba(0, 0, 0, 0.45);
-				//border-top-color: transparent;
 				padding: 2px;
 				background-color: rgba(0, 0, 0, 0.45);
 				align-items: center;
 				justify-content: space-evenly;
 				border-radius: 4px;
-				//box-sizing: border-box;
 
 				.progressbar-wrapper {
 					height: 10px;
@@ -229,12 +235,10 @@
 					width: 100%;
 					background-color: rgba(0, 0, 0, 0.25);
 					border-radius: 2px;
-					//border: 2px solid white;
 					position: relative;
 
 					.hp-value {
 						position: absolute;
-						//mix-blend-mode: difference;
 						font-size: 18px;
 						color: white;
 						left: 50%;

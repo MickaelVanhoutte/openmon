@@ -22,7 +22,7 @@
 			if (openQty) {
 				cancel();
 			} else {
-				context.playingScript?.nextAction(context);
+				context.scriptRunner?.playingScript?.nextAction(context);
 			}
 		}
 		if (e.key === 'ArrowDown' && !openQty) {
@@ -137,7 +137,7 @@
 	</div>
 
 	<div class="close">
-		<button on:click={() => context.playingScript?.nextAction(context)}>
+		<button on:click={() => context.scriptRunner?.playingScript?.nextAction(context)}>
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
 				><path
 					d="M10.5859 12L2.79297 4.20706L4.20718 2.79285L12.0001 10.5857L19.793 2.79285L21.2072 4.20706L13.4143 12L21.2072 19.7928L19.793 21.2071L12.0001 13.4142L4.20718 21.2071L2.79297 19.7928L10.5859 12Z"
@@ -274,7 +274,7 @@
 				width: calc(50dvw - 32px);
 				padding: 8px;
 				background-color: rgba(0, 0, 0, 0.5);
-                border-radius: 8px;
+				border-radius: 8px;
 				z-index: 102;
 				display: flex;
 				gap: 8px;
@@ -310,7 +310,7 @@
 							border: 1px solid black;
 							background: rgba(84, 80, 108, 0.2);
 							color: white;
-                            font-size: 28px;
+							font-size: 28px;
 						}
 					}
 				}
@@ -318,7 +318,7 @@
 				.buy-cancel {
 					button {
 						font-size: 32px;
-                        color: white;
+						color: white;
 					}
 				}
 			}

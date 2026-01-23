@@ -110,8 +110,10 @@
 		checkOrientation();
 		const elem = document.getElementById('wrapper');
 		if (elem?.requestFullscreen) {
-			console.log('requesting fullscreen');
-			elem.requestFullscreen();
+			// requestFullscreen requires user gesture, wrap in try-catch
+			elem.requestFullscreen().catch(() => {
+				// Silently ignore - fullscreen requires user interaction
+			});
 		}
 		//window.scrollTo(0, 1);
 	});

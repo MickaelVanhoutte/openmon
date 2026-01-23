@@ -7,20 +7,23 @@
 	import type { GameContext } from '../../../js/context/gameContext';
 	import type { MoveInstance, Nature, PokemonInstance } from '../../../js/pokemons/pokedex';
 
-	export let context: GameContext;
-	export let currentPkmn: PokemonInstance;
-	export let zIndex: number;
-	export let type: 'change' | 'combo' | 'switch';
-	export let onChange: (poke: PokemonInstance | undefined) => void;
-	export let onCombo: (combo: { pokemon: PokemonInstance; move: MoveInstance } | undefined) => void;
+	interface Props {
+		context: GameContext;
+		currentPkmn: PokemonInstance;
+		zIndex: number;
+		type: 'change' | 'combo' | 'switch';
+		onChange: (poke: PokemonInstance | undefined) => void;
+		onCombo: (combo: { pokemon: PokemonInstance; move: MoveInstance } | undefined) => void;
+	}
 
-	let selectedMons: PokemonInstance = currentPkmn;
-	let selectedMoveIdx = 0;
-	let graphWrapper: HTMLDivElement;
-	let graph: HTMLCanvasElement;
-	let chart;
+	let { context, currentPkmn, zIndex, type, onChange, onCombo }: Props = $props();
 
-	$: data = {
+	let selectedMons: PokemonInstance = $state(currentPkmn);
+	let selectedMoveIdx = $state(0);
+	let graphWrapper: HTMLDivElement | undefined = $state(undefined);
+	let graph: HTMLCanvasElement | undefined = $state(undefined);
+
+	let data = $derived({
 		labels: [
 			['HP', selectedMons.currentStats.hp],
 			['Attack', selectedMons.currentStats.attack],
@@ -69,9 +72,9 @@
 				tension: 0
 			}
 		]
-	};
+	});
 
-	$: config = {
+	let config = $derived({
 		type: 'radar',
 		data: data,
 		responsive: true,
@@ -137,7 +140,7 @@
 				}
 			}
 		}
-	};
+	});
 
 	function natureColor(stat: string, nature: Nature) {
 		if (nature.increasedStatId === nature.decreasedStatId) {
@@ -151,12 +154,12 @@
 		}
 	}
 
-	function makeChart(ctx, d, l) {
-		const myChart = new Chart(ctx, config); //init the chart
+	function makeChart(ctx: HTMLCanvasElement) {
+		const myChart = new Chart(ctx, config as Parameters<typeof Chart>[1]);
 		return {
-			update(u) {
+			update(u: { data: typeof data }) {
 				myChart.data = u.data;
-				myChart.config.options = config.options;
+				myChart.config.options = config.options as typeof myChart.config.options;
 				myChart.update('none');
 			},
 			destroy() {
@@ -177,7 +180,7 @@
 			<div
 				class="pkmn"
 				class:out={poke.fainted}
-				on:click={() => (selectedMons = poke)}
+				onclick={() => (selectedMons = poke)}
 				class:selected={poke === selectedMons}
 			>
 				<img
@@ -196,7 +199,7 @@
 									class:danger={((poke.currentHp / poke.currentStats.hp) * 100) < 15}
 									style="--width:{((poke.currentHp / poke.currentStats.hp) * 100) + '%'}"
 								></div>
-						
+					
 						</div>
 					</div>
 				</div>
@@ -225,7 +228,7 @@
 						<button
 							class="combo-btn shine"
 							disabled={selectedMons === currentPkmn || selectedMons.fainted}
-							on:click={() =>
+							onclick={() =>
 								onCombo({ pokemon: selectedMons, move: selectedMons.moves[selectedMoveIdx] })}
 						>
 							<svg
@@ -325,7 +328,7 @@
 
 					<button
 						class="button btn-switch"
-						on:click={() => onChange(selectedMons)}
+						onclick={() => onChange(selectedMons)}
 						disabled={selectedMons === currentPkmn || selectedMons.fainted}
 					>
 						<span>Switch</span>
@@ -362,7 +365,7 @@
 						class="move-btn move"
 						class:selected={selectedMoveIdx === index}
 						style="--color:{typeChart[move.type].color};"
-						on:click={() => (selectedMoveIdx = index)}
+						onclick={() => (selectedMoveIdx = index)}
 					>
 						<span class="move-type">
 							<svg use:inlineSvg={`src/assets/types/${move.type}.svg`} fill="currentColor"> </svg>

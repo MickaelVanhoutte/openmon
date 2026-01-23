@@ -33,11 +33,12 @@
 	let canvasWidth: number;
 	let currentMessages: string[] = [];
 	let mapEnlarged = false;
+	let weatherParticles: Array<{ x: number; y: number; l: number; xs: number; ys: number }> = [];
 
 	/*
     Scripts
      */
-	$: currentScript = context?.playingScript;
+	$: currentScript = context?.scriptRunner?.playingScript;
 	$: currentAction = currentScript?.currentAction;
 	$: currentDialog = currentAction?.type === 'Dialog' ? (currentAction as Dialog) : undefined;
 	$: hasDialog = currentAction?.type === 'Dialog';
@@ -174,56 +175,42 @@
 			center
 		);
 
-		
-		if(context.weather?.running){
+		if (context.weather?.running) {
 			var w = buffer.width;
 			var h = buffer.height;
+
+			if (weatherParticles.length === 0) {
+				var maxParts = 1000;
+				for (var a = 0; a < maxParts; a++) {
+					weatherParticles.push({
+						x: Math.random() * w,
+						y: Math.random() * h,
+						l: Math.random() * 1,
+						xs: -4 + Math.random() * 4 + 2,
+						ys: Math.random() * 10 + 10
+					});
+				}
+			}
+
 			bufferCtx.strokeStyle = 'rgba(174,194,224,0.5)';
 			bufferCtx.lineWidth = 1;
 			bufferCtx.lineCap = 'round';
 
-			var init = [];
-			var maxParts = 1000;
-			for(var a = 0; a < maxParts; a++) {
-				init.push({
-					x: Math.random() * w,
-					y: Math.random() * h,
-					l: Math.random() * 1,
-					xs: -4 + Math.random() * 4 + 2,
-					ys: Math.random() * 10 + 10
-				})
-			}
-			
-			var particles = [];
-			for(var b = 0; b < maxParts; b++) {
-				particles[b] = init[b];
-			}
-			
-			function draw() {
-				bufferCtx.clearRect(0, 0, w, h);
-				for(var c = 0; c < particles.length; c++) {
-					var p = particles[c];
-					bufferCtx.beginPath();
-					bufferCtx.moveTo(p.x, p.y);
-					bufferCtx.lineTo(p.x + p.l * p.xs, p.y + p.l * p.ys);
-					bufferCtx.stroke();
-				}
-				move();
-			}
-			
-			function move() {
-				for(var b = 0; b < particles.length; b++) {
-					var p = particles[b];
-					p.x += p.xs;
-					p.y += p.ys;
-					if(p.x > w || p.y > h) {
-						p.x = Math.random() * w;
-						p.y = -20;
-					}
+			for (var c = 0; c < weatherParticles.length; c++) {
+				var p = weatherParticles[c];
+				bufferCtx.beginPath();
+				bufferCtx.moveTo(p.x, p.y);
+				bufferCtx.lineTo(p.x + p.l * p.xs, p.y + p.l * p.ys);
+				bufferCtx.stroke();
+				p.x += p.xs;
+				p.y += p.ys;
+				if (p.x > w || p.y > h) {
+					p.x = Math.random() * w;
+					p.y = -20;
 				}
 			}
-			
-			setInterval(draw, 30);
+		} else if (weatherParticles.length > 0) {
+			weatherParticles = [];
 		}
 		canvasCtx.drawImage(buffer, 0, 0, canvas.width, canvas.height);
 	}
@@ -265,7 +252,7 @@
 		});
 
 		return () => {
-			if(canvasCtx){
+			if (canvasCtx) {
 				canvasCtx?.clearRect(0, 0, canvas.width, canvas.height);
 			}
 			window.cancelAnimationFrame(overWorldCtx.frames.frameId);
@@ -314,8 +301,11 @@
 	<ScenesView {context} {canvasWidth} />
 
 	{#if currentMessages.length > 0}
-		<div class="notifications" in:slide={{ duration: 500, delay: 100, axis: 'y', easing: backInOut }}
-		out:fade>
+		<div
+			class="notifications"
+			in:slide={{ duration: 500, delay: 100, axis: 'y', easing: backInOut }}
+			out:fade
+		>
 			{#each currentMessages as message}
 				<div class="notification">{message}</div>
 			{/each}

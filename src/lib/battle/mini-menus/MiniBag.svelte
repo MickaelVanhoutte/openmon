@@ -7,32 +7,40 @@
 	import { backInOut } from 'svelte/easing';
 	import { slide } from 'svelte/transition';
 
-	export let context: GameContext;
-	export let battleCtx: BattleContext;
-	export let currentPkmn: PokemonInstance;
-	export let zIndex: number;
-	export let onChange: (item: UseItemAction) => void = () => {};
+	interface Props {
+		context: GameContext;
+		battleCtx: BattleContext;
+		currentPkmn: PokemonInstance;
+		zIndex: number;
+		onChange?: (item: UseItemAction) => void;
+	}
 
-	const categories = {
+	let { context, battleCtx, currentPkmn, zIndex, onChange = () => {} }: Props = $props();
+
+	const categories: Record<number, string> = {
 		0: 'potions',
 		1: 'revives',
 		2: 'balls'
 	};
 
 	let isWild = battleCtx.isWild;
-	let selectedIdx = 0;
-	let itemIdx = 0;
-	$: pocket = Object.keys(context.player.bag[categories[selectedIdx]])?.map((id) => [
-		id,
-		context.player.bag[categories[selectedIdx]][id]
-	]);
-	$: itemToUse = (pocket && pocket[itemIdx]?.[0]) || undefined;
-	$: item = context.ITEMS.getItem(itemToUse);
+	let selectedIdx = $state(0);
+	let itemIdx = $state(0);
 
-	$: disabled =
+	let pocket = $derived(
+		Object.keys(context.player.bag[categories[selectedIdx]])?.map((id) => [
+			id,
+			context.player.bag[categories[selectedIdx]][id]
+		])
+	);
+	let itemToUse = $derived((pocket && pocket[itemIdx]?.[0]) || undefined);
+	let item = $derived(context.ITEMS.getItem(itemToUse));
+
+	let disabled = $derived(
 		(categories[selectedIdx] === 'potions' &&
 			currentPkmn.currentHp === currentPkmn.currentStats.hp) ||
-		(categories[selectedIdx] === 'revives' && !currentPkmn.fainted);
+			(categories[selectedIdx] === 'revives' && !currentPkmn.fainted)
+	);
 
 	function catchPkmn() {
 		let instance = context.ITEMS.getItem(itemToUse)?.instanciate();
@@ -59,10 +67,10 @@
 	<nav class="nav">
 		<div class="nav-left">
 			<div class="tabs">
-				<a class:active={selectedIdx === 0} on:click={() => (selectedIdx = 0)}>Healing</a>
-				<a class:active={selectedIdx === 1} on:click={() => (selectedIdx = 1)}>Revive</a>
+				<a class:active={selectedIdx === 0} onclick={() => (selectedIdx = 0)}>Healing</a>
+				<a class:active={selectedIdx === 1} onclick={() => (selectedIdx = 1)}>Revive</a>
 				{#if isWild}
-					<a class:active={selectedIdx === 2} on:click={() => (selectedIdx = 2)}>Pokeballs</a>
+					<a class:active={selectedIdx === 2} onclick={() => (selectedIdx = 2)}>Pokeballs</a>
 				{/if}
 			</div>
 		</div>
@@ -75,9 +83,8 @@
 							<div
 								class="item"
 								class:selected={itemIdx === idx}
-								on:click={() => {
+								onclick={() => {
 									itemIdx = idx;
-									// openOptions = true;
 								}}
 							>
 								<span>{context.ITEMS.getItem(id)?.name}</span>
@@ -96,7 +103,7 @@
 				{#each context.player.monsters as poke, idx}
 					<li>
 						<div class="poke">
-							<button {disabled} class="button" on:click={() => useItem(idx)}>Use</button>
+							<button {disabled} class="button" onclick={() => useItem(idx)}>Use</button>
 							<img
 								src={poke.getSprite()}
 								alt={poke.name}
@@ -129,7 +136,7 @@
                         style="height: 100%"
 						data-rate={`Catch rate: ${Math.floor(getCaptureRate(battleCtx.opponentPokemon, item?.power || 0) * 100)}%`}
 					>
-						<button class="button" on:click={() => catchPkmn()}>Catch</button>
+						<button class="button" onclick={() => catchPkmn()}>Catch</button>
 						<img
 							src={battleCtx.opponentPokemon?.sprites?.[battleCtx.opponentPokemon?.gender]?.front[
 								battleCtx.opponentPokemon.isShiny ? 'shiny1' : 'frame1'
