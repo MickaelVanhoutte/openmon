@@ -268,6 +268,12 @@ export class GameContext {
 	}
 
 	handleDirectionKey(value: boolean, direction: 'up' | 'down' | 'left' | 'right') {
+		// Allow direction changes to be queued even while moving
+		if (value && !this.overWorldContext.getPaused()) {
+			this.player.position.targetDirection = direction;
+		}
+
+		// Block movement input while still moving between tiles
 		if (
 			this.player.position.positionOnMap.x !== this.player.position.targetPosition.x ||
 			this.player.position.positionOnMap.y !== this.player.position.targetPosition.y
@@ -276,10 +282,9 @@ export class GameContext {
 		}
 
 		if (value && !this.overWorldContext.getPaused()) {
-			this.player.position.targetDirection = direction;
+			// Apply queued direction change
 			if (this.player.position.targetDirection !== this.player.position.direction) {
 				this.player.position.direction = this.player.position.targetDirection;
-				return;
 			}
 
 			const xChanger = (x: number) =>
@@ -556,13 +561,29 @@ export class GameContext {
 				(npc) =>
 					npc.mainScript &&
 					(!npc.mainScript.played || npc.mainScript.replayable) &&
-					npc.mainScript.triggerType === 'onSight'
+					npc.mainScript.triggerType === 'onSight' &&
+					!npc.alerted
 			);
 
 			npcsWithInSightScript.forEach((npc) => {
 				if (this.haveInSight(npc)) {
-					let move = npc.movingScript?.interrupt();
-					this.playScript(npc.mainScript, move);
+					npc.alerted = true;
+					npc.alertedAt = Date.now();
+					this.overWorldContext.setPaused(true, 'npc-alert');
+
+					const oppositeDirection: Record<string, 'up' | 'down' | 'left' | 'right'> = {
+						up: 'down',
+						down: 'up',
+						left: 'right',
+						right: 'left'
+					};
+					this.player.position.direction = oppositeDirection[npc.direction];
+
+					setTimeout(() => {
+						npc.alerted = false;
+						let move = npc.movingScript?.interrupt();
+						this.playScript(npc.mainScript, move);
+					}, 600);
 				}
 			});
 		}

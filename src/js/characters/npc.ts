@@ -24,6 +24,8 @@ export class NPC implements Character, Interactive {
 	comboJauge: ComboJauge = new ComboJauge();
 	bag: Bag;
 	moving: boolean = false;
+	alerted: boolean = false;
+	alertedAt: number = 0;
 	direction: 'up' | 'down' | 'left' | 'right' = 'down';
 	behindCounter: boolean = false;
 
@@ -233,6 +235,38 @@ export class NPC implements Character, Interactive {
 			this.spriteSheet.overworld.walking.height * finalScale
 		);
 
+		if (this.alerted) {
+			this.drawAlertBubble(ctx, this.spriteSheet.overworld.walking.width, finalScale);
+		}
+
 		ctx.restore();
+	}
+
+	private drawAlertBubble(ctx: CanvasRenderingContext2D, spriteWidth: number, scale: number) {
+		const elapsed = Date.now() - this.alertedAt;
+		const bubbleSize = 20 * scale;
+		const x = (spriteWidth * scale) / 2 - bubbleSize / 2;
+		const y = -bubbleSize - 8 * scale;
+
+		const bounce = Math.sin(elapsed / 50) * 2 * scale;
+
+		ctx.fillStyle = 'white';
+		ctx.beginPath();
+		ctx.ellipse(
+			x + bubbleSize / 2,
+			y + bubbleSize / 2 + bounce,
+			bubbleSize / 2,
+			bubbleSize / 2,
+			0,
+			0,
+			Math.PI * 2
+		);
+		ctx.fill();
+
+		ctx.fillStyle = '#e74c3c';
+		ctx.font = `bold ${16 * scale}px sans-serif`;
+		ctx.textAlign = 'center';
+		ctx.textBaseline = 'middle';
+		ctx.fillText('!', x + bubbleSize / 2, y + bubbleSize / 2 + bounce);
 	}
 }
