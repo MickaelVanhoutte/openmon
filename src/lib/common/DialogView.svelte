@@ -5,45 +5,50 @@
 	import type { GameContext } from '../../js/context/gameContext';
 	import { CHARACTER_SPRITES } from '../../js/sprites/sprites';
 
-	export let dialog: Dialog | undefined;
-	export let context: GameContext;
-	export let animate: boolean = true;
-
-	let text: HTMLDivElement;
-	let unsubscribe: Unsubscriber;
-
-	$: current = dialog?.current || undefined;
-	$: if (current?.speaker) {
-		if (current.speaker === 'follower' && context.player.follower) {
-			let id = ('00' + context.player.follower.pokemon.id).slice(-3);
-			src = 'src/assets/monsters/pokedex/' + id + '.png';
-		} else if (current.speaker !== 'self' && Number(current.speaker)) {
-			console.log('getting sprite', current.speaker)
-			let sprite = CHARACTER_SPRITES.getSprite(Number.parseInt(current.speaker));
-			src = sprite.full.source;
-			npcName = sprite.name;
-		}
+	interface Props {
+		dialog: Dialog | undefined;
+		context: GameContext;
+		animate?: boolean;
 	}
-	let selectedOption = 0;
-	let src: string = '';
-	let npcName = '';
+
+	let { dialog = $bindable(), context, animate = true }: Props = $props();
+
+	let text: HTMLDivElement | undefined = $state();
+	let unsubscribe: Unsubscriber | undefined;
+	let selectedOption = $state(0);
+	let src = $state('');
+	let npcName = $state('');
+
+	let current = $derived(dialog?.current || undefined);
+
+	$effect(() => {
+		if (current?.speaker) {
+			if (current.speaker === 'follower' && context.player.follower) {
+				const id = ('00' + context.player.follower.pokemon.id).slice(-3);
+				src = 'src/assets/monsters/pokedex/' + id + '.png';
+			} else if (current.speaker !== 'self' && Number(current.speaker)) {
+				const sprite = CHARACTER_SPRITES.getSprite(Number.parseInt(current.speaker));
+				src = sprite.full.source;
+				npcName = sprite.name;
+			}
+		}
+	});
 
 	function next() {
-		let tmp = dialog?.next();
-		if (tmp) {
-			current = tmp;
+		const tmp = dialog?.next();
+		if (tmp && text) {
 			text.classList?.remove('animate');
 			setTimeout(() => {
-				if (animate) text.classList?.add('animate');
+				if (animate && text) {
+					text.classList?.add('animate');
+				}
 			}, 100);
 		}
 	}
 
-	const listener = (e: KeyboardEvent) => {
-		console.log(current);
+	function handleKeydown(e: KeyboardEvent) {
 		if (e.key === 'Enter') {
 			if (current?.options?.length) {
-				console.log('selecting option', selectedOption);
 				dialog?.selectOption(selectedOption);
 				next();
 			} else if (animate) {
@@ -52,17 +57,20 @@
 		} else if (e.key === 'ArrowUp' && current?.options?.length) {
 			selectedOption = Math.max(0, selectedOption - 1);
 		} else if (e.key === 'ArrowDown' && current?.options?.length) {
-			selectedOption = Math.min(current?.options?.length - 1, selectedOption + 1);
+			selectedOption = Math.min(current.options.length - 1, selectedOption + 1);
 		}
-	};
+	}
+
+	function handleOptionClick(index: number) {
+		dialog?.selectOption(index);
+	}
 
 	onMount(() => {
-		window.addEventListener('keydown', listener);
+		window.addEventListener('keydown', handleKeydown);
 		setTimeout(() => {
 			unsubscribe = context.overWorldContext.keys.a?.subscribe((value) => {
 				if (value) {
 					if (current?.options?.length) {
-						console.log('selecting option', selectedOption);
 						dialog?.selectOption(selectedOption);
 						next();
 					} else if (animate) {
@@ -73,8 +81,8 @@
 		}, 200);
 
 		return () => {
-			window.removeEventListener('keydown', listener);
-			unsubscribe && unsubscribe();
+			window.removeEventListener('keydown', handleKeydown);
+			unsubscribe?.();
 		};
 	});
 </script>
@@ -89,10 +97,8 @@
 	<div class="speaker-name">
 		{context.player.monsters[0].name}
 	</div>
-
 {:else if current?.speaker === 'System'}
-
-	<!-- todo: NPC, system, map change -->
+	<!-- System speaker - no image -->
 {:else if !Number.isNaN(current?.speaker)}
 	<img {src} alt="speaker" class="speaker-img" />
 	<div class="speaker-name">
@@ -114,9 +120,10 @@
 			{#each current.options as option, index}
 				<li
 					class:selected={selectedOption === index}
-					on:click={() => {
-						dialog?.selectOption(index);
-					}}
+					onclick={() => handleOptionClick(index)}
+					onkeydown={(e) => e.key === 'Enter' && handleOptionClick(index)}
+					role="button"
+					tabindex="0"
 				>
 					{option}
 				</li>
@@ -160,6 +167,8 @@
 			gap: 16px;
 
 			li {
+				cursor: pointer;
+				
 				&.selected::before {
 					content: '';
 					width: 0;
@@ -251,7 +260,6 @@
 				}
 			}
 
-			/* The typewriter cursor effect */
 			@keyframes blink-caret {
 				from,
 				to {

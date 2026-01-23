@@ -10,39 +10,52 @@
 	import { UseItemAction } from '../../../js/items/items-model';
 	import { MenuType } from '../../../js/context/overworldContext';
 
-	export let context: GameContext;
-	export let isBattle = false;
-	export let battleBagOpened: boolean = false;
-	export let selectedMons: number | undefined = undefined;
-	export let zIndex: number;
-	export let onChange: (item: UseItemAction) => void = () => {};
+	interface Props {
+		context: GameContext;
+		isBattle?: boolean;
+		battleBagOpened?: boolean;
+		selectedMons?: number | undefined;
+		zIndex: number;
+		onChange?: (item: UseItemAction) => void;
+	}
 
-	let list: HTMLUListElement;
+	let {
+		context = $bindable(),
+		isBattle = false,
+		battleBagOpened = $bindable(false),
+		selectedMons = undefined,
+		zIndex,
+		onChange = () => {}
+	}: Props = $props();
 
-	let openOptions = false;
-	let optionSelected = 0;
+	let list: HTMLUListElement | undefined = $state(undefined);
 
-	let openPokemonList = false;
+	let openOptions = $state(false);
+	let optionSelected = $state(0);
 
-	let tab = 0;
-	const tabs = {
+	let openPokemonList = $state(false);
+
+	let tab = $state(0);
+	const tabs: Record<number, string> = {
 		0: 'HEALING',
 		1: 'REVIVE',
 		2: 'POKEBALLS'
 	};
 
-	const categories = {
+	const categories: Record<number, string> = {
 		0: 'potions',
 		1: 'revives',
 		2: 'balls'
 	};
 
-	let selected = 0;
-	$: pocket = Object.keys(context.player.bag[categories[tab]])?.map((id) => [
-		id,
-		context.player.bag[categories[tab]][id]
-	]);
-	$: itemToUse = (pocket && pocket[selected]?.[0]) || undefined;
+	let selected = $state(0);
+	let pocket = $derived(
+		Object.keys(context.player.bag[categories[tab]])?.map((id) => [
+			id,
+			context.player.bag[categories[tab]][id]
+		])
+	);
+	let itemToUse = $derived((pocket && pocket[selected]?.[0]) || undefined);
 
 	function back() {
 		if (isBattle) {
@@ -85,7 +98,6 @@
 		if (context.player.bag[categories[tab]][itemToUse] === 0) {
 			delete context.player.bag[categories[tab]][itemToUse];
 		}
-		//openPokemonList = false;
 	}
 
 	const listener = (e: KeyboardEvent) => {
@@ -98,7 +110,7 @@
 				selected = 0;
 			} else if (e.key === 'ArrowUp') {
 				selected = (selected + pocket.length - 1) % pocket.length;
-				if (selected === pocket.length - 1) {
+				if (selected === pocket.length - 1 && list) {
 					list.scroll({
 						top: list.clientHeight - list.children[0].clientHeight,
 						behavior: 'smooth'
@@ -106,7 +118,7 @@
 				}
 			} else if (e.key === 'ArrowDown') {
 				selected = (selected + 1) % pocket.length;
-				if (selected === 0) {
+				if (selected === 0 && list) {
 					list.scroll({ top: 0, behavior: 'smooth' });
 				}
 			} else if (e.key === 'Enter') {
@@ -151,19 +163,19 @@
 		<div class="nav-left">
 			<a class="brand">BAG</a>
 			<div class="tabs">
-				<a class:active={tab === 0} on:click={() => changeTab(0)}
+				<a class:active={tab === 0} onclick={() => changeTab(0)}
 					>{tabs[0].replace('$POKEMON', '')}</a
 				>
-				<a class:active={tab === 1} on:click={() => changeTab(1)}
+				<a class:active={tab === 1} onclick={() => changeTab(1)}
 					>{tabs[1].replace('$POKEMON', '')}</a
 				>
-				<a class:active={tab === 2} on:click={() => changeTab(2)}
+				<a class:active={tab === 2} onclick={() => changeTab(2)}
 					>{tabs[2].replace('$POKEMON', '')}</a
 				>
 			</div>
 		</div>
 		<div class="nav-right">
-			<button class="back" on:click={() => back()}>
+			<button class="back" onclick={() => back()}>
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
 					><path
 						d="M10.5859 12L2.79297 4.20706L4.20718 2.79285L12.0001 10.5857L19.793 2.79285L21.2072 4.20706L13.4143 12L21.2072 19.7928L19.793 21.2071L12.0001 13.4142L4.20718 21.2071L2.79297 19.7928L10.5859 12Z"
@@ -188,7 +200,7 @@
 						<div
 							class="item"
 							class:selected={selected === idx}
-							on:click={() => {
+							onclick={() => {
 								selected = idx;
 								openOptions = true;
 							}}
@@ -204,8 +216,8 @@
 
 	<div class="options" class:hidden={!openOptions}>
 		<ul>
-			<li class:selected={optionSelected === 0} on:click={() => use()}>USE</li>
-			<li class:selected={optionSelected === 1} on:click={() => (openOptions = false)}>CANCEL</li>
+			<li class:selected={optionSelected === 0} onclick={() => use()}>USE</li>
+			<li class:selected={optionSelected === 1} onclick={() => (openOptions = false)}>CANCEL</li>
 		</ul>
 	</div>
 </div>
