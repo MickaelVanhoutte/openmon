@@ -27,6 +27,7 @@
 	let changeLeftHover = false;
 	let changeRightHover = false;
 	let previewOpened: boolean = false;
+	let hasInteracted: boolean = false;
 	let optionsOpened: boolean = false;
 	let selectedOption: number = 0;
 	let firstSelection: BoxSelection | undefined;
@@ -138,6 +139,9 @@
 	const listener = (e: KeyboardEvent) => {
 		if (context.overWorldContext.menus.openSummary) {
 			return;
+		}
+		if (e.key.startsWith('Arrow') || e.key === 'Enter') {
+			hasInteracted = true;
 		}
 		if (!optionsOpened) {
 			if (e.key === 'Escape') {
@@ -261,8 +265,7 @@
 	});
 </script>
 
-<div class="boxes"  in:slide={{ duration: 500, delay: 100, axis: 'x', easing: backInOut }}
-out:fade>
+<div class="boxes" in:slide={{ duration: 500, delay: 100, axis: 'x', easing: backInOut }} out:fade>
 	<div class="party">
 		<div class="title">
 			<button class="cancel" on:click={() => context.overWorldContext.closeMenu(MenuType.BOX)}>
@@ -285,21 +288,14 @@ out:fade>
 					on:click={() => openOptions(new BoxSelection('party', i, selectedBox, pokemon))}
 				>
 					{#if firstSelection?.moving && selectZone === 'party' && over === i}
-						<img
-							class="moving"
-							src={firstSelection.selected?.getSprite()}
-							alt="moving pokemon"
-						/>
+						<img class="moving" src={firstSelection.selected?.getSprite()} alt="moving pokemon" />
 					{/if}
 					{#if !!pokemon}
 						<div>
 							<span>{pokemon?.name}</span>
 							<span>Lv. {pokemon?.level}</span>
 						</div>
-						<img
-							src={pokemon.getSprite()}
-							alt={pokemon?.name}
-						/>
+						<img src={pokemon.getSprite()} alt={pokemon?.name} />
 					{/if}
 				</div>
 			{/each}
@@ -318,11 +314,7 @@ out:fade>
 				</svg>
 			</button>
 			{#if firstSelection?.moving && selectZone === 'box-change'}
-				<img
-					class="moving"
-					src={firstSelection?.selected?.getSprite()}
-					alt="moving pokemon"
-				/>
+				<img class="moving" src={firstSelection?.selected?.getSprite()} alt="moving pokemon" />
 			{/if}
 			<span class:hover={selectZone === 'box-change'}>
 				{box.name}
@@ -350,16 +342,13 @@ out:fade>
 					on:click={() => openOptions(new BoxSelection('box', index, selectedBox, entry))}
 				>
 					{#if firstSelection?.moving && selectZone === 'box' && over === index}
-						<img
-							class="moving"
-							src={firstSelection?.selected?.getSprite}
-							alt="moving pokemon"
-						/>
+						<img class="moving" src={firstSelection?.selected?.getSprite()} alt="moving pokemon" />
 					{/if}
 
 					<div
 						class="title"
-						class:show={selectZone === 'box' &&
+						class:show={hasInteracted &&
+							selectZone === 'box' &&
 							over === index &&
 							box.values[over] instanceof PokemonInstance &&
 							!firstSelection}
@@ -367,10 +356,7 @@ out:fade>
 						{entry?.name}
 					</div>
 					{#if entry instanceof PokemonInstance && !(firstSelection?.selected === entry && firstSelection.moving)}
-						<img
-							src={entry.getSprite()}
-							alt={entry.name}
-						/>
+						<img src={entry.getSprite()} alt={entry.name} />
 					{/if}
 				</div>
 			{/each}
@@ -395,7 +381,7 @@ out:fade>
 		bind:selected={pkmnListSelectedIndex}
 		bind:isBattle
 		bind:zIndex={zIndexNext}
-		bind:pkmnList={pkmnList}
+		bind:pkmnList
 	/>
 {/if}
 
@@ -501,7 +487,6 @@ out:fade>
 				box-sizing: border-box;
 
 				.cancel {
-
 					height: 46px;
 					width: 46px;
 					color: white;
@@ -610,6 +595,7 @@ out:fade>
 
 					svg {
 						height: 100%;
+						width: auto;
 					}
 				}
 			}
