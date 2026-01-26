@@ -517,7 +517,7 @@ export function animateMove(
 	source: 'ally' | 'opponent',
 	target: HTMLImageElement,
 	initiator: HTMLImageElement,
-	scene: HTMLImageElement,
+	scene: HTMLDivElement,
 	spriteFx: HTMLDivElement,
 	fx: HTMLImageElement[]
 ): gsap.core.Timeline | Promise<gsap.core.Timeline> {

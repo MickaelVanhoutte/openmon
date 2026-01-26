@@ -273,7 +273,7 @@ export class BattleContext {
 		this.turnPhases.set(TurnPhase.UPKEEP);
 		this.isPlayerTurn.set(true);
 		this.actionIdx = this.playerSide.findIndex((poke) => !!poke && !poke.fainted);
-		this.currentMessage.set(`What should ${this.playerSide[this.actionIdx]?.name} you do ?`);
+		this.currentMessage.set(`What should ${this.playerSide[this.actionIdx]?.name} do?`);
 	}
 
 	public addToStack(action: ActionV2Interface) {

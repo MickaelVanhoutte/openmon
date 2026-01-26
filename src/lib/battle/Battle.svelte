@@ -4,7 +4,7 @@
 	import EnemyInfo from './EnemyInfo.svelte';
 	import AllyInfo from './AllyInfo.svelte';
 	import { BattleContext } from '../../js/context/battleContext';
-	import { BattleType } from "../../js/battle/battle-model";
+	import { BattleType } from '../../js/battle/battle-model';
 	import type { GameContext } from '../../js/context/gameContext';
 	import type { OverworldContext } from '../../js/context/overworldContext';
 	import {
@@ -13,8 +13,8 @@
 		animateMove,
 		animateRun
 	} from '../../js/battle/animations/battle-animations';
+	import beachesImage from '../../assets/battle/beaches.png';
 
-	import moves from '../../assets/data/raw/moves/moves.json';
 	import {
 		ComboMove,
 		Move,
@@ -23,16 +23,14 @@
 		PokemonInstance
 	} from '../../js/pokemons/pokedex';
 
-	/**
-	 * Battle screen component, handles pokemons display.
-	 *
-	 */
 	export let context: GameContext;
 	export let battleCtx: BattleContext;
 	export let overWorldCtx: OverworldContext;
 
+	const backgroundOffset = context.timeOfDay.backgroundOffset;
+
 	let gifsWrapper: HTMLDivElement;
-	let scene: HTMLImageElement;
+	let scene: HTMLDivElement;
 	let fx: HTMLImageElement[] = [];
 	let spriteFx: HTMLDivElement;
 	let spriteFxPartner: HTMLDivElement;
@@ -75,45 +73,65 @@
 
 	battleCtx.events.animateAttack.subscribe((value) => {
 		if (value) {
-			let animTarget = battleCtx.getPokemonSide(value.target) === 'opponent' ? opponent[battleCtx.oppSide.indexOf(value.target)] : ally[battleCtx.playerSide.indexOf(value.target)];
-			let animInitiator = battleCtx.getPokemonSide(value.initiator) === 'ally' ? ally[battleCtx.playerSide.indexOf(value.initiator)] : opponent[battleCtx.oppSide.indexOf(value.initiator)];
+			let animTarget =
+				battleCtx.getPokemonSide(value.target) === 'opponent'
+					? opponent[battleCtx.oppSide.indexOf(value.target)]
+					: ally[battleCtx.playerSide.indexOf(value.target)];
+			let animInitiator =
+				battleCtx.getPokemonSide(value.initiator) === 'ally'
+					? ally[battleCtx.playerSide.indexOf(value.initiator)]
+					: opponent[battleCtx.oppSide.indexOf(value.initiator)];
 
 			if (value.move instanceof ComboMove) {
 				let move: ComboMove = value.move;
-				addPartner(battleCtx.getPokemonSide(value.target) === 'opponent' ? 'ally' : 'opponent', move.pokemon2).then(
-					(partner) => {
-						animateEntry(partner, battleCtx.getPokemonSide(value.target) === 'opponent' ? 'ally' : 'opponent', battleCtx.playerSide.length, true, battleCtx.battleType === BattleType.DOUBLE).then(
-							() => {
-								animateMove(
-									move.move2,
-									battleCtx.getPokemonSide(value.initiator),
-									animTarget,
-									partner,
-									scene,
-									spriteFxPartner,
-									fx
-								);
-								animateMove(
-									move.move1,
-									battleCtx.getPokemonSide(value.initiator),
-									animTarget,
-									animInitiator,
-									scene,
-									spriteFx,
-									fx
-								).then(() => {
-									animateRun(partner, battleCtx.getPokemonSide(value.target) === 'opponent' ? 'ally' : 'opponent').then(
-										() => {
-											partner.remove();
-										}
-									);
-								});
-							}
+				addPartner(
+					battleCtx.getPokemonSide(value.target) === 'opponent' ? 'ally' : 'opponent',
+					move.pokemon2
+				).then((partner) => {
+					animateEntry(
+						partner,
+						battleCtx.getPokemonSide(value.target) === 'opponent' ? 'ally' : 'opponent',
+						battleCtx.playerSide.length,
+						true,
+						battleCtx.battleType === BattleType.DOUBLE
+					).then(() => {
+						animateMove(
+							move.move2,
+							battleCtx.getPokemonSide(value.initiator),
+							animTarget,
+							partner,
+							scene,
+							spriteFxPartner,
+							fx
 						);
-					}
-				);
+						animateMove(
+							move.move1,
+							battleCtx.getPokemonSide(value.initiator),
+							animTarget,
+							animInitiator,
+							scene,
+							spriteFx,
+							fx
+						).then(() => {
+							animateRun(
+								partner,
+								battleCtx.getPokemonSide(value.target) === 'opponent' ? 'ally' : 'opponent'
+							).then(() => {
+								partner.remove();
+							});
+						});
+					});
+				});
 			} else {
-				animateMove(value.move, battleCtx.getPokemonSide(value.initiator), animTarget, animInitiator, scene, spriteFx, fx);
+				animateMove(
+					value.move,
+					battleCtx.getPokemonSide(value.initiator),
+					animTarget,
+					animInitiator,
+					scene,
+					spriteFx,
+					fx
+				);
 			}
 		}
 	});
@@ -141,9 +159,8 @@
 
 	function draw() {
 		drawInterval = setInterval(() => {
-			
 			if (!battleLoopContext.opponentdrawn && battleLoopContext.bgDrawn) {
-				if(opponent?.length !== battleCtx.oppSide.length){
+				if (opponent?.length !== battleCtx.oppSide.length) {
 					battleCtx.oppSide.forEach((element, idx) => {
 						let img = document.createElement('img') as HTMLImageElement;
 						img.addEventListener('click', () => {
@@ -153,31 +170,35 @@
 						img.style.setProperty('--offSet', `${idx}`);
 						opponent[idx] = img;
 					});
-				}else{
+				} else {
 					opponent.forEach((element, idx) => {
 						element.src = battleCtx?.oppSide[idx]?.getSprite();
 						element.onload = () => {
 							let imgHeight = element.naturalHeight;
 							let screenHeight = window.innerHeight;
 							let scale = Math.min(imgHeight / (screenHeight * 0.15), 0.5);
-						
+
 							element.style.transform = 'scale(' + scale + ')';
 							element.style.setProperty('--scale', scale + '');
 							element.style.setProperty('--width', element.naturalWidth + 'px');
 							element.style.setProperty('--height', element.naturalHeight + 'px');
 							gifsWrapper.appendChild(element);
-							
-							animateEntry(element, 'opponent', idx, false, battleCtx.battleType === BattleType.DOUBLE);
+
+							animateEntry(
+								element,
+								'opponent',
+								idx,
+								false,
+								battleCtx.battleType === BattleType.DOUBLE
+							);
 						};
 					});
 					battleLoopContext.opponentdrawn = true;
 				}
-
 			}
 
-
 			if (!battleLoopContext.allydrawn && battleLoopContext.bgDrawn) {
-				if(ally?.length !== battleCtx.playerSide.length){
+				if (ally?.length !== battleCtx.playerSide.length) {
 					battleCtx.playerSide.forEach((element, idx) => {
 						let img = document.createElement('img') as HTMLImageElement;
 						img.addEventListener('click', () => {
@@ -187,15 +208,14 @@
 						img.style.setProperty('--offSet', `${idx}`);
 						ally[idx] = img;
 					});
-				}else{
+				} else {
 					ally.forEach((element, idx) => {
-						element.src =
-						battleCtx?.playerSide[idx]?.getSprite(true);
+						element.src = battleCtx?.playerSide[idx]?.getSprite(true);
 						element.onload = () => {
 							let imgHeight = element.naturalHeight;
 							let screenHeight = window.innerHeight;
 							let scale = Math.min(imgHeight / (screenHeight * 0.15), 0.5);
-						
+
 							element.style.transform = 'scale(' + scale + ')';
 							element.style.setProperty('--scale', scale + '');
 							element.style.setProperty('--width', element.naturalWidth + 'px');
@@ -206,7 +226,6 @@
 					});
 					battleLoopContext.allydrawn = true;
 				}
-
 			}
 
 			// }
@@ -245,12 +264,11 @@
 
 <div class="battle">
 	<div bind:this={gifsWrapper} class="wrapper">
-		<img
-			class="battle-bg"
+		<div
 			bind:this={scene}
-			alt="background"
-			src="src/assets/battle/bg-beach6.jpg"
-		/>
+			class="battle-bg"
+			style="background-image: url({beachesImage}); --bg-offset: {$backgroundOffset}"
+		></div>
 		<div class="fx" bind:this={spriteFx}></div>
 		<div class="fx" bind:this={spriteFxPartner}></div>
 		<img
@@ -285,15 +303,15 @@
 		/>
 	</div>
 	<!-- UI -->
-	<EnemyInfo {battleCtx} idx={0}/>
-	<AllyInfo {battleCtx} idx={0}/>
+	<EnemyInfo {battleCtx} idx={0} />
+	<AllyInfo {battleCtx} idx={0} />
 
 	{#if battleCtx.battleType === BattleType.DOUBLE}
 		{#if battleCtx.oppSide[1]}
-			<EnemyInfo {battleCtx} idx={1}/>
+			<EnemyInfo {battleCtx} idx={1} />
 		{/if}
 		{#if battleCtx.playerSide[1]}
-			<AllyInfo {battleCtx} idx={1}/>
+			<AllyInfo {battleCtx} idx={1} />
 		{/if}
 	{/if}
 
@@ -436,7 +454,7 @@
 		height: 100%;
 		width: auto;
 		image-rendering: pixelated;
-		transform: scale(var(--scale))  translateY(50%);
+		transform: scale(var(--scale)) translateY(50%);
 		transform-origin: bottom left;
 		bottom: calc(20% - (var(--offSet) * -5%));
 		left: 0;
@@ -449,7 +467,7 @@
 		z-index: 6;
 		height: 100%;
 		width: auto;
-		transform: scale(var(--scale))  translateY(47%);
+		transform: scale(var(--scale)) translateY(47%);
 		transform-origin: bottom left;
 		bottom: 50%;
 		left: 0;
@@ -465,8 +483,11 @@
 		position: absolute;
 		top: 0;
 		left: 0;
-		//filter: blur(1px);
+		background-size: 100% 300%;
+		background-position: 0 var(--bg-offset, 0%);
+		background-repeat: no-repeat;
 		image-rendering: pixelated;
 		pointer-events: none;
+		transition: background-position 2s ease-in-out;
 	}
 </style>

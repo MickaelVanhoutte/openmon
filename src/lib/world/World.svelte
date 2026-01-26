@@ -12,6 +12,7 @@
 	import Shop from '../common/Shop.svelte';
 	import { backInOut } from 'svelte/easing';
 	import { fade, slide } from 'svelte/transition';
+	import { TimeOfDay } from '../../js/time/time-of-day';
 
 	/**
 	 * Overworld component.
@@ -45,7 +46,37 @@
 	$: hasShop = currentAction?.type === 'OpenShop';
 	$: currentShop = currentAction?.type === 'OpenShop' ? (currentAction as OpenShop) : undefined;
 	$: isHealing = currentAction?.type === 'HealAll';
+	function getTimeFilter(tod: TimeOfDay): string {
+		switch (tod) {
+			case TimeOfDay.DAWN:
+				return 'brightness(0.9) saturate(1.1) sepia(0.15) hue-rotate(-5deg)';
+			case TimeOfDay.DAY:
+				return 'none';
+			case TimeOfDay.DUSK:
+				return 'sepia(0.3) brightness(0.85) hue-rotate(-10deg)';
+			case TimeOfDay.NIGHT:
+				return 'brightness(0.5) saturate(0.7) hue-rotate(200deg)';
+		}
+	}
+
 	$: spawned = context.spawned;
+
+	const timeOfDay = context.timeOfDay.timeOfDay;
+	const progress = context.timeOfDay.progress;
+
+	const TIME_ICONS: Record<TimeOfDay, string> = {
+		[TimeOfDay.DAWN]: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2v2m0 16v2M4 12H2m20 0h-2m-2.05-6.36 1.41-1.41m-12.72 0 1.41 1.41M5.64 18.36l1.41-1.41m12.72 0-1.41-1.41"/><circle cx="12" cy="12" r="4"/><path d="M12 8v-2"/></svg>`,
+		[TimeOfDay.DAY]: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>`,
+		[TimeOfDay.DUSK]: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 10V2m-6 8a6 6 0 1 0 12 0"/><path d="M4 22h16"/><path d="M6 18h12"/></svg>`,
+		[TimeOfDay.NIGHT]: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`
+	};
+
+	function formatGameTime(prog: number): string {
+		const totalMinutes = Math.floor(prog * 24 * 60);
+		const hours = Math.floor(totalMinutes / 60);
+		const minutes = totalMinutes % 60;
+		return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+	}
 
 	/*
     Game loop
@@ -260,7 +291,12 @@
 	});
 </script>
 
-<div class="world-wrapper" bind:this={wrapper} class:blur={overWorldCtx.scenes.wakeUp}>
+<div
+	class="world-wrapper"
+	bind:this={wrapper}
+	class:blur={overWorldCtx.scenes.wakeUp}
+	style="--time-filter: {getTimeFilter($timeOfDay)}"
+>
 	<canvas bind:this={buffer} id="buffer" width="1024" height="1024" style="z-index: -2"></canvas>
 	<canvas bind:this={canvas} id="main" width="1024" height="1024"></canvas>
 
@@ -284,6 +320,11 @@
 				></path></svg
 			>
 		</button>
+	</div>
+
+	<div class="time-clock">
+		<span class="time-icon">{@html TIME_ICONS[$timeOfDay]}</span>
+		<span class="time-text">{formatGameTime($progress)}</span>
 	</div>
 
 	<Menu bind:context />
@@ -323,6 +364,12 @@
 		left: 0;
 		right: 0;
 		bottom: 0;
+
+		#main,
+		#buffer {
+			filter: var(--time-filter, none);
+			transition: filter 8s ease-in-out;
+		}
 
 		&.blur {
 			animation: blurry 5s linear infinite;
@@ -439,6 +486,32 @@
 			&.opened {
 				visibility: visible;
 			}
+		}
+	}
+
+	.time-clock {
+		position: absolute;
+		top: 1%;
+		right: 1%;
+		z-index: 7;
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		background-color: rgba(0, 0, 0, 0.6);
+		padding: 6px 12px;
+		border-radius: 8px;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+
+		.time-icon {
+			font-size: 20px;
+		}
+
+		.time-text {
+			font-size: 16px;
+			font-weight: 600;
+			color: white;
+			font-family: monospace;
+			text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 		}
 	}
 </style>

@@ -37,6 +37,18 @@
 		evasion: (value: number) => (value + 3) / 3
 	};
 
+	function getStatusColor(status?: string): string {
+		const colors: Record<string, string> = {
+			PSN: '#A040A0',
+			TOX: '#700070',
+			BRN: '#F08030',
+			PAR: '#F8D030',
+			SLP: '#A8A8A8',
+			FRZ: '#98D8D8'
+		};
+		return colors[status || ''] || '#666666';
+	}
+
 	$effect(() => {
 		const unsubscribe = battleCtx.currentAction.subscribe(() => {
 			if (battleCtx?.playerSide[idx]) {
@@ -50,12 +62,18 @@
 	});
 </script>
 
-<div class="ally-info" style="--offSet:{idx};" class:double={battleCtx.battleType === BattleType.DOUBLE}>
+<div
+	class="ally-info"
+	style="--offSet:{idx};"
+	class:double={battleCtx.battleType === BattleType.DOUBLE}
+>
 	<div class="rotate" style="--rotate:{idx === 0 ? '40deg' : '-40deg'}">
 		<div class="name-lvl">
 			<div class="status">
 				{#if pokemon?.status}
-					{pokemon?.status?.abr}
+					<span class="status-badge" style="--status-color: {getStatusColor(pokemon?.status?.abr)}"
+						>{pokemon?.status?.abr}</span
+					>
 				{/if}
 			</div>
 			<div>
@@ -93,7 +111,7 @@
 							class="mult"
 							style="--color:{statsMultiplier[stat](value) >= 1 ? '#7EAF53' : '#dc5959'}"
 						>
-							{statsFormat[stat]} : {statsMultiplier[stat](value)}x
+							{statsFormat[stat]} : {statsMultiplier[stat](value).toFixed(2)}x
 						</div>
 					{/if}
 				{/each}
@@ -112,6 +130,18 @@
 		}
 	}
 
+	@keyframes statusPulse {
+		0%,
+		100% {
+			opacity: 1;
+			transform: scale(1);
+		}
+		50% {
+			opacity: 0.85;
+			transform: scale(1.02);
+		}
+	}
+
 	.ally-info {
 		z-index: 7;
 		position: absolute;
@@ -126,9 +156,9 @@
 		pointer-events: none;
 
 		&.double {
-			left: calc(22% + var(--offSet)* -1 * 22%);
+			left: calc(22% + var(--offSet) * -1 * 22%);
 		}
-		
+
 		.rotate {
 			height: 100%;
 			width: 100%;
@@ -180,35 +210,41 @@
 				display: flex;
 				flex-direction: column;
 				align-items: flex-end;
+
+				.status-badge {
+					display: inline-block;
+					padding: 2px 8px;
+					border-radius: 4px;
+					font-size: 12px;
+					font-weight: bold;
+					color: white;
+					background-color: var(--status-color);
+					text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+					animation: statusPulse 2s ease-in-out infinite;
+				}
 			}
 
 			.exp {
 				width: 98%;
 				display: flex;
-				padding: 2px;
-				background-color: rgba(0, 0, 0, 0.45);
+				padding: 1px 2px;
+				background-color: rgba(0, 0, 0, 0.25);
 				align-items: center;
 				justify-content: space-evenly;
-				border-radius: 4px;
+				border-radius: 2px;
 
 				.progressbar-wrapper {
-					height: 10px;
+					height: 6px;
 					width: 100%;
-					background-color: rgba(0, 0, 0, 0.25);
-					border-radius: 4px;
+					background-color: rgba(0, 0, 0, 0.15);
+					border-radius: 2px;
 					position: relative;
 
 					.progressbar {
 						width: var(--width);
 						height: 100%;
-
 						background: #0e73cf;
-
 						border-radius: 2px;
-						display: flex;
-						text-align: center;
-						align-items: center;
-						justify-content: center;
 						transition: width 1s ease-in-out;
 					}
 				}
