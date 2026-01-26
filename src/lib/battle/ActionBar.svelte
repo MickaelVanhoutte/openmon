@@ -222,7 +222,7 @@
 			changePokemon = false;
 			selectedOptionIdx = 0;
 			selectedMoveIdx = 0;
-			battleCtx.events.pokemonChange.set({side: 'ally', idx: replacedIdx});
+			battleCtx.events.pokemonChange.set({ side: 'ally', idx: replacedIdx });
 			battleCtx.currentMessage.set(`What should ${battleCtx.playerSide[replacedIdx].name} do?`);
 		}
 	}
@@ -430,7 +430,7 @@
 >
 	<div class="_inner">
 		<span>
-			{currentMessage?.toUpperCase()}
+			{currentMessage}
 		</span>
 	</div>
 </div>
@@ -1002,6 +1002,7 @@
 	}
 
 	.info {
+		z-index: 6;
 		width: 62%;
 		position: absolute;
 		left: -40%;
@@ -1027,12 +1028,13 @@
 		._inner {
 			z-index: 1;
 			height: 100%;
-			font-size: 36px;
+			font-size: 32px;
+			font-weight: 500;
+			letter-spacing: 0.5px;
 			display: flex;
 			align-items: center;
 			justify-content: center;
 			width: 100%;
-			text-transform: uppercase;
 			text-align: center;
 			box-sizing: border-box;
 			filter: drop-shadow(2px 2px 5px white) invert(1);
@@ -1061,7 +1063,7 @@
 		transition: bottom 0.5s ease-in-out;
 		animation: appear 0.5s ease-in forwards;
 		align-items: flex-end;
-		gap: 4%;
+		gap: 6%;
 		display: flex;
 		flex-direction: column;
 		z-index: 9;
@@ -1075,9 +1077,10 @@
 		.action2-btn {
 			width: 100%;
 			//margin-right: var(--offset);
-			height: calc(88% / 4);
+			height: calc(80% / 4);
 			background-color: rgba(44, 56, 69, 0.65);
-			border-left: 6px solid var(--color);
+			border-left: 8px solid var(--color);
+			border-radius: 6px;
 			color: white;
 			transform: translateX(50%);
 			display: flex;

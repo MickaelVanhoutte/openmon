@@ -25,6 +25,7 @@ import { Flags, Objective, ObjectiveState, QUESTS, Quest, QuestState } from '../
 import { Notifications } from '../scripting/notifications';
 import { BattleType } from '../battle/battle-model';
 import { AudioManager, QuestManager, ScriptRunner } from './managers';
+import { TimeOfDayService } from '../time/time-of-day';
 
 /**
  * The current game context
@@ -54,6 +55,7 @@ export class GameContext {
 
 	overWorldContext: OverworldContext;
 	battleContext: Writable<BattleContext | undefined> = writable(undefined);
+	timeOfDay: TimeOfDayService;
 
 	// Manager classes
 	audioManager: AudioManager;
@@ -107,6 +109,7 @@ export class GameContext {
 		this.audioManager = new AudioManager();
 		this.questManager = new QuestManager(save.questStates, save.flags, this.notifications);
 		this.scriptRunner = new ScriptRunner();
+		this.timeOfDay = new TimeOfDayService();
 
 		// Sync quest data from manager to GameContext (for backwards compatibility)
 		this.questStates = this.questManager.questStates;
