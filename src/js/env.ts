@@ -1,1 +1,1 @@
-export const DEBUG = true; // skip intro
+export const DEBUG = false; // skip intro
