@@ -100,9 +100,14 @@ export function getPMDSpriteInfoFromAnimData(
 	};
 }
 
-export function getPMDSpritePath(pokemonId: number, animation: 'Walk' | 'Idle'): string {
+export function getPMDSpritePath(
+	pokemonId: number,
+	animation: 'Walk' | 'Idle',
+	isShiny: boolean = false
+): string {
 	const paddedId = pokemonId.toString().padStart(4, '0');
-	return `src/assets/monsters/pmd/${paddedId}/${animation}-Anim.png`;
+	const shinyPath = isShiny ? 'shiny/' : '';
+	return `src/assets/monsters/pmd/${paddedId}/${shinyPath}${animation}-Anim.png`;
 }
 
 export function getOldSpritePath(pokemonId: number): string {
