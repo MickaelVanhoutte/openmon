@@ -1,6 +1,5 @@
 import { EXPERIENCE_CHART } from './experience';
 import type { Effect } from './move-effects';
-import pokedexJson from '../../assets/data/final/beta/pokedex-animatedV3.json';
 import { typeChart } from '../battle/battle-model';
 
 export class Nature {
@@ -184,9 +183,25 @@ export const NATURES: Nature[] = [
 
 export class Pokedex {
 	public entries: PokedexEntry[] = [];
+	private initialized: boolean = false;
+	private initPromise: Promise<void> | null = null;
 
 	constructor(savedEntries: SavedEntry[] = []) {
+		this.initPromise = this.loadPokedex(savedEntries);
+	}
+
+	private async loadPokedex(savedEntries: SavedEntry[]): Promise<void> {
+		if (this.initialized) return;
+		const response = await fetch('./data/pokedex-animatedV3.json');
+		const pokedexJson = await response.json();
 		this.importFromJson(pokedexJson, savedEntries);
+		this.initialized = true;
+	}
+
+	public async ensureLoaded(): Promise<void> {
+		if (this.initPromise) {
+			await this.initPromise;
+		}
 	}
 
 	private importFromJson(json: any, savedEntries: SavedEntry[] = []) {

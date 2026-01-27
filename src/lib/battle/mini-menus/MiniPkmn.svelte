@@ -1,11 +1,20 @@
 <script lang="ts">
 	import { inlineSvg } from '@svelte-put/inline-svg';
-	import { Chart } from 'chart.js';
+	import {
+		Chart,
+		RadarController,
+		RadialLinearScale,
+		PointElement,
+		LineElement,
+		Filler
+	} from 'chart.js';
 	import { backInOut } from 'svelte/easing';
 	import { slide } from 'svelte/transition';
 	import { typeChart } from '../../../js/battle/battle-model';
 	import type { GameContext } from '../../../js/context/gameContext';
 	import type { MoveInstance, Nature, PokemonInstance } from '../../../js/pokemons/pokedex';
+
+	Chart.register(RadarController, RadialLinearScale, PointElement, LineElement, Filler);
 
 	interface Props {
 		context: GameContext;
@@ -183,23 +192,19 @@
 				onclick={() => (selectedMons = poke)}
 				class:selected={poke === selectedMons}
 			>
-				<img
-					src={poke.getSprite()}
-					alt={poke.name}
-				/>
+				<img src={poke.getSprite()} alt={poke.name} />
 				<span>{poke.name}</span>
 				<div class="hp-status">
 					<div class="hp">
 						<span>HP</span>
 						<div class="progressbar-wrapper">
 							<span class="hp-value">{poke.currentHp} / {poke.currentStats.hp}</span>
-								<div
-									class="progressbar"
-									class:warning={((poke.currentHp / poke.currentStats.hp) * 100) <= 50}
-									class:danger={((poke.currentHp / poke.currentStats.hp) * 100) < 15}
-									style="--width:{((poke.currentHp / poke.currentStats.hp) * 100) + '%'}"
-								></div>
-					
+							<div
+								class="progressbar"
+								class:warning={(poke.currentHp / poke.currentStats.hp) * 100 <= 50}
+								class:danger={(poke.currentHp / poke.currentStats.hp) * 100 < 15}
+								style="--width:{(poke.currentHp / poke.currentStats.hp) * 100 + '%'}"
+							></div>
 						</div>
 					</div>
 				</div>
@@ -389,14 +394,14 @@
 		left: 1%;
 		width: 98%;
 		height: 98%;
-		background-color: rgba(88, 83, 100, .95);
+		background-color: rgba(88, 83, 100, 0.95);
 		box-shadow: 0 0 10px 5px rgba(0, 0, 0, 0.7);
 		z-index: var(--zIndex, 100);
 		border-radius: 8px;
 		gap: 2%;
 		display: flex;
 		flex-direction: column;
-        justify-content: space-between;
+		justify-content: space-between;
 		color: white;
 		padding: 1%;
 
@@ -419,7 +424,7 @@
 
 				img {
 					//height: calc(100% - 26px);
-                    height: 15dvh;
+					height: 15dvh;
 				}
 
 				&.selected {
@@ -432,8 +437,8 @@
 				&.out {
 					filter: grayscale(100%) brightness(0.5);
 					img {
-                        animation: none;
-                    }
+						animation: none;
+					}
 				}
 			}
 
@@ -441,7 +446,7 @@
 				display: flex;
 				flex-direction: row;
 				justify-content: space-between;
-                width: calc(98dvw / 8);
+				width: calc(98dvw / 8);
 
 				.hp {
 					width: 100%;
@@ -523,11 +528,11 @@
 		.body {
 			display: flex;
 			flex-direction: row;
-            height: -webkit-fill-available;
+			height: -webkit-fill-available;
 			// height: 66%;
 			gap: 2%;
 			//padding: 2%;
-            border-top: 1px solid rgba(255, 255, 255, 0.3);
+			border-top: 1px solid rgba(255, 255, 255, 0.3);
 
 			.actions {
 				display: flex;
@@ -535,7 +540,7 @@
 				gap: 8px;
 				width: calc(100% / 3);
 				align-items: center;
-                font-size: clamp(16px, 5dvh, 32px);
+				font-size: clamp(16px, 5dvh, 32px);
 
 				.switch {
 					display: flex;
@@ -550,10 +555,10 @@
 						font-size: 22px;
 						height: 40px;
 						background-color: #4c69bf;
-                        border: 1px solid #2a3043;
-                        color: white;
+						border: 1px solid #2a3043;
+						color: white;
 						border-radius: 4px;
-                        width: unset;
+						width: unset;
 
 						svg {
 							width: 22px;
@@ -594,7 +599,7 @@
 				flex-direction: column;
 				flex-wrap: wrap;
 				font-size: 22px;
-                max-height: 60dvh;
+				max-height: 60dvh;
 
 				span {
 					width: 50%;
@@ -624,7 +629,7 @@
 				flex-direction: column;
 				flex-wrap: wrap;
 				gap: 8%;
-                padding: 2% 0;
+				padding: 2% 0;
 
 				p {
 					margin: 6px 0;
@@ -667,17 +672,17 @@
 		}
 	}
 
-    button.move-btn {
-        &:hover,
+	button.move-btn {
+		&:hover,
 		&.selected {
 			background-color: var(--color); //rgba(255, 255, 255, 0.95);
 			color: #123;
 
-            .move-type svg {
-                color: #123;
-            }
+			.move-type svg {
+				color: #123;
+			}
 		}
-    }
+	}
 
 	.move-btn {
 		width: 100%;
