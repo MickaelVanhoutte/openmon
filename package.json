@@ -18,6 +18,7 @@
 		"test": "vitest",
 		"test:run": "vitest run",
 		"generate:sprite-anchors": "node scripts/generate-sprite-anchors.mjs",
+		"copy:shiny-sprites": "node scripts/copy-shiny-sprites.mjs",
 		"graph": "npx depcruise src --include-only '^src' --no-config -T  dot | dot -T svg | npx depcruise-wrap-stream-in-html > dependency-graph.html && open dependency-graph.html"
 	},
 	"devDependencies": {

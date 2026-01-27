@@ -105,6 +105,7 @@ export class Follower implements Character, Interactive {
 	private stationaryTime: number = 0;
 	private lastDrawTime: number = 0;
 	private readonly IDLE_THRESHOLD_MS: number = 2000;
+	private shinySpritesAvailable: boolean | null = null;
 
 	draw(
 		ctx: CanvasRenderingContext2D,
@@ -132,22 +133,34 @@ export class Follower implements Character, Interactive {
 		const useIdle = !this.moving && this.stationaryTime >= this.IDLE_THRESHOLD_MS;
 		const animationType = useIdle ? 'Idle' : 'Walk';
 		const pokemonId = this.pokemon.regionalId;
-		const source = getPMDSpritePath(pokemonId, animationType);
+		const isShiny = this.pokemon.isShiny && this.shinySpritesAvailable !== false;
+		const source = getPMDSpritePath(pokemonId, animationType, isShiny);
 		let image = this.images[source];
 
 		if (!this.animDataFile && !this.animDataLoading) {
 			this.animDataLoading = true;
-			const cached = getCachedAnimData(pokemonId);
+			const cached = getCachedAnimData(pokemonId, isShiny);
 			if (cached) {
 				this.animDataFile = cached;
 				this.walkSpriteInfo = getPMDSpriteInfoFromAnimData(cached, 'Walk', pokemonId);
 				this.idleSpriteInfo = getPMDSpriteInfoFromAnimData(cached, 'Idle', pokemonId);
 				this.animDataLoading = false;
+				this.shinySpritesAvailable = true;
 			} else {
-				loadAnimData(pokemonId).then((data) => {
-					this.animDataFile = data;
-					this.walkSpriteInfo = getPMDSpriteInfoFromAnimData(data, 'Walk', pokemonId);
-					this.idleSpriteInfo = getPMDSpriteInfoFromAnimData(data, 'Idle', pokemonId);
+				loadAnimData(pokemonId, isShiny).then((data) => {
+					if (data) {
+						this.animDataFile = data;
+						this.walkSpriteInfo = getPMDSpriteInfoFromAnimData(data, 'Walk', pokemonId);
+						this.idleSpriteInfo = getPMDSpriteInfoFromAnimData(data, 'Idle', pokemonId);
+						this.shinySpritesAvailable = true;
+					} else if (isShiny) {
+						this.shinySpritesAvailable = false;
+						loadAnimData(pokemonId, false).then((normalData) => {
+							this.animDataFile = normalData;
+							this.walkSpriteInfo = getPMDSpriteInfoFromAnimData(normalData, 'Walk', pokemonId);
+							this.idleSpriteInfo = getPMDSpriteInfoFromAnimData(normalData, 'Idle', pokemonId);
+						});
+					}
 					this.animDataLoading = false;
 				});
 			}
@@ -176,6 +189,11 @@ export class Follower implements Character, Interactive {
 			image.onload = () => {
 				this.images[source] = image;
 			};
+			if (isShiny) {
+				image.onerror = () => {
+					this.shinySpritesAvailable = false;
+				};
+			}
 		}
 		return undefined;
 	}
@@ -258,7 +276,7 @@ export class Follower implements Character, Interactive {
 			? center
 			: centerObject(ctx, scale, scale, playerPosition, 16, 16, mapDim);
 
-		const mapTileSize = 16 * 2.80;
+		const mapTileSize = 16 * 2.8;
 		const baseX = centerX - offsetX + relativeX;
 		const baseY = centerY - offsetY + relativeY;
 
@@ -289,6 +307,8 @@ export class PokeWalkerSpriteDrawer {
 	private spriteInfo: PMDSpriteInfo | null = null;
 	private animDataLoading: boolean = false;
 	private currentPokemonId: number = 0;
+	private currentIsShiny: boolean = false;
+	private shinySpritesAvailable: boolean | null = null;
 	private frames = { max: 4, val: 0, elapsed: 0 };
 
 	draw(
@@ -306,11 +326,13 @@ export class PokeWalkerSpriteDrawer {
 		_drawGrass: boolean = true
 	) {
 		const pokemonId = pokemon.regionalId;
-		const source = getPMDSpritePath(pokemonId, 'Walk');
+		const isShiny = pokemon.isShiny && this.shinySpritesAvailable !== false;
+		const source = getPMDSpritePath(pokemonId, 'Walk', isShiny);
 		let image = this.images[source];
 
-		if (this.currentPokemonId !== pokemonId) {
+		if (this.currentPokemonId !== pokemonId || this.currentIsShiny !== isShiny) {
 			this.currentPokemonId = pokemonId;
+			this.currentIsShiny = isShiny;
 			this.animDataFile = null;
 			this.spriteInfo = null;
 			this.animDataLoading = false;
@@ -318,17 +340,28 @@ export class PokeWalkerSpriteDrawer {
 
 		if (!this.animDataFile && !this.animDataLoading) {
 			this.animDataLoading = true;
-			const cached = getCachedAnimData(pokemonId);
+			const cached = getCachedAnimData(pokemonId, isShiny);
 			if (cached) {
 				this.animDataFile = cached;
 				this.spriteInfo = getPMDSpriteInfoFromAnimData(cached, 'Walk', pokemonId);
 				this.frames.max = this.spriteInfo.frameCount;
 				this.animDataLoading = false;
+				this.shinySpritesAvailable = true;
 			} else {
-				loadAnimData(pokemonId).then((data) => {
-					this.animDataFile = data;
-					this.spriteInfo = getPMDSpriteInfoFromAnimData(data, 'Walk', pokemonId);
-					this.frames.max = this.spriteInfo.frameCount;
+				loadAnimData(pokemonId, isShiny).then((data) => {
+					if (data) {
+						this.animDataFile = data;
+						this.spriteInfo = getPMDSpriteInfoFromAnimData(data, 'Walk', pokemonId);
+						this.frames.max = this.spriteInfo.frameCount;
+						this.shinySpritesAvailable = true;
+					} else if (isShiny) {
+						this.shinySpritesAvailable = false;
+						loadAnimData(pokemonId, false).then((normalData) => {
+							this.animDataFile = normalData;
+							this.spriteInfo = getPMDSpriteInfoFromAnimData(normalData, 'Walk', pokemonId);
+							this.frames.max = this.spriteInfo?.frameCount ?? 4;
+						});
+					}
 					this.animDataLoading = false;
 				});
 			}

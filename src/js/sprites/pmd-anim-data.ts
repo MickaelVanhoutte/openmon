@@ -55,13 +55,17 @@ function parseAnimDataXml(xmlText: string): PMDAnimDataFile {
 	return { shadowSize, animations };
 }
 
-export function getAnimDataPath(pokemonId: number): string {
+export function getAnimDataPath(pokemonId: number, isShiny: boolean = false): string {
 	const paddedId = pokemonId.toString().padStart(4, '0');
-	return `src/assets/monsters/pmd/${paddedId}/AnimData.xml`;
+	const shinyPath = isShiny ? 'shiny/' : '';
+	return `src/assets/monsters/pmd/${paddedId}/${shinyPath}AnimData.xml`;
 }
 
-export async function loadAnimData(pokemonId: number): Promise<PMDAnimDataFile | null> {
-	const path = getAnimDataPath(pokemonId);
+export async function loadAnimData(
+	pokemonId: number,
+	isShiny: boolean = false
+): Promise<PMDAnimDataFile | null> {
+	const path = getAnimDataPath(pokemonId, isShiny);
 
 	if (animDataCache.has(path)) {
 		return animDataCache.get(path) ?? null;
@@ -102,7 +106,10 @@ export function getAnimationData(
 	return animDataFile.animations.get(animationName) ?? null;
 }
 
-export function getCachedAnimData(pokemonId: number): PMDAnimDataFile | null {
-	const path = getAnimDataPath(pokemonId);
+export function getCachedAnimData(
+	pokemonId: number,
+	isShiny: boolean = false
+): PMDAnimDataFile | null {
+	const path = getAnimDataPath(pokemonId, isShiny);
 	return animDataCache.get(path) ?? null;
 }
