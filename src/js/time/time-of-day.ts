@@ -49,13 +49,13 @@ export class TimeOfDayService {
 		this.backgroundOffset = derived(this.timeOfDay, ($tod) => {
 			switch ($tod) {
 				case TimeOfDay.DAWN:
-					return '33.33%';
+					return '50%';
 				case TimeOfDay.DAY:
 					return '0%';
 				case TimeOfDay.DUSK:
-					return '33.33%';
+					return '50%';
 				case TimeOfDay.NIGHT:
-					return '66.66%';
+					return '100%';
 			}
 		});
 
