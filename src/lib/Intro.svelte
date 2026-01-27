@@ -5,17 +5,15 @@
 
 	export let started: boolean;
 	let intro: HTMLDivElement;
-	let horde: HTMLDivElement;
 	let sound: Howl;
 	let soundPlaying = false;
-	let all = Array.from({ length: 237 }, (_, i) => ('00' + (i + 1)).slice(-3)).reverse();
-	let pkmnListShuffled: number[] = fisherYates(Array.from({ length: 249 }, (_, i) => i)).slice(0, 20);
+
 	let messages = [
 		'',
 		'Porygon is generating a digital masterpiece!',
 		'Gengar is playing tricks with the data!',
 		'Training Magikarp... this might take a while!',
-		'Snorlax is waking up... slowly...',
+		'Snorlax is waking up... slowly...'
 	];
 	let messageIdx = 0;
 	let loaded = false;
@@ -23,14 +21,6 @@
 	let ready = false;
 	let messageInterval: number;
 	let readyCheckInterval: number;
-
-	function fisherYates(array: number[]): number[] {
-		for (let i = array.length - 1; i > 0; i--) {
-			const j = Math.floor(Math.random() * (i + 1));
-			[array[i], array[j]] = [array[j], array[i]];
-		}
-		return array;
-	}
 
 	function toggleSound() {
 		soundPlaying = !soundPlaying;
@@ -76,7 +66,7 @@
 
 	onMount(() => {
 		preloadAssets();
-		
+
 		messageInterval = setInterval(() => {
 			messageIdx = messageIdx === messages.length - 1 ? 0 : messageIdx + 1;
 		}, 3000);
@@ -163,33 +153,15 @@
 			{messages[messageIdx]}
 		{/if}
 	</span>
-
-	<div class="horde" bind:this={horde}>
-		{#each pkmnListShuffled as i, index}
-			<i
-				class="sprite pokemon move"
-				style="animation: poke-move {13 + Math.random() * 7}s linear forwards;
-					-webkit-animation-delay: {(index * 2 + Math.random() * 2).toFixed(3)}s;
-					z-index: {i};
-					will-change: transform, opacity;"
-			>
-				<i
-					style="will-change: background-position;
-						animation: anim-sprite 0.5s infinite steps(1);
-						background: url('src/assets/monsters/walking/{('00' + (i + 1)).slice(-3)}{Math.random() > 0.5 ? 's' : ''}.png')"
-				></i>
-			</i>
-		{/each}
-	</div>
 </div>
 
 {#if !started}
-
 	<audio src="src/assets/audio/intro.mp3" preload="auto" style="display: none"></audio>
 	<audio src="src/assets/audio/beach.mp3" preload="auto" style="display: none"></audio>
 	<audio src="src/assets/audio/forest.mp3" preload="auto" style="display: none"></audio>
 	<audio src="src/assets/audio/save.mp3" preload="auto" style="display: none"></audio>
-	<audio src="src/assets/audio/battle/battle-start.mp3" preload="auto" style="display: none"></audio>
+	<audio src="src/assets/audio/battle/battle-start.mp3" preload="auto" style="display: none"
+	></audio>
 	<audio src="src/assets/audio/battle/battle1.mp3" preload="auto" style="display: none"></audio>
 {/if}
 
@@ -200,6 +172,18 @@
 
 	.pokemon {
 		contain: paint;
+	}
+
+	@keyframes blink {
+		0% {
+			opacity: 1;
+		}
+		50% {
+			opacity: 0;
+		}
+		100% {
+			opacity: 1;
+		}
 	}
 
 	@keyframes -global-poke-move {
@@ -337,7 +321,6 @@
 		align-items: center;
 		height: 100.1vh;
 		width: 100dvw;
-		background-color: #fff;
 		position: absolute;
 		top: 0;
 		left: 0;
@@ -345,6 +328,10 @@
 		overflow: hidden;
 		perspective: 100dvw;
 		font-size: 22px;
+
+		background: #0f0c29;
+		background: -webkit-linear-gradient(to right, #24243e, #5b53b2, #0f0c29);
+		background: linear-gradient(to right, #24243e, #5b53b2, #0f0c29);
 
 		.sound {
 			position: absolute;
@@ -483,7 +470,7 @@
 			-webkit-background-clip: text;
 			-webkit-text-fill-color: transparent;
 			animation:
-				title-appear 2s cubic-bezier(.22,.68,0,1.31) forwards,
+				title-appear 2s cubic-bezier(0.22, 0.68, 0, 1.31) forwards,
 				textclip 4s linear forwards;
 			animation-delay: 8s, 15s;
 			display: inline-block;
@@ -524,55 +511,6 @@
 			animation: blink 8s ease-in-out infinite;
 			animation-delay: 3s;
 		}
-
-		.horde {
-			background: #0f0c29;
-			background: -webkit-linear-gradient(
-				to right,
-				#24243e,
-				#5b53b2,
-				#0f0c29
-			);
-			background: linear-gradient(
-				to right,
-				#24243e,
-				#5b53b2,
-				#0f0c29
-			);
-
-			position: fixed;
-			inset: 0;
-			width: 100%;
-			height: 100%;
-			overflow: hidden;
-
-			.sprite {
-				position: absolute;
-				left: 0;
-				bottom: 10%;
-				opacity: 0;
-				min-height: 128px;
-				padding: 32px;
-				width: auto;
-				box-sizing: border-box;
-
-				&.pokemon {
-					&.move {
-						will-change: transform, opacity;
-					}
-					i {
-						display: block;
-						width: 64px;
-						height: 64px;
-						background-repeat: no-repeat;
-						background-size: contain;
-						background-position: 0 -128px;
-						transform: scale(1.5);
-						image-rendering: pixelated;
-					}
-				}
-			}
-		}
 	}
 
 	@media (max-width: 968px) {
@@ -593,16 +531,6 @@
 			}
 			.touch {
 				bottom: 33%;
-			}
-			.horde {
-				.sprite.pokemon {
-					min-height: 96px;
-					padding: 24px;
-					bottom: 8%;
-					i {
-						transform: scale(1);
-					}
-				}
 			}
 		}
 	}

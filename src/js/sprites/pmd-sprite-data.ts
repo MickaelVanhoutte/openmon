@@ -109,7 +109,3 @@ export function getPMDSpritePath(
 	const shinyPath = isShiny ? 'shiny/' : '';
 	return `src/assets/monsters/pmd/${paddedId}/${shinyPath}${animation}-Anim.png`;
 }
-
-export function getOldSpritePath(pokemonId: number): string {
-	return `src/assets/monsters/walking/${pokemonId}.png`;
-}
