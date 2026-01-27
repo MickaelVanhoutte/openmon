@@ -13,7 +13,7 @@ export interface DayCycleConfig {
 }
 
 const DEFAULT_CONFIG: DayCycleConfig = {
-	cycleDurationMs: 60 * 60 * 10,
+	cycleDurationMs: 60 * 60 * 1000,
 	paused: false
 };
 

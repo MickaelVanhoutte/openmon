@@ -380,7 +380,7 @@
 		#main,
 		#buffer {
 			filter: var(--time-filter, none);
-			transition: filter 8s ease-in-out;
+			transition: filter 2s ease-in-out;
 		}
 
 		&.blur {
