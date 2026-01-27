@@ -5,6 +5,13 @@ import { PokemonInstance } from '../pokemons/pokedex';
 import { Dialog, GiveItem, Message, Script } from '../scripting/scripts';
 import { centerObject } from '../sprites/sprites';
 import {
+	getPMDSpritePath,
+	getPMDSpriteInfoFromAnimData,
+	PMD_DIRECTION_MAP,
+	type PMDSpriteInfo
+} from '../sprites/pmd-sprite-data';
+import { loadAnimData, getCachedAnimData, type PMDAnimDataFile } from '../sprites/pmd-anim-data';
+import {
 	WALKING_SPEED,
 	type Character,
 	CharacterPosition,
@@ -89,14 +96,15 @@ export class Follower implements Character, Interactive {
 		];
 	}
 
-	private orientationIndexes = {
-		down: 0,
-		left: 1,
-		right: 2,
-		up: 3
-	};
 	private images: Record<string, HTMLImageElement> = {};
+	private animDataFile: PMDAnimDataFile | null = null;
+	private walkSpriteInfo: PMDSpriteInfo | null = null;
+	private idleSpriteInfo: PMDSpriteInfo | null = null;
+	private animDataLoading: boolean = false;
 	private frames = { max: 4, val: 0, elapsed: 0 };
+	private stationaryTime: number = 0;
+	private lastDrawTime: number = 0;
+	private readonly IDLE_THRESHOLD_MS: number = 2000;
 
 	draw(
 		ctx: CanvasRenderingContext2D,
@@ -110,34 +118,69 @@ export class Follower implements Character, Interactive {
 		running: boolean,
 		center: { centerX: number; centerY: number; offsetX: number; offsetY: number } | undefined
 	) {
-		let id = ('00' + this.pokemon.id).slice(-3);
-		id = this.pokemon.isShiny ? id + 's' : id;
-		let source = `src/assets/monsters/walking/${id}.png`;
+		const now = performance.now();
+		if (this.lastDrawTime > 0) {
+			const deltaTime = now - this.lastDrawTime;
+			if (!this.moving) {
+				this.stationaryTime += deltaTime;
+			} else {
+				this.stationaryTime = 0;
+			}
+		}
+		this.lastDrawTime = now;
+
+		const useIdle = !this.moving && this.stationaryTime >= this.IDLE_THRESHOLD_MS;
+		const animationType = useIdle ? 'Idle' : 'Walk';
+		const pokemonId = this.pokemon.regionalId;
+		const source = getPMDSpritePath(pokemonId, animationType);
 		let image = this.images[source];
 
-		if (image && image.complete) {
-			return this.drawImage(ctx, image, playerPosition, scale, mapDim, drawGrass, running, center);
-		} else {
+		if (!this.animDataFile && !this.animDataLoading) {
+			this.animDataLoading = true;
+			const cached = getCachedAnimData(pokemonId);
+			if (cached) {
+				this.animDataFile = cached;
+				this.walkSpriteInfo = getPMDSpriteInfoFromAnimData(cached, 'Walk');
+				this.idleSpriteInfo = getPMDSpriteInfoFromAnimData(cached, 'Idle');
+				this.animDataLoading = false;
+			} else {
+				loadAnimData(pokemonId).then((data) => {
+					this.animDataFile = data;
+					this.walkSpriteInfo = getPMDSpriteInfoFromAnimData(data, 'Walk');
+					this.idleSpriteInfo = getPMDSpriteInfoFromAnimData(data, 'Idle');
+					this.animDataLoading = false;
+				});
+			}
+		}
+
+		const spriteInfo = useIdle ? this.idleSpriteInfo : this.walkSpriteInfo;
+		if (spriteInfo) {
+			this.frames.max = spriteInfo.frameCount;
+		}
+
+		if (image && image.complete && spriteInfo) {
+			return this.drawPMDImage(
+				ctx,
+				image,
+				playerPosition,
+				scale,
+				mapDim,
+				drawGrass,
+				running,
+				center,
+				spriteInfo
+			);
+		} else if (!image) {
 			image = new Image();
 			image.src = source;
 			image.onload = () => {
 				this.images[source] = image;
-				return this.drawImage(
-					ctx,
-					image,
-					playerPosition,
-					scale,
-					mapDim,
-					drawGrass,
-					running,
-					center
-				);
 			};
 		}
 		return undefined;
 	}
 
-	private drawImage(
+	private drawPMDImage(
 		ctx: CanvasRenderingContext2D,
 		image: HTMLImageElement,
 		playerPosition: Position,
@@ -148,9 +191,12 @@ export class Follower implements Character, Interactive {
 		},
 		drawGrass: boolean,
 		running: boolean,
-		center: { centerX: number; centerY: number; offsetX: number; offsetY: number } | undefined
+		center: { centerX: number; centerY: number; offsetX: number; offsetY: number } | undefined,
+		spriteInfo: PMDSpriteInfo
 	) {
-		if (this.moving) {
+		const useIdle = !this.moving && this.stationaryTime >= this.IDLE_THRESHOLD_MS;
+
+		if (this.moving || useIdle) {
 			if (this.frames.max > 1) {
 				this.frames.elapsed += 1;
 			}
@@ -162,9 +208,15 @@ export class Follower implements Character, Interactive {
 			}
 		} else {
 			this.frames.val = 0;
+			this.frames.elapsed = 0;
 		}
 
-		let sY = (this.orientationIndexes[this.position.direction] * image.width) / 4;
+		const frameWidth = spriteInfo.frameWidth;
+		const frameHeight = spriteInfo.frameHeight;
+
+		const directionRow = PMD_DIRECTION_MAP[this.position.direction];
+		const sX = this.frames.val * frameWidth;
+		const sY = directionRow * frameHeight;
 
 		if (this.moving) {
 			const speed = running ? RUNNING_SPEED : WALKING_SPEED;
@@ -196,39 +248,39 @@ export class Follower implements Character, Interactive {
 			}
 		}
 
-		// Calculate the position of the NPC relative to the player
-		let imageWidth = (image.width / this.frames.max) * scale; //image.width / this.frames.max * scale;
-		let imageHeight = (image.height / this.frames.max) * scale; //image.height / this.frames.max * scale;
+		const imageWidth = frameWidth * scale;
+		const imageHeight = frameHeight * scale;
 
-		let relativeX = this.position.positionInPx.x - playerPosition.x;
-		let relativeY = this.position.positionInPx.y - playerPosition.y;
+		const relativeX = this.position.positionInPx.x - playerPosition.x;
+		const relativeY = this.position.positionInPx.y - playerPosition.y;
 
 		let { centerX, centerY, offsetX, offsetY } = center
 			? center
 			: centerObject(ctx, scale, scale, playerPosition, imageWidth, imageHeight, mapDim);
 
-		offsetX -= (imageWidth - 46 * scale) / 2;
-		offsetY -= imageHeight - 46 * scale;
-
-		// ctx.save();
-		// ctx.translate(centerX - offsetX, centerY - offsetY);
-
-		// ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
-		// ctx.fillRect(relativeX, relativeY, imageWidth, imageHeight);
+		offsetX -= (imageWidth - (16 * scale)) / 2;
+		offsetY -= (imageHeight - (16 * scale)) / 2;
 
 		ctx.drawImage(
 			image,
-			this.frames.val * (image.height / this.frames.max),
+			sX,
 			sY,
-			image.width / this.frames.max,
-			drawGrass ? (image.height / this.frames.max) * 0.85 : image.height / this.frames.max,
+			frameWidth,
+			drawGrass ? frameHeight * 0.85 : frameHeight,
+			centerX - offsetX + relativeX,
+			centerY - offsetY + relativeY,
+			imageWidth,
+			drawGrass ? imageHeight * 0.85 : imageHeight
+		);
+		// draw image border
+		ctx.strokeStyle = 'red';
+		ctx.strokeRect(
 			centerX - offsetX + relativeX,
 			centerY - offsetY + relativeY,
 			imageWidth,
 			drawGrass ? imageHeight * 0.85 : imageHeight
 		);
 
-		// ctx.restore();
 
 		return { centerX, centerY, offsetX, offsetY };
 	}
@@ -237,15 +289,11 @@ export class Follower implements Character, Interactive {
 //todo: make interactive
 export class PokeWalkerSpriteDrawer {
 	private images: Record<string, HTMLImageElement> = {};
-
+	private animDataFile: PMDAnimDataFile | null = null;
+	private spriteInfo: PMDSpriteInfo | null = null;
+	private animDataLoading: boolean = false;
+	private currentPokemonId: number = 0;
 	private frames = { max: 4, val: 0, elapsed: 0 };
-
-	private orientationIndexes = {
-		down: 0,
-		left: 1,
-		right: 2,
-		up: 3
-	};
 
 	draw(
 		ctx: CanvasRenderingContext2D,
@@ -259,14 +307,39 @@ export class PokeWalkerSpriteDrawer {
 			width: number;
 			height: number;
 		},
-		drawGrass: boolean = true
+		_drawGrass: boolean = true
 	) {
-		let id = ('00' + pokemon.id).slice(-3);
-		id = pokemon.isShiny ? id + 's' : id;
-		let source = `src/assets/monsters/walking/${id}.png`;
+		const pokemonId = pokemon.regionalId;
+		const source = getPMDSpritePath(pokemonId, 'Walk');
 		let image = this.images[source];
-		if (image && image.complete) {
-			this.drawImage(
+
+		if (this.currentPokemonId !== pokemonId) {
+			this.currentPokemonId = pokemonId;
+			this.animDataFile = null;
+			this.spriteInfo = null;
+			this.animDataLoading = false;
+		}
+
+		if (!this.animDataFile && !this.animDataLoading) {
+			this.animDataLoading = true;
+			const cached = getCachedAnimData(pokemonId);
+			if (cached) {
+				this.animDataFile = cached;
+				this.spriteInfo = getPMDSpriteInfoFromAnimData(cached, 'Walk');
+				this.frames.max = this.spriteInfo.frameCount;
+				this.animDataLoading = false;
+			} else {
+				loadAnimData(pokemonId).then((data) => {
+					this.animDataFile = data;
+					this.spriteInfo = getPMDSpriteInfoFromAnimData(data, 'Walk');
+					this.frames.max = this.spriteInfo.frameCount;
+					this.animDataLoading = false;
+				});
+			}
+		}
+
+		if (image && image.complete && this.spriteInfo) {
+			this.drawPMDImage(
 				ctx,
 				image,
 				playerPosition,
@@ -276,26 +349,16 @@ export class PokeWalkerSpriteDrawer {
 				walkerPosition,
 				mapDim
 			);
-		} else {
+		} else if (!image) {
 			image = new Image();
 			image.src = source;
 			image.onload = () => {
 				this.images[source] = image;
-				this.drawImage(
-					ctx,
-					image,
-					playerPosition,
-					orientation,
-					scale,
-					moving,
-					walkerPosition,
-					mapDim
-				);
 			};
 		}
 	}
 
-	private drawImage(
+	private drawPMDImage(
 		ctx: CanvasRenderingContext2D,
 		image: HTMLImageElement,
 		playerPosition: Position,
@@ -320,9 +383,14 @@ export class PokeWalkerSpriteDrawer {
 			this.frames.val = 0;
 		}
 
-		let sY = this.orientationIndexes[orientation] * 64;
+		const info = this.spriteInfo!;
+		const frameWidth = info.frameWidth;
+		const frameHeight = info.frameHeight;
 
-		// Calculate the position of the NPC relative to the player
+		const directionRow = PMD_DIRECTION_MAP[orientation];
+		const sX = this.frames.val * frameWidth;
+		const sY = directionRow * frameHeight;
+
 		const relativeX = walkerPosition.x - playerPosition.x;
 		const relativeY = walkerPosition.y - playerPosition.y;
 
@@ -341,7 +409,17 @@ export class PokeWalkerSpriteDrawer {
 		ctx.save();
 		ctx.translate(centerX - offsetX, centerY - offsetY);
 
-		ctx.drawImage(image, this.frames.val * 64, sY, 64, 64, 0, 0, 64 * scale, 64 * scale);
+		ctx.drawImage(
+			image,
+			sX,
+			sY,
+			frameWidth,
+			frameHeight,
+			0,
+			0,
+			frameWidth * scale,
+			frameHeight * scale
+		);
 		ctx.restore();
 	}
 }

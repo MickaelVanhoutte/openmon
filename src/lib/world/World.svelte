@@ -116,6 +116,15 @@
 			overWorldCtx.frames.debug
 		);
 
+		// draw tile borders if debug:
+		if (overWorldCtx.frames.debug) {
+			for (let x = 0; x < context.map.width; x++) {
+				for (let y = 0; y < context.map.height; y++) {
+					bufferCtx.strokeRect(x * 16, y * 16, 16, 16);
+				}
+			}
+		}
+
 		context.map.drawMini(
 			minimapCtx,
 			context.map,
@@ -157,12 +166,11 @@
 			context.player?.follower?.draw(
 				bufferCtx,
 				context.player.position.positionInPx,
-				overWorldCtx.frames.playerScale,
+				overWorldCtx.frames.followerScale,
 				mapDimensions,
 				context.map.hasBattleZoneAt(context.player.follower.position.positionOnMap),
 				context.player.running,
-				undefined,
-				context.player.moving
+				undefined
 			);
 			center = context.player.draw(
 				bufferCtx,
@@ -180,12 +188,11 @@
 			context.player?.follower?.draw(
 				bufferCtx,
 				context.player.position.positionInPx,
-				overWorldCtx.frames.playerScale,
+				overWorldCtx.frames.followerScale,
 				mapDimensions,
 				context.map.hasBattleZoneAt(context.player.follower.position.positionOnMap),
 				context.player.running,
-				undefined,
-				context.player.moving
+				undefined
 			);
 		}
 
