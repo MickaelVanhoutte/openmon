@@ -140,14 +140,14 @@ export class Follower implements Character, Interactive {
 			const cached = getCachedAnimData(pokemonId);
 			if (cached) {
 				this.animDataFile = cached;
-				this.walkSpriteInfo = getPMDSpriteInfoFromAnimData(cached, 'Walk');
-				this.idleSpriteInfo = getPMDSpriteInfoFromAnimData(cached, 'Idle');
+				this.walkSpriteInfo = getPMDSpriteInfoFromAnimData(cached, 'Walk', pokemonId);
+				this.idleSpriteInfo = getPMDSpriteInfoFromAnimData(cached, 'Idle', pokemonId);
 				this.animDataLoading = false;
 			} else {
 				loadAnimData(pokemonId).then((data) => {
 					this.animDataFile = data;
-					this.walkSpriteInfo = getPMDSpriteInfoFromAnimData(data, 'Walk');
-					this.idleSpriteInfo = getPMDSpriteInfoFromAnimData(data, 'Idle');
+					this.walkSpriteInfo = getPMDSpriteInfoFromAnimData(data, 'Walk', pokemonId);
+					this.idleSpriteInfo = getPMDSpriteInfoFromAnimData(data, 'Idle', pokemonId);
 					this.animDataLoading = false;
 				});
 			}
@@ -256,10 +256,16 @@ export class Follower implements Character, Interactive {
 
 		let { centerX, centerY, offsetX, offsetY } = center
 			? center
-			: centerObject(ctx, scale, scale, playerPosition, imageWidth, imageHeight, mapDim);
+			: centerObject(ctx, scale, scale, playerPosition, 16, 16, mapDim);
 
-		offsetX -= (imageWidth - (16 * scale)) / 2;
-		offsetY -= (imageHeight - (16 * scale)) / 2;
+		const mapTileSize = 16 * 2.80;
+		const baseX = centerX - offsetX + relativeX;
+		const baseY = centerY - offsetY + relativeY;
+
+		const spriteOffsetX = (imageWidth - mapTileSize - 16) / 2;
+		// bottomOffset = pixels of empty space below sprite's feet in the frame
+		const bottomOffsetScaled = spriteInfo.bottomOffset * scale;
+		const spriteOffsetY = imageHeight - mapTileSize - bottomOffsetScaled;
 
 		ctx.drawImage(
 			image,
@@ -267,21 +273,11 @@ export class Follower implements Character, Interactive {
 			sY,
 			frameWidth,
 			drawGrass ? frameHeight * 0.85 : frameHeight,
-			centerX - offsetX + relativeX,
-			centerY - offsetY + relativeY,
+			baseX - spriteOffsetX,
+			baseY - spriteOffsetY,
 			imageWidth,
 			drawGrass ? imageHeight * 0.85 : imageHeight
 		);
-		// draw image border
-		ctx.strokeStyle = 'red';
-		ctx.strokeRect(
-			centerX - offsetX + relativeX,
-			centerY - offsetY + relativeY,
-			imageWidth,
-			drawGrass ? imageHeight * 0.85 : imageHeight
-		);
-
-
 		return { centerX, centerY, offsetX, offsetY };
 	}
 }
@@ -325,13 +321,13 @@ export class PokeWalkerSpriteDrawer {
 			const cached = getCachedAnimData(pokemonId);
 			if (cached) {
 				this.animDataFile = cached;
-				this.spriteInfo = getPMDSpriteInfoFromAnimData(cached, 'Walk');
+				this.spriteInfo = getPMDSpriteInfoFromAnimData(cached, 'Walk', pokemonId);
 				this.frames.max = this.spriteInfo.frameCount;
 				this.animDataLoading = false;
 			} else {
 				loadAnimData(pokemonId).then((data) => {
 					this.animDataFile = data;
-					this.spriteInfo = getPMDSpriteInfoFromAnimData(data, 'Walk');
+					this.spriteInfo = getPMDSpriteInfoFromAnimData(data, 'Walk', pokemonId);
 					this.frames.max = this.spriteInfo.frameCount;
 					this.animDataLoading = false;
 				});

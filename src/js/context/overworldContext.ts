@@ -6,7 +6,7 @@ export class FrameOptions {
 	frameId: number = 0;
 	then: number = Date.now();
 	fpsInterval: number = 1000 / 40;
-	debug: boolean = true;
+	debug: boolean = false;
 	imageScale: number = 2.5;
 	playerScale: number = 1;
 	followerScale: number = 1.5;
