@@ -10,6 +10,7 @@
 	import Controls from './Controls.svelte';
 	import type { BattleContext } from '../../js/context/battleContext';
 	import Shop from '../common/Shop.svelte';
+	import OverworldTeamPanel from './OverworldTeamPanel.svelte';
 	import { backInOut } from 'svelte/easing';
 	import { fade, slide } from 'svelte/transition';
 	import { TimeOfDay } from '../../js/time/time-of-day';
@@ -335,6 +336,8 @@
 		<span class="time-icon">{@html TIME_ICONS[$timeOfDay]}</span>
 		<span class="time-text">{formatGameTime($progress)}</span>
 	</div>
+
+	<OverworldTeamPanel {context} />
 
 	<Menu bind:context />
 
