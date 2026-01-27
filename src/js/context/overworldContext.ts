@@ -5,10 +5,11 @@ import type { OpenMap } from '../mapping/maps';
 export class FrameOptions {
 	frameId: number = 0;
 	then: number = Date.now();
-	fpsInterval: number = 1000 / 30;
-	debug: boolean = false;
+	fpsInterval: number = 1000 / 40;
+	debug: boolean = true;
 	imageScale: number = 2.5;
 	playerScale: number = 1;
+	followerScale: number = 1.5;
 }
 
 export class Menus {
