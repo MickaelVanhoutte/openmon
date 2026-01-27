@@ -161,7 +161,8 @@
 				mapDimensions,
 				context.map.hasBattleZoneAt(context.player.follower.position.positionOnMap),
 				context.player.running,
-				undefined
+				undefined,
+				context.player.moving
 			);
 			center = context.player.draw(
 				bufferCtx,
@@ -183,7 +184,8 @@
 				mapDimensions,
 				context.map.hasBattleZoneAt(context.player.follower.position.positionOnMap),
 				context.player.running,
-				undefined
+				undefined,
+				context.player.moving
 			);
 		}
 

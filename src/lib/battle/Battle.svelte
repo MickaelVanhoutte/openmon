@@ -22,12 +22,13 @@
 		MoveInstance,
 		PokemonInstance
 	} from '../../js/pokemons/pokedex';
+	import { get } from 'svelte/store';
 
 	export let context: GameContext;
 	export let battleCtx: BattleContext;
 	export let overWorldCtx: OverworldContext;
 
-	const backgroundOffset = context.timeOfDay.backgroundOffset;
+	const backgroundOffset = get(context.timeOfDay.backgroundOffset);
 
 	let gifsWrapper: HTMLDivElement;
 	let scene: HTMLDivElement;
@@ -267,7 +268,7 @@
 		<div
 			bind:this={scene}
 			class="battle-bg"
-			style="background-image: url({beachesImage}); --bg-offset: {$backgroundOffset}"
+			style="background-image: url({beachesImage}); --bg-offset: {backgroundOffset}"
 		></div>
 		<div class="fx" bind:this={spriteFx}></div>
 		<div class="fx" bind:this={spriteFxPartner}></div>

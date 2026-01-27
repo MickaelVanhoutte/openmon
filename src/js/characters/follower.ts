@@ -207,24 +207,9 @@ export class Follower implements Character, Interactive {
 			? center
 			: centerObject(ctx, scale, scale, playerPosition, imageWidth, imageHeight, mapDim);
 
-		switch (this.position.direction) {
-			case 'up':
-				offsetY -= 8;
-				offsetX -= 16 * scale;
-				break;
-			case 'down':
-				offsetY -= 32 * scale - imageHeight / 2;
-				offsetX -= 16 * scale;
-				break;
-			case 'left':
-				offsetY -= 40 * scale - imageHeight / 2;
-				offsetX -= imageWidth / 4;
-				break;
-			case 'right':
-				offsetY -= 40 * scale - imageHeight / 2;
-				offsetX -= 32 * scale - imageWidth / 4;
-				break;
-		}
+		offsetX -= (imageWidth - 46 * scale) / 2;
+		offsetY -= imageHeight - 46 * scale;
+
 		// ctx.save();
 		// ctx.translate(centerX - offsetX, centerY - offsetY);
 
