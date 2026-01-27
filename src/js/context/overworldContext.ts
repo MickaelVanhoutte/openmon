@@ -27,6 +27,7 @@ export class Menus {
 
 	openSummary: boolean = false;
 	openSummary$: Writable<boolean> = writable(false);
+	summaryIndex: number = 0;
 
 	boxOpened: boolean = false;
 	boxOpened$: Writable<boolean> = writable(false);
