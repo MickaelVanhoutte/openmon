@@ -22,8 +22,6 @@
 	// Joystick listener
 
 	const jsCallback = (data: any) => {
-		// convert data.angle (radian) to a direction (top, bottom, left, right)
-
 		if (!overWorldCtx.getPaused()) {
 			if (data.angle) {
 				let degrees = data.angle * (180 / Math.PI);
@@ -31,6 +29,8 @@
 				if (degrees < 0) {
 					degrees = 360 + degrees;
 				}
+
+				overWorldCtx.keys.resetAll();
 
 				if (degrees > 45 && degrees < 135) {
 					overWorldCtx.keys.pressKey(KeyMap.Down);
@@ -46,6 +46,7 @@
 					lastKey.key = 'ArrowRight';
 				}
 				displayedQuests = false;
+			} else {
 				overWorldCtx.keys.resetAll();
 			}
 		}

@@ -3,7 +3,6 @@
 	import type { GameContext } from '../../../js/context/gameContext';
 	import { MenuType } from '../../../js/context/overworldContext';
 	import TrainerCard from './TrainerCard.svelte';
-	import TrainerMastery from './TrainerMastery.svelte';
 	import { backInOut } from 'svelte/easing';
 	import { fade, slide } from 'svelte/transition';
 
@@ -44,8 +43,11 @@
 	});
 </script>
 
-<div class="trainer" in:slide={{ duration: 500, delay: 100, axis: 'x', easing: backInOut }}
-out:fade>
+<div
+	class="trainer"
+	in:slide={{ duration: 500, delay: 100, axis: 'x', easing: backInOut }}
+	out:fade
+>
 	<nav class="nav">
 		<div class="nav-left">
 			<a class="brand">{context.player.name}</a>
@@ -70,9 +72,10 @@ out:fade>
 		{#if tab === 0}
 			<TrainerCard {context} />
 		{:else if tab === 1}
-			<TrainerMastery {context} />
-		{:else if tab === 2}
-		{/if}
+			{#await import('./TrainerMastery.svelte') then { default: TrainerMastery }}
+				<TrainerMastery {context} />
+			{/await}
+		{:else if tab === 2}{/if}
 	</div>
 </div>
 

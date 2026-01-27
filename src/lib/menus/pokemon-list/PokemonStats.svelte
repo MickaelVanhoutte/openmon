@@ -1,12 +1,21 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import Chart from 'chart.js/auto';
+	import {
+		Chart,
+		RadarController,
+		RadialLinearScale,
+		PointElement,
+		LineElement,
+		Filler
+	} from 'chart.js';
 	import abilities from '../../../assets/data/final/beta/abilities.json';
 	import { Nature, PokemonInstance } from '../../../js/pokemons/pokedex';
 	import { fade, slide } from 'svelte/transition';
 	import { backInOut } from 'svelte/easing';
 	import type { GameContext } from '../../../js/context/gameContext';
 	import { GUIDES_STEPS } from '../../../js/context/guides-steps';
+
+	Chart.register(RadarController, RadialLinearScale, PointElement, LineElement, Filler);
 
 	export let context: GameContext;
 	export let selected: number;
@@ -251,10 +260,7 @@
 	<div class="img-ability" class:enlarge={statEdit}>
 		<div class="img-wrapper">
 			<div class="img-bg">
-				<img
-					src={selectedMons.getSprite()}
-					alt="{selectedMons.name} img"
-				/>
+				<img src={selectedMons.getSprite()} alt="{selectedMons.name} img" />
 			</div>
 		</div>
 
