@@ -20,7 +20,7 @@ export default defineConfig({
 		rollupOptions: {
 			output: {
 				manualChunks: {
-					vendor: ['gsap', 'howler', 'tsyringe'],
+					vendor: ['@abraham/reflection', 'gsap', 'howler', 'tsyringe'],
 					chartjs: ['chart.js'],
 					mastery: ['@svgdotjs/svg.js', 'honeycomb-grid']
 				}
