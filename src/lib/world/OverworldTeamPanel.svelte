@@ -1,17 +1,32 @@
 <script lang="ts">
 	import type { GameContext } from '../../js/context/gameContext';
 	import { MenuType } from '../../js/context/overworldContext';
+	import type { PokemonInstance } from '../../js/pokemons/pokedex';
 	import { fade } from 'svelte/transition';
 
 	interface Props {
 		context: GameContext;
 	}
 
-	let { context }: Props = $props();
+	const { context }: Props = $props();
 
-	let team = $derived(context.player.monsters);
+	// Use $state + polling $effect to track non-reactive context.player.monsters
+	let team = $state<PokemonInstance[]>([...context.player.monsters]);
 	let selectedIndex = $state<number | null>(null);
-	let menuPos = $state({ x: 0, y: 0 });
+	let menuPos = $state({ x: 0, y: 0, flipUp: false });
+
+	// Poll for team changes (handles box swaps, reordering from other components, etc.)
+	$effect(() => {
+		const interval = setInterval(() => {
+			const currentMonsters = context.player.monsters;
+			// Check if team changed (reference or content)
+			if (team.length !== currentMonsters.length || team.some((m, i) => m !== currentMonsters[i])) {
+				team = [...currentMonsters];
+			}
+		}, 100);
+
+		return () => clearInterval(interval);
+	});
 
 	function openMenu(e: MouseEvent, index: number) {
 		e.stopPropagation();
@@ -22,7 +37,21 @@
 			// Position menu to the right of the icon
 			const target = e.currentTarget as HTMLElement;
 			const rect = target.getBoundingClientRect();
-			menuPos = { x: rect.right + 10, y: rect.top };
+
+			// Calculate menu height: Summary button + (team.length - 1) move buttons
+			// Each button is ~34px (8px padding top + 8px bottom + 14px font + 2px gap)
+			const buttonCount = team.length; // Summary + (team.length - 1) move options
+			const menuHeight = buttonCount * 36 + 8; // 8px for menu padding
+
+			// Check if menu would overflow bottom of viewport
+			const viewportHeight = window.innerHeight;
+			const flipUp = rect.top + menuHeight > viewportHeight - 20;
+
+			menuPos = {
+				x: rect.right + 10,
+				y: flipUp ? rect.bottom : rect.top,
+				flipUp
+			};
 		}
 	}
 
@@ -37,7 +66,9 @@
 	}
 
 	function movePokemon(fromIndex: number, toIndex: number) {
-		if (toIndex < 0 || toIndex >= team.length) return;
+		if (toIndex < 0 || toIndex >= team.length) {
+			return;
+		}
 
 		const newTeam = [...team];
 		const temp = newTeam[fromIndex];
@@ -62,6 +93,19 @@
 			}
 		}
 	}
+
+	function getHpColor(percent: number): string {
+		if (percent > 50) return '#4ade80'; // green
+		if (percent > 20) return '#facc15'; // yellow
+		return '#ef4444'; // red
+	}
+
+	function getHpGradient(monster: PokemonInstance): string {
+		const percent = (monster.currentHp / monster.currentStats.hp) * 100;
+		const color = getHpColor(percent);
+		// Conic gradient starting from top (-90deg), HP portion colored, rest dark
+		return `conic-gradient(from -90deg, ${color} ${percent}%, rgba(60, 60, 60, 0.9) ${percent}%)`;
+	}
 </script>
 
 <svelte:window onclick={handleOutsideClick} />
@@ -69,19 +113,24 @@
 <div class="team-panel">
 	{#each team as monster, i}
 		<div class="team-slot">
-			<button
-				class="team-icon"
-				class:selected={selectedIndex === i}
-				onclick={(e) => openMenu(e, i)}
-				title={monster.name}
-			>
-				<img src={monster.getSprite()} alt={monster.name} />
-			</button>
+			<div class="hp-ring" style="background: {getHpGradient(monster)};">
+				<button
+					class="team-icon"
+					class:selected={selectedIndex === i}
+					onclick={(e) => openMenu(e, i)}
+					title={monster.name}
+				>
+					<img src={monster.getSprite()} alt={monster.name} />
+				</button>
+			</div>
 
 			{#if selectedIndex === i}
 				<div
 					class="team-panel-menu"
-					style="top: {menuPos.y}px; left: {menuPos.x}px;"
+					class:flip-up={menuPos.flipUp}
+					style="{menuPos.flipUp ? 'bottom' : 'top'}: {menuPos.flipUp
+						? window.innerHeight - menuPos.y
+						: menuPos.y}px; left: {menuPos.x}px;"
 					transition:fade={{ duration: 100 }}
 				>
 					<button onclick={() => viewSummary(i)}>Summary</button>
@@ -101,11 +150,12 @@
 <style>
 	.team-panel {
 		position: absolute;
-		top: calc(4% + 100px);
-		left: 10px;
+		top: calc(4% + 60px);
+		left: 8px;
+		height: auto;
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
+		gap: 6px;
 		z-index: 7;
 	}
 
@@ -113,30 +163,44 @@
 		position: relative;
 	}
 
-	.team-icon {
-		width: 48px;
-		height: 48px;
+	.hp-ring {
+		width: 56px;
+		height: 56px;
 		border-radius: 50%;
-		border: 2px solid white;
-		background-color: rgba(0, 0, 0, 0.5);
+		padding: 3px;
+		box-sizing: border-box;
+		transition: transform 0.1s;
+	}
+
+	.hp-ring:hover {
+		transform: scale(1.1);
+	}
+
+	.hp-ring:has(.team-icon.selected) {
+		transform: scale(1.1);
+		box-shadow: 0 0 8px rgba(242, 114, 65, 0.6);
+	}
+
+	.team-icon {
+		width: 100%;
+		height: 100%;
+		border-radius: 50%;
+		border: none;
+		background-color: rgba(0, 0, 0, 0.7);
 		padding: 0;
 		cursor: pointer;
 		overflow: hidden;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		transition:
-			transform 0.1s,
-			border-color 0.1s;
 	}
 
 	.team-icon:hover {
-		transform: scale(1.1);
+		/* Hover handled by .hp-ring */
 	}
 
 	.team-icon.selected {
-		border-color: #f27241;
-		transform: scale(1.1);
+		/* Selection handled by .hp-ring */
 	}
 
 	.team-icon img {
@@ -160,12 +224,16 @@
 		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 	}
 
+	.team-panel-menu.flip-up {
+		flex-direction: column-reverse;
+	}
+
 	.team-panel-menu button {
 		background: none;
 		border: none;
 		color: white;
 		text-align: left;
-		padding: 6px 12px;
+		padding: 8px 12px;
 		cursor: pointer;
 		font-family: inherit;
 		font-size: 14px;
@@ -174,5 +242,20 @@
 
 	.team-panel-menu button:hover {
 		background-color: rgba(255, 255, 255, 0.2);
+	}
+
+	/* Mobile landscape */
+	@media (max-width: 960px) {
+		.team-panel {
+			height: calc(100dvh - 76px - 6%) !important;
+		}
+		.team-slot {
+			height: calc((100% - 76px) / 6) !important;
+		}
+		.hp-ring {
+			width: auto !important;
+			height: 100% !important;
+			aspect-ratio: 1;
+		}
 	}
 </style>
