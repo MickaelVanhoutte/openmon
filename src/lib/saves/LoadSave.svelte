@@ -149,7 +149,7 @@
 	.load-screen {
 		height: 100dvh;
 		width: 100dvw;
-		color: #262626;
+		color: #ffffff;
 		box-sizing: border-box;
 		padding: 2%;
 		background: #143855;
@@ -162,12 +162,14 @@
 			right: 1%;
 
 			button {
-				background: #599bdc;
-				color: #ececec;
-				border: none;
+				background: #0088cc;
+				color: #ffffff;
+				border: 2px solid #000;
+				box-shadow: 4px 4px 0px #000;
 				padding: 8px;
 				width: 160px;
 				height: 32px;
+				cursor: pointer;
 			}
 		}
 
@@ -194,7 +196,8 @@
 					display: flex;
 					flex-direction: column;
 					gap: 8px;
-					justify-content: flex-end;
+					justify-content: center;
+					align-items: center;
 
 					.go {
 						//background: #262626;
