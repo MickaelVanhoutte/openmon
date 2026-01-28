@@ -1,5 +1,4 @@
 import '@abraham/reflection';
-import { PokemonInstance } from '../pokedex';
 
 export enum EffectTiming {
 	START_TURN = 'start-turn',
@@ -45,9 +44,9 @@ export interface Effect {
 	turnsPassed: number;
 	healed: boolean;
 
-	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult;
+	apply(target: unknown[], user?: unknown): EffectResult;
 
-	playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn;
+	playEffect(target: unknown, user?: unknown): EffectForTurn;
 }
 
 export const DEFAULT_EFFECT_PROPS = {

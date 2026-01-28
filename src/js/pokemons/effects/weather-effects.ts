@@ -1,8 +1,48 @@
-import { Effect, EffectTiming, EffectResult, EffectForTurn, DEFAULT_EFFECT_PROPS } from './types';
-import { PokemonInstance } from '../pokedex';
+import { Effect, EffectTiming, EffectResult, EffectForTurn } from './types';
 import { Weather, BattleField } from '../../battle/battle-field';
 
 export { Weather };
+
+const SANDSTORM_IMMUNE_TYPES = ['rock', 'ground', 'steel'];
+const HAIL_IMMUNE_TYPES = ['ice'];
+
+export function getWeatherDamageMultiplier(battleField: BattleField, moveType: string): number {
+	const weather = battleField.weather;
+	const type = moveType.toLowerCase();
+
+	if (weather === Weather.RAIN) {
+		if (type === 'water') return 1.5;
+		if (type === 'fire') return 0.5;
+	} else if (weather === Weather.SUN) {
+		if (type === 'fire') return 1.5;
+		if (type === 'water') return 0.5;
+	}
+
+	return 1;
+}
+
+export function applyWeatherDamage(
+	battleField: BattleField,
+	maxHp: number,
+	pokemonTypes: string[]
+): number {
+	const weather = battleField.weather;
+	const types = pokemonTypes.map((t) => t.toLowerCase());
+
+	if (weather === Weather.SAND) {
+		const isImmune = types.some((t) => SANDSTORM_IMMUNE_TYPES.includes(t));
+		if (!isImmune) {
+			return Math.floor(maxHp / 16);
+		}
+	} else if (weather === Weather.HAIL) {
+		const isImmune = types.some((t) => HAIL_IMMUNE_TYPES.includes(t));
+		if (!isImmune) {
+			return Math.floor(maxHp / 16);
+		}
+	}
+
+	return 0;
+}
 
 export abstract class WeatherEffect implements Effect {
 	abstract move_effect_id: number;
@@ -14,11 +54,11 @@ export abstract class WeatherEffect implements Effect {
 	turnsPassed: number = 0;
 	healed: boolean = false;
 
-	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
+	apply(target: unknown[], user?: unknown): EffectResult {
 		return new EffectResult(this, `Weather changed!`);
 	}
 
-	playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
+	playEffect(target: unknown, user?: unknown): EffectForTurn {
 		return new EffectForTurn(true);
 	}
 
