@@ -1,8 +1,25 @@
-import { Effect, EffectTiming, EffectResult, EffectForTurn, DEFAULT_EFFECT_PROPS } from './types';
-import { PokemonInstance } from '../pokedex';
+import { Effect, EffectTiming, EffectResult, EffectForTurn } from './types';
 import { Screen, BattleField, Side } from '../../battle/battle-field';
 
 export { Screen };
+
+export function getScreenDamageMultiplier(
+	battleField: BattleField,
+	defendingSide: Side,
+	moveCategory: string
+): number {
+	const category = moveCategory.toLowerCase();
+
+	if (category === 'physical' && battleField.hasScreen(defendingSide, Screen.REFLECT)) {
+		return 0.5;
+	}
+
+	if (category === 'special' && battleField.hasScreen(defendingSide, Screen.LIGHT_SCREEN)) {
+		return 0.5;
+	}
+
+	return 1;
+}
 
 export abstract class ScreenEffect implements Effect {
 	abstract move_effect_id: number;
@@ -14,11 +31,11 @@ export abstract class ScreenEffect implements Effect {
 	turnsPassed: number = 0;
 	healed: boolean = false;
 
-	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
+	apply(target: unknown[], user?: unknown): EffectResult {
 		return new EffectResult(this, `Screen set up!`);
 	}
 
-	playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
+	playEffect(target: unknown, user?: unknown): EffectForTurn {
 		return new EffectForTurn(true);
 	}
 
