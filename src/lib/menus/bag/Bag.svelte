@@ -288,7 +288,7 @@
 			}
 
 			.tabs a {
-				color: #a0a0a0;
+				color: #ffffff;
 				padding: 4px 12px;
 				margin-right: 8px;
 				cursor: pointer;

@@ -341,15 +341,18 @@
 					box-sizing: border-box;
 					table-layout: fixed;
 					padding: 0 2%;
-					direction: rtl;
 					font-size: clamp(0.6em, 3vw, 2em);
 					margin-top: 24px;
-					text-align: right;
 
 					tr td:first-child {
-						width: 30%;
+						width: 22%;
 						color: #ffd700;
 						text-shadow: 1px 1px 0 #000;
+						text-align: left;
+					}
+
+					tr td:last-child {
+						width: 78%;
 					}
 
 					tr {
@@ -381,17 +384,15 @@
 								&:after {
 									content: attr(data-value);
 									position: absolute;
-									top: -8px;
-									left: 0;
-									bottom: 0;
+									top: -6px;
+									right: -40px;
 									padding: 0 4px;
-									text-align: center;
+									text-align: left;
 									line-height: 26px;
-									font-size: 30px;
+									font-size: 20px;
 									font-weight: bold;
 									color: #fff;
 									text-shadow: 2px 2px 0 #000;
-									transform: scaleX(-1); /* Counteract RTL */
 								}
 							}
 						}

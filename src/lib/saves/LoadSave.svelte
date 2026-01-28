@@ -76,7 +76,7 @@
 			<div class="preview">
 				<div class="save-wrapper">
 					<button
-						class="save"
+						class="save pixel-button"
 						class:selected={selected === save}
 						on:click={() => {
 							selected === save ? handleSubmit(save) : (selected = save);
@@ -135,6 +135,7 @@
 		box-sizing: border-box;
 		align-items: flex-end;
 		justify-content: flex-start;
+		color: #ececec;
 
 		:global(img) {
 			width: calc(100% / 8);
@@ -183,6 +184,7 @@
 			gap: 8px;
 
 			overflow-y: auto;
+			color: #ececec !important;
 
 			.save-wrapper {
 				//width: 100%;
@@ -191,6 +193,7 @@
 				justify-content: flex-start;
 				align-items: flex-end;
 				gap: 8px;
+				color: #ececec;
 
 				.actions {
 					display: flex;
@@ -198,6 +201,7 @@
 					gap: 8px;
 					justify-content: center;
 					align-items: center;
+					color: #ececec;
 
 					.go {
 						//background: #262626;
@@ -207,6 +211,7 @@
 						cursor: pointer;
 						//width: 160px;
 						height: 32px;
+						color: #ececec;
 					}
 
 					.erase {

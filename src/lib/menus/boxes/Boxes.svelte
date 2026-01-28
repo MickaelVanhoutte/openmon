@@ -519,21 +519,22 @@
 			}
 
 			.entries {
-				height: calc(100% - 60px);
+				flex: 1;
+				min-height: 0;
 				width: 100%;
-				overflow-y: auto;
 				display: flex;
 				flex-direction: column;
 				align-items: center;
-				justify-content: flex-start;
-				gap: 8px;
+				justify-content: stretch;
+				gap: 6px;
 				padding: 8px;
 				box-sizing: border-box;
 
 				.entry {
 					color: white;
 					font-size: 22px;
-					height: 52px;
+					flex: 1;
+					min-height: 0;
 					width: 100%;
 					margin: 0 auto;
 					display: flex;
@@ -651,16 +652,16 @@
 				gap: 6px;
 				box-sizing: border-box;
 				width: 100%;
-				height: calc(100% - 60px);
+				flex: 1;
+				min-height: 0;
 				padding: 12px;
-				justify-content: center;
-				align-content: center;
+				overflow: hidden;
 
 				.entry {
 					width: 100%;
 					height: 100%;
-					max-width: 72px;
-					max-height: 72px;
+					min-width: 0;
+					min-height: 0;
 					background: rgba(0, 0, 0, 0.2);
 					display: flex;
 					justify-content: center;

@@ -337,7 +337,7 @@
 		<span class="time-text">{formatGameTime($progress)}</span>
 	</div>
 
-	<OverworldTeamPanel {context} />
+	<!-- <OverworldTeamPanel {context} /> -->
 
 	<Menu bind:context {savesHolder} />
 
