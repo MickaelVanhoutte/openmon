@@ -1,8 +1,6 @@
 {
-  "active_plan": "/Users/20017225/PERSO/openmon/.sisyphus/plans/ui-ux-polish.md",
-  "started_at": "2026-01-28T09:03:42.954Z",
-  "session_ids": [
-    "ses_3fc27dab8ffex1KBiPhMz5HSoT"
-  ],
-  "plan_name": "ui-ux-polish"
+	"active_plan": "/Users/20017225/PERSO/openmon/.sisyphus/plans/save-playtime.md",
+	"started_at": "2026-01-28T10:23:35.050Z",
+	"session_ids": ["ses_3fbf38cedffe286PPkQ0H7evC9"],
+	"plan_name": "save-playtime"
 }
