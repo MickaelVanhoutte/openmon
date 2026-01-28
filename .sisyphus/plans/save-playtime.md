@@ -61,9 +61,9 @@ Persist and restore the game clock (play time) across save/load operations.
 
 ### Definition of Done
 
-- [ ] Save game -> reload page -> load game -> clock continues from saved time
-- [ ] New game starts with playTime = 0
-- [ ] Time display in World.svelte shows correct accumulated time
+- [x] Save game -> reload page -> load game -> clock continues from saved time
+- [x] New game starts with playTime = 0
+- [x] Time display in World.svelte shows correct accumulated time
 
 ### Must Have
 
@@ -117,10 +117,10 @@ Persist and restore the game clock (play time) across save/load operations.
   - `src/js/context/savesHolder.ts:30-41` - Constructor parameters
 
   **Acceptance Criteria**:
-  - [ ] `playTime: number = 0;` property added after line 18
-  - [ ] Constructor has `playTime: number = 0` as last parameter
-  - [ ] `this.playTime = playTime;` assignment in constructor
-  - [ ] `npm run check` passes (no type errors)
+  - [x] `playTime: number = 0;` property added after line 18
+  - [x] Constructor has `playTime: number = 0` as last parameter
+  - [x] `this.playTime = playTime;` assignment in constructor
+  - [x] `npm run check` passes (no type errors)
 
   **Commit**: YES
   - Message: `feat(save): add playTime field to SaveContext`
@@ -159,10 +159,10 @@ Persist and restore the game clock (play time) across save/load operations.
   - `src/js/time/time-of-day.ts:10-18` - DayCycleConfig interface
 
   **Acceptance Criteria**:
-  - [ ] `DayCycleConfig` interface has optional `initialElapsedMs?: number`
-  - [ ] Constructor uses `initialElapsedMs` to offset startTime
-  - [ ] New `getElapsedMs()` method returns current elapsed time
-  - [ ] `npm run check` passes
+  - [x] `DayCycleConfig` interface has optional `initialElapsedMs?: number`
+  - [x] Constructor uses `initialElapsedMs` to offset startTime
+  - [x] New `getElapsedMs()` method returns current elapsed time
+  - [x] `npm run check` passes
 
   **Commit**: YES
   - Message: `feat(time): support initial elapsed time in TimeOfDayService`
@@ -217,9 +217,9 @@ Persist and restore the game clock (play time) across save/load operations.
   - `src/js/context/savesHolder.ts:30-41` - SaveContext constructor signature
 
   **Acceptance Criteria**:
-  - [ ] TimeOfDayService created with `{ initialElapsedMs: save.playTime || 0 }`
-  - [ ] toSaveContext passes `this.timeOfDay.getElapsedMs()` as last arg
-  - [ ] `npm run check` passes
+  - [x] TimeOfDayService created with `{ initialElapsedMs: save.playTime || 0 }`
+  - [x] toSaveContext passes `this.timeOfDay.getElapsedMs()` as last arg
+  - [x] `npm run check` passes
 
   **Commit**: YES
   - Message: `feat(save): persist and restore game clock across saves`
@@ -228,7 +228,7 @@ Persist and restore the game clock (play time) across save/load operations.
 
 ---
 
-- [ ] 4. Manual Verification
+- [x] 4. Manual Verification
 
   **What to do**:
   - Start dev server: `npm run dev`
@@ -252,7 +252,7 @@ Persist and restore the game clock (play time) across save/load operations.
   - **Blocked By**: Tasks 1, 2, 3
 
   **Acceptance Criteria**:
-  - [ ] Using playwright browser automation:
+  - [x] Using playwright browser automation:
     - Navigate to: `http://localhost:5173/`
     - Start/load a game, observe clock value
     - Save game via menu
@@ -286,8 +286,8 @@ npm run dev    # Start server for manual testing
 
 ### Final Checklist
 
-- [ ] playTime field added to SaveContext
-- [ ] TimeOfDayService accepts initial elapsed time
-- [ ] GameContext wires save/restore correctly
-- [ ] Old saves without playTime work (default to 0)
-- [ ] Clock continues from saved value after load
+- [x] playTime field added to SaveContext
+- [x] TimeOfDayService accepts initial elapsed time
+- [x] GameContext wires save/restore correctly
+- [x] Old saves without playTime work (default to 0)
+- [x] Clock continues from saved value after load
