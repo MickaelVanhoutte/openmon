@@ -662,8 +662,8 @@
 
 	.run-button {
 		position: absolute;
-		bottom: calc(5dvh + 20px + 140px);
-		right: calc(max(20px, env(safe-area-inset-right, 20px)) + 70px);
+		bottom: calc(5dvh + 120px);
+		right: calc(max(20px, env(safe-area-inset-right, 20px)));
 		z-index: 6;
 
 		width: 48px;
