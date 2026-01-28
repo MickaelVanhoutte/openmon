@@ -127,6 +127,8 @@
 		color: #fff;
 		z-index: 10;
 		box-sizing: border-box;
+		display: flex;
+		flex-direction: column;
 
 		.row {
 			display: flex;
@@ -144,9 +146,11 @@
 		}
 
 		.title {
+			width: 100%;
 			height: 46px;
 			gap: 6%;
 			padding: 0 2%;
+			margin: 0;
 			box-sizing: border-box;
 			background: #0088cc;
 			border-bottom: 2px solid #000;
@@ -200,30 +204,35 @@
 		.menu {
 			align-items: center;
 			height: 33px;
-			width: 100%;
+			width: calc(100% + 4px);
+			margin-left: -2px;
+			margin-bottom: -2px;
 			justify-content: center;
 			align-content: center;
 			flex-wrap: wrap;
 			background: #0d2538;
 			border-top: 2px solid #000;
+			margin-top: auto;
+			box-sizing: border-box;
 
 			.wrapper {
 				display: flex;
 				flex-direction: row;
 				align-items: flex-start;
-				padding: 2px 3px 3px 3px;
+				width: 100%;
+				padding: 2px 0 3px 0;
 				border-radius: 0;
 				position: relative;
 			}
 
 			.indicator {
 				content: '';
-				width: 130px;
+				width: calc(100% / 3);
 				height: 28px;
 				background: #ffd700;
 				position: absolute;
 				top: 2px;
-				left: 2px;
+				left: 0;
 				z-index: 9;
 				border: 2px solid #000;
 				box-shadow: none;
@@ -232,7 +241,7 @@
 			}
 
 			.tab {
-				width: 130px;
+				width: calc(100% / 3);
 				height: 28px;
 				position: absolute;
 				z-index: 99;
@@ -241,7 +250,7 @@
 			}
 
 			.tab_label {
-				width: 130px;
+				flex: 1;
 				height: 28px;
 
 				position: relative;
@@ -262,15 +271,15 @@
 			}
 
 			.tab--1:checked ~ .indicator {
-				left: 2px;
+				left: 0;
 			}
 
 			.tab--2:checked ~ .indicator {
-				left: calc(130px + 2px);
+				left: calc(100% / 3);
 			}
 
 			.tab--3:checked ~ .indicator {
-				left: calc(130px * 2 + 2px);
+				left: calc(100% / 3 * 2);
 			}
 
 			/* Change text color for selected tab */

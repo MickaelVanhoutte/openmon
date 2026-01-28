@@ -4,18 +4,18 @@ Guidelines for AI coding agents working in this Pokemon web game codebase.
 
 ## Project Overview
 
-| Technology | Details                      |
-| ---------- | ---------------------------- |
-| Framework  | Svelte 5.48.0                |
-| Language   | TypeScript 5.x (strict mode) |
-| Build Tool | Vite 7.x                     |
-| Styling    | SCSS + Chota CSS             |
-| Audio      | Howler.js                    |
-| DI         | tsyringe                     |
-| Animations | GSAP, AnimeJS                |
-| Testing    | Vitest                       |
-| Linting    | ESLint 9 (flat config)       |
-| Formatting | Prettier                     |
+| Technology | Details                                                |
+| ---------- | ------------------------------------------------------ |
+| Framework  | Svelte 5.48.0                                          |
+| Language   | TypeScript 5.x (strict mode)                           |
+| Build Tool | Vite 7.x                                               |
+| Styling    | SCSS + Chota CSS ([UI Spec](docs/UI-SPECIFICATION.md)) |
+| Audio      | Howler.js                                              |
+| DI         | tsyringe                                               |
+| Animations | GSAP, AnimeJS                                          |
+| Testing    | Vitest                                                 |
+| Linting    | ESLint 9 (flat config)                                 |
+| Formatting | Prettier                                               |
 
 ## Build/Lint/Test Commands
 
