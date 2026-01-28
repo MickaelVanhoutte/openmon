@@ -667,11 +667,7 @@
 					class:selected={!disabled && selectedMoveIdx === index}
 					on:click={() => launchMove(index, move)}
 				>
-					<span class="move-type" style="--offset: {index * 1.5}%">
-						<svg use:inlineSvg={`src/assets/types/${move.type}.svg`} fill="currentColor"> </svg>
-					</span>
 					<span class="move-name">{move.name.toUpperCase()}</span>
-
 					<span class="move-pp">
 						{move.currentPp}/{move.pp}
 					</span>
@@ -1094,18 +1090,22 @@
 			height: calc(66% / 4);
 			background-color: #0088cc;
 			border: 2px solid #000;
+			border-left: 5px solid var(--color, #0088cc);
 			color: #ffffff;
 			display: flex;
 			align-items: center;
-			justify-content: space-around;
+			justify-content: space-between;
+			padding: 0 12px 0 10px;
 			transform: translateX(8%);
-			font-size: 20px;
+			font-size: 18px;
 			min-width: 44px;
-			min-height: 36px;
+			min-height: 32px;
 			transition: transform 0.5s ease-in-out;
+			box-sizing: border-box;
 
 			&.target-btn {
 				border: 2px solid #000;
+				border-left: 5px solid var(--color, #0088cc);
 				justify-content: flex-start;
 				gap: 10%;
 
@@ -1130,35 +1130,21 @@
 				transform: translateX(0);
 				filter: brightness(1.1);
 				border: 3px solid #ffd700;
+				border-left: 5px solid var(--color, #0088cc);
 				color: #ffffff;
 				opacity: 1;
 			}
 
-			.move-type {
-				display: flex;
-				position: relative;
-				left: 5%;
-				height: 9dvh;
-				width: 9dvh;
-				background: white;
-				color: var(--color);
-				aspect-ratio: 0.866;
-				clip-path: polygon(0% 25%, 0% 75%, 50% 100%, 100% 75%, 100% 25%, 50% 0%);
-				align-items: center;
-				justify-content: center;
-
-				svg {
-					color: var(--color);
-					height: calc(8dvh - 8px);
-					width: calc(9dvh - 8px);
-				}
-			}
-
 			.move-name {
-				max-width: 50%;
+				max-width: 70%;
 				overflow: hidden;
 				text-overflow: ellipsis;
 				white-space: nowrap;
+			}
+
+			.move-pp {
+				font-size: 14px;
+				opacity: 0.9;
 			}
 		}
 	}
