@@ -1,6 +1,7 @@
 import { EXPERIENCE_CHART } from './experience';
 import type { Effect } from './move-effects';
 import { typeChart } from '../battle/battle-model';
+import { VolatileTracker } from './volatile-status';
 
 export class Nature {
 	public id: number;
@@ -746,6 +747,7 @@ export class PokemonInstance extends PokedexEntry {
 	public isShiny: boolean = false;
 
 	public status?: Effect;
+	public volatiles: VolatileTracker = new VolatileTracker();
 
 	get spriteScale(): number {
 		return 1;
