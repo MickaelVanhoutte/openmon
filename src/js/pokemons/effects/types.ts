@@ -9,7 +9,10 @@ export enum EffectTiming {
 	BEFORE_SWITCH = 'before-switch',
 	AFTER_SWITCH = 'after-switch',
 	BEFORE_FAINT = 'before-faint',
-	AFTER_FAINT = 'after-faint'
+	AFTER_FAINT = 'after-faint',
+	ON_SWITCH_IN = 'on-switch-in',
+	ON_HIT = 'on-hit',
+	ON_FAINT = 'on-faint'
 }
 
 export class EffectResult {
