@@ -389,19 +389,20 @@
 
 		.notifications {
 			position: absolute;
-			top: calc(4% + 56px);
-			left: 1%;
+			top: calc(5% + 56px);
+			right: 1%;
 			display: flex;
 			flex-direction: column;
 			justify-content: center;
-			align-items: flex-start;
+			align-items: flex-end;
 			z-index: 7;
 
 			.notification {
 				background-color: rgba(0, 0, 0, 0.5);
 				color: white;
-				padding: 8px;
+				padding: 4px;
 				border-radius: 4px;
+				font-size: 16px;
 
 				&:not(:last-child) {
 					margin-bottom: 4px;
