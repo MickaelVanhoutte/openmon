@@ -16,6 +16,7 @@ export class SaveContext {
 	version: number = 1;
 	created: number = Date.now();
 	updated: number = Date.now();
+	playTime: number = 0;
 	currentMap: MapSave;
 	player: Player;
 	boxes: Array<PokemonBox>;
@@ -38,7 +39,8 @@ export class SaveContext {
 		viewedGuides: number[] = [],
 		savedEntry: SavedEntry[] = [],
 		questStates: QuestState[] = [],
-		flags: Flags
+		flags: Flags,
+		playTime: number = 0
 	) {
 		this.id = id;
 		this.updated = updated;
@@ -51,6 +53,7 @@ export class SaveContext {
 		this.savedEntry = savedEntry;
 		this.questStates = questStates;
 		this.flags = flags;
+		this.playTime = playTime;
 	}
 
 	toGameContext(): GameContext {

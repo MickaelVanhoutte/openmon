@@ -109,7 +109,7 @@ export class GameContext {
 		this.audioManager = new AudioManager();
 		this.questManager = new QuestManager(save.questStates, save.flags, this.notifications);
 		this.scriptRunner = new ScriptRunner();
-		this.timeOfDay = new TimeOfDayService();
+		this.timeOfDay = new TimeOfDayService({ initialElapsedMs: save.playTime || 0 });
 
 		// Sync quest data from manager to GameContext (for backwards compatibility)
 		this.questStates = this.questManager.questStates;
@@ -766,7 +766,8 @@ export class GameContext {
 			this.viewedGuides,
 			this.POKEDEX.exportForSave(),
 			this.questStates,
-			this.flags
+			this.flags,
+			this.timeOfDay.getElapsedMs()
 		);
 	}
 }

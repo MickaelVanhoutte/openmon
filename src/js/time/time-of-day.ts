@@ -10,6 +10,7 @@ export enum TimeOfDay {
 export interface DayCycleConfig {
 	cycleDurationMs: number;
 	paused: boolean;
+	initialElapsedMs?: number;
 }
 
 const DEFAULT_CONFIG: DayCycleConfig = {
@@ -40,7 +41,7 @@ export class TimeOfDayService {
 
 	constructor(config: Partial<DayCycleConfig> = {}) {
 		this.config = { ...DEFAULT_CONFIG, ...config };
-		this.startTime = Date.now();
+		this.startTime = Date.now() - (config.initialElapsedMs || 0);
 
 		this.gameHour = derived(this.progress, ($progress) => progressToGameHour($progress));
 
@@ -117,6 +118,10 @@ export class TimeOfDayService {
 
 	getConfig(): DayCycleConfig {
 		return { ...this.config };
+	}
+
+	getElapsedMs(): number {
+		return Date.now() - this.startTime;
 	}
 }
 
