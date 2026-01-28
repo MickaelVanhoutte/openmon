@@ -435,6 +435,7 @@
 	</div>
 </div>
 
+<!--
 <div class="combo" class:show={showAdd}>
 	{#if currentCombo}
 		<span class="combo-info" style="--color:{typeChart[currentCombo?.move?.type]?.color}">
@@ -462,6 +463,7 @@
 		</div>
 	{/if}
 </div>
+-->
 
 {#if moveOpened}
 	<div class="left-infos">
@@ -558,6 +560,7 @@
 		</div>
 	</div>
 
+	<!--
 	<button
 		class="combo-btn"
 		class:shine={!comboDisabled && !disabled}
@@ -653,7 +656,7 @@
 			>
 		{/if}
 	</button>
-
+-->
 	{#if !targetSelectOpened}
 		<div class="moves2" class:show>
 			{#each battleCtx?.playerSide[battleCtx.actionIdx]?.moves as move, index}
@@ -1329,7 +1332,7 @@
 			-webkit-overflow-scrolling: touch;
 			scrollbar-width: thin;
 			scrollbar-color: #68c0c8 #0e2742f0;
-			background-color: #143855;
+			background-color: hsl(206.77deg 61.9% 20.59% / 62%);
 			border: 2px solid #000;
 			box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
 			transition: bottom 0.5s ease-in-out;
