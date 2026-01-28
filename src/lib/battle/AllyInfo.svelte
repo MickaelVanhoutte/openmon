@@ -2,6 +2,7 @@
 	import { BattleType } from '../../js/battle/battle-model';
 	import { BattleContext } from '../../js/context/battleContext';
 	import type { PokemonInstance } from '../../js/pokemons/pokedex';
+	import { VolatileStatus } from '../../js/pokemons/volatile-status';
 
 	interface Props {
 		battleCtx: BattleContext;
@@ -36,6 +37,30 @@
 		accuracy: (value: number) => (value + 3) / 3,
 		evasion: (value: number) => (value + 3) / 3
 	};
+
+	const volatileColors: Record<string, string> = {
+		[VolatileStatus.CONFUSED]: '#F8D030',
+		[VolatileStatus.INFATUATION]: '#F85888',
+		[VolatileStatus.BOUND]: '#B8A070',
+		[VolatileStatus.SEEDED]: '#78C850',
+		[VolatileStatus.CURSED]: '#705898'
+	};
+
+	const volatileLabels: Record<string, string> = {
+		[VolatileStatus.CONFUSED]: 'CNF',
+		[VolatileStatus.INFATUATION]: 'INF',
+		[VolatileStatus.BOUND]: 'BND',
+		[VolatileStatus.SEEDED]: 'SED',
+		[VolatileStatus.CURSED]: 'CRS'
+	};
+
+	const displayedVolatiles = [
+		VolatileStatus.CONFUSED,
+		VolatileStatus.INFATUATION,
+		VolatileStatus.BOUND,
+		VolatileStatus.SEEDED,
+		VolatileStatus.CURSED
+	];
 
 	function getStatusColor(status?: string): string {
 		const colors: Record<string, string> = {
@@ -74,6 +99,15 @@
 					<span class="status-badge" style="--status-color: {getStatusColor(pokemon?.status?.abr)}"
 						>{pokemon?.status?.abr}</span
 					>
+				{/if}
+				{#if pokemon?.volatiles}
+					{#each displayedVolatiles as vol}
+						{#if pokemon.volatiles.has(vol)}
+							<span class="volatile-badge" style="--volatile-color: {volatileColors[vol]}"
+								>{volatileLabels[vol]}</span
+							>
+						{/if}
+					{/each}
 				{/if}
 			</div>
 			<div>
@@ -230,6 +264,18 @@
 					background-color: var(--status-color);
 					text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
 					animation: statusPulse 2s ease-in-out infinite;
+				}
+
+				.volatile-badge {
+					display: inline-block;
+					padding: 2px 6px;
+					border: 2px solid var(--volatile-color);
+					box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.2);
+					font-size: 10px;
+					font-weight: bold;
+					color: var(--volatile-color);
+					background-color: transparent;
+					text-shadow: 0 0 1px rgba(0, 0, 0, 0.3);
 				}
 			}
 
