@@ -75,11 +75,11 @@ Implement a complete, production-ready Pokemon battle effect system following Ge
 
 ### Definition of Done
 
-- [ ] `npm run test:run` passes with all effect tests green
-- [ ] `npm run check` passes with no TypeScript errors
-- [ ] All moves in pokedex have working effects
-- [ ] Weather UI updates dynamically during battle
-- [ ] Status badges visible for all statuses including volatiles
+- [x] `npm run test:run` passes with all effect tests green
+- [x] `npm run check` passes with no TypeScript errors
+- [x] All moves in pokedex have working effects
+- [x] Weather UI updates dynamically during battle
+- [x] Status badges visible for all statuses including volatiles
 
 ### Must Have
 
@@ -239,11 +239,11 @@ Wave 5 (Final):
   - Bulbapedia Weather mechanics: https://bulbapedia.bulbagarden.net/wiki/Weather
 
   **Acceptance Criteria**:
-  - [ ] Test directory created: `src/js/__tests__/` exists
-  - [ ] Test file created: `src/js/__tests__/battle-field.test.ts`
-  - [ ] Test covers: weather set/expire, screen set/expire, hazard add/clear
-  - [ ] `npm run test:run -- battle-field` → PASS
-  - [ ] `npm run check` → No errors in battle-field.ts
+  - [x] Test directory created: `src/js/__tests__/` exists
+  - [x] Test file created: `src/js/__tests__/battle-field.test.ts`
+  - [x] Test covers: weather set/expire, screen set/expire, hazard add/clear
+  - [x] `npm run test:run -- battle-field` → PASS
+  - [x] `npm run check` → No errors in battle-field.ts
 
   **Automated Verification**:
 
@@ -292,11 +292,11 @@ Wave 5 (Final):
   - Bulbapedia Volatile status: https://bulbapedia.bulbagarden.net/wiki/Status_condition#Volatile_status
 
   **Acceptance Criteria**:
-  - [ ] Test file: `src/js/__tests__/volatile-status.test.ts`
-  - [ ] Tests cover: add/remove/has volatile, Leech Seed tick damage
-  - [ ] `npm run test:run -- volatile-status` → PASS
-  - [ ] PokemonInstance has volatiles property
-  - [ ] Verify no conflict with existing Status enum (volatiles are separate)
+  - [x] Test file: `src/js/__tests__/volatile-status.test.ts`
+  - [x] Tests cover: add/remove/has volatile, Leech Seed tick damage
+  - [x] `npm run test:run -- volatile-status` → PASS
+  - [x] PokemonInstance has volatiles property
+  - [x] Verify no conflict with existing Status enum (volatiles are separate)
 
   **Automated Verification**:
 
@@ -346,12 +346,12 @@ Wave 5 (Final):
   - `src/js/pokemons/move-effects.ts:effectFromId()` - Registry function to extend
 
   **Acceptance Criteria**:
-  - [ ] Only ONE EffectTiming enum exists (in types.ts)
-  - [ ] All imports updated to use types.ts
-  - [ ] EffectTiming has ON_SWITCH_IN, ON_HIT, ON_FAINT
-  - [ ] Effect category files exist with exports
-  - [ ] `npm run check` → No errors
-  - [ ] Existing tests still pass: `npm run test:run`
+  - [x] Only ONE EffectTiming enum exists (in types.ts)
+  - [x] All imports updated to use types.ts
+  - [x] EffectTiming has ON_SWITCH_IN, ON_HIT, ON_FAINT
+  - [x] Effect category files exist with exports
+  - [x] `npm run check` → No errors
+  - [x] Existing tests still pass: `npm run test:run`
 
   **Automated Verification**:
 
@@ -410,10 +410,10 @@ Wave 5 (Final):
   - Bulbapedia: https://bulbapedia.bulbagarden.net/wiki/Weather#Generation_III_onwards
 
   **Acceptance Criteria**:
-  - [ ] Test file: `src/js/__tests__/weather-effects.test.ts`
-  - [ ] Tests: weather sets correctly, expires after 5 turns, damage modifiers apply
-  - [ ] Test: Sandstorm/Hail damage at END_TURN
-  - [ ] `npm run test:run -- weather` → PASS
+  - [x] Test file: `src/js/__tests__/weather-effects.test.ts`
+  - [x] Tests: weather sets correctly, expires after 5 turns, damage modifiers apply
+  - [x] Test: Sandstorm/Hail damage at END_TURN
+  - [x] `npm run test:run -- weather` → PASS
 
   **Automated Verification**:
 
@@ -461,9 +461,9 @@ Wave 5 (Final):
   - Bulbapedia: https://bulbapedia.bulbagarden.net/wiki/Reflect_(move)
 
   **Acceptance Criteria**:
-  - [ ] Test file: `src/js/__tests__/screen-effects.test.ts`
-  - [ ] Tests: screen sets, expires, reduces damage correctly
-  - [ ] `npm run test:run -- screen-effects` → PASS
+  - [x] Test file: `src/js/__tests__/screen-effects.test.ts`
+  - [x] Tests: screen sets, expires, reduces damage correctly
+  - [x] `npm run test:run -- screen-effects` → PASS
 
   **Automated Verification**:
 
@@ -510,9 +510,9 @@ Wave 5 (Final):
   - Bulbapedia: https://bulbapedia.bulbagarden.net/wiki/Status_condition
 
   **Acceptance Criteria**:
-  - [ ] Test file: `src/js/__tests__/status-effects.test.ts`
-  - [ ] Tests for each status: duration, damage tick, effects
-  - [ ] `npm run test:run -- status-effects` → PASS
+  - [x] Test file: `src/js/__tests__/status-effects.test.ts`
+  - [x] Tests for each status: duration, damage tick, effects
+  - [x] `npm run test:run -- status-effects` → PASS
 
   **Automated Verification**:
 
@@ -557,9 +557,9 @@ Wave 5 (Final):
   - Bulbapedia: https://bulbapedia.bulbagarden.net/wiki/Stat_modifier
 
   **Acceptance Criteria**:
-  - [ ] Test file: `src/js/__tests__/stat-changes.test.ts`
-  - [ ] Tests: each stage multiplier, cap at +6/-6, accuracy/evasion
-  - [ ] `npm run test:run -- stat-changes` → PASS
+  - [x] Test file: `src/js/__tests__/stat-changes.test.ts`
+  - [x] Tests: each stage multiplier, cap at +6/-6, accuracy/evasion
+  - [x] `npm run test:run -- stat-changes` → PASS
 
   **Automated Verification**:
 
@@ -607,9 +607,9 @@ Wave 5 (Final):
   - Bulbapedia: https://bulbapedia.bulbagarden.net/wiki/Semi-invulnerable_turn
 
   **Acceptance Criteria**:
-  - [ ] Test file: `src/js/__tests__/two-turn-moves.test.ts`
-  - [ ] Tests: charge turn, attack turn, semi-invulnerable dodge, Sun+Solar Beam
-  - [ ] `npm run test:run -- two-turn` → PASS
+  - [x] Test file: `src/js/__tests__/two-turn-moves.test.ts`
+  - [x] Tests: charge turn, attack turn, semi-invulnerable dodge, Sun+Solar Beam
+  - [x] `npm run test:run -- two-turn` → PASS
 
   **Automated Verification**:
 
@@ -652,9 +652,9 @@ Wave 5 (Final):
   - Bulbapedia: https://bulbapedia.bulbagarden.net/wiki/Recoil
 
   **Acceptance Criteria**:
-  - [ ] Test file: `src/js/__tests__/recoil-drain.test.ts`
-  - [ ] Tests: recoil percentages, drain heal amounts, Struggle special case
-  - [ ] `npm run test:run -- recoil-drain` → PASS
+  - [x] Test file: `src/js/__tests__/recoil-drain.test.ts`
+  - [x] Tests: recoil percentages, drain heal amounts, Struggle special case
+  - [x] `npm run test:run -- recoil-drain` → PASS
 
   **Automated Verification**:
 
@@ -698,9 +698,9 @@ Wave 5 (Final):
   - Bulbapedia: https://bulbapedia.bulbagarden.net/wiki/Multi-strike_move
 
   **Acceptance Criteria**:
-  - [ ] Test file: `src/js/__tests__/multi-hit.test.ts`
-  - [ ] Tests: hit count distribution, Triple Kick power scaling
-  - [ ] `npm run test:run -- multi-hit` → PASS
+  - [x] Test file: `src/js/__tests__/multi-hit.test.ts`
+  - [x] Tests: hit count distribution, Triple Kick power scaling
+  - [x] `npm run test:run -- multi-hit` → PASS
 
   **Automated Verification**:
 
@@ -744,9 +744,9 @@ Wave 5 (Final):
   - Bulbapedia: https://bulbapedia.bulbagarden.net/wiki/Bound
 
   **Acceptance Criteria**:
-  - [ ] Test file: `src/js/__tests__/binding-moves.test.ts`
-  - [ ] Tests: trap duration, per-turn damage, switch prevention
-  - [ ] `npm run test:run -- binding` → PASS
+  - [x] Test file: `src/js/__tests__/binding-moves.test.ts`
+  - [x] Tests: trap duration, per-turn damage, switch prevention
+  - [x] `npm run test:run -- binding` → PASS
 
   **Automated Verification**:
 
@@ -789,9 +789,9 @@ Wave 5 (Final):
   - Bulbapedia: https://bulbapedia.bulbagarden.net/wiki/Outrage_(move)
 
   **Acceptance Criteria**:
-  - [ ] Test file: `src/js/__tests__/rampage-moves.test.ts`
-  - [ ] Tests: 2-3 turn duration, confusion after, move lock
-  - [ ] `npm run test:run -- rampage` → PASS
+  - [x] Test file: `src/js/__tests__/rampage-moves.test.ts`
+  - [x] Tests: 2-3 turn duration, confusion after, move lock
+  - [x] `npm run test:run -- rampage` → PASS
 
   **Automated Verification**:
 
@@ -835,9 +835,9 @@ Wave 5 (Final):
   - Bulbapedia: https://bulbapedia.bulbagarden.net/wiki/Protect_(move)
 
   **Acceptance Criteria**:
-  - [ ] Test file: `src/js/__tests__/protection-moves.test.ts`
-  - [ ] Tests: first use success, stale counter, Endure mechanics
-  - [ ] `npm run test:run -- protection` → PASS
+  - [x] Test file: `src/js/__tests__/protection-moves.test.ts`
+  - [x] Tests: first use success, stale counter, Endure mechanics
+  - [x] `npm run test:run -- protection` → PASS
 
   **Automated Verification**:
 
@@ -886,10 +886,10 @@ Wave 5 (Final):
   - Bulbapedia: https://bulbapedia.bulbagarden.net/wiki/Entry_hazard
 
   **Acceptance Criteria**:
-  - [ ] Test file: `src/js/__tests__/hazard-effects.test.ts`
-  - [ ] Tests: SR type damage, Spikes layers, Toxic Spikes poison level
-  - [ ] Tests: Flying immunity, Rapid Spin clear
-  - [ ] `npm run test:run -- hazard` → PASS
+  - [x] Test file: `src/js/__tests__/hazard-effects.test.ts`
+  - [x] Tests: SR type damage, Spikes layers, Toxic Spikes poison level
+  - [x] Tests: Flying immunity, Rapid Spin clear
+  - [x] `npm run test:run -- hazard` → PASS
 
   **Automated Verification**:
 
@@ -933,9 +933,9 @@ Wave 5 (Final):
   - Bulbapedia: https://bulbapedia.bulbagarden.net/wiki/Terrain
 
   **Acceptance Criteria**:
-  - [ ] Test file: `src/js/__tests__/terrain-effects.test.ts`
-  - [ ] Tests: each terrain's type boost, each terrain's special effect
-  - [ ] `npm run test:run -- terrain` → PASS
+  - [x] Test file: `src/js/__tests__/terrain-effects.test.ts`
+  - [x] Tests: each terrain's type boost, each terrain's special effect
+  - [x] `npm run test:run -- terrain` → PASS
 
   **Automated Verification**:
 
@@ -978,9 +978,9 @@ Wave 5 (Final):
   - Bulbapedia: https://bulbapedia.bulbagarden.net/wiki/Trick_Room_(move)
 
   **Acceptance Criteria**:
-  - [ ] Test file: `src/js/__tests__/trick-room.test.ts`
-  - [ ] Tests: slower goes first, priority still works, expires after 5
-  - [ ] `npm run test:run -- trick-room` → PASS
+  - [x] Test file: `src/js/__tests__/trick-room.test.ts`
+  - [x] Tests: slower goes first, priority still works, expires after 5
+  - [x] `npm run test:run -- trick-room` → PASS
 
   **Automated Verification**:
 
@@ -1028,9 +1028,9 @@ Wave 5 (Final):
   - Existing Svelte components in `src/lib/battle/` - UI guidelines and patterns
 
   **Acceptance Criteria**:
-  - [ ] Component created with weather/screen/hazard/terrain indicators
-  - [ ] `npm run check` → No errors
-  - [ ] Visual verification: weather icon visible when weather active
+  - [x] Component created with weather/screen/hazard/terrain indicators
+  - [x] `npm run check` → No errors
+  - [x] Visual verification: weather icon visible when weather active
 
   **Automated Verification**:
 
@@ -1084,9 +1084,9 @@ Wave 5 (Final):
   - `src/js/pokemons/volatile-status.ts` - Volatile enum
 
   **Acceptance Criteria**:
-  - [ ] Volatile badges appear when volatile applied
-  - [ ] `npm run check` → No errors
-  - [ ] Visual distinction from permanent statuses
+  - [x] Volatile badges appear when volatile applied
+  - [x] `npm run check` → No errors
+  - [x] Visual distinction from permanent statuses
 
   **Automated Verification**:
 
@@ -1132,10 +1132,10 @@ Wave 5 (Final):
   - Bulbapedia damage formula: https://bulbapedia.bulbagarden.net/wiki/Damage
 
   **Acceptance Criteria**:
-  - [ ] Test file: `src/js/__tests__/damage-calc.test.ts`
-  - [ ] Tests: weather modifier, screen modifier, terrain modifier, combined
-  - [ ] Existing damage tests still pass
-  - [ ] `npm run test:run -- damage` → PASS
+  - [x] Test file: `src/js/__tests__/damage-calc.test.ts`
+  - [x] Tests: weather modifier, screen modifier, terrain modifier, combined
+  - [x] Existing damage tests still pass
+  - [x] `npm run test:run -- damage` → PASS
 
   **Automated Verification**:
 
@@ -1192,11 +1192,11 @@ Wave 5 (Final):
   - All effect implementation files from Tasks 4-16
 
   **Acceptance Criteria**:
-  - [ ] All move effect_ids mapped
-  - [ ] Integration test file: `src/js/__tests__/move-integration.test.ts`
-  - [ ] `npm run test:run` → ALL PASS
-  - [ ] `npm run check` → No errors
-  - [ ] `npm run build` → Builds successfully
+  - [x] All move effect_ids mapped
+  - [x] Integration test file: `src/js/__tests__/move-integration.test.ts`
+  - [x] `npm run test:run` → ALL PASS
+  - [x] `npm run check` → No errors
+  - [x] `npm run build` → Builds successfully
 
   **Automated Verification**:
 
@@ -1252,10 +1252,10 @@ npm run lint            # Expected: No lint errors
 
 ### Final Checklist
 
-- [ ] All "Must Have" features implemented
-- [ ] All "Must NOT Have" guardrails respected
-- [ ] All 20 tasks completed with passing tests
-- [ ] Weather/Screen/Hazard/Terrain UI visible in battle
-- [ ] Volatile status badges visible
-- [ ] No regressions in existing battle functionality
-- [ ] All move effect_ids mapped to implementations
+- [x] All "Must Have" features implemented
+- [x] All "Must NOT Have" guardrails respected
+- [x] All 20 tasks completed with passing tests
+- [x] Weather/Screen/Hazard/Terrain UI visible in battle
+- [x] Volatile status badges visible
+- [x] No regressions in existing battle functionality
+- [x] All move effect_ids mapped to implementations
