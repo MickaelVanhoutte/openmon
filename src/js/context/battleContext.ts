@@ -18,9 +18,11 @@ import { EXPERIENCE_CHART } from '../pokemons/experience';
 import { Attack, Switch, UseItem } from '../battle/actions/actions-selectable';
 import { EndTurnChecks, Message, PlayAnimation, XPWin } from '../battle/actions/actions-derived';
 import { ItemsReferences } from '../items/items';
+import { BattleField } from '../battle/battle-field';
 
 export class BattleContext {
 	ITEMS = new ItemsReferences();
+	battleField: BattleField = new BattleField();
 
 	turnPhases: Writable<TurnPhase> = writable(TurnPhase.UPKEEP);
 
