@@ -1153,7 +1153,7 @@ Wave 5 (Final):
 
 ---
 
-- [ ] 20. Move Mapping and Integration Testing
+- [x] 20. Move Mapping and Integration Testing
 
   **What to do**:
   - Map all move effect_ids in pokedex JSON to new Effect implementations
