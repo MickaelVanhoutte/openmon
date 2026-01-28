@@ -532,8 +532,8 @@
 
 				.entry {
 					color: white;
-					font-size: 18px;
-					height: 64px;
+					font-size: 22px;
+					height: 52px;
 					width: 100%;
 					margin: 0 auto;
 					display: flex;
@@ -673,7 +673,7 @@
 					box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
 
 					&.over {
-						background-color: transparent;
+						background-color: rgba(255, 255, 255, 0.1);
 						border: 3px solid #ffd700;
 						animation: pixel-pulse 1s ease-in-out infinite;
 						z-index: 10;
