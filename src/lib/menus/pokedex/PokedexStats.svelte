@@ -359,10 +359,10 @@
 
 							.progress {
 								position: relative;
-								height: 12px;
+								height: 16px;
 								display: block;
 								width: 100%;
-								background-color: #0d2538;
+								background-color: #333333;
 								border: 2px solid #000;
 								border-radius: 0;
 								overflow: visible;
