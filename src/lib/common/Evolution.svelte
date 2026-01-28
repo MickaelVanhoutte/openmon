@@ -29,7 +29,12 @@
 
 			currentSprite = poke.getSprite();
 			let nextResult =
-				poke?.evolution[0]?.id && context.POKEDEX.findById(poke?.evolution[0]?.id)?.result?.instanciate(poke.level, 0, poke.isShiny);
+				poke?.evolution[0]?.id &&
+				context.POKEDEX.findById(poke?.evolution[0]?.id)?.result?.instanciate(
+					poke.level,
+					0,
+					poke.isShiny
+				);
 			nextSprite = nextResult?.getSprite();
 
 			if (currentSprite && nextSprite) {
@@ -318,7 +323,7 @@
 		left: 0;
 		width: 100dvw;
 		height: 100dvh;
-		background: rgba(0, 0, 0, 1);
+		background: #1c4b72;
 
 		z-index: 12;
 
@@ -329,6 +334,8 @@
 			justify-content: center;
 			align-items: center;
 			position: relative;
+			background: #143855;
+			border: 2px solid #000;
 
 			img.pokemon {
 				width: auto;

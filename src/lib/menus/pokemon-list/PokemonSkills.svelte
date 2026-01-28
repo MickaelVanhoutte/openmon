@@ -22,8 +22,12 @@
 
 	$: selectedMons = pkmnList[selected];
 	$: description = selectedMons.moves[selectedMove].description
-		?.replace('$effect_chance', selectedMons?.moves[selectedMove]?.effectChance)
+		?.replace('$effect_chance', String(selectedMons?.moves[selectedMove]?.effectChance))
 		?.replace(mechanicRegex, '');
+
+	function getTypeColor(type: string) {
+		return typeChart[type as keyof typeof typeChart]?.color || '#000';
+	}
 </script>
 
 <div
@@ -35,14 +39,11 @@
 	<div class="img-skillDesc" class:enlarge={moveEdit}>
 		<div class="img-wrapper">
 			<div class="img-bg">
-				<img
-					src={selectedMons.getSprite()}
-					alt="{selectedMons.name} img"
-				/>
+				<img src={selectedMons.getSprite()} alt="{selectedMons.name} img" />
 			</div>
 		</div>
 
-		<div class="skillDesc">
+		<div class="skillDesc move-description">
 			{description}
 		</div>
 	</div>
@@ -61,23 +62,35 @@
 
 			{#each selectedMons.moves as move, index}
 				<div
-					class="move"
+					class="move move-card"
 					class:selected={index === selectedMove}
 					on:click={() => (selectedMove = index)}
 				>
-					<span style="--bg:{typeChart[move.type].color}" class="type"
+					<span style="--bg:{getTypeColor(move.type)}" class="type type-badge"
 						>{move.type.toUpperCase()}</span
 					>
 
 					<div class="flex-row">
-						<div class="flex-col">
+						<div class="flex-col name-col">
 							<span class="name">{move.name}</span>
-							<span>{move.category === 'no-damage' ? 'status' : move.category}</span>
+							<span class="category"
+								>{move.category === 'no-damage' ? 'status' : move.category}</span
+							>
 						</div>
 
-						<div class="flex-col">
-							<span>power {move.power ? move.power : '/'}</span>
-							<span class="pp">PP {move.currentPp}/{move.pp}</span>
+						<div class="move-stats">
+							<div class="stat-col">
+								<span class="stat-label">PWR</span>
+								<span class="stat-value">{move.power ? move.power : '-'}</span>
+							</div>
+							<div class="stat-col">
+								<span class="stat-label">ACC</span>
+								<span class="stat-value">{move.accuracy ? move.accuracy : '-'}</span>
+							</div>
+							<div class="stat-col">
+								<span class="stat-label">PP</span>
+								<span class="stat-value">{move.currentPp}/{move.pp}</span>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -100,30 +113,10 @@
 		position: relative;
 		display: flex;
 		flex-direction: row;
-		//background-color: #0e2742f0;
-		//background-image: url('src/assets/menus/p-sum.jpg');
 		background: rgb(0, 29, 43);
-		background: -moz-linear-gradient(
-			140deg,
-			rgba(0, 29, 43, 1) 0%,
-			rgba(3, 84, 142, 1) 42%,
-			rgba(0, 195, 230, 1) 100%
-		);
-		background: -webkit-linear-gradient(
-			140deg,
-			rgba(0, 29, 43, 1) 0%,
-			rgba(3, 84, 142, 1) 42%,
-			rgba(0, 195, 230, 1) 100%
-		);
-		background: linear-gradient(
-			140deg,
-			rgba(0, 29, 43, 1) 0%,
-			rgba(3, 84, 142, 1) 42%,
-			rgba(0, 195, 230, 1) 100%
-		);
 		color: #fff;
 
-		text-shadow: 1px 1px 1px black;
+		text-shadow: 1px 1px 0 black;
 		z-index: var(--zIndex, 11);
 
 		.img-skillDesc {
@@ -137,6 +130,7 @@
 					height: 0;
 					opacity: 0;
 					padding: 0;
+					border: none;
 				}
 
 				.img-wrapper {
@@ -169,21 +163,25 @@
 			}
 
 			.skillDesc {
-				border-top: 1px solid rgba(255, 255, 255, 0.2);
-				background-color: rgba(44, 56, 69, 0.65);
 				height: 50%;
 				width: 100%;
 				display: flex;
 				flex-direction: column;
 				box-sizing: border-box;
-				padding: 2%;
 				color: white;
-				justify-content: space-around;
+				justify-content: flex-start;
 				align-items: flex-start;
+				gap: 10px;
 
 				transition: all 0.5s ease-in-out;
 
 				font-size: 22px;
+
+				/* Move Description */
+				background: #1c4b72;
+				border: 2px solid #000;
+				padding: 12px;
+				text-align: left;
 			}
 		}
 
@@ -198,7 +196,7 @@
 				display: flex;
 				flex-direction: column;
 				position: relative;
-				gap: 4%;
+				gap: 12px;
 				padding: 1% 3%;
 				height: 100%;
 				box-sizing: border-box;
@@ -244,29 +242,28 @@
 	}
 
 	.move {
-		background: rgb(220, 231, 233);
-		background: linear-gradient(
-			180deg,
-			rgba(220, 231, 233, 1) 0%,
-			rgba(255, 255, 255, 1) 50%,
-			rgba(220, 231, 233, 0.713344712885154) 100%
-		);
-		color: #54506c;
+		/* Move Card */
+		background: #143855;
+		border: 2px solid #000;
+		box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
 		padding: 12px;
-		border-radius: 8px;
+		margin-bottom: 8px;
+		border-radius: 0;
+
+		color: #fff;
 		position: relative;
 		height: calc((100% - 4 * 4%) / 4);
 		box-sizing: border-box;
 		text-shadow: none;
 		width: 80%;
+		display: flex;
+		align-items: center;
 
 		.flex-row {
-			gap: 6%;
 			display: flex;
 			flex-direction: row;
 			justify-content: space-between;
 			align-items: center;
-			height: 100%;
 			width: 100%;
 			padding-left: 20%;
 			box-sizing: border-box;
@@ -275,32 +272,75 @@
 		.flex-col {
 			display: flex;
 			flex-direction: column;
+
+			&.name-col {
+				width: 40%;
+			}
+		}
+
+		.move-stats {
+			/* Move Stats Layout */
+			display: grid;
+			grid-template-columns: repeat(3, 80px);
+			gap: 8px;
+			text-align: left;
+
+			.stat-col {
+				display: flex;
+				flex-direction: column;
+			}
+
+			.stat-label {
+				color: #ffffff;
+				opacity: 0.7;
+				font-size: 12px;
+			}
+			.stat-value {
+				color: #ffffff;
+				font-size: 16px;
+			}
 		}
 
 		&.selected {
-			border: 3px solid #54506c;
+			border: 3px solid #ffd700;
 		}
 
 		.type {
+			/* Type Badges */
+			background: var(--bg);
+			border: 2px solid #000;
+			box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+			padding: 4px 8px;
+			border-radius: 0;
+
 			color: white;
-			text-shadow: 1px 1px 1px black;
-			background-color: var(--bg);
-			border-radius: 8px;
-			padding: 4px;
-			font-size: 22px;
+			text-shadow: 1px 1px 0 black;
+			font-size: 18px;
 			position: absolute;
-			top: -4px;
+			top: -10px;
 			left: -10px;
+			z-index: 1;
 		}
 
 		.name {
-			font-size: 22px;
+			font-size: 20px;
 			text-transform: uppercase;
+			font-weight: bold;
+		}
+
+		.category {
+			font-size: 16px;
 		}
 
 		.pp {
-			font-size: 22px;
+			font-size: 18px;
 			text-transform: uppercase;
 		}
+	}
+
+	/* Tab Navigation */
+	.tab.active {
+		border-bottom: 3px solid #ffd700;
+		color: #ffd700;
 	}
 </style>

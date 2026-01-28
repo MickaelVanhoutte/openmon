@@ -8,8 +8,7 @@
 		LineElement,
 		Filler
 	} from 'chart.js';
-	import abilities from '../../../assets/data/final/beta/abilities.json';
-	import { Nature, PokemonInstance } from '../../../js/pokemons/pokedex';
+	import { Nature, PokemonInstance, Stats } from '../../../js/pokemons/pokedex';
 	import { fade, slide } from 'svelte/transition';
 	import { backInOut } from 'svelte/easing';
 	import type { GameContext } from '../../../js/context/gameContext';
@@ -31,13 +30,15 @@
 
 	//let pkmnList: PokemonInstance[] = context.player.monsters;
 
+	type StatKey = 'hp' | 'attack' | 'defense' | 'specialAttack' | 'specialDefense' | 'speed';
+
 	$: selectedMons = pkmnList[selected];
 	$: statsKeys = Object.keys(selectedMons.stats).filter(
 		(key) => key !== 'total' && key !== 'accuracy' && key !== 'evasion'
-	);
-	$: percent = Math.floor((selectedMons.currentHp * 100) / selectedMons?.currentStats.hp);
+	) as Array<StatKey>;
+	$: totalStats = Object.values(selectedMons.currentStats).reduce((a, b) => a + b, 0);
 
-	function disabled(key: string, testValue: number) {
+	function disabled(key: StatKey, testValue: number) {
 		if (testValue > 0) {
 			// add 1/10, must have enough evs to distribute or not maxed
 			return (
@@ -48,8 +49,6 @@
 			return selectedMons.evs[key] === 0 || selectedMons.evs[key] + testValue <= 0;
 		}
 	}
-
-	let mechanicRegex = /\{mechanic:.*?\}/g;
 
 	function ivColor(value: number) {
 		if (value >= 21) {
@@ -65,9 +64,9 @@
 		if (nature.increasedStatId === nature.decreasedStatId) {
 			return 'white';
 		} else if (nature.increasedStatId === stat) {
-			return '#fb607c';
+			return '#FF4444';
 		} else if (nature.decreasedStatId === stat) {
-			return '#50aeff';
+			return '#4488FF';
 		} else {
 			return 'white';
 		}
@@ -92,16 +91,11 @@
 		}, 510);
 	}
 
-	function addEv(
-		stat: 'hp' | 'attack' | 'defense' | 'specialAttack' | 'specialDefense' | 'speed',
-		number: number
-	) {
+	function addEv(stat: StatKey, number: number) {
 		selectedMons.addEv(stat, number);
 		// fix force reload
 		selectedMons = selectedMons;
 	}
-
-	let chart;
 
 	$: data = {
 		labels: [
@@ -249,6 +243,12 @@
 			}
 		}, 610);
 	});
+
+	function getStatBarWidth(value: number) {
+		// Simple normalization for display. Adjust max as needed.
+		const max = 300;
+		return Math.min(100, (value / max) * 100) + '%';
+	}
 </script>
 
 <div
@@ -257,71 +257,80 @@
 	in:slide={{ duration: 500, delay: 100, axis: 'x', easing: backInOut }}
 	out:fade
 >
-	<div class="img-ability" class:enlarge={statEdit}>
-		<div class="img-wrapper">
-			<div class="img-bg">
-				<img src={selectedMons.getSprite()} alt="{selectedMons.name} img" />
+	<div class="content-grid">
+		<div class="left-panel">
+			<div class="img-ability">
+				<div class="img-wrapper">
+					<img src={selectedMons.getSprite()} alt="{selectedMons.name} img" />
+				</div>
+				<div class="ability-simple">
+					<span class="ability-label">Ability:</span>
+					<span class="ability-name">{selectedMons.currentAbility}</span>
+				</div>
 			</div>
 		</div>
 
-		<div class="ability">
-			<span class="_name">ABILITY [ {selectedMons.currentAbility} ]</span>
-			<div class="_desc">
-				{abilities
-					.find((ability) => ability.names === selectedMons.currentAbility)
-					?.description.replace(mechanicRegex, '')
-					.replace(/\[/g, '')
-					.replace(/\]/g, '')}
-			</div>
-		</div>
-	</div>
-	<div class="table-wrap">
-		<table>
-			<thead>
-				<tr>
-					<th>
+		<div class="right-panel">
+			<div class="stats-table">
+				<div class="stats-header-row">
+					<div class="col-label">
 						{#if !isBattle}
 							<button
 								bind:this={editBtn}
-								class="edit"
+								class="edit-btn"
 								class:flash={selectedMons.evsToDistribute > 0}
 								on:click={() => openEdition()}
 							>
-								<span class="svg">
-									<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-										><path
-											d="M5.33409 4.54491C6.3494 3.63637 7.55145 2.9322 8.87555 2.49707C9.60856 3.4128 10.7358 3.99928 12 3.99928C13.2642 3.99928 14.3914 3.4128 15.1245 2.49707C16.4486 2.9322 17.6506 3.63637 18.6659 4.54491C18.2405 5.637 18.2966 6.90531 18.9282 7.99928C19.5602 9.09388 20.6314 9.77679 21.7906 9.95392C21.9279 10.6142 22 11.2983 22 11.9993C22 12.7002 21.9279 13.3844 21.7906 14.0446C20.6314 14.2218 19.5602 14.9047 18.9282 15.9993C18.2966 17.0932 18.2405 18.3616 18.6659 19.4536C17.6506 20.3622 16.4486 21.0664 15.1245 21.5015C14.3914 20.5858 13.2642 19.9993 12 19.9993C10.7358 19.9993 9.60856 20.5858 8.87555 21.5015C7.55145 21.0664 6.3494 20.3622 5.33409 19.4536C5.75952 18.3616 5.7034 17.0932 5.0718 15.9993C4.43983 14.9047 3.36862 14.2218 2.20935 14.0446C2.07212 13.3844 2 12.7002 2 11.9993C2 11.2983 2.07212 10.6142 2.20935 9.95392C3.36862 9.77679 4.43983 9.09388 5.0718 7.99928C5.7034 6.90531 5.75952 5.637 5.33409 4.54491ZM13.5 14.5974C14.9349 13.7689 15.4265 11.9342 14.5981 10.4993C13.7696 9.0644 11.9349 8.57277 10.5 9.4012C9.06512 10.2296 8.5735 12.0644 9.40192 13.4993C10.2304 14.9342 12.0651 15.4258 13.5 14.5974Z"
-										></path></svg
-									>
-								</span>
-								<span>({selectedMons.evsToDistribute} EVs)</span>
+								Edit EVs
 							</button>
 						{/if}
-					</th>
-					<th>Value</th>
-					<th>IVs</th>
-					<th>EVs</th>
-				</tr>
-			</thead>
-			<tbody>
+					</div>
+					<div class="col-val">Value</div>
+					<div class="col-iv">IVs</div>
+					<div class="col-ev">EVs</div>
+				</div>
+
 				{#each statsKeys as key}
-					<tr>
-						<td style="color:{natureColor(key, selectedMons.nature)}"
-							>{key
-								.replace(/attack/i, 'atk')
-								.replace(/defense/i, 'def')
-								.replace('special', 'sp.')
-								.toUpperCase()}</td
-						>
-						<td>
-							{#if key === 'hp'}{selectedMons.currentHp} /{/if}{selectedMons.currentStats[key]}</td
-						>
-						<td style="color: {ivColor(selectedMons.ivs[key])}">{selectedMons.ivs[key]}</td>
-						<td>{selectedMons.evs[key]}</td>
-					</tr>
+					<div class="stats-row">
+						<div class="stat-label" style="color:{natureColor(key, selectedMons.nature)}">
+							{key
+								.replace(/attack/i, 'Atk')
+								.replace(/defense/i, 'Def')
+								.replace('special', 'Sp.')
+								.toUpperCase()}
+						</div>
+						<div class="stat-value-container">
+							<span class="stat-val-text">
+								{#if key === 'hp'}{selectedMons.currentHp}/{/if}{selectedMons.currentStats[key]}
+							</span>
+							<div class="stat-bar">
+								<div
+									class="stat-bar-fill"
+									style="width: {getStatBarWidth(
+										selectedMons.currentStats[key]
+									)}; background-color: {key === 'hp' ? '#FF0000' : '#F8D030'};"
+								></div>
+							</div>
+						</div>
+						<div class="stat-iv" style="color: {ivColor(selectedMons.ivs[key])}">
+							{selectedMons.ivs[key]}
+						</div>
+						<div class="stat-ev">
+							{selectedMons.evs[key]}
+						</div>
+					</div>
 				{/each}
-			</tbody>
-		</table>
+
+				<div class="stats-row total-row">
+					<div class="stat-label">TOTAL</div>
+					<div class="stat-value-container">
+						<span class="stat-val-text">{totalStats}</span>
+					</div>
+					<div class="stat-iv">-</div>
+					<div class="stat-ev">{selectedMons.evsToDistribute}</div>
+				</div>
+			</div>
+		</div>
 	</div>
 </div>
 
@@ -385,210 +394,203 @@
 		box-sizing: border-box;
 		position: relative;
 		display: flex;
-		flex-direction: row;
-		//background-color: #0e2742f0;
-		//background-image: url('src/assets/menus/p-sum.jpg');
+		flex-direction: column;
 		background: rgb(0, 29, 43);
-		background: -moz-linear-gradient(
-			140deg,
-			rgba(0, 29, 43, 1) 0%,
-			rgba(3, 84, 142, 1) 42%,
-			rgba(0, 195, 230, 1) 100%
-		);
-		background: -webkit-linear-gradient(
-			140deg,
-			rgba(0, 29, 43, 1) 0%,
-			rgba(3, 84, 142, 1) 42%,
-			rgba(0, 195, 230, 1) 100%
-		);
-		background: linear-gradient(
-			140deg,
-			rgba(0, 29, 43, 1) 0%,
-			rgba(3, 84, 142, 1) 42%,
-			rgba(0, 195, 230, 1) 100%
-		);
 		color: #fff;
-
-		text-shadow: 1px 1px 1px black;
-
+		text-shadow: 2px 2px 0 black;
 		z-index: var(--zIndex, 11);
+		font-family: 'pokemon', serif;
+
+		.content-grid {
+			display: flex;
+			flex: 1;
+			padding: 20px;
+			gap: 20px;
+		}
+
+		.left-panel {
+			width: 35%;
+			display: flex;
+			flex-direction: column;
+			gap: 20px;
+		}
 
 		.img-ability {
 			display: flex;
 			flex-direction: column;
-			width: 40%;
-			height: 100%;
+			align-items: center;
+			gap: 10px;
+		}
 
-			transition: width 0.5s ease-in-out;
+		.img-wrapper {
+			width: 100%;
+			max-height: 50%;
+			aspect-ratio: 1;
+			background: rgba(44, 56, 69, 0.65);
+			border: 2px solid #000;
+			display: flex;
+			align-items: center;
+			justify-content: center;
 
-			&.enlarge {
-				.ability {
-					height: 0;
-					opacity: 0;
-					padding: 0;
-				}
-
-				.img-wrapper {
-					height: 100%;
-				}
-			}
-
-			.img-wrapper {
-				height: 50%;
-				width: 100%;
-				display: flex;
-				flex-direction: column;
-				background-color: rgba(44, 56, 69, 0.65);
-				justify-content: space-between;
-
-				transition: all 0.5s ease-in-out;
-
-				.img-bg {
-					display: flex;
-					justify-content: center;
-					height: 100%;
-					width: 100%;
-
-					img {
-						transition-delay: 0.2s;
-						width: auto;
-						height: 50%;
-						margin: auto;
-					}
-				}
-			}
-
-			.ability {
-				border-top: 1px solid rgba(255, 255, 255, 0.2);
-				background-color: rgba(44, 56, 69, 0.65);
-				height: 50%;
-				width: 100%;
-				opacity: 1;
-				display: flex;
-				flex-direction: column;
-				box-sizing: border-box;
-				padding: 2%;
-				color: white;
-				justify-content: space-around;
-				align-items: center;
-
-				transition: all 0.5s ease-in-out;
-
-				._name {
-					font-size: 28px;
-				}
-
-				._desc {
-					font-size: 22px;
-					padding: 4%;
-				}
+			img {
+				width: 90%;
+				height: 90%;
+				object-fit: contain;
+				image-rendering: pixelated;
 			}
 		}
 
-		.table-wrap {
-			height: 100%;
-			width: 60%;
-			padding: 1%;
+		.ability-simple {
+			width: 100%;
+			background: #1c4b72;
+			border: 2px solid #000;
+			padding: 10px;
 			box-sizing: border-box;
-			background-color: rgba(44, 56, 69, 0.3);
+			text-align: center;
 
-			table {
+			.ability-label {
+				color: #aaa;
+				font-size: 16px;
+				display: block;
+				margin-bottom: 4px;
+			}
+
+			.ability-name {
+				font-size: 20px;
+				text-transform: uppercase;
+			}
+		}
+
+		.right-panel {
+			flex: 1;
+		}
+
+		.stats-table {
+			width: 100%;
+			display: flex;
+			flex-direction: column;
+			gap: 4px;
+		}
+
+		.stats-header-row {
+			display: grid;
+			grid-template-columns: 30% 20% 20% 20%;
+			padding-bottom: 10px;
+			border-bottom: 2px solid rgba(44, 56, 69, 0.8);
+			margin-bottom: 10px;
+			font-size: 18px;
+			color: #aaa;
+			text-align: center;
+
+			.col-label {
+				text-align: left;
+				padding-left: 10px;
+			}
+			.col-val {
+				text-align: right;
+			}
+			.col-iv {
+				text-align: right;
+			}
+			.col-ev {
+				text-align: right;
+			}
+		}
+
+		.stats-row {
+			height: 32px;
+			display: grid;
+			grid-template-columns: 30% 20% 20% 20%;
+			align-items: center;
+			font-size: 22px;
+
+			.stat-label {
+				text-align: left;
+				padding-left: 10px;
+			}
+
+			.stat-value-container {
+				text-align: right;
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: flex-end;
+				position: relative;
+				padding-right: 10px;
+			}
+
+			.stat-val-text {
+				z-index: 2;
+				position: relative;
+			}
+
+			.stat-bar {
+				height: 12px;
 				width: 100%;
-				max-height: calc(100dvh - 46px);
-				font-size: 26px;
+				background: #143855;
+				border: 2px solid #000;
+				margin-top: 2px;
+				border-radius: 4px;
+				overflow: hidden;
 
-				thead {
-					tr th {
-						color: white;
-						box-sizing: border-box;
-						border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-						text-align: end;
-						font-weight: 400;
-
-						button.edit {
-							background-color: transparent;
-							border: none;
-							cursor: pointer;
-							padding: 0;
-							margin: 0;
-							display: flex;
-							flex-direction: row-reverse;
-							align-items: center;
-							width: 100%;
-							justify-content: flex-start;
-							font-family: pokemon, serif;
-							font-size: 22px;
-							text-shadow: 1px 1px 1px black;
-							gap: 2%;
-							color: white;
-							outline: none;
-							-webkit-touch-callout: none;
-							-webkit-user-select: none;
-							-khtml-user-select: none;
-							-moz-user-select: none;
-							-ms-user-select: none;
-							user-select: none;
-							-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-
-							touch-action: pan-x pan-y;
-
-							svg {
-								width: 32px;
-								height: 32px;
-							}
-
-							&.flash .svg {
-								animation: flash 2s ease-in-out infinite;
-							}
-
-							@keyframes flash {
-								0% {
-									color: white;
-								}
-								50% {
-									color: #313e62;
-								}
-								100% {
-									color: white;
-								}
-							}
-						}
-					}
+				.stat-bar-fill {
+					height: 100%;
+					border-radius: 2px;
 				}
+			}
 
-				tbody {
-					tr {
-						box-sizing: border-box;
+			.stat-iv {
+				text-align: right;
+				padding-right: 10px;
+			}
 
-						td {
-							color: white;
-							padding: 1%;
-							box-sizing: border-box;
-							height: calc(100% / 7);
-							border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-							text-align: end;
-						}
-					}
-				}
+			.stat-ev {
+				text-align: right;
+				padding-right: 10px;
+			}
+		}
+
+		.total-row {
+			margin-top: 10px;
+			border-top: 2px solid rgba(44, 56, 69, 0.8);
+			padding-top: 10px;
+			font-weight: bold;
+
+			.stat-value-container {
+				/* No bar for total */
+				justify-content: center;
+			}
+		}
+
+		.edit-btn {
+			background: none;
+			border: 1px solid #aaa;
+			color: #aaa;
+			cursor: pointer;
+			font-family: inherit;
+			font-size: 14px;
+			padding: 2px 6px;
+
+			&:hover {
+				color: white;
+				border-color: white;
 			}
 		}
 	}
 
 	.stats-edit {
-		background: rgba(84, 80, 108, 0.85);
+		background: rgba(0, 29, 43, 0.95);
 		height: calc(100% - 46px);
 		width: 100%;
 		box-sizing: border-box;
 		position: absolute;
-
 		z-index: var(--zIndex, 11);
 		left: 0;
 		bottom: -100%;
 		transition: bottom 0.5s ease-in-out;
-
 		display: flex;
 		flex-direction: row;
-		text-shadow: 1px 1px 1px black;
+		text-shadow: 2px 2px 0 black;
 
 		&.open {
 			bottom: 0;
@@ -601,6 +603,7 @@
 			display: flex;
 			align-items: center;
 			justify-content: center;
+			border-right: 4px solid #000;
 
 			canvas {
 				width: 100%;
@@ -613,7 +616,7 @@
 			height: 100%;
 			box-sizing: border-box;
 			padding: 1%;
-			background: rgba(84, 80, 108, 1);
+			background: rgb(0, 29, 43);
 
 			table {
 				table-layout: fixed;
@@ -623,15 +626,19 @@
 				width: 100%;
 				box-sizing: border-box;
 				color: #fff;
-
 				max-height: calc(100dvh - 46px);
 				font-size: 20px;
 
 				thead {
 					tr th {
-						text-align: end;
+						text-align: center;
 						font-weight: 400;
 						font-size: 20px;
+						border-bottom: 4px solid #000;
+
+						&:first-child {
+							text-align: left;
+						}
 					}
 				}
 
@@ -644,21 +651,20 @@
 
 						td {
 							height: calc((100dvh - 46px - 16) / 6);
-							border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-							text-align: end;
+							border-bottom: 2px solid rgba(44, 56, 69, 0.8);
+							text-align: center;
 							color: var(--color, white);
 							font-size: 18px;
 							padding: 1%;
 							box-sizing: border-box;
 
 							&:first-of-type {
-								text-align: end;
+								text-align: left;
 							}
 
 							div.value {
 								display: flex;
 								justify-content: space-between;
-
 								span {
 									color: var(--color, white);
 								}
@@ -667,8 +673,9 @@
 							.inputs {
 								display: flex;
 								flex-direction: row;
-								justify-content: space-between;
+								justify-content: center;
 								align-items: center;
+								gap: 10px;
 
 								.double {
 									display: flex;
@@ -677,23 +684,25 @@
 
 									button {
 										outline: none;
-										-webkit-touch-callout: none;
-										-webkit-user-select: none;
-										-khtml-user-select: none;
-										-moz-user-select: none;
-										-ms-user-select: none;
-										user-select: none;
-										-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-										touch-action: pan-x pan-y;
-
-										border-radius: 4px;
-										border: 1px solid black;
-										background: rgba(84, 80, 108, 0.2);
+										border-radius: 0;
+										border: 2px solid #000;
+										background: #1c4b72;
 										color: white;
 										padding: 6px 12px;
+										box-shadow: 2px 2px 0 black;
+										cursor: pointer;
+
+										&:active {
+											transform: translate(2px, 2px);
+											box-shadow: none;
+										}
 
 										&[disabled] {
-											background-color: rgba(255, 255, 255, 0.5);
+											background-color: rgba(44, 56, 69, 0.5);
+											color: #666;
+											border-color: rgba(0, 29, 43, 0.8);
+											box-shadow: none;
+											transform: none;
 										}
 									}
 								}

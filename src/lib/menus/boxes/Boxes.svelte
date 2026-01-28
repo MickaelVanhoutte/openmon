@@ -33,6 +33,27 @@
 	let firstSelection: BoxSelection | undefined;
 	export let pkmnListSelectedIndex: number = 0;
 
+	let touchStartX = 0;
+	let touchEndX = 0;
+
+	function handleTouchStart(e: TouchEvent) {
+		touchStartX = e.changedTouches[0].screenX;
+	}
+
+	function handleTouchEnd(e: TouchEvent) {
+		touchEndX = e.changedTouches[0].screenX;
+		handleSwipe();
+	}
+
+	function handleSwipe() {
+		if (touchEndX < touchStartX - 50) {
+			nextBox();
+		}
+		if (touchEndX > touchStartX + 50) {
+			prevBox();
+		}
+	}
+
 	function openOptions(selection: BoxSelection) {
 		if (!firstSelection && selection.selected instanceof PokemonInstance) {
 			selectZone = selection.zone;
@@ -304,7 +325,13 @@
 
 	<div class="preview" class:opened={previewOpened}></div>
 
-	<div class="box">
+	<div
+		class="box"
+		on:touchstart={handleTouchStart}
+		on:touchend={handleTouchEnd}
+		role="region"
+		aria-label="Pokemon Box"
+	>
 		<div class="box-change" class:over={selectZone === 'box-change'}>
 			<button on:click={() => prevBox()} class:hover={changeLeftHover}>
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
@@ -392,33 +419,24 @@
 		left: 0;
 		width: 100dvw;
 		height: 100dvh;
-		//background-image: url('src/assets/menus/p-sum.jpg');
-		//background-size: cover;
-		//background-position: top left;
-		//background-repeat: round;
-		background: rgb(0, 29, 43);
-		background: -moz-linear-gradient(
-			140deg,
-			rgba(0, 29, 43, 1) 0%,
-			rgba(3, 84, 142, 1) 42%,
-			rgba(0, 195, 230, 1) 100%
-		);
-		background: -webkit-linear-gradient(
-			140deg,
-			rgba(0, 29, 43, 1) 0%,
-			rgba(3, 84, 142, 1) 42%,
-			rgba(0, 195, 230, 1) 100%
-		);
-		background: linear-gradient(
-			140deg,
-			rgba(0, 29, 43, 1) 0%,
-			rgba(3, 84, 142, 1) 42%,
-			rgba(0, 195, 230, 1) 100%
-		);
+		background: #202020;
 		z-index: 10;
 
 		display: flex;
 		flex-direction: row;
+		gap: 16px;
+		padding: 16px;
+		box-sizing: border-box;
+
+		// Shared Panel Styles
+		.party,
+		.box,
+		.options {
+			background: #143855; // var(--pixel-bg-panel)
+			border: 2px solid #000;
+			box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
+			border-radius: 0;
+		}
 
 		.options {
 			position: absolute;
@@ -428,17 +446,10 @@
 			bottom: -100%;
 			right: 1%;
 			padding: 22px 36px 22px 36px;
-			background: rgb(220, 231, 233);
-			background: linear-gradient(
-				180deg,
-				rgba(220, 231, 233, 1) 0%,
-				rgba(255, 255, 255, 1) 50%,
-				rgba(220, 231, 233, 0.713344712885154) 100%
-			);
-			border: 2px solid #54506c;
-			border-radius: 8px;
+			color: white;
 			box-sizing: border-box;
 			transition: bottom 0.3s ease-in-out;
+			z-index: 20;
 
 			&.opened {
 				bottom: 1%;
@@ -453,13 +464,14 @@
 				gap: 16px;
 
 				li {
+					cursor: pointer;
 					&.selected::before {
 						content: '';
 						width: 0;
 						height: 0;
 						border-top: 12px solid transparent;
 						border-bottom: 12px solid transparent;
-						border-left: 12px solid #262626;
+						border-left: 12px solid #ffd700;
 						position: absolute;
 						left: 5px;
 						margin-top: 2px;
@@ -471,56 +483,70 @@
 		.party {
 			height: 100%;
 			width: 25%;
+			min-width: 220px;
 
 			display: flex;
 			flex-direction: column;
 
 			.title {
-				height: 46px;
+				height: 60px;
 				width: 100%;
 
 				display: flex;
 				flex-direction: row;
 				justify-content: flex-start;
 				align-items: center;
-				padding: 1%;
+				padding: 8px;
 				box-sizing: border-box;
 
 				.cancel {
-					height: 46px;
-					width: 46px;
+					height: 44px;
+					width: 44px;
 					color: white;
-					background-color: transparent;
-					border: none;
+					background-color: #0088cc;
+					border: 2px solid #000;
+					box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
 					outline: none;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					cursor: pointer;
+
+					&:hover {
+						filter: brightness(1.1);
+					}
 				}
 			}
 
 			.entries {
-				height: calc(100dvh - 50px);
+				height: calc(100% - 60px);
 				width: 100%;
 				overflow-y: auto;
 				display: flex;
 				flex-direction: column;
 				align-items: center;
 				justify-content: flex-start;
-				gap: 1%;
+				gap: 8px;
+				padding: 8px;
+				box-sizing: border-box;
 
 				.entry {
 					color: white;
 					font-size: 18px;
-					height: calc((100dvh - 50px - 6%) / 6);
-					width: 23dvw;
+					height: 64px;
+					width: 100%;
 					margin: 0 auto;
 					display: flex;
 					flex-direction: row;
 					align-items: center;
 					justify-content: space-between;
 					box-sizing: border-box;
-					background-color: rgba(0, 0, 0, 0.5);
-					border-radius: 4px;
+					background: rgba(0, 0, 0, 0.2);
+					border-radius: 0;
 					padding-left: 4%;
 					position: relative;
+					border: 2px solid #000;
+					box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
 
 					img.moving {
 						position: absolute;
@@ -538,7 +564,9 @@
 
 					&:hover,
 					&.over {
-						background-color: rgba(255, 255, 255, 0.2);
+						border: 3px solid #ffd700;
+						animation: pixel-pulse 1s ease-in-out infinite;
+						z-index: 1;
 					}
 
 					img {
@@ -551,16 +579,18 @@
 		.box {
 			height: 100%;
 			width: 75%;
+			display: flex;
+			flex-direction: column;
 
 			.box-change {
 				display: flex;
 				flex-direction: row;
 				justify-content: space-between;
 				align-items: center;
-				height: 46px;
-				width: 99%;
+				height: 60px;
+				width: 100%;
 				box-sizing: border-box;
-				padding: 1% 3.5%;
+				padding: 0 20px;
 				position: relative;
 
 				img.moving {
@@ -571,6 +601,11 @@
 				}
 
 				span {
+					color: white;
+					font-family: pokemon, serif;
+					font-size: 24px;
+					text-shadow: 2px 2px 0 #000;
+
 					&.hover {
 						text-decoration: underline;
 						color: white;
@@ -578,68 +613,90 @@
 				}
 
 				button {
-					min-width: 10%;
-					height: 100%;
+					min-width: 44px;
+					min-height: 44px;
+					height: 44px;
 					font-size: 26px;
 					text-align: center;
 					font-family: pokemon, serif;
 					color: white;
-					text-shadow: 3px 1px 2px #54506c;
-					background-color: #5c438966;
-					border-radius: 4px;
-					border: 2px solid rgba(0, 0, 0, 0.7);
+					text-shadow: 2px 2px 0 #000;
+					background-color: #0088cc;
+					border-radius: 0;
+					border: 2px solid #000;
+					box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
+					cursor: pointer;
+					display: flex;
+					align-items: center;
+					justify-content: center;
 
-					&.hover {
-						background-color: rgba(0, 0, 0, 0.66);
+					&.hover,
+					&:hover {
+						filter: brightness(1.1);
+						transform: translate(1px, 1px);
+						box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.4);
 					}
 
 					svg {
-						height: 100%;
+						height: 24px;
 						width: auto;
 					}
 				}
 			}
 
 			.entries {
-				display: flex;
-				flex-direction: row;
-				flex-wrap: wrap;
-				gap: 1%;
+				display: grid;
+				grid-template-columns: repeat(8, 1fr);
+				grid-template-rows: repeat(5, 1fr);
+				gap: 6px;
 				box-sizing: border-box;
 				width: 100%;
-				height: calc(100dvh - 50px);
+				height: calc(100% - 60px);
+				padding: 12px;
+				justify-content: center;
+				align-content: center;
 
 				.entry {
-					width: calc(94% / 6);
-					height: calc(92% / 6);
-					background-color: rgba(0, 0, 0, 0.5);
+					width: 100%;
+					height: 100%;
+					max-width: 72px;
+					max-height: 72px;
+					background: rgba(0, 0, 0, 0.2);
 					display: flex;
 					justify-content: center;
 					align-items: center;
 					align-content: center;
 					flex-direction: row;
 					position: relative;
-					border-radius: 4px;
+					border-radius: 0;
+					border: 2px solid #000;
+					box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
 
 					&.over {
-						background-color: rgba(255, 255, 255, 0.2);
+						background-color: transparent;
+						border: 3px solid #ffd700;
+						animation: pixel-pulse 1s ease-in-out infinite;
+						z-index: 10;
+						box-shadow: none;
 					}
 
 					.title {
 						position: absolute;
-						top: -24px;
+						top: -30px;
 						right: -12.5%;
 						width: 125%;
-						height: 16px;
+						height: auto;
 						background-color: white;
 						color: black;
 						text-align: center;
-						padding: 2px;
-						border-radius: 8px;
+						padding: 4px;
+						border-radius: 0;
+						border: 2px solid #000;
 						font-size: 16px;
 						display: none;
+						z-index: 20;
 
-						box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.5);
+						box-shadow: 4px 4px 0 0 rgba(0, 0, 0, 0.5);
 
 						&.show {
 							display: block;
@@ -662,6 +719,16 @@
 					}
 				}
 			}
+		}
+	}
+
+	@keyframes pixel-pulse {
+		0%,
+		100% {
+			border-color: #ffd700;
+		}
+		50% {
+			border-color: #ffffff;
 		}
 	}
 </style>

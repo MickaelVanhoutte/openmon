@@ -38,7 +38,7 @@
 
 <style lang="scss">
 	.moveEdit {
-		background: rgba(84, 80, 108, 0.85);
+		background: rgba(0, 29, 43, 0.95);
 		height: calc(100% - 46px);
 		width: 100%;
 		box-sizing: border-box;

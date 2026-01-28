@@ -53,7 +53,7 @@
 					</tr>
 				</thead>
 				<tbody>
-					{#each pokemon.moves.filter(m => m.method === 1) as move}
+					{#each pokemon.moves.filter((m) => m.method === 1) as move}
 						<tr on:click={() => openModal(move)}>
 							<td>
 								{pokemon.viewed ? move.level : '???'}
@@ -65,7 +65,8 @@
 								<div class="types">
 									<div class="type" style="--tcolor:{typeChart[move.type].color}">
 										<!-- <img alt={move.type} src="src/assets/types/{move.type}.svg" /> -->
-										<svg use:inlineSvg={`src/assets/types/${move.type}.svg`} fill="currentColor"> </svg>
+										<svg use:inlineSvg={`src/assets/types/${move.type}.svg`} fill="currentColor">
+										</svg>
 									</div>
 								</div>
 							</td>
@@ -105,7 +106,7 @@
 	{#if currentMove?.effect && showDetail}
 		<hr />
 		<h5>Detail</h5>
-		<p  style="margin: 0">
+		<p style="margin: 0">
 			{currentMove?.effect?.effect
 				.replace(mechanicRegex, '')
 				.replace(/\[/g, '')
@@ -130,6 +131,7 @@
 		background-size: contain;
 		background-repeat: no-repeat;
 		background-blend-mode: hard-light;
+		background-color: #143855;
 
 		.moves {
 			width: 100%;
@@ -138,7 +140,7 @@
 			scrollbar-width: thin;
 			scrollbar-color: #68c0c8 #0e2742f0;
 			display: block;
-			padding: 2%;
+			padding: 0;
 			box-sizing: border-box;
 
 			&.hide {
@@ -152,23 +154,38 @@
 				font-size: 22px;
 
 				th {
-					color: #000;
+					color: #fff;
 					padding: 8px;
-					background-color: #fff;
+					background-color: #0088cc;
+					border-bottom: 2px solid #000;
+					text-shadow: 1px 1px 0 #000;
 				}
 
 				//odd rows
 				tr:nth-child(even) {
-					background-color: rgba(0, 0, 0, 0.4);
+					background-color: rgba(0, 0, 0, 0.2);
+				}
+
+				tr {
+					border-bottom: 1px solid #0d2538;
+					cursor: pointer;
+
+					&:hover {
+						background-color: rgba(255, 215, 0, 0.2);
+					}
 				}
 
 				td {
 					padding: 8px;
 					text-align: center;
 					box-sizing: border-box;
+					border-bottom: 1px solid #0d2538;
+					text-shadow: 1px 1px 0 #000;
+
 					.move-cat {
 						height: 22px;
 						width: auto;
+						filter: drop-shadow(1px 1px 0 #000);
 					}
 				}
 			}
@@ -181,6 +198,7 @@
 		flex-direction: row;
 		justify-content: flex-start;
 		flex-wrap: wrap;
+		justify-content: center;
 
 		&.smaller {
 			gap: 4px;
@@ -194,13 +212,14 @@
 		.type {
 			font-size: 20px;
 			text-transform: uppercase;
-			border-radius: 4px;
+			border-radius: 0;
 			height: 30px;
-			text-shadow: 0 0 3px #000;
+			text-shadow: 1px 1px 0 #000;
 			filter: saturate(100%) brightness(110%);
 			transition: all 0.2s;
 			background: var(--tcolor);
-			box-shadow: 0 0 6px var(--tcolor);
+			border: 2px solid #000;
+			box-shadow: none;
 			display: flex;
 			justify-content: space-around;
 			align-items: center;
@@ -212,9 +231,11 @@
 			span {
 				color: white;
 			}
-			img,svg {
+			img,
+			svg {
 				height: 22px;
 				width: auto;
+				filter: drop-shadow(1px 1px 0 #000);
 			}
 		}
 	}

@@ -150,10 +150,13 @@
 		font-size: 20px;
 		animation: fadeIn 0.5s ease-in forwards;
 		opacity: 0;
-		height: 50%;
+		height: auto;
 		width: 25%;
-		perspective: 100dvw;
 		pointer-events: none;
+		background: #143855;
+		border: 2px solid #000;
+		box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
+		padding: 8px;
 
 		&.double {
 			left: calc(22% + var(--offSet) * -1 * 22%);
@@ -162,7 +165,6 @@
 		.rotate {
 			height: 100%;
 			width: 100%;
-			transform: rotateY(40deg);
 			display: flex;
 			flex-direction: column;
 			gap: 4px;
@@ -181,8 +183,8 @@
 					color: var(--color);
 					text-shadow: 1px 0px 0px var(--color);
 					letter-spacing: 1.5px;
-					background-color: rgba(255, 255, 255, 0.85);
-					border-radius: 4px;
+					background-color: #ffffff;
+					border: 2px solid #000;
 					padding: 4px;
 				}
 			}
@@ -195,8 +197,14 @@
 
 				font-size: 24px;
 				font-weight: 500;
-				text-shadow: 1px 1px 1px #787b7e;
-				filter: drop-shadow(2px 2px 5px white) invert(1);
+				text-shadow: 1px 1px 1px #000;
+
+				span:first-child {
+					color: #ffffff;
+				}
+				span:last-child {
+					color: #ffd700;
+				}
 			}
 
 			.hp-status {
@@ -214,7 +222,8 @@
 				.status-badge {
 					display: inline-block;
 					padding: 2px 8px;
-					border-radius: 4px;
+					border: 2px solid #000;
+					box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
 					font-size: 12px;
 					font-weight: bold;
 					color: white;
@@ -225,26 +234,24 @@
 			}
 
 			.exp {
-				width: 98%;
+				width: 100%;
 				display: flex;
-				padding: 1px 2px;
-				background-color: rgba(0, 0, 0, 0.25);
+				padding: 0;
+				background-color: transparent;
 				align-items: center;
 				justify-content: space-evenly;
-				border-radius: 2px;
 
 				.progressbar-wrapper {
 					height: 6px;
 					width: 100%;
-					background-color: rgba(0, 0, 0, 0.15);
-					border-radius: 2px;
+					background-color: #0d2538;
+					border: 2px solid #000;
 					position: relative;
 
 					.progressbar {
 						width: var(--width);
 						height: 100%;
 						background: #0e73cf;
-						border-radius: 2px;
 						transition: width 1s ease-in-out;
 					}
 				}
@@ -253,12 +260,11 @@
 			.hp {
 				width: 100%;
 				display: flex;
-				background-color: rgba(0, 0, 0, 0.45);
+				background-color: transparent;
 				font-size: 20px;
 				color: orange;
 				align-items: center;
 				justify-content: space-evenly;
-				border-radius: 4px;
 				padding: 2px;
 
 				& > span {
@@ -267,10 +273,10 @@
 				}
 
 				.progressbar-wrapper {
-					height: 16px;
+					height: 12px;
 					width: 100%;
-					background-color: rgba(0, 0, 0, 0.25);
-					border-radius: 2px;
+					background-color: #0d2538;
+					border: 2px solid #000;
 					position: relative;
 
 					.hp-value {
@@ -280,19 +286,14 @@
 						left: 50%;
 						top: 50%;
 						transform: translate(-50%, -50%);
+						text-shadow: 1px 1px 0 #000;
+						z-index: 1;
 					}
 
 					.progressbar {
 						width: var(--width);
 						height: 100%;
-						background: rgb(184, 244, 166);
-						background: linear-gradient(
-							0deg,
-							rgb(86, 170, 58) 0%,
-							rgb(86, 170, 58) 50%,
-							rgb(86, 170, 58) 100%
-						);
-						border-radius: 2px;
+						background: rgb(86, 170, 58);
 						display: flex;
 						text-align: center;
 						align-items: center;
@@ -300,23 +301,11 @@
 						transition: width 1s ease-in-out;
 
 						&.warning {
-							background: rgb(255, 241, 164);
-							background: linear-gradient(
-								0deg,
-								rgba(255, 194, 16, 1) 0%,
-								rgba(255, 194, 16, 1) 50%,
-								rgba(255, 194, 16, 1) 100%
-							);
+							background: rgba(255, 194, 16, 1);
 						}
 
 						&.danger {
-							background: rgb(244, 177, 159);
-							background: linear-gradient(
-								0deg,
-								rgba(223, 85, 48, 1) 0%,
-								rgba(223, 85, 48, 1) 50%,
-								rgba(223, 85, 48, 1) 100%
-							);
+							background: rgba(223, 85, 48, 1);
 						}
 					}
 				}

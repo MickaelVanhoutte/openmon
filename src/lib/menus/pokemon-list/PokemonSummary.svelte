@@ -27,10 +27,10 @@
 	const tabs: Record<number, string> = {
 		0: '$POKEMON INFO',
 		1: '$POKEMON STATS',
-		2: '$POKEMON MOVES',
+		2: '$POKEMON MOVES'
 	};
 
-	$: filteredList = <Array<PokemonInstance>>(pkmnList.filter((pkmn) => pkmn !== undefined));
+	$: filteredList = <Array<PokemonInstance>>pkmnList.filter((pkmn) => pkmn !== undefined);
 	$: selectedMons = filteredList[selected];
 	$: evs = selectedMons.evs;
 
@@ -94,7 +94,6 @@
 			window.removeEventListener('keydown', listener);
 		};
 	});
-
 </script>
 
 <div
@@ -132,7 +131,12 @@
 
 	<div class="tab-content">
 		{#if tab === 0}
-			<PokemonInfo bind:context bind:selected bind:zIndex={zIndexNext} bind:pkmnList={filteredList} />
+			<PokemonInfo
+				bind:context
+				bind:selected
+				bind:zIndex={zIndexNext}
+				bind:pkmnList={filteredList}
+			/>
 		{:else if tab === 1}
 			<PokemonStats
 				bind:context
@@ -166,6 +170,7 @@
 		width: 100dvw;
 		height: 100dvh;
 		z-index: var(--zIndex, 10);
+		background-color: rgb(0, 29, 43);
 
 		.nav {
 			height: 46px;
@@ -174,7 +179,8 @@
 			display: flex;
 			align-items: center;
 
-			background-color: #0078c0;
+			background-color: #0088cc;
+			border-bottom: 2px solid #000;
 			font-size: 32px;
 			color: white;
 			text-shadow: 1px 1px 1px black;
@@ -201,9 +207,12 @@
 			.tabs a {
 				color: white;
 				border: none;
+				padding-bottom: 4px;
+				border-bottom: 3px solid transparent;
 
 				&.active {
 					color: #68c0c8;
+					border-bottom: 3px solid #ffd700;
 				}
 			}
 
@@ -279,14 +288,14 @@
 				}
 
 				&:nth-child(4) {
-					border-radius: 0 50px 50px 0;
+					border-radius: 0;
 				}
 
 				span:not(.arrow) {
 					height: 26px;
 					width: 18px;
 					background-color: #0078c0;
-					border-radius: 16px;
+					border-radius: 0;
 					position: absolute;
 					z-index: 9;
 					top: 50%;
@@ -300,29 +309,8 @@
 			height: calc(100% - 46px);
 			width: 100%;
 			box-sizing: border-box;
-			background-color: #0e2742f0;
-			//background-image: url('src/assets/menus/p-sum.jpg');
-			background: rgb(0, 29, 43);
-			background: -moz-linear-gradient(
-				140deg,
-				rgba(0, 29, 43, 1) 0%,
-				rgba(3, 84, 142, 1) 42%,
-				rgba(0, 195, 230, 1) 100%
-			);
-			background: -webkit-linear-gradient(
-				140deg,
-				rgba(0, 29, 43, 1) 0%,
-				rgba(3, 84, 142, 1) 42%,
-				rgba(0, 195, 230, 1) 100%
-			);
-			background: linear-gradient(
-				140deg,
-				rgba(0, 29, 43, 1) 0%,
-				rgba(3, 84, 142, 1) 42%,
-				rgba(0, 195, 230, 1) 100%
-			);
+			background: transparent;
 			color: #fff;
-			background-blend-mode: soft-light;
 		}
 	}
 </style>

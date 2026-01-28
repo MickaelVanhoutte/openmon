@@ -4,7 +4,7 @@
 	import { Dialog, Message } from '../../js/scripting/scripts';
 	import type { GameContext } from '../../js/context/gameContext';
 	import { SceneType } from '../../js/context/overworldContext';
-	import type { Unsubscriber } from 'svelte/motion';
+	import type { Unsubscriber } from 'svelte/store';
 
 	export let context: GameContext;
 	export let canvasWidth: number;
@@ -18,7 +18,7 @@
 	let monsters = [
 		context.POKEDEX.findById(1).result,
 		context.POKEDEX.findById(4).result,
-		context.POKEDEX.findById(7).result,
+		context.POKEDEX.findById(7).result
 	];
 
 	let angle = 0;
@@ -41,7 +41,7 @@
 	}
 
 	function select() {
-		context.player.monsters[0]= currentPokemon.instanciate(5, 20);
+		context.player.monsters[0] = currentPokemon.instanciate(5, 20);
 		context.POKEDEX.setCaught(currentPokemon.id);
 		context.player.setFollower(context.player.monsters[0]);
 		context.overWorldContext.endScene(SceneType.STARTER_SELECTION);
@@ -127,6 +127,7 @@
 		{#each monsters as monster, index}
 			<div
 				class="pokeball"
+				class:selected={monster.id === currentPokemon.id}
 				style="--translateZ:{translateZ}px;
                  --rotateY: {index * (360 / monsters?.length)}deg;"
 			>
@@ -155,7 +156,7 @@
 		height: 100dvh;
 		width: var(--cnv-width, 100dvw);
 		z-index: 7;
-		background: rgba(0, 0, 0, 0.6);
+		background: #1c4b72;
 		perspective: 700px;
 		perspective-origin: center;
 
@@ -171,13 +172,18 @@
 			transition: all 0.5s ease-in-out;
 
 			.pokeball {
-				border-radius: 50%;
 				width: 25dvh;
 				height: 25dvh;
 				position: absolute;
 				margin-top: -10dvh;
-				background: rgba(0, 0, 0, 0.6);
+				background: #143855;
+				border: 2px solid #000;
+				box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
 				transform: rotateY(var(--rotateY, 0deg)) translateZ(var(--translateZ, 0px));
+
+				&.selected {
+					border: 3px solid #ffd700;
+				}
 
 				&::before {
 					content: '';
@@ -185,7 +191,6 @@
 					width: 100%;
 					opacity: 0.4;
 					z-index: -1;
-					border-radius: 50%;
 					border: 4px solid black;
 					box-sizing: border-box;
 					background: url(src/assets/common/squared-ball.png);

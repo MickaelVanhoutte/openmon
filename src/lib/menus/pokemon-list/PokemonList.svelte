@@ -20,7 +20,13 @@
 	export let zIndex: number;
 
 	let battleSummaryOpened = false;
-	$: numberOfOptions = !!itemToUse ? 2 : isBattle ? combo? (context.player.monsters.at(selected)?.moves?.length || 0) : 3 : 4;
+	$: numberOfOptions = !!itemToUse
+		? 2
+		: isBattle
+			? combo
+				? context.player.monsters.at(selected)?.moves?.length || 0
+				: 3
+			: 4;
 	let switchToIdx: number | undefined = undefined;
 	let openOptions = false;
 	let optionSelected = 0;
@@ -68,8 +74,8 @@
 	export let onChange: (poke: PokemonInstance | undefined) => void;
 	$: onChange(currentBattlePokemon);
 
-	let currentCombo: {pokemon: PokemonInstance, move: MoveInstance} | undefined = undefined;
-	export let onCombo: (combo: {pokemon: PokemonInstance, move: MoveInstance} | undefined) => void;
+	let currentCombo: { pokemon: PokemonInstance; move: MoveInstance } | undefined = undefined;
+	export let onCombo: (combo: { pokemon: PokemonInstance; move: MoveInstance } | undefined) => void;
 	$: onCombo(currentCombo);
 
 	function switchNow() {
@@ -107,13 +113,13 @@
 
 	function closeList() {
 		if (isBattle && combo) {
-			combo = false; 
+			combo = false;
 		} else if (isBattle && !itemToUse) {
 			//context.overWorldContext.closeMenu(MenuType.SWITCH);
 			battleSwitchOpened = false;
 		} else {
 			context.overWorldContext.closeMenu(MenuType.POKEMON_LIST);
-			if(context.overWorldContext.menus.bagOpened){
+			if (context.overWorldContext.menus.bagOpened) {
 				context.overWorldContext.closeMenu(MenuType.BAG);
 			}
 		}
@@ -138,7 +144,7 @@
 		comboPokemon = context.player.monsters.at(selected);
 		if (combo && comboPokemon) {
 			combo = false;
-			currentCombo = {pokemon: comboPokemon, move: comboPokemon.moves[index]};
+			currentCombo = { pokemon: comboPokemon, move: comboPokemon.moves[index] };
 		}
 	}
 
@@ -222,10 +228,7 @@
 			>
 				<div class="header">
 					<div class="img-wrapper">
-						<img
-							src={first?.getSprite()}
-							alt={first?.name}
-						/>
+						<img src={first?.getSprite()} alt={first?.name} />
 					</div>
 					<div>
 						<span>{first?.name}</span>
@@ -260,10 +263,7 @@
 				>
 					<div class="header">
 						<div class="img-wrapper">
-							<img
-								src={monster?.getSprite()}
-								alt={monster.name}
-							/>
+							<img src={monster?.getSprite()} alt={monster.name} />
 						</div>
 						<div>
 							<span>{monster.name}</span>
@@ -298,8 +298,9 @@
 	<div class="options" class:hidden={!openOptions}>
 		{#if combo && battleContext && battleContext.player.monsters.at(selected)}
 			<ul>
-				{#each (battleContext.player.monsters.at(selected)?.moves || []) as move, index }
-					<li class:selected={optionSelected === index}
+				{#each battleContext.player.monsters.at(selected)?.moves || [] as move, index}
+					<li
+						class:selected={optionSelected === index}
 						on:click={() => {
 							selectCombo(index);
 							closeList();
@@ -310,34 +311,38 @@
 				{/each}
 			</ul>
 		{:else}
-		<ul>
-			{#if !!itemToUse}
-				<li class:selected={optionSelected === 0} on:click={() => useItem()}>USE ({itemName})</li>
-				<li class:selected={optionSelected === 1} on:click={() => (openOptions = false)}>CANCEL</li>
-			{:else}
-				<li class:selected={optionSelected === 0} on:click={() => summarize()}>SUMMARY</li>
-				{#if !isBattle || selected !== 0}
-					<li
-						class:selected={optionSelected === 1}
-						on:click={() => (isBattle ? switchNow() : saveSwitch())}
-					>
-						SWITCH
+			<ul>
+				{#if !!itemToUse}
+					<li class:selected={optionSelected === 0} on:click={() => useItem()}>USE ({itemName})</li>
+					<li class:selected={optionSelected === 1} on:click={() => (openOptions = false)}>
+						CANCEL
+					</li>
+				{:else}
+					<li class:selected={optionSelected === 0} on:click={() => summarize()}>SUMMARY</li>
+					{#if !isBattle || selected !== 0}
+						<li
+							class:selected={optionSelected === 1}
+							on:click={() => (isBattle ? switchNow() : saveSwitch())}
+						>
+							SWITCH
+						</li>
+					{/if}
+					{#if !isBattle}
+						<li
+							class:selected={optionSelected === 2}
+							on:click={() => {
+								context.overWorldContext.openMenu(MenuType.BAG);
+								openOptions = false;
+							}}
+						>
+							ITEM
+						</li>
+					{/if}
+					<li class:selected={optionSelected === 3} on:click={() => (openOptions = false)}>
+						CANCEL
 					</li>
 				{/if}
-				{#if !isBattle}
-					<li
-						class:selected={optionSelected === 2}
-						on:click={() => {
-							context.overWorldContext.openMenu(MenuType.BAG);
-							openOptions = false;
-						}}
-					>
-						ITEM
-					</li>
-				{/if}
-				<li class:selected={optionSelected === 3} on:click={() => (openOptions = false)}>CANCEL</li>
-			{/if}
-		</ul>
+			</ul>
 		{/if}
 	</div>
 </div>
@@ -433,28 +438,7 @@
 		left: 0;
 		width: 100dvw;
 		height: 100dvh;
-		//background-image: url('src/assets/menus/p-sum.jpg');
-		//background-size: cover;
-		background: rgb(0, 29, 43);
-		background: -moz-linear-gradient(
-			140deg,
-			rgba(0, 29, 43, 1) 0%,
-			rgba(3, 84, 142, 1) 42%,
-			rgba(0, 195, 230, 1) 100%
-		);
-		background: -webkit-linear-gradient(
-			140deg,
-			rgba(0, 29, 43, 1) 0%,
-			rgba(3, 84, 142, 1) 42%,
-			rgba(0, 195, 230, 1) 100%
-		);
-		background: linear-gradient(
-			140deg,
-			rgba(0, 29, 43, 1) 0%,
-			rgba(3, 84, 142, 1) 42%,
-			rgba(0, 195, 230, 1) 100%
-		);
-
+		background-color: #1c4b72;
 		background-position: top left;
 		background-repeat: round;
 		z-index: var(--zIndex, 8);
@@ -463,7 +447,7 @@
 			height: 100%;
 			width: 100%;
 			display: flex;
-			background-color: rgba(44, 56, 69, 0.3);
+			background-color: transparent;
 
 			.first {
 				width: 40%;
@@ -489,6 +473,7 @@
 
 					&.empty {
 						background: none;
+						border: none;
 					}
 				}
 			}
@@ -504,14 +489,12 @@
 
 				padding: 0 2% 0 0;
 				box-sizing: border-box;
-				border-radius: 8px 8px 8px 8px;
+				border-radius: 0;
 				justify-content: space-between;
 				align-items: center;
 
-				border: 2px solid rgba(0, 0, 0, 0.7);
-				background-color: rgba(0, 0, 0, 0.5);
-				//background-color: #4ba1de;
-				//background-image: linear-gradient(0deg, #95cfe0 46%, #4ba1de 46%, #4ba1de 50%, #95cfe0 50%, #95CFE0 56%, #4BA1DE 56%, #4ba1de 100%);
+				border: 2px solid #000;
+				background-color: #143855;
 				background-size: 100% 100%;
 
 				&.big {
@@ -542,21 +525,11 @@
 				}
 
 				&.selected {
-					//border: 4px solid #f27241;
-					background-color: #8edeee;
-					background-image: linear-gradient(
-						0deg,
-						#bbf2fe 46%,
-						#8edeee 46%,
-						#8edeee 50%,
-						#bbf2fe 50%,
-						#bbf2fe 56%,
-						#8edeee 56%,
-						#8edeee 100%
-					);
-					background-size: 100% 100%;
-					color: #262626;
-					text-shadow: 1px 1px 1px white;
+					border: 3px solid #ffd700;
+					animation: pixel-pulse 1s infinite;
+					background-color: #143855;
+					color: #fff;
+					text-shadow: 1px 1px 1px black;
 				}
 
 				&.switching {
@@ -607,7 +580,7 @@
 						color: orange;
 						align-items: center;
 						justify-content: space-evenly;
-						border-radius: 8px;
+						border-radius: 0;
 						padding: 3px;
 
 						& > span {
@@ -616,11 +589,11 @@
 						}
 
 						.progressbar-wrapper {
-							height: 14px;
+							height: 12px;
 							width: 100%;
 							background-color: #595b59;
-							border-radius: 4px;
-							border: 2px solid white;
+							border-radius: 0;
+							border: 2px solid #000;
 
 							.hp-value {
 								text-shadow: 2px 1px 1px black;
@@ -629,38 +602,20 @@
 							.progressbar {
 								width: var(--width);
 								height: 100%;
-								background: rgb(184, 244, 166);
-								background: linear-gradient(
-									0deg,
-									rgb(86, 170, 58) 0%,
-									rgb(86, 170, 58) 50%,
-									rgb(86, 170, 58) 100%
-								);
+								background: rgb(86, 170, 58);
 								text-align: center;
-								border-radius: 2px;
+								border-radius: 0;
 
 								transition:
 									width 1s ease-in-out,
 									background 1s ease-in-out 1s;
 
 								&.warning {
-									background: rgb(255, 241, 164);
-									background: linear-gradient(
-										0deg,
-										rgba(255, 194, 16, 1) 0%,
-										rgba(255, 194, 16, 1) 50%,
-										rgba(255, 194, 16, 1) 100%
-									);
+									background: rgba(255, 194, 16, 1);
 								}
 
 								&.danger {
-									background: rgb(244, 177, 159);
-									background: linear-gradient(
-										0deg,
-										rgba(223, 85, 48, 1) 0%,
-										rgba(223, 85, 48, 1) 50%,
-										rgba(223, 85, 48, 1) 100%
-									);
+									background: rgba(223, 85, 48, 1);
 								}
 							}
 						}
@@ -683,9 +638,19 @@
 				color: white;
 				text-shadow: 3px 1px 2px #54506c;
 				background-color: #5c438966;
-				border-radius: 4px;
+				border-radius: 0;
 				border: 2px solid rgba(0, 0, 0, 0.7);
 			}
+		}
+	}
+
+	@keyframes pixel-pulse {
+		0%,
+		100% {
+			border-color: #ffd700;
+		}
+		50% {
+			border-color: #fff;
 		}
 	}
 </style>

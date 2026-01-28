@@ -155,7 +155,8 @@
 				dynamicPosition: true,
 				dynamicPositionTarget: joysticks,
 				containerClass: 'joysticks',
-				distortion: true
+				distortion: true,
+				opacity: 0.2
 			},
 			jsCallback
 		);
@@ -174,6 +175,12 @@
 			window.removeEventListener('keyup', keyUpListener);
 		};
 	});
+
+	function toggleRunning() {
+		if (context.flags.getFlag(FlagEntry.RUNNING_SHOES_UNLOCKED)) {
+			context.player.running = !context.player.running;
+		}
+	}
 </script>
 
 <div class="joysticks" bind:this={joysticks}></div>
@@ -379,30 +386,19 @@
 </nav>
 
 {#if context.flags.getFlag(FlagEntry.RUNNING_SHOES_UNLOCKED) && !displayedQuests}
-	<div class="run-toggle">
-		{#if context.player?.running}
-			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-				<path
-					d="M9.82986 8.78986L7.99998 9.45588V13H5.99998V8.05H6.015L11.2834 6.13247C11.5274 6.03855 11.7922 5.99162 12.0648 6.0008C13.1762 6.02813 14.1522 6.75668 14.4917 7.82036C14.678 8.40431 14.848 8.79836 15.0015 9.0025C15.9138 10.2155 17.3653 11 19 11V13C16.8253 13 14.8823 12.0083 13.5984 10.4526L12.9008 14.4085L15 16.17V23H13V17.1025L10.7307 15.1984L10.003 19.3253L3.10938 18.1098L3.45667 16.1401L8.38071 17.0084L9.82986 8.78986ZM13.5 5.5C12.3954 5.5 11.5 4.60457 11.5 3.5C11.5 2.39543 12.3954 1.5 13.5 1.5C14.6046 1.5 15.5 2.39543 15.5 3.5C15.5 4.60457 14.6046 5.5 13.5 5.5Z"
-				></path>
-			</svg>
-		{:else}
-			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-				<path
-					d="M7.61713 8.71233L10.8222 6.38373C11.174 6.12735 11.6087 5.98543 12.065 6.0008C13.1764 6.02813 14.1524 6.75668 14.4919 7.82036C14.6782 8.40431 14.8481 8.79836 15.0017 9.0025C15.914 10.2155 17.3655 11 19.0002 11V13C16.8255 13 14.8825 12.0083 13.5986 10.4526L12.901 14.4085L14.9621 16.138L17.1853 22.246L15.3059 22.93L13.266 17.3256L9.87576 14.4808C9.32821 14.0382 9.03139 13.3192 9.16231 12.5767L9.67091 9.6923L8.99407 10.1841L6.86706 13.1116L5.24902 11.9361L7.60016 8.7L7.61713 8.71233ZM13.5002 5.5C12.3956 5.5 11.5002 4.60457 11.5002 3.5C11.5002 2.39543 12.3956 1.5 13.5002 1.5C14.6047 1.5 15.5002 2.39543 15.5002 3.5C15.5002 4.60457 14.6047 5.5 13.5002 5.5ZM10.5286 18.6813L7.31465 22.5116L5.78257 21.226L8.75774 17.6803L9.50426 15.5L11.2954 17L10.5286 18.6813Z"
-				></path>
-			</svg>
-		{/if}
-
-		<label class="switch">
-			<input
-				type="checkbox"
-				checked={context.player?.running ? true : undefined}
-				onchange={() => (context.player.running = !context.player?.running)}
+	<button
+		class="run-button"
+		class:active={context.player?.running}
+		onclick={toggleRunning}
+		aria-label="Toggle Run"
+	>
+		<svg viewBox="0 0 24 24" class="shoe-icon" fill="currentColor">
+			<path
+				d="M13.5 5.5c1 0 2.23.32 3.64.96 2.05.95 2.36 1.58 2.36 2.54 0 .46-.15.88-.44 1.26l-2.75 3.74H4l-.5-4 3.5-2.5c1.35-1.25 3.5-2 5.5-2h1z"
 			/>
-			<span> </span>
-		</label>
-	</div>
+			<path d="M2 17h18v2H2z" />
+		</svg>
+	</button>
 {/if}
 
 <div class="ab-buttons" bind:this={abButtonsC}></div>
@@ -423,23 +419,24 @@
 
 	.menu-dock {
 		position: absolute;
-		top: 2%;
-		left: 1%;
+		top: max(20px, env(safe-area-inset-top, 20px));
+		right: max(20px, env(safe-area-inset-right, 20px));
 		z-index: 7;
 		display: flex;
 		align-items: center;
+		flex-direction: row-reverse;
 	}
 
 	.dock-trigger {
-		background: rgba(44, 56, 69, 0.95);
-		border: none;
-		border-radius: 12px;
-		width: 48px;
-		height: 48px;
-		padding: 12px;
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+		background: #0088cc;
+		border: 2px solid #000;
+		border-radius: 8px;
+		width: 52px;
+		height: 52px;
+		padding: 10px;
+		box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
 		cursor: pointer;
-		transition: border-radius 0.3s ease;
+		transition: transform 0.1s ease;
 
 		svg {
 			width: 100%;
@@ -448,15 +445,17 @@
 		}
 
 		&.expanded {
-			border-radius: 12px 0 0 12px;
+			border-radius: 0 8px 8px 0;
+			border-left: none;
 		}
 
 		&:hover {
-			background: rgba(54, 66, 79, 0.95);
+			background: #0099e6;
 		}
 
 		&:active {
-			transform: scale(0.95);
+			transform: translate(2px, 2px);
+			box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.4);
 		}
 	}
 
@@ -464,25 +463,25 @@
 		display: flex;
 		align-items: center;
 		gap: 6px;
-		background: rgba(44, 56, 69, 0.95);
-		padding: 4px 12px 4px 8px;
-		border-radius: 0 12px 12px 0;
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+		background: #2c3845;
+		padding: 4px 8px 4px 12px;
+		border: 2px solid #000;
+		border-right: none;
+		border-radius: 8px 0 0 8px;
+		box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
 	}
 
 	.dock-item {
 		position: relative;
 		background: transparent;
-		border: none;
+		border: 2px solid transparent;
 		width: 40px;
 		height: 40px;
 		padding: 6px;
-		border-radius: 8px;
+		border-radius: 6px;
 		cursor: pointer;
 		color: var(--item-color, white);
-		transition:
-			background 0.2s ease,
-			transform 0.2s ease;
+		transition: transform 0.1s ease;
 
 		svg {
 			width: 100%;
@@ -492,7 +491,8 @@
 		&:hover,
 		&:focus-visible {
 			background: rgba(255, 255, 255, 0.1);
-			transform: scale(1.1);
+			transform: scale(1.05);
+			border-color: rgba(255, 255, 255, 0.5);
 
 			.dock-label {
 				opacity: 1;
@@ -660,82 +660,116 @@
 		top: calc(40px + 4dvh);
 	}
 
-	.run-toggle {
+	.run-button {
 		position: absolute;
-		bottom: 2dvh;
-		left: 1dvw;
+		bottom: calc(5dvh + 20px + 100px);
+		right: max(20px, env(safe-area-inset-right, 20px));
 		z-index: 6;
 
+		width: 44px;
+		height: 44px;
+		background: #334455;
+		border: 2px solid #000;
+		border-radius: 50%;
+		box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.4);
 		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		transition: all 0.1s;
 
 		svg {
+			width: 24px;
 			height: 24px;
-			color: rgba(44, 56, 69, 0.95);
+			color: white;
 		}
 
-		$primary: rgba(44, 56, 69, 0.95);
-		$lightGrey: rgba(44, 56, 69, 0.95);
-
-		.switch {
-			height: 28px;
-			display: block;
-			position: relative;
-			cursor: pointer;
-
-			input {
-				display: none;
-
-				& + span {
-					padding-left: 50px;
-					min-height: 24px;
-					line-height: 24px;
-					display: block;
-					color: $lightGrey;
-					position: relative;
-					white-space: nowrap;
-					transition: color 0.3s ease;
-
-					&:before,
-					&:after {
-						content: '';
-						display: block;
-						position: absolute;
-						border-radius: 12px;
-					}
-
-					&:before {
-						top: 0;
-						left: 0;
-						width: 46px;
-						height: 28px;
-						background: $lightGrey;
-						transition: all 0.3s ease;
-					}
-
-					&:after {
-						width: 22px;
-						height: 22px;
-						background: #fff;
-						top: 3px;
-						left: 3px;
-						box-shadow: 0 1px 3px rgba(#121621, 0.1);
-						transition: all 0.45s ease;
-					}
-				}
-
-				&:checked {
-					& + span {
-						&:before {
-							background: rgba($primary, 0.85);
-						}
-
-						&:after {
-							background: #fff;
-							transform: translate(18px, 0);
-						}
-					}
-				}
+		&.active {
+			background: #ffd700;
+			transform: translate(2px, 2px);
+			box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.4);
+			svg {
+				color: #000;
 			}
 		}
+
+		&:hover {
+			filter: brightness(1.1);
+		}
+	}
+
+	/* Global overrides for A/B buttons */
+	:global(.ab-buttons) {
+		width: 110px !important;
+		height: 110px !important;
+		position: absolute !important;
+		bottom: max(5dvh, env(safe-area-inset-bottom, 20px)) !important;
+		right: max(3dvw, env(safe-area-inset-right, 20px)) !important;
+		display: block !important;
+	}
+
+	:global(.ab-buttons button) {
+		position: absolute !important;
+		border-radius: 50% !important;
+		box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4) !important;
+		border: 2px solid #000 !important;
+		transition: transform 0.1s !important;
+		margin: 0 !important;
+		display: flex !important;
+		align-items: center !important;
+		justify-content: center !important;
+		cursor: pointer !important;
+	}
+
+	:global(.ab-buttons button:hover) {
+		filter: brightness(1.1);
+		box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.4) !important;
+	}
+
+	:global(.ab-buttons button:active) {
+		transform: translate(2px, 2px) !important;
+		box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.4) !important;
+	}
+
+	/* A Button */
+	:global(.ab-buttons button:first-child) {
+		width: 64px !important;
+		height: 64px !important;
+		top: 0 !important;
+		right: 0 !important;
+		background-color: #334455 !important;
+		font-size: 24px !important;
+	}
+
+	:global(.ab-buttons button:first-child::after) {
+		content: '[Z]';
+		position: absolute;
+		bottom: -20px;
+		font-size: 12px;
+		color: white;
+		text-shadow: 1px 1px 0 #000;
+		pointer-events: none;
+		opacity: 0.8;
+	}
+
+	/* B Button */
+	:global(.ab-buttons button:last-child) {
+		width: 48px !important;
+		height: 48px !important;
+		bottom: 0 !important;
+		left: 0 !important;
+		background-color: #334455 !important;
+		font-size: 20px !important;
+	}
+
+	:global(.ab-buttons button:last-child::after) {
+		content: '[X]';
+		position: absolute;
+		bottom: -20px;
+		font-size: 12px;
+		color: white;
+		text-shadow: 1px 1px 0 #000;
+		pointer-events: none;
+		opacity: 0.8;
 	}
 </style>
