@@ -42,47 +42,84 @@
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div onclick={(e) => e.stopPropagation()}>
 		<!-- svelte-ignore a11y_autofocus -->
-		<button class="close" autofocus onclick={() => dialog?.close()}>
-			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-				><path
-					d="M10.5859 12L2.79297 4.20706L4.20718 2.79285L12.0001 10.5857L19.793 2.79285L21.2072 4.20706L13.4143 12L21.2072 19.7928L19.793 21.2071L12.0001 13.4142L4.20718 21.2071L2.79297 19.7928L10.5859 12Z"
-				></path></svg
-			></button
-		>
-
 		{#if header}
-			{@render header()}
+			<div class="modal-header">
+				{@render header()}
+				<button class="close" autofocus onclick={() => dialog?.close()}>
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+						><path
+							d="M10.5859 12L2.79297 4.20706L4.20718 2.79285L12.0001 10.5857L19.793 2.79285L21.2072 4.20706L13.4143 12L21.2072 19.7928L19.793 21.2071L12.0001 13.4142L4.20718 21.2071L2.79297 19.7928L10.5859 12Z"
+						></path></svg
+					></button
+				>
+			</div>
+		{:else}
+			<button class="close" autofocus onclick={() => dialog?.close()}>
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+					><path
+						d="M10.5859 12L2.79297 4.20706L4.20718 2.79285L12.0001 10.5857L19.793 2.79285L21.2072 4.20706L13.4143 12L21.2072 19.7928L19.793 21.2071L12.0001 13.4142L4.20718 21.2071L2.79297 19.7928L10.5859 12Z"
+					></path></svg
+				></button
+			>
 		{/if}
-		<hr />
+
 		{#if children}
 			{@render children()}
 		{/if}
-		<hr />
 	</div>
 </dialog>
 
 <style lang="scss">
 	dialog {
 		max-width: 80dvw;
-		border-radius: 0.2em;
-		border: none;
+		border-radius: 0;
+		border: 2px solid #000;
 		padding: 0;
+		background: #143855;
+		box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
+		color: #ffffff;
 
 		.close {
 			float: right;
-			border: none;
-			background: none;
+			background: #334455;
+			border: 2px solid #000;
+			min-height: 44px;
+			min-width: 44px;
+			color: #ffffff;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			cursor: pointer;
+
+			&:hover {
+				filter: brightness(1.1);
+			}
+
 			svg {
-				width: 2em;
-				height: 2em;
+				width: 1.5em;
+				height: 1.5em;
 			}
 		}
 	}
 	dialog::backdrop {
-		background: rgba(0, 0, 0, 0.3);
+		background: rgba(0, 0, 0, 0.7);
 	}
 	dialog > div {
-		padding: 1em;
+		padding: 16px;
+	}
+	.modal-header {
+		background: #0088cc;
+		border: 2px solid #000;
+		padding: 8px 16px;
+		margin: -16px -16px 16px -16px;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+
+		.close {
+			float: none;
+			margin: 0;
+		}
 	}
 	dialog[open] {
 		animation: zoom 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -106,7 +143,15 @@
 			opacity: 1;
 		}
 	}
-	button {
-		display: block;
+	:global(.modal-button) {
+		background: #334455;
+		border: 2px solid #000;
+		min-height: 44px;
+		color: #ffffff;
+		cursor: pointer;
+		padding: 0 16px;
+	}
+	:global(.modal-button:hover) {
+		filter: brightness(1.1);
 	}
 </style>

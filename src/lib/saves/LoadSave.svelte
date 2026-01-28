@@ -77,6 +77,7 @@
 				<div class="save-wrapper">
 					<button
 						class="save"
+						class:selected={selected === save}
 						on:click={() => {
 							selected === save ? handleSubmit(save) : (selected = save);
 						}}
@@ -112,10 +113,7 @@
 				>
 					<img src={save.player.sprite.face.source} alt={save.player.name} />
 					{#each save.player.monsters as mon}
-						<img
-							src={mon.getSprite()}
-							alt={mon.name}
-						/>
+						<img src={mon.getSprite()} alt={mon.name} />
 					{/each}
 				</div>
 			</div>
@@ -154,19 +152,9 @@
 		color: #262626;
 		box-sizing: border-box;
 		padding: 2%;
-		background: #0f0c29; /* fallback for old browsers */
-		background: -webkit-linear-gradient(
-			to right,
-			#24243e,
-			#302b63,
-			#0f0c29
-		); /* Chrome 10-25, Safari 5.1-6 */
-		background: linear-gradient(
-			to right,
-			#24243e,
-			#302b63,
-			#0f0c29
-		); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+		background: #143855;
+		border: 2px solid #000;
+		box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
 
 		.new-game {
 			position: absolute;
@@ -178,7 +166,6 @@
 				color: #ececec;
 				border: none;
 				padding: 8px;
-				border-radius: 8px;
 				width: 160px;
 				height: 32px;
 			}
@@ -214,7 +201,6 @@
 						//color: #ececec;
 						border: none;
 						padding: 8px;
-						border-radius: 8px;
 						cursor: pointer;
 						//width: 160px;
 						height: 32px;
@@ -225,7 +211,6 @@
 						color: #ececec;
 						border: none;
 						padding: 8px;
-						border-radius: 8px;
 						cursor: pointer;
 						//width: 160px;
 						height: 32px;
@@ -233,10 +218,11 @@
 				}
 
 				.save {
-					border: 1px solid #262626;
-					border-radius: 8px;
+					border: 2px solid #000;
 					padding: 8px;
 					cursor: pointer;
+					background: #1c4b72;
+					min-height: 60px;
 
 					display: flex;
 					flex-direction: column;
@@ -246,6 +232,15 @@
 					p {
 						margin: 0;
 					}
+				}
+
+				.save.selected {
+					border: 3px solid #ffd700;
+				}
+
+				.save:focus,
+				.save:hover {
+					border: 3px solid #ffd700;
 				}
 			}
 		}

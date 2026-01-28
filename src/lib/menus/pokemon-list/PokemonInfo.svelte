@@ -26,10 +26,7 @@
 >
 	<div class="img-wrapper">
 		<div class="img-bg">
-			<img
-				src={selectedMons.getSprite()}
-				alt="{selectedMons.name} img"
-			/>
+			<img src={selectedMons.getSprite()} alt="{selectedMons.name} img" />
 		</div>
 
 		<div class="name-level">
@@ -119,27 +116,7 @@
 		position: relative;
 		display: flex;
 		flex-direction: row;
-		//background-color: #0e2742f0;
-		//background-image: url('src/assets/menus/p-sum.jpg');
-		background: rgb(0, 29, 43);
-		background: -moz-linear-gradient(
-			140deg,
-			rgba(0, 29, 43, 1) 0%,
-			rgba(3, 84, 142, 1) 42%,
-			rgba(0, 195, 230, 1) 100%
-		);
-		background: -webkit-linear-gradient(
-			140deg,
-			rgba(0, 29, 43, 1) 0%,
-			rgba(3, 84, 142, 1) 42%,
-			rgba(0, 195, 230, 1) 100%
-		);
-		background: linear-gradient(
-			140deg,
-			rgba(0, 29, 43, 1) 0%,
-			rgba(3, 84, 142, 1) 42%,
-			rgba(0, 195, 230, 1) 100%
-		);
+		background: transparent;
 		color: #fff;
 		text-shadow: 1px 1px 1px black;
 		z-index: var(--zIndex, 11);
@@ -149,7 +126,9 @@
 			width: 40%;
 			display: flex;
 			flex-direction: column;
-			background-color: rgba(44, 56, 69, 0.65);
+			background-color: #143855;
+			border: 2px solid #000;
+			box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
 			justify-content: space-between;
 
 			.img-bg {
@@ -182,7 +161,9 @@
 			width: 60%;
 			padding: 2%;
 			box-sizing: border-box;
-			background-color: rgba(44, 56, 69, 0.3);
+			background-color: #143855;
+			border: 2px solid #000;
+			box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
 
 			table {
 				width: 100%;
@@ -240,7 +221,9 @@
 								color: white;
 								text-shadow: 1px 1px 1px black;
 								font-size: 18px;
-								border-radius: 8px;
+								border-radius: 0;
+								border: 2px solid #000;
+								box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
 								padding: 4px 12px;
 								display: flex;
 								font-weight: 500;
@@ -264,14 +247,15 @@
 								background-color: #262626;
 								align-items: center;
 								justify-content: space-evenly;
-								border-radius: 4px;
+								border-radius: 0;
 								box-sizing: border-box;
 
 								.progressbar-wrapper {
-									height: 10px;
+									height: 12px;
 									width: 100%;
 									background-color: #595b59;
-									border-radius: 4px;
+									border-radius: 0;
+									border: 2px solid #000;
 									position: relative;
 
 									.progressbar {
@@ -280,7 +264,7 @@
 
 										background: #0e73cf;
 
-										border-radius: 2px;
+										border-radius: 0;
 										display: flex;
 										text-align: center;
 										align-items: center;

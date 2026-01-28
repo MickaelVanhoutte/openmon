@@ -107,27 +107,26 @@
 		width: 30px;
 		height: 30px;
 		padding: 0;
-		border: none;
-		background: rgb(220, 231, 233);
-		color: #bd4040;
-		border-radius: 50%;
+		border: 2px solid #000;
+		background: #404040;
+		color: #ff6b6b;
+		border-radius: 0;
+		box-shadow: 2px 2px 0 black;
+		cursor: pointer;
 	}
 
 	.move {
-		background: rgb(220, 231, 233);
-		background: linear-gradient(
-			180deg,
-			rgba(220, 231, 233, 1) 0%,
-			rgba(255, 255, 255, 1) 50%,
-			rgba(220, 231, 233, 0.713344712885154) 100%
-		);
-		color: #54506c;
+		/* Retro Dark Theme */
+		background: #143855;
+		border: 2px solid #000;
+		box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
+		color: #fff;
 		padding: 12px;
-		border-radius: 8px;
+		border-radius: 0;
 		position: relative;
 		height: calc((100% - 4 * 4%) / 4);
 		box-sizing: border-box;
-		text-shadow: none;
+		text-shadow: 2px 2px 0 black;
 		width: 80%;
 
 		.flex-row {
@@ -148,18 +147,20 @@
 		}
 
 		&.selected {
-			border: 3px solid #54506c;
+			border: 3px solid #ffd700;
 		}
 
 		.type {
 			color: white;
 			text-shadow: 1px 1px 1px black;
 			background-color: var(--bg);
-			border-radius: 8px;
-			padding: 4px;
-			font-size: 22px;
+			border: 2px solid #000;
+			box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+			padding: 4px 8px;
+			border-radius: 0;
+			font-size: 18px;
 			position: absolute;
-			top: -4px;
+			top: -10px;
 			left: -10px;
 		}
 

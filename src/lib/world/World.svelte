@@ -339,7 +339,7 @@
 
 	<OverworldTeamPanel {context} />
 
-	<Menu bind:context />
+	<Menu bind:context {savesHolder} />
 
 	{#if hasDialog}
 		<DialogView bind:dialog={currentDialog} {context} />
@@ -503,8 +503,8 @@
 
 	.time-clock {
 		position: absolute;
-		top: 1%;
-		right: 1%;
+		top: max(20px, env(safe-area-inset-top, 20px));
+		left: max(20px, env(safe-area-inset-left, 20px));
 		z-index: 7;
 		display: flex;
 		align-items: center;
@@ -512,7 +512,7 @@
 		background-color: rgba(0, 0, 0, 0.6);
 		padding: 6px 12px;
 		border-radius: 8px;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+		box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
 
 		.time-icon {
 			font-size: 20px;

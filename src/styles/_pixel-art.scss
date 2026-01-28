@@ -1,0 +1,226 @@
+// Pixel Blue Theme - Complete Design System
+// Based on "Pixel Blue" UI Technical Specification
+
+// =============================================================================
+// 1. CSS Custom Properties (Color Palette - Strict Hex Codes)
+// =============================================================================
+:root {
+	// Primary Colors
+	--pixel-bg-primary: #1c4b72;
+	--pixel-bg-header: #0088cc;
+	--pixel-bg-panel: #143855;
+	--pixel-bg-button: #334455;
+	--pixel-bg-button-dark: #0d2538;
+
+	// Text Colors
+	--pixel-text-white: #ffffff;
+	--pixel-text-gold: #ffd700;
+	--pixel-text-stat-red: #ff4444;
+	--pixel-text-stat-blue: #4488ff;
+	--pixel-text-iv-green: #00ff00;
+
+	// Borders & Shadows
+	--pixel-border-color: #000000;
+	--pixel-border-alt: #0d2538;
+	--pixel-shadow-color: rgba(0, 0, 0, 0.4);
+
+	// Legacy aliases (for backward compatibility)
+	--pixel-panel-bg: var(--pixel-bg-panel);
+	--pixel-panel-border: var(--pixel-border-color);
+	--pixel-panel-light: var(--pixel-text-white);
+	--pixel-accent-gold: var(--pixel-text-gold);
+	--pixel-accent-red: var(--pixel-text-stat-red);
+	--pixel-accent-blue: var(--pixel-text-stat-blue);
+
+	// Shadows (Hard, 0 blur)
+	--pixel-shadow: 4px 4px 0px var(--pixel-shadow-color);
+	--pixel-shadow-sm: 2px 2px 0px var(--pixel-shadow-color);
+	--pixel-shadow-dark: 4px 4px 0px #000;
+	--pixel-shadow-inset: inset 2px 2px 0 rgba(0, 0, 0, 0.3);
+
+	// Typography
+	--pixel-line-height: 1.6;
+	--pixel-line-height-list: 1.8;
+
+	// Sizing
+	--pixel-touch-target: 44px;
+	--pixel-border-width: 2px;
+	--pixel-border-radius: 0px;
+
+	// Safe Areas
+	--pixel-safe-area-top: max(20px, env(safe-area-inset-top, 20px));
+	--pixel-safe-area-right: max(20px, env(safe-area-inset-right, 20px));
+	--pixel-safe-area-bottom: max(20px, env(safe-area-inset-bottom, 20px));
+	--pixel-safe-area-left: max(20px, env(safe-area-inset-left, 20px));
+}
+
+// =============================================================================
+// 2. Mixins
+// =============================================================================
+
+// Standard Pixel Border (0px radius, 2px solid black)
+@mixin pixel-border($bg: var(--pixel-bg-panel), $border: var(--pixel-border-color), $width: 2px) {
+	background-color: $bg;
+	border: $width solid $border;
+	border-radius: var(--pixel-border-radius);
+}
+
+// Pixel Border with Hard Shadow
+@mixin pixel-panel($bg: var(--pixel-bg-panel), $border: var(--pixel-border-color)) {
+	@include pixel-border($bg, $border);
+	box-shadow: var(--pixel-shadow);
+}
+
+// Header Bar Style
+@mixin pixel-header() {
+	@include pixel-border(var(--pixel-bg-header));
+	color: var(--pixel-text-white);
+}
+
+// 2-Tone Split Background (Hard 50/50 split, no gradient transition)
+@mixin two-tone-bg($light, $dark) {
+	background: linear-gradient(to bottom, $light 50%, $dark 50%);
+}
+
+// Active Tab Indicator
+@mixin pixel-tab-active() {
+	border-bottom: 3px solid var(--pixel-text-gold);
+	color: var(--pixel-text-gold);
+}
+
+// Inactive Tab
+@mixin pixel-tab-inactive() {
+	opacity: 0.7;
+	border-bottom: 3px solid transparent;
+}
+
+// Button Base
+@mixin pixel-button($bg: var(--pixel-bg-button)) {
+	@include pixel-border($bg);
+	box-shadow: var(--pixel-shadow-sm);
+	cursor: pointer;
+	min-width: var(--pixel-touch-target);
+	min-height: var(--pixel-touch-target);
+
+	&:hover {
+		filter: brightness(1.1);
+		box-shadow: 2px 2px 0px var(--pixel-shadow-color);
+	}
+
+	&:active {
+		box-shadow: 1px 1px 0px var(--pixel-shadow-color);
+		transform: translate(1px, 1px);
+	}
+}
+
+// Gold Selection Border with Pulse Animation
+@mixin pixel-selection-gold() {
+	border: 3px solid var(--pixel-text-gold);
+	animation: pixel-pulse 1s ease-in-out infinite;
+}
+
+// Stat Bar (Capsule style, flat fill)
+@mixin pixel-stat-bar($color) {
+	height: 12px;
+	border: 2px solid var(--pixel-border-color);
+	border-radius: var(--pixel-border-radius);
+	background-color: $color;
+}
+
+// =============================================================================
+// 3. Utility Classes
+// =============================================================================
+
+.pixel-panel {
+	@include pixel-panel;
+}
+
+.pixel-header {
+	@include pixel-header;
+}
+
+.pixel-button {
+	@include pixel-button;
+}
+
+.pixel-text-list {
+	line-height: var(--pixel-line-height-list);
+}
+
+.pixel-selection {
+	@include pixel-selection-gold;
+}
+
+// Text Colors
+.pixel-text-gold {
+	color: var(--pixel-text-gold);
+}
+
+.pixel-text-stat-up {
+	color: var(--pixel-text-stat-red);
+}
+
+.pixel-text-stat-down {
+	color: var(--pixel-text-stat-blue);
+}
+
+.pixel-text-iv {
+	color: var(--pixel-text-iv-green);
+}
+
+// =============================================================================
+// 4. Animations
+// =============================================================================
+
+@keyframes pixel-pulse {
+	0%,
+	100% {
+		border-color: var(--pixel-text-gold);
+	}
+	50% {
+		border-color: #ffffff;
+	}
+}
+
+// =============================================================================
+// 5. Global Overrides (Pixel Look)
+// =============================================================================
+
+// Apply to all containers
+.pixel-container,
+.pixel-panel,
+.pixel-button,
+.pixel-header {
+	border-radius: var(--pixel-border-radius) !important;
+	image-rendering: pixelated;
+	-webkit-font-smoothing: none;
+}
+
+// Hide scrollbars on mobile (use swipe instead)
+.pixel-scrollable {
+	scrollbar-width: none;
+	-ms-overflow-style: none;
+
+	&::-webkit-scrollbar {
+		display: none;
+	}
+}
+
+// Custom blocky scrollbar for desktop
+.pixel-scrollbar {
+	scrollbar-width: thin;
+	scrollbar-color: var(--pixel-bg-button) var(--pixel-bg-panel);
+
+	&::-webkit-scrollbar {
+		width: 8px;
+	}
+
+	&::-webkit-scrollbar-track {
+		background: var(--pixel-bg-panel);
+	}
+
+	&::-webkit-scrollbar-thumb {
+		background: var(--pixel-bg-button);
+		border: 1px solid var(--pixel-border-color);
+	}
+}

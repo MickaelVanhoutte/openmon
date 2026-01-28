@@ -154,7 +154,7 @@
 		left: 0;
 		width: 100dvw;
 		height: 100dvh;
-		background-color: rgba(0, 0, 0, 0.5);
+		background-color: #1c4b72;
 		z-index: 100;
 		color: white;
 
@@ -168,9 +168,17 @@
 				height: 60px;
 				width: 60px;
 				color: white;
-				background-color: transparent;
-				border: none;
+				background-color: #334455;
+				border: 2px solid #000;
 				outline: none;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				cursor: pointer;
+
+				&:hover {
+					filter: brightness(1.1);
+				}
 			}
 		}
 
@@ -180,30 +188,14 @@
 			left: 0;
 			width: 50dvw;
 			height: 25dvh;
-			background: rgb(0, 29, 43);
-			background: -moz-linear-gradient(
-				140deg,
-				rgb(0, 29, 43) 0%,
-				rgb(3, 84, 142) 42%,
-				rgb(0, 195, 230) 100%
-			);
-			background: -webkit-linear-gradient(
-				140deg,
-				rgb(0, 29, 43) 0%,
-				rgb(3, 84, 142) 42%,
-				rgb(0, 195, 230) 100%
-			);
-			background: linear-gradient(
-				140deg,
-				rgb(0, 29, 43) 0%,
-				rgb(3, 84, 142) 42%,
-				rgb(0, 195, 230) 100%
-			);
+			background: #143855;
+			border: 2px solid #000;
+			box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
 			z-index: 101;
 
 			.inner {
-				border-radius: 9px;
-				background-color: rgba(0, 0, 0, 0.5);
+				border-radius: 0;
+				background-color: transparent;
 				position: absolute;
 				bottom: 8px;
 				left: 8px;
@@ -222,30 +214,17 @@
 			right: 0;
 			width: 50dvw;
 			height: 100dvh;
-			background: rgb(0, 29, 43);
-			background: -moz-linear-gradient(
-				140deg,
-				rgb(0, 29, 43) 0%,
-				rgb(3, 84, 142) 42%,
-				rgb(0, 195, 230) 100%
-			);
-			background: -webkit-linear-gradient(
-				140deg,
-				rgb(0, 29, 43) 0%,
-				rgb(3, 84, 142) 42%,
-				rgb(0, 195, 230) 100%
-			);
-			background: linear-gradient(
-				140deg,
-				rgb(0, 29, 43) 0%,
-				rgb(3, 84, 142) 42%,
-				rgb(0, 195, 230) 100%
-			);
+			background: #143855;
+			border: 2px solid #000;
+			box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
 			z-index: 101;
 
 			.money {
 				padding: 16px;
 				height: 10dvh;
+				font-size: 24px;
+				font-weight: bold;
+				color: #ffd700;
 			}
 
 			.items {
@@ -256,13 +235,20 @@
 				margin: 0;
 
 				li {
-					padding: 8px;
-					border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+					padding: 12px;
+					background: #1c4b72;
+					border: 2px solid #000;
+					margin-bottom: 8px;
 					display: flex;
 					justify-content: space-between;
+					cursor: pointer;
 
 					&.selected {
-						border-bottom: 1px solid rgba(255, 255, 255, 1);
+						border: 3px solid #ffd700;
+					}
+
+					span:last-child {
+						color: #ffd700;
 					}
 				}
 			}
@@ -272,9 +258,11 @@
 				bottom: 16px;
 				right: 16px;
 				width: calc(50dvw - 32px);
-				padding: 8px;
-				background-color: rgba(0, 0, 0, 0.5);
-				border-radius: 8px;
+				padding: 16px;
+				background: #143855;
+				border: 2px solid #000;
+				box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
+				border-radius: 0;
 				z-index: 102;
 				display: flex;
 				gap: 8px;
@@ -289,12 +277,12 @@
 
 					span {
 						padding: 16px;
-						font-size: 32 px;
+						font-size: 32px;
 						text-align: center;
-						background-color: rgba(0, 0, 0, 0.5);
+						background: #1c4b72;
 						color: white;
-						border: none;
-						border-radius: 9px;
+						border: 2px solid #000;
+						border-radius: 0;
 					}
 
 					.more-less {
@@ -305,20 +293,39 @@
 						button {
 							height: 28px;
 							width: 42px;
-
-							border-radius: 4px;
-							border: 1px solid black;
-							background: rgba(84, 80, 108, 0.2);
+							border-radius: 0;
+							border: 2px solid #000;
+							background: #334455;
 							color: white;
 							font-size: 28px;
+							display: flex;
+							align-items: center;
+							justify-content: center;
+							cursor: pointer;
+
+							&:hover {
+								filter: brightness(1.1);
+							}
 						}
 					}
 				}
 
 				.buy-cancel {
+					display: flex;
+					gap: 8px;
+
 					button {
-						font-size: 32px;
+						font-size: 24px;
 						color: white;
+						background: #334455;
+						border: 2px solid #000;
+						min-height: 44px;
+						padding: 0 16px;
+						cursor: pointer;
+
+						&:hover {
+							filter: brightness(1.1);
+						}
 					}
 				}
 			}

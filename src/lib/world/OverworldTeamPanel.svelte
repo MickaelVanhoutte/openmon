@@ -151,21 +151,26 @@
 	.team-panel {
 		position: absolute;
 		top: calc(4% + 60px);
-		left: 8px;
-		height: auto;
+		left: max(20px, env(safe-area-inset-left, 20px));
 		display: flex;
 		flex-direction: column;
 		gap: 6px;
 		z-index: 7;
+		background: #143855;
+		border: 2px solid #000;
+		box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
+		padding: 4px;
 	}
 
 	.team-slot {
 		position: relative;
+		border: 2px solid #0d2538;
+		height: calc(100dvh / 9);
 	}
 
 	.hp-ring {
-		width: 56px;
-		height: 56px;
+		width: 100%;
+		height: 100%;
 		border-radius: 50%;
 		padding: 3px;
 		box-sizing: border-box;
@@ -214,7 +219,6 @@
 		position: fixed;
 		background-color: rgba(0, 0, 0, 0.8);
 		border: 1px solid white;
-		border-radius: 4px;
 		padding: 4px;
 		display: flex;
 		flex-direction: column;
@@ -237,7 +241,6 @@
 		cursor: pointer;
 		font-family: inherit;
 		font-size: 14px;
-		border-radius: 2px;
 	}
 
 	.team-panel-menu button:hover {
@@ -246,16 +249,5 @@
 
 	/* Mobile landscape */
 	@media (max-width: 960px) {
-		.team-panel {
-			height: calc(100dvh - 76px - 6%) !important;
-		}
-		.team-slot {
-			height: calc((100% - 76px) / 6) !important;
-		}
-		.hp-ring {
-			width: auto !important;
-			height: 100% !important;
-			aspect-ratio: 1;
-		}
 	}
 </style>

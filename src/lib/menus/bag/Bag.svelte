@@ -198,15 +198,15 @@
 				{#each pocket as [id, qty], idx}
 					<li>
 						<div
-							class="item"
+							class="item-row"
 							class:selected={selected === idx}
 							onclick={() => {
 								selected = idx;
 								openOptions = true;
 							}}
 						>
-							<span>{context.ITEMS.getItem(id)?.name}</span>
-							<span>x {qty}</span>
+							<span class="item-name">{context.ITEMS.getItem(id)?.name}</span>
+							<span class="item-qty">x{qty}</span>
 						</div>
 					</li>
 				{/each}
@@ -234,32 +234,25 @@
 {/if}
 
 <style lang="scss">
+	@keyframes pixel-pulse {
+		0% {
+			border-color: #ffd700;
+		}
+		50% {
+			border-color: #fff;
+		}
+		100% {
+			border-color: #ffd700;
+		}
+	}
+
 	.bag {
 		position: absolute;
 		top: 0;
 		left: 0;
 		width: 100dvw;
 		height: 100dvh;
-		//background-image: url('src/assets/menus/p-sum.jpg');
-		background: rgb(0, 29, 43);
-		background: -moz-linear-gradient(
-			140deg,
-			rgba(0, 29, 43, 1) 0%,
-			rgba(3, 84, 142, 1) 42%,
-			rgba(0, 195, 230, 1) 100%
-		);
-		background: -webkit-linear-gradient(
-			140deg,
-			rgba(0, 29, 43, 1) 0%,
-			rgba(3, 84, 142, 1) 42%,
-			rgba(0, 195, 230, 1) 100%
-		);
-		background: linear-gradient(
-			140deg,
-			rgba(0, 29, 43, 1) 0%,
-			rgba(3, 84, 142, 1) 42%,
-			rgba(0, 195, 230, 1) 100%
-		);
+		background: #282828;
 		z-index: var(--zIndex, 8);
 
 		.nav {
@@ -269,10 +262,11 @@
 			display: flex;
 			align-items: center;
 
-			background-color: #0078c0;
+			background-color: #54506c;
+			border-bottom: 4px solid #2d2a3d;
 			font-size: 32px;
 			color: white;
-			text-shadow: 1px 1px 1px black;
+			text-shadow: 2px 2px 0px #000;
 
 			.nav-left {
 				width: 72dvw;
@@ -283,22 +277,32 @@
 					font-size: 36px;
 					width: 40%;
 					color: white;
+					padding-left: 16px;
 				}
 			}
 			.nav-right {
 				width: 28dvw;
 				display: flex;
-				justify-content: space-between;
 				justify-content: flex-end;
 				gap: 12%;
 			}
 
 			.tabs a {
-				color: white;
-				border: none;
+				color: #a0a0a0;
+				padding: 4px 12px;
+				margin-right: 8px;
+				cursor: pointer;
+				text-decoration: none;
+
+				background: #0088cc;
+				border: 2px solid #000;
+				min-height: 44px;
+				display: inline-flex;
+				align-items: center;
 
 				&.active {
-					color: #68c0c8;
+					color: #fff;
+					border-bottom: 3px solid #ffd700;
 				}
 			}
 
@@ -374,14 +378,14 @@
 				}
 
 				&:nth-child(4) {
-					border-radius: 0 50px 50px 0;
+					border-radius: 0;
 				}
 
 				span:not(.arrow) {
 					height: 26px;
 					width: 18px;
 					background-color: #0078c0;
-					border-radius: 16px;
+					border-radius: 0;
 					position: absolute;
 					z-index: 9;
 					top: 50%;
@@ -395,8 +399,7 @@
 			height: calc(100% - 46px);
 			width: 100%;
 			box-sizing: border-box;
-			background-color: rgba(0, 0, 0, 0.3);
-			background-blend-mode: soft-light;
+			padding: 16px;
 
 			display: flex;
 			gap: 2%;
@@ -404,22 +407,21 @@
 			.item-desc {
 				height: 100%;
 				width: 50%;
-				padding: 1%;
 				box-sizing: border-box;
 				font-size: 32px;
-				color: white;
-				text-shadow: 1px 1px 1px black;
 
 				.content {
 					display: flex;
 					flex-direction: column;
 					height: 100%;
-					align-items: center;
-					justify-content: center;
-					padding: 4%;
-					box-sizing: border-box;
-					background: rgba(0, 0, 0, 0.5);
-					border-radius: 8px;
+					align-items: flex-start;
+					justify-content: flex-start;
+					text-align: left;
+					padding: 12px;
+					background: #143855;
+					border: 2px solid #000;
+					box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
+					color: #ffffff;
 				}
 			}
 
@@ -427,12 +429,11 @@
 				max-height: 100%;
 				width: 50%;
 				display: flex;
-				align-items: center;
-				justify-content: center;
+				align-items: flex-start;
+				justify-content: flex-start;
 				font-size: 32px;
 				color: white;
-				text-shadow: 1px 1px 1px black;
-				padding: 2%;
+				text-shadow: 2px 2px 0px #000;
 
 				ul {
 					list-style: none;
@@ -442,28 +443,50 @@
 					width: 100%;
 					height: 100%;
 					overflow-y: scroll;
-					padding: 2%;
+					padding: 0;
 					box-sizing: border-box;
+					gap: 8px;
 
 					scrollbar-width: thin;
-					scrollbar-color: #68c0c8 #0e2742f0;
+					scrollbar-color: #54506c #282828;
 
 					li {
 						display: flex;
 						width: 100%;
 						align-items: center;
-						justify-content: center;
+						justify-content: flex-start;
 					}
 
-					.item {
+					.item-row {
+						height: 60px;
 						display: flex;
+						flex-direction: row;
+						align-items: center;
+						padding: 0 12px;
+						background: #143855;
+						border: 2px solid #000;
+						box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+						margin-bottom: 4px;
 						width: 100%;
-						justify-content: space-between;
-						padding: 2%;
+						box-sizing: border-box;
+						cursor: pointer;
+
+						.item-name {
+							flex-grow: 1;
+							text-align: left;
+							color: #ffffff;
+						}
+
+						.item-qty {
+							font-family: monospace;
+							color: #ffd700;
+							text-align: right;
+							min-width: 50px;
+						}
 
 						&.selected {
-							// underline
-							border-bottom: 2px solid rgba(255, 255, 255, 0.5);
+							border: 3px solid #ffd700;
+							animation: pixel-pulse 1s ease-in-out infinite;
 						}
 					}
 				}
@@ -475,18 +498,13 @@
 			font-size: 32px;
 			font-weight: 500;
 			text-align: left;
-			bottom: 1%;
-			right: 1%;
-			padding: 22px 36px 22px 36px;
-			background: rgb(220, 231, 233);
-			background: linear-gradient(
-				180deg,
-				rgba(220, 231, 233, 1) 0%,
-				rgba(255, 255, 255, 1) 50%,
-				rgba(220, 231, 233, 0.713344712885154) 100%
-			);
-			border: 2px solid #54506c;
-			border-radius: 8px;
+			bottom: 32px;
+			right: 32px;
+			padding: 16px 24px;
+			background: #143855;
+			color: #ffffff;
+			border: 2px solid #000;
+			box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
 			box-sizing: border-box;
 			transition: bottom 0.3s ease-in-out;
 
@@ -503,17 +521,22 @@
 				gap: 16px;
 
 				li {
+					padding-left: 24px;
+					cursor: pointer;
+					position: relative;
+
 					&.selected {
 						&:before {
 							content: '';
 							width: 0;
 							height: 0;
-							border-top: 12px solid transparent;
-							border-bottom: 12px solid transparent;
-							border-left: 12px solid #262626;
+							border-top: 10px solid transparent;
+							border-bottom: 10px solid transparent;
+							border-left: 10px solid #ffd700;
 							position: absolute;
-							left: 5px;
-							margin-top: 2px;
+							left: 0;
+							top: 50%;
+							transform: translateY(-50%);
 						}
 					}
 				}

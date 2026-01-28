@@ -329,9 +329,8 @@
 		perspective: 100dvw;
 		font-size: 22px;
 
-		background: #0f0c29;
-		background: -webkit-linear-gradient(to right, #24243e, #5b53b2, #0f0c29);
-		background: linear-gradient(to right, #24243e, #5b53b2, #0f0c29);
+		background: #143855;
+		border: 2px solid #000;
 
 		.sound {
 			position: absolute;

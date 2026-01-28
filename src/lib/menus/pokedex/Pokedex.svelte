@@ -20,7 +20,7 @@
 	let selectedIdx = 0;
 	let searchTerm: string = '';
 	$: selectedPokemon = filtered[selectedIdx];
-	let filtered = context.POKEDEX.entries//.filter(p => !p.types.includes('fire') && !p.types.includes('grass') && !p.types.includes('water') && p.id < 208);
+	let filtered = context.POKEDEX.entries; //.filter(p => !p.types.includes('fire') && !p.types.includes('grass') && !p.types.includes('water') && p.id < 208);
 	let detailOpened = false;
 	let selectedType: string | undefined = undefined;
 
@@ -101,91 +101,91 @@
 	in:slide={{ duration: 500, delay: 100, axis: 'x', easing: backInOut }}
 	out:fade
 >
-{#if !showFullDexImg}
-	 <div class="row head">
-		<div class="col-2 back">
-			<button on:click={() => context.overWorldContext.closeMenu(MenuType.POKEDEX)}>
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-					><path
-						d="M10.5859 12L2.79297 4.20706L4.20718 2.79285L12.0001 10.5857L19.793 2.79285L21.2072 4.20706L13.4143 12L21.2072 19.7928L19.793 21.2071L12.0001 13.4142L4.20718 21.2071L2.79297 19.7928L10.5859 12Z"
-					></path></svg
-				>
-			</button>
-		</div>
-
-		<div class="col-2"></div>
-
-		<div class="col-4">
-			<select bind:value={selectedType} on:change={search}>
-				<option value={undefined}>Type</option>
-				{#each Object.keys(typeChart) as type}
-					<option value={type}>{type.toUpperCase()}</option>
-				{/each}
-			</select>
-		</div>
-
-		<div class="col-4">
-			<input
-				type="input"
-				class="form__field"
-				placeholder="Search"
-				bind:value={searchTerm}
-				on:input={search}
-			/>
-		</div>
-	</div>
-	<div class="row content">
-		<div class="col-6 preview">
-			<div class="image">
-				{#if selectedPokemon?.id}
-					<img
-						src={`src/assets/monsters/pokedex/${('00' + selectedPokemon?.id).slice(-3)}.png`}
-						class:hide={!selectedPokemon?.viewed}
-						alt={selectedPokemon?.name}
-					/>
-				{:else}
-					<img src="src/assets/monsters/animated/000.png" alt="unknown" />
-				{/if}
+	{#if !showFullDexImg}
+		<div class="row head">
+			<div class="col-2 back">
+				<button on:click={() => context.overWorldContext.closeMenu(MenuType.POKEDEX)}>
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+						><path
+							d="M10.5859 12L2.79297 4.20706L4.20718 2.79285L12.0001 10.5857L19.793 2.79285L21.2072 4.20706L13.4143 12L21.2072 19.7928L19.793 21.2071L12.0001 13.4142L4.20718 21.2071L2.79297 19.7928L10.5859 12Z"
+						></path></svg
+					>
+				</button>
 			</div>
-			<div>
-				<span>
-					{selectedPokemon?.id ? '#' + ('00' + selectedPokemon?.id).slice(-3) : '???'}
-					{selectedPokemon?.name ? '- ' + selectedPokemon?.name : ''}
-				</span>
+
+			<div class="col-2"></div>
+
+			<div class="col-4">
+				<select bind:value={selectedType} on:change={search}>
+					<option value={undefined}>Type</option>
+					{#each Object.keys(typeChart) as type}
+						<option value={type}>{type.toUpperCase()}</option>
+					{/each}
+				</select>
+			</div>
+
+			<div class="col-4">
+				<input
+					type="input"
+					class="form__field"
+					placeholder="Search"
+					bind:value={searchTerm}
+					on:input={search}
+				/>
 			</div>
 		</div>
-		<div class="col-6 list" bind:this={wrapper}>
-			{#each filtered as pokemon, index}
-				<div
-					class:selected={selectedPokemon?.id === pokemon.id}
-					bind:this={elements[index]}
-					on:click={() => select(index)}
-				>
-					{#if pokemon.caught}
-						<img src="src/assets/menus/pokeball.png" alt="pokemons" />
+		<div class="row content">
+			<div class="col-6 preview">
+				<div class="image">
+					{#if selectedPokemon?.id}
+						<img
+							src={`src/assets/monsters/pokedex/${('00' + selectedPokemon?.id).slice(-3)}.png`}
+							class:hide={!selectedPokemon?.viewed}
+							alt={selectedPokemon?.name}
+						/>
 					{:else}
-						<span style="height:28px; width:24px"></span>
+						<img src="src/assets/monsters/animated/000.png" alt="unknown" />
 					{/if}
-					<span>
-						{'#' + ('00' + pokemon.id).slice(-3)} - {pokemon.name}
-					</span>
-
-					<button on:click={() => openDetail()}>
-						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-							><path d="M16 12L10 18V6L16 12Z"></path></svg
-						>
-					</button>
 				</div>
-			{/each}
+				<div>
+					<span>
+						{selectedPokemon?.id ? '#' + ('00' + selectedPokemon?.id).slice(-3) : '???'}
+						{selectedPokemon?.name ? '- ' + selectedPokemon?.name : ''}
+					</span>
+				</div>
+			</div>
+			<div class="col-6 list" bind:this={wrapper}>
+				{#each filtered as pokemon, index}
+					<div
+						class:selected={selectedPokemon?.id === pokemon.id}
+						bind:this={elements[index]}
+						on:click={() => select(index)}
+					>
+						{#if pokemon.caught}
+							<img src="src/assets/menus/pokeball.png" alt="pokemons" />
+						{:else}
+							<span style="height:28px; width:24px"></span>
+						{/if}
+						<span>
+							{'#' + ('00' + pokemon.id).slice(-3)} - {pokemon.name}
+						</span>
+
+						<button on:click={() => openDetail()}>
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+								><path d="M16 12L10 18V6L16 12Z"></path></svg
+							>
+						</button>
+					</div>
+				{/each}
+			</div>
 		</div>
-	</div>
-
 	{:else}
-
-	 <div style="display: flex; flex-wrap: wrap;overflow-y: scroll;overflow-x: hidden;height: 100dvh;">
-		{#each filtered as pokemon}
-			<div
-				style="position:relative; height:calc(100dvw / 9); width: calc(100dvw / 9); overflow:hidden; box-sizing:border-box; height: auto; border: 1px solid black;
+		<div
+			style="display: flex; flex-wrap: wrap;overflow-y: scroll;overflow-x: hidden;height: 100dvh;"
+		>
+			{#each filtered as pokemon}
+				<div
+					style="position:relative; height:calc(100dvw / 9); width: calc(100dvw / 9); overflow:hidden; box-sizing:border-box; height: auto; border: 1px solid black;
 				background: linear-gradient(
     to bottom,
     {typeChart[pokemon.types[0]].color} 0%,
@@ -193,33 +193,32 @@
 	 {typeChart[pokemon.types[1]]?.color || typeChart[pokemon.types[0]].color} 50%,
 	 {typeChart[pokemon.types[1]]?.color || typeChart[pokemon.types[0]].color} 100%
   );"
-				class:hide={pokemon.types.includes('')}
-			>
-				<span
-					style="position: absolute; top:4px; left: 50%;
-					transform: translate(-50%, 0%); font-size:18px; color: white; z-index: 10; font-weight: bold; "
-					>{pokemon.name}</span
+					class:hide={pokemon.types.includes('')}
 				>
-				<img
-					style="width: 100%; opacity: 1"
-					src={`src/assets/monsters/pokedex/${('00' + pokemon?.id).slice(-3)}.png`}
-				/>
+					<span
+						style="position: absolute; top:4px; left: 50%;
+					transform: translate(-50%, 0%); font-size:18px; color: white; z-index: 10; font-weight: bold; "
+						>{pokemon.name}</span
+					>
+					<img
+						style="width: 100%; opacity: 1"
+						src={`src/assets/monsters/pokedex/${('00' + pokemon?.id).slice(-3)}.png`}
+					/>
 
-				<!-- <img
+					<!-- <img
 					style="width: auto; height:80%; position: absolute; top: 50%; left: 50%; z-index:2; transform:translate(-50%, -50%); filter: brightness(1);"
 					src={`src/assets/monsters/animated/${('00' + pokemon?.id).slice(-3)}.gif`}
 				/> -->
 
-				<span
-					style="position: absolute; bottom:4px; left: 50%;
+					<span
+						style="position: absolute; bottom:4px; left: 50%;
 					transform: translate(-50%, 0%); font-size:18px; color: white; z-index: 10; font-weight: bold; "
-					>{pokemon.regionalId} {pokemon.id}</span
-				>
-			</div>
-		{/each}
-	</div> 
+						>{pokemon.regionalId} {pokemon.id}</span
+					>
+				</div>
+			{/each}
+		</div>
 	{/if}
-
 </div>
 
 {#if detailOpened}
@@ -233,31 +232,23 @@
 		}
 	}
 
+	@keyframes pixel-pulse {
+		0%,
+		100% {
+			border-color: #ffd700;
+		}
+		50% {
+			border-color: #fff;
+		}
+	}
+
 	.pokedex {
 		position: absolute;
 		top: 0;
 		left: 0;
 		width: 100dvw;
 		height: 100dvh;
-		background: rgb(0, 29, 43);
-		background: -moz-linear-gradient(
-			140deg,
-			rgba(0, 29, 43, 1) 0%,
-			rgba(3, 84, 142, 1) 42%,
-			rgba(0, 195, 230, 1) 100%
-		);
-		background: -webkit-linear-gradient(
-			140deg,
-			rgba(0, 29, 43, 1) 0%,
-			rgba(3, 84, 142, 1) 42%,
-			rgba(0, 195, 230, 1) 100%
-		);
-		background: linear-gradient(
-			140deg,
-			rgba(0, 29, 43, 1) 0%,
-			rgba(3, 84, 142, 1) 42%,
-			rgba(0, 195, 230, 1) 100%
-		);
+		background: #1c4b72;
 		color: #fff;
 		z-index: 10;
 
@@ -266,6 +257,8 @@
 			padding: 1% 2% 0 2%;
 			font-size: 14px;
 			box-sizing: border-box;
+			background: #0088cc;
+			border-bottom: 2px solid #000;
 		}
 
 		.content {
@@ -274,7 +267,7 @@
 			flex-direction: row;
 			justify-content: space-between;
 			align-items: center;
-			padding: 0 2%;
+			padding: 2%;
 			box-sizing: border-box;
 		}
 
@@ -318,24 +311,32 @@
 			flex-direction: column;
 			justify-content: flex-start;
 			align-items: center;
-			gap: 4px;
-			padding: 2%;
+			gap: 0;
+			padding: 0;
 			scrollbar-width: thin;
 			scrollbar-color: #68c0c8 #0e2742f0;
+			background: #143855;
+			border: 2px solid #000;
+			box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
+
 			div {
-				padding: 8px;
-				border-bottom: 1px solid #000;
-				border: 2px solid #000;
-				border-radius: 4px;
-				background: rgba(255, 255, 255, 0.5);
+				padding: 8px 12px;
+				border-bottom: 1px solid #0d2538;
+				border-radius: 0;
+				background: transparent;
 				width: 100%;
+				min-height: 44px;
 				box-sizing: border-box;
 				display: flex;
 				flex-direction: row;
 				justify-content: space-between;
+				align-items: center;
 
 				&.selected {
-					background: rgba(255, 255, 255, 0.8);
+					background: rgba(255, 255, 255, 0.1);
+					border: 3px solid #ffd700;
+					animation: pixel-pulse 1s infinite;
+					z-index: 1;
 				}
 			}
 
@@ -350,10 +351,10 @@
 				font-size: 26px;
 				text-transform: uppercase;
 				cursor: pointer;
-				border-radius: 4px;
+				border-radius: 0;
 				color: white;
 				background: rgba(0, 0, 0, 0.4);
-				border: 1px solid white;
+				border: 2px solid #000;
 			}
 		}
 

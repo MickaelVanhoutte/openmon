@@ -13,19 +13,16 @@
 	let showModal = false;
 	const mechanicRegex = /\{mechanic:.*?\}/g;
 
-
 	function openModal(ab: string): any {
 		abilityName = ab;
 		abilityDesc = abilities
-					.find((ability) => ability.names === ab)
-					?.description.replace(mechanicRegex, '')
-					.replace(/\[/g, '')
-					.replace(/\]/g, '');
+			.find((ability) => ability.names === ab)
+			?.description.replace(mechanicRegex, '')
+			.replace(/\[/g, '')
+			.replace(/\]/g, '');
 
 		showModal = true;
 	}
-
-
 </script>
 
 <div
@@ -75,7 +72,8 @@
 									{#each pokemon.types as type}
 										<div class="type" style="--tcolor:{typeChart[type].color}">
 											<span>{type}</span>
-											<svg use:inlineSvg={`src/assets/types/${type}.svg`} fill="currentColor"> </svg>
+											<svg use:inlineSvg={`src/assets/types/${type}.svg`} fill="currentColor">
+											</svg>
 											<!-- <img alt={type} src="src/assets/types/{type}.svg" /> -->
 										</div>
 									{/each}
@@ -98,9 +96,10 @@
 								<div
 									class="determinate"
 									data-value={pokemon.viewed ? pokemon.stats.hp : '???'}
-									style="width: {pokemon.viewed? ((pokemon.stats.hp / 255) * 100) : 0}%; --tcolor1: {typeChart[
-										pokemon.types[0]
-									].color}; --tcolor2: {pokemon.types?.length > 1
+									style="width: {pokemon.viewed
+										? (pokemon.stats.hp / 255) * 100
+										: 0}%; --tcolor1: {typeChart[pokemon.types[0]].color}; --tcolor2: {pokemon.types
+										?.length > 1
 										? typeChart[pokemon.types[1]].color
 										: typeChart[pokemon.types[0]].color}"
 								></div>
@@ -114,9 +113,10 @@
 								<div
 									class="determinate"
 									data-value={pokemon.viewed ? pokemon.stats.attack : '???'}
-									style="width: {pokemon.viewed? ((pokemon.stats.attack / 255) * 100) : 0}%; --tcolor1: {typeChart[
-										pokemon.types[0]
-									].color}; --tcolor2: {pokemon.types?.length > 1
+									style="width: {pokemon.viewed
+										? (pokemon.stats.attack / 255) * 100
+										: 0}%; --tcolor1: {typeChart[pokemon.types[0]].color}; --tcolor2: {pokemon.types
+										?.length > 1
 										? typeChart[pokemon.types[1]].color
 										: typeChart[pokemon.types[0]].color}"
 								></div>
@@ -130,9 +130,10 @@
 								<div
 									class="determinate"
 									data-value={pokemon.viewed ? pokemon.stats.defense : '???'}
-									style="width: {pokemon.viewed? ((pokemon.stats.defense / 255) * 100) : 0}%; --tcolor1: {typeChart[
-										pokemon.types[0]
-									].color}; --tcolor2: {pokemon.types?.length > 1
+									style="width: {pokemon.viewed
+										? (pokemon.stats.defense / 255) * 100
+										: 0}%; --tcolor1: {typeChart[pokemon.types[0]].color}; --tcolor2: {pokemon.types
+										?.length > 1
 										? typeChart[pokemon.types[1]].color
 										: typeChart[pokemon.types[0]].color}"
 								></div>
@@ -146,9 +147,10 @@
 								<div
 									class="determinate"
 									data-value={pokemon.viewed ? pokemon.stats.specialAttack : '???'}
-									style="width: {pokemon.viewed? ((pokemon.stats.specialAttack / 255) * 100) : 0}%; --tcolor1: {typeChart[
-										pokemon.types[0]
-									].color}; --tcolor2: {pokemon.types?.length > 1
+									style="width: {pokemon.viewed
+										? (pokemon.stats.specialAttack / 255) * 100
+										: 0}%; --tcolor1: {typeChart[pokemon.types[0]].color}; --tcolor2: {pokemon.types
+										?.length > 1
 										? typeChart[pokemon.types[1]].color
 										: typeChart[pokemon.types[0]].color}"
 								></div>
@@ -162,9 +164,10 @@
 								<div
 									class="determinate"
 									data-value={pokemon.viewed ? pokemon.stats.specialDefense : '???'}
-									style="width: {pokemon.viewed? ((pokemon.stats.specialDefense / 255) * 100) : 0}%; --tcolor1: {typeChart[
-										pokemon.types[0]
-									].color}; --tcolor2: {pokemon.types?.length > 1
+									style="width: {pokemon.viewed
+										? (pokemon.stats.specialDefense / 255) * 100
+										: 0}%; --tcolor1: {typeChart[pokemon.types[0]].color}; --tcolor2: {pokemon.types
+										?.length > 1
 										? typeChart[pokemon.types[1]].color
 										: typeChart[pokemon.types[0]].color}"
 								></div>
@@ -178,9 +181,10 @@
 								<div
 									class="determinate"
 									data-value={pokemon.viewed ? pokemon.stats.speed : '???'}
-									style="width: {pokemon.viewed? ((pokemon.stats.speed / 255) * 100) : 0}%; --tcolor1: {typeChart[
-										pokemon.types[0]
-									].color}; --tcolor2: {pokemon.types?.length > 1
+									style="width: {pokemon.viewed
+										? (pokemon.stats.speed / 255) * 100
+										: 0}%; --tcolor1: {typeChart[pokemon.types[0]].color}; --tcolor2: {pokemon.types
+										?.length > 1
 										? typeChart[pokemon.types[1]].color
 										: typeChart[pokemon.types[0]].color}"
 								></div>
@@ -194,9 +198,10 @@
 								<div
 									class="determinate"
 									data-value={pokemon.viewed ? pokemon.stats.total : '???'}
-									style="width: {pokemon.viewed? ((pokemon.stats.total / 800) * 100) : 0}%; --tcolor1: {typeChart[
-										pokemon.types[0]
-									].color}; --tcolor2: {pokemon.types?.length > 1
+									style="width: {pokemon.viewed
+										? (pokemon.stats.total / 800) * 100
+										: 0}%; --tcolor1: {typeChart[pokemon.types[0]].color}; --tcolor2: {pokemon.types
+										?.length > 1
 										? typeChart[pokemon.types[1]].color
 										: typeChart[pokemon.types[0]].color}"
 								></div>
@@ -217,7 +222,6 @@
 	<p style="margin: 0">
 		{abilityDesc}
 	</p>
-
 </Modal>
 
 <style lang="scss">
@@ -244,6 +248,7 @@
 		background-repeat: no-repeat;
 		background-blend-mode: hard-light;
 		background-size: clamp(33vw, 70vh, 45vw);
+		background-color: #143855;
 
 		&.hide {
 			filter: brightness(0);
@@ -253,7 +258,7 @@
 			justify-content: space-between;
 			height: 100%;
 			padding: 0 1%;
-			
+
 			.desc {
 				width: calc(76% / 2);
 				height: 100%;
@@ -276,12 +281,15 @@
 
 					tr td:first-child {
 						width: 33%;
+						color: #ffd700;
+						text-shadow: 1px 1px 0 #000;
 					}
 
 					tr {
 						td {
 							padding: 1% 0%;
 							box-sizing: border-box;
+							text-shadow: 1px 1px 0 #000;
 
 							.abilities {
 								display: flex;
@@ -292,7 +300,8 @@
 
 								.ability {
 									font-size: 20px;
-									background-color: rgba(0, 0, 0, 0.4);
+									background-color: #0d2538;
+									border: 2px solid #000;
 									padding: 2px 6px;
 									word-break: keep-all;
 									display: flex;
@@ -301,8 +310,13 @@
 									align-content: center;
 									flex-wrap: nowrap;
 
-									border-radius: 4px;
+									border-radius: 0;
 									height: 30px;
+									cursor: pointer;
+
+									&:hover {
+										border-color: #ffd700;
+									}
 								}
 							}
 						}
@@ -334,6 +348,8 @@
 
 					tr td:first-child {
 						width: 30%;
+						color: #ffd700;
+						text-shadow: 1px 1px 0 #000;
 					}
 
 					tr {
@@ -343,11 +359,12 @@
 
 							.progress {
 								position: relative;
-								height: 26px;
+								height: 12px;
 								display: block;
 								width: 100%;
-								background-color: rgba(0, 0, 0, 0.4);
-								border-radius: 4px;
+								background-color: #0d2538;
+								border: 2px solid #000;
+								border-radius: 0;
 								overflow: visible;
 							}
 
@@ -356,16 +373,15 @@
 								top: 0;
 								left: 0;
 								bottom: 0;
-								//background-color: #26a69a;
 								background-color: var(--tcolor1);
 								-webkit-transition: width 0.3s linear;
 								transition: width 0.3s linear;
+								border-right: 2px solid #000;
 
 								&:after {
 									content: attr(data-value);
 									position: absolute;
-									top: 0;
-									//right: 0;
+									top: -8px;
 									left: 0;
 									bottom: 0;
 									padding: 0 4px;
@@ -374,7 +390,8 @@
 									font-size: 30px;
 									font-weight: bold;
 									color: #fff;
-									text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
+									text-shadow: 2px 2px 0 #000;
+									transform: scaleX(-1); /* Counteract RTL */
 								}
 							}
 						}
@@ -403,13 +420,14 @@
 		.type {
 			font-size: 20px;
 			text-transform: uppercase;
-			border-radius: 4px;
+			border-radius: 0;
 			height: 30px;
-			text-shadow: 0 0 3px #000;
+			text-shadow: 1px 1px 0 #000;
 			filter: saturate(100%) brightness(110%);
 			transition: all 0.2s;
 			background: var(--tcolor);
-			box-shadow: 0 0 6px var(--tcolor);
+			border: 2px solid #000;
+			box-shadow: none;
 			display: flex;
 			justify-content: space-around;
 			align-items: center;
@@ -424,6 +442,7 @@
 			svg {
 				height: 22px;
 				width: auto;
+				filter: drop-shadow(1px 1px 0 #000);
 			}
 		}
 	}

@@ -64,12 +64,12 @@
 <div class="pokedex-detail" style="--color:{typeChart[pokemon.types[0]].color}">
 	<div class="row title">
 		<div class="back">
-			<button on:click={() => back()}> 
+			<button on:click={() => back()}>
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-				><path
-					d="M10.5859 12L2.79297 4.20706L4.20718 2.79285L12.0001 10.5857L19.793 2.79285L21.2072 4.20706L13.4143 12L21.2072 19.7928L19.793 21.2071L12.0001 13.4142L4.20718 21.2071L2.79297 19.7928L10.5859 12Z"
-				></path></svg
-			>
+					><path
+						d="M10.5859 12L2.79297 4.20706L4.20718 2.79285L12.0001 10.5857L19.793 2.79285L21.2072 4.20706L13.4143 12L21.2072 19.7928L19.793 21.2071L12.0001 13.4142L4.20718 21.2071L2.79297 19.7928L10.5859 12Z"
+					></path></svg
+				>
 			</button>
 		</div>
 
@@ -78,10 +78,14 @@
 		</div>
 		<div class="prev-next">
 			<button on:click={() => previous()}>
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 8L18 14H6L12 8Z"></path></svg>
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+					><path d="M12 8L18 14H6L12 8Z"></path></svg
+				>
 			</button>
 			<button on:click={() => next()}>
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 16L6 10H18L12 16Z"></path></svg>
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+					><path d="M12 16L6 10H18L12 16Z"></path></svg
+				>
 			</button>
 		</div>
 	</div>
@@ -117,27 +121,12 @@
 		left: 0;
 		width: 100dvw;
 		height: 100dvh;
-		background: rgb(0, 29, 43);
-		background: -moz-linear-gradient(
-			140deg,
-			rgba(0, 29, 43, 1) 0%,
-			rgba(3, 84, 142, 1) 42%,
-			rgba(0, 195, 230, 1) 100%
-		);
-		background: -webkit-linear-gradient(
-			140deg,
-			rgba(0, 29, 43, 1) 0%,
-			rgba(3, 84, 142, 1) 42%,
-			rgba(0, 195, 230, 1) 100%
-		);
-		background: linear-gradient(
-			140deg,
-			rgba(0, 29, 43, 1) 0%,
-			rgba(3, 84, 142, 1) 42%,
-			rgba(0, 195, 230, 1) 100%
-		);
+		background: #143855;
+		border: 2px solid #000;
+		box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
 		color: #fff;
 		z-index: 10;
+		box-sizing: border-box;
 
 		.row {
 			display: flex;
@@ -159,6 +148,8 @@
 			gap: 6%;
 			padding: 0 2%;
 			box-sizing: border-box;
+			background: #0088cc;
+			border-bottom: 2px solid #000;
 
 			h1 {
 				font-size: 36px;
@@ -166,6 +157,7 @@
 				margin: 0;
 				padding: 0;
 				text-align: center;
+				text-shadow: 2px 2px 0 #000;
 			}
 
 			button {
@@ -179,10 +171,10 @@
 				font-size: 26px;
 				text-transform: uppercase;
 				cursor: pointer;
-				border-radius: 4px;
+				border-radius: 0;
 				color: white;
 				background: rgba(0, 0, 0, 0.2);
-				border: 1px solid white;
+				border: 2px solid #000;
 			}
 
 			.back {
@@ -212,13 +204,15 @@
 			justify-content: center;
 			align-content: center;
 			flex-wrap: wrap;
+			background: #0d2538;
+			border-top: 2px solid #000;
 
 			.wrapper {
 				display: flex;
 				flex-direction: row;
 				align-items: flex-start;
 				padding: 2px 3px 3px 3px;
-				border-radius: 9px;
+				border-radius: 0;
 				position: relative;
 			}
 
@@ -226,16 +220,14 @@
 				content: '';
 				width: 130px;
 				height: 28px;
-				background: #ffffff;
+				background: #ffd700;
 				position: absolute;
 				top: 2px;
 				left: 2px;
 				z-index: 9;
-				border: 0.5px solid rgba(0, 0, 0, 0.04);
-				box-shadow:
-					0px 3px 8px rgba(0, 0, 0, 0.12),
-					0px 3px 1px rgba(0, 0, 0, 0.04);
-				border-radius: 7px;
+				border: 2px solid #000;
+				box-shadow: none;
+				border-radius: 0;
 				transition: all 0.2s ease-out;
 			}
 
@@ -261,11 +253,12 @@
 
 				border: 0;
 
-				color: #000;
+				color: #fff;
 				font-size: 26px;
-				opacity: 0.6;
+				opacity: 1;
 				text-transform: uppercase;
 				cursor: pointer;
+				text-shadow: 1px 1px 0 #000;
 			}
 
 			.tab--1:checked ~ .indicator {
@@ -278,6 +271,12 @@
 
 			.tab--3:checked ~ .indicator {
 				left: calc(130px * 2 + 2px);
+			}
+
+			/* Change text color for selected tab */
+			.tab:checked + .tab_label {
+				color: #000;
+				text-shadow: none;
 			}
 		}
 	}
