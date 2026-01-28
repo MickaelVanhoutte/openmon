@@ -199,7 +199,7 @@ export abstract class TerrainEffect implements Effect {
 }
 
 export class TrickRoomEffect implements Effect {
-	move_effect_id: number = 161;
+	move_effect_id: number = 218;
 	abr: string = '';
 	duration: number = -1;
 	when: EffectTiming = EffectTiming.AFTER_MOVE;
@@ -215,7 +215,27 @@ export class TrickRoomEffect implements Effect {
 		return new EffectForTurn(true);
 	}
 
-	applyTrickRoom(battleField: BattleField): void {
+	activateTrickRoom(battleField: BattleField): void {
 		battleField.setTrickRoom(true, 5);
 	}
+}
+
+export interface ActionWithSpeed {
+	priority: number;
+	speed: number;
+}
+
+export function sortActionsWithTrickRoom<T extends ActionWithSpeed>(
+	actions: T[],
+	trickRoomActive: boolean
+): T[] {
+	return [...actions].sort((a, b) => {
+		if (a.priority !== b.priority) {
+			return b.priority - a.priority;
+		}
+		if (trickRoomActive) {
+			return a.speed - b.speed;
+		}
+		return b.speed - a.speed;
+	});
 }
