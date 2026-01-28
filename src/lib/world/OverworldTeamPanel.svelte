@@ -164,7 +164,7 @@
 
 	.team-slot {
 		position: relative;
-		border: 2px solid #0d2538;
+		border: 2px solid #000;
 		height: calc(100dvh / 9);
 	}
 

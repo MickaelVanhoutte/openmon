@@ -525,17 +525,15 @@
 			}
 
 			.stat-bar {
-				height: 12px;
+				height: 16px;
 				width: 100%;
-				background: #143855;
+				background: #333333;
 				border: 2px solid #000;
 				margin-top: 2px;
-				border-radius: 4px;
 				overflow: hidden;
 
 				.stat-bar-fill {
 					height: 100%;
-					border-radius: 2px;
 				}
 			}
 
@@ -554,6 +552,7 @@
 			margin-top: 10px;
 			border-top: 2px solid rgba(44, 56, 69, 0.8);
 			padding-top: 10px;
+			padding-bottom: 20px;
 			font-weight: bold;
 
 			.stat-value-container {

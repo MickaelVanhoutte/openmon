@@ -662,12 +662,12 @@
 
 	.run-button {
 		position: absolute;
-		bottom: calc(5dvh + 20px + 100px);
-		right: max(20px, env(safe-area-inset-right, 20px));
+		bottom: calc(5dvh + 20px + 140px);
+		right: calc(max(20px, env(safe-area-inset-right, 20px)) + 70px);
 		z-index: 6;
 
-		width: 44px;
-		height: 44px;
+		width: 48px;
+		height: 48px;
 		background: #334455;
 		border: 2px solid #000;
 		border-radius: 50%;
