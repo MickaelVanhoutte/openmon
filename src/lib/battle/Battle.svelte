@@ -10,12 +10,17 @@
 	import {
 		animateEntry,
 		animateFaint,
-		animateMove,
 		animateRun
 	} from '../../js/battle/animations/battle-animations';
+	import {
+		initializeAnimationEngine,
+		destroyAnimationEngine,
+		animateAttackWithNewEngine
+	} from '../../js/battle/animations';
 	import beachesImage from '../../assets/battle/beaches.png';
 
 	import { ComboMove, PokemonInstance } from '../../js/pokemons/pokedex';
+	import type { Move } from '../../js/pokemons/pokedex';
 	import { get } from 'svelte/store';
 
 	export let context: GameContext;
@@ -45,6 +50,70 @@
 
 	let ally: HTMLImageElement[] = [];
 	let opponent: HTMLImageElement[] = [];
+
+	// Helper to play move animation with new engine
+	function playMoveAnimation(
+		move: Move,
+		initiatorElement: HTMLElement,
+		targetElement: HTMLElement,
+		initiatorPokemon: PokemonInstance,
+		targetPokemon: PokemonInstance
+	): void {
+		const initiatorSide = battleCtx.getPokemonSide(initiatorPokemon);
+		const targetSide = battleCtx.getPokemonSide(targetPokemon);
+
+		const initiatorIdx =
+			initiatorSide === 'ally'
+				? battleCtx.playerSide.indexOf(initiatorPokemon)
+				: battleCtx.oppSide.indexOf(initiatorPokemon);
+		const targetIdx =
+			targetSide === 'opponent'
+				? battleCtx.oppSide.indexOf(targetPokemon)
+				: battleCtx.playerSide.indexOf(targetPokemon);
+
+		animateAttackWithNewEngine({
+			initiator: initiatorElement,
+			target: targetElement,
+			initiatorSlot: {
+				side: initiatorSide === 'ally' ? 'player' : 'opponent',
+				index: initiatorIdx
+			},
+			targetSlot: {
+				side: targetSide === 'opponent' ? 'opponent' : 'player',
+				index: targetIdx
+			},
+			moveName: move.name,
+			moveCategory: move.category as 'physical' | 'special' | 'status',
+			moveType: move.type
+		});
+	}
+
+	// Helper for combo move animations with dynamic partner element
+	function playComboMoveAnimation(
+		move: Move,
+		initiatorElement: HTMLElement,
+		targetElement: HTMLElement,
+		initiatorSide: 'ally' | 'opponent',
+		initiatorIdx: number,
+		targetSide: 'opponent' | 'player',
+		targetIdx: number
+	): Promise<void> {
+		return animateAttackWithNewEngine({
+			initiator: initiatorElement,
+			target: targetElement,
+			initiatorSlot: {
+				side: initiatorSide === 'ally' ? 'player' : 'opponent',
+				index: initiatorIdx
+			},
+			targetSlot: {
+				side: targetSide,
+				index: targetIdx
+			},
+			moveName: move.name,
+			moveCategory: move.category as 'physical' | 'special' | 'status',
+			moveType: move.type
+		});
+	}
 
 	battleCtx.events.playerPokemonFaint.subscribe((value) => {
 		if (value && ally) {
@@ -90,23 +159,38 @@
 						true,
 						battleCtx.battleType === BattleType.DOUBLE
 					).then(() => {
-						animateMove(
+						const initiatorSide = battleCtx.getPokemonSide(value.initiator);
+						const targetSide =
+							battleCtx.getPokemonSide(value.target) === 'opponent' ? 'opponent' : 'player';
+						const initiatorIdx =
+							initiatorSide === 'ally'
+								? battleCtx.playerSide.indexOf(value.initiator)
+								: battleCtx.oppSide.indexOf(value.initiator);
+						const targetIdx =
+							targetSide === 'opponent'
+								? battleCtx.oppSide.indexOf(value.target)
+								: battleCtx.playerSide.indexOf(value.target);
+
+						// Partner's move (move2)
+						playComboMoveAnimation(
 							move.move2,
-							battleCtx.getPokemonSide(value.initiator),
-							animTarget,
 							partner,
-							scene,
-							spriteFxPartner,
-							fx
-						);
-						animateMove(
-							move.move1,
-							battleCtx.getPokemonSide(value.initiator),
 							animTarget,
+							initiatorSide,
+							battleCtx.playerSide.length, // partner slot
+							targetSide,
+							targetIdx
+						);
+
+						// Main initiator's move (move1)
+						playComboMoveAnimation(
+							move.move1,
 							animInitiator,
-							scene,
-							spriteFx,
-							fx
+							animTarget,
+							initiatorSide,
+							initiatorIdx,
+							targetSide,
+							targetIdx
 						).then(() => {
 							animateRun(
 								partner,
@@ -118,15 +202,7 @@
 					});
 				});
 			} else {
-				animateMove(
-					value.move,
-					battleCtx.getPokemonSide(value.initiator),
-					animTarget,
-					animInitiator,
-					scene,
-					spriteFx,
-					fx
-				);
+				playMoveAnimation(value.move, animInitiator, animTarget, value.initiator, value.target);
 			}
 		}
 	});
@@ -228,6 +304,9 @@
 	}
 
 	onMount(() => {
+		// Initialize the new animation engine with the scene container
+		initializeAnimationEngine(scene);
+
 		// set events
 		battleCtx.events.pokemonChange.subscribe((change) => {
 			if (change) {
@@ -252,6 +331,7 @@
 		});
 
 		return () => {
+			destroyAnimationEngine();
 			clearInterval(drawInterval);
 		};
 	});
