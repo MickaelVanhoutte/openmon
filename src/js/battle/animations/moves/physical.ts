@@ -5,10 +5,29 @@ export const physicalMoves: Record<string, MoveAnimation> = {};
 async function dashToTarget(engine: AnimationEngine, context: MoveContext): Promise<void> {
 	const { attacker, defender } = context;
 	const target = Array.isArray(defender) ? defender[0] : defender;
-	const targetPos = engine.getPosition(target.slot);
-	const attackPos = engine.behind(targetPos, -30);
 
-	await engine.wait(50);
+	const attackerRect = attacker.element.getBoundingClientRect();
+	const defenderRect = target.element.getBoundingClientRect();
+
+	const deltaX = defenderRect.left - attackerRect.left;
+	const deltaY = defenderRect.top - attackerRect.top;
+
+	const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+	const stopDistance = Math.max(0, distance - 30);
+	const ratio = distance > 0 ? stopDistance / distance : 0;
+
+	const moveX = deltaX * ratio;
+	const moveY = deltaY * ratio;
+
+	const gsap = (await import('gsap')).default;
+
+	await new Promise<void>((resolve) => {
+		const timeline = gsap.timeline({ onComplete: resolve });
+		timeline
+			.to(attacker.element, { x: moveX, y: moveY, duration: 0.2, ease: 'power2.in' })
+			.add(() => engine.shake(target.element, 8, 150))
+			.to(attacker.element, { x: 0, y: 0, duration: 0.3, ease: 'power2.out' });
+	});
 }
 
 async function punchAnimation(engine: AnimationEngine, context: MoveContext): Promise<void> {
