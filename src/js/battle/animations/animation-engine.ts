@@ -9,6 +9,72 @@ import { EffectPool } from './effect-pool';
 import { EFFECT_MANIFEST } from './effect-manifest';
 import { registerCustomEasings, type EasingType } from './easing';
 
+/**
+ * Type color mapping for move type-based visual effects.
+ * Used with CSS hue-rotate filter for type-colored animations.
+ */
+export const TYPE_COLORS: Record<string, string> = {
+	normal: '#A8A878',
+	fire: '#F08030',
+	water: '#6890F0',
+	electric: '#F8D030',
+	grass: '#78C850',
+	ice: '#98D8D8',
+	fighting: '#C03028',
+	poison: '#A040A0',
+	ground: '#E0C068',
+	flying: '#A890F0',
+	psychic: '#F85888',
+	bug: '#A8B820',
+	rock: '#B8A038',
+	ghost: '#705898',
+	dragon: '#7038F8',
+	dark: '#705848',
+	steel: '#B8B8D0',
+	fairy: '#EE99AC'
+};
+
+/**
+ * Type to hue-rotate angle mapping for CSS filter-based coloring.
+ */
+export const TYPE_HUE_ANGLES: Record<string, number> = {
+	normal: 0,
+	fire: 0,
+	water: 200,
+	electric: 50,
+	grass: 90,
+	ice: 180,
+	fighting: -20,
+	poison: 280,
+	ground: 30,
+	flying: 250,
+	psychic: 320,
+	bug: 70,
+	rock: 35,
+	ghost: 260,
+	dragon: 270,
+	dark: 0,
+	steel: 220,
+	fairy: 330
+};
+
+export interface SpriteEffectOptions {
+	scale?: number;
+	opacity?: number;
+	duration?: number;
+	tint?: string;
+	hueRotate?: number;
+	onComplete?: () => void;
+}
+
+export interface MoveSpriteOptions {
+	duration?: number;
+	easing?: EasingType;
+	overshoot?: number;
+	returnDuration?: number;
+	returnEasing?: EasingType;
+}
+
 export interface PokemonSprite {
 	slot: BattleSlot;
 	element: HTMLElement;
@@ -303,6 +369,166 @@ export class AnimationEngine {
 
 	above(position: Position, distance: number): Position {
 		return this.positionSystem.above(position, distance);
+	}
+
+	async showSpriteEffect(
+		effectName: string,
+		target: PokemonSprite | HTMLElement,
+		options: SpriteEffectOptions = {}
+	): Promise<void> {
+		const element = this.effectPool.acquire(effectName);
+		if (!element) return;
+
+		const definition = EFFECT_MANIFEST[effectName];
+		if (!definition) {
+			this.effectPool.release(element);
+			return;
+		}
+
+		const targetElement = 'element' in target ? target.element : target;
+		const targetRect = targetElement.getBoundingClientRect();
+		const containerRect = this.container.getBoundingClientRect();
+
+		const centerX = targetRect.left - containerRect.left + targetRect.width / 2;
+		const centerY = targetRect.top - containerRect.top + targetRect.height / 2;
+
+		const duration = options.duration ?? 400;
+		const scale = options.scale ?? 1;
+		const fps = definition.fps ?? 24;
+		const frameTime = 1000 / fps;
+
+		element.style.display = 'block';
+		element.style.position = 'absolute';
+		element.style.left = `${centerX - (definition.frameWidth * scale) / 2}px`;
+		element.style.top = `${centerY - (definition.frameHeight * scale) / 2}px`;
+		element.style.width = `${definition.frameWidth}px`;
+		element.style.height = `${definition.frameHeight}px`;
+		element.style.opacity = String(options.opacity ?? 1);
+		element.style.transform = `scale(${scale})`;
+		element.style.zIndex = '100';
+
+		if (options.hueRotate !== undefined) {
+			element.style.filter = `hue-rotate(${options.hueRotate}deg)`;
+		} else if (options.tint) {
+			element.style.filter = `drop-shadow(0 0 8px ${options.tint})`;
+		}
+
+		this.container.appendChild(element);
+
+		await this.animateSpriteSheet(element, definition.frames, frameTime, duration);
+
+		element.style.filter = '';
+		this.effectPool.release(element);
+		options.onComplete?.();
+	}
+
+	async moveSpriteTo(
+		sprite: PokemonSprite,
+		target: PokemonSprite | { x: number; y: number },
+		options: MoveSpriteOptions = {}
+	): Promise<void> {
+		const duration = options.duration ?? 0.25;
+		const returnDuration = options.returnDuration ?? 0.3;
+		const easing = options.easing ?? 'power2.in';
+		const returnEasing = options.returnEasing ?? 'power2.out';
+		const overshoot = options.overshoot ?? 30;
+
+		const attackerRect = sprite.element.getBoundingClientRect();
+		let targetX: number;
+		let targetY: number;
+
+		if ('element' in target) {
+			const targetRect = target.element.getBoundingClientRect();
+			targetX = targetRect.left;
+			targetY = targetRect.top;
+		} else {
+			targetX = target.x;
+			targetY = target.y;
+		}
+
+		const deltaX = targetX - attackerRect.left;
+		const deltaY = targetY - attackerRect.top;
+		const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+		const stopDistance = Math.max(0, distance - overshoot);
+		const ratio = distance > 0 ? stopDistance / distance : 0;
+
+		const moveX = deltaX * ratio;
+		const moveY = deltaY * ratio;
+
+		const timeline = gsap.timeline();
+		this.activeTimelines.add(timeline);
+
+		timeline
+			.to(sprite.element, {
+				x: moveX,
+				y: moveY,
+				duration,
+				ease: easing
+			})
+			.to(sprite.element, {
+				x: 0,
+				y: 0,
+				duration: returnDuration,
+				ease: returnEasing
+			});
+
+		await timeline.then(() => {});
+		this.activeTimelines.delete(timeline);
+	}
+
+	async showImpact(
+		target: PokemonSprite | HTMLElement,
+		options: { intensity?: number; duration?: number; color?: string } = {}
+	): Promise<void> {
+		const targetElement = 'element' in target ? target.element : target;
+		const intensity = options.intensity ?? 8;
+		const duration = options.duration ?? 200;
+		const color = options.color ?? '#ffffff';
+
+		await Promise.all([
+			this.showSpriteEffect('impact', target as PokemonSprite, {
+				scale: 1.2,
+				duration: duration,
+				tint: color
+			}),
+			this.shake(targetElement, intensity, duration)
+		]);
+	}
+
+	async flashSprite(sprite: PokemonSprite, color: string, duration: number = 150): Promise<void> {
+		await this.flashElement(sprite.element, color, duration);
+	}
+
+	async pulseScale(
+		sprite: PokemonSprite,
+		targetScale: number,
+		duration: number = 300
+	): Promise<void> {
+		const timeline = gsap.timeline();
+		this.activeTimelines.add(timeline);
+
+		timeline
+			.to(sprite.element, {
+				scale: targetScale,
+				duration: duration / 2000,
+				ease: 'power2.out'
+			})
+			.to(sprite.element, {
+				scale: 1,
+				duration: duration / 2000,
+				ease: 'power2.in'
+			});
+
+		await timeline.then(() => {});
+		this.activeTimelines.delete(timeline);
+	}
+
+	getTypeColor(type: string): string {
+		return TYPE_COLORS[type.toLowerCase()] ?? TYPE_COLORS.normal;
+	}
+
+	getTypeHueAngle(type: string): number {
+		return TYPE_HUE_ANGLES[type.toLowerCase()] ?? TYPE_HUE_ANGLES.normal;
 	}
 
 	cancelAll(): void {
