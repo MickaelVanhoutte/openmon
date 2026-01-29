@@ -887,9 +887,13 @@ export class PokemonInstance extends PokedexEntry {
 			| 'accuracy',
 		value: number
 	) {
-		this.statsChanges[stat] > -6 && this.statsChanges[stat] < 6
-			? (this.statsChanges[stat] += value)
-			: console.log(`${stat}cannot go ${value > 0 ? 'higher' : 'lower'}`);
+		const currentStage = this.statsChanges[stat];
+		const newStage = Math.min(6, Math.max(-6, currentStage + value));
+		if (newStage === currentStage) {
+			console.log(`${stat} cannot go ${value > 0 ? 'higher' : 'lower'}`);
+		} else {
+			this.statsChanges[stat] = newStage;
+		}
 	}
 
 	public resetBattleStats() {
