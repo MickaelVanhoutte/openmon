@@ -14,6 +14,7 @@
 	let currentHp = $state(0);
 	let percent = $state(0);
 	let pokemon: PokemonInstance | undefined = $state();
+	let statsSnapshot: Record<string, number> = $state({});
 
 	const statusIcons: Record<string, string> = {
 		BRN: 'src/assets/status/brn.svg',
@@ -54,6 +55,9 @@
 				pokemon = battleCtx?.oppSide[idx];
 				currentHp = pokemon?.currentHp || 0;
 				percent = Math.floor((currentHp * 100) / (pokemon?.currentStats.hp || 1));
+				if (pokemon?.statsChanges) {
+					statsSnapshot = { ...pokemon.statsChanges };
+				}
 			}
 		});
 		return () => unsubscribe();
@@ -97,16 +101,14 @@
 					{/if}
 				</div>
 			{/if}
-			{#if pokemon?.statsChanges}
-				{#each Object.entries(pokemon.statsChanges) as [stat, value]}
-					{#if statsFormat[stat] && value !== 0}
-						<span class="stat-chip" class:positive={value > 0} class:negative={value < 0}>
-							{statsFormat[stat]}
-							{value > 0 ? '+' : ''}{value}
-						</span>
-					{/if}
-				{/each}
-			{/if}
+			{#each Object.entries(statsSnapshot) as [stat, value]}
+				{#if statsFormat[stat] && value !== 0}
+					<span class="stat-chip" class:positive={value > 0} class:negative={value < 0}>
+						{statsFormat[stat]}
+						{value > 0 ? '+' : ''}{value}
+					</span>
+				{/if}
+			{/each}
 		</div>
 	</div>
 </div>
