@@ -1,53 +1,109 @@
-import { type AnimationEngine, type MoveContext, type MoveAnimation } from '../animation-engine';
+import {
+	type AnimationEngine,
+	type MoveContext,
+	type MoveAnimation,
+	TYPE_HUE_ANGLES
+} from '../animation-engine';
 
 export const physicalMoves: Record<string, MoveAnimation> = {};
 
-async function dashToTarget(engine: AnimationEngine, context: MoveContext): Promise<void> {
-	const { attacker, defender } = context;
-	const target = Array.isArray(defender) ? defender[0] : defender;
-
-	const attackerRect = attacker.element.getBoundingClientRect();
-	const defenderRect = target.element.getBoundingClientRect();
-
-	const deltaX = defenderRect.left - attackerRect.left;
-	const deltaY = defenderRect.top - attackerRect.top;
-
-	const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-	const stopDistance = Math.max(0, distance - 30);
-	const ratio = distance > 0 ? stopDistance / distance : 0;
-
-	const moveX = deltaX * ratio;
-	const moveY = deltaY * ratio;
-
-	const gsap = (await import('gsap')).default;
-
-	await new Promise<void>((resolve) => {
-		const timeline = gsap.timeline({ onComplete: resolve });
-		timeline
-			.to(attacker.element, { x: moveX, y: moveY, duration: 0.2, ease: 'power2.in' })
-			.add(() => engine.shake(target.element, 8, 150))
-			.to(attacker.element, { x: 0, y: 0, duration: 0.3, ease: 'power2.out' });
-	});
-}
-
 async function punchAnimation(engine: AnimationEngine, context: MoveContext): Promise<void> {
-	await dashToTarget(engine, context);
+	const { attacker, defender, moveType } = context;
+	const target = Array.isArray(defender) ? defender[0] : defender;
+	const hue = TYPE_HUE_ANGLES[moveType] ?? 0;
+
+	await engine.moveSpriteTo(attacker, target, { duration: 0.15, overshoot: 25 });
+	await Promise.all([
+		engine.showSpriteEffect('fist', target, { hueRotate: hue, scale: 1.2 }),
+		engine.showImpact(target, { intensity: 10, color: engine.getTypeColor(moveType) })
+	]);
 }
 
 async function kickAnimation(engine: AnimationEngine, context: MoveContext): Promise<void> {
-	await dashToTarget(engine, context);
+	const { attacker, defender, moveType } = context;
+	const target = Array.isArray(defender) ? defender[0] : defender;
+	const hue = TYPE_HUE_ANGLES[moveType] ?? 0;
+
+	await engine.moveSpriteTo(attacker, target, {
+		duration: 0.2,
+		easing: 'power3.in',
+		overshoot: 20,
+		returnDuration: 0.35,
+		returnEasing: 'bounce.out'
+	});
+	await Promise.all([
+		engine.showSpriteEffect('foot', target, { hueRotate: hue, scale: 1.3 }),
+		engine.showImpact(target, { intensity: 12, color: engine.getTypeColor(moveType) })
+	]);
 }
 
 async function slashAnimation(engine: AnimationEngine, context: MoveContext): Promise<void> {
-	await dashToTarget(engine, context);
+	const { attacker, defender, moveType } = context;
+	const target = Array.isArray(defender) ? defender[0] : defender;
+	const hue = TYPE_HUE_ANGLES[moveType] ?? 0;
+
+	await engine.moveSpriteTo(attacker, target, { duration: 0.12, overshoot: 35 });
+	await Promise.all([
+		engine.showSpriteEffect('slash', target, { hueRotate: hue, scale: 1.5 }),
+		engine.flashSprite(target, engine.getTypeColor(moveType), 100),
+		engine.shake(target.element, 6, 150)
+	]);
+}
+
+async function clawAnimation(engine: AnimationEngine, context: MoveContext): Promise<void> {
+	const { attacker, defender, moveType } = context;
+	const target = Array.isArray(defender) ? defender[0] : defender;
+	const hue = TYPE_HUE_ANGLES[moveType] ?? 0;
+
+	await engine.moveSpriteTo(attacker, target, { duration: 0.1, overshoot: 30 });
+	await engine.showSpriteEffect('claws', target, { hueRotate: hue, scale: 1.4 });
+	await engine.wait(50);
+	await Promise.all([
+		engine.showSpriteEffect('slash', target, { hueRotate: hue, scale: 1.2 }),
+		engine.shake(target.element, 8, 200)
+	]);
 }
 
 async function biteAnimation(engine: AnimationEngine, context: MoveContext): Promise<void> {
-	await dashToTarget(engine, context);
+	const { attacker, defender, moveType } = context;
+	const target = Array.isArray(defender) ? defender[0] : defender;
+	const hue = TYPE_HUE_ANGLES[moveType] ?? 0;
+
+	await engine.moveSpriteTo(attacker, target, { duration: 0.18, overshoot: 15 });
+	await Promise.all([
+		engine.showSpriteEffect('crunch', target, { hueRotate: hue, scale: 1.3 }),
+		engine.showImpact(target, { intensity: 10, color: engine.getTypeColor(moveType) })
+	]);
 }
 
 async function tackleAnimation(engine: AnimationEngine, context: MoveContext): Promise<void> {
-	await dashToTarget(engine, context);
+	const { attacker, defender, moveType } = context;
+	const target = Array.isArray(defender) ? defender[0] : defender;
+
+	await engine.moveSpriteTo(attacker, target, {
+		duration: 0.25,
+		easing: 'power4.in',
+		overshoot: 10,
+		returnDuration: 0.4,
+		returnEasing: 'power2.out'
+	});
+	await Promise.all([
+		engine.showSpriteEffect('impact', target, { scale: 1.5 }),
+		engine.showImpact(target, { intensity: 15, color: engine.getTypeColor(moveType) }),
+		engine.screenShake(10, 200)
+	]);
+}
+
+async function chopAnimation(engine: AnimationEngine, context: MoveContext): Promise<void> {
+	const { attacker, defender, moveType } = context;
+	const target = Array.isArray(defender) ? defender[0] : defender;
+	const hue = TYPE_HUE_ANGLES[moveType] ?? 0;
+
+	await engine.moveSpriteTo(attacker, target, { duration: 0.15, overshoot: 25 });
+	await Promise.all([
+		engine.showSpriteEffect('slash', target, { hueRotate: hue, scale: 1.3 }),
+		engine.showImpact(target, { intensity: 8 })
+	]);
 }
 
 const PUNCH_MOVES = [
@@ -92,17 +148,9 @@ const SLASH_MOVES = [
 	'fury-cutter',
 	'night-slash',
 	'x-scissor',
-	'cross-chop',
 	'psycho-cut',
 	'leaf-blade',
 	'air-slash',
-	'shadow-claw',
-	'dragon-claw',
-	'metal-claw',
-	'crush-claw',
-	'hone-claws',
-	'aerial-ace',
-	'fury-swipes',
 	'razor-shell',
 	'sacred-sword',
 	'secret-sword',
@@ -110,6 +158,18 @@ const SLASH_MOVES = [
 	'solar-blade',
 	'behemoth-blade',
 	'wicked-blow'
+];
+
+const CLAW_MOVES = [
+	'scratch',
+	'shadow-claw',
+	'dragon-claw',
+	'metal-claw',
+	'crush-claw',
+	'hone-claws',
+	'fury-swipes',
+	'cross-chop',
+	'aerial-ace'
 ];
 
 const BITE_MOVES = [
@@ -148,7 +208,6 @@ const TACKLE_MOVES = [
 	'peck',
 	'drill-peck',
 	'wing-attack',
-	'aerial-ace',
 	'brave-bird',
 	'head-smash',
 	'iron-head',
@@ -165,6 +224,8 @@ const TACKLE_MOVES = [
 	'collision-course'
 ];
 
+const CHOP_MOVES = ['karate-chop', 'brick-break', 'cross-chop', 'dual-chop', 'throat-chop'];
+
 PUNCH_MOVES.forEach((move) => {
 	physicalMoves[move] = punchAnimation;
 });
@@ -177,12 +238,20 @@ SLASH_MOVES.forEach((move) => {
 	physicalMoves[move] = slashAnimation;
 });
 
+CLAW_MOVES.forEach((move) => {
+	physicalMoves[move] = clawAnimation;
+});
+
 BITE_MOVES.forEach((move) => {
 	physicalMoves[move] = biteAnimation;
 });
 
 TACKLE_MOVES.forEach((move) => {
 	physicalMoves[move] = tackleAnimation;
+});
+
+CHOP_MOVES.forEach((move) => {
+	physicalMoves[move] = chopAnimation;
 });
 
 export function registerPhysicalMoves(engine: AnimationEngine): void {
