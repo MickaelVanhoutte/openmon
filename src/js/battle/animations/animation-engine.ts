@@ -93,28 +93,38 @@ export class AnimationEngine {
 	}
 
 	private async dashAttack(attacker: PokemonSprite, defender: PokemonSprite): Promise<void> {
-		const defenderPos = this.positionSystem.getSlotPosition(defender.slot);
-		const attackPos = this.positionSystem.behind(defenderPos, -30);
-		const attackCoords = this.positionSystem.toScreenCoords(attackPos, 96);
-		const homeCoords = this.positionSystem.toScreenCoords(attacker.homePosition, 96);
+		// Calculate relative movement using transforms (x/y) not absolute positioning
+		const attackerRect = attacker.element.getBoundingClientRect();
+		const defenderRect = defender.element.getBoundingClientRect();
+
+		// Calculate how far to move toward the defender
+		const deltaX = defenderRect.left - attackerRect.left;
+		const deltaY = defenderRect.top - attackerRect.top;
+
+		// Stop 30px short of the defender
+		const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+		const stopDistance = Math.max(0, distance - 30);
+		const ratio = distance > 0 ? stopDistance / distance : 0;
+
+		const moveX = deltaX * ratio;
+		const moveY = deltaY * ratio;
 
 		const timeline = gsap.timeline();
 		this.activeTimelines.add(timeline);
 
 		timeline
 			.to(attacker.element, {
-				left: attackCoords.left,
-				top: attackCoords.top,
-				duration: 0.3,
-				ease: 'ballistic'
+				x: moveX,
+				y: moveY,
+				duration: 0.2,
+				ease: 'power2.in'
 			})
-			.add(() => this.showEffectAt('impact', defenderPos))
-			.add(() => this.shake(defender.element, 5, 100))
+			.add(() => this.shake(defender.element, 8, 150))
 			.to(attacker.element, {
-				left: homeCoords.left,
-				top: homeCoords.top,
-				duration: 0.4,
-				ease: 'ballistic'
+				x: 0,
+				y: 0,
+				duration: 0.3,
+				ease: 'power2.out'
 			});
 
 		await timeline.then(() => {});
@@ -124,19 +134,33 @@ export class AnimationEngine {
 	private async projectileAttack(
 		attacker: PokemonSprite,
 		defender: PokemonSprite,
-		effectName: string
+		_effectName: string
 	): Promise<void> {
-		const attackerPos = attacker.homePosition;
-		const defenderPos = this.positionSystem.getSlotPosition(defender.slot);
-
-		await this.moveEffect(effectName, attackerPos, defenderPos, 400);
-		await this.showEffectAt('impact', defenderPos);
-		await this.shake(defender.element, 5, 100);
+		await this.flashElement(defender.element, '#ff6600', 150);
+		await this.shake(defender.element, 6, 150);
 	}
 
 	private async statusEffect(pokemon: PokemonSprite): Promise<void> {
-		await this.showEffectAt('buff', pokemon.homePosition, { duration: 800 });
+		await this.flashElement(pokemon.element, '#00ff88', 300);
 		await this.shake(pokemon.element, 3, 200);
+	}
+
+	private async flashElement(element: HTMLElement, color: string, duration: number): Promise<void> {
+		const timeline = gsap.timeline();
+		this.activeTimelines.add(timeline);
+
+		timeline
+			.to(element, {
+				filter: `brightness(2) drop-shadow(0 0 10px ${color})`,
+				duration: duration / 2000
+			})
+			.to(element, {
+				filter: 'brightness(1) drop-shadow(0 0 0 transparent)',
+				duration: duration / 2000
+			});
+
+		await timeline.then(() => {});
+		this.activeTimelines.delete(timeline);
 	}
 
 	async showEffectAt(
