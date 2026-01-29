@@ -1,12 +1,9 @@
 <script lang="ts">
+	import { inlineSvg } from '@svelte-put/inline-svg';
 	import { BattleType } from '../../js/battle/battle-model';
 	import { BattleContext } from '../../js/context/battleContext';
 	import type { PokemonInstance } from '../../js/pokemons/pokedex';
 	import { VolatileStatus } from '../../js/pokemons/volatile-status';
-	import {
-		getStatStageMultiplier,
-		getAccuracyEvasionMultiplier
-	} from '../../js/pokemons/stat-utils';
 
 	interface Props {
 		battleCtx: BattleContext;
@@ -20,26 +17,25 @@
 	let expPercent = $state(0);
 	let pokemon: PokemonInstance | undefined = $state();
 
-	const statsFormat: Record<string, string> = {
-		attack: 'Atk',
-		defense: 'Def',
-		specialAttack: 'SpA',
-		specialDefense: 'SpD',
-		speed: 'Spe',
-		hp: 'HP',
-		accuracy: 'Acc',
-		evasion: 'Eva'
+	const statusIcons: Record<string, string> = {
+		BRN: 'src/assets/status/brn.svg',
+		PSN: 'src/assets/status/psn.svg',
+		PAR: 'src/assets/status/par.svg',
+		SLP: 'src/assets/status/slp.svg',
+		FRZ: 'src/assets/status/frz.svg',
+		'PSN+': 'src/assets/status/tox.svg',
+		TOX: 'src/assets/status/tox.svg'
 	};
 
-	const statsMultiplier: Record<string, (value: number) => number> = {
-		attack: getStatStageMultiplier,
-		defense: getStatStageMultiplier,
-		specialAttack: getStatStageMultiplier,
-		specialDefense: getStatStageMultiplier,
-		speed: getStatStageMultiplier,
-		hp: getStatStageMultiplier,
-		accuracy: getAccuracyEvasionMultiplier,
-		evasion: getAccuracyEvasionMultiplier
+	const statsFormat: Record<string, string> = {
+		attack: 'atk',
+		defense: 'def',
+		specialAttack: 'spa',
+		specialDefense: 'spd',
+		speed: 'spe',
+		hp: 'hp',
+		accuracy: 'acc',
+		evasion: 'eva'
 	};
 
 	const volatileColors: Record<string, string> = {
@@ -98,22 +94,6 @@
 >
 	<div class="rotate" style="--rotate:{idx === 0 ? '40deg' : '-40deg'}">
 		<div class="name-lvl">
-			<div class="status">
-				{#if pokemon?.status}
-					<span class="status-badge" style="--status-color: {getStatusColor(pokemon?.status?.abr)}"
-						>{pokemon?.status?.abr}</span
-					>
-				{/if}
-				{#if pokemon?.volatiles}
-					{#each displayedVolatiles as vol}
-						{#if pokemon.volatiles.has(vol)}
-							<span class="volatile-badge" style="--volatile-color: {volatileColors[vol]}"
-								>{volatileLabels[vol]}</span
-							>
-						{/if}
-					{/each}
-				{/if}
-			</div>
 			<div>
 				<span>{pokemon?.name}</span>
 				<span>Lv.{pokemon?.level}</span>
@@ -141,20 +121,36 @@
 			</div>
 		</div>
 
-		{#if pokemon?.statsChanges}
-			<div class="stats">
-				{#each Object.entries(pokemon.statsChanges) as [stat, value]}
-					{#if statsFormat[stat] && statsMultiplier[stat](value) !== 1}
-						<div
-							class="mult"
-							style="--color:{statsMultiplier[stat](value) >= 1 ? '#7EAF53' : '#dc5959'}"
+		<div class="status-stats-row">
+			{#if pokemon?.status}
+				<div class="status-icon" style="color: {getStatusColor(pokemon?.status?.abr)}">
+					{#if statusIcons[pokemon?.status?.abr]}
+						<svg use:inlineSvg={statusIcons[pokemon?.status?.abr]} width="18" height="18"></svg>
+					{:else}
+						<span class="status-text">{pokemon?.status?.abr}</span>
+					{/if}
+				</div>
+			{/if}
+			{#if pokemon?.volatiles}
+				{#each displayedVolatiles as vol}
+					{#if pokemon.volatiles.has(vol)}
+						<span class="volatile-chip" style="--volatile-color: {volatileColors[vol]}"
+							>{volatileLabels[vol]}</span
 						>
-							{statsFormat[stat]} : {statsMultiplier[stat](value).toFixed(2)}x
-						</div>
 					{/if}
 				{/each}
-			</div>
-		{/if}
+			{/if}
+			{#if pokemon?.statsChanges}
+				{#each Object.entries(pokemon.statsChanges) as [stat, value]}
+					{#if statsFormat[stat] && value !== 0}
+						<span class="stat-chip" class:positive={value > 0} class:negative={value < 0}>
+							{statsFormat[stat]}
+							{value > 0 ? '+' : ''}{value}
+						</span>
+					{/if}
+				{/each}
+			{/if}
+		</div>
 	</div>
 </div>
 
@@ -224,6 +220,61 @@
 					background-color: #ffffff;
 					border: 2px solid #000;
 					padding: 4px;
+				}
+			}
+
+			.status-stats-row {
+				width: 100%;
+				display: flex;
+				flex-wrap: wrap;
+				gap: 4px;
+				align-items: center;
+				min-height: 22px;
+			}
+
+			.status-icon {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				padding: 2px;
+				background: rgba(0, 0, 0, 0.3);
+				border-radius: 3px;
+
+				:global(svg) {
+					width: 18px;
+					height: 18px;
+				}
+			}
+
+			.status-text {
+				font-size: 11px;
+				font-weight: bold;
+				padding: 2px 4px;
+			}
+
+			.volatile-chip {
+				font-size: 10px;
+				font-weight: bold;
+				padding: 2px 5px;
+				border-radius: 3px;
+				color: var(--volatile-color);
+				background: rgba(0, 0, 0, 0.3);
+				border: 1px solid var(--volatile-color);
+			}
+
+			.stat-chip {
+				font-size: 11px;
+				font-weight: bold;
+				padding: 2px 5px;
+				border-radius: 3px;
+				background: rgba(0, 0, 0, 0.3);
+
+				&.positive {
+					color: #7eaf53;
+				}
+
+				&.negative {
+					color: #dc5959;
 				}
 			}
 
