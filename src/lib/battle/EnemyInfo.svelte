@@ -2,6 +2,10 @@
 	import { BattleContext } from '../../js/context/battleContext';
 	import type { PokemonInstance } from '../../js/pokemons/pokedex';
 	import { BattleType } from '../../js/battle/battle-model';
+	import {
+		getStatStageMultiplier,
+		getAccuracyEvasionMultiplier
+	} from '../../js/pokemons/stat-utils';
 
 	interface Props {
 		battleCtx: BattleContext;
@@ -26,14 +30,14 @@
 	};
 
 	const statsMultiplier: Record<string, (value: number) => number> = {
-		attack: (value: number) => (value + 2) / 2,
-		defense: (value: number) => (value + 2) / 2,
-		specialAttack: (value: number) => (value + 2) / 2,
-		specialDefense: (value: number) => (value + 2) / 2,
-		speed: (value: number) => (value + 2) / 2,
-		hp: (value: number) => (value + 2) / 2,
-		accuracy: (value: number) => (value + 3) / 3,
-		evasion: (value: number) => (value + 3) / 3
+		attack: getStatStageMultiplier,
+		defense: getStatStageMultiplier,
+		specialAttack: getStatStageMultiplier,
+		specialDefense: getStatStageMultiplier,
+		speed: getStatStageMultiplier,
+		hp: getStatStageMultiplier,
+		accuracy: getAccuracyEvasionMultiplier,
+		evasion: getAccuracyEvasionMultiplier
 	};
 
 	function getStatusColor(status?: string): string {
