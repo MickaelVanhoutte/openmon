@@ -10,9 +10,7 @@
 	import {
 		animateEntry,
 		animateFaint,
-		animateRun
-	} from '../../js/battle/animations/battle-animations';
-	import {
+		animateRun,
 		initializeAnimationEngine,
 		destroyAnimationEngine,
 		animateAttackWithNewEngine
