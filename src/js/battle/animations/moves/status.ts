@@ -1,28 +1,129 @@
-import { type AnimationEngine, type MoveContext, type MoveAnimation } from '../animation-engine';
+import {
+	type AnimationEngine,
+	type MoveContext,
+	type MoveAnimation,
+	TYPE_HUE_ANGLES
+} from '../animation-engine';
 
 export const statusMoves: Record<string, MoveAnimation> = {};
 
 async function buffAnimation(engine: AnimationEngine, context: MoveContext): Promise<void> {
-	await engine.wait(50);
+	const { attacker, moveType } = context;
+	const hue = TYPE_HUE_ANGLES[moveType] ?? 0;
+	const color = engine.getTypeColor(moveType);
+
+	await engine.pulseScale(attacker, 1.15, 300);
+
+	for (let i = 0; i < 3; i++) {
+		engine.showSpriteEffect('buff', attacker, {
+			hueRotate: hue,
+			scale: 0.8 + i * 0.2,
+			opacity: 1 - i * 0.3,
+			duration: 250
+		});
+		await engine.wait(100);
+	}
+
+	await engine.flashSprite(attacker, color, 150);
 }
 
 async function debuffAnimation(engine: AnimationEngine, context: MoveContext): Promise<void> {
-	await engine.wait(50);
+	const { attacker, defender, moveType } = context;
+	const target = Array.isArray(defender) ? defender[0] : defender;
+	const hue = TYPE_HUE_ANGLES[moveType] ?? 0;
+
+	await engine.showSpriteEffect('debuff', target, { hueRotate: hue, scale: 1.2 });
+
+	const gsap = (await import('gsap')).default;
+	await new Promise<void>((resolve) => {
+		gsap.to(target.element, {
+			filter: 'brightness(0.7) saturate(0.8)',
+			duration: 0.2,
+			onComplete: () => {
+				gsap.to(target.element, {
+					filter: 'brightness(1) saturate(1)',
+					duration: 0.3,
+					onComplete: resolve
+				});
+			}
+		});
+	});
 }
 
 async function healAnimation(engine: AnimationEngine, context: MoveContext): Promise<void> {
-	await engine.wait(50);
+	const { attacker } = context;
+
+	for (let i = 0; i < 4; i++) {
+		engine.showSpriteEffect('heal', attacker, {
+			scale: 0.6 + i * 0.15,
+			opacity: 1 - i * 0.2,
+			duration: 200
+		});
+		await engine.wait(80);
+	}
+
+	await engine.flashSprite(attacker, '#66ff88', 200);
+	await engine.pulseScale(attacker, 1.08, 250);
 }
 
 async function statusConditionAnimation(
 	engine: AnimationEngine,
 	context: MoveContext
 ): Promise<void> {
-	await engine.wait(50);
+	const { defender, moveType } = context;
+	const target = Array.isArray(defender) ? defender[0] : defender;
+	const hue = TYPE_HUE_ANGLES[moveType] ?? 0;
+	const color = engine.getTypeColor(moveType);
+
+	await engine.showSpriteEffect('psychic', target, { hueRotate: hue, scale: 1.3 });
+
+	const gsap = (await import('gsap')).default;
+	await new Promise<void>((resolve) => {
+		const tl = gsap.timeline({ onComplete: resolve });
+		tl.to(target.element, {
+			filter: `drop-shadow(0 0 8px ${color}) brightness(1.3)`,
+			duration: 0.15
+		})
+			.to(target.element, { filter: 'none', duration: 0.15 })
+			.to(target.element, {
+				filter: `drop-shadow(0 0 8px ${color}) brightness(1.3)`,
+				duration: 0.15
+			})
+			.to(target.element, { filter: 'none', duration: 0.15 });
+	});
 }
 
 async function protectAnimation(engine: AnimationEngine, context: MoveContext): Promise<void> {
-	await engine.wait(50);
+	const { attacker } = context;
+
+	const gsap = (await import('gsap')).default;
+
+	const shield = document.createElement('div');
+	shield.style.cssText = `
+		position: absolute;
+		width: 120px;
+		height: 120px;
+		border-radius: 50%;
+		border: 4px solid rgba(100, 200, 255, 0.8);
+		background: radial-gradient(circle, rgba(100, 200, 255, 0.3) 0%, transparent 70%);
+		z-index: 100;
+		transform: scale(0);
+	`;
+
+	const attackerRect = attacker.element.getBoundingClientRect();
+	const container = attacker.element.closest('.battle-scene') as HTMLElement;
+	const containerRect = container?.getBoundingClientRect() ?? { left: 0, top: 0 };
+
+	shield.style.left = `${attackerRect.left - containerRect.left + attackerRect.width / 2 - 60}px`;
+	shield.style.top = `${attackerRect.top - containerRect.top + attackerRect.height / 2 - 60}px`;
+	container?.appendChild(shield);
+
+	await new Promise<void>((resolve) => {
+		const tl = gsap.timeline({ onComplete: resolve });
+		tl.to(shield, { scale: 1, opacity: 1, duration: 0.2, ease: 'back.out' })
+			.to(shield, { opacity: 0.6, duration: 0.3 })
+			.to(shield, { scale: 1.2, opacity: 0, duration: 0.3, onComplete: () => shield.remove() });
+	});
 }
 
 const BUFF_MOVES = [
