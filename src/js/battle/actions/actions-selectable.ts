@@ -359,7 +359,7 @@ export class Attack implements ActionV2Interface {
 		defender: PokemonInstance,
 		move: MoveInstance | ComboMove
 	) {
-		if (move.accuracy === 0) return true;
+		if (!move.accuracy || move.accuracy === 0) return true;
 		const accStage = attacker.statsChanges.accuracy - defender.statsChanges.evasion;
 		const stageMod = accStage >= 0 ? (3 + accStage) / 3 : 3 / (3 - accStage);
 		const finalAccuracy = move.accuracy * stageMod;
