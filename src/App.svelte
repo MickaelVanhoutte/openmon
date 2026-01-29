@@ -10,6 +10,7 @@
 	import type { BattleContext } from './js/context/battleContext';
 	import Intro from './lib/Intro.svelte';
 	import { DEBUG } from './js/env';
+	import AnimationTestPage from './lib/debug/AnimationTestPage.svelte';
 
 	/**
 	 * Main component, handling screens transitions
@@ -19,6 +20,11 @@
 	let gameContext: GameContext;
 	let newGame: boolean = false;
 	let started: boolean = false || DEBUG;
+	let showDebugAnimations: boolean = false;
+
+	function checkDebugRoute(): void {
+		showDebugAnimations = window.location.hash === '#debug-animations';
+	}
 
 	savesHolder.selectedSave$.subscribe((value: SaveContext | undefined) => {
 		if (value) {
@@ -108,6 +114,8 @@
 
 	onMount(() => {
 		checkOrientation();
+		checkDebugRoute();
+		window.addEventListener('hashchange', checkDebugRoute);
 		const elem = document.getElementById('wrapper');
 		if (elem?.requestFullscreen) {
 			// requestFullscreen requires user gesture, wrap in try-catch
@@ -120,7 +128,14 @@
 </script>
 
 <div id="wrapper">
-	{#if started}
+	{#if showDebugAnimations}
+		<AnimationTestPage
+			onClose={() => {
+				showDebugAnimations = false;
+				window.location.hash = '';
+			}}
+		/>
+	{:else if started}
 		{#if gameContext}
 			<!-- game started -->
 			{#if battleCtx !== undefined && !battleStarting}
@@ -164,8 +179,6 @@
 
 <!-- preload every images -->
 
-
-
 <style lang="scss" global>
 	:root {
 		box-sizing: border-box;
@@ -200,7 +213,6 @@
 	}
 
 	#wrapper {
-		
 	}
 
 	.rotate {
