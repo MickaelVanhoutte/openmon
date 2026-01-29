@@ -132,7 +132,7 @@ export class SavesHolder {
 			for (let j = 0; j < 40; j++) {
 				let result = this.POKEDEX.findById(index).result;
 				if (!(result instanceof UnknownMonster)) {
-					pokeArray[j] = result.instanciate(5, 30, false);
+					pokeArray[j] = result.instanciate(75, 30, false);
 				} else {
 					pokeArray[j] = undefined;
 				}
