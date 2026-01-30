@@ -128,8 +128,8 @@ export class SavesHolder {
 		let boxes: Array<PokemonBox> = new Array<PokemonBox>(32);
 		let index = 1;
 		for (let i = 0; i < 32; i++) {
-			let pokeArray = new Array<PokemonInstance | undefined>(40);
-			for (let j = 0; j < 40; j++) {
+			let pokeArray = new Array<PokemonInstance | undefined>(20);
+			for (let j = 0; j < 20; j++) {
 				let result = this.POKEDEX.findById(index).result;
 				if (!(result instanceof UnknownMonster)) {
 					pokeArray[j] = result.instanciate(75, 30, false);

@@ -392,15 +392,11 @@
 		bottom: 1%;
 		right: 1%;
 		padding: 22px 36px 22px 36px;
-		background: rgb(220, 231, 233);
-		background: linear-gradient(
-			180deg,
-			rgba(220, 231, 233, 1) 0%,
-			rgba(255, 255, 255, 1) 50%,
-			rgba(220, 231, 233, 0.713344712885154) 100%
-		);
-		border: 2px solid #54506c;
-		border-radius: 8px;
+		background: #143855;
+		border: 2px solid #000;
+		box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
+		border-radius: 0;
+		color: white;
 		box-sizing: border-box;
 		transition: bottom 0.3s ease-in-out;
 
@@ -417,13 +413,14 @@
 			gap: 16px;
 
 			li {
+				cursor: pointer;
 				&.selected::before {
 					content: '';
 					width: 0;
 					height: 0;
 					border-top: 12px solid transparent;
 					border-bottom: 12px solid transparent;
-					border-left: 12px solid #262626;
+					border-left: 12px solid #ffd700;
 					position: absolute;
 					left: 5px;
 					margin-top: 2px;
