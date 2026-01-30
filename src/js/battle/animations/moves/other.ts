@@ -11,10 +11,15 @@ async function multiHitAnimation(engine: AnimationEngine, context: MoveContext):
 	const { attacker, defender, moveType } = context;
 	const target = Array.isArray(defender) ? defender[0] : defender;
 	const hue = TYPE_HUE_ANGLES[moveType] ?? 0;
+	const color = engine.getTypeColor(moveType);
 
 	for (let i = 0; i < 3; i++) {
 		await engine.moveSpriteTo(attacker, target, { duration: 0.1, overshoot: 25 });
-		await engine.showSpriteEffect('impact', target, { hueRotate: hue, scale: 0.8 + i * 0.1 });
+		await engine.showSpriteEffect('impact', target, {
+			hueRotate: hue,
+			scale: 0.8 + i * 0.1,
+			tint: color
+		});
 		await engine.shake(target.element, 5, 80);
 		await engine.wait(50);
 	}
@@ -33,7 +38,7 @@ async function ohkoAnimation(engine: AnimationEngine, context: MoveContext): Pro
 	});
 
 	await Promise.all([
-		engine.showSpriteEffect('impact', target, { scale: 2.5, duration: 500 }),
+		engine.showSpriteEffect('impact', target, { scale: 2.5, duration: 500, tint: color }),
 		engine.screenShake(20, 500),
 		engine.flashSprite(target, color, 300)
 	]);
@@ -55,7 +60,7 @@ async function fieldAnimation(engine: AnimationEngine, context: MoveContext): Pr
 	const hue = TYPE_HUE_ANGLES[moveType] ?? 0;
 	const color = engine.getTypeColor(moveType);
 
-	await engine.showSpriteEffect('rock', attacker, { hueRotate: hue, scale: 1.5 });
+	await engine.showSpriteEffect('rock', attacker, { hueRotate: hue, scale: 1.5, tint: color });
 	await engine.backgroundFlash(color, 150);
 	await engine.screenShake(5, 200);
 }
@@ -129,7 +134,7 @@ async function sizeChangeAnimation(engine: AnimationEngine, context: MoveContext
 		});
 	} else {
 		await engine.pulseScale(attacker, homeScale * 1.25, 400);
-		await engine.showSpriteEffect('buff', attacker, { scale: 1.3 });
+		await engine.showSpriteEffect('buff', attacker, { scale: 1.3, tint: '#ffcc00' });
 	}
 }
 

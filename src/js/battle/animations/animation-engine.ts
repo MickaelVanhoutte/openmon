@@ -405,9 +405,10 @@ export class AnimationEngine {
 		element.style.zIndex = '100';
 
 		if (options.hueRotate !== undefined) {
-			element.style.filter = `hue-rotate(${options.hueRotate}deg)`;
+			const glowColor = options.tint ?? 'rgba(255, 255, 255, 0.8)';
+			element.style.filter = `hue-rotate(${options.hueRotate}deg) drop-shadow(0 0 12px ${glowColor}) drop-shadow(0 0 6px ${glowColor}) brightness(1.2)`;
 		} else if (options.tint) {
-			element.style.filter = `drop-shadow(0 0 8px ${options.tint})`;
+			element.style.filter = `drop-shadow(0 0 12px ${options.tint}) drop-shadow(0 0 6px ${options.tint}) brightness(1.2)`;
 		}
 
 		this.container.appendChild(element);

@@ -27,7 +27,7 @@
 	let loopInterval: ReturnType<typeof setInterval> | null = null;
 
 	const pokedex = container.resolve(Pokedex);
-	const pokemonList = pokedex.entries.slice(0, 151).map((p) => ({ id: p.id, name: p.name }));
+	let pokemonList: { id: number; name: string }[] = $state([]);
 
 	let allyPokemonId = $state(25);
 	let enemyPokemonId = $state(6);
@@ -51,7 +51,7 @@
 
 	function getPokemonSpritePath(id: number, isBack: boolean): string {
 		const entry = pokedex.entries.find((e) => e.id === id);
-		const name = entry?.normalizedName ?? 'pikachu';
+		const name = entry?.name ?? 'pikachu';
 		const folder = isBack ? 'sprites-back' : 'sprites';
 		return `src/assets/monsters/static/${folder}/${name}.png`;
 	}
@@ -66,6 +66,9 @@
 
 	onMount(async () => {
 		if (!sceneElement) return;
+
+		await pokedex.ensureLoaded();
+		pokemonList = pokedex.entries.slice(0, 151).map((p) => ({ id: p.id, name: p.name }));
 
 		engine = new AnimationEngine(sceneElement);
 		engine.initialize();
@@ -271,7 +274,7 @@
 	}
 
 	.test-header h1 {
-		font-size: 1rem;
+		font-size: 2rem;
 		margin: 0;
 	}
 
@@ -282,7 +285,7 @@
 		color: white;
 		cursor: pointer;
 		font-family: inherit;
-		font-size: 0.6rem;
+		font-size: 1rem;
 	}
 
 	.controls-panel {
@@ -301,7 +304,7 @@
 	}
 
 	.control-group label {
-		font-size: 0.7rem;
+		font-size: 1rem;
 		color: #ccc;
 	}
 
@@ -311,9 +314,26 @@
 		border: 2px solid #3b82f6;
 		color: white;
 		font-family: inherit;
-		font-size: 0.7rem;
+		font-size: 16px;
 		min-width: 140px;
 		border-radius: 4px;
+		-webkit-appearance: none;
+		appearance: none;
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='white' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+		background-repeat: no-repeat;
+		background-position: right 0.5rem center;
+		padding-right: 2rem;
+	}
+
+	@supports (-webkit-touch-callout: none) {
+		.control-group select {
+			font-size: 32px;
+		}
+	}
+
+	.control-group select option {
+		font-size: 24px;
+		padding: 0.5rem;
 	}
 
 	.control-group.buttons {
@@ -328,7 +348,7 @@
 		border: none;
 		cursor: pointer;
 		font-family: inherit;
-		font-size: 0.7rem;
+		font-size: 1.5rem;
 		border-radius: 4px;
 	}
 
@@ -383,7 +403,7 @@
 		padding: 1rem 2rem;
 		background: #16213e;
 		border-top: 2px solid #0f3460;
-		font-size: 0.75rem;
+		font-size: 1rem;
 	}
 
 	.info-panel p {
