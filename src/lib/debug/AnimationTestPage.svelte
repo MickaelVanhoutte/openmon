@@ -50,9 +50,10 @@
 	let enemySprite: PokemonSprite | null = $state(null);
 
 	function getPokemonSpritePath(id: number, isBack: boolean): string {
-		const paddedId = String(id).padStart(3, '0');
-		const suffix = isBack ? '_b' : '_f';
-		return `/assets/sprites/pokemons/animated/${paddedId}${suffix}.gif`;
+		const entry = pokedex.entries.find((e) => e.id === id);
+		const name = entry?.normalizedName ?? 'pikachu';
+		const folder = isBack ? 'sprites-back' : 'sprites';
+		return `src/assets/monsters/static/${folder}/${name}.png`;
 	}
 
 	function createPosition(x: number, y: number): Position {
@@ -300,18 +301,19 @@
 	}
 
 	.control-group label {
-		font-size: 0.5rem;
-		color: #aaa;
+		font-size: 0.7rem;
+		color: #ccc;
 	}
 
 	.control-group select {
 		padding: 0.5rem;
 		background: #0f3460;
-		border: 1px solid #e94560;
+		border: 2px solid #3b82f6;
 		color: white;
 		font-family: inherit;
-		font-size: 0.6rem;
-		min-width: 120px;
+		font-size: 0.7rem;
+		min-width: 140px;
+		border-radius: 4px;
 	}
 
 	.control-group.buttons {
@@ -326,7 +328,8 @@
 		border: none;
 		cursor: pointer;
 		font-family: inherit;
-		font-size: 0.6rem;
+		font-size: 0.7rem;
+		border-radius: 4px;
 	}
 
 	.play-btn {
@@ -380,7 +383,7 @@
 		padding: 1rem 2rem;
 		background: #16213e;
 		border-top: 2px solid #0f3460;
-		font-size: 0.6rem;
+		font-size: 0.75rem;
 	}
 
 	.info-panel p {

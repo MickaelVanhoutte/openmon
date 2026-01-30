@@ -27,22 +27,46 @@ export function destroyAnimationEngine(): void {
 	}
 }
 
-export async function animateEntry(element: HTMLElement, _isAlly: boolean): Promise<void> {
-	if (!element) return;
-	gsap.set(element, { opacity: 0, scale: 0.5 });
-	await gsap.to(element, { opacity: 1, scale: 1, duration: 0.4, ease: 'back.out' });
+export function animateEntry(
+	_target: HTMLImageElement,
+	_source: 'ally' | 'opponent',
+	_idx: number = 0,
+	_partner: boolean = false,
+	_double: boolean = false
+): gsap.core.Timeline {
+	return gsap.timeline();
 }
 
-export async function animateFaint(element: HTMLElement): Promise<void> {
-	if (!element) return;
-	await gsap.to(element, { opacity: 0, y: 50, duration: 0.5, ease: 'power2.in' });
-	gsap.set(element, { y: 0 });
+export function animateFaint(target: HTMLImageElement): gsap.core.Timeline {
+	return gsap
+		.timeline()
+		.to(target, {
+			filter: 'brightness(0)',
+			y: window.innerHeight,
+			duration: 1,
+			delay: 2
+		})
+		.play();
 }
 
-export async function animateRun(element: HTMLElement): Promise<void> {
-	if (!element) return;
-	await gsap.to(element, { x: -200, opacity: 0, duration: 0.4, ease: 'power2.in' });
-	gsap.set(element, { x: 0, opacity: 1 });
+export function animateRun(
+	target: HTMLImageElement,
+	source: 'ally' | 'opponent'
+): gsap.core.Timeline {
+	return gsap
+		.timeline()
+		.to(target, {
+			filter: 'brightness(5)',
+			transform: 'scale(.1)',
+			duration: 0.8,
+			delay: 0.3
+		})
+		.to(target, {
+			x: source === 'ally' ? -window.innerWidth / 2 : window.innerWidth / 2,
+			duration: 1,
+			delay: 0
+		})
+		.play();
 }
 
 export interface LegacyAnimateAttackParams {
@@ -84,7 +108,7 @@ export async function animateAttackWithNewEngine(params: LegacyAnimateAttackPara
 	await engineInstance.playMove(context);
 }
 
-export { AnimationEngine } from './animation-engine';
+export { AnimationEngine, TYPE_COLORS } from './animation-engine';
 export { BattlePositionSystem } from './position-system';
 export { EffectPool } from './effect-pool';
 export { registerCustomEasings } from './easing';

@@ -21,7 +21,13 @@ vi.mock('gsap', () => {
 	return {
 		default: {
 			timeline: vi.fn(() => mockTimeline),
-			to: vi.fn().mockReturnValue(mockTimeline),
+			to: vi.fn().mockImplementation((target, options) => {
+				if (options?.onComplete) {
+					setTimeout(() => options.onComplete(), 0);
+				}
+				return mockTimeline;
+			}),
+			set: vi.fn(),
 			registerEase: vi.fn()
 		}
 	};

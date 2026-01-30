@@ -247,7 +247,7 @@
 							let screenHeight = window.innerHeight;
 							let scale = Math.min(imgHeight / (screenHeight * 0.15), 0.5);
 
-							element.style.transform = 'scale(' + scale + ')';
+							//element.style.transform = 'scale(' + scale + ')';
 							element.style.setProperty('--scale', scale + '');
 							element.style.setProperty('--width', element.naturalWidth + 'px');
 							element.style.setProperty('--height', element.naturalHeight + 'px');
@@ -285,7 +285,7 @@
 							let screenHeight = window.innerHeight;
 							let scale = Math.min(imgHeight / (screenHeight * 0.15), 0.5);
 
-							element.style.transform = 'scale(' + scale + ')';
+							//element.style.transform = 'scale(' + scale + ')';
 							element.style.setProperty('--scale', scale + '');
 							element.style.setProperty('--width', element.naturalWidth + 'px');
 							element.style.setProperty('--height', element.naturalHeight + 'px');
@@ -497,12 +497,12 @@
 		display: block;
 		z-index: calc(8 + var(--offSet) * -1);
 		image-rendering: pixelated;
-		height: 100%;
+		height: 50%;
 		width: auto;
-		transform: scale(var(--scale));
+		//transform: scale(var(--scale));
 		transform-origin: bottom left;
-		bottom: calc(var(--offSet) * 5%);
-		left: 0;
+		bottom: calc(12% + var(--offSet) * 5%);
+		left: calc(20% + var(--offSet) * -18%);
 		animation: impatience calc(8s + var(--offSet) * 1.5s) infinite;
 		animation-delay: calc(1.5s + var(--offSet) * 1.5s);
 	}
@@ -524,13 +524,12 @@
 	.wrapper :global(.opponent-sprite) {
 		position: absolute;
 		z-index: calc(5 + var(--offSet));
-		height: 100%;
+		height: 50%;
 		width: auto;
 		image-rendering: pixelated;
-		transform: scale(var(--scale)) translateY(50%);
-		transform-origin: bottom left;
+		transform-origin: bottom right;
 		bottom: calc(20% - (var(--offSet) * -5%));
-		left: 0;
+		right: calc(20% + var(--offSet) * -18%);
 		animation: impatience calc(8s + var(--offSet) * 1.5s) infinite;
 		animation-delay: calc(2s + var(--offSet) * 1.5s);
 	}
@@ -540,7 +539,6 @@
 		z-index: 6;
 		height: 100%;
 		width: auto;
-		transform: scale(var(--scale)) translateY(47%);
 		transform-origin: bottom left;
 		bottom: 50%;
 		left: 0;

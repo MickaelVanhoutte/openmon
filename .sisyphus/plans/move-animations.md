@@ -66,11 +66,11 @@ Implement distinct, visually authentic animations for every move category in the
 
 ### Definition of Done
 
-- [ ] All 20 animation categories have unique visual implementations
-- [ ] Test page accessible at `/debug/animations` route
-- [ ] `npm run test:run` passes for animation tests
-- [ ] `npm run check` passes (no TypeScript errors)
-- [ ] Legacy battle-animations.ts deleted with no remaining imports
+- [x] All 20 animation categories have unique visual implementations
+- [x] Test page accessible at `/debug/animations` route
+- [x] `npm run test:run` passes for animation tests
+- [x] `npm run check` passes (no TypeScript errors)
+- [x] Legacy battle-animations.ts deleted with no remaining imports
 
 ### Must Have
 
@@ -178,7 +178,7 @@ Wave 4 (Final):
 
 ## TODOs
 
-- [ ] 1. Enhance AnimationEngine with Sprite Effect Helpers
+- [x] 1. Enhance AnimationEngine with Sprite Effect Helpers
 
   **What to do**:
   - Add `showSpriteEffect()` method that plays a sprite sheet animation at a position
@@ -233,7 +233,7 @@ Wave 4 (Final):
 
 ---
 
-- [ ] 2. Implement Physical Move Animations
+- [x] 2. Implement Physical Move Animations
 
   **What to do**:
   - Rewrite `punchAnimation()` - Fast lunge to target + fist-sprite overlay on impact + shake
@@ -299,7 +299,7 @@ Wave 4 (Final):
 
 ---
 
-- [ ] 3. Implement Special Move Animations
+- [x] 3. Implement Special Move Animations
 
   **What to do**:
   - Rewrite `beamAnimation()` - Beam sprite extends from attacker to defender, type-colored via hue-rotate, background dims
@@ -362,7 +362,7 @@ Wave 4 (Final):
 
 ---
 
-- [ ] 4. Implement Status Move Animations
+- [x] 4. Implement Status Move Animations
 
   **What to do**:
   - Create new file `src/js/battle/animations/moves/status.ts`
@@ -420,7 +420,7 @@ Wave 4 (Final):
 
 ---
 
-- [ ] 4B. Implement Environmental and Transformation Animations
+- [x] 4B. Implement Environmental and Transformation Animations
 
   **What to do**:
   - Create new file `src/js/battle/animations/moves/environmental.ts`
@@ -500,7 +500,7 @@ Wave 4 (Final):
 
 ---
 
-- [ ] 5. Create Animation Test Page
+- [x] 5. Create Animation Test Page
 
   **What to do**:
   - Create `src/lib/debug/AnimationTestPage.svelte` using Svelte 5 runes syntax
@@ -564,7 +564,7 @@ Wave 4 (Final):
 
 ---
 
-- [ ] 6. Set Up Test Infrastructure for Animations
+- [x] 6. Set Up Test Infrastructure for Animations
 
   **What to do**:
   - Create `src/js/__tests__/animations.test.ts`
@@ -617,7 +617,7 @@ Wave 4 (Final):
 
 ---
 
-- [ ] 7. Write Unit Tests for All Animation Categories
+- [x] 7. Write Unit Tests for All Animation Categories
 
   **What to do**:
   - Write tests for each physical animation (punch, kick, slash, bite, tackle, chop, claw)
@@ -670,7 +670,7 @@ Wave 4 (Final):
 
 ---
 
-- [ ] 8. Delete Legacy battle-animations.ts and Clean Up
+- [x] 8. Delete Legacy battle-animations.ts and Clean Up
 
   **What to do**:
   - Delete `src/js/battle/animations/battle-animations.ts` (1122 lines)
@@ -716,7 +716,7 @@ Wave 4 (Final):
 
 ---
 
-- [ ] 9. Final Integration Test
+- [x] 9. Final Integration Test
 
   **What to do**:
   - Run dev server and navigate to `/debug/animations`
@@ -811,12 +811,12 @@ npm run build        # Expected: Build succeeds
 
 ### Final Checklist
 
-- [ ] All 20 animation categories have distinct visual implementations
-- [ ] Test page loads at `/debug/animations`
-- [ ] Each animation type selectable and playable
-- [ ] Loop toggle functional
-- [ ] Pokemon selectors functional
-- [ ] All unit tests pass
-- [ ] Legacy file deleted
-- [ ] No TypeScript errors
-- [ ] Production build succeeds
+- [x] All 20 animation categories have distinct visual implementations
+- [x] Test page loads at `/debug/animations`
+- [x] Each animation type selectable and playable
+- [x] Loop toggle functional
+- [x] Pokemon selectors functional
+- [x] All unit tests pass
+- [x] Legacy file deleted
+- [x] No TypeScript errors
+- [x] Production build succeeds
