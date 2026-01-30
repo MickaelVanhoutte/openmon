@@ -11,11 +11,12 @@ async function punchAnimation(engine: AnimationEngine, context: MoveContext): Pr
 	const { attacker, defender, moveType } = context;
 	const target = Array.isArray(defender) ? defender[0] : defender;
 	const hue = TYPE_HUE_ANGLES[moveType] ?? 0;
+	const typeColor = engine.getTypeColor(moveType);
 
 	await engine.moveSpriteTo(attacker, target, { duration: 0.15, overshoot: 25 });
 	await Promise.all([
-		engine.showSpriteEffect('fist', target, { hueRotate: hue, scale: 1.2 }),
-		engine.showImpact(target, { intensity: 10, color: engine.getTypeColor(moveType) })
+		engine.showSpriteEffect('fist', target, { hueRotate: hue, scale: 1.2, tint: typeColor }),
+		engine.showImpact(target, { intensity: 10, color: typeColor })
 	]);
 }
 
@@ -23,6 +24,7 @@ async function kickAnimation(engine: AnimationEngine, context: MoveContext): Pro
 	const { attacker, defender, moveType } = context;
 	const target = Array.isArray(defender) ? defender[0] : defender;
 	const hue = TYPE_HUE_ANGLES[moveType] ?? 0;
+	const typeColor = engine.getTypeColor(moveType);
 
 	await engine.moveSpriteTo(attacker, target, {
 		duration: 0.2,
@@ -32,8 +34,8 @@ async function kickAnimation(engine: AnimationEngine, context: MoveContext): Pro
 		returnEasing: 'bounce.out'
 	});
 	await Promise.all([
-		engine.showSpriteEffect('foot', target, { hueRotate: hue, scale: 1.3 }),
-		engine.showImpact(target, { intensity: 12, color: engine.getTypeColor(moveType) })
+		engine.showSpriteEffect('foot', target, { hueRotate: hue, scale: 1.3, tint: typeColor }),
+		engine.showImpact(target, { intensity: 12, color: typeColor })
 	]);
 }
 
@@ -41,11 +43,12 @@ async function slashAnimation(engine: AnimationEngine, context: MoveContext): Pr
 	const { attacker, defender, moveType } = context;
 	const target = Array.isArray(defender) ? defender[0] : defender;
 	const hue = TYPE_HUE_ANGLES[moveType] ?? 0;
+	const typeColor = engine.getTypeColor(moveType);
 
 	await engine.moveSpriteTo(attacker, target, { duration: 0.12, overshoot: 35 });
 	await Promise.all([
-		engine.showSpriteEffect('slash', target, { hueRotate: hue, scale: 1.5 }),
-		engine.flashSprite(target, engine.getTypeColor(moveType), 100),
+		engine.showSpriteEffect('slash', target, { hueRotate: hue, scale: 1.5, tint: typeColor }),
+		engine.flashSprite(target, typeColor, 100),
 		engine.shake(target.element, 6, 150)
 	]);
 }
@@ -54,12 +57,13 @@ async function clawAnimation(engine: AnimationEngine, context: MoveContext): Pro
 	const { attacker, defender, moveType } = context;
 	const target = Array.isArray(defender) ? defender[0] : defender;
 	const hue = TYPE_HUE_ANGLES[moveType] ?? 0;
+	const typeColor = engine.getTypeColor(moveType);
 
 	await engine.moveSpriteTo(attacker, target, { duration: 0.1, overshoot: 30 });
-	await engine.showSpriteEffect('claws', target, { hueRotate: hue, scale: 1.4 });
+	await engine.showSpriteEffect('claws', target, { hueRotate: hue, scale: 1.4, tint: typeColor });
 	await engine.wait(50);
 	await Promise.all([
-		engine.showSpriteEffect('slash', target, { hueRotate: hue, scale: 1.2 }),
+		engine.showSpriteEffect('slash', target, { hueRotate: hue, scale: 1.2, tint: typeColor }),
 		engine.shake(target.element, 8, 200)
 	]);
 }
@@ -68,17 +72,19 @@ async function biteAnimation(engine: AnimationEngine, context: MoveContext): Pro
 	const { attacker, defender, moveType } = context;
 	const target = Array.isArray(defender) ? defender[0] : defender;
 	const hue = TYPE_HUE_ANGLES[moveType] ?? 0;
+	const typeColor = engine.getTypeColor(moveType);
 
 	await engine.moveSpriteTo(attacker, target, { duration: 0.18, overshoot: 15 });
 	await Promise.all([
-		engine.showSpriteEffect('crunch', target, { hueRotate: hue, scale: 1.3 }),
-		engine.showImpact(target, { intensity: 10, color: engine.getTypeColor(moveType) })
+		engine.showSpriteEffect('crunch', target, { hueRotate: hue, scale: 1.3, tint: typeColor }),
+		engine.showImpact(target, { intensity: 10, color: typeColor })
 	]);
 }
 
 async function tackleAnimation(engine: AnimationEngine, context: MoveContext): Promise<void> {
 	const { attacker, defender, moveType } = context;
 	const target = Array.isArray(defender) ? defender[0] : defender;
+	const typeColor = engine.getTypeColor(moveType);
 
 	await engine.moveSpriteTo(attacker, target, {
 		duration: 0.25,
@@ -88,8 +94,8 @@ async function tackleAnimation(engine: AnimationEngine, context: MoveContext): P
 		returnEasing: 'power2.out'
 	});
 	await Promise.all([
-		engine.showSpriteEffect('impact', target, { scale: 1.5 }),
-		engine.showImpact(target, { intensity: 15, color: engine.getTypeColor(moveType) }),
+		engine.showSpriteEffect('impact', target, { scale: 1.5, tint: typeColor }),
+		engine.showImpact(target, { intensity: 15, color: typeColor }),
 		engine.screenShake(10, 200)
 	]);
 }
@@ -98,11 +104,12 @@ async function chopAnimation(engine: AnimationEngine, context: MoveContext): Pro
 	const { attacker, defender, moveType } = context;
 	const target = Array.isArray(defender) ? defender[0] : defender;
 	const hue = TYPE_HUE_ANGLES[moveType] ?? 0;
+	const typeColor = engine.getTypeColor(moveType);
 
 	await engine.moveSpriteTo(attacker, target, { duration: 0.15, overshoot: 25 });
 	await Promise.all([
-		engine.showSpriteEffect('slash', target, { hueRotate: hue, scale: 1.3 }),
-		engine.showImpact(target, { intensity: 8 })
+		engine.showSpriteEffect('slash', target, { hueRotate: hue, scale: 1.3, tint: typeColor }),
+		engine.showImpact(target, { intensity: 8, color: typeColor })
 	]);
 }
 

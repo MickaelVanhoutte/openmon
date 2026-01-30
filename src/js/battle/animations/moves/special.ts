@@ -42,7 +42,8 @@ async function beamAnimation(engine: AnimationEngine, context: MoveContext): Pro
 		engine.showSpriteEffect(effect, target, {
 			hueRotate: hue,
 			scale: 1 + i * 0.2,
-			duration: 150
+			duration: 150,
+			tint: color
 		});
 		await engine.wait(50);
 	}
@@ -58,8 +59,14 @@ async function projectileAnimation(engine: AnimationEngine, context: MoveContext
 	const target = Array.isArray(defender) ? defender[0] : defender;
 	const hue = TYPE_HUE_ANGLES[moveType] ?? 0;
 	const effect = TYPE_TO_EFFECT[moveType.toLowerCase()] ?? 'impact';
+	const color = engine.getTypeColor(moveType);
 
-	await engine.showSpriteEffect(effect, attacker, { hueRotate: hue, scale: 0.8, duration: 100 });
+	await engine.showSpriteEffect(effect, attacker, {
+		hueRotate: hue,
+		scale: 0.8,
+		duration: 100,
+		tint: color
+	});
 
 	const gsap = (await import('gsap')).default;
 	const projectile = document.createElement('div');
@@ -68,7 +75,7 @@ async function projectileAnimation(engine: AnimationEngine, context: MoveContext
 		width: 40px;
 		height: 40px;
 		border-radius: 50%;
-		background: radial-gradient(circle, ${engine.getTypeColor(moveType)} 0%, transparent 70%);
+		background: radial-gradient(circle, ${color} 0%, transparent 70%);
 		filter: hue-rotate(${hue}deg) blur(2px);
 		z-index: 100;
 	`;
@@ -96,8 +103,8 @@ async function projectileAnimation(engine: AnimationEngine, context: MoveContext
 	});
 
 	await Promise.all([
-		engine.showSpriteEffect(effect, target, { hueRotate: hue, scale: 1.2 }),
-		engine.showImpact(target, { intensity: 8, color: engine.getTypeColor(moveType) })
+		engine.showSpriteEffect(effect, target, { hueRotate: hue, scale: 1.2, tint: color }),
+		engine.showImpact(target, { intensity: 8, color })
 	]);
 }
 
@@ -111,7 +118,12 @@ async function burstAnimation(engine: AnimationEngine, context: MoveContext): Pr
 	await engine.backgroundFlash(color, 150);
 
 	const explosions = targets.map(async (target) => {
-		await engine.showSpriteEffect(effect, target, { hueRotate: hue, scale: 2, duration: 400 });
+		await engine.showSpriteEffect(effect, target, {
+			hueRotate: hue,
+			scale: 2,
+			duration: 400,
+			tint: color
+		});
 		await engine.showImpact(target, { intensity: 15, color });
 	});
 
@@ -130,7 +142,8 @@ async function waveAnimation(engine: AnimationEngine, context: MoveContext): Pro
 			hueRotate: hue,
 			scale: 0.8 + i * 0.3,
 			opacity: 1 - i * 0.2,
-			duration: 200
+			duration: 200,
+			tint: color
 		});
 		await engine.wait(80);
 	}
@@ -144,7 +157,7 @@ async function drainAnimation(engine: AnimationEngine, context: MoveContext): Pr
 	const hue = TYPE_HUE_ANGLES[moveType] ?? 0;
 	const color = engine.getTypeColor(moveType);
 
-	await engine.showSpriteEffect('psychic', target, { hueRotate: hue, scale: 1.2 });
+	await engine.showSpriteEffect('psychic', target, { hueRotate: hue, scale: 1.2, tint: color });
 	await engine.shake(target.element, 6, 150);
 
 	const gsap = (await import('gsap')).default;
