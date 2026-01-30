@@ -424,8 +424,8 @@
 
 		display: flex;
 		flex-direction: row;
-		gap: 16px;
-		padding: 16px;
+		gap: clamp(8px, 2vmin, 16px);
+		padding: clamp(8px, 2vmin, 16px);
 		box-sizing: border-box;
 
 		// Shared Panel Styles
@@ -440,12 +440,12 @@
 
 		.options {
 			position: absolute;
-			font-size: 32px;
+			font-size: clamp(18px, 4vmin, 32px);
 			font-weight: 500;
 			text-align: left;
 			bottom: -100%;
 			right: 1%;
-			padding: 22px 36px 22px 36px;
+			padding: clamp(12px, 3vmin, 22px) clamp(18px, 5vmin, 36px);
 			color: white;
 			box-sizing: border-box;
 			transition: bottom 0.3s ease-in-out;
@@ -483,13 +483,13 @@
 		.party {
 			height: 100%;
 			width: 25%;
-			min-width: 220px;
+			min-width: clamp(120px, 25vw, 220px);
 
 			display: flex;
 			flex-direction: column;
 
 			.title {
-				height: 60px;
+				height: clamp(40px, 10vmin, 60px);
 				width: 100%;
 
 				display: flex;
@@ -500,8 +500,8 @@
 				box-sizing: border-box;
 
 				.cancel {
-					height: 44px;
-					width: 44px;
+					height: clamp(32px, 8vmin, 44px);
+					width: clamp(32px, 8vmin, 44px);
 					color: white;
 					background-color: #0088cc;
 					border: 2px solid #000;
@@ -514,6 +514,11 @@
 
 					&:hover {
 						filter: brightness(1.1);
+					}
+
+					svg {
+						height: 60%;
+						width: auto;
 					}
 				}
 			}
@@ -599,10 +604,10 @@
 				flex-direction: row;
 				justify-content: space-between;
 				align-items: center;
-				height: 60px;
+				height: clamp(40px, 10vmin, 60px);
 				width: 100%;
 				box-sizing: border-box;
-				padding: 0 20px;
+				padding: 0 clamp(8px, 3vmin, 20px);
 				position: relative;
 
 				img.moving {
@@ -625,10 +630,10 @@
 				}
 
 				button {
-					min-width: 44px;
-					min-height: 44px;
-					height: 44px;
-					font-size: 26px;
+					min-width: clamp(32px, 8vmin, 44px);
+					min-height: clamp(32px, 8vmin, 44px);
+					height: clamp(32px, 8vmin, 44px);
+					font-size: clamp(18px, 4vmin, 26px);
 					text-align: center;
 					font-family: pokemon, serif;
 					color: white;
@@ -650,7 +655,7 @@
 					}
 
 					svg {
-						height: 24px;
+						height: clamp(16px, 4vmin, 24px);
 						width: auto;
 					}
 				}
@@ -660,19 +665,19 @@
 				display: grid;
 				grid-template-columns: repeat(5, 1fr);
 				grid-template-rows: repeat(4, 1fr);
-				gap: 8px;
+				gap: clamp(4px, 1vmin, 8px);
 				box-sizing: border-box;
 				width: 100%;
 				flex: 1;
 				min-height: 0;
-				padding: 12px;
+				padding: clamp(6px, 2vmin, 12px);
 				overflow: hidden;
 
 				.entry {
 					width: 100%;
 					height: 100%;
-					min-width: 64px;
-					min-height: 64px;
+					min-width: 0;
+					min-height: 0;
 					background: rgba(0, 0, 0, 0.2);
 					display: flex;
 					justify-content: center;
@@ -685,8 +690,8 @@
 					box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
 
 					img {
-						max-width: 56px;
-						max-height: 56px;
+						max-width: min(56px, 90%);
+						max-height: min(56px, 90%);
 						image-rendering: pixelated;
 					}
 
@@ -742,6 +747,55 @@
 		}
 		50% {
 			border-color: #ffffff;
+		}
+	}
+
+	// Mobile portrait: stack layout vertically
+	@media (max-width: 600px) and (orientation: portrait) {
+		.boxes {
+			flex-direction: column;
+			gap: 6px;
+			padding: 6px;
+
+			.party {
+				width: 100%;
+				min-width: unset;
+				height: auto;
+				flex: 0 0 auto;
+
+				.title {
+					height: 36px;
+				}
+
+				.entries {
+					flex-direction: row;
+					flex-wrap: wrap;
+					gap: 4px;
+					padding: 4px;
+
+					.entry {
+						flex: 0 0 calc(33.333% - 4px);
+						height: 40px;
+						font-size: 12px;
+					}
+				}
+			}
+
+			.box {
+				width: 100%;
+				flex: 1;
+				min-height: 0;
+
+				.box-change {
+					height: 36px;
+					padding: 0 8px;
+				}
+			}
+
+			.options {
+				font-size: 16px;
+				padding: 10px 16px;
+			}
 		}
 	}
 </style>
