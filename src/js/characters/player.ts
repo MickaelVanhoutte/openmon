@@ -1,4 +1,5 @@
 import { PokemonInstance } from '../pokemons/pokedex';
+import { VolatileTracker } from '../pokemons/volatile-status';
 import { Bag } from '../items/bag';
 import { Position } from '../mapping/positions';
 import { centerObject, CHARACTER_SPRITES, PlayerSprite } from '../sprites/sprites';
@@ -110,6 +111,7 @@ export class Player implements Character {
 	public setPrototypes(): Player {
 		this.monsters.forEach((monster) => {
 			Object.setPrototypeOf(monster, PokemonInstance.prototype);
+			monster.volatiles = new VolatileTracker();
 		});
 		this.bag = new Bag(this.bag);
 		if (this.follower) {

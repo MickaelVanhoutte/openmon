@@ -159,15 +159,12 @@ export class AnimationEngine {
 	}
 
 	private async dashAttack(attacker: PokemonSprite, defender: PokemonSprite): Promise<void> {
-		// Calculate relative movement using transforms (x/y) not absolute positioning
 		const attackerRect = attacker.element.getBoundingClientRect();
 		const defenderRect = defender.element.getBoundingClientRect();
 
-		// Calculate how far to move toward the defender
 		const deltaX = defenderRect.left - attackerRect.left;
 		const deltaY = defenderRect.top - attackerRect.top;
 
-		// Stop 30px short of the defender
 		const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 		const stopDistance = Math.max(0, distance - 30);
 		const ratio = distance > 0 ? stopDistance / distance : 0;
@@ -195,6 +192,7 @@ export class AnimationEngine {
 
 		await timeline.then(() => {});
 		this.activeTimelines.delete(timeline);
+		this.resetSpriteToHome(attacker);
 	}
 
 	private async projectileAttack(
@@ -301,7 +299,6 @@ export class AnimationEngine {
 	}
 
 	async shake(element: HTMLElement, intensity: number, duration: number): Promise<void> {
-		const originalTransform = element.style.transform;
 		const timeline = gsap.timeline();
 		this.activeTimelines.add(timeline);
 
@@ -324,7 +321,7 @@ export class AnimationEngine {
 
 		await timeline.then(() => {});
 		this.activeTimelines.delete(timeline);
-		element.style.transform = originalTransform;
+		gsap.set(element, { clearProps: 'x,y' });
 	}
 
 	async backgroundFlash(color: string, duration: number, opacity: number = 0.5): Promise<void> {
@@ -474,6 +471,7 @@ export class AnimationEngine {
 
 		await timeline.then(() => {});
 		this.activeTimelines.delete(timeline);
+		this.resetSpriteToHome(sprite);
 	}
 
 	async showImpact(
@@ -507,6 +505,8 @@ export class AnimationEngine {
 		const timeline = gsap.timeline();
 		this.activeTimelines.add(timeline);
 
+		const homeScale = sprite.homePosition?.scale ?? 1;
+
 		timeline
 			.to(sprite.element, {
 				scale: targetScale,
@@ -514,13 +514,22 @@ export class AnimationEngine {
 				ease: 'power2.out'
 			})
 			.to(sprite.element, {
-				scale: 1,
+				scale: homeScale,
 				duration: duration / 2000,
 				ease: 'power2.in'
 			});
 
 		await timeline.then(() => {});
 		this.activeTimelines.delete(timeline);
+	}
+
+	resetSpriteToHome(sprite: PokemonSprite): void {
+		const homeScale = sprite.homePosition?.scale ?? 1;
+		gsap.set(sprite.element, {
+			x: 0,
+			y: 0,
+			scale: homeScale
+		});
 	}
 
 	getTypeColor(type: string): string {

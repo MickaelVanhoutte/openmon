@@ -62,14 +62,15 @@ async function fieldAnimation(engine: AnimationEngine, context: MoveContext): Pr
 
 async function transformAnimation(engine: AnimationEngine, context: MoveContext): Promise<void> {
 	const { attacker } = context;
+	const homeScale = attacker.homePosition?.scale ?? 1;
 
 	const gsap = (await import('gsap')).default;
 
 	await new Promise<void>((resolve) => {
 		const tl = gsap.timeline({ onComplete: resolve });
-		tl.to(attacker.element, { filter: 'brightness(3)', scale: 0.8, duration: 0.2 })
-			.to(attacker.element, { filter: 'brightness(5)', scale: 1.2, duration: 0.15 })
-			.to(attacker.element, { filter: 'brightness(1)', scale: 1, duration: 0.25 });
+		tl.to(attacker.element, { filter: 'brightness(3)', scale: homeScale * 0.8, duration: 0.2 })
+			.to(attacker.element, { filter: 'brightness(5)', scale: homeScale * 1.2, duration: 0.15 })
+			.to(attacker.element, { filter: 'brightness(1)', scale: homeScale, duration: 0.25 });
 	});
 }
 
@@ -112,6 +113,7 @@ async function terrainAnimation(engine: AnimationEngine, context: MoveContext): 
 
 async function sizeChangeAnimation(engine: AnimationEngine, context: MoveContext): Promise<void> {
 	const { attacker, moveName } = context;
+	const homeScale = attacker.homePosition?.scale ?? 1;
 
 	const growMoves = ['growth', 'belly-drum', 'bulk-up', 'work-up'];
 	const shrinkMoves = ['minimize'];
@@ -121,12 +123,12 @@ async function sizeChangeAnimation(engine: AnimationEngine, context: MoveContext
 	if (shrinkMoves.includes(moveName)) {
 		await new Promise<void>((resolve) => {
 			const tl = gsap.timeline({ onComplete: resolve });
-			tl.to(attacker.element, { scale: 0.6, duration: 0.3, ease: 'power2.in' })
-				.to(attacker.element, { scale: 0.7, duration: 0.1 })
-				.to(attacker.element, { scale: 1, duration: 0.2, ease: 'power2.out' });
+			tl.to(attacker.element, { scale: homeScale * 0.6, duration: 0.3, ease: 'power2.in' })
+				.to(attacker.element, { scale: homeScale * 0.7, duration: 0.1 })
+				.to(attacker.element, { scale: homeScale, duration: 0.2, ease: 'power2.out' });
 		});
 	} else {
-		await engine.pulseScale(attacker, 1.25, 400);
+		await engine.pulseScale(attacker, homeScale * 1.25, 400);
 		await engine.showSpriteEffect('buff', attacker, { scale: 1.3 });
 	}
 }
