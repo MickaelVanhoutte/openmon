@@ -15,6 +15,7 @@
 	let percent = $state(0);
 	let pokemon: PokemonInstance | undefined = $state();
 	let statsSnapshot: Record<string, number> = $state({});
+	let statusAbr: string | undefined = $state();
 
 	const statusIcons: Record<string, string> = {
 		BRN: 'src/assets/status/brn.svg',
@@ -58,6 +59,7 @@
 				if (pokemon?.statsChanges) {
 					statsSnapshot = { ...pokemon.statsChanges };
 				}
+				statusAbr = pokemon?.status?.abr;
 			}
 		});
 		return () => unsubscribe();
@@ -92,12 +94,12 @@
 		</div>
 
 		<div class="status-stats-row">
-			{#if pokemon?.status}
-				<div class="status-icon" style="color: {getStatusColor(pokemon?.status?.abr)}">
-					{#if statusIcons[pokemon?.status?.abr]}
-						<svg use:inlineSvg={statusIcons[pokemon?.status?.abr]} width="18" height="18"></svg>
+			{#if statusAbr}
+				<div class="status-icon" style="color: {getStatusColor(statusAbr)}">
+					{#if statusIcons[statusAbr]}
+						<svg use:inlineSvg={statusIcons[statusAbr]} width="18" height="18"></svg>
 					{:else}
-						<span class="status-text">{pokemon?.status?.abr}</span>
+						<span class="status-text">{statusAbr}</span>
 					{/if}
 				</div>
 			{/if}
@@ -147,12 +149,13 @@
 		font-size: 24px;
 		animation: fadeIn 0.5s ease-in forwards;
 		pointer-events: none;
-		background: #143855;
+		background: rgba(20, 56, 85, 0.85);
 		border: 2px solid #000;
 		box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
 		padding: 8px;
 
 		&.double {
+			width: 18%;
 			right: calc(22% + var(--offSet) * -1 * 22%);
 		}
 
