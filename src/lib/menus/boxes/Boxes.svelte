@@ -172,15 +172,15 @@
 			// LEFT
 			if (e.key === 'ArrowLeft') {
 				if (selectZone === 'box') {
-					if (over === 0 || over % 6 === 0) {
+					if (over % 5 === 0) {
 						selectZone = 'party';
-						over = over / 6;
+						over = Math.floor(over / 5);
 					} else {
 						over--;
 					}
 				} else if (selectZone === 'party') {
 					selectZone = 'box';
-					over = (over + 1) * 6 - 1;
+					over = (over + 1) * 5 - 1;
 				} else if (selectZone === 'box-change') {
 					prevBox();
 				}
@@ -188,15 +188,15 @@
 				// RIGHT
 			} else if (e.key === 'ArrowRight') {
 				if (selectZone === 'box') {
-					if (over === 5 || over % 6 === 5) {
+					if (over % 5 === 4) {
 						selectZone = 'party';
-						over = (over + 1) / 6 - 1;
+						over = Math.floor((over + 1) / 5) - 1;
 					} else {
 						over++;
 					}
 				} else if (selectZone === 'party') {
 					selectZone = 'box';
-					over = over * 6;
+					over = over * 5;
 				} else if (selectZone === 'box-change') {
 					nextBox();
 				}
@@ -204,8 +204,8 @@
 				// UP
 			} else if (e.key === 'ArrowUp') {
 				if (selectZone === 'box') {
-					if (over - 6 >= 0) {
-						over -= 6;
+					if (over - 5 >= 0) {
+						over -= 5;
 					} else {
 						selectZone = 'box-change';
 					}
@@ -217,14 +217,14 @@
 					}
 				} else if (selectZone === 'box-change') {
 					selectZone = 'box';
-					over = box.values.length - 1;
+					over = Math.min(box.values.length - 1, 19);
 				}
 
 				// DOWN
 			} else if (e.key === 'ArrowDown') {
 				if (selectZone === 'box') {
-					if (over + 6 < box.values.length) {
-						over += 6;
+					if (over + 5 < 20) {
+						over += 5;
 					} else {
 						selectZone = 'box-change';
 					}
@@ -314,7 +314,7 @@
 					{#if !!pokemon}
 						<div>
 							<span>{pokemon?.name}</span>
-							<span>Lv. {pokemon?.level}</span>
+							<span>({pokemon?.level})</span>
 						</div>
 						<img src={pokemon.getSprite()} alt={pokemon?.name} />
 					{/if}
@@ -532,7 +532,7 @@
 
 				.entry {
 					color: white;
-					font-size: 22px;
+					font-size: clamp(14px, 3.5vw, 22px);
 					flex: 1;
 					min-height: 0;
 					width: 100%;
@@ -544,7 +544,8 @@
 					box-sizing: border-box;
 					background: rgba(0, 0, 0, 0.2);
 					border-radius: 0;
-					padding-left: 4%;
+					padding-left: 8px;
+					padding-right: 8px;
 					position: relative;
 					border: 2px solid #000;
 					box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
@@ -558,9 +559,19 @@
 
 					div {
 						display: flex;
-						flex-direction: column;
+						flex-direction: row;
+						gap: 6px;
 						align-items: flex-start;
 						justify-content: center;
+						min-width: 0;
+						flex: 1;
+
+						span {
+							//overflow: hidden;
+							text-overflow: ellipsis;
+							white-space: nowrap;
+							max-width: 100%;
+						}
 					}
 
 					&:hover,
@@ -647,9 +658,9 @@
 
 			.entries {
 				display: grid;
-				grid-template-columns: repeat(8, 1fr);
-				grid-template-rows: repeat(5, 1fr);
-				gap: 6px;
+				grid-template-columns: repeat(5, 1fr);
+				grid-template-rows: repeat(4, 1fr);
+				gap: 8px;
 				box-sizing: border-box;
 				width: 100%;
 				flex: 1;
@@ -660,8 +671,8 @@
 				.entry {
 					width: 100%;
 					height: 100%;
-					min-width: 0;
-					min-height: 0;
+					min-width: 64px;
+					min-height: 64px;
 					background: rgba(0, 0, 0, 0.2);
 					display: flex;
 					justify-content: center;
@@ -673,6 +684,12 @@
 					border: 2px solid #000;
 					box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
 
+					img {
+						max-width: 56px;
+						max-height: 56px;
+						image-rendering: pixelated;
+					}
+
 					&.over {
 						background-color: rgba(255, 255, 255, 0.1);
 						border: 3px solid #ffd700;
@@ -683,25 +700,20 @@
 
 					.title {
 						position: absolute;
-						top: -30px;
-						right: -12.5%;
-						width: 125%;
+						display: block;
+						bottom: -8px;
+						right: 0;
+						width: 100%;
 						height: auto;
-						background-color: white;
-						color: black;
+						/* background-color: white; */
+						color: white;
 						text-align: center;
 						padding: 4px;
 						border-radius: 0;
-						border: 2px solid #000;
+						/* border: 2px solid #000; */
 						font-size: 16px;
-						display: none;
+						/* display: none; */
 						z-index: 20;
-
-						box-shadow: 4px 4px 0 0 rgba(0, 0, 0, 0.5);
-
-						&.show {
-							display: block;
-						}
 					}
 
 					img.moving {

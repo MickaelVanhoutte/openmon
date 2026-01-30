@@ -865,7 +865,7 @@
 			bottom: -25%;
 		}
 		to {
-			bottom: 1%;
+			bottom: 2%;
 		}
 	}
 
@@ -1041,18 +1041,17 @@
 	.actions2,
 	.moves2 {
 		width: 30%;
-		height: 35%;
+		max-height: 220px;
 		position: absolute;
-		bottom: -20%;
-		right: 3%;
+		bottom: -25%;
+		right: 5%;
 		transition: bottom 0.5s ease-in-out;
 		animation: appear 0.5s ease-in forwards;
 		align-items: flex-end;
-		gap: 1%;
+		gap: 6px;
 		display: flex;
 		flex-direction: column;
 		z-index: 9;
-		transition: transform 0.5s ease-in-out;
 
 		&.target-select {
 			justify-content: center;
@@ -1060,34 +1059,32 @@
 
 		.action2-btn {
 			width: 100%;
-			height: calc(80% / 4);
+			height: 44px;
 			background-color: #0088cc;
 			border: 2px solid #000;
 			color: #ffffff;
-			transform: translateX(50%);
+			transform: translateX(20%);
 			display: flex;
 			justify-content: flex-start;
 			align-items: center;
 			padding: 0 20px;
 			font-size: 36px;
 			min-width: 44px;
-			min-height: 36px;
-			transition: transform 0.5s ease-in-out;
+			min-height: 44px;
+			transition: transform 0.3s ease-in-out;
 
 			&:hover,
 			&.selected {
-				transform: translateX(0);
 				filter: brightness(1.1);
 				border: 3px solid #ffd700;
 				color: #ffffff;
-				justify-content: center;
 			}
 		}
 
 		.move-btn,
 		.target-btn {
 			width: 100%;
-			height: calc(66% / 4);
+			height: calc(80% / 4);
 			background-color: #0088cc;
 			border: 2px solid #000;
 			border-left: 5px solid var(--color, #0088cc);
@@ -1097,9 +1094,9 @@
 			justify-content: space-between;
 			padding: 0 12px 0 10px;
 			transform: translateX(8%);
-			font-size: 18px;
+			font-size: 24px;
 			min-width: 44px;
-			min-height: 32px;
+			min-height: 44px;
 			transition: transform 0.5s ease-in-out;
 			box-sizing: border-box;
 
@@ -1127,7 +1124,7 @@
 
 			&:hover,
 			&.selected {
-				transform: translateX(0);
+				//transform: translateX(0);
 				filter: brightness(1.1);
 				border: 3px solid #ffd700;
 				border-left: 5px solid var(--color, #0088cc);
@@ -1137,20 +1134,15 @@
 
 			.move-name {
 				max-width: 70%;
-				overflow: hidden;
+				//overflow: hidden;
 				text-overflow: ellipsis;
 				white-space: nowrap;
 			}
 
 			.move-pp {
-				font-size: 14px;
-				opacity: 0.9;
+				font-size: 16px;
 			}
 		}
-	}
-
-	.moves2 {
-		gap: 3%;
 	}
 
 	.combo {

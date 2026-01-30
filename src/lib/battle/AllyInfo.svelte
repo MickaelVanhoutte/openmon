@@ -189,7 +189,8 @@
 		animation: fadeIn 0.5s ease-in forwards;
 		opacity: 0;
 		height: auto;
-		width: 25%;
+		width: 260px;
+		max-width: 30%;
 		pointer-events: none;
 		background: rgba(20, 56, 85, 0.85);
 		border: 2px solid #000;
@@ -197,7 +198,8 @@
 		padding: 8px;
 
 		&.double {
-			width: 18%;
+			width: 200px;
+			max-width: 22%;
 			left: calc(22% + var(--offSet) * -1 * 22%);
 		}
 
@@ -234,7 +236,7 @@
 				flex-wrap: wrap;
 				gap: 4px;
 				align-items: center;
-				min-height: 22px;
+				//min-height: 22px;
 			}
 
 			.status-icon {
@@ -295,6 +297,10 @@
 
 				span:first-child {
 					color: #ffffff;
+					overflow: hidden;
+					text-overflow: ellipsis;
+					white-space: nowrap;
+					max-width: 70%;
 				}
 				span:last-child {
 					color: #ffd700;
@@ -390,10 +396,11 @@
 						font-size: 18px;
 						color: white;
 						left: 50%;
-						top: 50%;
-						transform: translate(-50%, -50%);
+						top: 0px;
+						transform: translate(-50%, -90%);
 						text-shadow: 1px 1px 0 #000;
 						z-index: 1;
+						width: 100%;
 					}
 
 					.progressbar {

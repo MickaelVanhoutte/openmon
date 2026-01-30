@@ -70,9 +70,9 @@
 						>{move.type.toUpperCase()}</span
 					>
 
-					<div class="flex-row">
+					<div class="move-grid">
 						<div class="flex-col name-col">
-							<span class="name">{move.name}</span>
+							<span class="name" class:long-name={move.name.length > 10}>{move.name}</span>
 							<span class="category"
 								>{move.category === 'no-damage' ? 'status' : move.category}</span
 							>
@@ -259,31 +259,33 @@
 		display: flex;
 		align-items: center;
 
-		.flex-row {
-			display: flex;
-			flex-direction: row;
-			justify-content: space-between;
+		.move-grid {
+			display: grid;
+			grid-template-columns: 1fr auto;
 			align-items: center;
 			width: 100%;
 			padding-left: 20%;
 			box-sizing: border-box;
+			gap: 8px;
 		}
 
 		.flex-col {
 			display: flex;
 			flex-direction: column;
+			min-width: 0;
 
 			&.name-col {
-				width: 40%;
+				overflow: hidden;
 			}
 		}
 
 		.move-stats {
 			/* Move Stats Layout */
 			display: grid;
-			grid-template-columns: repeat(3, 80px);
-			gap: 8px;
-			text-align: left;
+			grid-template-columns: repeat(3, 60px);
+			gap: 4px;
+			text-align: right;
+			flex-shrink: 0;
 
 			.stat-col {
 				display: flex;
@@ -317,8 +319,9 @@
 			text-shadow: 1px 1px 0 black;
 			font-size: 18px;
 			position: absolute;
-			top: -10px;
+			top: 50%;
 			left: -10px;
+			transform: translateY(-50%);
 			z-index: 1;
 		}
 
@@ -326,6 +329,13 @@
 			font-size: 20px;
 			text-transform: uppercase;
 			font-weight: bold;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+
+			&.long-name {
+				font-size: 16px;
+			}
 		}
 
 		.category {

@@ -35,7 +35,7 @@ body {
 	font-size: 32px;
 	overflow: hidden;
 	background: var(--pixel-bg-primary, #1c4b72);
-	line-height: 1;
+	line-height: 1.3;
 	// Pixel art font rendering
 	-webkit-font-smoothing: none;
 	-moz-osx-font-smoothing: grayscale;
@@ -79,12 +79,14 @@ select {
 	padding: 0.25rem 1rem;
 }
 
-input:not([type='checkbox'],
+input:not(
+	[type='checkbox'],
 	[type='radio'],
 	[type='submit'],
 	[type='color'],
 	[type='button'],
-	[type='reset']),
+	[type='reset']
+),
 select,
 textarea,
 textarea[type='text'] {
@@ -151,8 +153,9 @@ $quantity: 8;
 		}
 
 		&::after {
-			animation-duration: #{$rotationSpeed},
-			random(6000)+5000ms;
+			animation-duration:
+				#{$rotationSpeed},
+				random(6000) + 5000ms;
 			animation-delay:
 				0ms,
 				random(8000) + 500ms;
@@ -162,7 +165,9 @@ $quantity: 8;
 	@keyframes move#{$i} {
 		@for $step from 0 through $steps {
 			#{$step * (100 / $steps)}% {
-				transform: translateX(random(100) - 50vw) translateY(random(100) - 50vh) scale(random(75) / 100 + 0.25);
+				transform: translateX(random(100) - 50vw)
+					translateY(random(100) - 50vh)
+					scale(random(75) / 100 + 0.25);
 			}
 		}
 	}
@@ -179,7 +184,6 @@ $quantity: 8;
 }
 
 @keyframes flash {
-
 	0%,
 	30%,
 	100% {
