@@ -559,6 +559,5 @@
 		background-repeat: no-repeat;
 		image-rendering: pixelated;
 		pointer-events: none;
-		transition: background-position 2s ease-in-out;
 	}
 </style>
