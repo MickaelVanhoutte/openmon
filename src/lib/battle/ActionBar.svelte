@@ -17,6 +17,9 @@
 	import { inlineSvg } from '@svelte-put/inline-svg';
 	import MiniPkmn from './mini-menus/MiniPkmn.svelte';
 	import MiniBag from './mini-menus/MiniBag.svelte';
+	import SplitActionButtons from './action-bar/SplitActionButtons.svelte';
+	import SplitMoveSelector from './action-bar/SplitMoveSelector.svelte';
+	import BattleInfoText from './BattleInfoText.svelte';
 
 	interface Props {
 		context: GameContext;
@@ -426,21 +429,7 @@
 	</div>
 {/if}
 
-<div
-	class="info"
-	class:show={show &&
-		!moveOpened &&
-		!(battleSwitchOpened || changePokemon || combo || battleBagOpened)}
-	role="status"
-	aria-live="polite"
-	aria-atomic="true"
->
-	<div class="_inner">
-		<span>
-			{currentMessage}
-		</span>
-	</div>
-</div>
+<BattleInfoText message={currentMessage} />
 
 <!--
 <div class="combo" class:show={showAdd}>
@@ -666,22 +655,21 @@
 	</button>
 -->
 	{#if !targetSelectOpened}
-		<div class="moves2" class:show>
-			{#each battleCtx?.playerSide[battleCtx.actionIdx]?.moves as move, index}
-				<button
-					class="move-btn move"
-					style="--color:{typeChart[move.type].color}; --offset: {index * 3}%"
-					{disabled}
-					class:selected={!disabled && selectedMoveIdx === index}
-					onclick={() => launchMove(index, move)}
-				>
-					<span class="move-name">{move.name.toUpperCase()}</span>
-					<span class="move-pp">
-						{move.currentPp}/{move.pp}
-					</span>
-				</button>
-			{/each}
-		</div>
+		<SplitMoveSelector
+			show={true}
+			moves={battleCtx?.playerSide[battleCtx.actionIdx]?.moves || []}
+			{disabled}
+			{selectedMoveIdx}
+			onMoveClick={(index) =>
+				launchMove(index, battleCtx?.playerSide[battleCtx.actionIdx]?.moves[index])}
+			onCancel={() => {
+				moveOpened = false;
+				showAdd = false;
+			}}
+			onHover={(idx) => {
+				selectedMoveIdx = idx;
+			}}
+		/>
 	{:else}
 		<!-- targets -->
 		<div class="moves2 target-select" class:show>
@@ -725,63 +713,22 @@
 		</div>
 	{/if}
 {:else}
-	<div class="actions2" class:show>
-		<button
-			class="action2-btn"
-			style="--color:#dc5959; --color2:#431515; --offset: 0"
-			{disabled}
-			onclick={() => {
-				moveOpened = true;
-				showInfoBack = true;
-				showAdd = true;
-			}}
-			onmouseenter={() => {
-				selectedOptionIdx = 0;
-			}}
-			class:selected={!disabled && selectedOptionIdx === 0}
-		>
-			FIGHT
-		</button>
-
-		<button
-			class="action2-btn"
-			style="--color:#eca859; --color2:#4f310d; --offset: 3%"
-			{disabled}
-			class:selected={!disabled && selectedOptionIdx === 1}
-			onclick={() => openBag()}
-			onmouseenter={() => {
-				selectedOptionIdx = 1;
-			}}
-		>
-			BAG
-		</button>
-
-		<button
-			class="action2-btn"
-			style="--color:#7EAF53; --color2:#11420a; --offset: 6%"
-			{disabled}
-			class:selected={!disabled && selectedOptionIdx === 2}
-			onclick={() => switchOpen()}
-			onmouseenter={() => {
-				selectedOptionIdx = 2;
-			}}
-		>
-			POKEMONS
-		</button>
-
-		<button
-			class="action2-btn"
-			style="--color:#599bdc; --color2:#092536; --offset: 9%"
-			{disabled}
-			class:selected={!disabled && selectedOptionIdx === 3}
-			onclick={() => escape()}
-			onmouseenter={() => {
-				selectedOptionIdx = 3;
-			}}
-		>
-			RUN
-		</button>
-	</div>
+	<SplitActionButtons
+		show={true}
+		{disabled}
+		{selectedOptionIdx}
+		onFight={() => {
+			moveOpened = true;
+			showInfoBack = true;
+			showAdd = true;
+		}}
+		onBag={() => openBag()}
+		onSwitch={() => switchOpen()}
+		onRun={() => escape()}
+		onHover={(idx) => {
+			selectedOptionIdx = idx;
+		}}
+	/>
 {/if}
 
 {#if levelUpRecap}
