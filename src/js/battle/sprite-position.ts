@@ -93,7 +93,7 @@ export function getHPWidgetAnchor(
 
 /**
  * Calculates radial positions for attack plates that fan out from a sprite.
- * The plates are arranged in a semi-circular arc to the right of the sprite.
+ * The plates are arranged in a vertical stack to the RIGHT of the sprite.
  *
  * @param spritePos - The sprite's position data (from getSpritePosition)
  * @param moveCount - Number of moves (1-4) to position
@@ -104,42 +104,39 @@ export function getAttackPlatePositions(
 	moveCount: number
 ): AttackPlatePosition[] {
 	const positions: AttackPlatePosition[] = [];
-
-	// Clamp move count to valid range
 	const count = Math.max(1, Math.min(4, moveCount));
 
-	// Default base position if sprite position unavailable
-	const baseX = spritePos ? spritePos.x + spritePos.width : 200;
-	const baseY = spritePos ? spritePos.y + spritePos.height / 2 : 300;
-
-	// Arc configuration
-	const arcRadius = 120; // Distance from sprite center
-	const totalArcAngle = 70; // Total spread angle in degrees
-	const startAngle = -totalArcAngle / 2; // Start from top of arc
-
-	// Calculate angle step based on move count
-	const angleStep = count > 1 ? totalArcAngle / (count - 1) : 0;
-
-	// Convert to viewport percentages
 	const viewportHeight = window.innerHeight || 600;
 	const viewportWidth = window.innerWidth || 800;
 
+	// Fallback: stack vertically on the right side of screen
+	if (!spritePos) {
+		for (let i = 0; i < count; i++) {
+			positions.push({
+				top: 42 + i * 11,
+				left: 70,
+				rotation: (i - (count - 1) / 2) * 2
+			});
+		}
+		return positions;
+	}
+
+	// Position to the RIGHT of the sprite with margin
+	const baseX = spritePos.x + spritePos.width + 50; // 50px gap to the right
+	const baseY = spritePos.y + spritePos.height * 0.2;
+	const verticalSpacing = 55;
+
 	for (let i = 0; i < count; i++) {
-		// Calculate angle for this plate (in degrees)
-		const angleDeg = count === 1 ? 0 : startAngle + angleStep * i;
-		const angleRad = (angleDeg * Math.PI) / 180;
+		const offsetY = i * verticalSpacing;
+		const curveOffset = Math.sin((i / Math.max(1, count - 1)) * Math.PI) * 20;
 
-		// Calculate position along the arc
-		const offsetX = Math.cos(angleRad) * arcRadius;
-		const offsetY = Math.sin(angleRad) * arcRadius;
-
-		const plateX = baseX + offsetX;
+		const plateX = baseX + curveOffset;
 		const plateY = baseY + offsetY;
 
 		positions.push({
-			top: (plateY / viewportHeight) * 100,
-			left: (plateX / viewportWidth) * 100,
-			rotation: angleDeg * 0.3 // Subtle rotation following the arc
+			top: Math.min(80, Math.max(15, (plateY / viewportHeight) * 100)),
+			left: Math.min(85, Math.max(45, (plateX / viewportWidth) * 100)),
+			rotation: (i - (count - 1) / 2) * 2
 		});
 	}
 
