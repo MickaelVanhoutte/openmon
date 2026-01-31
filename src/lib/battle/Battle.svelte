@@ -389,6 +389,7 @@
 			statusAbr={battleCtx.oppSide[0].status?.abr || null}
 			position={{ bottom: '78%', left: '72%' }}
 			isAlly={false}
+			spriteElement={opponent[0]}
 		/>
 	{/if}
 	{#if battleCtx.playerSide[0]}
@@ -401,6 +402,7 @@
 			statusAbr={battleCtx.playerSide[0].status?.abr || null}
 			position={{ bottom: '42%', left: '22%' }}
 			isAlly={true}
+			spriteElement={ally[0]}
 		/>
 	{/if}
 
@@ -415,6 +417,7 @@
 				statusAbr={battleCtx.oppSide[1].status?.abr || null}
 				position={{ bottom: '82%', left: '58%' }}
 				isAlly={false}
+				spriteElement={opponent[1]}
 			/>
 		{/if}
 		{#if battleCtx.playerSide[1]}
@@ -427,11 +430,17 @@
 				statusAbr={battleCtx.playerSide[1].status?.abr || null}
 				position={{ bottom: '46%', left: '8%' }}
 				isAlly={true}
+				spriteElement={ally[1]}
 			/>
 		{/if}
 	{/if}
 
-	<ActionBar bind:context bind:battleCtx bind:overWorldCtx={context.overWorldContext} />
+	<ActionBar
+		bind:context
+		bind:battleCtx
+		bind:overWorldCtx={context.overWorldContext}
+		allySprite={ally[0]}
+	/>
 </div>
 
 <style lang="scss">
