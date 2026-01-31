@@ -9,16 +9,29 @@
 	import { backInOut } from 'svelte/easing';
 	import { fade, slide } from 'svelte/transition';
 
-	export let context: GameContext;
-	export let overWorldCtx: OverworldContext;
-	export let savesHolder: SavesHolder;
+	interface Props {
+		context: GameContext;
+		overWorldCtx: OverworldContext;
+		savesHolder: SavesHolder;
+	}
+
+	let { context, overWorldCtx, savesHolder }: Props = $props();
 
 	let abButtonsC: HTMLDivElement;
 	let joysticks: HTMLDivElement;
 	let abButtons: ABButtons;
 	let joystick: JoystickController;
-	let displayedQuests = false;
-	let menu = false;
+	let displayedQuests = $state(false);
+	let menu = $state(false);
+	let menuAvailability = $state<Record<MenuType, boolean>>({} as Record<MenuType, boolean>);
+
+	// Subscribe to menu availability changes
+	$effect(() => {
+		const unsub = context.menuAvailability$.subscribe((availability) => {
+			menuAvailability = availability;
+		});
+		return unsub;
+	});
 	// Joystick listener
 
 	const jsCallback = (data: any) => {
@@ -223,7 +236,7 @@
 	{/if}
 </div>
 
-<nav class="menu-dock">
+<nav class="menu-dock" role="navigation" aria-label="Game menu">
 	<!-- Trigger button - always visible -->
 	<button
 		class="dock-trigger"
@@ -249,9 +262,19 @@
 
 	<!-- Expandable dock panel -->
 	{#if menu}
-		<div class="dock-panel" transition:slide={{ duration: 350, axis: 'x', easing: backInOut }}>
+		<div
+			class="dock-panel"
+			transition:slide={{ duration: 350, axis: 'x', easing: backInOut }}
+			role="menu"
+			aria-label="Game menu options"
+		>
 			<!-- Quests -->
-			<button class="dock-item" style="--item-color: #daba2e" onclick={toggleQuests}>
+			<button
+				class="dock-item"
+				style="--item-color: #daba2e"
+				onclick={toggleQuests}
+				aria-label="Toggle quests panel"
+			>
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
 					<path
 						d="M8.00008 6V9H5.00008V6H8.00008ZM3.00008 4V11H10.0001V4H3.00008ZM13.0001 4H21.0001V6H13.0001V4ZM13.0001 11H21.0001V13H13.0001V11ZM13.0001 18H21.0001V20H13.0001V18ZM10.7072 16.2071L9.29297 14.7929L6.00008 18.0858L4.20718 16.2929L2.79297 17.7071L6.00008 20.9142L10.7072 16.2071Z"
@@ -261,11 +284,12 @@
 			</button>
 
 			<!-- Team -->
-			{#if context.isMenuAvailable(MenuType.POKEMON_LIST)}
+			{#if menuAvailability[MenuType.POKEMON_LIST]}
 				<button
 					class="dock-item"
 					style="--item-color: #d4344b"
 					onclick={() => overWorldCtx.toggleMenu(MenuType.POKEMON_LIST)}
+					aria-label="Open team menu"
 				>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -290,11 +314,12 @@
 			{/if}
 
 			<!-- Bag -->
-			{#if context.isMenuAvailable(MenuType.BAG)}
+			{#if menuAvailability[MenuType.BAG]}
 				<button
 					class="dock-item"
 					style="--item-color: #e57f15"
 					onclick={() => overWorldCtx.openMenu(MenuType.BAG)}
+					aria-label="Open bag"
 				>
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
 						<path
@@ -306,11 +331,12 @@
 			{/if}
 
 			<!-- Boxes -->
-			{#if context.isMenuAvailable(MenuType.BOX)}
+			{#if menuAvailability[MenuType.BOX]}
 				<button
 					class="dock-item"
 					style="--item-color: #594ae5"
 					onclick={() => overWorldCtx.openMenu(MenuType.BOX)}
+					aria-label="Open Pokemon boxes"
 				>
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
 						<path
@@ -322,11 +348,12 @@
 			{/if}
 
 			<!-- Pokédex -->
-			{#if context.isMenuAvailable(MenuType.POKEDEX)}
+			{#if menuAvailability[MenuType.POKEDEX]}
 				<button
 					class="dock-item"
 					style="--item-color: #f6411b"
 					onclick={() => overWorldCtx.openMenu(MenuType.POKEDEX)}
+					aria-label="Open Pokedex"
 				>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -345,11 +372,12 @@
 			{/if}
 
 			<!-- Trainer -->
-			{#if context.isMenuAvailable(MenuType.TRAINER)}
+			{#if menuAvailability[MenuType.TRAINER]}
 				<button
 					class="dock-item"
 					style="--item-color: #10ad6f"
 					onclick={() => overWorldCtx.openMenu(MenuType.TRAINER)}
+					aria-label="Open trainer card"
 				>
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
 						<path
@@ -361,8 +389,13 @@
 			{/if}
 
 			<!-- Map -->
-			{#if context.isMenuAvailable(MenuType.BAG)}
-				<button class="dock-item" style="--item-color: #5ab142" onclick={toggleMap}>
+			{#if menuAvailability[MenuType.BAG]}
+				<button
+					class="dock-item"
+					style="--item-color: #5ab142"
+					onclick={toggleMap}
+					aria-label="Open map"
+				>
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
 						<path
 							d="M2 5L9 2L15 5L21.303 2.2987C21.5569 2.18992 21.8508 2.30749 21.9596 2.56131C21.9862 2.62355 22 2.69056 22 2.75827V19L15 22L9 19L2.69696 21.7013C2.44314 21.8101 2.14921 21.6925 2.04043 21.4387C2.01375 21.3765 2 21.3094 2 21.2417V5ZM6 11V13H8V11H6ZM10 11V13H12V11H10ZM16 10.9393L14.7626 9.7019L13.7019 10.7626L14.9393 12L13.7019 13.2374L14.7626 14.2981L16 13.0607L17.2374 14.2981L18.2981 13.2374L17.0607 12L18.2981 10.7626L17.2374 9.7019L16 10.9393Z"
@@ -373,7 +406,7 @@
 			{/if}
 
 			<!-- Save -->
-			<button class="dock-item" style="--item-color: #05aab3" onclick={save}>
+			<button class="dock-item" style="--item-color: #05aab3" onclick={save} aria-label="Save game">
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
 					<path
 						d="M18 19H19V6.82843L17.1716 5H16V9H7V5H5V19H6V12H18V19ZM4 3H18L20.7071 5.70711C20.8946 5.89464 21 6.149 21 6.41421V20C21 20.5523 20.5523 21 20 21H4C3.44772 21 3 20.5523 3 20V4C3 3.44772 3.44772 3 4 3ZM8 14V19H16V14H8Z"
@@ -428,8 +461,8 @@
 	}
 
 	.dock-trigger {
-		background: #0088cc;
-		border: 2px solid #000;
+		background: var(--pixel-bg-header);
+		border: 2px solid var(--pixel-border-color);
 		border-radius: 8px;
 		width: 52px;
 		height: 52px;
@@ -441,7 +474,7 @@
 		svg {
 			width: 100%;
 			height: 100%;
-			fill: white;
+			fill: var(--pixel-text-white);
 		}
 
 		&.expanded {
@@ -685,11 +718,11 @@
 		}
 
 		&.active {
-			background: #ffd700;
+			background: var(--pixel-text-gold);
 			transform: translate(2px, 2px);
 			box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.4);
 			svg {
-				color: #000;
+				color: var(--pixel-border-color);
 			}
 		}
 

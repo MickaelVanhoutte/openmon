@@ -1,7 +1,5 @@
 <script lang="ts">
 	import type { GameContext } from '../../js/context/gameContext';
-	import { MenuType } from '../../js/context/overworldContext';
-	import type { SavesHolder } from '../../js/context/savesHolder';
 	import Bag from './bag/Bag.svelte';
 	import Boxes from './boxes/Boxes.svelte';
 	import Pokedex from './pokedex/Pokedex.svelte';
@@ -9,40 +7,79 @@
 	import PokemonSummary from './pokemon-list/PokemonSummary.svelte';
 	import Trainer from './trainer/Trainer.svelte';
 
-	export let context: GameContext;
-	export let savesHolder: SavesHolder;
+	interface Props {
+		context: GameContext;
+	}
+
+	let { context }: Props = $props();
 
 	const isBattle = false;
+
+	// Local reactive state that subscribes to Svelte stores
+	let pokemonListOpened = $state(false);
+	let openSummary = $state(false);
+	let bagOpened = $state(false);
+	let boxOpened = $state(false);
+	let trainerOpened = $state(false);
+	let pokedexOpened = $state(false);
+
+	// Subscribe to stores - this is the key fix for Svelte 5 reactivity
+	$effect(() => {
+		const menus = context.overWorldContext.menus;
+
+		const unsubs = [
+			menus.pokemonListOpened$.subscribe((v) => {
+				pokemonListOpened = v;
+			}),
+			menus.openSummary$.subscribe((v) => {
+				openSummary = v;
+			}),
+			menus.bagOpened$.subscribe((v) => {
+				bagOpened = v;
+			}),
+			menus.boxOpened$.subscribe((v) => {
+				boxOpened = v;
+			}),
+			menus.trainerOpened$.subscribe((v) => {
+				trainerOpened = v;
+			}),
+			menus.pokedexOpened$.subscribe((v) => {
+				pokedexOpened = v;
+			})
+		];
+
+		return () => unsubs.forEach((unsub) => unsub());
+	});
 </script>
 
-{#if context.overWorldContext.menus.pokemonListOpened}
-	<PokemonList bind:context {isBattle} onChange={() => 0} zIndex={10} onCombo={() => {}} />
+{#if pokemonListOpened}
+	<PokemonList {context} {isBattle} onChange={() => 0} zIndex={10} onCombo={() => {}} />
 {/if}
 
-{#if context.overWorldContext.menus.openSummary && !context.overWorldContext.menus.pokemonListOpened}
+{#if openSummary && !pokemonListOpened}
 	<PokemonSummary
-		bind:context
-		bind:selected={context.overWorldContext.menus.summaryIndex}
+		{context}
+		selected={context.overWorldContext.menus.summaryIndex}
 		{isBattle}
 		zIndex={20}
-		bind:pkmnList={context.player.monsters}
+		pkmnList={context.player.monsters}
 	/>
 {/if}
 
-{#if context.overWorldContext.menus.bagOpened}
-	<Bag bind:context {isBattle} zIndex={10} />
+{#if bagOpened}
+	<Bag {context} {isBattle} zIndex={10} />
 {/if}
 
-{#if context.overWorldContext.menus.boxOpened}
-	<Boxes bind:context />
+{#if boxOpened}
+	<Boxes {context} />
 {/if}
 
-{#if context.overWorldContext.menus.trainerOpened}
-	<Trainer bind:context />
+{#if trainerOpened}
+	<Trainer {context} />
 {/if}
 
-{#if context.overWorldContext.menus.pokedexOpened}
-	<Pokedex bind:context />
+{#if pokedexOpened}
+	<Pokedex {context} />
 {/if}
 
 <style lang="scss">

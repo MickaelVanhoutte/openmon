@@ -3,10 +3,14 @@
 	import { Howl } from 'howler';
 	import { fade } from 'svelte/transition';
 
-	export let started: boolean;
+	interface Props {
+		started: boolean;
+	}
+
+	let { started = $bindable() }: Props = $props();
 	let intro: HTMLDivElement;
 	let sound: Howl;
-	let soundPlaying = false;
+	let soundPlaying = $state(false);
 
 	let messages = [
 		'',
@@ -15,10 +19,10 @@
 		'Training Magikarp... this might take a while!',
 		'Snorlax is waking up... slowly...'
 	];
-	let messageIdx = 0;
-	let loaded = false;
-	let animationFinished = false;
-	let ready = false;
+	let messageIdx = $state(0);
+	let loaded = $state(false);
+	let animationFinished = $state(false);
+	let ready = $state(false);
 	let messageInterval: number;
 	let readyCheckInterval: number;
 
@@ -98,14 +102,14 @@
 	});
 </script>
 
-<svelte:window on:load={() => preloadAssets()} />
+<svelte:window onload={() => preloadAssets()} />
 
 <div class="intro" bind:this={intro} out:fade>
 	{#each Array.from({ length: 5 }) as i}
 		<div class="firefly"></div>
 	{/each}
 
-	<span class="sound" on:click={toggleSound}>
+	<span class="sound" onclick={toggleSound}>
 		{#if soundPlaying}
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
 				><path

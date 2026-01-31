@@ -5,12 +5,11 @@
 	import type { Dialog, OpenShop } from '../../js/scripting/scripts';
 	import type { GameContext } from '../../js/context/gameContext';
 	import { type OverworldContext } from '../../js/context/overworldContext';
-	import { SavesHolder } from '../../js/context/savesHolder';
+	import type { SavesHolder } from '../../js/context/savesHolder';
 	import ScenesView from './ScenesView.svelte';
 	import Controls from './Controls.svelte';
 	import type { BattleContext } from '../../js/context/battleContext';
 	import Shop from '../common/Shop.svelte';
-	import OverworldTeamPanel from './OverworldTeamPanel.svelte';
 	import { backInOut } from 'svelte/easing';
 	import { fade, slide } from 'svelte/transition';
 	import { TimeOfDay } from '../../js/time/time-of-day';
@@ -20,9 +19,13 @@
 	 * Main game loop, menus, battle starting...
 	 */
 
-	export let context: GameContext;
-	export let overWorldCtx: OverworldContext;
-	export let savesHolder: SavesHolder;
+	interface Props {
+		context: GameContext;
+		overWorldCtx: OverworldContext;
+		savesHolder: SavesHolder;
+	}
+
+	let { context, overWorldCtx, savesHolder }: Props = $props();
 
 	let canvas: HTMLCanvasElement;
 	let buffer: HTMLCanvasElement;
@@ -30,23 +33,53 @@
 	let bufferCtx: CanvasRenderingContext2D;
 	let canvasCtx: CanvasRenderingContext2D;
 	let minimapCtx: CanvasRenderingContext2D;
-	let ctx: CanvasRenderingContext2D;
 	let wrapper: HTMLDivElement;
 	let canvasWidth: number;
-	let currentMessages: string[] = [];
-	let mapEnlarged = false;
-	let weatherParticles: Array<{ x: number; y: number; l: number; xs: number; ys: number }> = [];
+	let currentMessages: string[] = $state([]);
+	let mapEnlarged = $state(false);
+	let weatherParticles: Array<{ x: number; y: number; l: number; xs: number; ys: number }> = $state(
+		[]
+	);
 
 	/*
-    Scripts
+    Scripts - subscribe to reactive store
      */
-	$: currentScript = context?.scriptRunner?.playingScript;
-	$: currentAction = currentScript?.currentAction;
-	$: currentDialog = currentAction?.type === 'Dialog' ? (currentAction as Dialog) : undefined;
-	$: hasDialog = currentAction?.type === 'Dialog';
-	$: hasShop = currentAction?.type === 'OpenShop';
-	$: currentShop = currentAction?.type === 'OpenShop' ? (currentAction as OpenShop) : undefined;
-	$: isHealing = currentAction?.type === 'HealAll';
+	import type { Script, Scriptable } from '../../js/scripting/scripts';
+	let currentScript = $state<Script | undefined>(undefined);
+	let currentAction = $state<Scriptable | undefined>(undefined);
+	let actionUnsubscribe: (() => void) | undefined;
+
+	$effect(() => {
+		const unsub = context.scriptRunner.playingScript$.subscribe((script) => {
+			currentScript = script;
+
+			// Unsubscribe from previous script's currentAction
+			actionUnsubscribe?.();
+
+			if (script) {
+				// Subscribe to currentAction$ store
+				actionUnsubscribe = script.currentAction$.subscribe((action) => {
+					currentAction = action;
+				});
+			} else {
+				currentAction = undefined;
+			}
+		});
+		return () => {
+			unsub();
+			actionUnsubscribe?.();
+		};
+	});
+
+	let currentDialog = $derived(
+		currentAction?.type === 'Dialog' ? (currentAction as Dialog) : undefined
+	);
+	let hasDialog = $derived(currentAction?.type === 'Dialog');
+	let hasShop = $derived(currentAction?.type === 'OpenShop');
+	let currentShop = $derived(
+		currentAction?.type === 'OpenShop' ? (currentAction as OpenShop) : undefined
+	);
+	let isHealing = $derived(currentAction?.type === 'HealAll');
 	function getTimeFilter(tod: TimeOfDay): string {
 		switch (tod) {
 			case TimeOfDay.DAWN:
@@ -60,7 +93,7 @@
 		}
 	}
 
-	$: spawned = context.spawned;
+	let spawned = $derived(context.spawned);
 
 	const timeOfDay = context.timeOfDay.timeOfDay;
 	const progress = context.timeOfDay.progress;
@@ -256,12 +289,19 @@
 		canvasCtx.drawImage(buffer, 0, 0, canvas.width, canvas.height);
 	}
 
-	let battleCtx: BattleContext | undefined = undefined;
-	$: if (context) {
-		context.battleContext.subscribe((value) => {
-			battleCtx = value;
-		});
-	}
+	let battleCtx: BattleContext | undefined = $state(undefined);
+
+	$effect(() => {
+		if (context) {
+			const unsubscribe = context.battleContext.subscribe((value) => {
+				battleCtx = value;
+			});
+			return unsubscribe;
+		}
+		return undefined;
+	});
+	// battleCtx used for future battle integration
+	void battleCtx;
 
 	function enlargeMap() {
 		mapEnlarged = !mapEnlarged;
@@ -269,19 +309,16 @@
 	}
 
 	onMount(() => {
-		//@ts-ignore
-		bufferCtx = buffer.getContext('2d');
+		bufferCtx = buffer.getContext('2d')!;
 		bufferCtx.imageSmoothingEnabled = true;
 		bufferCtx.imageSmoothingQuality = 'high';
 		bufferCtx.fillStyle = 'black';
-		//@ts-ignore
-		canvasCtx = canvas.getContext('2d');
+		canvasCtx = canvas.getContext('2d')!;
 		canvasCtx.imageSmoothingEnabled = true;
 		canvasCtx.imageSmoothingQuality = 'high';
 		canvasCtx.fillStyle = 'black';
 
-		//@ts-ignore
-		minimapCtx = minimap.getContext('2d');
+		minimapCtx = minimap.getContext('2d')!;
 		minimapCtx.imageSmoothingEnabled = true;
 		minimapCtx.imageSmoothingQuality = 'high';
 		minimapCtx.fillStyle = 'black';
@@ -322,7 +359,7 @@
 		<button
 			class="enlarge"
 			class:opened={overWorldCtx.menus.mapOpened}
-			on:click={() => enlargeMap()}
+			onclick={() => enlargeMap()}
 		>
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
 				><path
@@ -339,13 +376,13 @@
 
 	<!-- <OverworldTeamPanel {context} /> -->
 
-	<Menu bind:context {savesHolder} />
+	<Menu {context} />
 
 	{#if hasDialog}
-		<DialogView bind:dialog={currentDialog} {context} />
+		<DialogView dialog={currentDialog} {context} />
 	{/if}
 	{#if hasShop}
-		<Shop bind:shop={currentShop} {context} />
+		<Shop shop={currentShop} {context} />
 	{/if}
 
 	<div class="healing" class:show={isHealing}></div>

@@ -1,21 +1,30 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import type { Unsubscriber } from 'svelte/store';
 	import type { GameContext } from '../../js/context/gameContext';
 	import type { OpenShop } from '../../js/scripting/scripts';
 
-	export let shop: OpenShop | undefined;
-	export let context: GameContext;
+	interface Props {
+		shop: OpenShop | undefined;
+		context: GameContext;
+	}
+
+	let { shop, context }: Props = $props();
+
 	let unsubscribe: Unsubscriber;
-	// @ts-ignore
-	let items = Object.keys(shop.items).map((key) => {
+	let items = Object.keys(shop?.items || {}).map((key) => {
 		let item = context.ITEMS.getItem(Number.parseInt(key));
-		// @ts-ignore
-		return { id: key, name: item?.name, price: shop.items[key], desc: item?.description };
+		return {
+			id: key,
+			name: item?.name,
+			price: shop?.items[key as unknown as number] || 0,
+			desc: item?.description
+		};
 	});
-	let selected = 0;
-	$: selectedItem = items[selected];
-	let openQty = false;
-	let qty = 1;
+	let selected = $state(0);
+	let selectedItem = $derived(items[selected]);
+	let openQty = $state(false);
+	let qty = $state(1);
 
 	const listener = (e: KeyboardEvent) => {
 		if (e.key === 'Escape') {
@@ -86,6 +95,7 @@
 
 		return () => {
 			window.removeEventListener('keydown', listener);
+			unsubscribe?.();
 		};
 	});
 </script>
@@ -105,7 +115,7 @@
 			{#each items as item, index}
 				<li
 					class:selected={selected === index}
-					on:click={() => {
+					onclick={() => {
 						selected = index;
 						openQty = true;
 					}}
@@ -123,21 +133,24 @@
 						x{qty} = {qty * selectedItem.price}$
 					</span>
 					<div class="more-less">
-						<button on:click={() => more()}>+</button>
-						<button on:click={() => less()}>-</button>
+						<button onclick={() => more()} aria-label="Increase quantity">+</button>
+						<button onclick={() => less()} aria-label="Decrease quantity">-</button>
 					</div>
 				</div>
 
 				<div class="buy-cancel">
-					<button class="button outline" on:click={() => cancel()}>Cancel</button>
-					<button class="button primary" on:click={() => buy()}>Buy</button>
+					<button class="button outline" onclick={() => cancel()}>Cancel</button>
+					<button class="button primary" onclick={() => buy()}>Buy</button>
 				</div>
 			</div>
 		{/if}
 	</div>
 
 	<div class="close">
-		<button on:click={() => context.scriptRunner?.playingScript?.nextAction(context)}>
+		<button
+			onclick={() => context.scriptRunner?.playingScript?.nextAction(context)}
+			aria-label="Close shop"
+		>
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
 				><path
 					d="M10.5859 12L2.79297 4.20706L4.20718 2.79285L12.0001 10.5857L19.793 2.79285L21.2072 4.20706L13.4143 12L21.2072 19.7928L19.793 21.2071L12.0001 13.4142L4.20718 21.2071L2.79297 19.7928L10.5859 12Z"
@@ -188,8 +201,8 @@
 			left: 0;
 			width: 50dvw;
 			height: 25dvh;
-			background: #143855;
-			border: 2px solid #000;
+			background: var(--pixel-bg-panel);
+			border: 2px solid var(--pixel-border-color);
 			box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
 			z-index: 101;
 
@@ -214,8 +227,8 @@
 			right: 0;
 			width: 50dvw;
 			height: 100dvh;
-			background: #143855;
-			border: 2px solid #000;
+			background: var(--pixel-bg-panel);
+			border: 2px solid var(--pixel-border-color);
 			box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
 			z-index: 101;
 
@@ -224,7 +237,7 @@
 				height: 10dvh;
 				font-size: 24px;
 				font-weight: bold;
-				color: #ffd700;
+				color: var(--pixel-text-gold);
 			}
 
 			.items {
@@ -236,19 +249,19 @@
 
 				li {
 					padding: 12px;
-					background: #1c4b72;
-					border: 2px solid #000;
+					background: var(--pixel-bg-primary);
+					border: 2px solid var(--pixel-border-color);
 					margin-bottom: 8px;
 					display: flex;
 					justify-content: space-between;
 					cursor: pointer;
 
 					&.selected {
-						border: 3px solid #ffd700;
+						border: 3px solid var(--pixel-text-gold);
 					}
 
 					span:last-child {
-						color: #ffd700;
+						color: var(--pixel-text-gold);
 					}
 				}
 			}
@@ -259,8 +272,8 @@
 				right: 16px;
 				width: calc(50dvw - 32px);
 				padding: 16px;
-				background: #143855;
-				border: 2px solid #000;
+				background: var(--pixel-bg-panel);
+				border: 2px solid var(--pixel-border-color);
 				box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
 				border-radius: 0;
 				z-index: 102;

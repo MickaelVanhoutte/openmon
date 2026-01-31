@@ -3,8 +3,12 @@
 	import Evolution from '../common/Evolution.svelte';
 	import StarterSelection from '../common/StarterSelection.svelte';
 
-	export let context: GameContext;
-	export let canvasWidth: number;
+	interface Props {
+		context: GameContext;
+		canvasWidth: number;
+	}
+
+	let { context, canvasWidth }: Props = $props();
 </script>
 
 {#if context.overWorldContext.scenes.wakeUp}
@@ -21,7 +25,6 @@
 {#if context.hasEvolutions}
 	<Evolution bind:context />
 {/if}
-
 
 <style lang="scss">
 	.wakeUp {

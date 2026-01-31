@@ -55,6 +55,9 @@ export class GameContext {
 
 	overWorldContext: OverworldContext;
 	battleContext: Writable<BattleContext | undefined> = writable(undefined);
+	menuAvailability$: Writable<Record<MenuType, boolean>> = writable(
+		{} as Record<MenuType, boolean>
+	);
 	timeOfDay: TimeOfDayService;
 
 	// Manager classes
@@ -108,6 +111,7 @@ export class GameContext {
 		// Initialize managers
 		this.audioManager = new AudioManager();
 		this.questManager = new QuestManager(save.questStates, save.flags, this.notifications);
+		this.questManager.onObjectiveComplete = () => this.updateMenuAvailability();
 		this.scriptRunner = new ScriptRunner();
 		this.timeOfDay = new TimeOfDayService({ initialElapsedMs: save.playTime || 0 });
 
@@ -125,6 +129,7 @@ export class GameContext {
 		this.checkForGameStart();
 		this.loadMap(this.map);
 		this.startWeatherLoop();
+		this.updateMenuAvailability();
 	}
 
 	startWeatherLoop() {
@@ -158,6 +163,7 @@ export class GameContext {
 				if (obj) {
 					obj.completed = true;
 					this.notifications.notify(`Objective completed: ${objective.description}`);
+					this.updateMenuAvailability();
 					if (quest && questState.objectives.every((o) => o.completed)) {
 						questState.completed = true;
 						this.notifications.notify(`Quest completed: ${quest.name}`);
@@ -194,6 +200,24 @@ export class GameContext {
 			default:
 				return false;
 		}
+	}
+
+	/**
+	 * Updates the menuAvailability$ store with current availability for all menu types.
+	 * Call this whenever quest objectives change.
+	 */
+	updateMenuAvailability(): void {
+		this.menuAvailability$.set({
+			[MenuType.MAIN]: true,
+			[MenuType.POKEMON_LIST]: this.isMenuAvailable(MenuType.POKEMON_LIST),
+			[MenuType.SWITCH]: true,
+			[MenuType.BAG]: this.isMenuAvailable(MenuType.BAG),
+			[MenuType.SUMMARY]: true,
+			[MenuType.BOX]: this.isMenuAvailable(MenuType.BOX),
+			[MenuType.POKEDEX]: this.isMenuAvailable(MenuType.POKEDEX),
+			[MenuType.TRAINER]: this.isMenuAvailable(MenuType.TRAINER),
+			[MenuType.MAP]: true
+		} as Record<MenuType, boolean>);
 	}
 
 	bindKeys() {
@@ -638,11 +662,9 @@ export class GameContext {
 			this.audioManager.playBattleMusic();
 		}, 1500);
 
-		console.log(battleType);
 		if (battleType === BattleType.DOUBLE && this.player.monsters.length < 2) {
 			battleType = BattleType.SINGLE;
 		}
-		console.log(battleType);
 
 		if (opponent instanceof NPC && opponent?.monsterIds?.length > 0) {
 			opponent.monsters = opponent.monsterIds.map((id) => {
@@ -682,12 +704,9 @@ export class GameContext {
 					if (this.player.monsters.length < 6) {
 						this.player.monsters.push(result.caught);
 					} else {
-						// first available space in boxes
-						if (!this.boxes.every((box) => box.isFull())) {
-							// @ts-ignore
-							this.boxes[this.boxes.indexOf(this.boxes.find((box) => !box.isFull()))].add(
-								result.caught
-							);
+						const availableBox = this.boxes.find((box) => !box.isFull());
+						if (availableBox) {
+							availableBox.add(result.caught);
 						}
 					}
 				}

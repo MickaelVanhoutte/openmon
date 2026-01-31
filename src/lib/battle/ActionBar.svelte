@@ -18,48 +18,54 @@
 	import MiniPkmn from './mini-menus/MiniPkmn.svelte';
 	import MiniBag from './mini-menus/MiniBag.svelte';
 
-	export let context: GameContext;
-	export let battleCtx: BattleContext;
-	export let overWorldCtx: OverworldContext;
-	let moveOpened = false;
-	let targetSelectOpened = false;
-	let possibleTargets: PokemonInstance[] = [];
-	let infoOpened = false;
-	let showInfoBack = false;
-	let show = false;
-	let showAdd = false;
+	interface Props {
+		context: GameContext;
+		battleCtx: BattleContext;
+		overWorldCtx: OverworldContext;
+	}
 
-	let currentMessage: String | undefined;
-	let disabled = false;
-	let selectedMoveIdx: number | undefined = undefined;
-	let selectedOptionIdx: number | undefined = undefined;
-	let selectedTargetIdx: number | undefined = undefined;
-	let combo = false;
-	let currentCombo: { pokemon: PokemonInstance; move: MoveInstance } | undefined = undefined;
-	let changePokemon = false;
+	let { context, battleCtx, overWorldCtx }: Props = $props();
+	let moveOpened = $state(false);
+	let targetSelectOpened = $state(false);
+	let possibleTargets: PokemonInstance[] = $state([]);
+	let infoOpened = $state(false);
+	let showInfoBack = $state(false);
+	let show = $state(false);
+	let showAdd = $state(false);
+
+	let currentMessage: String | undefined = $state(undefined);
+	let disabled = $state(false);
+	let selectedMoveIdx: number | undefined = $state(undefined);
+	let selectedOptionIdx: number | undefined = $state(undefined);
+	let selectedTargetIdx: number | undefined = $state(undefined);
+	let combo = $state(false);
+	let currentCombo: { pokemon: PokemonInstance; move: MoveInstance } | undefined =
+		$state(undefined);
+	let changePokemon = $state(false);
 	let isBattle = true;
-	let battleBagOpened = false;
-	let battleSwitchOpened = false;
+	let battleBagOpened = $state(false);
+	let battleSwitchOpened = $state(false);
 	let zIndexNext = 10;
 	const mechanicRegex = /{[^}]*}/g;
 	const effectRegex = /\$effect_chance/g;
 
 	let comboJauge = battleCtx.player.comboJauge;
-	let comboValue = comboJauge.value;
-	let comboStored = comboJauge.stored;
-	let comboDisabled =
+	let comboValue = $state(comboJauge.value);
+	let comboStored = $state(comboJauge.stored);
+	let comboDisabled = $state(
 		battleCtx.player.comboJauge.stored === 0 ||
-		battleCtx.player.monsters?.filter((p) => !p.fainted).length === 1;
-	let updating = false;
-	let disableComboTransition = false;
+			battleCtx.player.monsters?.filter((p) => !p.fainted).length === 1
+	);
+	let updating = $state(false);
+	let disableComboTransition = $state(false);
 
-	let levelUpRecap: { pokemon: PokemonInstance; oldStats?: Stats; newStats?: Stats } | undefined;
+	let levelUpRecap: { pokemon: PokemonInstance; oldStats?: Stats; newStats?: Stats } | undefined =
+		$state(undefined);
 	const statSkip = ['total', 'accuracy', 'evasion'];
 
-	$: menuType = (battleSwitchOpened ? 'switch' : combo ? 'combo' : 'change') as
-		| 'switch'
-		| 'combo'
-		| 'change';
+	let menuType = $derived(
+		(battleSwitchOpened ? 'switch' : combo ? 'combo' : 'change') as 'switch' | 'combo' | 'change'
+	);
 
 	battleCtx.currentMessage.subscribe((message) => {
 		currentMessage = message;
@@ -92,24 +98,20 @@
 				battleCtx.player.comboJauge.value < comboValue &&
 				battleCtx.player.comboJauge.stored >= comboStored
 			) {
-				console.log('combo value reset');
 				setTimeout(() => {
 					// goes to 100 animated
-					console.log('set to 100', new Date().getTime());
 					disableComboTransition = false;
 					comboValue = 100;
 				}, 50);
 
 				setTimeout(() => {
 					// then 0 without transition
-					console.log('set to 0', new Date().getTime());
 					disableComboTransition = true;
 					comboValue = 0;
 				}, 950);
 
 				setTimeout(() => {
 					// then set new values
-					console.log('set to ' + battleCtx.player.comboJauge.value, new Date().getTime());
 					disableComboTransition = false;
 					comboValue = battleCtx.player.comboJauge.value;
 					comboStored = battleCtx.player.comboJauge.stored;
@@ -147,8 +149,6 @@
 			selectedMoveIdx = idx;
 			return;
 		}
-
-		console.log({ selectedTargets }, { move });
 
 		let targets: PokemonInstance[];
 
@@ -418,7 +418,11 @@
 
 {#if battleCtx?.playerTurnActions?.length > 0 && battleCtx?.playerSide?.length > 1 && !moveOpened && !targetSelectOpened}
 	<div class="cancel-wrapper">
-		<button class="cancel-last button" on:click={() => battleCtx.cancelLastAction()}>Cancel</button>
+		<button
+			class="cancel-last button"
+			onclick={() => battleCtx.cancelLastAction()}
+			aria-label="Cancel last action">Cancel</button
+		>
 	</div>
 {/if}
 
@@ -427,6 +431,9 @@
 	class:show={show &&
 		!moveOpened &&
 		!(battleSwitchOpened || changePokemon || combo || battleBagOpened)}
+	role="status"
+	aria-live="polite"
+	aria-atomic="true"
 >
 	<div class="_inner">
 		<span>
@@ -470,11 +477,12 @@
 		<div class="info-back">
 			<button
 				class="back-btn"
-				on:click={() => {
+				onclick={() => {
 					moveOpened = false;
 					showAdd = false;
 					targetSelectOpened = false;
 				}}
+				aria-label="Go back to action menu"
 			>
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
 					><path
@@ -565,7 +573,7 @@
 		class="combo-btn"
 		class:shine={!comboDisabled && !disabled}
 		class:close={!!currentCombo}
-		on:click={() => toggleCombo()}
+		onclick={() => toggleCombo()}
 		disabled={comboDisabled}
 	>
 		{#if !currentCombo}
@@ -665,7 +673,7 @@
 					style="--color:{typeChart[move.type].color}; --offset: {index * 3}%"
 					{disabled}
 					class:selected={!disabled && selectedMoveIdx === index}
-					on:click={() => launchMove(index, move)}
+					onclick={() => launchMove(index, move)}
 				>
 					<span class="move-name">{move.name.toUpperCase()}</span>
 					<span class="move-pp">
@@ -684,7 +692,7 @@
 						? '#7EAF53'
 						: '#dc5959'}"
 					class:selected={selectedTargetIdx === index}
-					on:click={() =>
+					onclick={() =>
 						launchMove(index, battleCtx?.playerSide[battleCtx.actionIdx]?.moves[selectedMoveIdx], [
 							target
 						])}
@@ -722,12 +730,12 @@
 			class="action2-btn"
 			style="--color:#dc5959; --color2:#431515; --offset: 0"
 			{disabled}
-			on:click={() => {
+			onclick={() => {
 				moveOpened = true;
 				showInfoBack = true;
 				showAdd = true;
 			}}
-			on:mouseenter={() => {
+			onmouseenter={() => {
 				selectedOptionIdx = 0;
 			}}
 			class:selected={!disabled && selectedOptionIdx === 0}
@@ -740,8 +748,8 @@
 			style="--color:#eca859; --color2:#4f310d; --offset: 3%"
 			{disabled}
 			class:selected={!disabled && selectedOptionIdx === 1}
-			on:click={() => openBag()}
-			on:mouseenter={() => {
+			onclick={() => openBag()}
+			onmouseenter={() => {
 				selectedOptionIdx = 1;
 			}}
 		>
@@ -753,8 +761,8 @@
 			style="--color:#7EAF53; --color2:#11420a; --offset: 6%"
 			{disabled}
 			class:selected={!disabled && selectedOptionIdx === 2}
-			on:click={() => switchOpen()}
-			on:mouseenter={() => {
+			onclick={() => switchOpen()}
+			onmouseenter={() => {
 				selectedOptionIdx = 2;
 			}}
 		>
@@ -766,8 +774,8 @@
 			style="--color:#599bdc; --color2:#092536; --offset: 9%"
 			{disabled}
 			class:selected={!disabled && selectedOptionIdx === 3}
-			on:click={() => escape()}
-			on:mouseenter={() => {
+			onclick={() => escape()}
+			onmouseenter={() => {
 				selectedOptionIdx = 3;
 			}}
 		>
@@ -802,7 +810,7 @@
 	{#if battleSwitchOpened || combo}
 		<button
 			class="back-mini-pkmn-btn"
-			on:click={() => {
+			onclick={() => {
 				battleSwitchOpened = false;
 				combo = false;
 			}}
@@ -829,8 +837,6 @@
 				sendSwitchAction(pkm);
 			} else if (!!pkm && changePokemon) {
 				send(pkm);
-			} else {
-				console.log('Wtf ?');
 			}
 		}}
 	/>
@@ -839,7 +845,7 @@
 {#if battleBagOpened}
 	<button
 		class="back-mini-pkmn-btn"
-		on:click={() => {
+		onclick={() => {
 			battleBagOpened = false;
 		}}
 	>
@@ -975,9 +981,9 @@
 		bottom: 28%;
 
 		.cancel-last.button {
-			background-color: #0088cc;
-			border: 2px solid #000;
-			color: white;
+			background-color: var(--pixel-bg-header);
+			border: 2px solid var(--pixel-border-color);
+			color: var(--pixel-text-white);
 			display: flex;
 			text-transform: uppercase;
 			justify-content: flex-start;
@@ -992,8 +998,8 @@
 			&.selected {
 				transform: translateX(0);
 				filter: brightness(1.1);
-				border: 3px solid #ffd700;
-				color: #ffffff;
+				border: 3px solid var(--pixel-text-gold);
+				color: var(--pixel-text-white);
 				justify-content: center;
 			}
 		}
@@ -1034,7 +1040,7 @@
 			width: 100%;
 			text-align: center;
 			box-sizing: border-box;
-			color: #ffffff;
+			color: var(--pixel-text-white);
 		}
 	}
 
@@ -1060,9 +1066,9 @@
 		.action2-btn {
 			width: 100%;
 			height: 44px;
-			background-color: #0088cc;
-			border: 2px solid #000;
-			color: #ffffff;
+			background-color: var(--pixel-bg-header);
+			border: 2px solid var(--pixel-border-color);
+			color: var(--pixel-text-white);
 			transform: translateX(20%);
 			display: flex;
 			justify-content: flex-start;
@@ -1076,8 +1082,8 @@
 			&:hover,
 			&.selected {
 				filter: brightness(1.1);
-				border: 3px solid #ffd700;
-				color: #ffffff;
+				border: 3px solid var(--pixel-text-gold);
+				color: var(--pixel-text-white);
 			}
 		}
 
@@ -1085,10 +1091,10 @@
 		.target-btn {
 			width: 100%;
 			height: calc(80% / 4);
-			background-color: #0088cc;
-			border: 2px solid #000;
-			border-left: 5px solid var(--color, #0088cc);
-			color: #ffffff;
+			background-color: var(--pixel-bg-header);
+			border: 2px solid var(--pixel-border-color);
+			border-left: 5px solid var(--color, var(--pixel-bg-header));
+			color: var(--pixel-text-white);
 			display: flex;
 			align-items: center;
 			justify-content: space-between;
@@ -1101,15 +1107,15 @@
 			box-sizing: border-box;
 
 			&.target-btn {
-				border: 2px solid #000;
-				border-left: 5px solid var(--color, #0088cc);
+				border: 2px solid var(--pixel-border-color);
+				border-left: 5px solid var(--color, var(--pixel-bg-header));
 				justify-content: flex-start;
 				gap: 10%;
 
 				&:hover,
 				&.selected {
-					background-color: #0088cc;
-					color: #ffffff;
+					background-color: var(--pixel-bg-header);
+					color: var(--pixel-text-white);
 				}
 
 				span:first-child {
@@ -1126,9 +1132,9 @@
 			&.selected {
 				//transform: translateX(0);
 				filter: brightness(1.1);
-				border: 3px solid #ffd700;
-				border-left: 5px solid var(--color, #0088cc);
-				color: #ffffff;
+				border: 3px solid var(--pixel-text-gold);
+				border-left: 5px solid var(--color, var(--pixel-bg-header));
+				color: var(--pixel-text-white);
 				opacity: 1;
 			}
 
@@ -1180,10 +1186,10 @@
 			width: 85%;
 			font-size: 26px;
 			padding: 1% 4%;
-			background-color: #143855;
-			border: 2px solid #000;
+			background-color: var(--pixel-bg-panel);
+			border: 2px solid var(--pixel-border-color);
 			box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
-			color: white;
+			color: var(--pixel-text-white);
 			text-shadow: 1px 0px 0px black;
 			text-overflow: ellipsis;
 			overflow: hidden;
@@ -1196,10 +1202,10 @@
 			width: 85%;
 			font-size: 26px;
 			padding: 1% 2%;
-			background-color: #143855;
-			border: 2px solid #000;
+			background-color: var(--pixel-bg-panel);
+			border: 2px solid var(--pixel-border-color);
 			box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
-			color: white;
+			color: var(--pixel-text-white);
 			display: flex;
 			gap: 2%;
 			align-items: center;
@@ -1212,7 +1218,7 @@
 
 				.progressbar {
 					width: var(--width);
-					background: #0088cc;
+					background: var(--pixel-bg-header);
 					height: 100%;
 					position: relative;
 					overflow: hidden;
@@ -1267,10 +1273,10 @@
 			.back-btn {
 				height: 100%;
 				width: 6dvw;
-				background-color: #143855;
-				border: 2px solid #000;
+				background-color: var(--pixel-bg-panel);
+				border: 2px solid var(--pixel-border-color);
 				box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
-				color: white;
+				color: var(--pixel-text-white);
 				overflow: hidden;
 
 				svg {
@@ -1283,10 +1289,10 @@
 			.info-btn {
 				height: 100%;
 				width: 6dvw;
-				background-color: #143855;
-				border: 2px solid #000;
+				background-color: var(--pixel-bg-panel);
+				border: 2px solid var(--pixel-border-color);
 				box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
-				color: white;
+				color: var(--pixel-text-white);
 				overflow: hidden;
 
 				svg {
@@ -1379,10 +1385,10 @@
 		bottom: 55%;
 		height: 8dvh;
 		width: 20dvh;
-		background-color: #143855;
-		border: 2px solid #000;
+		background-color: var(--pixel-bg-panel);
+		border: 2px solid var(--pixel-border-color);
 		box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
-		color: white;
+		color: var(--pixel-text-white);
 		display: flex;
 		align-items: center;
 		justify-content: center;

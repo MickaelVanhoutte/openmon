@@ -8,7 +8,7 @@
 		LineElement,
 		Filler
 	} from 'chart.js';
-	import { Nature, PokemonInstance, Stats } from '../../../js/pokemons/pokedex';
+	import { Nature, PokemonInstance } from '../../../js/pokemons/pokedex';
 	import { fade, slide } from 'svelte/transition';
 	import { backInOut } from 'svelte/easing';
 	import type { GameContext } from '../../../js/context/gameContext';
@@ -16,36 +16,45 @@
 
 	Chart.register(RadarController, RadialLinearScale, PointElement, LineElement, Filler);
 
-	export let context: GameContext;
-	export let selected: number;
-	export let statEdit: boolean;
-	export let isBattle: boolean;
-	export let zIndex: number;
-	export let pkmnList: PokemonInstance[];
+	interface Props {
+		context: GameContext;
+		selected: number;
+		statEdit: boolean;
+		isBattle: boolean;
+		zIndex: number;
+		pkmnList: PokemonInstance[];
+	}
 
-	let graphWrapper: HTMLDivElement;
-	let graph: HTMLCanvasElement;
-	let editBtn: HTMLButtonElement;
-	let editLines: HTMLTableSectionElement;
+	let {
+		context,
+		selected = $bindable(),
+		statEdit = $bindable(false),
+		isBattle = $bindable(),
+		zIndex = $bindable(),
+		pkmnList = $bindable()
+	}: Props = $props();
 
-	//let pkmnList: PokemonInstance[] = context.player.monsters;
+	let graphWrapper: HTMLDivElement | undefined = $state(undefined);
+	let graph: HTMLCanvasElement | undefined = $state(undefined);
+	let editBtn: HTMLButtonElement | undefined = $state(undefined);
+	let editLines: HTMLTableSectionElement | undefined = $state(undefined);
 
 	type StatKey = 'hp' | 'attack' | 'defense' | 'specialAttack' | 'specialDefense' | 'speed';
 
-	$: selectedMons = pkmnList[selected];
-	$: statsKeys = Object.keys(selectedMons.stats).filter(
-		(key) => key !== 'total' && key !== 'accuracy' && key !== 'evasion'
-	) as Array<StatKey>;
-	$: totalStats = Object.values(selectedMons.currentStats).reduce((a, b) => a + b, 0);
+	let selectedMons = $derived(pkmnList[selected]);
+	let statsKeys = $derived(
+		Object.keys(selectedMons.stats).filter(
+			(key) => key !== 'total' && key !== 'accuracy' && key !== 'evasion'
+		) as Array<StatKey>
+	);
+	let totalStats = $derived(Object.values(selectedMons.currentStats).reduce((a, b) => a + b, 0));
 
 	function disabled(key: StatKey, testValue: number) {
 		if (testValue > 0) {
-			// add 1/10, must have enough evs to distribute or not maxed
 			return (
 				selectedMons.evsToDistribute - testValue < 0 || selectedMons.evs[key] + testValue > 252
 			);
 		} else {
-			// remove 1/10, must already have evs distributed and  not go below 0
 			return selectedMons.evs[key] === 0 || selectedMons.evs[key] + testValue <= 0;
 		}
 	}
@@ -77,7 +86,8 @@
 		setTimeout(() => {
 			if (
 				statEdit &&
-				editLines?.rows?.length > 0 &&
+				editLines?.rows?.length &&
+				editLines.rows.length > 0 &&
 				!context.viewedGuides.includes(GUIDES_STEPS.EVS_EDIT.order)
 			) {
 				context.tg.setOptions({
@@ -93,11 +103,10 @@
 
 	function addEv(stat: StatKey, number: number) {
 		selectedMons.addEv(stat, number);
-		// fix force reload
-		selectedMons = selectedMons;
+		pkmnList = [...pkmnList];
 	}
 
-	$: data = {
+	let data = $derived({
 		labels: [
 			['HP', selectedMons.currentStats.hp],
 			['Attack', selectedMons.currentStats.attack],
@@ -122,7 +131,7 @@
 				borderColor: 'rgba(242, 228, 3, 0)',
 				borderWidth: 2,
 				pointBorderWidth: 0,
-				pointStyle: false,
+				pointStyle: false as const,
 				spanGaps: true,
 				tension: 0
 			},
@@ -141,15 +150,15 @@
 				borderColor: 'rgba(242, 228, 3, 0)',
 				borderWidth: 2,
 				pointBorderWidth: 0,
-				pointStyle: false,
+				pointStyle: false as const,
 				spanGaps: true,
 				tension: 0
 			}
 		]
-	};
+	});
 
-	$: config = {
-		type: 'radar',
+	let config = $derived({
+		type: 'radar' as const,
 		data: data,
 		responsive: true,
 		maintainAspectRatio: false,
@@ -214,13 +223,13 @@
 				}
 			}
 		}
-	};
+	});
 
-	function makeChart(ctx, d, l) {
-		const myChart = new Chart(ctx, config); //init the chart
+	function makeChart(ctx: HTMLCanvasElement) {
+		const myChart = new Chart(ctx, config);
 		return {
-			update(u) {
-				myChart.data = u.data;
+			update() {
+				myChart.data = data;
 				myChart.config.options = config.options;
 				myChart.update('none');
 			},
@@ -245,7 +254,6 @@
 	});
 
 	function getStatBarWidth(value: number) {
-		// Simple normalization for display. Adjust max as needed.
 		const max = 300;
 		return Math.min(100, (value / max) * 100) + '%';
 	}
@@ -279,7 +287,7 @@
 								bind:this={editBtn}
 								class="edit-btn"
 								class:flash={selectedMons.evsToDistribute > 0}
-								on:click={() => openEdition()}
+								onclick={() => openEdition()}
 							>
 								Edit EVs
 							</button>
@@ -336,7 +344,11 @@
 
 <div class="stats-edit" style="--zIndex:{zIndex + 1}" class:open={statEdit}>
 	<div class="stats-wrapper" bind:this={graphWrapper}>
-		<canvas bind:this={graph} use:makeChart={(data, config)}></canvas>
+		{#if graph}
+			<canvas bind:this={graph} use:makeChart></canvas>
+		{:else}
+			<canvas bind:this={graph} use:makeChart></canvas>
+		{/if}
 	</div>
 
 	<div class="stat-values">
@@ -367,16 +379,15 @@
 						<td>
 							<div class="inputs">
 								<div class="double">
-									<button disabled={disabled(key, 10)} on:click={() => addEv(key, 10)}>++</button>
-									<button disabled={disabled(key, 1)} on:click={() => addEv(key, 1)}>+</button>
+									<button disabled={disabled(key, 10)} onclick={() => addEv(key, 10)}>++</button>
+									<button disabled={disabled(key, 1)} onclick={() => addEv(key, 1)}>+</button>
 								</div>
 								<div>
 									<span>{selectedMons.evs[key]}</span>
 								</div>
 								<div class="double">
-									<button disabled={disabled(key, -1)} on:click={() => addEv(key, -1)}>-</button>
-									<button disabled={disabled(key, -10)} on:click={() => addEv(key, -10)}>- -</button
-									>
+									<button disabled={disabled(key, -1)} onclick={() => addEv(key, -1)}>-</button>
+									<button disabled={disabled(key, -10)} onclick={() => addEv(key, -10)}>- -</button>
 								</div>
 							</div>
 						</td>
@@ -556,7 +567,6 @@
 			font-weight: bold;
 
 			.stat-value-container {
-				/* No bar for total */
 				justify-content: center;
 			}
 		}

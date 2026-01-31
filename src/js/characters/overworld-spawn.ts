@@ -1,143 +1,160 @@
-import { Bag } from "../items/bag";
-import type { Position } from "../mapping/positions";
-import type { PokemonInstance } from "../pokemons/pokedex";
-import { CHARACTER_SPRITES, centerObject } from "../sprites/sprites";
-import { RUNNING_SPEED, WALKING_SPEED, type Character, type CharacterPosition } from "./characters-model";
-import type { MasteryType } from "./mastery-model";
-import { ComboJauge } from "./player";
+import { Bag } from '../items/bag';
+import type { Position } from '../mapping/positions';
+import type { PokemonInstance } from '../pokemons/pokedex';
+import { CHARACTER_SPRITES, centerObject } from '../sprites/sprites';
+import {
+	RUNNING_SPEED,
+	WALKING_SPEED,
+	type Character,
+	type CharacterPosition
+} from './characters-model';
+import type { MasteryType } from './mastery-model';
+import { ComboJauge } from './player';
 
 export class OverworldSpawn implements Character {
-    spriteId: number = 0;
-    name: string = 'OverworldSpawn';
-    gender: "MALE" | "FEMALE" = "MALE";
-    monsters: PokemonInstance[] = [];
-    bag: Bag = new Bag();
-    moving: boolean = true;
-    position: CharacterPosition;
-    comboJauge: ComboJauge = new ComboJauge();
-    pokemon: PokemonInstance;
+	spriteId: number = 0;
+	name: string = 'OverworldSpawn';
+	gender: 'MALE' | 'FEMALE' = 'MALE';
+	monsters: PokemonInstance[] = [];
+	bag: Bag = new Bag();
+	moving: boolean = true;
+	position: CharacterPosition;
+	comboJauge: ComboJauge = new ComboJauge();
+	pokemon: PokemonInstance;
 
-    private orientationIndexes = {
-        "down": 0,
-        "left": 1,
-        "right": 2,
-        "up": 3,
-    }
-    private images: Record<string, HTMLImageElement> = {};
-    private frames = { max: 4, val: 0, elapsed: 0 };
+	private orientationIndexes = {
+		down: 0,
+		left: 1,
+		right: 2,
+		up: 3
+	};
+	private images: Record<string, HTMLImageElement> = {};
+	private frames = { max: 4, val: 0, elapsed: 0 };
 
-    constructor(position: CharacterPosition, pokemon: PokemonInstance) {
-        this.position = position;
-        console.log('constructor', this.position);
-        this.pokemon = pokemon;
-    }
+	constructor(position: CharacterPosition, pokemon: PokemonInstance) {
+		this.position = position;
+		this.pokemon = pokemon;
+	}
 
-    getMasteryBonus(type: MasteryType): number {
-        throw new Error("Method not implemented.");
-    }
+	getMasteryBonus(type: MasteryType): number {
+		throw new Error('Method not implemented.');
+	}
 
-    draw(ctx: CanvasRenderingContext2D, playerPosition: Position, scale: number, mapDim: {
-        width: number,
-        height: number
-    }, center: { centerX: number, centerY: number, offsetX: number, offsetY: number } | undefined) {
+	draw(
+		ctx: CanvasRenderingContext2D,
+		playerPosition: Position,
+		scale: number,
+		mapDim: {
+			width: number;
+			height: number;
+		},
+		center: { centerX: number; centerY: number; offsetX: number; offsetY: number } | undefined
+	) {
+		let id = ('00' + this.pokemon.id).slice(-3);
+		id = this.pokemon.isShiny ? id + 's' : id;
+		let source = `src/assets/monsters/walking/${id}.png`;
+		let image = this.images[source];
 
-        let id = ("00" + this.pokemon.id).slice(-3);
-        id = this.pokemon.isShiny ? id + 's' : id;
-        let source = `src/assets/monsters/walking/${id}.png`;
-        let image = this.images[source];
+		if (image && image.complete) {
+			this.drawImage(ctx, image, playerPosition, this.position.direction, scale, mapDim, center);
+		} else {
+			image = new Image();
+			image.src = source;
+			image.onload = () => {
+				this.images[source] = image;
+				this.drawImage(ctx, image, playerPosition, this.position.direction, scale, mapDim, center);
+			};
+		}
+	}
 
-        if (image && image.complete) {
-            this.drawImage(ctx, image, playerPosition, this.position.direction, scale, mapDim, center);
-        } else {
-            image = new Image();
-            image.src = source;
-            image.onload = () => {
-                this.images[source] = image;
-                this.drawImage(ctx, image, playerPosition, this.position.direction, scale, mapDim, center);
-            }
-        }
-    }
+	private drawImage(
+		ctx: CanvasRenderingContext2D,
+		image: HTMLImageElement,
+		playerPosition: Position,
+		orientation: 'up' | 'down' | 'left' | 'right',
+		scale: number,
+		mapDim: {
+			width: number;
+			height: number;
+		},
+		center: { centerX: number; centerY: number; offsetX: number; offsetY: number } | undefined
+	) {
+		if (this.moving) {
+			if (this.frames.max > 1) {
+				this.frames.elapsed += 1;
+			}
+			if (this.frames.elapsed % 2 === 0) {
+				this.frames.val += 1;
+			}
+			if (this.frames.val > this.frames.max - 1) {
+				this.frames.val = 0;
+			}
+		} else {
+			this.frames.val = 0;
+		}
 
-    private drawImage(ctx: CanvasRenderingContext2D, image: HTMLImageElement, playerPosition: Position, orientation: 'up' | 'down' | 'left' | 'right',
-        scale: number, mapDim: {
-            width: number,
-            height: number
-        }, center: { centerX: number, centerY: number, offsetX: number, offsetY: number } | undefined) {
+		let sY = this.orientationIndexes[orientation] * 64;
 
-        if (this.moving) {
+		if (this.moving) {
+			const speed = WALKING_SPEED;
 
-            if (this.frames.max > 1) {
-                this.frames.elapsed += 1;
-            }
-            if (this.frames.elapsed % 2 === 0) {
-                this.frames.val += 1
-            }
-            if (this.frames.val > this.frames.max - 1) {
-                this.frames.val = 0;
-            }
-        } else {
-            this.frames.val = 0;
-        }
+			let deltaX = this.position.targetPosition.x - this.position.positionOnMap.x;
+			let deltaY = this.position.targetPosition.y - this.position.positionOnMap.y;
+			// max delta to 1 tile
 
-        let sY = this.orientationIndexes[orientation] * 64;
+			if (deltaX > 1) {
+				deltaX = 1;
+			}
+			if (deltaX < -1) {
+				deltaX = -1;
+			}
+			if (deltaY > 1) {
+				deltaY = 1;
+			}
+			if (deltaY < -1) {
+				deltaY = -1;
+			}
 
-        if (this.moving) {
-            const speed = WALKING_SPEED;
+			const moveByX = deltaX * 12; //Math.floor((16 * 2.5) / 2 * speed * deltaX);
+			const moveByY = deltaY * 12; //Math.floor((16 * 2.5) / 2 * speed * deltaY);
+			let reached =
+				this.position.direction === 'right'
+					? this.position.positionInPx.x >= this.position.targetPositionInPx.x
+					: this.position.positionInPx.x <= this.position.targetPositionInPx.x;
+			if (reached) {
+				this.position.positionOnMap = this.position.targetPosition;
+				this.moving = false;
+			} else {
+				this.position.positionInPx.x += moveByX;
+				this.position.positionInPx.y += moveByY;
+			}
+		}
 
-            let deltaX = this.position.targetPosition.x - this.position.positionOnMap.x;
-            let deltaY = this.position.targetPosition.y - this.position.positionOnMap.y;
-            // max delta to 1 tile
-            
-            if (deltaX > 1) {
-                deltaX = 1;
-            }
-            if (deltaX < -1) {
-                deltaX = -1;
-            }
-            if (deltaY > 1) {
-                deltaY = 1;
-            }
-            if (deltaY < -1) {
-                deltaY = -1;
-            }
+		// Calculate the position of the NPC relative to the player
+		const relativeX = this.position.positionInPx.x - playerPosition.x;
+		const relativeY = this.position.positionInPx.y - playerPosition.y;
 
-            const moveByX = deltaX * 12//Math.floor((16 * 2.5) / 2 * speed * deltaX);
-            const moveByY = deltaY * 12//Math.floor((16 * 2.5) / 2 * speed * deltaY);
-            let reached = this.position.direction === 'right' ?
-                this.position.positionInPx.x >= this.position.targetPositionInPx.x :
-                this.position.positionInPx.x <= this.position.targetPositionInPx.x;
-            if(reached){
-                this.position.positionOnMap = this.position.targetPosition;
-                this.moving = false;
-            }else {
-                this.position.positionInPx.x += moveByX;
-                this.position.positionInPx.y += moveByY;
-            }
-        }
+		let { centerX, centerY, offsetX, offsetY } = center
+			? center
+			: centerObject(ctx, scale, scale, playerPosition, 16, 16, mapDim);
+		offsetY -= relativeY - 12;
+		offsetX -= relativeX;
 
-        // Calculate the position of the NPC relative to the player
-        const relativeX = this.position.positionInPx.x - playerPosition.x;
-        const relativeY = this.position.positionInPx.y - playerPosition.y;
+		//ctx.save();
+		//ctx.translate(centerX - offsetX, centerY - offsetY);
 
-        let { centerX, centerY, offsetX, offsetY } = center ? center : centerObject(ctx, scale, scale, playerPosition, 16, 16, mapDim);
-        offsetY -= relativeY - 12;
-        offsetX -= relativeX;
+		ctx.drawImage(
+			image,
+			this.frames.val * 64,
+			sY,
+			64,
+			64,
+			centerX - offsetX,
+			centerY - offsetY,
+			64 * scale,
+			64 * scale
+		);
 
-        //ctx.save();
-        //ctx.translate(centerX - offsetX, centerY - offsetY);
-
-        ctx.drawImage(
-            image,
-            this.frames.val * (64),
-            sY,
-            64,
-            64,
-            centerX - offsetX,
-            centerY - offsetY,
-            64 * scale,
-            64 * scale
-        );
-
-        //ctx.restore();
-    }
+		//ctx.restore();
+	}
 }

@@ -6,9 +6,13 @@
 	import { backInOut } from 'svelte/easing';
 	import { fade, slide } from 'svelte/transition';
 
-	export let context: GameContext;
-	let optionsOpened = false;
-	let tab = 0;
+	interface Props {
+		context: GameContext;
+	}
+
+	let { context }: Props = $props();
+	let optionsOpened = $state(false);
+	let tab = $state(0);
 
 	const tabs: Record<number, string> = {
 		0: 'CARD',
@@ -48,17 +52,23 @@
 	in:slide={{ duration: 500, delay: 100, axis: 'x', easing: backInOut }}
 	out:fade
 >
-	<nav class="nav">
+	<nav class="nav" role="navigation" aria-label="Trainer menu">
 		<div class="nav-left">
 			<a class="brand">{context.player.name}</a>
-			<div class="tabs">
-				<a class:active={tab === 0} on:click={() => (tab = 0)}>{tabs[0]}</a>
-				<a class:active={tab === 1} on:click={() => (tab = 1)}>{tabs[1]}</a>
-				<a class:active={tab === 2} on:click={() => (tab = 2)}>{tabs[2]}</a>
+			<div class="tabs" role="tablist">
+				<a class:active={tab === 0} onclick={() => (tab = 0)} role="tab" aria-selected={tab === 0}
+					>{tabs[0]}</a
+				>
+				<a class:active={tab === 1} onclick={() => (tab = 1)} role="tab" aria-selected={tab === 1}
+					>{tabs[1]}</a
+				>
+				<a class:active={tab === 2} onclick={() => (tab = 2)} role="tab" aria-selected={tab === 2}
+					>{tabs[2]}</a
+				>
 			</div>
 		</div>
 		<div class="nav-right">
-			<button class="back" on:click={() => close()}>
+			<button class="back" onclick={() => close()} aria-label="Close trainer menu">
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
 					><path
 						d="M10.5859 12L2.79297 4.20706L4.20718 2.79285L12.0001 10.5857L19.793 2.79285L21.2072 4.20706L13.4143 12L21.2072 19.7928L19.793 21.2071L12.0001 13.4142L4.20718 21.2071L2.79297 19.7928L10.5859 12Z"

@@ -3,19 +3,27 @@
 	import MovesDraggableList from './MovesDraggableList.svelte';
 	import type { GameContext } from '../../../js/context/gameContext';
 
-	export let context: GameContext;
+	interface Props {
+		context: GameContext;
+		selectedMons: PokemonInstance;
+		moveEdit: boolean;
+		zIndex: number;
+	}
 
-	export let selectedMons: PokemonInstance;
-	export let moveEdit: boolean;
+	let {
+		context = $bindable(),
+		selectedMons = $bindable(),
+		moveEdit = $bindable(false),
+		zIndex = $bindable()
+	}: Props = $props();
 
-	export let zIndex: number;
-
-	let monstMoves = [...selectedMons.moves];
-	let tmp =
+	let monstMoves = $state([...selectedMons.moves]);
+	let tmp = $derived(
 		context.POKEDEX.findById(selectedMons.id)
 			?.result?.moves?.filter((move) => move.level <= selectedMons.level)
-			?.filter((move) => !monstMoves.find((m) => m.id === move.id)) || [];
-	let allMoves = [...new Map(tmp.map((item) => [item.id, item])).values()];
+			?.filter((move) => !monstMoves.find((m) => m.id === move.id)) || []
+	);
+	let allMoves = $derived([...new Map(tmp.map((item) => [item.id, item])).values()]);
 </script>
 
 <div class="moveEdit" style="--zIndex:{zIndex}" class:open={moveEdit}>

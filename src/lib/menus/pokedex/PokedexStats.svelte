@@ -7,19 +7,25 @@
 	import Modal from '../../common/Modal.svelte';
 	import abilities from '../../../assets/data/final/beta/abilities.json';
 
-	export let pokemon: PokedexEntry;
-	let abilityName: string;
-	let abilityDesc: string;
-	let showModal = false;
+	interface Props {
+		pokemon: PokedexEntry;
+	}
+
+	let { pokemon }: Props = $props();
+
+	let abilityName: string = $state('');
+	let abilityDesc: string = $state('');
+	let showModal = $state(false);
 	const mechanicRegex = /\{mechanic:.*?\}/g;
 
 	function openModal(ab: string): any {
 		abilityName = ab;
-		abilityDesc = abilities
-			.find((ability) => ability.names === ab)
-			?.description.replace(mechanicRegex, '')
-			.replace(/\[/g, '')
-			.replace(/\]/g, '');
+		abilityDesc =
+			abilities
+				.find((ability) => ability.names === ab)
+				?.description.replace(mechanicRegex, '')
+				.replace(/\[/g, '')
+				.replace(/\]/g, '') ?? '';
 
 		showModal = true;
 	}
@@ -54,7 +60,7 @@
 							<div class="abilities">
 								{#if pokemon.viewed}
 									{#each pokemon.abilities as ability}
-										<span class="ability" on:click={() => openModal(ability)}>
+										<span class="ability" onclick={() => openModal(ability)}>
 											{ability}
 										</span>
 									{/each}
@@ -74,7 +80,6 @@
 											<span>{type}</span>
 											<svg use:inlineSvg={`src/assets/types/${type}.svg`} fill="currentColor">
 											</svg>
-											<!-- <img alt={type} src="src/assets/types/{type}.svg" /> -->
 										</div>
 									{/each}
 								{:else}

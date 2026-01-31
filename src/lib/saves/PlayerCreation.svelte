@@ -8,14 +8,17 @@
 	 * lots todo here (design, classes, etc)
 	 */
 
-	let selected = 1;
-	let templates = [1, 2];
-	$:sprite = CHARACTER_SPRITES.getSprite(selected);
-	let playerName = '';
+	interface Props {
+		savesHolder: SavesHolder;
+	}
 
-	export let savesHolder: SavesHolder;
+	let { savesHolder }: Props = $props();
+
+	let selected = $state(1);
+	let templates = [1, 2];
+	let sprite = $derived(CHARACTER_SPRITES.getSprite(selected));
+	let playerName = $state('');
 	let sound: Howl;
-	let soundPlaying: boolean;
 
 	function loadSound() {
 		sound = new Howl({
@@ -24,9 +27,6 @@
 			loop: true,
 			volume: 0.5
 		});
-		setTimeout(() => {
-			soundPlaying = sound.playing();
-		}, 200);
 	}
 
 	function handleSubmit() {
@@ -45,14 +45,19 @@
 </script>
 
 <div class="create">
-	{#each Array.from({ length: 15 }) as i}
+	{#each Array.from({ length: 15 }) as _}
 		<div class="firefly"></div>
 	{/each}
 
-	<img src={sprite.full.source} alt="player" class="preview"/>
-	<img src="src/assets/monsters/pokedex/050.png" alt="player" class="preview-poke"/>
+	<img src={sprite.full.source} alt="player" class="preview" />
+	<img src="src/assets/monsters/pokedex/050.png" alt="player" class="preview-poke" />
 
-	<form on:submit|preventDefault={handleSubmit}>
+	<form
+		onsubmit={(e) => {
+			e.preventDefault();
+			handleSubmit();
+		}}
+	>
 		<h1>New game</h1>
 		<label for="template">Are you a</label>
 		<select id="template" bind:value={selected}>
@@ -95,7 +100,7 @@
 		); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
 
 		h1 {
-			margin: .35em 0;
+			margin: 0.35em 0;
 		}
 
 		form {

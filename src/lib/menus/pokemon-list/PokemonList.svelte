@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Move, MoveInstance, PokemonInstance } from '../../../js/pokemons/pokedex';
+	import { MoveInstance, PokemonInstance } from '../../../js/pokemons/pokedex';
 	import PokemonSummary from './PokemonSummary.svelte';
 	import { onMount } from 'svelte';
 	import { backInOut } from 'svelte/easing';
@@ -9,52 +9,77 @@
 	import { MenuType } from '../../../js/context/overworldContext';
 	import type { BattleContext } from '../../../js/context/battleContext';
 
-	export let context: GameContext;
-	export let isBattle: boolean;
-	export let combo: boolean = false;
-	export let comboPokemon: PokemonInstance | undefined = undefined;
-	export let battleSwitchOpened: boolean = false;
-	export let forceChange: boolean = false;
-	export let selected = 0;
-	export let itemToUse: number | undefined = undefined;
-	export let zIndex: number;
+	interface Props {
+		context: GameContext;
+		isBattle: boolean;
+		combo?: boolean;
+		comboPokemon?: PokemonInstance | undefined;
+		battleSwitchOpened?: boolean;
+		forceChange?: boolean;
+		selected?: number;
+		itemToUse?: number | undefined;
+		zIndex: number;
+		onChange: (poke: PokemonInstance | undefined) => void;
+		onCombo: (combo: { pokemon: PokemonInstance; move: MoveInstance } | undefined) => void;
+	}
 
-	let battleSummaryOpened = false;
-	$: numberOfOptions = !!itemToUse
-		? 2
-		: isBattle
-			? combo
-				? context.player.monsters.at(selected)?.moves?.length || 0
-				: 3
-			: 4;
-	let switchToIdx: number | undefined = undefined;
-	let openOptions = false;
-	let optionSelected = 0;
-	let emptyslots = new Array(6 - context.player.monsters.length).fill(0);
+	let {
+		context,
+		isBattle,
+		combo = $bindable(false),
+		comboPokemon = $bindable(undefined),
+		battleSwitchOpened = $bindable(false),
+		forceChange = false,
+		selected = $bindable(0),
+		itemToUse = undefined,
+		zIndex,
+		onChange,
+		onCombo
+	}: Props = $props();
 
-	let first: PokemonInstance | undefined = context.player.monsters?.[0];
-	let others: PokemonInstance[] = context.player.monsters.slice(1);
-	let battleContext: BattleContext | undefined = undefined;
+	let battleSummaryOpened = $state(false);
+	let numberOfOptions = $derived(
+		!!itemToUse
+			? 2
+			: isBattle
+				? combo
+					? context.player.monsters.at(selected)?.moves?.length || 0
+					: 3
+				: 4
+	);
+	let switchToIdx: number | undefined = $state(undefined);
+	let openOptions = $state(false);
+	let optionSelected = $state(0);
+	let emptyslots = $state(new Array(6 - context.player.monsters.length).fill(0));
 
-	$: {
+	let first: PokemonInstance | undefined = $state(context.player.monsters?.[0]);
+	let others: PokemonInstance[] = $state(context.player.monsters.slice(1));
+	let battleContext: BattleContext | undefined = $state(undefined);
+
+	$effect(() => {
 		if (!battleContext) {
 			first = context.player.monsters?.[0];
 			others = context.player.monsters.slice(1);
 		}
-	}
-	$: itemName = itemToUse && context.ITEMS.getItem(itemToUse)?.name;
-	$: zIndexNext = zIndex + 1;
-
-	context.battleContext.subscribe((value) => {
-		battleContext = value;
-		if (value) {
-			first = battleContext?.playerPokemon;
-			others = context.player.monsters.filter((pkmn) => pkmn !== first);
-		}
 	});
 
-	function getPercentage(monster: PokemonInstance) {
-		return (monster?.currentHp / monster?.currentStats.hp) * 100 || 0;
+	let itemName = $derived(itemToUse && context.ITEMS.getItem(itemToUse)?.name);
+	let zIndexNext = $derived(zIndex + 1);
+
+	$effect(() => {
+		const unsubscribe = context.battleContext.subscribe((value) => {
+			battleContext = value;
+			if (value) {
+				first = battleContext?.playerSide?.[0];
+				others = context.player.monsters.filter((pkmn) => pkmn !== first);
+			}
+		});
+		return () => unsubscribe();
+	});
+
+	function getPercentage(monster: PokemonInstance | undefined) {
+		if (!monster) return 0;
+		return (monster.currentHp / monster.currentStats.hp) * 100 || 0;
 	}
 
 	function select(index: number) {
@@ -70,13 +95,16 @@
 		}
 	}
 
-	let currentBattlePokemon: PokemonInstance | undefined = undefined;
-	export let onChange: (poke: PokemonInstance | undefined) => void;
-	$: onChange(currentBattlePokemon);
+	let currentBattlePokemon: PokemonInstance | undefined = $state(undefined);
+	$effect(() => {
+		onChange(currentBattlePokemon);
+	});
 
-	let currentCombo: { pokemon: PokemonInstance; move: MoveInstance } | undefined = undefined;
-	export let onCombo: (combo: { pokemon: PokemonInstance; move: MoveInstance } | undefined) => void;
-	$: onCombo(currentCombo);
+	let currentCombo: { pokemon: PokemonInstance; move: MoveInstance } | undefined =
+		$state(undefined);
+	$effect(() => {
+		onCombo(currentCombo);
+	});
 
 	function switchNow() {
 		//swap(save.player.monsters, selected, 0);
@@ -209,7 +237,7 @@
 >
 	<div class="close">
 		{#if !forceChange}
-			<button on:click={() => closeList()}>
+			<button onclick={() => closeList()} aria-label="Close Pokemon list">
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
 					><path
 						d="M10.5859 12L2.79297 4.20706L4.20718 2.79285L12.0001 10.5857L19.793 2.79285L21.2072 4.20706L13.4143 12L21.2072 19.7928L19.793 21.2071L12.0001 13.4142L4.20718 21.2071L2.79297 19.7928L10.5859 12Z"
@@ -224,7 +252,7 @@
 				class="poke-card big"
 				class:selected={selected === 0}
 				class:switching={switchToIdx === 0}
-				on:click={() => select(0)}
+				onclick={() => select(0)}
 			>
 				<div class="header">
 					<div class="img-wrapper">
@@ -259,7 +287,7 @@
 					class="poke-card"
 					class:selected={selected === index + 1}
 					class:switching={switchToIdx === index + 1}
-					on:click={() => select(index + 1)}
+					onclick={() => select(index + 1)}
 				>
 					<div class="header">
 						<div class="img-wrapper">
@@ -289,22 +317,23 @@
 				</div>
 			{/each}
 
-			{#each emptyslots as empty}
+			{#each emptyslots as _}
 				<div class="poke-card empty"></div>
 			{/each}
 		</div>
 	</div>
 
-	<div class="options" class:hidden={!openOptions}>
+	<div class="options" class:hidden={!openOptions} role="menu" aria-label="Pokemon options">
 		{#if combo && battleContext && battleContext.player.monsters.at(selected)}
 			<ul>
 				{#each battleContext.player.monsters.at(selected)?.moves || [] as move, index}
 					<li
 						class:selected={optionSelected === index}
-						on:click={() => {
+						onclick={() => {
 							selectCombo(index);
 							closeList();
 						}}
+						role="menuitem"
 					>
 						{move?.name}
 					</li>
@@ -313,16 +342,25 @@
 		{:else}
 			<ul>
 				{#if !!itemToUse}
-					<li class:selected={optionSelected === 0} on:click={() => useItem()}>USE ({itemName})</li>
-					<li class:selected={optionSelected === 1} on:click={() => (openOptions = false)}>
+					<li class:selected={optionSelected === 0} onclick={() => useItem()} role="menuitem">
+						USE ({itemName})
+					</li>
+					<li
+						class:selected={optionSelected === 1}
+						onclick={() => (openOptions = false)}
+						role="menuitem"
+					>
 						CANCEL
 					</li>
 				{:else}
-					<li class:selected={optionSelected === 0} on:click={() => summarize()}>SUMMARY</li>
+					<li class:selected={optionSelected === 0} onclick={() => summarize()} role="menuitem">
+						SUMMARY
+					</li>
 					{#if !isBattle || selected !== 0}
 						<li
 							class:selected={optionSelected === 1}
-							on:click={() => (isBattle ? switchNow() : saveSwitch())}
+							onclick={() => (isBattle ? switchNow() : saveSwitch())}
+							role="menuitem"
 						>
 							SWITCH
 						</li>
@@ -330,15 +368,20 @@
 					{#if !isBattle}
 						<li
 							class:selected={optionSelected === 2}
-							on:click={() => {
+							onclick={() => {
 								context.overWorldContext.openMenu(MenuType.BAG);
 								openOptions = false;
 							}}
+							role="menuitem"
 						>
 							ITEM
 						</li>
 					{/if}
-					<li class:selected={optionSelected === 3} on:click={() => (openOptions = false)}>
+					<li
+						class:selected={optionSelected === 3}
+						onclick={() => (openOptions = false)}
+						role="menuitem"
+					>
 						CANCEL
 					</li>
 				{/if}
@@ -361,9 +404,9 @@
 {#if context.overWorldContext.menus.bagOpened && !itemToUse}
 	<Bag
 		bind:context
-		bind:isBattle
-		bind:selectedMons={selected}
-		bind:zIndex={zIndexNext}
+		{isBattle}
+		selectedMons={selected}
+		zIndex={zIndexNext}
 		onChange={() => context.overWorldContext.closeMenu(MenuType.BAG)}
 	/>
 {/if}
@@ -392,11 +435,11 @@
 		bottom: 1%;
 		right: 1%;
 		padding: 22px 36px 22px 36px;
-		background: #143855;
-		border: 2px solid #000;
+		background: var(--pixel-bg-panel);
+		border: 2px solid var(--pixel-border-color);
 		box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
 		border-radius: 0;
-		color: white;
+		color: var(--pixel-text-white);
 		box-sizing: border-box;
 		transition: bottom 0.3s ease-in-out;
 
@@ -420,7 +463,7 @@
 					height: 0;
 					border-top: 12px solid transparent;
 					border-bottom: 12px solid transparent;
-					border-left: 12px solid #ffd700;
+					border-left: 12px solid var(--pixel-text-gold);
 					position: absolute;
 					left: 5px;
 					margin-top: 2px;
@@ -435,7 +478,7 @@
 		left: 0;
 		width: 100dvw;
 		height: 100dvh;
-		background-color: #1c4b72;
+		background-color: var(--pixel-bg-primary);
 		background-position: top left;
 		background-repeat: round;
 		z-index: var(--zIndex, 8);
@@ -522,10 +565,10 @@
 				}
 
 				&.selected {
-					border: 3px solid #ffd700;
+					border: 3px solid var(--pixel-text-gold);
 					animation: pixel-pulse 1s infinite;
-					background-color: #143855;
-					color: #fff;
+					background-color: var(--pixel-bg-panel);
+					color: var(--pixel-text-white);
 					text-shadow: 1px 1px 1px black;
 				}
 

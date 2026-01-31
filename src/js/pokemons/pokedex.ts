@@ -1,6 +1,6 @@
 import { EXPERIENCE_CHART } from './experience';
 import type { Effect } from './move-effects';
-import { typeChart } from '../battle/battle-model';
+import { typeChart, type PokemonType } from '../battle/battle-model';
 import { VolatileTracker } from './volatile-status';
 
 export class Nature {
@@ -205,10 +205,9 @@ export class Pokedex {
 		}
 	}
 
-	private importFromJson(json: any, savedEntries: SavedEntry[] = []) {
+	private importFromJson(json: unknown[], savedEntries: SavedEntry[] = []) {
 		if (this.entries?.length === 0) {
-			// @ts-ignore
-			json.forEach((pokemon) => {
+			(json as Record<string, unknown>[]).forEach((pokemon) => {
 				this.entries.push(
 					new PokedexEntry(
 						pokemon.id,
@@ -377,36 +376,35 @@ export class PokedexEntry {
 	get weaknesses(): string[] {
 		return Object.entries(typeChart)
 			.filter(([_key, value]) => {
+				const type0 = this.types[0] as PokemonType;
 				if (this.types?.length === 1) {
-					// @ts-ignore
-					return value[this.types[0]] > 1;
+					return value[type0] > 1;
 				} else {
-					// @ts-ignore
-					return value[this.types[0]] * value[this.types[1]] > 1;
+					const type1 = this.types[1] as PokemonType;
+					return value[type0] * value[type1] > 1;
 				}
 			})
 			.map(([key, _value]) => key);
 	}
 
 	get weaknessValue(): { type: string; value: number }[] {
-		// @ts-ignore
 		return Object.entries(typeChart)
 			.filter(([_key, value]) => {
+				const type0 = this.types[0] as PokemonType;
 				if (this.types?.length === 1) {
-					// @ts-ignore
-					return value[this.types[0]] > 1;
+					return value[type0] > 1;
 				} else {
-					// @ts-ignore
-					return value[this.types[0]] * value[this.types[1]] > 1;
+					const type1 = this.types[1] as PokemonType;
+					return value[type0] * value[type1] > 1;
 				}
 			})
 			.map(([key, value]) => {
+				const type0 = this.types[0] as PokemonType;
 				if (this.types?.length === 1) {
-					// @ts-ignore
-					return { string: key, value: value[this.types[0]] };
+					return { string: key, value: value[type0] };
 				} else {
-					// @ts-ignore
-					return { string: key, value: value[this.types[0]] * value[this.types[1]] };
+					const type1 = this.types[1] as PokemonType;
+					return { string: key, value: value[type0] * value[type1] };
 				}
 			});
 	}
@@ -890,7 +888,7 @@ export class PokemonInstance extends PokedexEntry {
 		const currentStage = this.statsChanges[stat];
 		const newStage = Math.min(6, Math.max(-6, currentStage + value));
 		if (newStage === currentStage) {
-			console.log(`${stat} cannot go ${value > 0 ? 'higher' : 'lower'}`);
+			// Stat change cannot go higher/lower
 		} else {
 			this.statsChanges[stat] = newStage;
 		}

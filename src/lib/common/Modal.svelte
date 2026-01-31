@@ -38,6 +38,8 @@
 	bind:this={dialog}
 	onclose={handleClose}
 	onclick={(e) => e.target === dialog && handleBackdropClick()}
+	role="dialog"
+	aria-modal="true"
 >
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div onclick={(e) => e.stopPropagation()}>
@@ -45,7 +47,7 @@
 		{#if header}
 			<div class="modal-header">
 				{@render header()}
-				<button class="close" autofocus onclick={() => dialog?.close()}>
+				<button class="close" autofocus onclick={() => dialog?.close()} aria-label="Close dialog">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
 						><path
 							d="M10.5859 12L2.79297 4.20706L4.20718 2.79285L12.0001 10.5857L19.793 2.79285L21.2072 4.20706L13.4143 12L21.2072 19.7928L19.793 21.2071L12.0001 13.4142L4.20718 21.2071L2.79297 19.7928L10.5859 12Z"
@@ -54,7 +56,7 @@
 				>
 			</div>
 		{:else}
-			<button class="close" autofocus onclick={() => dialog?.close()}>
+			<button class="close" autofocus onclick={() => dialog?.close()} aria-label="Close dialog">
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
 					><path
 						d="M10.5859 12L2.79297 4.20706L4.20718 2.79285L12.0001 10.5857L19.793 2.79285L21.2072 4.20706L13.4143 12L21.2072 19.7928L19.793 21.2071L12.0001 13.4142L4.20718 21.2071L2.79297 19.7928L10.5859 12Z"
@@ -73,19 +75,19 @@
 	dialog {
 		max-width: 80dvw;
 		border-radius: 0;
-		border: 2px solid #000;
+		border: 2px solid var(--pixel-border-color);
 		padding: 0;
-		background: #143855;
+		background: var(--pixel-bg-panel);
 		box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
-		color: #ffffff;
+		color: var(--pixel-text-white);
 
 		.close {
 			float: right;
-			background: #334455;
-			border: 2px solid #000;
+			background: var(--pixel-bg-button);
+			border: 2px solid var(--pixel-border-color);
 			min-height: 44px;
 			min-width: 44px;
-			color: #ffffff;
+			color: var(--pixel-text-white);
 			display: flex;
 			align-items: center;
 			justify-content: center;
@@ -108,8 +110,8 @@
 		padding: 16px;
 	}
 	.modal-header {
-		background: #0088cc;
-		border: 2px solid #000;
+		background: var(--pixel-bg-header);
+		border: 2px solid var(--pixel-border-color);
 		padding: 8px 16px;
 		margin: -16px -16px 16px -16px;
 		display: flex;
