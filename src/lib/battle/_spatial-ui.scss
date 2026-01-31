@@ -1,0 +1,223 @@
+// =============================================================================
+// Spatial UI SCSS Utilities
+// =============================================================================
+// Angular/skewed styling system for the battle UI redesign.
+// All containers use 15-degree parallelogram geometry.
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// CSS Custom Properties
+// -----------------------------------------------------------------------------
+// Use these variables for consistent skew angles throughout the UI
+
+:root {
+	// Primary skew angle for containers (negative = lean right)
+	--skew-angle: -15deg;
+
+	// Counter-skew for text legibility (positive = lean left to cancel out)
+	--skew-counter: 15deg;
+
+	// Base dark background for spatial panels
+	--spatial-bg: rgba(20, 25, 35, 0.92);
+	--spatial-bg-light: rgba(30, 40, 55, 0.85);
+
+	// Border styling
+	--spatial-border-width: 3px;
+	--spatial-border-color: rgba(255, 255, 255, 0.3);
+
+	// Glow effects for selection/hover
+	--spatial-glow-color: rgba(255, 255, 255, 0.4);
+}
+
+// -----------------------------------------------------------------------------
+// Core Mixins
+// -----------------------------------------------------------------------------
+
+/// Applies the signature parallelogram skew to a container.
+/// Creates the angular, high-energy aesthetic of the spatial UI.
+/// @example
+///   .my-panel {
+///     @include skewed-container;
+///   }
+@mixin skewed-container {
+	transform: skewX(var(--skew-angle));
+	background: var(--spatial-bg);
+	border: var(--spatial-border-width) solid var(--spatial-border-color);
+	padding: 8px 16px;
+	position: relative;
+
+	// Ensure content is positioned correctly
+	&::before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+	}
+}
+
+/// Counter-skews text elements to keep them legible inside skewed containers.
+/// Must be applied to all text content within a skewed-container.
+/// @example
+///   .panel-text {
+///     @include skewed-text;
+///   }
+@mixin skewed-text {
+	transform: skewX(var(--skew-counter));
+	display: inline-block;
+}
+
+/// Creates a type-colored gradient background.
+/// Gradient flows from solid type color on the left to transparent on the right.
+/// @param {Color} $color - The type color (e.g., fire red, water blue)
+/// @example
+///   .fire-move {
+///     @include type-gradient(rgb(241, 163, 98));
+///   }
+@mixin type-gradient($color) {
+	background: linear-gradient(90deg, $color 20%, transparent 100%);
+}
+
+/// Creates a subtle glow effect for selected/hovered elements.
+/// @param {Color} $color - The glow color (defaults to white)
+@mixin spatial-glow($color: var(--spatial-glow-color)) {
+	box-shadow:
+		0 0 12px 2px $color,
+		inset 0 0 8px 1px rgba(255, 255, 255, 0.1);
+}
+
+/// Applies selection state styling (scale + glow).
+@mixin spatial-selected {
+	transform: skewX(var(--skew-angle)) scale(1.05);
+	@include spatial-glow;
+	border-color: rgba(255, 255, 255, 0.7);
+}
+
+/// Creates a thick accent border on one side.
+/// @param {String} $side - The side to apply border (left, right, top, bottom)
+/// @param {Color} $color - The accent color
+/// @param {Number} $width - Border width (default: 5px)
+@mixin accent-border($side, $color, $width: 5px) {
+	border-#{$side}: $width solid $color;
+}
+
+// -----------------------------------------------------------------------------
+// Utility Classes
+// -----------------------------------------------------------------------------
+// Ready-to-use classes for common spatial UI patterns
+
+/// Base spatial panel with skewed container styling
+.spatial-panel {
+	@include skewed-container;
+}
+
+/// Counter-skewed text for use inside spatial panels
+.spatial-text {
+	@include skewed-text;
+}
+
+/// Panel with type gradient (use with inline style for dynamic color)
+/// Usage: <div class="type-gradient" style="--type-color: rgb(241, 163, 98)">
+.type-gradient {
+	background: linear-gradient(
+		90deg,
+		var(--type-color, rgba(100, 100, 100, 0.5)) 20%,
+		transparent 100%
+	);
+}
+
+/// Selected state modifier
+.spatial-panel.selected,
+.spatial-panel:focus {
+	@include spatial-selected;
+}
+
+/// Disabled state for panels
+.spatial-panel.disabled {
+	opacity: 0.5;
+	pointer-events: none;
+	filter: grayscale(0.7);
+}
+
+// -----------------------------------------------------------------------------
+// HP Widget Specific Styles
+// -----------------------------------------------------------------------------
+
+/// Leader line connecting HP widget to Pokemon sprite
+.leader-line {
+	position: absolute;
+	width: 2px;
+	background: linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.1) 100%);
+	pointer-events: none;
+
+	// Default positioning - will be overridden dynamically
+	height: 40px;
+	bottom: -40px;
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+/// Level badge trapezoid shape
+.level-badge {
+	@include skewed-container;
+	padding: 2px 12px;
+	background: rgba(40, 50, 70, 0.95);
+	font-weight: bold;
+	font-size: 0.85em;
+
+	.level-text {
+		@include skewed-text;
+	}
+}
+
+// -----------------------------------------------------------------------------
+// Attack Plate Specific Styles
+// -----------------------------------------------------------------------------
+
+/// Type icon watermark for attack plates
+.type-watermark {
+	position: absolute;
+	right: -10px;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 60px;
+	height: 60px;
+	opacity: 0.15;
+	pointer-events: none;
+	overflow: hidden;
+
+	svg {
+		width: 100%;
+		height: 100%;
+	}
+}
+
+/// PP tag hanging off the attack plate
+.pp-tag {
+	@include skewed-container;
+	position: absolute;
+	right: 8px;
+	bottom: -12px;
+	padding: 2px 8px;
+	font-size: 0.75em;
+	background: rgba(15, 20, 30, 0.95);
+
+	.pp-text {
+		@include skewed-text;
+	}
+}
+
+// -----------------------------------------------------------------------------
+// Animation Helpers
+// -----------------------------------------------------------------------------
+
+/// Entrance animation base (to be controlled by GSAP)
+.spatial-enter {
+	opacity: 0;
+	transform: skewX(var(--skew-angle)) scale(0.8);
+}
+
+/// Exit animation base
+.spatial-exit {
+	opacity: 0;
+	transform: skewX(var(--skew-angle)) scale(0.8) translateY(10px);
+}
