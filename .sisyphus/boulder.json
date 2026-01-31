@@ -1,10 +1,13 @@
 {
-  "active_plan": "/Users/20017225/PERSO/openmon/.sisyphus/plans/openmon-codebase-improvement.md",
-  "started_at": "2026-01-30T20:04:39.868Z",
-  "session_ids": [
-    "ses_3ef7e04f1ffe55LeiNxCcw8Tzc",
-    "ses_3ef34cc3fffeYQDx8YycHUZHHV",
-    "ses_3eefe251fffeP2c7xRjWlBPyAw"
-  ],
-  "plan_name": "openmon-codebase-improvement"
+	"active_plan": null,
+	"started_at": "2026-01-30T20:04:39.868Z",
+	"completed_at": "2026-01-31T17:15:00.000Z",
+	"session_ids": [
+		"ses_3ef7e04f1ffe55LeiNxCcw8Tzc",
+		"ses_3ef34cc3fffeYQDx8YycHUZHHV",
+		"ses_3eefe251fffeP2c7xRjWlBPyAw",
+		"ses_3eb6b47a6ffe25KI0PQbQqTNdv"
+	],
+	"plan_name": "openmon-codebase-improvement",
+	"status": "completed"
 }

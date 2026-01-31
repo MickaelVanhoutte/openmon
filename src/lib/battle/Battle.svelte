@@ -381,26 +381,16 @@
 	<!-- UI -->
 	{#if battleCtx.oppSide[0]}
 		<FloatingPokemonInfo
-			name={battleCtx.oppSide[0].name}
-			level={battleCtx.oppSide[0].level}
-			currentHp={battleCtx.oppSide[0].currentHp}
-			maxHp={battleCtx.oppSide[0].currentStats.hp}
-			gender={battleCtx.oppSide[0].gender || 'unknown'}
-			statusAbr={battleCtx.oppSide[0].status?.abr || null}
-			position={{ bottom: '78%', left: '72%' }}
+			pokemon={battleCtx.oppSide[0]}
+			position={{ bottom: '78%', left: '62%' }}
 			isAlly={false}
 			spriteElement={opponent[0]}
 		/>
 	{/if}
 	{#if battleCtx.playerSide[0]}
 		<FloatingPokemonInfo
-			name={battleCtx.playerSide[0].name}
-			level={battleCtx.playerSide[0].level}
-			currentHp={battleCtx.playerSide[0].currentHp}
-			maxHp={battleCtx.playerSide[0].currentStats.hp}
-			gender={battleCtx.playerSide[0].gender || 'unknown'}
-			statusAbr={battleCtx.playerSide[0].status?.abr || null}
-			position={{ bottom: '42%', left: '22%' }}
+			pokemon={battleCtx.playerSide[0]}
+			position={{ bottom: '62%', left: '22%' }}
 			isAlly={true}
 			spriteElement={ally[0]}
 		/>
@@ -409,12 +399,7 @@
 	{#if battleCtx.battleType === BattleType.DOUBLE}
 		{#if battleCtx.oppSide[1]}
 			<FloatingPokemonInfo
-				name={battleCtx.oppSide[1].name}
-				level={battleCtx.oppSide[1].level}
-				currentHp={battleCtx.oppSide[1].currentHp}
-				maxHp={battleCtx.oppSide[1].currentStats.hp}
-				gender={battleCtx.oppSide[1].gender || 'unknown'}
-				statusAbr={battleCtx.oppSide[1].status?.abr || null}
+				pokemon={battleCtx.oppSide[1]}
 				position={{ bottom: '82%', left: '58%' }}
 				isAlly={false}
 				spriteElement={opponent[1]}
@@ -422,12 +407,7 @@
 		{/if}
 		{#if battleCtx.playerSide[1]}
 			<FloatingPokemonInfo
-				name={battleCtx.playerSide[1].name}
-				level={battleCtx.playerSide[1].level}
-				currentHp={battleCtx.playerSide[1].currentHp}
-				maxHp={battleCtx.playerSide[1].currentStats.hp}
-				gender={battleCtx.playerSide[1].gender || 'unknown'}
-				statusAbr={battleCtx.playerSide[1].status?.abr || null}
+				pokemon={battleCtx.playerSide[1]}
 				position={{ bottom: '46%', left: '8%' }}
 				isAlly={true}
 				spriteElement={ally[1]}
