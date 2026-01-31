@@ -46,40 +46,63 @@
 	function getButtonPositions(
 		spritePos: SpritePosition | null
 	): Array<{ top: number; left: number; rotation: number }> {
-		// Position buttons to the RIGHT of the ally Pokemon sprite
-		// Ally sprite is typically in bottom-left quadrant of the battle scene
+		// 2 buttons on LEFT of sprite, 2 on RIGHT - surrounding the Pokemon
+		// Layout:  [FIGHT]     [BAG]
+		//              (sprite)
+		//        [POKEMON]   [RUN]
 
 		if (!spritePos) {
-			// Fallback: position in right side of screen, stacked vertically
-			// These percentages place buttons to the right of where ally sprite typically is
-			return actions.map((_, i) => ({
-				top: 45 + i * 9,
-				left: 70, // Right side of screen
-				rotation: (i - 1.5) * 2
-			}));
+			// Fallback positions around center-left where ally typically is
+			return [
+				{ top: 42, left: 8, rotation: -3 }, // FIGHT - top left
+				{ top: 42, left: 38, rotation: 3 }, // BAG - top right
+				{ top: 62, left: 8, rotation: -3 }, // POKEMON - bottom left
+				{ top: 62, left: 38, rotation: 3 } // RUN - bottom right
+			];
 		}
 
 		const viewportHeight = window.innerHeight || 600;
 		const viewportWidth = window.innerWidth || 800;
 
-		// Position to the RIGHT of the sprite with comfortable margin
-		const baseX = spritePos.x + spritePos.width + 40; // 40px gap to the right of sprite
-		const baseY = spritePos.y + spritePos.height * 0.1;
-		const verticalSpacing = 48;
+		const spriteCenter = {
+			x: spritePos.x + spritePos.width / 2,
+			y: spritePos.y + spritePos.height / 2
+		};
 
-		return actions.map((_, i) => {
-			const offsetY = i * verticalSpacing;
-			const curveOffset = Math.sin((i / (actions.length - 1)) * Math.PI) * 15;
+		const horizontalOffset = spritePos.width * 0.7 + 60;
+		const verticalOffset = 50;
 
-			const plateX = baseX + curveOffset;
-			const plateY = baseY + offsetY;
+		const leftX = spriteCenter.x - horizontalOffset;
+		const rightX = spriteCenter.x + horizontalOffset - 100;
+		const topY = spriteCenter.y - verticalOffset;
+		const bottomY = spriteCenter.y + verticalOffset + 20;
 
-			return {
-				top: Math.min(85, Math.max(10, (plateY / viewportHeight) * 100)),
-				left: Math.min(85, Math.max(50, (plateX / viewportWidth) * 100)),
-				rotation: (i - 1.5) * 2
-			};
-		});
+		return [
+			{
+				// FIGHT - top left
+				top: (topY / viewportHeight) * 100,
+				left: (leftX / viewportWidth) * 100,
+				rotation: -3
+			},
+			{
+				// BAG - top right
+				top: (topY / viewportHeight) * 100,
+				left: (rightX / viewportWidth) * 100,
+				rotation: 3
+			},
+			{
+				// POKEMON - bottom left
+				top: (bottomY / viewportHeight) * 100,
+				left: (leftX / viewportWidth) * 100,
+				rotation: -3
+			},
+			{
+				// RUN - bottom right
+				top: (bottomY / viewportHeight) * 100,
+				left: (rightX / viewportWidth) * 100,
+				rotation: 3
+			}
+		];
 	}
 
 	let positions = $state(getButtonPositions(null));
