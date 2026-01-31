@@ -1,16 +1,14 @@
 <script lang="ts">
-	import { fly } from 'svelte/transition';
 	import { onMount } from 'svelte';
 	import { SaveContext, SavesHolder } from '../../js/context/savesHolder';
 
-	/**
-	 * Saves loading  component
-	 */
+	interface Props {
+		savesHolder: SavesHolder;
+	}
 
-	export let savesHolder: SavesHolder;
-	let selected: SaveContext;
+	let { savesHolder }: Props = $props();
+	let selected = $state<SaveContext | null>(null);
 	let sound: Howl;
-	let soundPlaying: boolean;
 
 	function handleSubmit(save: SaveContext) {
 		savesHolder.selectSave(savesHolder.saves.indexOf(save));
@@ -26,6 +24,7 @@
 	}
 
 	const listener = (e: KeyboardEvent) => {
+		if (!selected) return;
 		if (e.key === 'ArrowDown') {
 			const index = savesHolder.saves.indexOf(selected);
 			selected = savesHolder.saves[index + 1] || selected;
@@ -46,10 +45,6 @@
 			loop: true,
 			volume: 0.5
 		});
-		setTimeout(() => {
-			soundPlaying = sound.playing();
-		}, 200);
-		console.log(sound);
 	}
 
 	onMount(() => {
@@ -67,7 +62,7 @@
 </script>
 
 <div class="load-screen">
-	{#each Array.from({ length: 8 }) as i}
+	{#each Array.from({ length: 8 }) as _}
 		<div class="firefly"></div>
 	{/each}
 
@@ -78,10 +73,10 @@
 					<button
 						class="save pixel-button"
 						class:selected={selected === save}
-						on:click={() => {
+						onclick={() => {
 							selected === save ? handleSubmit(save) : (selected = save);
 						}}
-						on:focus={() => (selected = save)}
+						onfocus={() => (selected = save)}
 					>
 						<p style="font-size: 2rem">{save.id} - {save.player.name}</p>
 						<p style="font-size: 1.5rem">{new Date(save.updated).toUTCString()}</p>
@@ -92,8 +87,7 @@
 					</button>
 					{#if selected === save}
 						<div class="actions">
-							<!-- <button class="go" on:click={() => handleSubmit(save)}> Continue </button> -->
-							<button class="erase" on:click={() => remove(save)}>
+							<button class="erase" onclick={() => remove(save)} aria-label="Delete save file">
 								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
 									><path
 										d="M17 6H22V8H20V21C20 21.5523 19.5523 22 19 22H5C4.44772 22 4 21.5523 4 21V8H2V6H7V3C7 2.44772 7.44772 2 8 2H16C16.5523 2 17 2.44772 17 3V6ZM18 8H6V20H18V8ZM13.4142 13.9997L15.182 15.7675L13.7678 17.1817L12 15.4139L10.2322 17.1817L8.81802 15.7675L10.5858 13.9997L8.81802 12.232L10.2322 10.8178L12 12.5855L13.7678 10.8178L15.182 12.232L13.4142 13.9997ZM9 4V6H15V4H9Z"
@@ -106,10 +100,12 @@
 
 				<div
 					class="images"
-					on:click={() => {
+					onclick={() => {
 						selected === save ? handleSubmit(save) : (selected = save);
 					}}
-					on:focus={() => (selected = save)}
+					onfocus={() => (selected = save)}
+					role="button"
+					tabindex="0"
 				>
 					<img src={save.player.sprite.face.source} alt={save.player.name} />
 					{#each save.player.monsters as mon}
@@ -121,7 +117,7 @@
 	</div>
 
 	<div class="new-game">
-		<button on:click={() => startNew()}> Start a new game </button>
+		<button onclick={() => startNew()} aria-label="Start a new game"> Start a new game </button>
 	</div>
 </div>
 
@@ -150,11 +146,11 @@
 	.load-screen {
 		height: 100dvh;
 		width: 100dvw;
-		color: #ffffff;
+		color: var(--pixel-text-white);
 		box-sizing: border-box;
 		padding: 2%;
-		background: #143855;
-		border: 2px solid #000;
+		background: var(--pixel-bg-panel);
+		border: 2px solid var(--pixel-border-color);
 		box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
 
 		.new-game {
@@ -163,10 +159,10 @@
 			right: 1%;
 
 			button {
-				background: #0088cc;
-				color: #ffffff;
-				border: 2px solid #000;
-				box-shadow: 4px 4px 0px #000;
+				background: var(--pixel-bg-header);
+				color: var(--pixel-text-white);
+				border: 2px solid var(--pixel-border-color);
+				box-shadow: 4px 4px 0px var(--pixel-border-color);
 				padding: 8px;
 				width: 160px;
 				height: 32px;
@@ -187,7 +183,6 @@
 			color: #ececec !important;
 
 			.save-wrapper {
-				//width: 100%;
 				display: flex;
 				flex-direction: row;
 				justify-content: flex-start;
@@ -204,12 +199,9 @@
 					color: #ececec;
 
 					.go {
-						//background: #262626;
-						//color: #ececec;
 						border: none;
 						padding: 8px;
 						cursor: pointer;
-						//width: 160px;
 						height: 32px;
 						color: #ececec;
 					}
@@ -220,7 +212,6 @@
 						border: none;
 						padding: 8px;
 						cursor: pointer;
-						//width: 160px;
 						height: 32px;
 					}
 				}

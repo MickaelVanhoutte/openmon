@@ -7,17 +7,26 @@
 	import PokedexMoves from './PokedexMoves.svelte';
 	import PokedexStats from './PokedexStats.svelte';
 
-	export let pokemon: PokedexEntry;
-	export let selectedIdx: number;
-	export let filtered: PokedexEntry[];
-	export let detailOpened: boolean;
+	interface Props {
+		pokemon: PokedexEntry;
+		selectedIdx: number;
+		filtered: PokedexEntry[];
+		detailOpened: boolean;
+	}
+
+	let {
+		pokemon,
+		selectedIdx = $bindable(),
+		filtered = $bindable(),
+		detailOpened = $bindable()
+	}: Props = $props();
 
 	const tabs = {
 		1: 'Stats',
 		2: 'More',
 		3: 'Moves'
 	};
-	let currentTab: 1 | 2 | 3 = 1;
+	let currentTab: 1 | 2 | 3 = $state(1);
 
 	function selectTab(tab: 1 | 2 | 3) {
 		currentTab = tab;
@@ -64,7 +73,7 @@
 <div class="pokedex-detail" style="--color:{typeChart[pokemon.types[0]].color}">
 	<div class="row title">
 		<div class="back">
-			<button on:click={() => back()}>
+			<button onclick={() => back()} aria-label="Go back">
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
 					><path
 						d="M10.5859 12L2.79297 4.20706L4.20718 2.79285L12.0001 10.5857L19.793 2.79285L21.2072 4.20706L13.4143 12L21.2072 19.7928L19.793 21.2071L12.0001 13.4142L4.20718 21.2071L2.79297 19.7928L10.5859 12Z"
@@ -77,12 +86,12 @@
 			<h1>{pokemon.name}</h1>
 		</div>
 		<div class="prev-next">
-			<button on:click={() => previous()}>
+			<button onclick={() => previous()} aria-label="Previous Pokemon">
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
 					><path d="M12 8L18 14H6L12 8Z"></path></svg
 				>
 			</button>
-			<button on:click={() => next()}>
+			<button onclick={() => next()} aria-label="Next Pokemon">
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
 					><path d="M12 16L6 10H18L12 16Z"></path></svg
 				>
@@ -101,13 +110,13 @@
 	<div class="menu row">
 		<div class="wrapper">
 			<input type="radio" name="tab" id="tab1" class="tab tab--1" checked={currentTab === 1} />
-			<label class="tab_label" for="tab1" tabindex="-1" on:click={() => selectTab(1)}>Stats</label>
+			<label class="tab_label" for="tab1" tabindex="-1" onclick={() => selectTab(1)}>Stats</label>
 
 			<input type="radio" name="tab" id="tab2" class="tab tab--2" checked={currentTab === 2} />
-			<label class="tab_label" for="tab2" tabindex="-1" on:click={() => selectTab(2)}>More</label>
+			<label class="tab_label" for="tab2" tabindex="-1" onclick={() => selectTab(2)}>More</label>
 
 			<input type="radio" name="tab" id="tab3" class="tab tab--3" checked={currentTab === 3} />
-			<label class="tab_label" for="tab3" tabindex="-1" on:click={() => selectTab(3)}>Moves</label>
+			<label class="tab_label" for="tab3" tabindex="-1" onclick={() => selectTab(3)}>Moves</label>
 
 			<div class="indicator"></div>
 		</div>
@@ -121,10 +130,10 @@
 		left: 0;
 		width: 100dvw;
 		height: 100dvh;
-		background: #143855;
-		border: 2px solid #000;
+		background: var(--pixel-bg-panel);
+		border: 2px solid var(--pixel-border-color);
 		box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
-		color: #fff;
+		color: var(--pixel-text-white);
 		z-index: 10;
 		box-sizing: border-box;
 		display: flex;
@@ -152,8 +161,8 @@
 			padding: 0 2%;
 			margin: 0;
 			box-sizing: border-box;
-			background: #0088cc;
-			border-bottom: 2px solid #000;
+			background: var(--pixel-bg-header);
+			border-bottom: 2px solid var(--pixel-border-color);
 
 			h1 {
 				font-size: 36px;
@@ -161,7 +170,7 @@
 				margin: 0;
 				padding: 0;
 				text-align: center;
-				text-shadow: 2px 2px 0 #000;
+				text-shadow: 2px 2px 0 var(--pixel-border-color);
 			}
 
 			button {
@@ -210,8 +219,8 @@
 			justify-content: center;
 			align-content: center;
 			flex-wrap: wrap;
-			background: #0d2538;
-			border-top: 2px solid #000;
+			background: var(--pixel-border-alt);
+			border-top: 2px solid var(--pixel-border-color);
 			margin-top: auto;
 			box-sizing: border-box;
 
@@ -229,7 +238,7 @@
 				content: '';
 				width: calc(100% / 3);
 				height: 28px;
-				background: #ffd700;
+				background: var(--pixel-text-gold);
 				position: absolute;
 				top: 2px;
 				left: 0;

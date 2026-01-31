@@ -159,23 +159,32 @@
 	in:slide={{ duration: 500, delay: 100, axis: 'x', easing: backInOut }}
 	out:fade
 >
-	<nav class="nav">
+	<nav class="nav" role="navigation" aria-label="Bag navigation">
 		<div class="nav-left">
 			<a class="brand">BAG</a>
-			<div class="tabs">
-				<a class:active={tab === 0} onclick={() => changeTab(0)}
-					>{tabs[0].replace('$POKEMON', '')}</a
+			<div class="tabs" role="tablist">
+				<a
+					class:active={tab === 0}
+					onclick={() => changeTab(0)}
+					role="tab"
+					aria-selected={tab === 0}>{tabs[0].replace('$POKEMON', '')}</a
 				>
-				<a class:active={tab === 1} onclick={() => changeTab(1)}
-					>{tabs[1].replace('$POKEMON', '')}</a
+				<a
+					class:active={tab === 1}
+					onclick={() => changeTab(1)}
+					role="tab"
+					aria-selected={tab === 1}>{tabs[1].replace('$POKEMON', '')}</a
 				>
-				<a class:active={tab === 2} onclick={() => changeTab(2)}
-					>{tabs[2].replace('$POKEMON', '')}</a
+				<a
+					class:active={tab === 2}
+					onclick={() => changeTab(2)}
+					role="tab"
+					aria-selected={tab === 2}>{tabs[2].replace('$POKEMON', '')}</a
 				>
 			</div>
 		</div>
 		<div class="nav-right">
-			<button class="back" onclick={() => back()}>
+			<button class="back" onclick={() => back()} aria-label="Close bag">
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
 					><path
 						d="M10.5859 12L2.79297 4.20706L4.20718 2.79285L12.0001 10.5857L19.793 2.79285L21.2072 4.20706L13.4143 12L21.2072 19.7928L19.793 21.2071L12.0001 13.4142L4.20718 21.2071L2.79297 19.7928L10.5859 12Z"
@@ -214,10 +223,16 @@
 		</div>
 	</div>
 
-	<div class="options" class:hidden={!openOptions}>
+	<div class="options" class:hidden={!openOptions} role="menu" aria-label="Item options">
 		<ul>
-			<li class:selected={optionSelected === 0} onclick={() => use()}>USE</li>
-			<li class:selected={optionSelected === 1} onclick={() => (openOptions = false)}>CANCEL</li>
+			<li class:selected={optionSelected === 0} onclick={() => use()} role="menuitem">USE</li>
+			<li
+				class:selected={optionSelected === 1}
+				onclick={() => (openOptions = false)}
+				role="menuitem"
+			>
+				CANCEL
+			</li>
 		</ul>
 	</div>
 </div>
@@ -236,13 +251,13 @@
 <style lang="scss">
 	@keyframes pixel-pulse {
 		0% {
-			border-color: #ffd700;
+			border-color: var(--pixel-text-gold);
 		}
 		50% {
-			border-color: #fff;
+			border-color: var(--pixel-text-white);
 		}
 		100% {
-			border-color: #ffd700;
+			border-color: var(--pixel-text-gold);
 		}
 	}
 
@@ -288,21 +303,21 @@
 			}
 
 			.tabs a {
-				color: #ffffff;
+				color: var(--pixel-text-white);
 				padding: 4px 12px;
 				margin-right: 8px;
 				cursor: pointer;
 				text-decoration: none;
 
-				background: #0088cc;
-				border: 2px solid #000;
+				background: var(--pixel-bg-header);
+				border: 2px solid var(--pixel-border-color);
 				min-height: 44px;
 				display: inline-flex;
 				align-items: center;
 
 				&.active {
-					color: #fff;
-					border-bottom: 3px solid #ffd700;
+					color: var(--pixel-text-white);
+					border-bottom: 3px solid var(--pixel-text-gold);
 				}
 			}
 
@@ -418,10 +433,10 @@
 					justify-content: flex-start;
 					text-align: left;
 					padding: 12px;
-					background: #143855;
-					border: 2px solid #000;
+					background: var(--pixel-bg-panel);
+					border: 2px solid var(--pixel-border-color);
 					box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
-					color: #ffffff;
+					color: var(--pixel-text-white);
 				}
 			}
 
@@ -463,8 +478,8 @@
 						flex-direction: row;
 						align-items: center;
 						padding: 0 12px;
-						background: #143855;
-						border: 2px solid #000;
+						background: var(--pixel-bg-panel);
+						border: 2px solid var(--pixel-border-color);
 						box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
 						margin-bottom: 4px;
 						width: 100%;
@@ -474,18 +489,18 @@
 						.item-name {
 							flex-grow: 1;
 							text-align: left;
-							color: #ffffff;
+							color: var(--pixel-text-white);
 						}
 
 						.item-qty {
 							font-family: monospace;
-							color: #ffd700;
+							color: var(--pixel-text-gold);
 							text-align: right;
 							min-width: 50px;
 						}
 
 						&.selected {
-							border: 3px solid #ffd700;
+							border: 3px solid var(--pixel-text-gold);
 							animation: pixel-pulse 1s ease-in-out infinite;
 						}
 					}
@@ -501,9 +516,9 @@
 			bottom: 32px;
 			right: 32px;
 			padding: 16px 24px;
-			background: #143855;
-			color: #ffffff;
-			border: 2px solid #000;
+			background: var(--pixel-bg-panel);
+			color: var(--pixel-text-white);
+			border: 2px solid var(--pixel-border-color);
 			box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
 			box-sizing: border-box;
 			transition: bottom 0.3s ease-in-out;
@@ -532,7 +547,7 @@
 							height: 0;
 							border-top: 10px solid transparent;
 							border-bottom: 10px solid transparent;
-							border-left: 10px solid #ffd700;
+							border-left: 10px solid var(--pixel-text-gold);
 							position: absolute;
 							left: 0;
 							top: 50%;

@@ -76,7 +76,6 @@ export class OverworldContext {
 	map: OpenMap;
 
 	setPaused(paused: boolean, caller: string, infos?: any) {
-		console.log('setPaused by ' + caller, paused, infos);
 		this.isPaused = paused;
 	}
 
@@ -159,48 +158,56 @@ export class OverworldContext {
 				this.menus.menuOpened$.set(true);
 				break;
 			case MenuType.POKEMON_LIST:
+				this.isPaused = true;
 				this.menus.menuOpened = false;
 				this.menus.menuOpened$.set(false);
 				this.menus.pokemonListOpened = true;
 				this.menus.pokemonListOpened$.set(true);
 				break;
 			case MenuType.SWITCH:
+				this.isPaused = true;
 				this.menus.menuOpened = false;
 				this.menus.menuOpened$.set(false);
 				this.menus.switchOpened = true;
 				this.menus.switchOpened$.set(true);
 				break;
 			case MenuType.BAG:
+				this.isPaused = true;
 				this.menus.menuOpened = false;
 				this.menus.menuOpened$.set(false);
 				this.menus.bagOpened = true;
 				this.menus.bagOpened$.set(true);
 				break;
 			case MenuType.SUMMARY:
+				this.isPaused = true;
 				this.menus.menuOpened = false;
 				this.menus.menuOpened$.set(false);
 				this.menus.openSummary = true;
 				this.menus.openSummary$.set(true);
 				break;
 			case MenuType.BOX:
+				this.isPaused = true;
 				this.menus.menuOpened = false;
 				this.menus.menuOpened$.set(false);
 				this.menus.boxOpened = true;
 				this.menus.boxOpened$.set(true);
 				break;
 			case MenuType.POKEDEX:
+				this.isPaused = true;
 				this.menus.menuOpened = false;
 				this.menus.menuOpened$.set(false);
 				this.menus.pokedexOpened = true;
 				this.menus.pokedexOpened$.set(true);
 				break;
 			case MenuType.TRAINER:
+				this.isPaused = true;
 				this.menus.menuOpened = false;
 				this.menus.menuOpened$.set(false);
 				this.menus.trainerOpened = true;
 				this.menus.trainerOpened$.set(true);
 				break;
 			case MenuType.MAP:
+				this.isPaused = true;
 				this.menus.menuOpened = false;
 				this.menus.menuOpened$.set(false);
 				this.menus.mapOpened = true;

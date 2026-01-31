@@ -8,29 +8,32 @@
 	import { backInOut } from 'svelte/easing';
 	import { fade, slide } from 'svelte/transition';
 
-	export let context: GameContext;
-	// viewed / caught
-	// search
-	// list
+	interface Props {
+		context: GameContext;
+	}
 
-	let showFullDexImg = false; // debug
+	let { context }: Props = $props();
+
+	let showFullDexImg = false;
 
 	let wrapper: HTMLDivElement;
-	let elements: HTMLElement[] = [];
-	let selectedIdx = 0;
-	let searchTerm: string = '';
-	$: selectedPokemon = filtered[selectedIdx];
-	let filtered = context.POKEDEX.entries; //.filter(p => !p.types.includes('fire') && !p.types.includes('grass') && !p.types.includes('water') && p.id < 208);
-	let detailOpened = false;
-	let selectedType: string | undefined = undefined;
+	let elements: HTMLElement[] = $state([]);
+	let selectedIdx = $state(0);
+	let searchTerm: string = $state('');
+	let filtered = $state(context.POKEDEX.entries);
+	let selectedPokemon = $derived(filtered[selectedIdx]);
+	let detailOpened = $state(false);
+	let selectedType: string | undefined = $state(undefined);
 
-	$: if (!detailOpened && elements?.length > 0) {
-		if (selectedIdx === 0) {
-			wrapper.scrollTop = 0;
-		} else {
-			wrapper.scrollTop = elements[selectedIdx]?.offsetTop - 142;
+	$effect(() => {
+		if (!detailOpened && elements?.length > 0) {
+			if (selectedIdx === 0) {
+				wrapper.scrollTop = 0;
+			} else {
+				wrapper.scrollTop = elements[selectedIdx]?.offsetTop - 142;
+			}
 		}
-	}
+	});
 
 	const openDetail = () => {
 		detailOpened = true;
@@ -104,7 +107,10 @@
 	{#if !showFullDexImg}
 		<div class="row head">
 			<div class="col-2 back">
-				<button on:click={() => context.overWorldContext.closeMenu(MenuType.POKEDEX)}>
+				<button
+					onclick={() => context.overWorldContext.closeMenu(MenuType.POKEDEX)}
+					aria-label="Close Pokedex"
+				>
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
 						><path
 							d="M10.5859 12L2.79297 4.20706L4.20718 2.79285L12.0001 10.5857L19.793 2.79285L21.2072 4.20706L13.4143 12L21.2072 19.7928L19.793 21.2071L12.0001 13.4142L4.20718 21.2071L2.79297 19.7928L10.5859 12Z"
@@ -116,7 +122,7 @@
 			<div class="col-2"></div>
 
 			<div class="col-4">
-				<select bind:value={selectedType} on:change={search}>
+				<select bind:value={selectedType} onchange={search}>
 					<option value={undefined}>Type</option>
 					{#each Object.keys(typeChart) as type}
 						<option value={type}>{type.toUpperCase()}</option>
@@ -130,7 +136,7 @@
 					class="form__field"
 					placeholder="Search"
 					bind:value={searchTerm}
-					on:input={search}
+					oninput={search}
 				/>
 			</div>
 		</div>
@@ -159,7 +165,7 @@
 					<div
 						class:selected={selectedPokemon?.id === pokemon.id}
 						bind:this={elements[index]}
-						on:click={() => select(index)}
+						onclick={() => select(index)}
 					>
 						{#if pokemon.caught}
 							<img src="src/assets/menus/pokeball.png" alt="pokemons" />
@@ -170,7 +176,7 @@
 							{'#' + ('00' + pokemon.id).slice(-3)} - {pokemon.name}
 						</span>
 
-						<button on:click={() => openDetail()}>
+						<button onclick={() => openDetail()} aria-label="View Pokemon details">
 							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
 								><path d="M16 12L10 18V6L16 12Z"></path></svg
 							>
@@ -197,7 +203,7 @@
 				>
 					<span
 						style="position: absolute; top:4px; left: 50%;
-					transform: translate(-50%, 0%); font-size:18px; color: white; z-index: 10; font-weight: bold; "
+				transform: translate(-50%, 0%); font-size:18px; color: white; z-index: 10; font-weight: bold; "
 						>{pokemon.name}</span
 					>
 					<img
@@ -206,13 +212,13 @@
 					/>
 
 					<!-- <img
-					style="width: auto; height:80%; position: absolute; top: 50%; left: 50%; z-index:2; transform:translate(-50%, -50%); filter: brightness(1);"
-					src={`src/assets/monsters/animated/${('00' + pokemon?.id).slice(-3)}.gif`}
-				/> -->
+				style="width: auto; height:80%; position: absolute; top: 50%; left: 50%; z-index:2; transform:translate(-50%, -50%); filter: brightness(1);"
+				src={`src/assets/monsters/animated/${('00' + pokemon?.id).slice(-3)}.gif`}
+			/> -->
 
 					<span
 						style="position: absolute; bottom:4px; left: 50%;
-					transform: translate(-50%, 0%); font-size:18px; color: white; z-index: 10; font-weight: bold; "
+				transform: translate(-50%, 0%); font-size:18px; color: white; z-index: 10; font-weight: bold; "
 						>{pokemon.regionalId} {pokemon.id}</span
 					>
 				</div>
@@ -235,10 +241,10 @@
 	@keyframes pixel-pulse {
 		0%,
 		100% {
-			border-color: #ffd700;
+			border-color: var(--pixel-text-gold);
 		}
 		50% {
-			border-color: #fff;
+			border-color: var(--pixel-text-white);
 		}
 	}
 
@@ -248,8 +254,8 @@
 		left: 0;
 		width: 100dvw;
 		height: 100dvh;
-		background: #1c4b72;
-		color: #fff;
+		background: var(--pixel-bg-primary);
+		color: var(--pixel-text-white);
 		z-index: 10;
 
 		.head {
@@ -257,8 +263,8 @@
 			padding: 1% 2% 0 2%;
 			font-size: 14px;
 			box-sizing: border-box;
-			background: #0088cc;
-			border-bottom: 2px solid #000;
+			background: var(--pixel-bg-header);
+			border-bottom: 2px solid var(--pixel-border-color);
 		}
 
 		.content {
@@ -315,13 +321,13 @@
 			padding: 0;
 			scrollbar-width: thin;
 			scrollbar-color: #68c0c8 #0e2742f0;
-			background: #143855;
-			border: 2px solid #000;
+			background: var(--pixel-bg-panel);
+			border: 2px solid var(--pixel-border-color);
 			box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
 
 			div {
 				padding: 8px 12px;
-				border-bottom: 1px solid #0d2538;
+				border-bottom: 1px solid var(--pixel-border-alt);
 				border-radius: 0;
 				background: transparent;
 				width: 100%;
@@ -334,7 +340,7 @@
 
 				&.selected {
 					background: rgba(255, 255, 255, 0.1);
-					border: 3px solid #ffd700;
+					border: 3px solid var(--pixel-text-gold);
 					animation: pixel-pulse 1s infinite;
 					z-index: 1;
 				}

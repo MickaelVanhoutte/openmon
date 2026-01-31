@@ -6,24 +6,34 @@
 	import type { GameContext } from '../../../js/context/gameContext';
 	import { typeChart } from '../../../js/battle/battle-model';
 
-	export let context: GameContext;
-	export let selected: number;
+	interface Props {
+		context: GameContext;
+		selected: number;
+		zIndex: number;
+		selectedMove: number;
+		pkmnList: PokemonInstance[];
+		moveEdit: boolean;
+	}
 
-	export let zIndex: number;
-	export let selectedMove: number;
-	export let pkmnList: PokemonInstance[];
-	//let pkmnList: PokemonInstance[] = context.player.monsters;
+	let {
+		context = $bindable(),
+		selected = $bindable(),
+		zIndex = $bindable(),
+		selectedMove = $bindable(0),
+		pkmnList = $bindable(),
+		moveEdit = $bindable(false)
+	}: Props = $props();
 
-	export let moveEdit: boolean;
-
-	let nextZIndex = zIndex + 1;
+	let nextZIndex = $derived(zIndex + 1);
 
 	let mechanicRegex = /{[^}]*}/g;
 
-	$: selectedMons = pkmnList[selected];
-	$: description = selectedMons.moves[selectedMove].description
-		?.replace('$effect_chance', String(selectedMons?.moves[selectedMove]?.effectChance))
-		?.replace(mechanicRegex, '');
+	let selectedMons = $derived(pkmnList[selected]);
+	let description = $derived(
+		selectedMons.moves[selectedMove].description
+			?.replace('$effect_chance', String(selectedMons?.moves[selectedMove]?.effectChance))
+			?.replace(mechanicRegex, '')
+	);
 
 	function getTypeColor(type: string) {
 		return typeChart[type as keyof typeof typeChart]?.color || '#000';
@@ -50,7 +60,7 @@
 
 	<div class="moves">
 		<div class="__wrapper">
-			<button class="edit" on:click={() => (moveEdit = !moveEdit)}>
+			<button class="edit" onclick={() => (moveEdit = !moveEdit)}>
 				<span class="svg">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
 						><path
@@ -64,7 +74,7 @@
 				<div
 					class="move move-card"
 					class:selected={index === selectedMove}
-					on:click={() => (selectedMove = index)}
+					onclick={() => (selectedMove = index)}
 				>
 					<span style="--bg:{getTypeColor(move.type)}" class="type type-badge"
 						>{move.type.toUpperCase()}</span
@@ -177,7 +187,6 @@
 
 				font-size: 22px;
 
-				/* Move Description */
 				background: #1c4b72;
 				border: 2px solid #000;
 				padding: 12px;
@@ -242,15 +251,14 @@
 	}
 
 	.move {
-		/* Move Card */
-		background: #143855;
-		border: 2px solid #000;
+		background: var(--pixel-bg-panel);
+		border: 2px solid var(--pixel-border-color);
 		box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
 		padding: 12px;
 		margin-bottom: 8px;
 		border-radius: 0;
 
-		color: #fff;
+		color: var(--pixel-text-white);
 		position: relative;
 		height: calc((100% - 4 * 4%) / 4);
 		box-sizing: border-box;
@@ -280,7 +288,6 @@
 		}
 
 		.move-stats {
-			/* Move Stats Layout */
 			display: grid;
 			grid-template-columns: repeat(3, 60px);
 			gap: 4px;
@@ -293,29 +300,28 @@
 			}
 
 			.stat-label {
-				color: #ffffff;
+				color: var(--pixel-text-white);
 				opacity: 0.7;
 				font-size: 12px;
 			}
 			.stat-value {
-				color: #ffffff;
+				color: var(--pixel-text-white);
 				font-size: 16px;
 			}
 		}
 
 		&.selected {
-			border: 3px solid #ffd700;
+			border: 3px solid var(--pixel-text-gold);
 		}
 
 		.type {
-			/* Type Badges */
 			background: var(--bg);
-			border: 2px solid #000;
+			border: 2px solid var(--pixel-border-color);
 			box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
 			padding: 4px 8px;
 			border-radius: 0;
 
-			color: white;
+			color: var(--pixel-text-white);
 			text-shadow: 1px 1px 0 black;
 			font-size: 18px;
 			position: absolute;
@@ -348,7 +354,6 @@
 		}
 	}
 
-	/* Tab Navigation */
 	.tab.active {
 		border-bottom: 3px solid #ffd700;
 		color: #ffd700;

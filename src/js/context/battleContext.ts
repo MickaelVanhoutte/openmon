@@ -4,7 +4,8 @@ import {
 	BattleType,
 	TurnHistory,
 	TurnPhase,
-	typeChart
+	typeChart,
+	type PokemonType
 } from '../battle/battle-model';
 import { Move, PokemonInstance } from '../pokemons/pokedex';
 import { Player } from '../characters/player';
@@ -87,8 +88,6 @@ export class BattleContext {
 				.filter((poke) => !poke.fainted)
 				.slice(0, teamSize);
 		}
-		console.log('DEBUG, player side : ', this.playerSide);
-		console.log('DEBUG, opp side : ', this.oppSide);
 
 		if (this.playerSide?.length !== teamSize || this.oppSide?.length !== teamSize) {
 			throw new Error('Not enough pokemons to start the battle');
@@ -168,8 +167,6 @@ export class BattleContext {
 		this.opponentTurnActions = [];
 		this.turnPhases.set(TurnPhase.MAIN);
 
-		console.log('DEBUG, stack : ', this.actionStack.stack);
-
 		this.executeAction(this.actionStack.pop());
 	}
 
@@ -230,7 +227,6 @@ export class BattleContext {
 	 */
 	private executeAction(action?: ActionV2Interface) {
 		this.currentAction.set(action);
-		console.log('DEBUG, stack : ', this.actionStack.stack);
 		if (action !== undefined) {
 			if (action.type === ActionType.END_CHECKS) {
 				this.turnPhases.set(TurnPhase.END);
@@ -485,8 +481,7 @@ export class BattleContext {
 	}
 
 	public fromTypeChart(type1: string, type2: string): number {
-		//@ts-ignore
-		return typeChart[type1.toLowerCase()][type2.toLowerCase()] as number;
+		return typeChart[type1.toLowerCase() as PokemonType][type2.toLowerCase() as PokemonType];
 	}
 
 	public getPokemonSide(pokemon: PokemonInstance): 'ally' | 'opponent' {

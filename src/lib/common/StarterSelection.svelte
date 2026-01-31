@@ -6,8 +6,12 @@
 	import { SceneType } from '../../js/context/overworldContext';
 	import type { Unsubscriber } from 'svelte/store';
 
-	export let context: GameContext;
-	export let canvasWidth: number;
+	interface Props {
+		context: GameContext;
+		canvasWidth: number;
+	}
+
+	let { context, canvasWidth }: Props = $props();
 
 	let pokeballs: HTMLDivElement;
 	let aUnsubscribe: Unsubscriber;
@@ -21,23 +25,19 @@
 		context.POKEDEX.findById(7).result
 	];
 
-	let angle = 0;
-
-	let currentIndex = 0;
-	let currentPokemon = monsters[0];
-
-	$: dialog = new Dialog([new Message(`Hmm... Is ${currentPokemon.name} my Pokemon ?`)]);
+	let angle = $state(0);
+	let currentIndex = $state(0);
+	let currentPokemon = $derived(monsters[currentIndex]);
+	let dialog = $derived(new Dialog([new Message(`Hmm... Is ${currentPokemon.name} my Pokemon ?`)]));
 
 	function prev() {
 		angle -= 360 / monsters?.length;
 		currentIndex = (currentIndex + 1) % monsters.length;
-		currentPokemon = monsters[currentIndex];
 	}
 
 	function next() {
 		angle += 360 / monsters?.length;
 		currentIndex = (currentIndex - 1 + monsters.length) % monsters.length;
-		currentPokemon = monsters[currentIndex];
 	}
 
 	function select() {
@@ -176,13 +176,13 @@
 				height: 25dvh;
 				position: absolute;
 				margin-top: -10dvh;
-				background: #143855;
-				border: 2px solid #000;
+				background: var(--pixel-bg-panel);
+				border: 2px solid var(--pixel-border-color);
 				box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
 				transform: rotateY(var(--rotateY, 0deg)) translateZ(var(--translateZ, 0px));
 
 				&.selected {
-					border: 3px solid #ffd700;
+					border: 3px solid var(--pixel-text-gold);
 				}
 
 				&::before {

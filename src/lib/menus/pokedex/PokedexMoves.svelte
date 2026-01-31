@@ -6,11 +6,15 @@
 	import Modal from '../../common/Modal.svelte';
 	import { inlineSvg } from '@svelte-put/inline-svg';
 
-	export let pokemon: PokedexEntry;
+	interface Props {
+		pokemon: PokedexEntry;
+	}
 
-	let currentMove: Move = pokemon.moves[0];
-	let showModal = false;
-	let showDetail = false;
+	let { pokemon }: Props = $props();
+
+	let currentMove: Move = $state(pokemon.moves[0]);
+	let showModal = $state(false);
+	let showDetail = $state(false);
 	const mechanicRegex = /\{mechanic:.*?\}/g;
 
 	function openModal(move: Move): any {
@@ -54,7 +58,7 @@
 				</thead>
 				<tbody>
 					{#each pokemon.moves.filter((m) => m.method === 1) as move}
-						<tr on:click={() => openModal(move)}>
+						<tr onclick={() => openModal(move)}>
 							<td>
 								{pokemon.viewed ? move.level : '???'}
 							</td>
@@ -64,7 +68,6 @@
 							<td>
 								<div class="types">
 									<div class="type" style="--tcolor:{typeChart[move.type].color}">
-										<!-- <img alt={move.type} src="src/assets/types/{move.type}.svg" /> -->
 										<svg use:inlineSvg={`src/assets/types/${move.type}.svg`} fill="currentColor">
 										</svg>
 									</div>

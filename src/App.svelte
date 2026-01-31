@@ -85,8 +85,7 @@
 		window.document.addEventListener(
 			'touchmove',
 			(e) => {
-				// @ts-ignore
-				if (e.scale !== 1) {
+				if ((e as TouchEvent & { scale?: number }).scale !== 1) {
 					e.preventDefault();
 				}
 			},

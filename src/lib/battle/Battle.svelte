@@ -21,9 +21,13 @@
 	import type { Move } from '../../js/pokemons/pokedex';
 	import { get } from 'svelte/store';
 
-	export let context: GameContext;
-	export let battleCtx: BattleContext;
-	export let overWorldCtx: OverworldContext;
+	interface Props {
+		context: GameContext;
+		battleCtx: BattleContext;
+		overWorldCtx: OverworldContext;
+	}
+
+	let { context, battleCtx, overWorldCtx }: Props = $props();
 
 	const backgroundOffset = get(context.timeOfDay.backgroundOffset);
 
@@ -233,7 +237,7 @@
 					battleCtx.oppSide.forEach((element, idx) => {
 						let img = document.createElement('img') as HTMLImageElement;
 						img.addEventListener('click', () => {
-							console.log('clicked' + element.name);
+							// Click handler - no action needed
 						});
 						img.classList.add('opponent-sprite');
 						img.style.setProperty('--offSet', `${idx}`);
@@ -271,7 +275,7 @@
 					battleCtx.playerSide.forEach((element, idx) => {
 						let img = document.createElement('img') as HTMLImageElement;
 						img.addEventListener('click', () => {
-							console.log('clicked' + element.name);
+							// Click handler - no action needed
 						});
 						img.classList.add('ally-sprite');
 						img.style.setProperty('--offSet', `${idx}`);
@@ -429,7 +433,7 @@
 		pointer-events: none;
 	}
 
-	@keyframes impatience {
+	@keyframes -global-impatience {
 		0% {
 			margin-bottom: 0;
 			margin-left: 0;

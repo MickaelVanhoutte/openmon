@@ -77,10 +77,10 @@ export class SavesHolder {
 	currentVersion = 1;
 
 	constructor() {
+		const savesStr = localStorage.getItem('saves');
 		this.saves =
-			(localStorage.getItem('saves')?.length &&
-				// @ts-ignore
-				JSON.parse(localStorage.getItem('saves'), this.reviver).filter(
+			(savesStr?.length &&
+				(JSON.parse(savesStr, this.reviver) as SaveContext[]).filter(
 					(s) => s.version && s.version === this.currentVersion
 				)) ||
 			[];
@@ -162,11 +162,13 @@ export class SavesHolder {
 	}
 
 	persist(save?: SaveContext) {
-		if (save && this.saves.find((sv) => sv.id === save.id)) {
-			// @ts-ignore
-			this.saves[this.saves.indexOf(this.saves.find((sv) => sv.id === save.id))] = save;
+		if (save) {
+			const existingSaveIndex = this.saves.findIndex((sv) => sv.id === save.id);
+			if (existingSaveIndex !== -1) {
+				this.saves[existingSaveIndex] = save;
+			}
 		}
-		let encoded = JSON.stringify(this.saves, this.replacer); // todo encode
+		let encoded = JSON.stringify(this.saves, this.replacer);
 		localStorage.setItem('saves', encoded);
 	}
 

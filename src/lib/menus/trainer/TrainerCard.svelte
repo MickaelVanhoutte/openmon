@@ -1,9 +1,13 @@
 <script lang="ts">
 	import type { GameContext } from '../../../js/context/gameContext';
 
-	export let context: GameContext;
+	interface Props {
+		context: GameContext;
+	}
 
-	let playingTime = new Date(new Date().getTime() - context.created);
+	let { context }: Props = $props();
+
+	let playingTime = $derived(new Date(new Date().getTime() - context.created));
 </script>
 
 <div class="trainer-card">

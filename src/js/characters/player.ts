@@ -23,7 +23,6 @@ export class ComboJauge {
 	}
 
 	public addValue(value: number) {
-		console.log('before', this.value, value, this.stored);
 		this.value = this.value + value;
 		if (this.value >= 100) {
 			if (this.stored < 3) {
@@ -33,7 +32,6 @@ export class ComboJauge {
 				this.value = 100;
 			}
 		}
-		console.log('after', this.value, this.stored);
 	}
 
 	public consume() {

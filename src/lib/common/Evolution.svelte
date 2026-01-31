@@ -6,7 +6,11 @@
 	import { fade } from 'svelte/transition';
 	import type { GameContext } from '../../js/context/gameContext';
 
-	export let context: GameContext;
+	interface Props {
+		context: GameContext;
+	}
+
+	let { context }: Props = $props();
 
 	let currentImg: HTMLImageElement;
 	let nextImg: HTMLImageElement;
@@ -16,8 +20,8 @@
 
 	const animationTime = 13;
 
-	let animateD = true;
-	let dialog: Dialog | undefined;
+	let animateD = $state(true);
+	let dialog = $state<Dialog | undefined>(undefined);
 
 	let currentSprite: string | undefined;
 	let nextSprite: string | undefined;
@@ -35,11 +39,10 @@
 					0,
 					poke.isShiny
 				);
-			nextSprite = nextResult?.getSprite();
+			nextSprite =
+				nextResult && typeof nextResult !== 'number' ? nextResult.getSprite() : undefined;
 
 			if (currentSprite && nextSprite) {
-				console.log('setting classes');
-
 				currentImg.src = currentSprite;
 				currentImg.classList.remove('current');
 				currentImg.style.animation = `evolve-out ${animationTime}s forwards`;
@@ -61,7 +64,7 @@
 					setTimeout(() => {
 						dialog = new Dialog([
 							new Message(
-								`Congratulations! Your ${poke?.name} has evolved into ${nextResult?.name}!`,
+								`Congratulations! Your ${poke?.name} has evolved into ${typeof nextResult !== 'number' ? nextResult?.name : 'unknown'}!`,
 								'System'
 							)
 						]);
@@ -71,8 +74,8 @@
 					);
 
 					setTimeout(() => {
-						circles.map((el, i) => (el.style.animation = ``));
-						bubbles.map((el, i) => (el.style.animation = ``));
+						circles.map((el) => (el.style.animation = ``));
+						bubbles.map((el) => (el.style.animation = ``));
 
 						currentImg.style.animation = '';
 						currentImg.classList.add('current');
@@ -150,7 +153,7 @@
 	</div>
 
 	{#if dialog}
-		<DialogView bind:dialog bind:animate={animateD} {context} />
+		<DialogView bind:dialog animate={animateD} {context} />
 	{/if}
 </div>
 
@@ -334,8 +337,8 @@
 			justify-content: center;
 			align-items: center;
 			position: relative;
-			background: #143855;
-			border: 2px solid #000;
+			background: var(--pixel-bg-panel);
+			border: 2px solid var(--pixel-border-color);
 
 			img.pokemon {
 				width: auto;

@@ -1,13 +1,15 @@
-import { Script } from "../../scripting/scripts";
-import { NPC } from "../../characters/npc";
-import type { GameContext } from "../gameContext";
-import type { OverworldContext } from "../overworldContext";
+import { Script } from '../../scripting/scripts';
+import { NPC } from '../../characters/npc';
+import type { GameContext } from '../gameContext';
+import type { OverworldContext } from '../overworldContext';
+import { writable, type Writable } from 'svelte/store';
 
 /**
  * ScriptRunner - Manages script execution, triggers, and NPC movement scripts
  */
 export class ScriptRunner {
 	playingScript?: Script;
+	playingScript$: Writable<Script | undefined> = writable(undefined);
 	scriptsByTrigger: Map<string, Script[]> = new Map<string, Script[]>();
 
 	constructor() {}
@@ -30,9 +32,18 @@ export class ScriptRunner {
 	 */
 	collectAllScripts(mapScripts: Script[], npcs: NPC[]): Script[] {
 		return mapScripts
-			.concat(npcs.map((npc) => npc.mainScript).filter((script) => script !== undefined) as Script[])
-			.concat(npcs.map((npc) => npc.dialogScripts).flat().filter((script) => script !== undefined) as Script[])
-			.concat(npcs.map((npc) => npc.movingScript).filter((script) => script !== undefined) as Script[]);
+			.concat(
+				npcs.map((npc) => npc.mainScript).filter((script) => script !== undefined) as Script[]
+			)
+			.concat(
+				npcs
+					.map((npc) => npc.dialogScripts)
+					.flat()
+					.filter((script) => script !== undefined) as Script[]
+			)
+			.concat(
+				npcs.map((npc) => npc.movingScript).filter((script) => script !== undefined) as Script[]
+			);
 	}
 
 	/**
@@ -49,6 +60,7 @@ export class ScriptRunner {
 		if (script && !this.playingScript) {
 			script.onEnd = () => {
 				this.playingScript = undefined;
+				this.playingScript$.set(undefined);
 				overworldContext.setPaused(false, 'script-end gameContext');
 				if (previous) {
 					if (onEnd) {
@@ -62,6 +74,7 @@ export class ScriptRunner {
 				}
 			};
 			this.playingScript = script;
+			this.playingScript$.set(script);
 			overworldContext.setPaused(pause, 'script-start gameContext');
 			script.start(gameContext);
 		}
@@ -96,6 +109,7 @@ export class ScriptRunner {
 	clear(): void {
 		this.scriptsByTrigger.clear();
 		this.playingScript = undefined;
+		this.playingScript$.set(undefined);
 	}
 
 	isPlaying(): boolean {

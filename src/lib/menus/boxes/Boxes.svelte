@@ -8,30 +8,36 @@
 	import { backInOut } from 'svelte/easing';
 	import { fade, slide } from 'svelte/transition';
 
-	let selectZone: 'party' | 'box' | 'box-change' = 'box';
-	export let context: GameContext;
+	let selectZone: 'party' | 'box' | 'box-change' = $state('box');
 
-	let selectedBox = 0;
-	let over: number = 0;
+	interface Props {
+		context: GameContext;
+		pkmnListSelectedIndex?: number;
+	}
 
-	$: box = context.boxes[selectedBox];
-	$: teamSlot = context.player.monsters.concat(
-		new Array(6 - context.player.monsters.length).fill(undefined)
+	let { context, pkmnListSelectedIndex = $bindable(0) }: Props = $props();
+
+	let selectedBox = $state(0);
+	let over: number = $state(0);
+
+	let box = $derived(context.boxes[selectedBox]);
+	let teamSlot = $derived(
+		context.player.monsters.concat(new Array(6 - context.player.monsters.length).fill(undefined))
 	);
-	$: pkmnList =
+	let pkmnList = $derived(
 		selectZone === 'box'
 			? box.values.filter((p) => p instanceof PokemonInstance)
-			: context.player.monsters;
+			: context.player.monsters
+	);
 	let isBattle = false;
-	let zIndexNext = 10;
-	let changeLeftHover = false;
-	let changeRightHover = false;
-	let previewOpened: boolean = false;
-	let hasInteracted: boolean = false;
-	let optionsOpened: boolean = false;
-	let selectedOption: number = 0;
-	let firstSelection: BoxSelection | undefined;
-	export let pkmnListSelectedIndex: number = 0;
+	let zIndexNext = $state(10);
+	let changeLeftHover = $state(false);
+	let changeRightHover = $state(false);
+	let previewOpened: boolean = $state(false);
+	let hasInteracted: boolean = $state(false);
+	let optionsOpened: boolean = $state(false);
+	let selectedOption: number = $state(0);
+	let firstSelection: BoxSelection | undefined = $state(undefined);
 
 	let touchStartX = 0;
 	let touchEndX = 0;
@@ -289,7 +295,11 @@
 <div class="boxes" in:slide={{ duration: 500, delay: 100, axis: 'x', easing: backInOut }} out:fade>
 	<div class="party">
 		<div class="title">
-			<button class="cancel" on:click={() => context.overWorldContext.closeMenu(MenuType.BOX)}>
+			<button
+				class="cancel"
+				onclick={() => context.overWorldContext.closeMenu(MenuType.BOX)}
+				aria-label="Close boxes"
+			>
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
 					><path
 						d="M10.5859 12L2.79297 4.20706L4.20718 2.79285L12.0001 10.5857L19.793 2.79285L21.2072 4.20706L13.4143 12L21.2072 19.7928L19.793 21.2071L12.0001 13.4142L4.20718 21.2071L2.79297 19.7928L10.5859 12Z"
@@ -306,7 +316,7 @@
 					class:moving={firstSelection?.zone === 'party' &&
 						firstSelection?.index === i &&
 						firstSelection?.moving}
-					on:click={() => openOptions(new BoxSelection('party', i, selectedBox, pokemon))}
+					onclick={() => openOptions(new BoxSelection('party', i, selectedBox, pokemon))}
 				>
 					{#if firstSelection?.moving && selectZone === 'party' && over === i}
 						<img class="moving" src={firstSelection.selected?.getSprite()} alt="moving pokemon" />
@@ -327,13 +337,13 @@
 
 	<div
 		class="box"
-		on:touchstart={handleTouchStart}
-		on:touchend={handleTouchEnd}
+		ontouchstart={handleTouchStart}
+		ontouchend={handleTouchEnd}
 		role="region"
 		aria-label="Pokemon Box"
 	>
 		<div class="box-change" class:over={selectZone === 'box-change'}>
-			<button on:click={() => prevBox()} class:hover={changeLeftHover}>
+			<button onclick={() => prevBox()} class:hover={changeLeftHover} aria-label="Previous box">
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
 					<path
 						d="M4.83578 12L11.0429 18.2071L12.4571 16.7929L7.66421 12L12.4571 7.20712L11.0429 5.79291L4.83578 12ZM10.4857 12L16.6928 18.2071L18.107 16.7929L13.3141 12L18.107 7.20712L16.6928 5.79291L10.4857 12Z"
@@ -346,7 +356,7 @@
 			<span class:hover={selectZone === 'box-change'}>
 				{box.name}
 			</span>
-			<button on:click={() => nextBox()} class:hover={changeRightHover}>
+			<button onclick={() => nextBox()} class:hover={changeRightHover} aria-label="Next box">
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
 					<path
 						d="M19.1642 12L12.9571 5.79291L11.5429 7.20712L16.3358 12L11.5429 16.7929L12.9571 18.2071L19.1642 12ZM13.5143 12L7.30722 5.79291L5.89301 7.20712L10.6859 12L5.89301 16.7929L7.30722 18.2071L13.5143 12Z"
@@ -366,7 +376,7 @@
 						firstSelection?.zone === 'box' &&
 						firstSelection?.index === index &&
 						firstSelection?.moving}
-					on:click={() => openOptions(new BoxSelection('box', index, selectedBox, entry))}
+					onclick={() => openOptions(new BoxSelection('box', index, selectedBox, entry))}
 				>
 					{#if firstSelection?.moving && selectZone === 'box' && over === index}
 						<img class="moving" src={firstSelection?.selected?.getSprite()} alt="moving pokemon" />
@@ -390,25 +400,29 @@
 		</div>
 	</div>
 
-	<div class="options" class:opened={optionsOpened}>
+	<div class="options" class:opened={optionsOpened} role="menu" aria-label="Pokemon options">
 		<ul>
 			{#if (context.player.monsters.length > 1 && firstSelection?.zone === 'party') || firstSelection?.zone === 'box'}
-				<li class:selected={selectedOption === 0} on:click={() => setMoving()}>MOVE</li>
+				<li class:selected={selectedOption === 0} onclick={() => setMoving()} role="menuitem">
+					MOVE
+				</li>
 			{/if}
-			<li class:selected={selectedOption === 1} on:click={() => openSum()}>SUMMARY</li>
+			<li class:selected={selectedOption === 1} onclick={() => openSum()} role="menuitem">
+				SUMMARY
+			</li>
 			<!--TODO <li class:selected={selectedOption === 2}>RELEASE</li>-->
-			<li class:selected={selectedOption === 2} on:click={() => cancel()}>CANCEL</li>
+			<li class:selected={selectedOption === 2} onclick={() => cancel()} role="menuitem">CANCEL</li>
 		</ul>
 	</div>
 </div>
 
 {#if context.overWorldContext.menus.openSummary && firstSelection}
 	<PokemonSummary
-		bind:context
-		bind:selected={pkmnListSelectedIndex}
-		bind:isBattle
-		bind:zIndex={zIndexNext}
-		bind:pkmnList
+		{context}
+		selected={pkmnListSelectedIndex}
+		{isBattle}
+		zIndex={zIndexNext}
+		{pkmnList}
 	/>
 {/if}
 
@@ -432,8 +446,8 @@
 		.party,
 		.box,
 		.options {
-			background: #143855; // var(--pixel-bg-panel)
-			border: 2px solid #000;
+			background: var(--pixel-bg-panel);
+			border: 2px solid var(--pixel-border-color);
 			box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
 			border-radius: 0;
 		}
@@ -446,7 +460,7 @@
 			bottom: -100%;
 			right: 1%;
 			padding: clamp(12px, 3vmin, 22px) clamp(18px, 5vmin, 36px);
-			color: white;
+			color: var(--pixel-text-white);
 			box-sizing: border-box;
 			transition: bottom 0.3s ease-in-out;
 			z-index: 20;
@@ -471,7 +485,7 @@
 						height: 0;
 						border-top: 12px solid transparent;
 						border-bottom: 12px solid transparent;
-						border-left: 12px solid #ffd700;
+						border-left: 12px solid var(--pixel-text-gold);
 						position: absolute;
 						left: 5px;
 						margin-top: 2px;
@@ -502,9 +516,9 @@
 				.cancel {
 					height: clamp(32px, 8vmin, 44px);
 					width: clamp(32px, 8vmin, 44px);
-					color: white;
-					background-color: #0088cc;
-					border: 2px solid #000;
+					color: var(--pixel-text-white);
+					background-color: var(--pixel-bg-header);
+					border: 2px solid var(--pixel-border-color);
 					box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
 					outline: none;
 					display: flex;
@@ -581,7 +595,7 @@
 
 					&:hover,
 					&.over {
-						border: 3px solid #ffd700;
+						border: 3px solid var(--pixel-text-gold);
 						animation: pixel-pulse 1s ease-in-out infinite;
 						z-index: 1;
 					}
@@ -636,11 +650,11 @@
 					font-size: clamp(18px, 4vmin, 26px);
 					text-align: center;
 					font-family: pokemon, serif;
-					color: white;
-					text-shadow: 2px 2px 0 #000;
-					background-color: #0088cc;
+					color: var(--pixel-text-white);
+					text-shadow: 2px 2px 0 var(--pixel-border-color);
+					background-color: var(--pixel-bg-header);
 					border-radius: 0;
-					border: 2px solid #000;
+					border: 2px solid var(--pixel-border-color);
 					box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
 					cursor: pointer;
 					display: flex;
@@ -697,7 +711,7 @@
 
 					&.over {
 						background-color: rgba(255, 255, 255, 0.1);
-						border: 3px solid #ffd700;
+						border: 3px solid var(--pixel-text-gold);
 						animation: pixel-pulse 1s ease-in-out infinite;
 						z-index: 10;
 						box-shadow: none;
@@ -711,7 +725,7 @@
 						width: 100%;
 						height: auto;
 						/* background-color: white; */
-						color: white;
+						color: var(--pixel-text-white);
 						text-align: center;
 						padding: 4px;
 						border-radius: 0;
@@ -743,10 +757,10 @@
 	@keyframes pixel-pulse {
 		0%,
 		100% {
-			border-color: #ffd700;
+			border-color: var(--pixel-text-gold);
 		}
 		50% {
-			border-color: #ffffff;
+			border-color: var(--pixel-text-white);
 		}
 	}
 

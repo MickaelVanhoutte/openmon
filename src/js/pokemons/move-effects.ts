@@ -80,7 +80,6 @@ class Poison implements Effect {
 	constructor() {}
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		console.log('Poison');
 		let poison = new Poison();
 		poison.damages = Math.floor(target[0].currentStats.hp / 16);
 		return new EffectResult(poison, `${target[0].name} is poisoned`);
@@ -134,7 +133,6 @@ class Burn implements Effect {
 	constructor() {}
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		console.log('burn');
 		let burn = new Burn();
 		burn.damages = Math.floor(target[0].currentStats.hp / 16);
 		return new EffectResult(burn, `${target[0].name} is burnt`);
@@ -192,7 +190,6 @@ class Paralyze implements Effect {
 	constructor() {}
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		console.log('paralyse');
 		return new EffectResult(new Paralyze(), `${target[0].name} is paralyzed`);
 	}
 

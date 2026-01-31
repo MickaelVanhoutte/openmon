@@ -183,8 +183,8 @@
 					color: var(--color);
 					text-shadow: 1px 0px 0px var(--color);
 					letter-spacing: 1.5px;
-					background-color: #ffffff;
-					border: 2px solid #000;
+					background-color: var(--pixel-text-white);
+					border: 2px solid var(--pixel-border-color);
 					padding: 4px;
 				}
 			}
@@ -245,14 +245,14 @@
 				text-shadow: 1px 1px 1px #000;
 
 				span:first-child {
-					color: #ffffff;
+					color: var(--pixel-text-white);
 					overflow: hidden;
 					text-overflow: ellipsis;
 					white-space: nowrap;
 					max-width: 70%;
 				}
 				span:last-child {
-					color: #ffd700;
+					color: var(--pixel-text-gold);
 				}
 			}
 
@@ -300,8 +300,8 @@
 				.progressbar-wrapper {
 					height: 12px;
 					width: 100%;
-					background-color: #0d2538;
-					border: 2px solid #000;
+					background-color: var(--pixel-border-alt);
+					border: 2px solid var(--pixel-border-color);
 					position: relative;
 
 					.hp-value {

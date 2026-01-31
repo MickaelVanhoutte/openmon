@@ -191,6 +191,9 @@
 				class:out={poke.fainted}
 				onclick={() => (selectedMons = poke)}
 				class:selected={poke === selectedMons}
+				role="button"
+				tabindex="0"
+				aria-label="Select {poke.name}, HP {poke.currentHp} of {poke.currentStats.hp}"
 			>
 				<img src={poke.getSprite()} alt={poke.name} />
 				<span>{poke.name}</span>

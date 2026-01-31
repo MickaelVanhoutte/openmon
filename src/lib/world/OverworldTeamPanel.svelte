@@ -156,15 +156,15 @@
 		flex-direction: column;
 		gap: 6px;
 		z-index: 7;
-		background: #143855;
-		border: 2px solid #000;
+		background: var(--pixel-bg-panel);
+		border: 2px solid var(--pixel-border-color);
 		box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
 		padding: 4px;
 	}
 
 	.team-slot {
 		position: relative;
-		border: 2px solid #000;
+		border: 2px solid var(--pixel-border-color);
 		height: calc(100dvh / 9);
 	}
 

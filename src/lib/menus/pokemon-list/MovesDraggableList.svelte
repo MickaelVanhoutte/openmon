@@ -5,16 +5,19 @@
 	import { dndzone } from 'svelte-dnd-action';
 	import { typeChart } from '../../../js/battle/battle-model';
 
-	export let list: Move[];
+	interface Props {
+		list: Move[];
+		finalList: boolean;
+		removable: boolean;
+	}
 
-	export let finalList: boolean;
-	export let removable: boolean;
+	let { list = $bindable([]), finalList, removable }: Props = $props();
 
-	function handleDndConsider(e) {
+	function handleDndConsider(e: CustomEvent<{ items: Move[] }>) {
 		list = e.detail.items;
 	}
 
-	function handleDndFinalize(e) {
+	function handleDndFinalize(e: CustomEvent<{ items: Move[] }>) {
 		list = finalList
 			? e.detail.items.map((item) => {
 					return new MoveInstance(
@@ -50,12 +53,14 @@
 		flipDurationMs: 200,
 		dragDisabled: finalList ? list.length === 1 : false
 	}}
-	on:consider={handleDndConsider}
-	on:finalize={handleDndFinalize}
+	onconsider={handleDndConsider}
+	onfinalize={handleDndFinalize}
 >
 	{#each list as move, index (move.id)}
 		<div class="move draggable" animate:flip={{ duration: 200 }}>
-			<span style="--bg:{typeChart[move.type].color}" class="type">{move.type.toUpperCase()}</span>
+			<span style="--bg:{typeChart[move.type as keyof typeof typeChart].color}" class="type"
+				>{move.type.toUpperCase()}</span
+			>
 
 			<div class="flex-row">
 				<div class="flex-col">
@@ -116,7 +121,6 @@
 	}
 
 	.move {
-		/* Retro Dark Theme */
 		background: #143855;
 		border: 2px solid #000;
 		box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);

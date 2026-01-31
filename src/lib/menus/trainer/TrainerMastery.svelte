@@ -6,27 +6,31 @@
 	import type { GameContext } from '../../../js/context/gameContext';
 	import Modal from '../../common/Modal.svelte';
 
-	export let context: GameContext;
+	interface Props {
+		context: GameContext;
+	}
+
+	let { context }: Props = $props();
 	let masteries: HTMLDivElement;
 	let expert: HTMLDivElement;
-	let showModal = false;
+	let showModal = $state(false);
 	let targetElement: any;
-	let currentNode: any | undefined;
+	let currentNode: any | undefined = $state(undefined);
 	let currentTiles: any[];
 	let currentHex: any;
 	let currentGrid: Grid;
 
-	$: pMasteries = context.player.playerMasteries;
-	$: masteryPoints = pMasteries.points;
+	let pMasteries = $derived(context.player.playerMasteries);
+	let masteryPoints = $derived(pMasteries.points);
 
-	$: initiateTiles = pMasteries.novice;
+	let initiateTiles = $derived(pMasteries.novice);
 	let initiateSvg: Svg;
 	let initiateGrid: Grid;
-	$: expertTiles = pMasteries.expert;
+	let expertTiles = $derived(pMasteries.expert);
 	let expertSvg: Svg;
 	let expertGrid: Grid;
 
-	let animating: boolean = false;
+	let animating: boolean = $state(false);
 
 	let count = 0;
 
@@ -208,7 +212,6 @@
 			.map((ng) => '#' + svgId + ' #hex-' + ng.q + '-' + ng.r);
 
 		let tl = gsap.timeline();
-		console.log(neighbors);
 
 		tl.to(
 			'#' + svgId + ' #hex-' + currentHex.q + '-' + currentHex.r,
@@ -271,20 +274,16 @@
 		neighbors.forEach((ng) => {});
 		tl.play().then(() => {
 			if (tile.group == 'novice') {
-				console.log('redraw initiate');
 				drawGrid(initiateSvg, initiateGrid, initiateTiles, false);
 				animating = false;
 
 				if (initiateTiles.every((tile) => tile.set || tile.first)) {
-					console.log('init expert');
 					let firstExp = expertTiles.find((tile) => tile.first);
 					currentGrid = expertGrid;
 					currentHex = expertGrid.getHex({ q: firstExp?.q, r: firstExp?.r });
-					console.log(firstExp, currentHex);
 					setNode(firstExp, expertTiles);
 				}
 			} else {
-				console.log('redraw expert');
 				drawGrid(expertSvg, expertGrid, expertTiles, true);
 				animating = false;
 			}
@@ -332,7 +331,6 @@
 		expertGrid = new Grid(Hex2, rectangle({ width: 15, height: 4 }));
 		drawGrid(expertSvg, expertGrid, expertTiles, true);
 		expert.addEventListener('click', ({ target, offsetX, offsetY }) => {
-			console.log(target);
 			const hex = expertGrid.pointToHex({ x: offsetX, y: offsetY }, { allowOutside: false });
 			openModal(
 				expertTiles.find((tile) => tile.q === hex.q && tile.r === hex.r),
@@ -352,7 +350,6 @@
 				expertGrid
 			);
 		});
-		console.log(count);
 	});
 </script>
 

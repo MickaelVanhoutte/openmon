@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import type { Dialog } from '../../js/scripting/scripts';
+	import type { Message } from '../../js/scripting/scripts';
 	import type { Unsubscriber } from 'svelte/store';
 	import type { GameContext } from '../../js/context/gameContext';
 	import { CHARACTER_SPRITES } from '../../js/sprites/sprites';
@@ -15,11 +16,28 @@
 
 	let text: HTMLDivElement | undefined = $state();
 	let unsubscribe: Unsubscriber | undefined;
+	let dialogUnsubscribe: Unsubscriber | undefined;
 	let selectedOption = $state(0);
 	let src = $state('');
 	let npcName = $state('');
 
-	let current = $derived(dialog?.current || undefined);
+	// Subscribe to dialog.current$ store for reactivity
+	let current = $state<Message | undefined>(undefined);
+
+	$effect(() => {
+		if (dialog) {
+			// Initialize current immediately from the dialog's current message
+			current = dialog.current;
+
+			dialogUnsubscribe?.();
+			dialogUnsubscribe = dialog.current$.subscribe((msg) => {
+				current = msg;
+			});
+		} else {
+			current = undefined;
+		}
+		return () => dialogUnsubscribe?.();
+	});
 
 	$effect(() => {
 		if (current?.speaker) {
@@ -115,14 +133,19 @@
 </div>
 
 {#if current?.options?.length}
-	<div class="options" class:hidden={!current?.options?.length}>
+	<div
+		class="options"
+		class:hidden={!current?.options?.length}
+		role="menu"
+		aria-label="Dialog options"
+	>
 		<ul>
 			{#each current.options as option, index}
 				<li
 					class:selected={selectedOption === index}
 					onclick={() => handleOptionClick(index)}
 					onkeydown={(e) => e.key === 'Enter' && handleOptionClick(index)}
-					role="button"
+					role="menuitem"
 					tabindex="0"
 				>
 					{option}
@@ -141,13 +164,13 @@
 		bottom: 27%;
 		right: 1%;
 		padding: 22px 36px 22px 36px;
-		background: #143855;
-		border: 2px solid #000;
+		background: var(--pixel-bg-panel);
+		border: 2px solid var(--pixel-border-color);
 		border-radius: 0;
 		box-sizing: border-box;
 		transition: bottom 0.3s ease-in-out;
 		z-index: 8;
-		color: #ffffff;
+		color: var(--pixel-text-white);
 		box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
 
 		&.hidden {
@@ -171,7 +194,7 @@
 					height: 0;
 					border-top: 12px solid transparent;
 					border-bottom: 12px solid transparent;
-					border-left: 12px solid #ffd700;
+					border-left: 12px solid var(--pixel-text-gold);
 					position: absolute;
 					left: 5px;
 					margin-top: 2px;
@@ -198,13 +221,13 @@
 		z-index: 7;
 		font-size: 32px;
 		font-weight: 500;
-		color: #ffffff;
-		border: 2px solid #000;
+		color: var(--pixel-text-white);
+		border: 2px solid var(--pixel-border-color);
 		border-radius: 0;
 		padding: 4px;
 		min-width: 20dvw;
 		text-align: center;
-		background: #0088cc;
+		background: var(--pixel-bg-header);
 		box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
 	}
 
@@ -216,15 +239,15 @@
 		height: 25dvh;
 		z-index: 7;
 
-		background: #143855;
-		border: 2px solid #000;
+		background: var(--pixel-bg-panel);
+		border: 2px solid var(--pixel-border-color);
 		border-radius: 0;
 		box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
 		box-sizing: border-box;
 		padding: 16px;
 		font-size: 32px;
 		font-weight: 500;
-		color: #ffffff;
+		color: var(--pixel-text-white);
 
 		.dialog-content {
 			display: flex;

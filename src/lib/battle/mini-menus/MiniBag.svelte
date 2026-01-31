@@ -64,13 +64,28 @@
 	in:slide={{ duration: 500, delay: 100, axis: 'y', easing: backInOut }}
 	out:slide={{ duration: 500, delay: 100, axis: 'y', easing: backInOut }}
 >
-	<nav class="nav">
+	<nav class="nav" role="navigation" aria-label="Battle bag">
 		<div class="nav-left">
-			<div class="tabs">
-				<a class:active={selectedIdx === 0} onclick={() => (selectedIdx = 0)}>Healing</a>
-				<a class:active={selectedIdx === 1} onclick={() => (selectedIdx = 1)}>Revive</a>
+			<div class="tabs" role="tablist">
+				<a
+					class:active={selectedIdx === 0}
+					onclick={() => (selectedIdx = 0)}
+					role="tab"
+					aria-selected={selectedIdx === 0}>Healing</a
+				>
+				<a
+					class:active={selectedIdx === 1}
+					onclick={() => (selectedIdx = 1)}
+					role="tab"
+					aria-selected={selectedIdx === 1}>Revive</a
+				>
 				{#if isWild}
-					<a class:active={selectedIdx === 2} onclick={() => (selectedIdx = 2)}>Pokeballs</a>
+					<a
+						class:active={selectedIdx === 2}
+						onclick={() => (selectedIdx = 2)}
+						role="tab"
+						aria-selected={selectedIdx === 2}>Pokeballs</a
+					>
 				{/if}
 			</div>
 		</div>
@@ -103,11 +118,13 @@
 				{#each context.player.monsters as poke, idx}
 					<li>
 						<div class="poke">
-							<button {disabled} class="button" onclick={() => useItem(idx)}>Use</button>
-							<img
-								src={poke.getSprite()}
-								alt={poke.name}
-							/>
+							<button
+								{disabled}
+								class="button"
+								onclick={() => useItem(idx)}
+								aria-label="Use item on {poke.name}">Use</button
+							>
+							<img src={poke.getSprite()} alt={poke.name} />
 							<div class="hp-status">
 								<div class="hp">
 									<span>HP</span>
@@ -133,10 +150,12 @@
 				<li style="height: 100%">
 					<div
 						class="poke catch"
-                        style="height: 100%"
+						style="height: 100%"
 						data-rate={`Catch rate: ${Math.floor(getCaptureRate(battleCtx.opponentPokemon, item?.power || 0) * 100)}%`}
 					>
-						<button class="button" onclick={() => catchPkmn()}>Catch</button>
+						<button class="button" onclick={() => catchPkmn()} aria-label="Catch wild Pokemon"
+							>Catch</button
+						>
 						<img
 							src={battleCtx.opponentPokemon?.sprites?.[battleCtx.opponentPokemon?.gender]?.front[
 								battleCtx.opponentPokemon.isShiny ? 'shiny1' : 'frame1'

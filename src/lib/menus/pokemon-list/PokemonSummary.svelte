@@ -9,20 +9,33 @@
 	import type { GameContext } from '../../../js/context/gameContext';
 	import { MenuType } from '../../../js/context/overworldContext';
 
-	export let context: GameContext;
-	export let selected: number;
-	export let selectedMove = 0;
-	export let statEdit = false;
-	export let moveEdit = false;
-	export let isBattle: boolean;
-	export let battleSummaryOpened = false;
-	export let pkmnList: (PokemonInstance | undefined)[];
+	interface Props {
+		context: GameContext;
+		selected: number;
+		selectedMove?: number;
+		statEdit?: boolean;
+		moveEdit?: boolean;
+		isBattle: boolean;
+		battleSummaryOpened?: boolean;
+		pkmnList: (PokemonInstance | undefined)[];
+		zIndex: number;
+	}
 
-	export let zIndex: number;
-	$: zIndexNext = zIndex + 1;
+	let {
+		context = $bindable(),
+		selected = $bindable(0),
+		selectedMove = $bindable(0),
+		statEdit = $bindable(false),
+		moveEdit = $bindable(false),
+		isBattle = $bindable(),
+		battleSummaryOpened = $bindable(false),
+		pkmnList = $bindable(),
+		zIndex = $bindable()
+	}: Props = $props();
 
-	let tab = 0;
-	//let pkmnList: PokemonInstance[] = context.player.monsters;
+	let zIndexNext = $derived(zIndex + 1);
+
+	let tab = $state(0);
 
 	const tabs: Record<number, string> = {
 		0: '$POKEMON INFO',
@@ -30,9 +43,10 @@
 		2: '$POKEMON MOVES'
 	};
 
-	$: filteredList = <Array<PokemonInstance>>pkmnList.filter((pkmn) => pkmn !== undefined);
-	$: selectedMons = filteredList[selected];
-	$: evs = selectedMons.evs;
+	let filteredList = $derived(
+		<Array<PokemonInstance>>pkmnList.filter((pkmn) => pkmn !== undefined)
+	);
+	let selectedMons = $derived(filteredList[selected]);
 
 	function back() {
 		if (statEdit) {
@@ -106,20 +120,20 @@
 		<div class="nav-left">
 			<a class="brand">{selectedMons.name}</a>
 			<div class="tabs">
-				<a class:active={tab === 0} on:click={() => (tab = 0)}>{tabs[0].replace('$POKEMON', '')}</a>
-				<a class:active={tab === 1} on:click={() => (tab = 1)}>{tabs[1].replace('$POKEMON', '')}</a>
-				<a class:active={tab === 2} on:click={() => (tab = 2)}>{tabs[2].replace('$POKEMON', '')}</a>
+				<a class:active={tab === 0} onclick={() => (tab = 0)}>{tabs[0].replace('$POKEMON', '')}</a>
+				<a class:active={tab === 1} onclick={() => (tab = 1)}>{tabs[1].replace('$POKEMON', '')}</a>
+				<a class:active={tab === 2} onclick={() => (tab = 2)}>{tabs[2].replace('$POKEMON', '')}</a>
 			</div>
 		</div>
 		<div class="nav-right">
-			<button class="previous" on:click={() => previous()}>
+			<button class="previous" onclick={() => previous()}>
 				<span class="arrow"></span>
 			</button>
-			<button class="next" on:click={() => next()}>
+			<button class="next" onclick={() => next()}>
 				<span class="arrow"></span>
 			</button>
 
-			<button class="back" on:click={() => back()}>
+			<button class="back" onclick={() => back()}>
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
 					><path
 						d="M10.5859 12L2.79297 4.20706L4.20718 2.79285L12.0001 10.5857L19.793 2.79285L21.2072 4.20706L13.4143 12L21.2072 19.7928L19.793 21.2071L12.0001 13.4142L4.20718 21.2071L2.79297 19.7928L10.5859 12Z"

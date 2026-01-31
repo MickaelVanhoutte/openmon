@@ -5,17 +5,24 @@
 	import type { GameContext } from '../../../js/context/gameContext';
 	import { typeChart } from '../../../js/battle/battle-model';
 
-	export let context: GameContext;
-	export let selected: number;
+	interface Props {
+		context: GameContext;
+		selected: number;
+		zIndex: number;
+		pkmnList: PokemonInstance[];
+	}
 
-	export let zIndex: number;
+	let {
+		context,
+		selected = $bindable(),
+		zIndex = $bindable(),
+		pkmnList = $bindable()
+	}: Props = $props();
 
-	export let pkmnList: PokemonInstance[];
-	//let pkmnList: PokemonInstance[] = context.player.monsters;
-
-	$: selectedMons = pkmnList[selected];
-
-	$: expPercent = Math.floor((selectedMons?.currentXp * 100) / selectedMons?.xpToNextLevel);
+	let selectedMons = $derived(pkmnList[selected]);
+	let expPercent = $derived(
+		Math.floor((selectedMons?.currentXp * 100) / selectedMons?.xpToNextLevel)
+	);
 </script>
 
 <div
@@ -49,7 +56,9 @@
 					<td class="head">Type</td>
 					<td class="types">
 						{#each selectedMons.types as type}
-							<span style="--bg:{typeChart[type].color}" class="type">{type.toUpperCase()}</span>
+							<span style="--bg:{typeChart[type as keyof typeof typeChart].color}" class="type"
+								>{type.toUpperCase()}</span
+							>
 						{/each}
 					</td>
 				</tr>
