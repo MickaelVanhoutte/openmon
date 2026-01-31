@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
+	import { onMount } from 'svelte';
 
 	interface StatChange {
 		stat: string;
@@ -30,13 +31,58 @@
 		gender = 'unknown',
 		statusAbr = null,
 		statChanges = [],
-		position = { bottom: '42%', left: '22%' },
+		position = { bottom: '62%', left: '22%' },
 		isAlly = true,
 		showExpBar = false,
 		expPercent = 0,
 		spriteElement = null,
 		visible = true
 	}: Props = $props();
+
+	let computedStyle = $state('');
+	let useComputedPosition = $state(false);
+
+	function updatePositionFromSprite() {
+		if (!spriteElement) {
+			useComputedPosition = false;
+			return;
+		}
+
+		const rect = spriteElement.getBoundingClientRect();
+		const container = spriteElement.closest('.scene') as HTMLElement | null;
+		const containerRect = container?.getBoundingClientRect() || { top: 0, left: 0 };
+
+		const widgetHeight = 80;
+		const widgetWidth = 180;
+
+		const top = rect.top - containerRect.top - widgetHeight - 10;
+		const left = rect.left - containerRect.left + rect.width / 2 - widgetWidth / 2;
+
+		computedStyle = `top: ${top}px; left: ${left}px;`;
+		useComputedPosition = true;
+	}
+
+	onMount(() => {
+		if (!spriteElement) return;
+
+		updatePositionFromSprite();
+
+		window.addEventListener('resize', updatePositionFromSprite);
+
+		const observer = new ResizeObserver(updatePositionFromSprite);
+		observer.observe(spriteElement);
+
+		return () => {
+			window.removeEventListener('resize', updatePositionFromSprite);
+			observer.disconnect();
+		};
+	});
+
+	$effect(() => {
+		if (spriteElement) {
+			updatePositionFromSprite();
+		}
+	});
 
 	const hpPercent = $derived((currentHp / maxHp) * 100);
 
@@ -75,36 +121,38 @@
 		};
 		return colors[status] || '#666666';
 	}
-
-	// Suppress unused warning - spriteElement will be used in Task 7
-	void spriteElement;
 </script>
 
 {#if visible}
 	<div
 		class="floating-pokemon-info spatial-panel"
-		style="bottom: {position.bottom}; left: {position.left};"
+		style={useComputedPosition
+			? computedStyle
+			: `bottom: ${position.bottom}; left: ${position.left};`}
 		transition:fade={{ duration: 200 }}
 	>
 		<div class="leader-line"></div>
 
 		<div class="info-header">
-			<span class="pokemon-name spatial-text">{name}</span>
-			{#if genderSymbol()}
-				<span class="gender-symbol spatial-text" style="color: {genderColor()}"
-					>{genderSymbol()}</span
-				>
-			{/if}
-			<div class="level-badge">
-				<span class="level-text spatial-text">Lv.{level}</span>
-			</div>
+			<span class="pokemon-name spatial-text"
+				>{name}
+
+				{#if genderSymbol()}
+					<span class="gender-symbol spatial-text" style="color: {genderColor()}"
+						>{genderSymbol()}</span
+					>
+				{/if}
+			</span>
+
+			<span class="level-text spatial-text">Lv.{level}</span>
 		</div>
 
 		<div class="hp-bar-container">
 			<div class="hp-bar-bg">
-				<div class="hp-bar-fill" style="width: {hpPercent}%; background: {hpGradient()}"></div>
+				<div class="hp-bar-fill" style="width: {hpPercent}%; background: {hpGradient()}">
+					<span class="hp-value">{currentHp} / {maxHp}</span>
+				</div>
 			</div>
-			<div class="hp-numbers spatial-text">{currentHp} / {maxHp}</div>
 		</div>
 
 		{#if showExpBar && isAlly}
@@ -150,10 +198,10 @@
 	.floating-pokemon-info {
 		position: absolute;
 		z-index: 50;
-		min-width: 180px;
-		padding: 10px 16px 10px 20px;
+		min-width: 160px;
+		padding: 0 8px 8px 8px;
 		transform: skewX(var(--skew-angle));
-		background: var(--spatial-bg);
+		background: rgb(43, 71, 112);
 		border: 2px solid rgba(255, 255, 255, 0.25);
 		border-left: 4px solid rgba(255, 255, 255, 0.6);
 		box-shadow:
@@ -181,11 +229,12 @@
 		display: flex;
 		align-items: center;
 		gap: 6px;
-		margin-bottom: 8px;
+		padding: 4px;
+		justify-content: space-between;
 	}
 
 	.pokemon-name {
-		font-size: 1.1rem;
+		font-size: 1.5rem;
 		font-weight: 700;
 		color: white;
 		text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
@@ -196,26 +245,16 @@
 	}
 
 	.gender-symbol {
-		font-size: 1rem;
+		font-size: 1.5rem;
 		font-weight: bold;
-	}
-
-	.level-badge {
-		margin-left: auto;
-		padding: 2px 10px;
-		background: rgba(0, 0, 0, 0.5);
-		transform: skewX(var(--skew-angle));
-		clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%);
+		margin-left: 6px;
 	}
 
 	.level-text {
-		font-size: 0.85rem;
+		font-size: 1.5rem;
 		font-weight: 600;
 		color: #cbd5e1;
-	}
-
-	.hp-bar-container {
-		margin-bottom: 4px;
+		transform: skewX(var(--skew-angle));
 	}
 
 	.hp-bar-bg {
@@ -228,9 +267,19 @@
 
 	.hp-bar-fill {
 		height: 100%;
+		position: relative;
 		transition:
 			width 0.4s ease-out,
 			background 0.3s ease;
+	}
+
+	.hp-value {
+		position: absolute;
+		top: -4px;
+		left: 12px;
+		font-size: 1rem;
+		font-weight: bold;
+		color: white;
 	}
 
 	.hp-numbers {
