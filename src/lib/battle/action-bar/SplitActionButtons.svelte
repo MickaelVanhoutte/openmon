@@ -82,25 +82,25 @@
 				// FIGHT - top left
 				top: (topY / viewportHeight) * 100,
 				left: (leftX / viewportWidth) * 100,
-				rotation: -3
+				rotation: -1
 			},
 			{
 				// BAG - top right
 				top: (topY / viewportHeight) * 100,
 				left: (rightX / viewportWidth) * 100,
-				rotation: 3
+				rotation: 1
 			},
 			{
 				// POKEMON - bottom left
 				top: (bottomY / viewportHeight) * 100,
 				left: (leftX / viewportWidth) * 100,
-				rotation: -3
+				rotation: -1
 			},
 			{
 				// RUN - bottom right
 				top: (bottomY / viewportHeight) * 100,
 				left: (rightX / viewportWidth) * 100,
-				rotation: 3
+				rotation: 1
 			}
 		];
 	}
@@ -197,7 +197,7 @@
 	});
 </script>
 
-{#if show}
+{#if show && !disabled}
 	{#each actions as action, i}
 		{@const pos = positions[i] || { top: 50 + i * 11, left: 18, rotation: 0 }}
 		<button

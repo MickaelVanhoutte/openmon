@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
 	import { onMount } from 'svelte';
+	import type { PokemonInstance } from '../../js/pokemons/pokedex';
 
 	interface StatChange {
 		stat: string;
@@ -8,13 +9,7 @@
 	}
 
 	interface Props {
-		name: string;
-		level: number;
-		currentHp: number;
-		maxHp: number;
-		gender?: 'male' | 'female' | 'unknown';
-		statusAbr?: string | null;
-		statChanges?: StatChange[];
+		pokemon: PokemonInstance;
 		position?: { bottom: string; left: string };
 		isAlly?: boolean;
 		showExpBar?: boolean;
@@ -24,13 +19,7 @@
 	}
 
 	let {
-		name,
-		level,
-		currentHp,
-		maxHp,
-		gender = 'unknown',
-		statusAbr = null,
-		statChanges = [],
+		pokemon,
 		position = { bottom: '62%', left: '22%' },
 		isAlly = true,
 		showExpBar = false,
@@ -38,6 +27,37 @@
 		spriteElement = null,
 		visible = true
 	}: Props = $props();
+
+	// Force reactivity tick - increment this to force re-render
+	let hpTick = $state(0);
+
+	// Reactive derived values from pokemon object
+	// The hpTick dependency forces re-evaluation when tick changes
+	const name = $derived(pokemon.name);
+	const level = $derived(pokemon.level);
+	const currentHp = $derived(hpTick >= 0 ? pokemon.currentHp : pokemon.currentHp);
+	const maxHp = $derived(hpTick >= 0 ? pokemon.currentStats.hp : pokemon.currentStats.hp);
+	const gender = $derived(pokemon.gender || 'unknown');
+	const statusAbr = $derived(pokemon.status?.abr || null);
+	const statChanges: StatChange[] = [];
+
+	// Poll for HP changes (simple but effective solution)
+	let pollInterval: ReturnType<typeof setInterval>;
+	let lastHp = $state(pokemon.currentHp);
+
+	onMount(() => {
+		// Check for HP changes every 100ms during battle
+		pollInterval = setInterval(() => {
+			if (pokemon.currentHp !== lastHp) {
+				lastHp = pokemon.currentHp;
+				hpTick++;
+			}
+		}, 100);
+
+		return () => {
+			clearInterval(pollInterval);
+		};
+	});
 
 	let computedStyle = $state('');
 	let useComputedPosition = $state(false);

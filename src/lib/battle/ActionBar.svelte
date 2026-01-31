@@ -462,101 +462,23 @@
 </div>
 -->
 
-{#if moveOpened}
-	<div class="left-infos">
-		<div class="info-back">
-			<button
-				class="back-btn"
-				onclick={() => {
-					moveOpened = false;
-					showAdd = false;
-					targetSelectOpened = false;
-				}}
-				aria-label="Go back to action menu"
-			>
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-					><path
-						d="M5.82843 6.99955L8.36396 9.53509L6.94975 10.9493L2 5.99955L6.94975 1.0498L8.36396 2.46402L5.82843 4.99955H13C17.4183 4.99955 21 8.58127 21 12.9996C21 17.4178 17.4183 20.9996 13 20.9996H4V18.9996H13C16.3137 18.9996 19 16.3133 19 12.9996C19 9.68584 16.3137 6.99955 13 6.99955H5.82843Z"
-					></path></svg
-				>
-			</button>
-		</div>
-
-		<div class="move-desc">
-			<div class="wrapper">
-				<div class="_desc" class:show={selectedMoveIdx !== undefined}>
-					{#if !!currentCombo}
-						<div class="head">
-							<span
-								>Types: {currentCombo.move.type}, {battleCtx.playerSide[battleCtx.actionIdx]?.moves[
-									selectedMoveIdx
-								].type}</span
-							>
-							<span
-								>Pwr. {currentCombo.move.power / 2 +
-									battleCtx.playerSide[battleCtx.actionIdx]?.moves[selectedMoveIdx].power}
-								({currentCombo.move.power | 0} * 0.5 + {battleCtx.playerSide[battleCtx.actionIdx]
-									?.moves[selectedMoveIdx].power | 0})</span
-							>
-						</div>
-						<hr />
-						<ul style="font-size: 18px">
-							<li>
-								{currentCombo.move.effect.effect
-									?.replace(mechanicRegex, '')
-									?.replace(
-										effectRegex,
-										(currentCombo.move.effectChance * 1.5 > 100
-											? 100
-											: currentCombo.move.effectChance * 1.5) + ''
-									)}
-							</li>
-							<li>
-								{battleCtx.playerSide[battleCtx.actionIdx]?.moves[selectedMoveIdx].effect.effect
-									?.replace(mechanicRegex, '')
-									?.replace(
-										effectRegex,
-										(battleCtx.playerSide[battleCtx.actionIdx]?.moves[selectedMoveIdx]
-											.effectChance *
-											1.5 >
-										100
-											? 100
-											: battleCtx.playerSide[battleCtx.actionIdx]?.moves[selectedMoveIdx]
-													.effectChance * 1.5) + ''
-									)}
-							</li>
-						</ul>
-					{:else}
-						<div class="head">
-							<span
-								>Acc. {battleCtx?.playerSide[battleCtx.actionIdx]?.moves[selectedMoveIdx]?.accuracy}
-								%</span
-							>
-							<span
-								>Pwr. {battleCtx?.playerSide[battleCtx.actionIdx]?.moves[selectedMoveIdx]
-									?.power}</span
-							>
-						</div>
-						<hr />
-						<p class="desc-txt">
-							{battleCtx?.playerSide[battleCtx.actionIdx]?.moves[selectedMoveIdx]?.description
-								?.replaceAll(mechanicRegex, '')
-								?.replaceAll(
-									effectRegex,
-									battleCtx?.playerSide[battleCtx.actionIdx]?.moves[selectedMoveIdx].effectChance +
-										''
-								)}
-						</p>
-						<img
-							class="move-cat"
-							src={`src/assets/moves-cat/${battleCtx?.playerSide[battleCtx.actionIdx]?.moves[selectedMoveIdx]?.category}.png`}
-							alt={battleCtx?.playerSide[battleCtx.actionIdx]?.moves[selectedMoveIdx]?.category}
-						/>
-					{/if}
-				</div>
-			</div>
-		</div>
-	</div>
+{#if moveOpened && !disabled}
+	<button
+		class="back-plate"
+		onclick={() => {
+			moveOpened = false;
+			showAdd = false;
+			targetSelectOpened = false;
+		}}
+		aria-label="Go back to action menu"
+	>
+		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+			<path
+				d="M5.82843 6.99955L8.36396 9.53509L6.94975 10.9493L2 5.99955L6.94975 1.0498L8.36396 2.46402L5.82843 4.99955H13C17.4183 4.99955 21 8.58127 21 12.9996C21 17.4178 17.4183 20.9996 13 20.9996H4V18.9996H13C16.3137 18.9996 19 16.3133 19 12.9996C19 9.68584 16.3137 6.99955 13 6.99955H5.82843Z"
+			></path>
+		</svg>
+		<span class="back-label">BACK</span>
+	</button>
 
 	<!--
 	<button

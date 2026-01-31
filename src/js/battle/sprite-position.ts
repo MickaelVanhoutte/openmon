@@ -136,27 +136,27 @@ export function getAttackPlatePositions(
 	const allPositions = [
 		{
 			// Move 1 - top left
-			top: (topY / viewportHeight) * 100,
+			top: (topY / viewportHeight) * 100 - 10,
 			left: (leftX / viewportWidth) * 100,
-			rotation: -2
+			rotation: -1
 		},
 		{
 			// Move 2 - top right
 			top: (topY / viewportHeight) * 100,
 			left: (rightX / viewportWidth) * 100,
-			rotation: 2
+			rotation: 1
 		},
 		{
 			// Move 3 - bottom left
-			top: (bottomY / viewportHeight) * 100,
+			top: (bottomY / viewportHeight) * 100 - 10,
 			left: (leftX / viewportWidth) * 100,
-			rotation: -2
+			rotation: -1
 		},
 		{
 			// Move 4 - bottom right
 			top: (bottomY / viewportHeight) * 100,
 			left: (rightX / viewportWidth) * 100,
-			rotation: 2
+			rotation: 1
 		}
 	];
 

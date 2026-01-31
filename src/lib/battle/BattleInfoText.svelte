@@ -20,13 +20,13 @@
 <style>
 	.battle-info-text {
 		position: absolute;
-		bottom: 6%;
-		left: 50%;
-		transform: translateX(-50%);
-		max-width: 80%;
-		padding: 8px 16px;
+		top: 1%;
+		left: 5%;
+		//transform: translateX(-50%);
+		max-width: 50%;
+		padding: 0;
 		color: white;
-		font-size: 1.15rem;
+		font-size: 4rem;
 		font-weight: 500;
 		text-align: center;
 		text-shadow:
