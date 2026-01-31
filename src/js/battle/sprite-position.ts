@@ -109,38 +109,58 @@ export function getAttackPlatePositions(
 	const viewportHeight = window.innerHeight || 600;
 	const viewportWidth = window.innerWidth || 800;
 
-	// Fallback: stack vertically on the right side of screen
+	// 2 buttons on LEFT, 2 on RIGHT - surrounding the Pokemon
 	if (!spritePos) {
-		for (let i = 0; i < count; i++) {
-			positions.push({
-				top: 42 + i * 11,
-				left: 70,
-				rotation: (i - (count - 1) / 2) * 2
-			});
+		const fallbackPositions = [
+			{ top: 45, left: 8, rotation: -2 }, // Move 1 - top left
+			{ top: 45, left: 38, rotation: 2 }, // Move 2 - top right
+			{ top: 60, left: 8, rotation: -2 }, // Move 3 - bottom left
+			{ top: 60, left: 38, rotation: 2 } // Move 4 - bottom right
+		];
+		return fallbackPositions.slice(0, count);
+	}
+
+	const spriteCenter = {
+		x: spritePos.x + spritePos.width / 2,
+		y: spritePos.y + spritePos.height / 2
+	};
+
+	const horizontalOffset = spritePos.width * 0.7 + 70;
+	const verticalOffset = 45;
+
+	const leftX = spriteCenter.x - horizontalOffset;
+	const rightX = spriteCenter.x + horizontalOffset - 120;
+	const topY = spriteCenter.y - verticalOffset;
+	const bottomY = spriteCenter.y + verticalOffset + 15;
+
+	const allPositions = [
+		{
+			// Move 1 - top left
+			top: (topY / viewportHeight) * 100,
+			left: (leftX / viewportWidth) * 100,
+			rotation: -2
+		},
+		{
+			// Move 2 - top right
+			top: (topY / viewportHeight) * 100,
+			left: (rightX / viewportWidth) * 100,
+			rotation: 2
+		},
+		{
+			// Move 3 - bottom left
+			top: (bottomY / viewportHeight) * 100,
+			left: (leftX / viewportWidth) * 100,
+			rotation: -2
+		},
+		{
+			// Move 4 - bottom right
+			top: (bottomY / viewportHeight) * 100,
+			left: (rightX / viewportWidth) * 100,
+			rotation: 2
 		}
-		return positions;
-	}
+	];
 
-	// Position to the RIGHT of the sprite with margin
-	const baseX = spritePos.x + spritePos.width + 50; // 50px gap to the right
-	const baseY = spritePos.y + spritePos.height * 0.2;
-	const verticalSpacing = 55;
-
-	for (let i = 0; i < count; i++) {
-		const offsetY = i * verticalSpacing;
-		const curveOffset = Math.sin((i / Math.max(1, count - 1)) * Math.PI) * 20;
-
-		const plateX = baseX + curveOffset;
-		const plateY = baseY + offsetY;
-
-		positions.push({
-			top: Math.min(80, Math.max(15, (plateY / viewportHeight) * 100)),
-			left: Math.min(85, Math.max(45, (plateX / viewportWidth) * 100)),
-			rotation: (i - (count - 1) / 2) * 2
-		});
-	}
-
-	return positions;
+	return allPositions.slice(0, count);
 }
 
 /**
