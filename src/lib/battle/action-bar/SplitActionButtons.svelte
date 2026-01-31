@@ -46,32 +46,38 @@
 	function getButtonPositions(
 		spritePos: SpritePosition | null
 	): Array<{ top: number; left: number; rotation: number }> {
-		const viewportHeight = window.innerHeight || 600;
-		const viewportWidth = window.innerWidth || 800;
+		// Position buttons to the RIGHT of the ally Pokemon sprite
+		// Ally sprite is typically in bottom-left quadrant of the battle scene
 
 		if (!spritePos) {
+			// Fallback: position in right side of screen, stacked vertically
+			// These percentages place buttons to the right of where ally sprite typically is
 			return actions.map((_, i) => ({
-				top: 50 + i * 11,
-				left: 18,
-				rotation: (i - 1.5) * 3
+				top: 45 + i * 9,
+				left: 70, // Right side of screen
+				rotation: (i - 1.5) * 2
 			}));
 		}
 
-		const baseX = spritePos.x + spritePos.width * 0.8;
-		const baseY = spritePos.y + spritePos.height * 0.15;
-		const verticalSpacing = 52;
+		const viewportHeight = window.innerHeight || 600;
+		const viewportWidth = window.innerWidth || 800;
+
+		// Position to the RIGHT of the sprite with comfortable margin
+		const baseX = spritePos.x + spritePos.width + 40; // 40px gap to the right of sprite
+		const baseY = spritePos.y + spritePos.height * 0.1;
+		const verticalSpacing = 48;
 
 		return actions.map((_, i) => {
 			const offsetY = i * verticalSpacing;
-			const curveOffset = Math.sin((i / (actions.length - 1)) * Math.PI) * 25;
+			const curveOffset = Math.sin((i / (actions.length - 1)) * Math.PI) * 15;
 
 			const plateX = baseX + curveOffset;
 			const plateY = baseY + offsetY;
 
 			return {
-				top: (plateY / viewportHeight) * 100,
-				left: (plateX / viewportWidth) * 100,
-				rotation: (i - 1.5) * 2.5
+				top: Math.min(85, Math.max(10, (plateY / viewportHeight) * 100)),
+				left: Math.min(85, Math.max(50, (plateX / viewportWidth) * 100)),
+				rotation: (i - 1.5) * 2
 			};
 		});
 	}
