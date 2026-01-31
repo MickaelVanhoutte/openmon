@@ -18,6 +18,8 @@
 		isAlly?: boolean;
 		showExpBar?: boolean;
 		expPercent?: number;
+		spriteElement?: HTMLElement | null;
+		visible?: boolean;
 	}
 
 	let {
@@ -31,7 +33,9 @@
 		position = { bottom: '42%', left: '22%' },
 		isAlly = true,
 		showExpBar = false,
-		expPercent = 0
+		expPercent = 0,
+		spriteElement = null,
+		visible = true
 	}: Props = $props();
 
 	const hpPercent = $derived((currentHp / maxHp) * 100);
@@ -71,69 +75,106 @@
 		};
 		return colors[status] || '#666666';
 	}
+
+	// Suppress unused warning - spriteElement will be used in Task 7
+	void spriteElement;
 </script>
 
-<div
-	class="floating-pokemon-info"
-	style="bottom: {position.bottom}; left: {position.left};"
-	transition:fade={{ duration: 200 }}
->
-	<div class="info-header">
-		<span class="pokemon-name">{name}</span>
-		{#if genderSymbol()}
-			<span class="gender-symbol" style="color: {genderColor()}">{genderSymbol()}</span>
-		{/if}
-		<span class="level-badge">Lv.{level}</span>
-	</div>
+{#if visible}
+	<div
+		class="floating-pokemon-info spatial-panel"
+		style="bottom: {position.bottom}; left: {position.left};"
+		transition:fade={{ duration: 200 }}
+	>
+		<div class="leader-line"></div>
 
-	<div class="hp-bar-container">
-		<div class="hp-bar-bg">
-			<div class="hp-bar-fill" style="width: {hpPercent}%; background: {hpGradient()}"></div>
-		</div>
-		<div class="hp-numbers">{currentHp} / {maxHp}</div>
-	</div>
-
-	{#if showExpBar && isAlly}
-		<div class="exp-bar-container">
-			<div class="exp-bar-bg">
-				<div class="exp-bar-fill" style="width: {expPercent}%"></div>
+		<div class="info-header">
+			<span class="pokemon-name spatial-text">{name}</span>
+			{#if genderSymbol()}
+				<span class="gender-symbol spatial-text" style="color: {genderColor()}"
+					>{genderSymbol()}</span
+				>
+			{/if}
+			<div class="level-badge">
+				<span class="level-text spatial-text">Lv.{level}</span>
 			</div>
 		</div>
-	{/if}
 
-	{#if statusAbr}
-		<div class="status-chip" style="background-color: {getStatusColor(statusAbr)}">
-			{statusAbr}
+		<div class="hp-bar-container">
+			<div class="hp-bar-bg">
+				<div class="hp-bar-fill" style="width: {hpPercent}%; background: {hpGradient()}"></div>
+			</div>
+			<div class="hp-numbers spatial-text">{currentHp} / {maxHp}</div>
 		</div>
-	{/if}
 
-	{#if statChanges && statChanges.length > 0}
-		<div class="stat-changes">
-			{#each statChanges as change}
-				<span
-					class="stat-change"
-					class:positive={change.stages > 0}
-					class:negative={change.stages < 0}
-				>
-					{change.stat}
-					{change.stages > 0 ? '+' : ''}{change.stages}
-				</span>
-			{/each}
-		</div>
-	{/if}
-</div>
+		{#if showExpBar && isAlly}
+			<div class="exp-bar-container">
+				<div class="exp-bar-bg">
+					<div class="exp-bar-fill" style="width: {expPercent}%"></div>
+				</div>
+			</div>
+		{/if}
+
+		{#if statusAbr}
+			<div class="status-chip" style="background-color: {getStatusColor(statusAbr)}">
+				<span class="spatial-text">{statusAbr}</span>
+			</div>
+		{/if}
+
+		{#if statChanges && statChanges.length > 0}
+			<div class="stat-changes">
+				{#each statChanges as change}
+					<span
+						class="stat-change"
+						class:positive={change.stages > 0}
+						class:negative={change.stages < 0}
+					>
+						<span class="spatial-text">
+							{change.stat}
+							{change.stages > 0 ? '+' : ''}{change.stages}
+						</span>
+					</span>
+				{/each}
+			</div>
+		{/if}
+	</div>
+{/if}
 
 <style>
+	:root {
+		--skew-angle: -15deg;
+		--skew-counter: 15deg;
+		--spatial-bg: rgba(20, 25, 35, 0.92);
+	}
+
 	.floating-pokemon-info {
 		position: absolute;
 		z-index: 50;
 		min-width: 180px;
-		padding: 10px 14px;
-		background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%);
-		border: 2px solid rgba(255, 255, 255, 0.2);
-		border-radius: 8px;
-		box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-		backdrop-filter: blur(4px);
+		padding: 10px 16px 10px 20px;
+		transform: skewX(var(--skew-angle));
+		background: var(--spatial-bg);
+		border: 2px solid rgba(255, 255, 255, 0.25);
+		border-left: 4px solid rgba(255, 255, 255, 0.6);
+		box-shadow:
+			0 4px 20px rgba(0, 0, 0, 0.5),
+			inset 0 1px 0 rgba(255, 255, 255, 0.1);
+	}
+
+	.spatial-text {
+		transform: skewX(var(--skew-counter));
+		display: inline-block;
+	}
+
+	.leader-line {
+		position: absolute;
+		width: 2px;
+		height: 35px;
+		bottom: -35px;
+		left: 50%;
+		transform: translateX(-50%) skewX(var(--skew-counter));
+		background: linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.1) 100%);
+		pointer-events: none;
 	}
 
 	.info-header {
@@ -148,6 +189,10 @@
 		font-weight: 700;
 		color: white;
 		text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+		max-width: 120px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
 
 	.gender-symbol {
@@ -157,9 +202,13 @@
 
 	.level-badge {
 		margin-left: auto;
-		padding: 2px 8px;
-		background: rgba(0, 0, 0, 0.4);
-		border-radius: 4px;
+		padding: 2px 10px;
+		background: rgba(0, 0, 0, 0.5);
+		transform: skewX(var(--skew-angle));
+		clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%);
+	}
+
+	.level-text {
 		font-size: 0.85rem;
 		font-weight: 600;
 		color: #cbd5e1;
@@ -170,16 +219,15 @@
 	}
 
 	.hp-bar-bg {
-		height: 10px;
-		background: rgba(0, 0, 0, 0.5);
-		border-radius: 5px;
+		height: 8px;
+		background: rgba(0, 0, 0, 0.6);
 		overflow: hidden;
-		border: 1px solid rgba(255, 255, 255, 0.1);
+		border: 1px solid rgba(255, 255, 255, 0.15);
+		clip-path: polygon(2% 0%, 100% 0%, 98% 100%, 0% 100%);
 	}
 
 	.hp-bar-fill {
 		height: 100%;
-		border-radius: 5px;
 		transition:
 			width 0.4s ease-out,
 			background 0.3s ease;
@@ -199,22 +247,21 @@
 	.exp-bar-bg {
 		height: 4px;
 		background: rgba(0, 0, 0, 0.5);
-		border-radius: 2px;
 		overflow: hidden;
+		clip-path: polygon(2% 0%, 100% 0%, 98% 100%, 0% 100%);
 	}
 
 	.exp-bar-fill {
 		height: 100%;
 		background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%);
-		border-radius: 2px;
 		transition: width 0.5s ease-out;
 	}
 
 	.status-chip {
 		display: inline-block;
 		margin-top: 6px;
-		padding: 2px 8px;
-		border-radius: 4px;
+		padding: 2px 10px;
+		transform: skewX(var(--skew-angle));
 		font-size: 0.75rem;
 		font-weight: 700;
 		color: white;
@@ -229,8 +276,8 @@
 	}
 
 	.stat-change {
-		padding: 2px 6px;
-		border-radius: 3px;
+		padding: 2px 8px;
+		transform: skewX(var(--skew-angle));
 		font-size: 0.7rem;
 		font-weight: 600;
 	}
@@ -238,10 +285,12 @@
 	.stat-change.positive {
 		background: rgba(34, 197, 94, 0.3);
 		color: #4ade80;
+		border-left: 2px solid #4ade80;
 	}
 
 	.stat-change.negative {
 		background: rgba(239, 68, 68, 0.3);
 		color: #f87171;
+		border-left: 2px solid #f87171;
 	}
 </style>
