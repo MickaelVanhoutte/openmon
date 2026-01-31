@@ -11,6 +11,7 @@
 		onMoveClick?: (idx: number) => void;
 		onCancel?: () => void;
 		onHover?: (idx: number) => void;
+		spriteElement?: HTMLElement | null;
 	}
 
 	let {
@@ -20,7 +21,8 @@
 		show = true,
 		onMoveClick = () => {},
 		onCancel = () => {},
-		onHover = () => {}
+		onHover = () => {},
+		spriteElement = null
 	}: Props = $props();
 
 	let containerEl: HTMLDivElement;
@@ -124,16 +126,17 @@
 		window.addEventListener('keydown', handleKeyDown);
 
 		if (containerEl && show) {
-			const buttons = containerEl.querySelectorAll('.split-move-btn');
+			const plates = containerEl.querySelectorAll('.attack-plate');
 			gsap.fromTo(
-				buttons,
-				{ scale: 0, opacity: 0 },
+				plates,
+				{ scale: 0.8, opacity: 0, x: -50 },
 				{
 					scale: 1,
 					opacity: 1,
-					duration: 0.25,
-					stagger: 0.06,
-					ease: 'back.out(1.7)'
+					x: 0,
+					duration: 0.3,
+					stagger: 0.08,
+					ease: 'back.out(1.4)'
 				}
 			);
 		}
@@ -146,153 +149,159 @@
 	$effect(() => {
 		selectedIdx = selectedMoveIdx;
 	});
+
+	void spriteElement;
 </script>
 
 {#if show}
-	<div class="split-move-container" bind:this={containerEl}>
-		<div class="left-moves">
-			{#each moves.slice(0, 2) as move, i}
-				<button
-					class="split-move-btn"
-					class:selected={selectedIdx === i}
-					class:disabled-move={move.pp <= 0}
-					style="--type-color: {getTypeColor(move.type)}"
-					onclick={() => move.pp > 0 && onMoveClick(i)}
-					onmouseenter={() => {
-						if (move.pp > 0) {
-							selectedIdx = i;
-							onHover(i);
-						}
-					}}
-					disabled={disabled || move.pp <= 0}
-				>
-					<div class="move-content">
-						<span class="move-name">{move.name.toUpperCase()}</span>
-						<span class="move-pp">{move.currentPp}/{move.pp}</span>
-					</div>
-					<div class="type-indicator" style="background: {getTypeColor(move.type)}"></div>
-				</button>
-			{/each}
-		</div>
+	<div class="attack-plates-container" bind:this={containerEl}>
+		{#each moves as move, i}
+			<button
+				class="attack-plate"
+				class:selected={selectedIdx === i}
+				class:disabled-move={move.pp <= 0}
+				style="--type-color: {getTypeColor(move.type)}; --plate-index: {i}"
+				onclick={() => move.pp > 0 && onMoveClick(i)}
+				onmouseenter={() => {
+					if (move.pp > 0) {
+						selectedIdx = i;
+						onHover(i);
+					}
+				}}
+				disabled={disabled || move.pp <= 0}
+			>
+				<div class="type-watermark">
+					<div class="type-icon" style="background-color: {getTypeColor(move.type)}"></div>
+				</div>
 
-		<div class="right-moves">
-			{#each moves.slice(2, 4) as move, i}
-				<button
-					class="split-move-btn"
-					class:selected={selectedIdx === i + 2}
-					class:disabled-move={move.pp <= 0}
-					style="--type-color: {getTypeColor(move.type)}"
-					onclick={() => move.pp > 0 && onMoveClick(i + 2)}
-					onmouseenter={() => {
-						if (move.pp > 0) {
-							selectedIdx = i + 2;
-							onHover(i + 2);
-						}
-					}}
-					disabled={disabled || move.pp <= 0}
-				>
-					<div class="move-content">
-						<span class="move-name">{move.name.toUpperCase()}</span>
-						<span class="move-pp">{move.currentPp}/{move.pp}</span>
-					</div>
-					<div class="type-indicator" style="background: {getTypeColor(move.type)}"></div>
-				</button>
-			{/each}
-		</div>
+				<div class="plate-content">
+					<span class="move-name">{move.name.toUpperCase()}</span>
+				</div>
+
+				<div class="pp-tag">
+					<span class="pp-text">{move.currentPp}/{move.pp}</span>
+				</div>
+			</button>
+		{/each}
 	</div>
 {/if}
 
 <style>
-	.split-move-container {
-		position: absolute;
-		bottom: 15%;
-		left: 0;
-		right: 0;
-		display: flex;
-		justify-content: space-between;
-		padding: 0 8%;
-		pointer-events: none;
-		z-index: 100;
+	:root {
+		--skew-angle: -15deg;
+		--skew-counter: 15deg;
 	}
 
-	.left-moves,
-	.right-moves {
+	.attack-plates-container {
+		position: absolute;
+		bottom: 12%;
+		left: 18%;
 		display: flex;
 		flex-direction: column;
-		gap: 10px;
+		gap: 8px;
+		z-index: 100;
 		pointer-events: auto;
 	}
 
-	.split-move-btn {
+	.attack-plate {
 		position: relative;
-		min-width: 160px;
-		padding: 12px 18px;
-		background: linear-gradient(
-			135deg,
-			var(--type-color) 0%,
-			color-mix(in srgb, var(--type-color) 75%, black) 100%
-		);
-		border: 3px solid rgba(255, 255, 255, 0.25);
-		border-radius: 8px;
+		min-width: 200px;
+		padding: 14px 24px 14px 18px;
+		transform: skewX(var(--skew-angle));
+		background: linear-gradient(90deg, var(--type-color) 25%, transparent 100%);
+		border: 3px solid var(--type-color);
+		border-left: 5px solid var(--type-color);
 		color: white;
 		cursor: pointer;
-		transition: all 0.15s ease;
+		transition: all 0.2s ease;
 		box-shadow:
-			0 4px 12px rgba(0, 0, 0, 0.3),
-			inset 0 1px 0 rgba(255, 255, 255, 0.2);
-		overflow: hidden;
+			0 4px 16px rgba(0, 0, 0, 0.4),
+			inset 0 1px 0 rgba(255, 255, 255, 0.15);
+		overflow: visible;
 	}
 
-	.split-move-btn:hover:not(:disabled),
-	.split-move-btn.selected:not(:disabled) {
-		transform: scale(1.06);
-		border-color: rgba(255, 255, 255, 0.6);
-		box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+	.attack-plate::before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background: rgba(20, 25, 35, 0.75);
+		z-index: 0;
 	}
 
-	.split-move-btn:active:not(:disabled) {
-		transform: scale(0.98);
+	.attack-plate:hover:not(:disabled),
+	.attack-plate.selected:not(:disabled) {
+		transform: skewX(var(--skew-angle)) scale(1.05);
+		border-color: rgba(255, 255, 255, 0.8);
+		box-shadow:
+			0 6px 24px rgba(0, 0, 0, 0.5),
+			0 0 20px color-mix(in srgb, var(--type-color) 50%, transparent),
+			inset 0 1px 0 rgba(255, 255, 255, 0.25);
 	}
 
-	.split-move-btn.disabled-move {
+	.attack-plate:active:not(:disabled) {
+		transform: skewX(var(--skew-angle)) scale(0.98);
+	}
+
+	.attack-plate.disabled-move {
 		opacity: 0.4;
 		cursor: not-allowed;
 		filter: grayscale(0.7);
 	}
 
-	.move-content {
-		display: flex;
-		flex-direction: column;
-		align-items: flex-start;
-		gap: 4px;
-		position: relative;
+	.type-watermark {
+		position: absolute;
+		right: -5px;
+		top: 50%;
+		transform: translateY(-50%) skewX(var(--skew-counter));
+		width: 50px;
+		height: 50px;
+		opacity: 0.2;
+		pointer-events: none;
 		z-index: 1;
+		overflow: hidden;
+	}
+
+	.type-icon {
+		width: 100%;
+		height: 100%;
+		border-radius: 50%;
+	}
+
+	.plate-content {
+		position: relative;
+		z-index: 2;
+		transform: skewX(var(--skew-counter));
 	}
 
 	.move-name {
-		font-size: 1rem;
+		font-size: 1.1rem;
 		font-weight: 700;
 		text-transform: uppercase;
 		letter-spacing: 0.5px;
-		text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+		text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
 	}
 
-	.move-pp {
-		font-size: 0.8rem;
-		font-weight: 500;
-		opacity: 0.9;
-		text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
-	}
-
-	.type-indicator {
+	.pp-tag {
 		position: absolute;
 		right: 8px;
-		top: 50%;
-		transform: translateY(-50%);
-		width: 28px;
-		height: 28px;
-		border-radius: 50%;
-		opacity: 0.6;
-		box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+		bottom: -10px;
+		padding: 3px 10px;
+		background: rgba(15, 20, 30, 0.95);
+		transform: skewX(var(--skew-angle));
+		border-bottom: 2px solid var(--type-color);
+		z-index: 3;
+	}
+
+	.pp-text {
+		display: inline-block;
+		transform: skewX(var(--skew-counter));
+		font-size: 0.75rem;
+		font-weight: 600;
+		color: #94a3b8;
+	}
+
+	.attack-plate.selected .pp-text,
+	.attack-plate:hover .pp-text {
+		color: white;
 	}
 </style>
