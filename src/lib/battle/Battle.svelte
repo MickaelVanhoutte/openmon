@@ -1,8 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import ActionBar from './ActionBar.svelte';
-	import EnemyInfo from './EnemyInfo.svelte';
-	import AllyInfo from './AllyInfo.svelte';
+	import FloatingPokemonInfo from './FloatingPokemonInfo.svelte';
 	import { BattleContext } from '../../js/context/battleContext';
 	import { BattleType } from '../../js/battle/battle-model';
 	import type { GameContext } from '../../js/context/gameContext';
@@ -380,15 +379,55 @@
 		/>
 	</div>
 	<!-- UI -->
-	<EnemyInfo {battleCtx} idx={0} />
-	<AllyInfo {battleCtx} idx={0} />
+	{#if battleCtx.oppSide[0]}
+		<FloatingPokemonInfo
+			name={battleCtx.oppSide[0].name}
+			level={battleCtx.oppSide[0].level}
+			currentHp={battleCtx.oppSide[0].currentHp}
+			maxHp={battleCtx.oppSide[0].currentStats.hp}
+			gender={battleCtx.oppSide[0].gender || 'unknown'}
+			statusAbr={battleCtx.oppSide[0].status?.abr || null}
+			position={{ bottom: '78%', left: '72%' }}
+			isAlly={false}
+		/>
+	{/if}
+	{#if battleCtx.playerSide[0]}
+		<FloatingPokemonInfo
+			name={battleCtx.playerSide[0].name}
+			level={battleCtx.playerSide[0].level}
+			currentHp={battleCtx.playerSide[0].currentHp}
+			maxHp={battleCtx.playerSide[0].currentStats.hp}
+			gender={battleCtx.playerSide[0].gender || 'unknown'}
+			statusAbr={battleCtx.playerSide[0].status?.abr || null}
+			position={{ bottom: '42%', left: '22%' }}
+			isAlly={true}
+		/>
+	{/if}
 
 	{#if battleCtx.battleType === BattleType.DOUBLE}
 		{#if battleCtx.oppSide[1]}
-			<EnemyInfo {battleCtx} idx={1} />
+			<FloatingPokemonInfo
+				name={battleCtx.oppSide[1].name}
+				level={battleCtx.oppSide[1].level}
+				currentHp={battleCtx.oppSide[1].currentHp}
+				maxHp={battleCtx.oppSide[1].currentStats.hp}
+				gender={battleCtx.oppSide[1].gender || 'unknown'}
+				statusAbr={battleCtx.oppSide[1].status?.abr || null}
+				position={{ bottom: '82%', left: '58%' }}
+				isAlly={false}
+			/>
 		{/if}
 		{#if battleCtx.playerSide[1]}
-			<AllyInfo {battleCtx} idx={1} />
+			<FloatingPokemonInfo
+				name={battleCtx.playerSide[1].name}
+				level={battleCtx.playerSide[1].level}
+				currentHp={battleCtx.playerSide[1].currentHp}
+				maxHp={battleCtx.playerSide[1].currentStats.hp}
+				gender={battleCtx.playerSide[1].gender || 'unknown'}
+				statusAbr={battleCtx.playerSide[1].status?.abr || null}
+				position={{ bottom: '46%', left: '8%' }}
+				isAlly={true}
+			/>
 		{/if}
 	{/if}
 
