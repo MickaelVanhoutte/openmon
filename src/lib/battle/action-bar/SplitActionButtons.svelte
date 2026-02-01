@@ -50,14 +50,14 @@
 		// Layout:  [FIGHT]     [BAG]
 		//              (sprite)
 		//        [POKEMON]   [RUN]
-
+		console.log(spritePos);
 		if (!spritePos) {
 			// Fallback positions around center-left where ally typically is
 			return [
-				{ top: 42, left: 8, rotation: -3 }, // FIGHT - top left
-				{ top: 42, left: 38, rotation: 3 }, // BAG - top right
-				{ top: 62, left: 8, rotation: -3 }, // POKEMON - bottom left
-				{ top: 62, left: 38, rotation: 3 } // RUN - bottom right
+				{ top: 42, left: 8, rotation: -1 }, // FIGHT - top left
+				{ top: 42, left: 38, rotation: 1 }, // BAG - top right
+				{ top: 62, left: 8, rotation: -1 }, // POKEMON - bottom left
+				{ top: 62, left: 38, rotation: 1 } // RUN - bottom right
 			];
 		}
 
@@ -69,18 +69,18 @@
 			y: spritePos.y + spritePos.height / 2
 		};
 
-		const horizontalOffset = spritePos.width * 0.7 + 60;
+		const horizontalOffset = spritePos.width * 0.7 + 70;
 		const verticalOffset = 50;
 
 		const leftX = spriteCenter.x - horizontalOffset;
-		const rightX = spriteCenter.x + horizontalOffset - 100;
+		const rightX = spriteCenter.x + horizontalOffset - 120;
 		const topY = spriteCenter.y - verticalOffset;
-		const bottomY = spriteCenter.y + verticalOffset + 20;
+		const bottomY = spriteCenter.y + verticalOffset + 15;
 
 		return [
 			{
 				// FIGHT - top left
-				top: (topY / viewportHeight) * 100,
+				top: (topY / viewportHeight) * 100 - 10,
 				left: (leftX / viewportWidth) * 100,
 				rotation: -1
 			},
@@ -92,7 +92,7 @@
 			},
 			{
 				// POKEMON - bottom left
-				top: (bottomY / viewportHeight) * 100,
+				top: (bottomY / viewportHeight) * 100 - 10,
 				left: (leftX / viewportWidth) * 100,
 				rotation: -1
 			},
