@@ -19,6 +19,7 @@
 	import MiniBag from './mini-menus/MiniBag.svelte';
 	import SplitActionButtons from './action-bar/SplitActionButtons.svelte';
 	import SplitMoveSelector from './action-bar/SplitMoveSelector.svelte';
+	import TargetSelector from './action-bar/TargetSelector.svelte';
 	import BattleInfoText from './BattleInfoText.svelte';
 
 	interface Props {
@@ -610,45 +611,20 @@
 		/>
 	{:else}
 		<!-- targets -->
-		<div class="moves2 target-select" class:show>
-			{#each possibleTargets as target, index}
-				<button
-					class="move-btn target-btn move"
-					style="--offset: {index * 3}%; --color: {battleCtx.getPokemonSide(target) === 'ally'
-						? '#7EAF53'
-						: '#dc5959'}"
-					class:selected={selectedTargetIdx === index}
-					onclick={() =>
-						launchMove(index, battleCtx?.playerSide[battleCtx.actionIdx]?.moves[selectedMoveIdx], [
-							target
-						])}
-				>
-					<!-- <span class="move-type" style="--offset: {index * 1.5}%">
-					<svg use:inlineSvg={`src/assets/types/${move.type}.svg`} fill="currentColor"> </svg>
-				</span> -->
-					<span class="move-name">{target.name.toUpperCase()}</span>
-					<span
-						class="effectiveness"
-						style="--eff-color: {battleCtx?.calculateTypeEffectiveness(
-							battleCtx?.playerSide[battleCtx.actionIdx]?.moves[selectedMoveIdx].type,
-							target.types
-						) > 1
-							? 'yellow'
-							: 'transparent'}"
-					>
-						x
-						{battleCtx?.calculateTypeEffectiveness(
-							battleCtx?.playerSide[battleCtx.actionIdx]?.moves[selectedMoveIdx].type,
-							target.types
-						)}
-					</span>
-
-					<!-- <span class="move-pp">
-					{move.currentPp}/{move.pp}
-				</span> -->
-				</button>
-			{/each}
-		</div>
+		<TargetSelector
+			{possibleTargets}
+			{selectedTargetIdx}
+			selectedMove={battleCtx?.playerSide[battleCtx.actionIdx]?.moves[selectedMoveIdx]}
+			{battleCtx}
+			show={true}
+			spriteElement={activeSprite}
+			onTargetClick={(target) => {
+				const targetIdx = possibleTargets.indexOf(target);
+				launchMove(targetIdx, battleCtx?.playerSide[battleCtx.actionIdx]?.moves[selectedMoveIdx], [
+					target
+				]);
+			}}
+		/>
 	{/if}
 {:else}
 	<SplitActionButtons
