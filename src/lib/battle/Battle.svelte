@@ -52,17 +52,16 @@
 	let ally: HTMLImageElement[] = $state([]);
 	let opponent: HTMLImageElement[] = $state([]);
 
-	// Staggered UI entrance animation state
+	let entryAnimationsComplete = $state(false);
 	let isInitialBattleEntrance = $state(true);
 	const uiEntranceDelays = {
-		opponentHp: 300,
-		allyHp: 600,
-		actionButtons: 900
+		opponentHp: 0,
+		allyHp: 200,
+		actionButtons: 400
 	};
 
-	// Reset initial entrance flag after animation completes
 	$effect(() => {
-		if (isInitialBattleEntrance) {
+		if (isInitialBattleEntrance && entryAnimationsComplete) {
 			const timer = setTimeout(() => {
 				isInitialBattleEntrance = false;
 			}, 1500);
@@ -261,6 +260,7 @@
 						opponent[idx] = img;
 					});
 				} else {
+					const entryPromises: Promise<gsap.core.Timeline>[] = [];
 					opponent.forEach((element, idx) => {
 						element.src = battleCtx?.oppSide[idx]?.getSprite();
 						element.onload = () => {
@@ -274,13 +274,22 @@
 							element.style.setProperty('--height', element.naturalHeight + 'px');
 							gifsWrapper.appendChild(element);
 
-							animateEntry(
+							const entryPromise = animateEntry(
 								element,
 								'opponent',
 								idx,
 								false,
 								battleCtx.battleType === BattleType.DOUBLE
 							);
+							entryPromises.push(entryPromise);
+
+							if (entryPromises.length === opponent.length) {
+								Promise.all(entryPromises).then(() => {
+									if (battleLoopContext.allydrawn) {
+										entryAnimationsComplete = true;
+									}
+								});
+							}
 						};
 					});
 					battleLoopContext.opponentdrawn = true;
@@ -299,6 +308,7 @@
 						ally[idx] = img;
 					});
 				} else {
+					const allyEntryPromises: Promise<gsap.core.Timeline>[] = [];
 					ally.forEach((element, idx) => {
 						element.src = battleCtx?.playerSide[idx]?.getSprite(true);
 						element.onload = () => {
@@ -311,7 +321,23 @@
 							element.style.setProperty('--width', element.naturalWidth + 'px');
 							element.style.setProperty('--height', element.naturalHeight + 'px');
 							gifsWrapper.appendChild(element);
-							animateEntry(element, 'ally', idx, false, battleCtx.battleType === BattleType.DOUBLE);
+
+							const entryPromise = animateEntry(
+								element,
+								'ally',
+								idx,
+								false,
+								battleCtx.battleType === BattleType.DOUBLE
+							);
+							allyEntryPromises.push(entryPromise);
+
+							if (allyEntryPromises.length === ally.length) {
+								Promise.all(allyEntryPromises).then(() => {
+									if (battleLoopContext.opponentdrawn) {
+										entryAnimationsComplete = true;
+									}
+								});
+							}
 						};
 					});
 					battleLoopContext.allydrawn = true;
@@ -397,7 +423,7 @@
 		/>
 	</div>
 	<!-- UI -->
-	{#if battleCtx.oppSide[0]}
+	{#if battleCtx.oppSide[0] && entryAnimationsComplete}
 		<FloatingPokemonInfo
 			pokemon={battleCtx.oppSide[0]}
 			position={{ bottom: '78%', left: '62%' }}
@@ -406,7 +432,7 @@
 			entranceDelay={isInitialBattleEntrance ? uiEntranceDelays.opponentHp : 0}
 		/>
 	{/if}
-	{#if battleCtx.playerSide[0]}
+	{#if battleCtx.playerSide[0] && entryAnimationsComplete}
 		<FloatingPokemonInfo
 			pokemon={battleCtx.playerSide[0]}
 			position={{ bottom: '62%', left: '22%' }}
@@ -417,7 +443,7 @@
 	{/if}
 
 	{#if battleCtx.battleType === BattleType.DOUBLE}
-		{#if battleCtx.oppSide[1]}
+		{#if battleCtx.oppSide[1] && entryAnimationsComplete}
 			<FloatingPokemonInfo
 				pokemon={battleCtx.oppSide[1]}
 				position={{ bottom: '82%', left: '58%' }}
@@ -426,7 +452,7 @@
 				entranceDelay={isInitialBattleEntrance ? uiEntranceDelays.opponentHp : 0}
 			/>
 		{/if}
-		{#if battleCtx.playerSide[1]}
+		{#if battleCtx.playerSide[1] && entryAnimationsComplete}
 			<FloatingPokemonInfo
 				pokemon={battleCtx.playerSide[1]}
 				position={{ bottom: '46%', left: '8%' }}
@@ -442,8 +468,11 @@
 		bind:battleCtx
 		bind:overWorldCtx={context.overWorldContext}
 		allySprites={ally}
-		entranceDelay={isInitialBattleEntrance ? uiEntranceDelays.actionButtons : 0}
+		entranceDelay={isInitialBattleEntrance && entryAnimationsComplete
+			? uiEntranceDelays.actionButtons
+			: 0}
 		isInitialEntrance={isInitialBattleEntrance}
+		visible={entryAnimationsComplete}
 	/>
 </div>
 
