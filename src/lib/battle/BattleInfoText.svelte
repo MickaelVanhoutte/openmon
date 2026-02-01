@@ -20,8 +20,8 @@
 <style>
 	.battle-info-text {
 		position: absolute;
-		top: 1%;
-		left: 5%;
+		bottom: 1%;
+		right: 5%;
 		//transform: translateX(-50%);
 		max-width: 50%;
 		padding: 0;
