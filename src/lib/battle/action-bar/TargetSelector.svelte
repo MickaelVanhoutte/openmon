@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
+	import gsap from 'gsap';
 	import type { PokemonInstance, MoveInstance } from '../../../js/pokemons/pokedex';
 	import type { BattleContext } from '../../../js/context/battleContext';
 
@@ -8,82 +10,205 @@
 		selectedMove?: MoveInstance;
 		battleCtx: BattleContext;
 		show: boolean;
+		spriteElement?: HTMLElement | null;
 		onTargetClick: (target: PokemonInstance) => void;
 	}
 
-	let { possibleTargets, selectedTargetIdx, selectedMove, battleCtx, show, onTargetClick }: Props =
-		$props();
+	let {
+		possibleTargets,
+		selectedTargetIdx,
+		selectedMove,
+		battleCtx,
+		show,
+		spriteElement = null,
+		onTargetClick
+	}: Props = $props();
+
+	let allyButtons: HTMLButtonElement[] = [];
+	let opponentButtons: HTMLButtonElement[] = [];
+	let spriteReady = $state(false);
 
 	function getEffectiveness(target: PokemonInstance): number {
 		if (!selectedMove?.type) return 1;
 		return battleCtx?.calculateTypeEffectiveness(selectedMove.type, target.types) ?? 1;
 	}
 
-	function getTargetColor(target: PokemonInstance): string {
-		const side = battleCtx.getPokemonSide(target);
-		return side === 'ally' ? '#4ade80' : '#f87171';
+	function getTargetSide(target: PokemonInstance): 'ally' | 'opponent' {
+		return battleCtx.getPokemonSide(target) === 'ally' ? 'ally' : 'opponent';
 	}
+
+	function getTargetColor(target: PokemonInstance): string {
+		return getTargetSide(target) === 'ally' ? '#4ade80' : '#f87171';
+	}
+
+	const allyTargets = $derived(possibleTargets.filter((t) => getTargetSide(t) === 'ally'));
+	const opponentTargets = $derived(possibleTargets.filter((t) => getTargetSide(t) === 'opponent'));
+
+	function isSpritePositioned(): boolean {
+		if (!spriteElement) return false;
+		const rect = spriteElement.getBoundingClientRect();
+		return rect.x > 0 || rect.y > 0;
+	}
+
+	function waitForSpritePosition() {
+		if (isSpritePositioned()) {
+			spriteReady = true;
+			// Delay position update to allow DOM to render buttons first
+			setTimeout(() => {
+				updatePositions();
+				animateEntrance();
+			}, 50);
+		} else {
+			requestAnimationFrame(waitForSpritePosition);
+		}
+	}
+
+	function getPositions(side: 'ally' | 'opponent', count: number) {
+		const viewportHeight = window.innerHeight || 600;
+		const viewportWidth = window.innerWidth || 800;
+
+		if (!spriteElement) {
+			const baseLeft = side === 'ally' ? 5 : 60;
+			return Array.from({ length: count }, (_, i) => ({
+				top: 45 + i * 12,
+				left: baseLeft
+			}));
+		}
+
+		const rect = spriteElement.getBoundingClientRect();
+		const spriteCenter = {
+			x: rect.left + rect.width / 2 - 100,
+			y: rect.top + rect.height / 2
+		};
+
+		const horizontalOffset = rect.width * 0.7 + 100;
+		const baseX =
+			side === 'ally' ? spriteCenter.x - horizontalOffset : spriteCenter.x + horizontalOffset - 80;
+
+		return Array.from({ length: count }, (_, i) => {
+			const topY = spriteCenter.y - 30 + i * 55;
+			return {
+				top: Math.max(0, (topY / viewportHeight) * 100),
+				left: Math.max(0, (baseX / viewportWidth) * 100)
+			};
+		});
+	}
+
+	function updatePositions() {
+		const allyPositions = getPositions('ally', allyTargets.length);
+		const opponentPositions = getPositions('opponent', opponentTargets.length);
+
+		allyButtons.forEach((btn, i) => {
+			if (btn && allyPositions[i]) {
+				btn.style.top = `${allyPositions[i].top}%`;
+				btn.style.left = `${allyPositions[i].left}%`;
+			}
+		});
+
+		opponentButtons.forEach((btn, i) => {
+			if (btn && opponentPositions[i]) {
+				btn.style.top = `${opponentPositions[i].top}%`;
+				btn.style.left = `${opponentPositions[i].left}%`;
+			}
+		});
+	}
+
+	function animateEntrance() {
+		const allButtons = [...allyButtons, ...opponentButtons].filter(Boolean);
+		if (allButtons.length === 0) return;
+
+		gsap.fromTo(
+			allButtons,
+			{ opacity: 0, scale: 0.7, x: -30 },
+			{
+				opacity: 1,
+				scale: 1,
+				x: 0,
+				duration: 0.4,
+				stagger: 0.08,
+				ease: 'back.out(1.4)'
+			}
+		);
+	}
+
+	onMount(() => {
+		window.addEventListener('resize', updatePositions);
+		return () => {
+			window.removeEventListener('resize', updatePositions);
+		};
+	});
+
+	$effect(() => {
+		if (spriteElement) {
+			spriteReady = false;
+			waitForSpritePosition();
+		}
+	});
+
+	$effect(() => {
+		if (show && spriteReady) {
+			updatePositions();
+		}
+	});
 </script>
 
-{#if show}
-	<div class="target-selector" role="menu" aria-label="Select target">
-		{#each possibleTargets as target, index}
-			<button
-				class="target-plate"
-				class:selected={selectedTargetIdx === index}
-				style="--target-color: {getTargetColor(target)}"
-				onclick={() => onTargetClick(target)}
-				role="menuitem"
-				aria-label="Target {target.name}, {battleCtx.getPokemonSide(target) === 'ally'
-					? 'ally'
-					: 'opponent'}, effectiveness {getEffectiveness(target)}x"
-			>
-				<span class="target-name">{target.name.toUpperCase()}</span>
-				{#if getEffectiveness(target) !== 1}
-					<span
-						class="effectiveness"
-						class:super-effective={getEffectiveness(target) > 1}
-						class:not-effective={getEffectiveness(target) < 1}
-					>
-						x{getEffectiveness(target)}
-					</span>
-				{/if}
-			</button>
-		{/each}
-	</div>
+{#if show && spriteReady}
+	{#each allyTargets as target, index}
+		<button
+			bind:this={allyButtons[index]}
+			class="target-plate ally"
+			class:selected={selectedTargetIdx === possibleTargets.indexOf(target)}
+			style="--target-color: {getTargetColor(target)}"
+			onclick={() => onTargetClick(target)}
+			role="menuitem"
+			aria-label="Target {target.name}, ally, effectiveness {getEffectiveness(target)}x"
+		>
+			<span class="target-name">{target.name.toUpperCase()}</span>
+			{#if getEffectiveness(target) !== 1}
+				<span
+					class="effectiveness"
+					class:super-effective={getEffectiveness(target) > 1}
+					class:not-effective={getEffectiveness(target) < 1}
+				>
+					x{getEffectiveness(target)}
+				</span>
+			{/if}
+		</button>
+	{/each}
+
+	{#each opponentTargets as target, index}
+		<button
+			bind:this={opponentButtons[index]}
+			class="target-plate opponent"
+			class:selected={selectedTargetIdx === possibleTargets.indexOf(target)}
+			style="--target-color: {getTargetColor(target)}"
+			onclick={() => onTargetClick(target)}
+			role="menuitem"
+			aria-label="Target {target.name}, opponent, effectiveness {getEffectiveness(target)}x"
+		>
+			<span class="target-name">{target.name.toUpperCase()}</span>
+			{#if getEffectiveness(target) !== 1}
+				<span
+					class="effectiveness"
+					class:super-effective={getEffectiveness(target) > 1}
+					class:not-effective={getEffectiveness(target) < 1}
+				>
+					x{getEffectiveness(target)}
+				</span>
+			{/if}
+		</button>
+	{/each}
 {/if}
 
 <style>
 	:root {
-		--skew-angle: -15deg;
-		--skew-counter: 15deg;
-	}
-
-	.target-selector {
-		position: absolute;
-		bottom: 12%;
-		right: 5%;
-		display: flex;
-		flex-direction: column;
-		gap: 8px;
-		z-index: 100;
-		animation: slideIn 0.3s ease-out forwards;
-	}
-
-	@keyframes slideIn {
-		from {
-			opacity: 0;
-			transform: translateY(20px);
-		}
-		to {
-			opacity: 1;
-			transform: translateY(0);
-		}
+		--skew-angle: -10deg;
+		--skew-counter: 10deg;
 	}
 
 	.target-plate {
-		position: relative;
-		min-width: 180px;
+		position: absolute;
+		min-width: 160px;
 		padding: 12px 20px;
 		transform: skewX(var(--skew-angle));
 		background: rgba(20, 25, 35, 0.92);
@@ -99,6 +224,17 @@
 		align-items: center;
 		justify-content: space-between;
 		gap: 12px;
+		z-index: 100;
+	}
+
+	.target-plate.ally {
+		border-left: 5px solid var(--target-color);
+		border-right: 3px solid var(--target-color);
+	}
+
+	.target-plate.opponent {
+		border-right: 5px solid var(--target-color);
+		border-left: 3px solid var(--target-color);
 	}
 
 	.target-plate:hover,
@@ -123,7 +259,7 @@
 		text-transform: uppercase;
 		letter-spacing: 0.5px;
 		text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-		max-width: 140px;
+		max-width: 120px;
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
