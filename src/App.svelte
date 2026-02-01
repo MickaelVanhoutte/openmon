@@ -20,17 +20,14 @@
 	let gameContext: GameContext;
 	let newGame: boolean = false;
 	let started: boolean = false || DEBUG;
-	let showDebugAnimations: boolean = false;
 	let showAdmin: boolean = false;
 
 	function checkDebugRoute(): void {
 		const hash = window.location.hash;
-		showDebugAnimations = hash === '#debug-animations';
 		showAdmin = hash === '#admin';
 		// Backward compat: #debug-animations redirects to #admin
-		if (showDebugAnimations) {
+		if (showAdmin) {
 			window.location.hash = '#admin';
-			showDebugAnimations = false;
 			showAdmin = true;
 		}
 	}

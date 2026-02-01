@@ -76,10 +76,10 @@ Create a unified admin interface that combines animation testing with full Poké
 
 ### Definition of Done
 
-- [ ] `npm run dev` starts successfully
-- [ ] `npm run check` passes with no errors
-- [ ] Navigate to `#admin` shows admin page with 6 tabs
-- [ ] All tabs are functional and styled consistently
+- [x] `npm run dev` starts successfully
+- [x] `npm run check` passes with no errors
+- [x] Navigate to `#admin` shows admin page with 6 tabs
+- [x] All tabs are functional and styled consistently
 
 ### Must Have
 
@@ -291,7 +291,7 @@ Parallel Speedup: ~40% faster than sequential
 
 ---
 
-- [ ] 3. Create Pokemon Browser tab with search/filter
+- [x] 3. Create Pokemon Browser tab with search/filter
 
   **What to do**:
   - Create `src/lib/admin/tabs/PokemonBrowser.svelte`:
@@ -348,7 +348,7 @@ Parallel Speedup: ~40% faster than sequential
 
 ---
 
-- [ ] 4. Create Moves Browser tab with aggregated moves
+- [x] 4. Create Moves Browser tab with aggregated moves
 
   **What to do**:
   - Create `src/lib/admin/tabs/MovesBrowser.svelte`:
@@ -406,7 +406,7 @@ Parallel Speedup: ~40% faster than sequential
 
 ---
 
-- [ ] 5. Create Pokemon Editor tab
+- [x] 5. Create Pokemon Editor tab
 
   **What to do**:
   - Create `src/lib/admin/tabs/PokemonEditor.svelte`:
@@ -471,7 +471,7 @@ Parallel Speedup: ~40% faster than sequential
 
 ---
 
-- [ ] 6. Create Move Editor tab
+- [x] 6. Create Move Editor tab
 
   **What to do**:
   - Create `src/lib/admin/tabs/MoveEditor.svelte`:
@@ -537,7 +537,7 @@ Parallel Speedup: ~40% faster than sequential
 
 ---
 
-- [ ] 7. Create Add Content tab (Pokemon + Moves from raw JSON)
+- [x] 7. Create Add Content tab (Pokemon + Moves from raw JSON)
 
   **What to do**:
   - Create `src/lib/admin/tabs/AddContent.svelte`:
@@ -608,7 +608,7 @@ Parallel Speedup: ~40% faster than sequential
 
 ---
 
-- [ ] 8. Add Export functionality and update App.svelte routing
+- [x] 8. Add Export functionality and update App.svelte routing
 
   **What to do**:
   - Create `src/lib/admin/components/ExportButton.svelte`:
@@ -691,15 +691,15 @@ npm run dev    # Expected: Starts successfully
 
 ### Final Checklist
 
-- [ ] Navigate to `#admin` shows 6-tab admin interface
-- [ ] All tabs switch correctly
-- [ ] AnimationTestPage restyled to match game UI
-- [ ] Pokemon Browser shows all Pokemon with working search/filter
-- [ ] Moves Browser shows aggregated moves with working search/filter
-- [ ] Pokemon Editor allows editing stats, types, abilities (not id/evolution/sprites)
-- [ ] Move Editor allows editing power, accuracy, PP (not effects)
-- [ ] Add Content allows adding Pokemon from raw JSON
-- [ ] Add Content allows assigning moves from raw JSON
-- [ ] Export button downloads valid JSON file
-- [ ] `npm run check` passes
-- [ ] All "Must NOT Have" items are absent
+- [x] Navigate to `#admin` shows 6-tab admin interface
+- [x] All tabs switch correctly
+- [x] AnimationTestPage restyled to match game UI
+- [x] Pokemon Browser shows all Pokemon with working search/filter
+- [x] Moves Browser shows aggregated moves with working search/filter
+- [x] Pokemon Editor allows editing stats, types, abilities (not id/evolution/sprites)
+- [x] Move Editor allows editing power, accuracy, PP (not effects)
+- [x] Add Content allows adding Pokemon from raw JSON
+- [x] Add Content allows assigning moves from raw JSON
+- [x] Export button downloads valid JSON file
+- [x] `npm run check` passes
+- [x] All "Must NOT Have" items are absent
