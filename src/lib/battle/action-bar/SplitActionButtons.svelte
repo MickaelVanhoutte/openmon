@@ -13,6 +13,8 @@
 		onRun?: () => void;
 		onHover?: (idx: number) => void;
 		spriteElement?: HTMLElement | null;
+		entranceDelay?: number;
+		isInitialEntrance?: boolean;
 	}
 
 	let {
@@ -24,7 +26,9 @@
 		onSwitch = () => {},
 		onRun = () => {},
 		onHover = () => {},
-		spriteElement = null
+		spriteElement = null,
+		entranceDelay = 0,
+		isInitialEntrance = true
 	}: Props = $props();
 
 	let buttonElements: HTMLButtonElement[] = [];
@@ -171,22 +175,35 @@
 		const validButtons = buttonElements.filter(Boolean);
 		if (validButtons.length === 0) return;
 
-		gsap.fromTo(
-			validButtons,
-			{
-				scale: 0.5,
-				opacity: 0,
-				x: -60
-			},
-			{
-				scale: 1,
-				opacity: 1,
-				x: 0,
-				duration: 0.4,
-				stagger: 0.1,
-				ease: 'back.out(1.4)'
-			}
-		);
+		if (isInitialEntrance) {
+			// Full staggered animation for battle start
+			gsap.fromTo(
+				validButtons,
+				{ scale: 0.5, opacity: 0, x: -60 },
+				{
+					scale: 1,
+					opacity: 1,
+					x: 0,
+					duration: 0.4,
+					delay: entranceDelay / 1000,
+					stagger: 0.1,
+					ease: 'back.out(1.4)'
+				}
+			);
+		} else {
+			// Quick fade-in for button reappearance
+			gsap.fromTo(
+				validButtons,
+				{ opacity: 0, scale: 0.9 },
+				{
+					opacity: 1,
+					scale: 1,
+					duration: 0.15,
+					stagger: 0.03,
+					ease: 'power2.out'
+				}
+			);
+		}
 	}
 
 	onMount(() => {
@@ -240,6 +257,7 @@
 				top: {pos.top}%;
 				left: {pos.left}%;
 				--plate-rotation: {pos.rotation}deg;
+				opacity: 0;
 			"
 			{disabled}
 			onclick={() => action.action()}

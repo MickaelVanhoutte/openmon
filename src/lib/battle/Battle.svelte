@@ -52,6 +52,24 @@
 	let ally: HTMLImageElement[] = $state([]);
 	let opponent: HTMLImageElement[] = $state([]);
 
+	// Staggered UI entrance animation state
+	let isInitialBattleEntrance = $state(true);
+	const uiEntranceDelays = {
+		opponentHp: 300,
+		allyHp: 600,
+		actionButtons: 900
+	};
+
+	// Reset initial entrance flag after animation completes
+	$effect(() => {
+		if (isInitialBattleEntrance) {
+			const timer = setTimeout(() => {
+				isInitialBattleEntrance = false;
+			}, 1500);
+			return () => clearTimeout(timer);
+		}
+	});
+
 	// Helper to play move animation with new engine
 	function playMoveAnimation(
 		move: Move,
@@ -385,6 +403,7 @@
 			position={{ bottom: '78%', left: '62%' }}
 			isAlly={false}
 			spriteElement={opponent[0]}
+			entranceDelay={isInitialBattleEntrance ? uiEntranceDelays.opponentHp : 0}
 		/>
 	{/if}
 	{#if battleCtx.playerSide[0]}
@@ -393,6 +412,7 @@
 			position={{ bottom: '62%', left: '22%' }}
 			isAlly={true}
 			spriteElement={ally[0]}
+			entranceDelay={isInitialBattleEntrance ? uiEntranceDelays.allyHp : 0}
 		/>
 	{/if}
 
@@ -403,6 +423,7 @@
 				position={{ bottom: '82%', left: '58%' }}
 				isAlly={false}
 				spriteElement={opponent[1]}
+				entranceDelay={isInitialBattleEntrance ? uiEntranceDelays.opponentHp : 0}
 			/>
 		{/if}
 		{#if battleCtx.playerSide[1]}
@@ -411,6 +432,7 @@
 				position={{ bottom: '46%', left: '8%' }}
 				isAlly={true}
 				spriteElement={ally[1]}
+				entranceDelay={isInitialBattleEntrance ? uiEntranceDelays.allyHp : 0}
 			/>
 		{/if}
 	{/if}
@@ -420,6 +442,8 @@
 		bind:battleCtx
 		bind:overWorldCtx={context.overWorldContext}
 		allySprites={ally}
+		entranceDelay={isInitialBattleEntrance ? uiEntranceDelays.actionButtons : 0}
+		isInitialEntrance={isInitialBattleEntrance}
 	/>
 </div>
 

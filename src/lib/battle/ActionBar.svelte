@@ -27,9 +27,18 @@
 		battleCtx: BattleContext;
 		overWorldCtx: OverworldContext;
 		allySprites?: HTMLElement[];
+		entranceDelay?: number;
+		isInitialEntrance?: boolean;
 	}
 
-	let { context, battleCtx, overWorldCtx, allySprites = [] }: Props = $props();
+	let {
+		context,
+		battleCtx,
+		overWorldCtx,
+		allySprites = [],
+		entranceDelay = 0,
+		isInitialEntrance = true
+	}: Props = $props();
 
 	// Track actionIdx reactively (poll for changes since battleCtx is not reactive)
 	let currentActionIdx = $state(battleCtx?.actionIdx ?? 0);
@@ -632,6 +641,8 @@
 		{disabled}
 		{selectedOptionIdx}
 		spriteElement={activeSprite}
+		{entranceDelay}
+		{isInitialEntrance}
 		onFight={() => {
 			moveOpened = true;
 			showInfoBack = true;
