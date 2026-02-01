@@ -49,8 +49,8 @@
 		bgDrawn: true
 	};
 
-	let ally: HTMLImageElement[] = [];
-	let opponent: HTMLImageElement[] = [];
+	let ally: HTMLImageElement[] = $state([]);
+	let opponent: HTMLImageElement[] = $state([]);
 
 	// Helper to play move animation with new engine
 	function playMoveAnimation(
