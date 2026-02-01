@@ -262,7 +262,11 @@
 				} else {
 					const entryPromises: Promise<gsap.core.Timeline>[] = [];
 					opponent.forEach((element, idx) => {
-						element.src = battleCtx?.oppSide[idx]?.getSprite();
+						const pokemon = battleCtx?.oppSide[idx];
+						if (!pokemon) {
+							return;
+						}
+						element.src = pokemon.getSprite();
 						element.onload = () => {
 							let imgHeight = element.naturalHeight;
 							let screenHeight = window.innerHeight;
@@ -283,7 +287,8 @@
 							);
 							entryPromises.push(entryPromise);
 
-							if (entryPromises.length === opponent.length) {
+							const validOpponents = opponent.filter((_, i) => battleCtx?.oppSide[i]);
+							if (entryPromises.length === validOpponents.length) {
 								Promise.all(entryPromises).then(() => {
 									if (battleLoopContext.allydrawn) {
 										entryAnimationsComplete = true;
@@ -356,13 +361,19 @@
 		battleCtx.events.pokemonChange.subscribe((change) => {
 			if (change) {
 				if (change?.side === 'ally') {
-					animateRun(ally[change?.idx], 'ally').then(() => {
-						battleLoopContext.allydrawn = false;
-					});
+					const pokemon = battleCtx.playerSide[change?.idx];
+					if (pokemon) {
+						animateRun(ally[change?.idx], 'ally').then(() => {
+							battleLoopContext.allydrawn = false;
+						});
+					}
 				} else {
-					animateRun(opponent[change?.idx], 'opponent').then(() => {
-						battleLoopContext.opponentdrawn = false;
-					});
+					const pokemon = battleCtx.oppSide[change?.idx];
+					if (pokemon) {
+						animateRun(opponent[change?.idx], 'opponent').then(() => {
+							battleLoopContext.opponentdrawn = false;
+						});
+					}
 				}
 			}
 		});
