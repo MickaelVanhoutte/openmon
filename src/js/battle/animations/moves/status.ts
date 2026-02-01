@@ -20,7 +20,8 @@ async function buffAnimation(engine: AnimationEngine, context: MoveContext): Pro
 			scale: 0.8 + i * 0.2,
 			opacity: 1 - i * 0.3,
 			duration: 250,
-			tint: color
+			tint: color,
+			zIndex: engine.getEffectZIndex(attacker.slot)
 		});
 		await engine.wait(100);
 	}
@@ -34,7 +35,12 @@ async function debuffAnimation(engine: AnimationEngine, context: MoveContext): P
 	const hue = TYPE_HUE_ANGLES[moveType] ?? 0;
 	const color = engine.getTypeColor(moveType);
 
-	await engine.showSpriteEffect('debuff', target, { hueRotate: hue, scale: 1.2, tint: color });
+	await engine.showSpriteEffect('debuff', target, {
+		hueRotate: hue,
+		scale: 1.2,
+		tint: color,
+		zIndex: engine.getEffectZIndex(attacker.slot)
+	});
 
 	const gsap = (await import('gsap')).default;
 	await new Promise<void>((resolve) => {
@@ -61,7 +67,8 @@ async function healAnimation(engine: AnimationEngine, context: MoveContext): Pro
 			scale: 0.6 + i * 0.15,
 			opacity: 1 - i * 0.2,
 			duration: 200,
-			tint: healColor
+			tint: healColor,
+			zIndex: engine.getEffectZIndex(attacker.slot)
 		});
 		await engine.wait(80);
 	}
@@ -74,12 +81,17 @@ async function statusConditionAnimation(
 	engine: AnimationEngine,
 	context: MoveContext
 ): Promise<void> {
-	const { defender, moveType } = context;
+	const { attacker, defender, moveType } = context;
 	const target = Array.isArray(defender) ? defender[0] : defender;
 	const hue = TYPE_HUE_ANGLES[moveType] ?? 0;
 	const color = engine.getTypeColor(moveType);
 
-	await engine.showSpriteEffect('psychic', target, { hueRotate: hue, scale: 1.3, tint: color });
+	await engine.showSpriteEffect('psychic', target, {
+		hueRotate: hue,
+		scale: 1.3,
+		tint: color,
+		zIndex: engine.getEffectZIndex(attacker.slot)
+	});
 
 	const gsap = (await import('gsap')).default;
 	await new Promise<void>((resolve) => {
