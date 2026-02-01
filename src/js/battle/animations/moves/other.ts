@@ -8,12 +8,13 @@ import {
 export const otherMoves: Record<string, MoveAnimation> = {};
 
 async function multiHitAnimation(engine: AnimationEngine, context: MoveContext): Promise<void> {
-	const { attacker, defender, moveType } = context;
+	const { attacker, defender, moveType, hitCount } = context;
 	const target = Array.isArray(defender) ? defender[0] : defender;
 	const hue = TYPE_HUE_ANGLES[moveType] ?? 0;
 	const color = engine.getTypeColor(moveType);
+	const hits = hitCount ?? 3;
 
-	for (let i = 0; i < 3; i++) {
+	for (let i = 0; i < hits; i++) {
 		await engine.moveSpriteTo(attacker, target, { duration: 0.1, overshoot: 25 });
 		await engine.showSpriteEffect('impact', target, {
 			hueRotate: hue,

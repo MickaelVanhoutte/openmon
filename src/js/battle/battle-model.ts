@@ -49,11 +49,13 @@ export class BattleAnimation {
 	move: Move;
 	target: PokemonInstance;
 	initiator: PokemonInstance;
+	hitCount?: number;
 
-	constructor(move: Move, target: PokemonInstance, initiator: PokemonInstance) {
+	constructor(move: Move, target: PokemonInstance, initiator: PokemonInstance, hitCount?: number) {
 		this.move = move;
 		this.target = target;
 		this.initiator = initiator;
+		this.hitCount = hitCount;
 	}
 }
 
@@ -111,6 +113,7 @@ export class DamageResults {
 	effectSuccess: boolean = false;
 	effectApplied: string = '';
 	damages: number = 0;
+	hitCount?: number;
 
 	constructor() {}
 }

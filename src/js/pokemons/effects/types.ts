@@ -17,10 +17,12 @@ export enum EffectTiming {
 export class EffectResult {
 	message?: string;
 	effect?: Effect;
+	hitCount?: number;
 
-	constructor(effect?: Effect, message?: string) {
+	constructor(effect?: Effect, message?: string, hitCount?: number) {
 		this.message = message;
 		this.effect = effect;
+		this.hitCount = hitCount;
 	}
 }
 
