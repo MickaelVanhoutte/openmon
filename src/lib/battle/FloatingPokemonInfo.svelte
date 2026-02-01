@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { fade } from 'svelte/transition';
 	import { onMount } from 'svelte';
+	import gsap from 'gsap';
 	import type { PokemonInstance } from '../../js/pokemons/pokedex';
 
 	interface StatChange {
@@ -16,6 +16,7 @@
 		expPercent?: number;
 		spriteElement?: HTMLElement | null;
 		visible?: boolean;
+		entranceDelay?: number;
 	}
 
 	let {
@@ -25,8 +26,27 @@
 		showExpBar = false,
 		expPercent = 0,
 		spriteElement = null,
-		visible = true
+		visible = true,
+		entranceDelay = 0
 	}: Props = $props();
+
+	let containerElement: HTMLDivElement;
+
+	function animateEntrance() {
+		if (!containerElement) return;
+		gsap.fromTo(
+			containerElement,
+			{ opacity: 0, y: -20, scale: 0.9 },
+			{
+				opacity: 1,
+				y: 0,
+				scale: 1,
+				duration: 0.3,
+				delay: entranceDelay / 1000,
+				ease: 'power2.out'
+			}
+		);
+	}
 
 	// Force reactivity tick - increment this to force re-render
 	let hpTick = $state(0);
@@ -75,6 +95,8 @@
 		if (isSpritePositioned()) {
 			spriteReady = true;
 			updatePositionFromSprite();
+			// Trigger entrance animation after position is set
+			setTimeout(() => animateEntrance(), 50);
 		} else {
 			requestAnimationFrame(waitForSpritePosition);
 		}
@@ -167,11 +189,11 @@
 
 {#if visible && (!spriteElement || spriteReady)}
 	<div
+		bind:this={containerElement}
 		class="floating-pokemon-info spatial-panel"
-		style={useComputedPosition
+		style="{useComputedPosition
 			? computedStyle
-			: `bottom: ${position.bottom}; left: ${position.left};`}
-		transition:fade={{ duration: 200 }}
+			: `bottom: ${position.bottom}; left: ${position.left};`} opacity: 0;"
 	>
 		<div class="leader-line"></div>
 
