@@ -112,35 +112,38 @@
 	.admin-page {
 		width: 100%;
 		height: 100vh;
+		height: 100dvh; /* Dynamic viewport height for mobile */
 		display: flex;
 		flex-direction: column;
 		background: var(--pixel-bg-primary);
 		color: var(--pixel-text-white);
 		font-family: 'Press Start 2P', monospace;
+		overflow: hidden;
 	}
 
 	.admin-header {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		padding: 1rem 2rem;
+		padding: 0.5rem 1rem;
 		background: var(--pixel-bg-header);
 		border-bottom: 2px solid var(--pixel-border-color);
+		flex-shrink: 0;
 	}
 
 	.admin-header h1 {
-		font-size: 1.5rem;
+		font-size: 1rem;
 		margin: 0;
 	}
 
 	.close-btn {
-		padding: 0.5rem 1rem;
+		padding: 0.375rem 0.75rem;
 		background: var(--pixel-text-stat-red);
 		border: 2px solid var(--pixel-border-color);
 		color: var(--pixel-text-white);
 		cursor: pointer;
 		font-family: inherit;
-		font-size: 0.875rem;
+		font-size: 0.75rem;
 	}
 
 	.close-btn:hover {
@@ -149,29 +152,37 @@
 
 	.header-actions {
 		display: flex;
-		gap: 1rem;
+		gap: 0.5rem;
 		align-items: center;
 	}
 
 	.tab-nav {
 		display: flex;
-		flex-wrap: wrap;
-		gap: 0;
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+		scrollbar-width: none;
 		background: var(--pixel-bg-panel);
 		border-bottom: 2px solid var(--pixel-border-color);
+		flex-shrink: 0;
+	}
+
+	.tab-nav::-webkit-scrollbar {
+		display: none;
 	}
 
 	.tab-btn {
-		padding: 0.75rem 1rem;
+		padding: 0.5rem 0.75rem;
 		background: transparent;
 		border: none;
 		border-bottom: 3px solid transparent;
 		color: var(--pixel-text-white);
 		cursor: pointer;
 		font-family: inherit;
-		font-size: 0.75rem;
+		font-size: 0.625rem;
 		opacity: 0.7;
 		transition: opacity 0.2s;
+		white-space: nowrap;
+		flex-shrink: 0;
 	}
 
 	.tab-btn:hover {
@@ -186,7 +197,30 @@
 
 	.tab-content {
 		flex: 1;
-		overflow: auto;
-		padding: 1rem;
+		overflow-y: auto;
+		overflow-x: hidden;
+		-webkit-overflow-scrolling: touch;
+		padding: 0.5rem;
+		min-height: 0; /* Important for flex child scrolling */
+	}
+
+	/* Mobile-specific adjustments */
+	@media (max-width: 768px) {
+		.admin-header {
+			padding: 0.375rem 0.5rem;
+		}
+
+		.admin-header h1 {
+			font-size: 0.75rem;
+		}
+
+		.tab-btn {
+			padding: 0.375rem 0.5rem;
+			font-size: 0.5rem;
+		}
+
+		.tab-content {
+			padding: 0.25rem;
+		}
 	}
 </style>
