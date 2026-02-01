@@ -141,6 +141,10 @@ export class RemoveHP implements ActionV2Interface {
 	execute(ctx: BattleContext): void {
 		this.target.currentHp = this.target.currentHp - this.damages;
 
+		if (this.target.currentHp <= 0) {
+			ctx.addToStack(new Sleep(400));
+		}
+
 		let actions = ctx.checkFainted(this.target, this.initiator);
 		if (actions) {
 			actions.forEach((action: ActionV2Interface) => {
