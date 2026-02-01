@@ -29,6 +29,7 @@
 		allySprites?: HTMLElement[];
 		entranceDelay?: number;
 		isInitialEntrance?: boolean;
+		visible?: boolean;
 	}
 
 	let {
@@ -37,7 +38,8 @@
 		overWorldCtx,
 		allySprites = [],
 		entranceDelay = 0,
-		isInitialEntrance = true
+		isInitialEntrance = true,
+		visible = true
 	}: Props = $props();
 
 	// Track actionIdx reactively (poll for changes since battleCtx is not reactive)
@@ -444,19 +446,20 @@
 	});
 </script>
 
-{#if battleCtx?.playerTurnActions?.length > 0 && battleCtx?.playerSide?.length > 1 && !moveOpened && !targetSelectOpened}
-	<div class="cancel-wrapper">
-		<button
-			class="cancel-last button"
-			onclick={() => battleCtx.cancelLastAction()}
-			aria-label="Cancel last action">Cancel</button
-		>
-	</div>
-{/if}
+{#if visible}
+	{#if battleCtx?.playerTurnActions?.length > 0 && battleCtx?.playerSide?.length > 1 && !moveOpened && !targetSelectOpened}
+		<div class="cancel-wrapper">
+			<button
+				class="cancel-last button"
+				onclick={() => battleCtx.cancelLastAction()}
+				aria-label="Cancel last action">Cancel</button
+			>
+		</div>
+	{/if}
 
-<BattleInfoText message={currentMessage} />
+	<BattleInfoText message={currentMessage} />
 
-<!--
+	<!--
 <div class="combo" class:show={showAdd}>
 	{#if currentCombo}
 		<span class="combo-info" style="--color:{typeChart[currentCombo?.move?.type]?.color}">
@@ -486,25 +489,25 @@
 </div>
 -->
 
-{#if moveOpened && !disabled}
-	<button
-		class="back-plate"
-		onclick={() => {
-			moveOpened = false;
-			showAdd = false;
-			targetSelectOpened = false;
-		}}
-		aria-label="Go back to action menu"
-	>
-		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-			<path
-				d="M5.82843 6.99955L8.36396 9.53509L6.94975 10.9493L2 5.99955L6.94975 1.0498L8.36396 2.46402L5.82843 4.99955H13C17.4183 4.99955 21 8.58127 21 12.9996C21 17.4178 17.4183 20.9996 13 20.9996H4V18.9996H13C16.3137 18.9996 19 16.3133 19 12.9996C19 9.68584 16.3137 6.99955 13 6.99955H5.82843Z"
-			></path>
-		</svg>
-		<span class="back-label">BACK</span>
-	</button>
+	{#if moveOpened && !disabled}
+		<button
+			class="back-plate"
+			onclick={() => {
+				moveOpened = false;
+				showAdd = false;
+				targetSelectOpened = false;
+			}}
+			aria-label="Go back to action menu"
+		>
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+				<path
+					d="M5.82843 6.99955L8.36396 9.53509L6.94975 10.9493L2 5.99955L6.94975 1.0498L8.36396 2.46402L5.82843 4.99955H13C17.4183 4.99955 21 8.58127 21 12.9996C21 17.4178 17.4183 20.9996 13 20.9996H4V18.9996H13C16.3137 18.9996 19 16.3133 19 12.9996C19 9.68584 16.3137 6.99955 13 6.99955H5.82843Z"
+				></path>
+			</svg>
+			<span class="back-label">BACK</span>
+		</button>
 
-	<!--
+		<!--
 	<button
 		class="combo-btn"
 		class:shine={!comboDisabled && !disabled}
@@ -601,91 +604,127 @@
 		{/if}
 	</button>
 -->
-	{#if !targetSelectOpened}
-		<SplitMoveSelector
-			show={true}
-			moves={battleCtx?.playerSide[battleCtx.actionIdx]?.moves || []}
-			{disabled}
-			{selectedMoveIdx}
-			spriteElement={activeSprite}
-			onMoveClick={(index) =>
-				launchMove(index, battleCtx?.playerSide[battleCtx.actionIdx]?.moves[index])}
-			onCancel={() => {
-				moveOpened = false;
-				showAdd = false;
-			}}
-			onHover={(idx) => {
-				selectedMoveIdx = idx;
-			}}
-		/>
+		{#if !targetSelectOpened}
+			<SplitMoveSelector
+				show={true}
+				moves={battleCtx?.playerSide[battleCtx.actionIdx]?.moves || []}
+				{disabled}
+				{selectedMoveIdx}
+				spriteElement={activeSprite}
+				onMoveClick={(index) =>
+					launchMove(index, battleCtx?.playerSide[battleCtx.actionIdx]?.moves[index])}
+				onCancel={() => {
+					moveOpened = false;
+					showAdd = false;
+				}}
+				onHover={(idx) => {
+					selectedMoveIdx = idx;
+				}}
+			/>
+		{:else}
+			<!-- targets -->
+			<TargetSelector
+				{possibleTargets}
+				{selectedTargetIdx}
+				selectedMove={battleCtx?.playerSide[battleCtx.actionIdx]?.moves[selectedMoveIdx]}
+				{battleCtx}
+				show={true}
+				spriteElement={activeSprite}
+				onTargetClick={(target) => {
+					const targetIdx = possibleTargets.indexOf(target);
+					launchMove(
+						targetIdx,
+						battleCtx?.playerSide[battleCtx.actionIdx]?.moves[selectedMoveIdx],
+						[target]
+					);
+				}}
+			/>
+		{/if}
 	{:else}
-		<!-- targets -->
-		<TargetSelector
-			{possibleTargets}
-			{selectedTargetIdx}
-			selectedMove={battleCtx?.playerSide[battleCtx.actionIdx]?.moves[selectedMoveIdx]}
-			{battleCtx}
+		<SplitActionButtons
 			show={true}
+			{disabled}
+			{selectedOptionIdx}
 			spriteElement={activeSprite}
-			onTargetClick={(target) => {
-				const targetIdx = possibleTargets.indexOf(target);
-				launchMove(targetIdx, battleCtx?.playerSide[battleCtx.actionIdx]?.moves[selectedMoveIdx], [
-					target
-				]);
+			{entranceDelay}
+			{isInitialEntrance}
+			onFight={() => {
+				moveOpened = true;
+				showInfoBack = true;
+				showAdd = true;
+			}}
+			onBag={() => openBag()}
+			onSwitch={() => switchOpen()}
+			onRun={() => escape()}
+			onHover={(idx) => {
+				selectedOptionIdx = idx;
 			}}
 		/>
 	{/if}
-{:else}
-	<SplitActionButtons
-		show={true}
-		{disabled}
-		{selectedOptionIdx}
-		spriteElement={activeSprite}
-		{entranceDelay}
-		{isInitialEntrance}
-		onFight={() => {
-			moveOpened = true;
-			showInfoBack = true;
-			showAdd = true;
-		}}
-		onBag={() => openBag()}
-		onSwitch={() => switchOpen()}
-		onRun={() => escape()}
-		onHover={(idx) => {
-			selectedOptionIdx = idx;
-		}}
-	/>
-{/if}
 
-{#if levelUpRecap}
-	<div class="level-up">
-		<ul>
-			{#each Object.keys(levelUpRecap.oldStats) as stat}
-				{#if !statSkip.includes(stat)}
-					<li
-						class="lvl-stat"
-						data-stat={stat
-							.replace(/attack/i, 'atk')
-							.replace(/defense/i, 'def')
-							.replace('special', 'sp.')
-							.toUpperCase()}
-						data-val1="{levelUpRecap.oldStats[stat]} + {levelUpRecap.newStats[stat] -
-							levelUpRecap.oldStats[stat]}"
-						data-val2={levelUpRecap.newStats[stat]}
-					></li>
-				{/if}
-			{/each}
-		</ul>
-	</div>
-{/if}
+	{#if levelUpRecap}
+		<div class="level-up">
+			<ul>
+				{#each Object.keys(levelUpRecap.oldStats) as stat}
+					{#if !statSkip.includes(stat)}
+						<li
+							class="lvl-stat"
+							data-stat={stat
+								.replace(/attack/i, 'atk')
+								.replace(/defense/i, 'def')
+								.replace('special', 'sp.')
+								.toUpperCase()}
+							data-val1="{levelUpRecap.oldStats[stat]} + {levelUpRecap.newStats[stat] -
+								levelUpRecap.oldStats[stat]}"
+							data-val2={levelUpRecap.newStats[stat]}
+						></li>
+					{/if}
+				{/each}
+			</ul>
+		</div>
+	{/if}
 
-{#if battleSwitchOpened || changePokemon || combo}
-	{#if battleSwitchOpened || combo}
+	{#if battleSwitchOpened || changePokemon || combo}
+		{#if battleSwitchOpened || combo}
+			<button
+				class="back-mini-pkmn-btn"
+				onclick={() => {
+					battleSwitchOpened = false;
+					combo = false;
+				}}
+			>
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+					><path
+						d="M10.5859 12L2.79297 4.20706L4.20718 2.79285L12.0001 10.5857L19.793 2.79285L21.2072 4.20706L13.4143 12L21.2072 19.7928L19.793 21.2071L12.0001 13.4142L4.20718 21.2071L2.79297 19.7928L10.5859 12Z"
+					></path></svg
+				>
+			</button>
+		{/if}
+
+		<MiniPkmn
+			bind:context
+			bind:currentPkmn={battleCtx.playerSide[battleCtx.actionIdx]}
+			bind:type={menuType}
+			zIndex={zIndexNext}
+			onCombo={(cb) => {
+				!!cb && prepareCombo(cb.pokemon, cb.move);
+				combo = false;
+			}}
+			onChange={(pkm) => {
+				if (!!pkm && battleSwitchOpened) {
+					sendSwitchAction(pkm);
+				} else if (!!pkm && changePokemon) {
+					send(pkm);
+				}
+			}}
+		/>
+	{/if}
+
+	{#if battleBagOpened}
 		<button
 			class="back-mini-pkmn-btn"
 			onclick={() => {
-				battleSwitchOpened = false;
-				combo = false;
+				battleBagOpened = false;
 			}}
 		>
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
@@ -694,48 +733,15 @@
 				></path></svg
 			>
 		</button>
+
+		<MiniBag
+			bind:context
+			bind:currentPkmn={battleCtx.playerSide[battleCtx.actionIdx]}
+			bind:battleCtx
+			zIndex={zIndexNext}
+			onChange={(result) => sendObjectAction(result)}
+		/>
 	{/if}
-
-	<MiniPkmn
-		bind:context
-		bind:currentPkmn={battleCtx.playerSide[battleCtx.actionIdx]}
-		bind:type={menuType}
-		zIndex={zIndexNext}
-		onCombo={(cb) => {
-			!!cb && prepareCombo(cb.pokemon, cb.move);
-			combo = false;
-		}}
-		onChange={(pkm) => {
-			if (!!pkm && battleSwitchOpened) {
-				sendSwitchAction(pkm);
-			} else if (!!pkm && changePokemon) {
-				send(pkm);
-			}
-		}}
-	/>
-{/if}
-
-{#if battleBagOpened}
-	<button
-		class="back-mini-pkmn-btn"
-		onclick={() => {
-			battleBagOpened = false;
-		}}
-	>
-		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-			><path
-				d="M10.5859 12L2.79297 4.20706L4.20718 2.79285L12.0001 10.5857L19.793 2.79285L21.2072 4.20706L13.4143 12L21.2072 19.7928L19.793 21.2071L12.0001 13.4142L4.20718 21.2071L2.79297 19.7928L10.5859 12Z"
-			></path></svg
-		>
-	</button>
-
-	<MiniBag
-		bind:context
-		bind:currentPkmn={battleCtx.playerSide[battleCtx.actionIdx]}
-		bind:battleCtx
-		zIndex={zIndexNext}
-		onChange={(result) => sendObjectAction(result)}
-	/>
 {/if}
 
 <style lang="scss">
