@@ -1,19 +1,25 @@
 <script lang="ts">
-	// Placeholder - will wrap AnimationTestPage
+	import AnimationTestPage from '$lib/debug/AnimationTestPage.svelte';
 </script>
 
-<div class="tab-placeholder">
-	<h2>Animations Tab</h2>
-	<p>Animation testing - Coming Soon</p>
+<div class="animations-tab-wrapper">
+	<AnimationTestPage />
 </div>
 
 <style>
-	.tab-placeholder {
-		padding: 2rem;
-		text-align: center;
-		color: var(--pixel-text-white);
+	.animations-tab-wrapper {
+		height: 100%;
+		overflow: auto;
 	}
-	h2 {
-		margin-bottom: 1rem;
+
+	/* Override AnimationTestPage styles when embedded */
+	.animations-tab-wrapper :global(.animation-test-page) {
+		height: auto;
+		min-height: 100%;
+	}
+
+	/* Hide the close button and header when embedded in admin */
+	.animations-tab-wrapper :global(.test-header) {
+		display: none;
 	}
 </style>
