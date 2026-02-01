@@ -338,7 +338,7 @@ export class EndTurnChecks implements ActionV2Interface {
 						)
 					);
 					ctx.events.pokemonChange.set({ side: 'opponent', idx: faintedIdx });
-				} else if (nonFainted) {
+				} else if (nonFainted && nonFainted.length > 0) {
 					ctx.oppSide[faintedIdx] = nonFainted[Math.floor(Math.random() * nonFainted.length)];
 					ctx.addToStack(
 						new Message(
