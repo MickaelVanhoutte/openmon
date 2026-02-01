@@ -259,8 +259,8 @@
 		height: 100vh;
 		display: flex;
 		flex-direction: column;
-		background: #1a1a2e;
-		color: #eee;
+		background: var(--pixel-bg-primary);
+		color: var(--pixel-text-white);
 		font-family: 'Press Start 2P', monospace;
 	}
 
@@ -269,8 +269,8 @@
 		justify-content: space-between;
 		align-items: center;
 		padding: 1rem 2rem;
-		background: #16213e;
-		border-bottom: 2px solid #0f3460;
+		background: var(--pixel-bg-header);
+		border-bottom: 2px solid var(--pixel-border-color);
 	}
 
 	.test-header h1 {
@@ -280,9 +280,9 @@
 
 	.close-btn {
 		padding: 0.5rem 1rem;
-		background: #e94560;
-		border: none;
-		color: white;
+		background: var(--pixel-text-stat-red);
+		border: 2px solid var(--pixel-border-color);
+		color: var(--pixel-text-white);
 		cursor: pointer;
 		font-family: inherit;
 		font-size: 1rem;
@@ -293,8 +293,8 @@
 		flex-wrap: wrap;
 		gap: 1rem;
 		padding: 1rem 2rem;
-		background: #16213e;
-		border-bottom: 2px solid #0f3460;
+		background: var(--pixel-bg-panel);
+		border-bottom: 2px solid var(--pixel-border-color);
 	}
 
 	.control-group {
@@ -305,14 +305,14 @@
 
 	.control-group label {
 		font-size: 1rem;
-		color: #ccc;
+		color: var(--pixel-text-muted);
 	}
 
 	.control-group select {
 		padding: 0.5rem;
-		background: #0f3460;
-		border: 2px solid #3b82f6;
-		color: white;
+		background: var(--pixel-bg-primary);
+		border: 2px solid var(--pixel-accent-blue);
+		color: var(--pixel-text-white);
 		font-family: inherit;
 		font-size: 16px;
 		min-width: 140px;
@@ -353,22 +353,22 @@
 	}
 
 	.play-btn {
-		background: #4ade80;
-		color: #1a1a2e;
+		background: var(--pixel-accent-green);
+		color: var(--pixel-bg-primary);
 	}
 
 	.play-btn:disabled {
-		background: #666;
+		background: var(--pixel-text-muted);
 		cursor: not-allowed;
 	}
 
 	.loop-btn {
-		background: #3b82f6;
-		color: white;
+		background: var(--pixel-accent-blue);
+		color: var(--pixel-text-white);
 	}
 
 	.loop-btn.active {
-		background: #f59e0b;
+		background: var(--pixel-text-gold);
 	}
 
 	.battle-scene {
@@ -401,8 +401,8 @@
 
 	.info-panel {
 		padding: 1rem 2rem;
-		background: #16213e;
-		border-top: 2px solid #0f3460;
+		background: var(--pixel-bg-panel);
+		border-top: 2px solid var(--pixel-border-color);
 		font-size: 1rem;
 	}
 
