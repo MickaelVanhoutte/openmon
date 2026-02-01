@@ -185,23 +185,6 @@
 	</header>
 
 	<div class="controls-panel">
-		<div class="control-group">
-			<label for="ally-select">Ally Pokemon:</label>
-			<select id="ally-select" bind:value={allyPokemonId} onchange={setupSprites}>
-				{#each pokemonList as pokemon}
-					<option value={pokemon.id}>{pokemon.name}</option>
-				{/each}
-			</select>
-		</div>
-
-		<div class="control-group">
-			<label for="enemy-select">Enemy Pokemon:</label>
-			<select id="enemy-select" bind:value={enemyPokemonId} onchange={setupSprites}>
-				{#each pokemonList as pokemon}
-					<option value={pokemon.id}>{pokemon.name}</option>
-				{/each}
-			</select>
-		</div>
 
 		<div class="control-group">
 			<label for="category-select">Animation:</label>
@@ -353,7 +336,7 @@
 	}
 
 	.play-btn {
-		background: var(--pixel-accent-green);
+		background: var(--pixel-accent-gold);
 		color: var(--pixel-bg-primary);
 	}
 
