@@ -61,6 +61,24 @@
 
 	let computedStyle = $state('');
 	let useComputedPosition = $state(false);
+	let spriteReady = $state(false);
+
+	// Check if sprite has valid position (not at 0,0)
+	function isSpritePositioned(): boolean {
+		if (!spriteElement) return false;
+		const rect = spriteElement.getBoundingClientRect();
+		return rect.x > 0 || rect.y > 0;
+	}
+
+	// Poll until sprite is positioned
+	function waitForSpritePosition() {
+		if (isSpritePositioned()) {
+			spriteReady = true;
+			updatePositionFromSprite();
+		} else {
+			requestAnimationFrame(waitForSpritePosition);
+		}
+	}
 
 	function updatePositionFromSprite() {
 		if (!spriteElement) {
@@ -83,24 +101,28 @@
 	}
 
 	onMount(() => {
-		if (!spriteElement) return;
-
-		updatePositionFromSprite();
+		if (spriteElement) {
+			waitForSpritePosition();
+		}
 
 		window.addEventListener('resize', updatePositionFromSprite);
 
-		const observer = new ResizeObserver(updatePositionFromSprite);
-		observer.observe(spriteElement);
+		let observer: ResizeObserver | null = null;
+		if (spriteElement) {
+			observer = new ResizeObserver(updatePositionFromSprite);
+			observer.observe(spriteElement);
+		}
 
 		return () => {
 			window.removeEventListener('resize', updatePositionFromSprite);
-			observer.disconnect();
+			observer?.disconnect();
 		};
 	});
 
 	$effect(() => {
 		if (spriteElement) {
-			updatePositionFromSprite();
+			spriteReady = false;
+			waitForSpritePosition();
 		}
 	});
 
@@ -143,7 +165,7 @@
 	}
 </script>
 
-{#if visible}
+{#if visible && (!spriteElement || spriteReady)}
 	<div
 		class="floating-pokemon-info spatial-panel"
 		style={useComputedPosition

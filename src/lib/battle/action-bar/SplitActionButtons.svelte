@@ -29,6 +29,25 @@
 
 	let buttonElements: HTMLButtonElement[] = [];
 	let selectedIdx = $state(selectedOptionIdx);
+	let spriteReady = $state(false);
+
+	// Check if sprite has valid position (not at 0,0)
+	function isSpritePositioned(): boolean {
+		if (!spriteElement) return false;
+		const rect = spriteElement.getBoundingClientRect();
+		return rect.x > 0 || rect.y > 0;
+	}
+
+	// Poll until sprite is positioned
+	function waitForSpritePosition() {
+		if (isSpritePositioned()) {
+			spriteReady = true;
+			updatePositions();
+			animateEntrance();
+		} else {
+			requestAnimationFrame(waitForSpritePosition);
+		}
+	}
 
 	interface ActionButton {
 		label: string;
@@ -167,16 +186,10 @@
 	onMount(() => {
 		window.addEventListener('keydown', handleKeyDown);
 		window.addEventListener('resize', updatePositions);
-		updatePositions();
-
-		const animationTimer = setTimeout(() => {
-			if (show) animateEntrance();
-		}, 50);
 
 		return () => {
 			window.removeEventListener('keydown', handleKeyDown);
 			window.removeEventListener('resize', updatePositions);
-			clearTimeout(animationTimer);
 		};
 	});
 
@@ -186,18 +199,30 @@
 
 	$effect(() => {
 		if (spriteElement) {
-			updatePositions();
+			// Reset and wait for sprite to be positioned
+			spriteReady = false;
+			waitForSpritePosition();
 		}
 	});
 
 	$effect(() => {
-		if (show && buttonElements.length > 0) {
+		if (show && spriteReady && buttonElements.length > 0) {
 			updatePositions();
+		}
+	});
+
+	// Trigger entrance animation when buttons become visible
+	$effect(() => {
+		if (show && !disabled && spriteReady) {
+			// Small delay to ensure DOM elements are rendered
+			setTimeout(() => {
+				animateEntrance();
+			}, 50);
 		}
 	});
 </script>
 
-{#if show && !disabled}
+{#if show && !disabled && spriteReady}
 	{#each actions as action, i}
 		{@const pos = positions[i] || { top: 50 + i * 11, left: 18, rotation: 0 }}
 		<button
