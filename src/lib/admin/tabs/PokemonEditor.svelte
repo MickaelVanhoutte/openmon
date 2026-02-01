@@ -506,45 +506,45 @@
 	.pokemon-editor {
 		display: flex;
 		flex-direction: column;
-		height: 100%;
-		gap: 1rem;
+		min-height: 100%;
+		gap: 0.5rem;
 	}
 
 	.editor-header {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		padding: 0.5rem 1rem;
+		padding: 0.5rem;
 		background: var(--pixel-bg-header);
 		border: 2px solid var(--pixel-border-color);
+		flex-shrink: 0;
 	}
 
 	.editor-header h2 {
 		margin: 0;
-		font-size: 1rem;
+		font-size: 0.875rem;
 	}
 
 	.pokemon-id {
 		color: var(--pixel-text-muted);
+		font-size: 0.75rem;
 	}
 
 	.editor-form {
-		flex: 1;
-		overflow-y: auto;
 		display: flex;
 		flex-direction: column;
-		gap: 1rem;
+		gap: 0.5rem;
 	}
 
 	.form-section {
 		background: var(--pixel-bg-panel);
 		border: 2px solid var(--pixel-border-color);
-		padding: 1rem;
+		padding: 0.5rem;
 	}
 
 	.form-section h3 {
-		margin: 0 0 0.75rem 0;
-		font-size: 0.875rem;
+		margin: 0 0 0.5rem 0;
+		font-size: 0.75rem;
 		color: var(--pixel-text-gold);
 	}
 
@@ -552,7 +552,7 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		margin-bottom: 0.75rem;
+		margin-bottom: 0.5rem;
 	}
 
 	.section-header h3 {
@@ -562,7 +562,7 @@
 	.form-grid {
 		display: grid;
 		grid-template-columns: repeat(2, 1fr);
-		gap: 1rem;
+		gap: 0.5rem;
 	}
 
 	.stats-grid {
@@ -570,11 +570,11 @@
 	}
 
 	.add-move-grid {
-		grid-template-columns: repeat(4, 1fr);
+		grid-template-columns: repeat(2, 1fr);
 	}
 
 	.move-edit-grid {
-		grid-template-columns: repeat(3, 1fr);
+		grid-template-columns: repeat(2, 1fr);
 	}
 
 	.form-group {
@@ -606,7 +606,6 @@
 
 	/* Moves Section */
 	.moves-section {
-		max-height: 400px;
 		display: flex;
 		flex-direction: column;
 	}
@@ -819,5 +818,41 @@
 
 	.no-selection h2 {
 		margin-bottom: 0.5rem;
+	}
+
+	/* Mobile responsive */
+	@media (max-width: 768px) {
+		.form-grid,
+		.stats-grid,
+		.add-move-grid,
+		.move-edit-grid {
+			grid-template-columns: 1fr 1fr;
+		}
+
+		.form-group input,
+		.form-group select {
+			font-size: 16px; /* Prevent iOS zoom */
+		}
+
+		.editor-actions {
+			flex-direction: column;
+			gap: 0.5rem;
+		}
+
+		.btn-apply,
+		.btn-reset {
+			width: 100%;
+			padding: 0.75rem;
+			font-size: 0.75rem;
+		}
+
+		.move-summary {
+			flex-wrap: wrap;
+		}
+
+		.move-info {
+			width: 100%;
+			margin-top: 0.25rem;
+		}
 	}
 </style>
