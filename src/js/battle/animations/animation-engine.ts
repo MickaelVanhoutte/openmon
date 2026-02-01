@@ -64,6 +64,7 @@ export interface SpriteEffectOptions {
 	duration?: number;
 	tint?: string;
 	hueRotate?: number;
+	zIndex?: number;
 	onComplete?: () => void;
 }
 
@@ -123,6 +124,13 @@ export class AnimationEngine {
 
 	setLayout(battleType: 'SINGLE' | 'DOUBLE'): void {
 		this.positionSystem.setLayout(battleType);
+	}
+
+	getEffectZIndex(attackerSlot: BattleSlot): number {
+		const isAllyAttacking = attackerSlot.side === 'player';
+		const ABOVE_OPPONENT_SPRITES = 200;
+		const BELOW_ALLY_SPRITES = 4;
+		return isAllyAttacking ? ABOVE_OPPONENT_SPRITES : BELOW_ALLY_SPRITES;
 	}
 
 	registerMove(moveName: string, animation: MoveAnimation): void {
@@ -402,7 +410,7 @@ export class AnimationEngine {
 		element.style.height = `${definition.frameHeight}px`;
 		element.style.opacity = String(options.opacity ?? 1);
 		element.style.transform = `scale(${scale})`;
-		element.style.zIndex = '100';
+		element.style.zIndex = String(options.zIndex ?? 100);
 
 		if (options.hueRotate !== undefined) {
 			const glowColor = options.tint ?? 'rgba(255, 255, 255, 0.8)';

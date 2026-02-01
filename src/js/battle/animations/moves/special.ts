@@ -43,7 +43,8 @@ async function beamAnimation(engine: AnimationEngine, context: MoveContext): Pro
 			hueRotate: hue,
 			scale: 1 + i * 0.2,
 			duration: 150,
-			tint: color
+			tint: color,
+			zIndex: engine.getEffectZIndex(attacker.slot)
 		});
 		await engine.wait(50);
 	}
@@ -65,7 +66,8 @@ async function projectileAnimation(engine: AnimationEngine, context: MoveContext
 		hueRotate: hue,
 		scale: 0.8,
 		duration: 100,
-		tint: color
+		tint: color,
+		zIndex: engine.getEffectZIndex(attacker.slot)
 	});
 
 	const gsap = (await import('gsap')).default;
@@ -103,7 +105,12 @@ async function projectileAnimation(engine: AnimationEngine, context: MoveContext
 	});
 
 	await Promise.all([
-		engine.showSpriteEffect(effect, target, { hueRotate: hue, scale: 1.2, tint: color }),
+		engine.showSpriteEffect(effect, target, {
+			hueRotate: hue,
+			scale: 1.2,
+			tint: color,
+			zIndex: engine.getEffectZIndex(attacker.slot)
+		}),
 		engine.showImpact(target, { intensity: 8, color })
 	]);
 }
@@ -122,7 +129,8 @@ async function burstAnimation(engine: AnimationEngine, context: MoveContext): Pr
 			hueRotate: hue,
 			scale: 2,
 			duration: 400,
-			tint: color
+			tint: color,
+			zIndex: engine.getEffectZIndex(attacker.slot)
 		});
 		await engine.showImpact(target, { intensity: 15, color });
 	});
@@ -143,7 +151,8 @@ async function waveAnimation(engine: AnimationEngine, context: MoveContext): Pro
 			scale: 0.8 + i * 0.3,
 			opacity: 1 - i * 0.2,
 			duration: 200,
-			tint: color
+			tint: color,
+			zIndex: engine.getEffectZIndex(attacker.slot)
 		});
 		await engine.wait(80);
 	}
@@ -157,7 +166,12 @@ async function drainAnimation(engine: AnimationEngine, context: MoveContext): Pr
 	const hue = TYPE_HUE_ANGLES[moveType] ?? 0;
 	const color = engine.getTypeColor(moveType);
 
-	await engine.showSpriteEffect('psychic', target, { hueRotate: hue, scale: 1.2, tint: color });
+	await engine.showSpriteEffect('psychic', target, {
+		hueRotate: hue,
+		scale: 1.2,
+		tint: color,
+		zIndex: engine.getEffectZIndex(attacker.slot)
+	});
 	await engine.shake(target.element, 6, 150);
 
 	const gsap = (await import('gsap')).default;

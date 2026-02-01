@@ -354,8 +354,8 @@
 	}
 
 	onMount(() => {
-		// Initialize the new animation engine with the scene container
-		initializeAnimationEngine(scene);
+		// Initialize the new animation engine with the wrapper container (not scene which is z-index: 0)
+		initializeAnimationEngine(gifsWrapper);
 
 		// set events
 		battleCtx.events.pokemonChange.subscribe((change) => {

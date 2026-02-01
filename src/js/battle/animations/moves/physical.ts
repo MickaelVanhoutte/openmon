@@ -15,7 +15,12 @@ async function punchAnimation(engine: AnimationEngine, context: MoveContext): Pr
 
 	await engine.moveSpriteTo(attacker, target, { duration: 0.15, overshoot: 25 });
 	await Promise.all([
-		engine.showSpriteEffect('fist', target, { hueRotate: hue, scale: 1.2, tint: typeColor }),
+		engine.showSpriteEffect('fist', target, {
+			hueRotate: hue,
+			scale: 1.2,
+			tint: typeColor,
+			zIndex: engine.getEffectZIndex(attacker.slot)
+		}),
 		engine.showImpact(target, { intensity: 10, color: typeColor })
 	]);
 }
@@ -34,7 +39,12 @@ async function kickAnimation(engine: AnimationEngine, context: MoveContext): Pro
 		returnEasing: 'bounce.out'
 	});
 	await Promise.all([
-		engine.showSpriteEffect('foot', target, { hueRotate: hue, scale: 1.3, tint: typeColor }),
+		engine.showSpriteEffect('foot', target, {
+			hueRotate: hue,
+			scale: 1.3,
+			tint: typeColor,
+			zIndex: engine.getEffectZIndex(attacker.slot)
+		}),
 		engine.showImpact(target, { intensity: 12, color: typeColor })
 	]);
 }
@@ -47,7 +57,12 @@ async function slashAnimation(engine: AnimationEngine, context: MoveContext): Pr
 
 	await engine.moveSpriteTo(attacker, target, { duration: 0.12, overshoot: 35 });
 	await Promise.all([
-		engine.showSpriteEffect('slash', target, { hueRotate: hue, scale: 1.5, tint: typeColor }),
+		engine.showSpriteEffect('slash', target, {
+			hueRotate: hue,
+			scale: 1.5,
+			tint: typeColor,
+			zIndex: engine.getEffectZIndex(attacker.slot)
+		}),
 		engine.flashSprite(target, typeColor, 100),
 		engine.shake(target.element, 6, 150)
 	]);
@@ -60,10 +75,20 @@ async function clawAnimation(engine: AnimationEngine, context: MoveContext): Pro
 	const typeColor = engine.getTypeColor(moveType);
 
 	await engine.moveSpriteTo(attacker, target, { duration: 0.1, overshoot: 30 });
-	await engine.showSpriteEffect('claws', target, { hueRotate: hue, scale: 1.4, tint: typeColor });
+	await engine.showSpriteEffect('claws', target, {
+		hueRotate: hue,
+		scale: 1.4,
+		tint: typeColor,
+		zIndex: engine.getEffectZIndex(attacker.slot)
+	});
 	await engine.wait(50);
 	await Promise.all([
-		engine.showSpriteEffect('slash', target, { hueRotate: hue, scale: 1.2, tint: typeColor }),
+		engine.showSpriteEffect('slash', target, {
+			hueRotate: hue,
+			scale: 1.2,
+			tint: typeColor,
+			zIndex: engine.getEffectZIndex(attacker.slot)
+		}),
 		engine.shake(target.element, 8, 200)
 	]);
 }
@@ -76,7 +101,12 @@ async function biteAnimation(engine: AnimationEngine, context: MoveContext): Pro
 
 	await engine.moveSpriteTo(attacker, target, { duration: 0.18, overshoot: 15 });
 	await Promise.all([
-		engine.showSpriteEffect('crunch', target, { hueRotate: hue, scale: 1.3, tint: typeColor }),
+		engine.showSpriteEffect('crunch', target, {
+			hueRotate: hue,
+			scale: 1.3,
+			tint: typeColor,
+			zIndex: engine.getEffectZIndex(attacker.slot)
+		}),
 		engine.showImpact(target, { intensity: 10, color: typeColor })
 	]);
 }
@@ -94,7 +124,11 @@ async function tackleAnimation(engine: AnimationEngine, context: MoveContext): P
 		returnEasing: 'power2.out'
 	});
 	await Promise.all([
-		engine.showSpriteEffect('impact', target, { scale: 1.5, tint: typeColor }),
+		engine.showSpriteEffect('impact', target, {
+			scale: 1.5,
+			tint: typeColor,
+			zIndex: engine.getEffectZIndex(attacker.slot)
+		}),
 		engine.showImpact(target, { intensity: 15, color: typeColor }),
 		engine.screenShake(10, 200)
 	]);
@@ -108,7 +142,12 @@ async function chopAnimation(engine: AnimationEngine, context: MoveContext): Pro
 
 	await engine.moveSpriteTo(attacker, target, { duration: 0.15, overshoot: 25 });
 	await Promise.all([
-		engine.showSpriteEffect('slash', target, { hueRotate: hue, scale: 1.3, tint: typeColor }),
+		engine.showSpriteEffect('slash', target, {
+			hueRotate: hue,
+			scale: 1.3,
+			tint: typeColor,
+			zIndex: engine.getEffectZIndex(attacker.slot)
+		}),
 		engine.showImpact(target, { intensity: 8, color: typeColor })
 	]);
 }
