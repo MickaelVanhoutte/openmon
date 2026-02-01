@@ -125,37 +125,43 @@ export function getAttackPlatePositions(
 		y: spritePos.y + spritePos.height / 2
 	};
 
-	const horizontalOffset = spritePos.width * 0.7 + 70;
+	const horizontalOffset = spritePos.width * 0.7 + 80;
 	const verticalOffset = 45;
 
 	const leftX = spriteCenter.x - horizontalOffset;
-	const rightX = spriteCenter.x + horizontalOffset - 120;
+	const rightX = spriteCenter.x + horizontalOffset - 150;
 	const topY = spriteCenter.y - verticalOffset;
-	const bottomY = spriteCenter.y + verticalOffset + 15;
+	const bottomY = spriteCenter.y + verticalOffset - 15;
+
+	// Convert to percentages and clamp to screen bounds (min 0%)
+	const leftXPercent = Math.max(0, (leftX / viewportWidth) * 100);
+	const rightXPercent = Math.max(0, (rightX / viewportWidth) * 100);
+	const topYPercent = Math.max(0, (topY / viewportHeight) * 100);
+	const bottomYPercent = Math.max(0, (bottomY / viewportHeight) * 100);
 
 	const allPositions = [
 		{
 			// Move 1 - top left
-			top: (topY / viewportHeight) * 100 - 10,
-			left: (leftX / viewportWidth) * 100,
+			top: topYPercent - 10,
+			left: leftXPercent,
 			rotation: -1
 		},
 		{
 			// Move 2 - top right
-			top: (topY / viewportHeight) * 100,
-			left: (rightX / viewportWidth) * 100,
+			top: topYPercent,
+			left: rightXPercent,
 			rotation: 1
 		},
 		{
 			// Move 3 - bottom left
-			top: (bottomY / viewportHeight) * 100 - 10,
-			left: (leftX / viewportWidth) * 100,
+			top: bottomYPercent - 10,
+			left: leftXPercent,
 			rotation: -1
 		},
 		{
 			// Move 4 - bottom right
-			top: (bottomY / viewportHeight) * 100,
-			left: (rightX / viewportWidth) * 100,
+			top: bottomYPercent,
+			left: rightXPercent,
 			rotation: 1
 		}
 	];
