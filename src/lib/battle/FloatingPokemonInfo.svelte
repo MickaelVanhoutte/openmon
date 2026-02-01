@@ -52,24 +52,54 @@
 	let hpTick = $state(0);
 
 	// Reactive derived values from pokemon object
-	// The hpTick dependency forces re-evaluation when tick changes
 	const name = $derived(pokemon.name);
 	const level = $derived(pokemon.level);
 	const currentHp = $derived(hpTick >= 0 ? pokemon.currentHp : pokemon.currentHp);
 	const maxHp = $derived(hpTick >= 0 ? pokemon.currentStats.hp : pokemon.currentStats.hp);
 	const gender = $derived(pokemon.gender || 'unknown');
-	const statusAbr = $derived(pokemon.status?.abr || null);
-	const statChanges: StatChange[] = [];
+	const statusAbr = $derived(hpTick >= 0 ? pokemon.status?.abr || null : null);
 
-	// Poll for HP changes (simple but effective solution)
+	const statsFormat: Record<string, string> = {
+		attack: 'ATK',
+		defense: 'DEF',
+		specialAttack: 'SP.A',
+		specialDefense: 'SP.D',
+		speed: 'SPD'
+	};
+
+	const statChanges = $derived.by(() => {
+		if (hpTick < 0) return [];
+		const changes: StatChange[] = [];
+		if (pokemon.statsChanges) {
+			for (const [stat, value] of Object.entries(pokemon.statsChanges)) {
+				if (statsFormat[stat] && value !== 0) {
+					changes.push({ stat: statsFormat[stat], stages: value as number });
+				}
+			}
+		}
+		return changes;
+	});
+
+	// Poll for HP/status/stat changes
 	let pollInterval: ReturnType<typeof setInterval>;
 	let lastHp = $state(pokemon.currentHp);
 
 	onMount(() => {
-		// Check for HP changes every 100ms during battle
+		let lastStatus = pokemon.status?.abr;
+		let lastStatsJson = JSON.stringify(pokemon.statsChanges || {});
+
 		pollInterval = setInterval(() => {
-			if (pokemon.currentHp !== lastHp) {
+			const currentStatus = pokemon.status?.abr;
+			const currentStatsJson = JSON.stringify(pokemon.statsChanges || {});
+
+			if (
+				pokemon.currentHp !== lastHp ||
+				currentStatus !== lastStatus ||
+				currentStatsJson !== lastStatsJson
+			) {
 				lastHp = pokemon.currentHp;
+				lastStatus = currentStatus;
+				lastStatsJson = currentStatsJson;
 				hpTick++;
 			}
 		}, 100);
@@ -195,8 +225,6 @@
 			? computedStyle
 			: `bottom: ${position.bottom}; left: ${position.left};`} opacity: 0;"
 	>
-		<div class="leader-line"></div>
-
 		<div class="info-header">
 			<span class="pokemon-name spatial-text"
 				>{name}
@@ -227,28 +255,32 @@
 			</div>
 		{/if}
 
-		{#if statusAbr}
-			<div class="status-chip" style="background-color: {getStatusColor(statusAbr)}">
-				<span class="spatial-text">{statusAbr}</span>
-			</div>
-		{/if}
+		<div class="leader-line"></div>
 
-		{#if statChanges && statChanges.length > 0}
-			<div class="stat-changes">
-				{#each statChanges as change}
-					<span
-						class="stat-change"
-						class:positive={change.stages > 0}
-						class:negative={change.stages < 0}
-					>
-						<span class="spatial-text">
-							{change.stat}
-							{change.stages > 0 ? '+' : ''}{change.stages}
+		<div class="below-box-indicators">
+			{#if statChanges && statChanges.length > 0}
+				<div class="stat-changes">
+					{#each statChanges as change}
+						<span
+							class="stat-change"
+							class:positive={change.stages > 0}
+							class:negative={change.stages < 0}
+						>
+							<span class="spatial-text">
+								{change.stat}
+								{change.stages > 0 ? '+' : ''}{change.stages}
+							</span>
 						</span>
-					</span>
-				{/each}
-			</div>
-		{/if}
+					{/each}
+				</div>
+			{/if}
+
+			{#if statusAbr}
+				<div class="status-chip" style="background-color: {getStatusColor(statusAbr)}">
+					<span class="spatial-text">{statusAbr}</span>
+				</div>
+			{/if}
+		</div>
 	</div>
 {/if}
 
@@ -346,13 +378,6 @@
 		color: white;
 	}
 
-	.hp-numbers {
-		text-align: right;
-		font-size: 0.8rem;
-		color: #94a3b8;
-		margin-top: 2px;
-	}
-
 	.exp-bar-container {
 		margin-top: 4px;
 	}
@@ -370,40 +395,49 @@
 		transition: width 0.5s ease-out;
 	}
 
-	.status-chip {
-		display: inline-block;
-		margin-top: 6px;
-		padding: 2px 10px;
-		transform: skewX(var(--skew-angle));
-		font-size: 0.75rem;
-		font-weight: 700;
-		color: white;
-		text-transform: uppercase;
+	.below-box-indicators {
+		position: absolute;
+		bottom: -18px;
+		left: 0;
+		right: 0;
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-start;
+		pointer-events: none;
+		padding: 0 4px;
 	}
 
 	.stat-changes {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 4px;
-		margin-top: 6px;
+		gap: 3px;
+		max-width: 45%;
 	}
 
 	.stat-change {
-		padding: 2px 8px;
+		padding: 2px 6px;
 		transform: skewX(var(--skew-angle));
-		font-size: 0.7rem;
+		font-size: 0.75rem;
 		font-weight: 600;
+		color: white;
 	}
 
 	.stat-change.positive {
-		background: rgba(34, 197, 94, 0.3);
-		color: #4ade80;
+		background: rgba(34, 197, 94, 0.7);
 		border-left: 2px solid #4ade80;
 	}
 
 	.stat-change.negative {
-		background: rgba(239, 68, 68, 0.3);
-		color: #f87171;
+		background: rgba(239, 68, 68, 0.7);
 		border-left: 2px solid #f87171;
+	}
+
+	.status-chip {
+		padding: 2px 8px;
+		transform: skewX(var(--skew-angle));
+		font-size: 0.75rem;
+		font-weight: 700;
+		color: white;
+		text-transform: uppercase;
 	}
 </style>
