@@ -3,6 +3,10 @@
 	import { Pokedex, PokedexEntry, Move, Stats, Sprites, MoveEffect } from '$js/pokemons/pokedex';
 	import { onMount } from 'svelte';
 
+	// Import raw JSON files directly (Vite handles this)
+	import rawPokedexJson from '../../../assets/data/raw/dex/pokedex.json';
+	import rawMovesJson from '../../../assets/data/raw/moves/moves.json';
+
 	let pokedex: Pokedex;
 
 	// Raw data from JSON files
@@ -107,25 +111,9 @@
 		await pokedex.ensureLoaded();
 		currentPokemon = [...pokedex.entries];
 
-		// Load raw Pokemon JSON
-		try {
-			const pokemonResponse = await fetch('/data/raw/dex/pokedex.json');
-			if (pokemonResponse.ok) {
-				rawPokemon = await pokemonResponse.json();
-			}
-		} catch (e) {
-			console.error('Failed to load raw Pokemon:', e);
-		}
-
-		// Load raw Moves JSON
-		try {
-			const movesResponse = await fetch('/data/raw/moves/moves.json');
-			if (movesResponse.ok) {
-				rawMoves = await movesResponse.json();
-			}
-		} catch (e) {
-			console.error('Failed to load raw Moves:', e);
-		}
+		// Use imported JSON data directly
+		rawPokemon = rawPokedexJson as RawPokedexEntry[];
+		rawMoves = rawMovesJson as RawMove[];
 	});
 
 	function addPokemonToPokedex() {
