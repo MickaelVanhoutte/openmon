@@ -922,11 +922,9 @@ class MultiHit implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		// The actual multi-hit logic is handled in the move execution
-		// 3/8 chance for 2 or 3 hits, 1/8 chance for 4 or 5 hits
 		const rand = Math.random();
 		const hits = rand < 0.375 ? 2 : rand < 0.75 ? 3 : rand < 0.875 ? 4 : 5;
-		return new EffectResult(undefined, `Hit ${hits} times!`);
+		return new EffectResult(undefined, `Hit ${hits} times!`, hits);
 	}
 
 	playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {

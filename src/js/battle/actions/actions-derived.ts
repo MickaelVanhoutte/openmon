@@ -103,19 +103,22 @@ export class PlayAnimation implements ActionV2Interface {
 	public move: Move;
 	public target: PokemonInstance;
 	public initiator: PokemonInstance;
+	public hitCount?: number;
 
-	constructor(move: Move, target: PokemonInstance, initiator: PokemonInstance) {
+	constructor(move: Move, target: PokemonInstance, initiator: PokemonInstance, hitCount?: number) {
 		this.type = ActionType.PLAY_ANIMATION;
 		this.description = 'Play Animation';
 		this.move = move;
 		this.target = target;
 		this.initiator = initiator;
+		this.hitCount = hitCount;
 	}
 	execute(ctx: BattleContext): void {
 		ctx.events.animateAttack.set({
 			move: this.move,
 			target: this.target,
-			initiator: this.initiator
+			initiator: this.initiator,
+			hitCount: this.hitCount
 		});
 	}
 }

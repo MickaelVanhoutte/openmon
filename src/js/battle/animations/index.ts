@@ -198,6 +198,7 @@ export interface LegacyAnimateAttackParams {
 	moveName: string;
 	moveCategory: 'physical' | 'special' | 'status';
 	moveType: string;
+	hitCount?: number;
 }
 
 export async function animateAttackWithNewEngine(params: LegacyAnimateAttackParams): Promise<void> {
@@ -223,7 +224,8 @@ export async function animateAttackWithNewEngine(params: LegacyAnimateAttackPara
 		defender: defenderSprite,
 		moveName: params.moveName,
 		moveCategory: params.moveCategory,
-		moveType: params.moveType
+		moveType: params.moveType,
+		hitCount: params.hitCount
 	};
 
 	await engineInstance.playMove(context);

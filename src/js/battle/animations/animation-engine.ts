@@ -95,6 +95,7 @@ export interface MoveContext {
 	moveName: string;
 	moveCategory: 'physical' | 'special' | 'status';
 	moveType: string;
+	hitCount?: number;
 }
 
 export type MoveAnimation = (engine: AnimationEngine, context: MoveContext) => Promise<void>;

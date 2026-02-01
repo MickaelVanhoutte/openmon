@@ -219,15 +219,18 @@ export class Attack implements ActionV2Interface {
 						});
 					} else {
 						let effect = MOVE_EFFECT_APPLIER.findEffect(this.move.effect);
+						let hitCount: number | undefined;
 						if (
 							effect.when === 'before-move' &&
 							this.effectApplies(this.move.effectChance, this.move.effect)
 						) {
+							const effectResult = effect.apply([tgt], this.initiator);
+							hitCount = effectResult?.hitCount;
 							actionsToPush.push(new ApplyEffect(this.move.effect, tgt, this.initiator));
 						}
 
 						if (!result.immune) {
-							actionsToPush.push(new PlayAnimation(this.move, tgt, this.initiator));
+							actionsToPush.push(new PlayAnimation(this.move, tgt, this.initiator, hitCount));
 						}
 						if (result.immune) {
 							actionsToPush.push(

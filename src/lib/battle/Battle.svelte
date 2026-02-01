@@ -75,7 +75,8 @@
 		initiatorElement: HTMLElement,
 		targetElement: HTMLElement,
 		initiatorPokemon: PokemonInstance,
-		targetPokemon: PokemonInstance
+		targetPokemon: PokemonInstance,
+		hitCount?: number
 	): void {
 		const initiatorSide = battleCtx.getPokemonSide(initiatorPokemon);
 		const targetSide = battleCtx.getPokemonSide(targetPokemon);
@@ -102,7 +103,8 @@
 			},
 			moveName: move.name,
 			moveCategory: move.category as 'physical' | 'special' | 'status',
-			moveType: move.type
+			moveType: move.type,
+			hitCount: hitCount
 		});
 	}
 
@@ -220,7 +222,14 @@
 					});
 				});
 			} else {
-				playMoveAnimation(value.move, animInitiator, animTarget, value.initiator, value.target);
+				playMoveAnimation(
+					value.move,
+					animInitiator,
+					animTarget,
+					value.initiator,
+					value.target,
+					value.hitCount
+				);
 			}
 		}
 	});
