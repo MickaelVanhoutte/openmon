@@ -1369,4 +1369,56 @@
 			right: 1%;
 		}
 	}
+
+	/* Angular Back Button - Spatial UI Style */
+	.back-plate {
+		position: absolute;
+		bottom: 4%;
+		left: 5%;
+		padding: 12px 24px;
+		transform: skewX(-15deg);
+		background: linear-gradient(135deg, rgba(71, 85, 105, 0.95) 0%, rgba(51, 65, 85, 0.9) 100%);
+		border: none;
+		border-left: 4px solid #94a3b8;
+		color: white;
+		cursor: pointer;
+		z-index: 100;
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		font-family: inherit;
+		font-size: 0.9rem;
+		box-shadow:
+			0 4px 12px rgba(0, 0, 0, 0.4),
+			inset 0 1px 0 rgba(255, 255, 255, 0.1);
+		transition: all 0.2s ease;
+	}
+
+	.back-plate:hover {
+		background: linear-gradient(135deg, rgba(100, 116, 139, 0.95) 0%, rgba(71, 85, 105, 0.9) 100%);
+		border-left-color: #cbd5e1;
+		transform: skewX(-15deg) translateX(-3px);
+		box-shadow:
+			0 6px 16px rgba(0, 0, 0, 0.5),
+			inset 0 1px 0 rgba(255, 255, 255, 0.15);
+	}
+
+	.back-plate:active {
+		transform: skewX(-15deg) translateX(-1px) scale(0.98);
+	}
+
+	.back-plate svg {
+		width: 20px;
+		height: 20px;
+		transform: skewX(15deg);
+		opacity: 0.9;
+	}
+
+	.back-label {
+		transform: skewX(15deg);
+		font-weight: 700;
+		letter-spacing: 1.5px;
+		text-transform: uppercase;
+		text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+	}
 </style>
