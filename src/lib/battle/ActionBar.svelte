@@ -25,10 +25,13 @@
 		context: GameContext;
 		battleCtx: BattleContext;
 		overWorldCtx: OverworldContext;
-		allySprite?: HTMLElement | null;
+		allySprites?: HTMLElement[];
 	}
 
-	let { context, battleCtx, overWorldCtx, allySprite = null }: Props = $props();
+	let { context, battleCtx, overWorldCtx, allySprites = [] }: Props = $props();
+
+	// Get the active sprite based on current action index (for double battles)
+	const activeSprite = $derived(allySprites[battleCtx?.actionIdx ?? 0] ?? allySprites[0] ?? null);
 	let moveOpened = $state(false);
 	let targetSelectOpened = $state(false);
 	let possibleTargets: PokemonInstance[] = $state([]);
@@ -583,7 +586,7 @@
 			moves={battleCtx?.playerSide[battleCtx.actionIdx]?.moves || []}
 			{disabled}
 			{selectedMoveIdx}
-			spriteElement={allySprite}
+			spriteElement={activeSprite}
 			onMoveClick={(index) =>
 				launchMove(index, battleCtx?.playerSide[battleCtx.actionIdx]?.moves[index])}
 			onCancel={() => {
@@ -641,7 +644,7 @@
 		show={true}
 		{disabled}
 		{selectedOptionIdx}
-		spriteElement={allySprite}
+		spriteElement={activeSprite}
 		onFight={() => {
 			moveOpened = true;
 			showInfoBack = true;

@@ -419,7 +419,7 @@
 		bind:context
 		bind:battleCtx
 		bind:overWorldCtx={context.overWorldContext}
-		allySprite={ally[0]}
+		allySprites={ally}
 	/>
 </div>
 
