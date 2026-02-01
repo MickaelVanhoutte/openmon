@@ -21,8 +21,15 @@
 	let over: number = $state(0);
 
 	let box = $derived(context.boxes[selectedBox]);
+
+	// Force reactivity tick for team updates
+	let teamTick = $state(0);
 	let teamSlot = $derived(
-		context.player.monsters.concat(new Array(6 - context.player.monsters.length).fill(undefined))
+		teamTick >= 0
+			? context.player.monsters.concat(
+					new Array(6 - context.player.monsters.length).fill(undefined)
+				)
+			: []
 	);
 	let pkmnList = $derived(
 		selectZone === 'box'
@@ -95,7 +102,8 @@
 
 	function setMoving() {
 		if (firstSelection) {
-			firstSelection.moving = true;
+			// Reassign to trigger Svelte 5 reactivity (nested property mutation doesn't trigger updates)
+			firstSelection = { ...firstSelection, moving: true };
 			optionsOpened = false;
 		}
 	}
@@ -144,6 +152,9 @@
 		targetList[targetIndex] = temp;
 
 		context.player.monsters = context.player.monsters.filter((p) => !!p);
+
+		// Force reactivity update for teamSlot
+		teamTick++;
 
 		firstSelection = undefined;
 	}
