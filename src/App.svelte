@@ -25,11 +25,6 @@
 	function checkDebugRoute(): void {
 		const hash = window.location.hash;
 		showAdmin = hash === '#admin';
-		// Backward compat: #debug-animations redirects to #admin
-		if (showAdmin) {
-			window.location.hash = '#admin';
-			showAdmin = true;
-		}
 	}
 
 	savesHolder.selectedSave$.subscribe((value: SaveContext | undefined) => {

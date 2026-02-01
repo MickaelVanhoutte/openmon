@@ -40,7 +40,49 @@ export default defineConfig({
 		VitePWA({
 			registerType: 'autoUpdate',
 			workbox: {
-				maximumFileSizeToCacheInBytes: 5 * 1024 * 1024 // 5MB limit
+				maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB limit
+				// Force SW to take control immediately
+				skipWaiting: true,
+				clientsClaim: true,
+				// Don't precache everything - use network-first for HTML
+				navigateFallback: 'index.html',
+				navigateFallbackDenylist: [/^\/api/],
+				// Use network-first for assets to always get latest
+				runtimeCaching: [
+					{
+						urlPattern: /\.(?:js|css)$/,
+						handler: 'StaleWhileRevalidate',
+						options: {
+							cacheName: 'static-resources',
+							expiration: {
+								maxEntries: 100,
+								maxAgeSeconds: 60 * 60 * 24 // 24 hours
+							}
+						}
+					},
+					{
+						urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/,
+						handler: 'CacheFirst',
+						options: {
+							cacheName: 'images',
+							expiration: {
+								maxEntries: 500,
+								maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+							}
+						}
+					},
+					{
+						urlPattern: /\.(?:json)$/,
+						handler: 'StaleWhileRevalidate',
+						options: {
+							cacheName: 'data',
+							expiration: {
+								maxEntries: 50,
+								maxAgeSeconds: 60 * 60 * 24 // 24 hours
+							}
+						}
+					}
+				]
 			},
 			manifest: {
 				name: 'Pokemon Unison',
