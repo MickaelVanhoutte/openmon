@@ -30,8 +30,11 @@
 
 	let { context, battleCtx, overWorldCtx, allySprites = [] }: Props = $props();
 
+	// Track actionIdx reactively (poll for changes since battleCtx is not reactive)
+	let currentActionIdx = $state(battleCtx?.actionIdx ?? 0);
+
 	// Get the active sprite based on current action index (for double battles)
-	const activeSprite = $derived(allySprites[battleCtx?.actionIdx ?? 0] ?? allySprites[0] ?? null);
+	const activeSprite = $derived(allySprites[currentActionIdx] ?? allySprites[0] ?? null);
 	let moveOpened = $state(false);
 	let targetSelectOpened = $state(false);
 	let possibleTargets: PokemonInstance[] = $state([]);
@@ -412,6 +415,13 @@
 		show = true;
 		window.addEventListener('keydown', listener);
 
+		// Poll for actionIdx changes (for double battles)
+		const actionIdxPoll = setInterval(() => {
+			if (battleCtx?.actionIdx !== currentActionIdx) {
+				currentActionIdx = battleCtx?.actionIdx ?? 0;
+			}
+		}, 100);
+
 		battleCtx.events.playerPokemonFaint.subscribe((pkmn) => {
 			if (pkmn && haveRemainingPokemons()) {
 				changePokemon = true;
@@ -419,6 +429,7 @@
 		});
 		return () => {
 			window.removeEventListener('keydown', listener);
+			clearInterval(actionIdxPoll);
 		};
 	});
 </script>
