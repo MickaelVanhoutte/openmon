@@ -88,37 +88,43 @@
 			y: spritePos.y + spritePos.height / 2
 		};
 
-		const horizontalOffset = spritePos.width * 0.7 + 70;
+		const horizontalOffset = spritePos.width * 0.7 + 80;
 		const verticalOffset = 50;
 
 		const leftX = spriteCenter.x - horizontalOffset;
-		const rightX = spriteCenter.x + horizontalOffset - 120;
+		const rightX = spriteCenter.x + horizontalOffset - 150;
 		const topY = spriteCenter.y - verticalOffset;
-		const bottomY = spriteCenter.y + verticalOffset + 15;
+		const bottomY = spriteCenter.y + verticalOffset - 15;
+
+		// Convert to percentages and clamp to screen bounds (min 0%)
+		const leftXPercent = Math.max(0, (leftX / viewportWidth) * 100);
+		const rightXPercent = Math.max(0, (rightX / viewportWidth) * 100);
+		const topYPercent = Math.max(0, (topY / viewportHeight) * 100);
+		const bottomYPercent = Math.max(0, (bottomY / viewportHeight) * 100);
 
 		return [
 			{
 				// FIGHT - top left
-				top: (topY / viewportHeight) * 100 - 10,
-				left: (leftX / viewportWidth) * 100,
+				top: topYPercent - 10,
+				left: leftXPercent,
 				rotation: -1
 			},
 			{
 				// BAG - top right
-				top: (topY / viewportHeight) * 100,
-				left: (rightX / viewportWidth) * 100,
+				top: topYPercent,
+				left: rightXPercent,
 				rotation: 1
 			},
 			{
 				// POKEMON - bottom left
-				top: (bottomY / viewportHeight) * 100 - 10,
-				left: (leftX / viewportWidth) * 100,
+				top: bottomYPercent - 10,
+				left: leftXPercent,
 				rotation: -1
 			},
 			{
 				// RUN - bottom right
-				top: (bottomY / viewportHeight) * 100,
-				left: (rightX / viewportWidth) * 100,
+				top: bottomYPercent,
+				left: rightXPercent,
 				rotation: 1
 			}
 		];
@@ -251,8 +257,8 @@
 
 <style>
 	:root {
-		--skew-angle: -15deg;
-		--skew-counter: 15deg;
+		--skew-angle: -10deg;
+		--skew-counter: 10deg;
 	}
 
 	.action-plate {

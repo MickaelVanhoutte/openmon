@@ -534,7 +534,7 @@
 		//transform: scale(var(--scale));
 		transform-origin: bottom left;
 		bottom: calc(12% + var(--offSet) * 5%);
-		left: calc(20% + var(--offSet) * -18%);
+		left: calc(25% + var(--offSet) * -15%);
 		animation: impatience calc(8s + var(--offSet) * 1.5s) infinite;
 		animation-delay: calc(1.5s + var(--offSet) * 1.5s);
 	}
@@ -560,8 +560,8 @@
 		width: auto;
 		image-rendering: pixelated;
 		transform-origin: bottom right;
-		bottom: calc(20% - (var(--offSet) * -5%));
-		right: calc(20% + var(--offSet) * -18%);
+		bottom: calc(22% - (var(--offSet) * -5%));
+		right: calc(18% + var(--offSet) * -18%);
 		animation: impatience calc(8s + var(--offSet) * 1.5s) infinite;
 		animation-delay: calc(2s + var(--offSet) * 1.5s);
 	}

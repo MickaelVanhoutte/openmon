@@ -221,8 +221,8 @@
 
 <style>
 	:root {
-		--skew-angle: -15deg;
-		--skew-counter: 15deg;
+		--skew-angle: -10deg;
+		--skew-counter: 10deg;
 	}
 
 	.attack-plate {
