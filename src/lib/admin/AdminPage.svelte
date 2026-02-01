@@ -178,7 +178,7 @@
 		color: var(--pixel-text-white);
 		cursor: pointer;
 		font-family: inherit;
-		font-size: 0.625rem;
+		font-size: 1.2rem;
 		opacity: 0.7;
 		transition: opacity 0.2s;
 		white-space: nowrap;
