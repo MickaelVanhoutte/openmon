@@ -10,7 +10,7 @@
 	import type { BattleContext } from './js/context/battleContext';
 	import Intro from './lib/Intro.svelte';
 	import { DEBUG } from './js/env';
-	import AnimationTestPage from './lib/debug/AnimationTestPage.svelte';
+	import AdminPage from './lib/admin/AdminPage.svelte';
 
 	/**
 	 * Main component, handling screens transitions
@@ -21,9 +21,18 @@
 	let newGame: boolean = false;
 	let started: boolean = false || DEBUG;
 	let showDebugAnimations: boolean = false;
+	let showAdmin: boolean = false;
 
 	function checkDebugRoute(): void {
-		showDebugAnimations = window.location.hash === '#debug-animations';
+		const hash = window.location.hash;
+		showDebugAnimations = hash === '#debug-animations';
+		showAdmin = hash === '#admin';
+		// Backward compat: #debug-animations redirects to #admin
+		if (showDebugAnimations) {
+			window.location.hash = '#admin';
+			showDebugAnimations = false;
+			showAdmin = true;
+		}
 	}
 
 	savesHolder.selectedSave$.subscribe((value: SaveContext | undefined) => {
@@ -127,10 +136,10 @@
 </script>
 
 <div id="wrapper">
-	{#if showDebugAnimations}
-		<AnimationTestPage
+	{#if showAdmin}
+		<AdminPage
 			onClose={() => {
-				showDebugAnimations = false;
+				showAdmin = false;
 				window.location.hash = '';
 			}}
 		/>

@@ -1,13 +1,7 @@
 {
-	"active_plan": null,
-	"started_at": "2026-01-30T20:04:39.868Z",
-	"completed_at": "2026-01-31T17:15:00.000Z",
-	"session_ids": [
-		"ses_3ef7e04f1ffe55LeiNxCcw8Tzc",
-		"ses_3ef34cc3fffeYQDx8YycHUZHHV",
-		"ses_3eefe251fffeP2c7xRjWlBPyAw",
-		"ses_3eb6b47a6ffe25KI0PQbQqTNdv"
-	],
-	"plan_name": "openmon-codebase-improvement",
-	"status": "completed"
+	"active_plan": "/Users/20017225/PERSO/openmon/.sisyphus/plans/admin-page.md",
+	"started_at": "2026-02-01T15:59:27.068Z",
+	"session_ids": ["ses_3e6960d47ffePOsg6g4vdNXcfm"],
+	"plan_name": "admin-page",
+	"status": "in_progress"
 }
