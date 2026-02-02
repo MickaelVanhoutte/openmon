@@ -419,7 +419,7 @@
 
 	function haveRemainingPokemons() {
 		return (
-			battleCtx.player.monsters?.filter((p) => !!p && !p.fainted)?.length >
+			battleCtx.player.monsters?.filter((p) => !!p && !p.fainted)?.length >=
 			(battleCtx.battleType === BattleType.SINGLE ? 1 : 2)
 		);
 	}
