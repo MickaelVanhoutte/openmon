@@ -380,19 +380,27 @@
 			if (change) {
 				if (change?.side === 'ally') {
 					const pokemon = battleCtx.playerSide[change?.idx];
-					if (pokemon) {
-						allyFainted[change.idx] = false;
-						animateRun(ally[change?.idx], 'ally').then(() => {
-							battleLoopContext.allydrawn = false;
-						});
+					if (pokemon && ally[change.idx]) {
+						// Update sprite src first
+						ally[change.idx].src = pokemon.getSprite(true);
+						ally[change.idx].onload = () => {
+							// Reset fainted state to show HP bar
+							allyFainted[change.idx] = false;
+							// Animate entry after sprite loads
+							animateRun(ally[change.idx], 'ally');
+						};
 					}
 				} else {
 					const pokemon = battleCtx.oppSide[change?.idx];
-					if (pokemon) {
-						opponentFainted[change.idx] = false;
-						animateRun(opponent[change?.idx], 'opponent').then(() => {
-							battleLoopContext.opponentdrawn = false;
-						});
+					if (pokemon && opponent[change.idx]) {
+						// Update sprite src first
+						opponent[change.idx].src = pokemon.getSprite();
+						opponent[change.idx].onload = () => {
+							// Reset fainted state to show HP bar
+							opponentFainted[change.idx] = false;
+							// Animate entry after sprite loads
+							animateRun(opponent[change.idx], 'opponent');
+						};
 					}
 				}
 			}
