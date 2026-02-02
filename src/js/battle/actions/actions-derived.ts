@@ -8,6 +8,14 @@ import { type Character } from '../../characters/characters-model';
 import { NPC } from '../../characters/npc';
 import { MOVE_EFFECT_APPLIER } from '../battle-model';
 import { MasteryType } from '../../characters/mastery-model';
+import { Hazard } from '../battle-field';
+import {
+	calculateStealthRockDamage,
+	calculateSpikesDamage,
+	applyToxicSpikes,
+	isGroundedForHazards
+} from '../../pokemons/effects/hazard-effects';
+import { EffectTiming } from '../../pokemons/effects/types';
 
 export class Message implements ActionV2Interface {
 	public type: ActionType;
@@ -63,7 +71,6 @@ export class ChangePokemon implements ActionV2Interface {
 		let idx = 0;
 		let side: 'ally' | 'opponent' = 'ally';
 		if (this.owner instanceof Player) {
-			//replace initiator with target in  ctx.playerSide
 			side = 'ally';
 			idx = ctx.playerSide.findIndex(
 				(monster: PokemonInstance | undefined) => monster === this.initiator
@@ -72,7 +79,6 @@ export class ChangePokemon implements ActionV2Interface {
 			ctx.playerSide[idx] = this.target;
 			ctx.participants.add(this.target);
 		} else {
-			//replace initiator with target in  ctx.opponentSide
 			side = 'opponent';
 			idx = ctx.oppSide.findIndex(
 				(monster: PokemonInstance | undefined) => monster === this.initiator
@@ -80,9 +86,92 @@ export class ChangePokemon implements ActionV2Interface {
 			pokemonChanged = ctx.oppSide[idx];
 			ctx.oppSide[idx] = this.target;
 		}
-		// order to change sprite to component
 		if (pokemonChanged) {
 			ctx.events.pokemonChange.set({ side, idx });
+		}
+
+		this.applyEntryHazards(ctx, this.target, side);
+	}
+
+	private applyEntryHazards(
+		ctx: BattleContext,
+		pokemon: PokemonInstance,
+		side: 'ally' | 'opponent'
+	): void {
+		const hazardSide = side === 'ally' ? 'ally' : 'enemy';
+		const battleField = ctx.battleField;
+		const types = pokemon.types;
+		const isGrounded = isGroundedForHazards(types);
+		const isPoisonType = types.some((t) => t.toLowerCase() === 'poison');
+
+		const stealthRockLayers = battleField.getHazardLayers(hazardSide, Hazard.STEALTH_ROCK);
+		if (stealthRockLayers > 0) {
+			const damage = calculateStealthRockDamage(pokemon.stats.hp, types);
+			pokemon.removeHp(damage);
+			ctx.addToStack(new Message(`${pokemon.name} was hurt by Stealth Rock!`, pokemon));
+			const faintActions = ctx.checkFainted(pokemon, pokemon);
+			faintActions.forEach((action) => ctx.addToStack(action));
+		}
+
+		if (isGrounded) {
+			const spikesLayers = battleField.getHazardLayers(hazardSide, Hazard.SPIKES);
+			if (spikesLayers > 0 && !pokemon.fainted) {
+				const damage = calculateSpikesDamage(pokemon.stats.hp, spikesLayers);
+				pokemon.removeHp(damage);
+				ctx.addToStack(new Message(`${pokemon.name} was hurt by Spikes!`, pokemon));
+				const faintActions = ctx.checkFainted(pokemon, pokemon);
+				faintActions.forEach((action) => ctx.addToStack(action));
+			}
+		}
+
+		if (isGrounded && !pokemon.fainted) {
+			const toxicSpikesLayers = battleField.getHazardLayers(hazardSide, Hazard.TOXIC_SPIKES);
+			if (toxicSpikesLayers > 0) {
+				if (isPoisonType) {
+					battleField.removeHazard(hazardSide, Hazard.TOXIC_SPIKES);
+					ctx.addToStack(new Message(`${pokemon.name} absorbed the Toxic Spikes!`, pokemon));
+				} else if (!pokemon.status) {
+					const poisonResult = applyToxicSpikes(toxicSpikesLayers);
+					if (poisonResult === 'poison') {
+						const poisonDamage = Math.floor(pokemon.stats.hp / 16);
+						pokemon.status = {
+							move_effect_id: 3,
+							abr: 'PSN',
+							duration: -1,
+							when: EffectTiming.END_TURN,
+							damages: poisonDamage,
+							turnsPassed: 0,
+							healed: false,
+							apply: () => ({ message: `${pokemon.name} is poisoned` }),
+							playEffect: (target: PokemonInstance) => {
+								target.removeHp(poisonDamage);
+								return { canPlay: true, message: `${target.name} is hurt by poison` };
+							}
+						};
+						ctx.addToStack(new Message(`${pokemon.name} was poisoned!`, pokemon));
+					} else if (poisonResult === 'toxic') {
+						const baseDamage = Math.floor(pokemon.stats.hp / 16);
+						let turnCount = 0;
+						pokemon.status = {
+							move_effect_id: 34,
+							abr: 'PSN+',
+							duration: -1,
+							when: EffectTiming.END_TURN,
+							damages: baseDamage,
+							turnsPassed: 0,
+							healed: false,
+							apply: () => ({ message: `${pokemon.name} was badly poisoned!` }),
+							playEffect: (target: PokemonInstance) => {
+								turnCount++;
+								const damage = Math.floor(baseDamage * turnCount);
+								target.removeHp(damage);
+								return { canPlay: true, message: `${target.name} is hurt by poison!` };
+							}
+						};
+						ctx.addToStack(new Message(`${pokemon.name} was badly poisoned!`, pokemon));
+					}
+				}
+			}
 		}
 	}
 }

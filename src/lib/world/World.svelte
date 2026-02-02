@@ -89,7 +89,7 @@
 			case TimeOfDay.DUSK:
 				return 'sepia(0.3) brightness(0.85) hue-rotate(-10deg)';
 			case TimeOfDay.NIGHT:
-				return 'brightness(0.5) saturate(0.7) hue-rotate(200deg)';
+				return 'brightness(0.55) saturate(0.6) sepia(0.3) hue-rotate(180deg)';
 		}
 	}
 
@@ -134,7 +134,9 @@
 	});
 
 	function drawElements() {
-		if (context.map === undefined) {return;}
+		if (context.map === undefined) {
+			return;
+		}
 
 		// Clear
 		bufferCtx.fillRect(0, 0, buffer.width, buffer.height);

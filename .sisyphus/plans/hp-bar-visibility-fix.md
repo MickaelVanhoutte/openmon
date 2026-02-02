@@ -114,6 +114,6 @@ When tab loses focus:
 
 ## Success Criteria
 
-- [ ] HP bars remain visible when switching browser tabs and returning
-- [ ] No console errors related to visibility
-- [ ] Build passes
+- [x] HP bars remain visible when switching browser tabs and returning
+- [x] No console errors related to visibility
+- [x] Build passes
