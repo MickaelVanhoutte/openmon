@@ -391,14 +391,17 @@
 							scale: 1,
 							transform: ''
 						});
+						// Reset fainted state to show HP bar
+						allyFainted[change.idx] = false;
 						// Update sprite src
-						ally[change.idx].src = pokemon.getSprite(true);
+						const newSrc = pokemon.getSprite(true);
 						ally[change.idx].onload = () => {
-							// Reset fainted state to show HP bar
-							allyFainted[change.idx] = false;
 							// Animate entry after sprite loads
 							animateEntry(ally[change.idx], 'ally', change.idx);
 						};
+						// Force onload to fire even for cached images
+						ally[change.idx].src = '';
+						ally[change.idx].src = newSrc;
 					}
 				} else {
 					const pokemon = battleCtx.oppSide[change?.idx];
@@ -412,14 +415,17 @@
 							scale: 1,
 							transform: ''
 						});
+						// Reset fainted state to show HP bar
+						opponentFainted[change.idx] = false;
 						// Update sprite src
-						opponent[change.idx].src = pokemon.getSprite();
+						const newSrc = pokemon.getSprite();
 						opponent[change.idx].onload = () => {
-							// Reset fainted state to show HP bar
-							opponentFainted[change.idx] = false;
 							// Animate entry after sprite loads
 							animateEntry(opponent[change.idx], 'opponent', change.idx);
 						};
+						// Force onload to fire even for cached images
+						opponent[change.idx].src = '';
+						opponent[change.idx].src = newSrc;
 					}
 				}
 			}
