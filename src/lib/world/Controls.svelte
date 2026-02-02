@@ -24,6 +24,8 @@
 	let displayedQuests = $state(false);
 	let menu = $state(false);
 	let menuAvailability = $state<Record<MenuType, boolean>>({} as Record<MenuType, boolean>);
+	let runningShoesUnlocked = $state(context.flags.getFlag(FlagEntry.RUNNING_SHOES_UNLOCKED));
+	let isRunning = $state(context.player?.running ?? false);
 
 	// Subscribe to menu availability changes
 	$effect(() => {
@@ -31,6 +33,18 @@
 			menuAvailability = availability;
 		});
 		return unsub;
+	});
+
+	// Poll for running shoes unlock (flags don't have a store)
+	$effect(() => {
+		if (runningShoesUnlocked) return;
+		const interval = setInterval(() => {
+			if (context.flags.getFlag(FlagEntry.RUNNING_SHOES_UNLOCKED)) {
+				runningShoesUnlocked = true;
+				clearInterval(interval);
+			}
+		}, 500);
+		return () => clearInterval(interval);
 	});
 	// Joystick listener
 
@@ -109,6 +123,7 @@
 				case 'Shift':
 					if (context.flags.getFlag(FlagEntry.RUNNING_SHOES_UNLOCKED)) {
 						context.player.running = !context.player.running;
+						isRunning = context.player.running;
 					}
 					break;
 				case 'x':
@@ -192,6 +207,7 @@
 	function toggleRunning() {
 		if (context.flags.getFlag(FlagEntry.RUNNING_SHOES_UNLOCKED)) {
 			context.player.running = !context.player.running;
+			isRunning = context.player.running;
 		}
 	}
 </script>
@@ -418,10 +434,10 @@
 	{/if}
 </nav>
 
-{#if context.flags.getFlag(FlagEntry.RUNNING_SHOES_UNLOCKED) && !displayedQuests}
+{#if runningShoesUnlocked && !displayedQuests}
 	<button
 		class="run-button"
-		class:active={context.player?.running}
+		class:active={isRunning}
 		onclick={toggleRunning}
 		aria-label="Toggle Run"
 	>
