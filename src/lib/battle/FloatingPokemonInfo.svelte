@@ -33,7 +33,9 @@
 	let containerElement: HTMLDivElement;
 
 	function animateEntrance() {
-		if (!containerElement) {return;}
+		if (!containerElement) {
+			return;
+		}
 		gsap.fromTo(
 			containerElement,
 			{ opacity: 0, y: -20, scale: 0.9 },
@@ -68,7 +70,9 @@
 	};
 
 	const statChanges = $derived.by(() => {
-		if (hpTick < 0) {return [];}
+		if (hpTick < 0) {
+			return [];
+		}
 		const changes: StatChange[] = [];
 		if (pokemon.statsChanges) {
 			for (const [stat, value] of Object.entries(pokemon.statsChanges)) {
@@ -115,7 +119,9 @@
 
 	// Check if sprite has valid position (not at 0,0)
 	function isSpritePositioned(): boolean {
-		if (!spriteElement) {return false;}
+		if (!spriteElement) {
+			return false;
+		}
 		const rect = spriteElement.getBoundingClientRect();
 		return rect.x > 0 || rect.y > 0;
 	}
@@ -165,9 +171,17 @@
 			observer.observe(spriteElement);
 		}
 
+		function handleVisibilityChange() {
+			if (document.visibilityState === 'visible' && containerElement && spriteReady) {
+				gsap.set(containerElement, { opacity: 1, y: 0, scale: 1 });
+			}
+		}
+		document.addEventListener('visibilitychange', handleVisibilityChange);
+
 		return () => {
 			window.removeEventListener('resize', updatePositionFromSprite);
 			observer?.disconnect();
+			document.removeEventListener('visibilitychange', handleVisibilityChange);
 		};
 	});
 
@@ -181,8 +195,12 @@
 	const hpPercent = $derived((currentHp / maxHp) * 100);
 
 	const hpColor = $derived(() => {
-		if (hpPercent > 50) {return '#4ade80';}
-		if (hpPercent > 20) {return '#facc15';}
+		if (hpPercent > 50) {
+			return '#4ade80';
+		}
+		if (hpPercent > 20) {
+			return '#facc15';
+		}
 		return '#ef4444';
 	});
 
@@ -193,14 +211,22 @@
 	});
 
 	const genderSymbol = $derived(() => {
-		if (gender === 'male') {return '\u2642';}
-		if (gender === 'female') {return '\u2640';}
+		if (gender === 'male') {
+			return '\u2642';
+		}
+		if (gender === 'female') {
+			return '\u2640';
+		}
 		return '';
 	});
 
 	const genderColor = $derived(() => {
-		if (gender === 'male') {return '#60a5fa';}
-		if (gender === 'female') {return '#f472b6';}
+		if (gender === 'male') {
+			return '#60a5fa';
+		}
+		if (gender === 'female') {
+			return '#f472b6';
+		}
 		return 'transparent';
 	});
 
