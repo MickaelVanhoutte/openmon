@@ -67,7 +67,7 @@
 	let isBattle = true;
 	let battleBagOpened = $state(false);
 	let battleSwitchOpened = $state(false);
-	let zIndexNext = 10;
+	let zIndexNext = 120;
 	const mechanicRegex = /{[^}]*}/g;
 	const effectRegex = /\$effect_chance/g;
 

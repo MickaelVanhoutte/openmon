@@ -25,6 +25,24 @@ export class Message implements ActionV2Interface {
 	}
 }
 
+export class Sleep implements ActionV2Interface {
+	public type: ActionType;
+	public description: string;
+	public initiator: PokemonInstance;
+	public duration: number;
+
+	constructor(duration: number, initiator?: PokemonInstance) {
+		this.type = ActionType.SLEEP;
+		this.description = `Sleep ${duration}ms`;
+		this.duration = duration;
+		this.initiator = initiator ?? ({} as PokemonInstance);
+	}
+
+	async execute(ctx: BattleContext): Promise<void> {
+		await ctx.sleep(this.duration);
+	}
+}
+
 export class ChangePokemon implements ActionV2Interface {
 	public type: ActionType;
 	public description: string;
