@@ -450,6 +450,7 @@
 			isAlly={false}
 			spriteElement={opponent[0]}
 			entranceDelay={isInitialBattleEntrance ? uiEntranceDelays.opponentHp : 0}
+			visible={!battleCtx.oppSide[0].fainted}
 		/>
 	{/if}
 	{#if battleCtx.playerSide[0] && entryAnimationsComplete}
@@ -459,6 +460,7 @@
 			isAlly={true}
 			spriteElement={ally[0]}
 			entranceDelay={isInitialBattleEntrance ? uiEntranceDelays.allyHp : 0}
+			visible={!battleCtx.playerSide[0].fainted}
 		/>
 	{/if}
 
@@ -470,6 +472,7 @@
 				isAlly={false}
 				spriteElement={opponent[1]}
 				entranceDelay={isInitialBattleEntrance ? uiEntranceDelays.opponentHp : 0}
+				visible={!battleCtx.oppSide[1].fainted}
 			/>
 		{/if}
 		{#if battleCtx.playerSide[1] && entryAnimationsComplete}
@@ -479,6 +482,7 @@
 				isAlly={true}
 				spriteElement={ally[1]}
 				entranceDelay={isInitialBattleEntrance ? uiEntranceDelays.allyHp : 0}
+				visible={!battleCtx.playerSide[1].fainted}
 			/>
 		{/if}
 	{/if}
