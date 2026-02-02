@@ -102,15 +102,18 @@ export class BattleContext {
 	setPlayerAction(action: ActionV2Interface) {
 		this.playerTurnActions.push(action);
 
-		if (this.actionIdx !== this.playerSide?.filter((poke) => !!poke && !poke.fainted).length - 1) {
-			this.actionIdx++;
-			this.currentMessage.set(`What should ${this.playerSide[this.actionIdx]?.name} do ?`);
+		const alivePokemon = this.playerSide?.filter((poke) => !!poke && !poke.fainted) || [];
+		if (this.playerTurnActions.length < alivePokemon.length) {
+			const nextAliveIdx = this.playerSide.findIndex(
+				(poke, idx) => idx > this.actionIdx && !!poke && !poke.fainted
+			);
+			if (nextAliveIdx !== -1) {
+				this.actionIdx = nextAliveIdx;
+				this.currentMessage.set(`What should ${this.playerSide[this.actionIdx]?.name} do ?`);
+			}
 		}
 
-		if (
-			this.playerTurnActions.length ===
-			this.playerSide?.filter((poke) => !!poke && !poke.fainted).length
-		) {
+		if (this.playerTurnActions.length === alivePokemon.length) {
 			this.startTurn();
 		}
 	}
@@ -118,7 +121,15 @@ export class BattleContext {
 	cancelLastAction() {
 		if (this.playerTurnActions.length > 0) {
 			this.playerTurnActions.pop();
-			this.actionIdx--;
+			const prevAliveIdx = this.playerSide
+				.map((poke, idx) => ({ poke, idx }))
+				.filter(({ poke, idx }) => idx < this.actionIdx && !!poke && !poke.fainted)
+				.pop()?.idx;
+			if (prevAliveIdx !== undefined) {
+				this.actionIdx = prevAliveIdx;
+			} else {
+				this.actionIdx = this.playerSide.findIndex((poke) => !!poke && !poke.fainted);
+			}
 			this.currentMessage.set(`What should ${this.playerSide[this.actionIdx]?.name} do ?`);
 		}
 	}
@@ -344,7 +355,9 @@ export class BattleContext {
 						(action) => action.type === ActionType.ITEM
 					);
 					const havePotions = this.havePotions(this.opponent);
-					const haveLowHp = this.oppSide.some((pkmn) => !!pkmn && pkmn.currentHp < pkmn.stats.hp / 4);
+					const haveLowHp = this.oppSide.some(
+						(pkmn) => !!pkmn && pkmn.currentHp < pkmn.stats.hp / 4
+					);
 					const betterMons: PokemonInstance | undefined = this.opponent.monsters
 						.filter((pkmn) => !!pkmn && !pkmn.fainted && !this.oppSide.includes(pkmn))
 						.find((pkmn) => {
