@@ -11,15 +11,15 @@
 		canvasWidth: number;
 	}
 
-	let { context, canvasWidth }: Props = $props();
+	const { context, canvasWidth }: Props = $props();
 
 	let pokeballs: HTMLDivElement;
 	let aUnsubscribe: Unsubscriber;
 	let bUnsubscribe: Unsubscriber;
 
-	let translateZ = canvasWidth * 0.33;
+	const translateZ = canvasWidth * 0.33;
 
-	let monsters = [
+	const monsters = [
 		context.POKEDEX.findById(1).result,
 		context.POKEDEX.findById(4).result,
 		context.POKEDEX.findById(7).result
@@ -27,8 +27,8 @@
 
 	let angle = $state(0);
 	let currentIndex = $state(0);
-	let currentPokemon = $derived(monsters[currentIndex]);
-	let dialog = $derived(new Dialog([new Message(`Hmm... Is ${currentPokemon.name} my Pokemon ?`)]));
+	const currentPokemon = $derived(monsters[currentIndex]);
+	const dialog = $derived(new Dialog([new Message(`Hmm... Is ${currentPokemon.name} my Pokemon ?`)]));
 
 	function prev() {
 		angle -= 360 / monsters?.length;
@@ -67,7 +67,7 @@
 	};
 
 	const touchUp = (e: TouchEvent) => {
-		let te = e.changedTouches[0].clientX;
+		const te = e.changedTouches[0].clientX;
 		if (Math.abs(ts - te) < 30) {
 			return;
 		}
@@ -81,7 +81,7 @@
 		ts = e.clientX;
 	};
 	const mouseUp = (e: MouseEvent) => {
-		let te = e.clientX;
+		const te = e.clientX;
 		if (Math.abs(ts - te) < 30) {
 			return;
 		}

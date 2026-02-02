@@ -12,7 +12,7 @@
 		onClose?: () => void;
 	}
 
-	let { onClose }: Props = $props();
+	const { onClose }: Props = $props();
 
 	type TabId =
 		| 'animations'
@@ -38,8 +38,8 @@
 	let selectedMove: Move | undefined = $state(undefined);
 
 	// Edited data storage
-	let editedPokemon: Map<number, PokedexEntry> = $state(new Map());
-	let editedMoves: Map<string, Move> = $state(new Map());
+	const editedPokemon: Map<number, PokedexEntry> = $state(new Map());
+	const editedMoves: Map<string, Move> = $state(new Map());
 
 	function handleClose() {
 		if (onClose) {

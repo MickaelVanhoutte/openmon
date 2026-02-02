@@ -7,7 +7,7 @@
 		allPokemon?: PokedexEntry[];
 	}
 
-	let { editedPokemon, editedMoves, allPokemon = [] }: Props = $props();
+	const { editedPokemon, editedMoves, allPokemon = [] }: Props = $props();
 
 	function exportToJson() {
 		const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
@@ -91,7 +91,7 @@
 		URL.revokeObjectURL(url);
 	}
 
-	let hasChanges = $derived(() => editedPokemon.size > 0 || editedMoves.size > 0);
+	const hasChanges = $derived(() => editedPokemon.size > 0 || editedMoves.size > 0);
 </script>
 
 <button class="export-btn" onclick={exportToJson} data-testid="export-button">

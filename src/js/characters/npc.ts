@@ -91,7 +91,7 @@ export class NPC implements Character, Interactive {
 	}
 
 	interact(playerPosition: Position, gameContext: GameContext): (Script | undefined)[] {
-		let previous = this.movingScript?.interrupt();
+		const previous = this.movingScript?.interrupt();
 		let newScript: Script | undefined;
 
 		// change direction toward player
@@ -179,7 +179,7 @@ export class NPC implements Character, Interactive {
 			this.frames.val = 0;
 		}
 
-		let sY = this.orientationIndexes[orientation] * this.spriteSheet.overworld.walking.height;
+		const sY = this.orientationIndexes[orientation] * this.spriteSheet.overworld.walking.height;
 
 		if (this.moving) {
 			const speed = WALKING_SPEED;

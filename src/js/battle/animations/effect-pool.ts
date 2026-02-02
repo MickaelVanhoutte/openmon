@@ -12,7 +12,7 @@ export class EffectPool {
 	async preload(effectNames: string[]): Promise<void> {
 		const promises = effectNames.map((name) => {
 			const definition = EFFECT_MANIFEST[name];
-			if (!definition) return Promise.resolve();
+			if (!definition) {return Promise.resolve();}
 
 			return new Promise<void>((resolve) => {
 				const img = new Image();
@@ -27,7 +27,7 @@ export class EffectPool {
 
 	acquire(effectName: string): HTMLDivElement | null {
 		const definition = EFFECT_MANIFEST[effectName];
-		if (!definition) return null;
+		if (!definition) {return null;}
 
 		const pool = this.pools.get(effectName) || [];
 
@@ -44,12 +44,12 @@ export class EffectPool {
 	}
 
 	release(element: HTMLDivElement): void {
-		if (!this.active.has(element)) return;
+		if (!this.active.has(element)) {return;}
 
 		this.active.delete(element);
 
 		const effectName = element.dataset.effectName;
-		if (!effectName) return;
+		if (!effectName) {return;}
 
 		const pool = this.pools.get(effectName) || [];
 

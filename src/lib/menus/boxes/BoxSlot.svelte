@@ -13,7 +13,7 @@
 		onClick: () => void;
 	}
 
-	let {
+	const {
 		pokemon,
 		isOver,
 		isMoving,

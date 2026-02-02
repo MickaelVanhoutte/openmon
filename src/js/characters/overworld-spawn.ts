@@ -52,7 +52,7 @@ export class OverworldSpawn implements Character {
 	) {
 		let id = ('00' + this.pokemon.id).slice(-3);
 		id = this.pokemon.isShiny ? id + 's' : id;
-		let source = `src/assets/monsters/walking/${id}.png`;
+		const source = `src/assets/monsters/walking/${id}.png`;
 		let image = this.images[source];
 
 		if (image && image.complete) {
@@ -93,7 +93,7 @@ export class OverworldSpawn implements Character {
 			this.frames.val = 0;
 		}
 
-		let sY = this.orientationIndexes[orientation] * 64;
+		const sY = this.orientationIndexes[orientation] * 64;
 
 		if (this.moving) {
 			const speed = WALKING_SPEED;
@@ -117,7 +117,7 @@ export class OverworldSpawn implements Character {
 
 			const moveByX = deltaX * 12; //Math.floor((16 * 2.5) / 2 * speed * deltaX);
 			const moveByY = deltaY * 12; //Math.floor((16 * 2.5) / 2 * speed * deltaY);
-			let reached =
+			const reached =
 				this.position.direction === 'right'
 					? this.position.positionInPx.x >= this.position.targetPositionInPx.x
 					: this.position.positionInPx.x <= this.position.targetPositionInPx.x;

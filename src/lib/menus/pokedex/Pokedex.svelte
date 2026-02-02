@@ -12,16 +12,16 @@
 		context: GameContext;
 	}
 
-	let { context }: Props = $props();
+	const { context }: Props = $props();
 
-	let showFullDexImg = false;
+	const showFullDexImg = false;
 
 	let wrapper: HTMLDivElement;
-	let elements: HTMLElement[] = $state([]);
+	const elements: HTMLElement[] = $state([]);
 	let selectedIdx = $state(0);
 	let searchTerm: string = $state('');
 	let filtered = $state(context.POKEDEX.entries);
-	let selectedPokemon = $derived(filtered[selectedIdx]);
+	const selectedPokemon = $derived(filtered[selectedIdx]);
 	let detailOpened = $state(false);
 	let selectedType: string | undefined = $state(undefined);
 

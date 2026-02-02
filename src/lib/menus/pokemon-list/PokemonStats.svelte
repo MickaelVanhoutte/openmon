@@ -41,13 +41,13 @@
 
 	type StatKey = 'hp' | 'attack' | 'defense' | 'specialAttack' | 'specialDefense' | 'speed';
 
-	let selectedMons = $derived(pkmnList[selected]);
-	let statsKeys = $derived(
+	const selectedMons = $derived(pkmnList[selected]);
+	const statsKeys = $derived(
 		Object.keys(selectedMons.stats).filter(
 			(key) => key !== 'total' && key !== 'accuracy' && key !== 'evasion'
 		) as Array<StatKey>
 	);
-	let totalStats = $derived(Object.values(selectedMons.currentStats).reduce((a, b) => a + b, 0));
+	const totalStats = $derived(Object.values(selectedMons.currentStats).reduce((a, b) => a + b, 0));
 
 	function disabled(key: StatKey, testValue: number) {
 		if (testValue > 0) {
@@ -106,7 +106,7 @@
 		pkmnList = [...pkmnList];
 	}
 
-	let data = $derived({
+	const data = $derived({
 		labels: [
 			['HP', selectedMons.currentStats.hp],
 			['Attack', selectedMons.currentStats.attack],
@@ -157,7 +157,7 @@
 		]
 	});
 
-	let config = $derived({
+	const config = $derived({
 		type: 'radar' as const,
 		data: data,
 		responsive: true,

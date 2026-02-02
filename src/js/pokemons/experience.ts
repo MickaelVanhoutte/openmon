@@ -32,8 +32,8 @@ export class ExperienceCalculator {
 			console.error('ERROR', level, growthRateId);
 			return Number.MAX_SAFE_INTEGER;
 		}
-		let chart = this.chartById.get(growthRateId);
-		let entry = chart?.find((entry) => entry.level === level);
+		const chart = this.chartById.get(growthRateId);
+		const entry = chart?.find((entry) => entry.level === level);
 		return entry?.experience || 0;
 	}
 
@@ -43,15 +43,15 @@ export class ExperienceCalculator {
 		isTrainer: boolean = false,
 		xpShare: boolean = false
 	) {
-		let b = opponent.baseXp;
-		let l = opponent.level;
-		let a = isTrainer ? 1.5 : 1;
-		let s = xpShare ? 2 * participated : participated;
-		let t = 1; // if traded 1.5, probably won't be implemented
-		let e = 1; // if lucky egg 1.5, probably won't be implemented
-		let v = 1; // if about to evolve 1.5, probably won't be implemented
-		let f = 1; // if affection 1.2, probably won't be implemented
-		let p = 1; // if pokemon exp point power 1.2, probably won't be implemented
+		const b = opponent.baseXp;
+		const l = opponent.level;
+		const a = isTrainer ? 1.5 : 1;
+		const s = xpShare ? 2 * participated : participated;
+		const t = 1; // if traded 1.5, probably won't be implemented
+		const e = 1; // if lucky egg 1.5, probably won't be implemented
+		const v = 1; // if about to evolve 1.5, probably won't be implemented
+		const f = 1; // if affection 1.2, probably won't be implemented
+		const p = 1; // if pokemon exp point power 1.2, probably won't be implemented
 
 		return Math.floor(((b * l) / 7) * a * (1 / s) * t * e * v * f * p) * 2; // bonus, might be removed TODO;
 	}

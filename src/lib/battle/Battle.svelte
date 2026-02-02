@@ -32,12 +32,12 @@
 
 	let gifsWrapper: HTMLDivElement;
 	let scene: HTMLDivElement;
-	let fx: HTMLImageElement[] = [];
+	const fx: HTMLImageElement[] = [];
 	let spriteFx: HTMLDivElement;
 	let spriteFxPartner: HTMLDivElement;
 	let drawInterval: number;
 
-	let battleLoopContext = {
+	const battleLoopContext = {
 		then: Date.now(),
 		fpsInterval: 1000 / 18,
 		goDown: true,
@@ -49,8 +49,8 @@
 		bgDrawn: true
 	};
 
-	let ally: HTMLImageElement[] = $state([]);
-	let opponent: HTMLImageElement[] = $state([]);
+	const ally: HTMLImageElement[] = $state([]);
+	const opponent: HTMLImageElement[] = $state([]);
 
 	let entryAnimationsComplete = $state(false);
 	let isInitialBattleEntrance = $state(true);
@@ -157,17 +157,17 @@
 
 	battleCtx.events.animateAttack.subscribe((value) => {
 		if (value) {
-			let animTarget =
+			const animTarget =
 				battleCtx.getPokemonSide(value.target) === 'opponent'
 					? opponent[battleCtx.oppSide.indexOf(value.target)]
 					: ally[battleCtx.playerSide.indexOf(value.target)];
-			let animInitiator =
+			const animInitiator =
 				battleCtx.getPokemonSide(value.initiator) === 'ally'
 					? ally[battleCtx.playerSide.indexOf(value.initiator)]
 					: opponent[battleCtx.oppSide.indexOf(value.initiator)];
 
 			if (value.move instanceof ComboMove) {
-				let move: ComboMove = value.move;
+				const move: ComboMove = value.move;
 				addPartner(
 					battleCtx.getPokemonSide(value.target) === 'opponent' ? 'ally' : 'opponent',
 					move.pokemon2
@@ -236,7 +236,7 @@
 
 	function addPartner(target: string, pokemon: PokemonInstance): Promise<HTMLImageElement> {
 		return new Promise((resolve, reject) => {
-			let partner = document.createElement('img') as HTMLImageElement;
+			const partner = document.createElement('img') as HTMLImageElement;
 			partner.classList.add(target + '-partner-sprite');
 			if (target === 'opponent') {
 				partner.src = pokemon.getSprite();
@@ -245,7 +245,7 @@
 			}
 
 			partner.onload = () => {
-				let scale = Math.max(Math.min(partner.naturalHeight / 200, 0.9), 0.1);
+				const scale = Math.max(Math.min(partner.naturalHeight / 200, 0.9), 0.1);
 				partner.style.setProperty('--scale', scale + '');
 				partner.style.setProperty('--width', partner.naturalWidth + 'px');
 				partner.style.setProperty('--height', partner.naturalHeight + 'px');
@@ -260,7 +260,7 @@
 			if (!battleLoopContext.opponentdrawn && battleLoopContext.bgDrawn) {
 				if (opponent?.length !== battleCtx.oppSide.length) {
 					battleCtx.oppSide.forEach((element, idx) => {
-						let img = document.createElement('img') as HTMLImageElement;
+						const img = document.createElement('img') as HTMLImageElement;
 						img.addEventListener('click', () => {
 							// Click handler - no action needed
 						});
@@ -277,9 +277,9 @@
 						}
 						element.src = pokemon.getSprite();
 						element.onload = () => {
-							let imgHeight = element.naturalHeight;
-							let screenHeight = window.innerHeight;
-							let scale = Math.min(imgHeight / (screenHeight * 0.15), 0.5);
+							const imgHeight = element.naturalHeight;
+							const screenHeight = window.innerHeight;
+							const scale = Math.min(imgHeight / (screenHeight * 0.15), 0.5);
 
 							//element.style.transform = 'scale(' + scale + ')';
 							element.style.setProperty('--scale', scale + '');
@@ -313,7 +313,7 @@
 			if (!battleLoopContext.allydrawn && battleLoopContext.bgDrawn) {
 				if (ally?.length !== battleCtx.playerSide.length) {
 					battleCtx.playerSide.forEach((element, idx) => {
-						let img = document.createElement('img') as HTMLImageElement;
+						const img = document.createElement('img') as HTMLImageElement;
 						img.addEventListener('click', () => {
 							// Click handler - no action needed
 						});
@@ -326,9 +326,9 @@
 					ally.forEach((element, idx) => {
 						element.src = battleCtx?.playerSide[idx]?.getSprite(true);
 						element.onload = () => {
-							let imgHeight = element.naturalHeight;
-							let screenHeight = window.innerHeight;
-							let scale = Math.min(imgHeight / (screenHeight * 0.15), 0.5);
+							const imgHeight = element.naturalHeight;
+							const screenHeight = window.innerHeight;
+							const scale = Math.min(imgHeight / (screenHeight * 0.15), 0.5);
 
 							//element.style.transform = 'scale(' + scale + ')';
 							element.style.setProperty('--scale', scale + '');

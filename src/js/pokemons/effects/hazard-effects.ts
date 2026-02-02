@@ -32,15 +32,15 @@ export function calculateStealthRockDamage(maxHp: number, types: string[]): numb
 }
 
 export function calculateSpikesDamage(maxHp: number, layers: number): number {
-	if (layers <= 0) return 0;
-	if (layers === 1) return Math.floor(maxHp / 8);
-	if (layers === 2) return Math.floor(maxHp / 6);
+	if (layers <= 0) {return 0;}
+	if (layers === 1) {return Math.floor(maxHp / 8);}
+	if (layers === 2) {return Math.floor(maxHp / 6);}
 	return Math.floor(maxHp / 4);
 }
 
 export function applyToxicSpikes(layers: number): 'none' | 'poison' | 'toxic' {
-	if (layers <= 0) return 'none';
-	if (layers === 1) return 'poison';
+	if (layers <= 0) {return 'none';}
+	if (layers === 1) {return 'poison';}
 	return 'toxic';
 }
 

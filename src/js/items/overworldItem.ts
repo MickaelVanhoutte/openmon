@@ -71,7 +71,7 @@ export class OverworldItem implements Interactive {
             height: number
         }, center: { centerX: number, centerY: number, offsetX: number, offsetY: number } | undefined) {
 
-        let positionInPx = {
+        const positionInPx = {
             x: this.position.x * 16 * scale,
             y: this.position.y * 16 * scale
         }

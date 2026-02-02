@@ -47,7 +47,7 @@ describe('GameContext Utility Functions (Characterization)', () => {
 				| undefined,
 			futurePosition: { x: number; y: number }
 		): boolean => {
-			if (!currentQuest || !currentQuest.area) return false;
+			if (!currentQuest || !currentQuest.area) {return false;}
 			const area = currentQuest.area;
 			return (
 				futurePosition.x < area.start.x ||
@@ -115,7 +115,7 @@ describe('GameContext Utility Functions (Characterization)', () => {
 			position: { x: number; y: number },
 			behindPosition: { x: number; y: number } | undefined
 		): boolean => {
-			if (!behindPosition) return false;
+			if (!behindPosition) {return false;}
 			return behindPosition.x === position.x && behindPosition.y === position.y;
 		};
 
@@ -140,7 +140,7 @@ describe('GameContext Utility Functions (Characterization)', () => {
 			questStates: { id: number; objectives: { completed: boolean }[] }[]
 		): boolean => {
 			const quest0 = questStates.find((q) => q.id === 0);
-			if (!quest0) return false;
+			if (!quest0) {return false;}
 
 			switch (menuKey) {
 				case 'POKEMON_LIST':
@@ -311,7 +311,7 @@ describe('GameContext Utility Functions (Characterization)', () => {
 			direction: 'up' | 'down' | 'left' | 'right',
 			followerPosition: { x: number; y: number } | undefined
 		): boolean => {
-			if (!followerPosition) return false;
+			if (!followerPosition) {return false;}
 			const frontPos = getPositionInFront(playerPosition, direction);
 			return frontPos.x === followerPosition.x && frontPos.y === followerPosition.y;
 		};

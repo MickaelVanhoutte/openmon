@@ -153,13 +153,13 @@ export class GameContext {
 	}
 
 	validateQuestObjective(questId: number, objectiveId: number) {
-		let quest = this.quests.find((q) => q.id === questId);
-		let objective = quest?.objectives.find((o) => o.id === objectiveId);
+		const quest = this.quests.find((q) => q.id === questId);
+		const objective = quest?.objectives.find((o) => o.id === objectiveId);
 		if (objective) {
 			objective.complete();
-			let questState = this.questStates.find((qs) => qs.id === questId);
+			const questState = this.questStates.find((qs) => qs.id === questId);
 			if (questState) {
-				let obj = questState.objectives.find((o) => o.id === objectiveId);
+				const obj = questState.objectives.find((o) => o.id === objectiveId);
 				if (obj) {
 					obj.completed = true;
 					this.notifications.notify(`Objective completed: ${objective.description}`);
@@ -174,7 +174,7 @@ export class GameContext {
 						}
 					}
 				}
-			} else if (!!quest) {
+			} else if (quest) {
 				this.questStates.push(
 					new QuestState(
 						questId,
@@ -223,7 +223,7 @@ export class GameContext {
 	bindKeys() {
 		this.overWorldContext.keys.a.subscribe((value) => {
 			if (value && !this.overWorldContext.getPaused()) {
-				let interactive =
+				const interactive =
 					this.map?.elementInFront(
 						this.player.position.positionOnMap,
 						this.player.position.direction
@@ -232,15 +232,15 @@ export class GameContext {
 
 				// interactive behind counters
 				if (!interactive) {
-					let interactiveBehindCounter = this.map?.elementBehindCounter(
+					const interactiveBehindCounter = this.map?.elementBehindCounter(
 						this.player.position.positionOnMap,
 						this.player.position.direction
 					);
 					scripts = interactiveBehindCounter?.interact(this.player.position.positionOnMap, this);
 				}
 
-				let newScript = scripts?.[0];
-				let previous = scripts?.[1];
+				const newScript = scripts?.[0];
+				const previous = scripts?.[1];
 				if (newScript) {
 					this.playScript(newScript, previous);
 				} else {
@@ -266,7 +266,7 @@ export class GameContext {
 		});
 	}
 	followerInFront(): Interactive | undefined {
-		let elementPosition = new Position(
+		const elementPosition = new Position(
 			this.player.position.positionOnMap.x,
 			this.player.position.positionOnMap.y
 		);
@@ -395,7 +395,7 @@ export class GameContext {
 
 	checkForGameStart(): boolean {
 		if (this.isNewGame && !this.overWorldContext.scenes.wakeUp) {
-			let script = this.scriptRunner.getByTrigger('onGameStart');
+			const script = this.scriptRunner.getByTrigger('onGameStart');
 			this.overWorldContext.startScene(SceneType.WAKE_UP);
 
 			setTimeout(() => {
@@ -417,8 +417,8 @@ export class GameContext {
 	}
 
 	checkForJunction() {
-		if (this.map === undefined) return;
-		let jonction = this.map.jonctionAt(this.player.position.positionOnMap);
+		if (this.map === undefined) {return;}
+		const jonction = this.map.jonctionAt(this.player.position.positionOnMap);
 		if (jonction !== undefined) {
 			this.changeMap(jonction);
 		}
@@ -435,7 +435,7 @@ export class GameContext {
 		// Clear script index and re-index for new map
 		this.scriptRunner.clear();
 
-		let map = OpenMap.fromInstance(this.MAPS[jonction.mapIdx], new Position(0, 0));
+		const map = OpenMap.fromInstance(this.MAPS[jonction.mapIdx], new Position(0, 0));
 		this.player.position.setPosition(jonction.start || new Position(0, 0));
 		this.loadMap(map);
 	}
@@ -453,7 +453,7 @@ export class GameContext {
 			onEnterScript = map.scripts?.find((s) => s.triggerType === 'onEnter');
 		}
 
-		let npcOnEnter = map.npcs?.filter((npc) => npc.movingScript);
+		const npcOnEnter = map.npcs?.filter((npc) => npc.movingScript);
 
 		// TODO set in overWorldCtx
 		this.map = map;
@@ -505,7 +505,7 @@ export class GameContext {
 					y = this.map.height - 1;
 				}
 
-				let destX =
+				const destX =
 					direction === 'right'
 						? this.player.position.positionOnMap.x + 40 > this.map.width
 							? this.map.width - 1
@@ -513,16 +513,16 @@ export class GameContext {
 						: this.player.position.positionOnMap.x - 40 < 0
 							? 0
 							: this.player.position.positionOnMap.x - 40;
-				let destY = y;
+				const destY = y;
 
-				let currentPos = new CharacterPosition(new Position(x, y), direction);
+				const currentPos = new CharacterPosition(new Position(x, y), direction);
 				currentPos.setFuturePosition(destX, destY, () => {
 					this.spawned = undefined;
 				});
-				let possiblePokes = [10, 11, 13, 14, 72, 149, 165, 207];
+				const possiblePokes = [10, 11, 13, 14, 72, 149, 165, 207];
 				// randomly select one :
-				let pokeId = possiblePokes[Math.floor(Math.random() * possiblePokes.length)];
-				let spawned = new OverworldSpawn(
+				const pokeId = possiblePokes[Math.floor(Math.random() * possiblePokes.length)];
+				const spawned = new OverworldSpawn(
 					currentPos,
 					this.POKEDEX.findById(pokeId).result.instanciate(5)
 				);
@@ -559,9 +559,9 @@ export class GameContext {
 			this.map.hasBattleZoneAt(this.player.position.positionOnMap) &&
 			Math.random() < 0.07
 		) {
-			let monster = this.map.randomMonster();
+			const monster = this.map.randomMonster();
 			// level can be base on player medium level of his team
-			let level = Math.floor(
+			const level = Math.floor(
 				this.player.monsters.reduce((acc, pkmn) => acc + pkmn.level, 0) /
 					this.player.monsters.length
 			);
@@ -573,8 +573,8 @@ export class GameContext {
 	}
 
 	checkForInSightNpc(npcId: number): boolean {
-		let npc = this.map?.npcs.find((npc) => npc.id === npcId);
-		let haveInSightScript =
+		const npc = this.map?.npcs.find((npc) => npc.id === npcId);
+		const haveInSightScript =
 			!!npc &&
 			!!npc?.mainScript &&
 			(!npc.mainScript.played || npc.mainScript.replayable) &&
@@ -584,7 +584,7 @@ export class GameContext {
 
 	checkForInSight() {
 		if (this.map?.npcs && this.map?.npcs?.length > 0) {
-			let npcsWithInSightScript: NPC[] = this.map.npcs.filter(
+			const npcsWithInSightScript: NPC[] = this.map.npcs.filter(
 				(npc) =>
 					npc.mainScript &&
 					(!npc.mainScript.played || npc.mainScript.replayable) &&
@@ -608,7 +608,7 @@ export class GameContext {
 
 					setTimeout(() => {
 						npc.alerted = false;
-						let move = npc.movingScript?.interrupt();
+						const move = npc.movingScript?.interrupt();
 						this.playScript(npc.mainScript, move);
 					}, 600);
 				}
@@ -645,7 +645,7 @@ export class GameContext {
 				new Position(npc.position.positionOnMap.x + 3, npc.position.positionOnMap.y)
 			];
 		}
-		let inSight = positionsInFront.some(
+		const inSight = positionsInFront.some(
 			(p) =>
 				p.x === this.player.position.positionOnMap.x && p.y === this.player.position.positionOnMap.y
 		);
@@ -678,8 +678,8 @@ export class GameContext {
 			});
 		}
 
-		let battleContext = new BattleContext(this.player, opponent, this.settings, battleType);
-		let unsubscribe = battleContext.events.end.subscribe((result) => {
+		const battleContext = new BattleContext(this.player, opponent, this.settings, battleType);
+		const unsubscribe = battleContext.events.end.subscribe((result) => {
 			if (result) {
 				this.audioManager.fadeOutBattleMusic();
 
@@ -728,7 +728,7 @@ export class GameContext {
 			}
 		});
 
-		let unsubscribe2 = setInterval(() => {
+		const unsubscribe2 = setInterval(() => {
 			if (!this.player.moving) {
 				this.player.followerCharge(this.overWorldContext);
 				this.battleContext.set(battleContext);
@@ -754,9 +754,9 @@ export class GameContext {
 	}
 
 	behindPlayerPosition() {
-		let playerPosition = this.player.position.positionOnMap;
+		const playerPosition = this.player.position.positionOnMap;
 		if (playerPosition) {
-			let direction = this.player.position.direction;
+			const direction = this.player.position.direction;
 			switch (direction) {
 				case 'up':
 					return new Position(playerPosition.x, playerPosition.y + 1);

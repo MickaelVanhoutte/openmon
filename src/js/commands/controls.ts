@@ -30,10 +30,10 @@ export class Keys {
 	}
 
 	getHeldDirection(): 'up' | 'down' | 'left' | 'right' | null {
-		if (this._upHeld) return 'up';
-		if (this._downHeld) return 'down';
-		if (this._leftHeld) return 'left';
-		if (this._rightHeld) return 'right';
+		if (this._upHeld) {return 'up';}
+		if (this._downHeld) {return 'down';}
+		if (this._leftHeld) {return 'left';}
+		if (this._rightHeld) {return 'right';}
 		return null;
 	}
 
@@ -79,7 +79,7 @@ export class Keys {
 	}
 }
 
-export let lastKey = {
+export const lastKey = {
 	key: ''
 };
 
@@ -139,7 +139,7 @@ export class ABButtons {
 		this.container.style.alignItems = 'center';
 		this.container.style.zIndex = '8';
 
-		let buttonA = document.createElement('button');
+		const buttonA = document.createElement('button');
 		buttonA.style.fontFamily = 'pokemon, serif';
 		buttonA.style.padding = '14px 20px';
 		buttonA.style.backgroundColor = 'rgba(44, 56, 69, 0.95)';
@@ -181,7 +181,7 @@ export class ABButtons {
 		this.buttonA = buttonA;
 		this.container.appendChild(buttonA);
 
-		let buttonB = document.createElement('button');
+		const buttonB = document.createElement('button');
 		buttonB.style.fontFamily = 'pokemon, serif';
 		buttonB.style.padding = '14px 20px';
 		buttonB.style.backgroundColor = 'rgba(44, 56, 69, 0.95)';

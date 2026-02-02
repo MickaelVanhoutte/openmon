@@ -47,7 +47,7 @@ export class Bag {
 	}
 
 	private getPocketByItemId(itemId: number, items: ItemsReferences) {
-		let categoryId = items.getItem(itemId)?.categoryId;
+		const categoryId = items.getItem(itemId)?.categoryId;
 		if (categoryId !== undefined) {
 			return this.getPocketByCategory(categoryId);
 		}
@@ -68,7 +68,7 @@ export class Bag {
 	}
 
 	use(itemId: number, items: ItemsReferences, pokemonInstance?: PokemonInstance) {
-		let item = this.getItem(itemId, items);
+		const item = this.getItem(itemId, items);
 		if (item !== undefined && pokemonInstance !== undefined) {
 			return item.apply(pokemonInstance);
 		}

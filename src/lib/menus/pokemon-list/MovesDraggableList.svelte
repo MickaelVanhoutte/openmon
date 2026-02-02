@@ -40,7 +40,7 @@
 	}
 
 	function remove(index: number) {
-		if (!removable || list?.length === 1) return;
+		if (!removable || list?.length === 1) {return;}
 		list = list.filter((_, i) => i !== index);
 	}
 </script>

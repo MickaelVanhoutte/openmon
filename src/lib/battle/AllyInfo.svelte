@@ -10,7 +10,7 @@
 		idx: number;
 	}
 
-	let { battleCtx, idx }: Props = $props();
+	const { battleCtx, idx }: Props = $props();
 
 	let currentHp = $state(0);
 	let percent = $state(0);

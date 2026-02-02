@@ -8,7 +8,7 @@
 		onCancel: () => void;
 	}
 
-	let { opened, selectedOption, canMove, onMove, onSummary, onCancel }: Props = $props();
+	const { opened, selectedOption, canMove, onMove, onSummary, onCancel }: Props = $props();
 </script>
 
 <div class="options" class:opened>

@@ -6,7 +6,7 @@
 		moveDescription?: string;
 	}
 
-	let { message = '', moveDescription = '' }: Props = $props();
+	const { message = '', moveDescription = '' }: Props = $props();
 
 	const displayText = $derived(moveDescription || message);
 </script>

@@ -192,7 +192,7 @@ export class Pokedex {
 	}
 
 	private async loadPokedex(savedEntries: SavedEntry[]): Promise<void> {
-		if (this.initialized) return;
+		if (this.initialized) {return;}
 		const response = await fetch('./data/pokedex-animatedV3.json');
 		const pokedexJson = await response.json();
 		this.importFromJson(pokedexJson, savedEntries);
@@ -239,7 +239,7 @@ export class Pokedex {
 		if (id === undefined || id === null || id < 1) {
 			return new PokedexSearchResult(new UnknownMonster());
 		}
-		let entry = this.entries.find((entry) => entry.id === id);
+		const entry = this.entries.find((entry) => entry.id === id);
 		return entry?.id
 			? new PokedexSearchResult(entry)
 			: new PokedexSearchResult(new UnknownMonster());
@@ -249,7 +249,7 @@ export class Pokedex {
 		if (name === undefined || name === null || name === '') {
 			return [new PokedexSearchResult(new UnknownMonster())];
 		}
-		let entries = this.entries.filter((entry) =>
+		const entries = this.entries.filter((entry) =>
 			entry.name.toLowerCase().includes(name.toLowerCase())
 		);
 		return entries.map((entry) =>
@@ -258,14 +258,14 @@ export class Pokedex {
 	}
 
 	setViewed(id: number) {
-		let entry = this.entries.find((entry) => entry.id === id);
+		const entry = this.entries.find((entry) => entry.id === id);
 		if (entry) {
 			entry.viewed = true;
 		}
 	}
 
 	setCaught(id: number) {
-		let entry = this.entries.find((entry) => entry.id === id);
+		const entry = this.entries.find((entry) => entry.id === id);
 		if (entry) {
 			entry.caught = true;
 			entry.viewed = true;
@@ -411,8 +411,8 @@ export class PokedexEntry {
 
 	public instanciate(level: number, minIv = 0, forceShiny = false): PokemonInstance {
 		// random nature
-		let nature = NATURES[Math.floor(Math.random() * NATURES.length)];
-		let shiny = forceShiny ? forceShiny : Math.floor(Math.random() * 2) === 0; // TODO set shiny chance
+		const nature = NATURES[Math.floor(Math.random() * NATURES.length)];
+		const shiny = forceShiny ? forceShiny : Math.floor(Math.random() * 2) === 0; // TODO set shiny chance
 		let ivs = undefined;
 		if (minIv > 0) {
 			ivs = new Stats(
@@ -899,10 +899,10 @@ export class PokemonInstance extends PokedexEntry {
 	}
 
 	public selectMove(iaLvl: 'Random' | 'Easy', target?: PokemonInstance): MoveInstance {
-		let random = Math.floor(Math.random() * this.moves.length);
-		let move = this.moves[random];
+		const random = Math.floor(Math.random() * this.moves.length);
+		const move = this.moves[random];
 		if (iaLvl === 'Easy' && !!target) {
-			let matchTargetTypes =
+			const matchTargetTypes =
 				target?.types.length === 2
 					? this.moves.find((move: Move) => move.type === target.types[0] && move.power > 0)
 					: this.moves.find(
@@ -1053,14 +1053,14 @@ export class PokemonInstance extends PokedexEntry {
 		ev: 'hp' | 'attack' | 'defense' | 'specialAttack' | 'specialDefense' | 'speed',
 		value: number
 	) {
-		let total = this.totalEvs;
+		const total = this.totalEvs;
 		if (
 			this.evsToDistribute >= value &&
 			this.evs[ev] + value <= 252 &&
 			this.evs[ev] + value > 0 &&
 			total + value <= 510
 		) {
-			let toAdd = this.evs[ev] + value <= 252 && total + value <= 510 ? value : 0;
+			const toAdd = this.evs[ev] + value <= 252 && total + value <= 510 ? value : 0;
 			this.evs[ev] += toAdd;
 			this.evsToDistribute -= toAdd;
 			this.updateCurrentStats();
@@ -1071,12 +1071,12 @@ export class PokemonInstance extends PokedexEntry {
 		if (this.level >= 100) {
 			return {};
 		}
-		let oldStats = { ...this.currentStats };
+		const oldStats = { ...this.currentStats };
 
 		let currentHp = this.currentStats.hp;
 		this.level += 1;
 		this.updateCurrentStats();
-		let newStats = { ...this.currentStats };
+		const newStats = { ...this.currentStats };
 
 		// heal added hp
 		currentHp = this.currentStats.hp - currentHp;

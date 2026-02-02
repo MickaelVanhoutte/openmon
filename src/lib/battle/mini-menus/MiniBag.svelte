@@ -15,7 +15,7 @@
 		onChange?: (item: UseItemAction) => void;
 	}
 
-	let { context, battleCtx, currentPkmn, zIndex, onChange = () => {} }: Props = $props();
+	const { context, battleCtx, currentPkmn, zIndex, onChange = () => {} }: Props = $props();
 
 	const categories: Record<number, string> = {
 		0: 'potions',
@@ -23,35 +23,35 @@
 		2: 'balls'
 	};
 
-	let isWild = battleCtx.isWild;
+	const isWild = battleCtx.isWild;
 	let selectedIdx = $state(0);
 	let itemIdx = $state(0);
 
-	let pocket = $derived(
+	const pocket = $derived(
 		Object.keys(context.player.bag[categories[selectedIdx]])?.map((id) => [
 			id,
 			context.player.bag[categories[selectedIdx]][id]
 		])
 	);
-	let itemToUse = $derived((pocket && pocket[itemIdx]?.[0]) || undefined);
-	let item = $derived(context.ITEMS.getItem(itemToUse));
+	const itemToUse = $derived((pocket && pocket[itemIdx]?.[0]) || undefined);
+	const item = $derived(context.ITEMS.getItem(itemToUse));
 
-	let disabled = $derived(
+	const disabled = $derived(
 		(categories[selectedIdx] === 'potions' &&
 			currentPkmn.currentHp === currentPkmn.currentStats.hp) ||
 			(categories[selectedIdx] === 'revives' && !currentPkmn.fainted)
 	);
 
 	function catchPkmn() {
-		let instance = context.ITEMS.getItem(itemToUse)?.instanciate();
+		const instance = context.ITEMS.getItem(itemToUse)?.instanciate();
 		if (instance && instance instanceof Pokeball) {
 			onChange(new UseItemAction(itemToUse));
 		}
 	}
 
 	function useItem(pkmnIndex: number) {
-		let instance = context.ITEMS.getItem(itemToUse)?.instanciate();
-		let pkmn = context.player.monsters[pkmnIndex];
+		const instance = context.ITEMS.getItem(itemToUse)?.instanciate();
+		const pkmn = context.player.monsters[pkmnIndex];
 		if (instance && !(instance instanceof Pokeball)) {
 			onChange(new UseItemAction(itemToUse, pkmn));
 		}

@@ -8,7 +8,7 @@
 		onSelectMove?: (move: Move) => void;
 	}
 
-	let { onSelectMove }: Props = $props();
+	const { onSelectMove }: Props = $props();
 
 	let pokedex: Pokedex;
 	let allMoves: Move[] = $state([]);
@@ -20,7 +20,7 @@
 	const pokemonTypes = Object.keys(typeChart) as PokemonType[];
 	const categories = ['physical', 'special', 'no-damage'];
 
-	let filteredMoves = $derived(() => {
+	const filteredMoves = $derived(() => {
 		let result = allMoves;
 
 		if (searchQuery) {
@@ -68,7 +68,7 @@
 
 	function handleKeydown(event: KeyboardEvent) {
 		const list = filteredMoves();
-		if (list.length === 0) return;
+		if (list.length === 0) {return;}
 
 		if (event.key === 'ArrowDown') {
 			event.preventDefault();

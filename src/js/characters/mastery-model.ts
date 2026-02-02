@@ -237,7 +237,7 @@ export class PlayerMasteries {
 	}
 
 	static fromInstance(playerMasteries?: PlayerMasteries): PlayerMasteries {
-		let newInstance = new PlayerMasteries();
+		const newInstance = new PlayerMasteries();
 		if (playerMasteries) {
 			newInstance.novice = playerMasteries.novice.map(
 				(m) =>
@@ -333,7 +333,7 @@ export class PlayerMasteries {
 
 	setMastery(mastery: Mastery) {
 		this.bonuses.enableMastery(mastery.type, mastery.value);
-		let node =
+		const node =
 			mastery.group == MasteryGroup.NOVICE
 				? this.novice.find((m) => m.q == mastery.q && m.r == mastery.r)
 				: this.expert.find((m) => m.q == mastery.q && m.r == mastery.r);

@@ -108,7 +108,7 @@ export class Attack implements ActionV2Interface {
 
 		// start turn statuses (sleep, paralysis..)
 		if (attacker.status?.when === 'start-turn') {
-			let effect = attacker.status.playEffect(attacker);
+			const effect = attacker.status.playEffect(attacker);
 
 			if (effect?.message) {
 				actionsToPush.push(new Message(effect.message, attacker));
@@ -134,7 +134,7 @@ export class Attack implements ActionV2Interface {
 					const result = this.calculateDamage(attacker, tgt, this.move, ctx, controller, 1);
 
 					if (this.move instanceof ComboMove) {
-						let move: ComboMove = this.move;
+						const move: ComboMove = this.move;
 
 						if (
 							controller instanceof NPC ||
@@ -163,7 +163,7 @@ export class Attack implements ActionV2Interface {
 						);
 
 						move.effects.forEach((eff, index) => {
-							let effect = MOVE_EFFECT_APPLIER.findEffect(eff);
+							const effect = MOVE_EFFECT_APPLIER.findEffect(eff);
 							if (
 								effect.when === 'before-move' &&
 								this.effectApplies(move.effectsChances[index], eff)
@@ -209,7 +209,7 @@ export class Attack implements ActionV2Interface {
 						actionsToPush.push(new RemoveHP(result.damages + result2.damages, tgt, this.initiator));
 
 						move.effects.forEach((effect, index) => {
-							let eff = MOVE_EFFECT_APPLIER.findEffect(effect);
+							const eff = MOVE_EFFECT_APPLIER.findEffect(effect);
 							if (
 								this.effectApplies(move.effectsChances[index], effect) &&
 								eff.when !== 'before-move'
@@ -218,7 +218,7 @@ export class Attack implements ActionV2Interface {
 							}
 						});
 					} else {
-						let effect = MOVE_EFFECT_APPLIER.findEffect(this.move.effect);
+						const effect = MOVE_EFFECT_APPLIER.findEffect(this.move.effect);
 						let hitCount: number | undefined;
 						if (
 							effect.when === 'before-move' &&
@@ -279,7 +279,7 @@ export class Attack implements ActionV2Interface {
 		controller: Character | PokemonInstance,
 		modifier: number = 1
 	): DamageResults {
-		let result = new DamageResults();
+		const result = new DamageResults();
 		const typeEffectiveness = this.calculateTypeEffectiveness(move.type, defender.types, ctx);
 		result.superEffective = typeEffectiveness > 1;
 		result.notVeryEffective = typeEffectiveness < 1;
@@ -362,7 +362,7 @@ export class Attack implements ActionV2Interface {
 		defender: PokemonInstance,
 		move: MoveInstance | ComboMove
 	) {
-		if (!move.accuracy || move.accuracy === 0) return true;
+		if (!move.accuracy || move.accuracy === 0) {return true;}
 		const accStage = attacker.statsChanges.accuracy - defender.statsChanges.evasion;
 		const stageMod = accStage >= 0 ? (3 + accStage) / 3 : 3 / (3 - accStage);
 		const finalAccuracy = move.accuracy * stageMod;
@@ -404,17 +404,17 @@ export class UseItem implements ActionV2Interface {
 	execute(ctx: BattleContext): void {
 		//console.log('UseItem', this.itemId, this.target, this.initiator, this.owner);
 
-		let item = this.owner.bag.getItem(this.itemId, ctx.ITEMS);
+		const item = this.owner.bag.getItem(this.itemId, ctx.ITEMS);
 
 		if (item && !(item instanceof Pokeball)) {
-			let result = item.apply(this.target);
+			const result = item.apply(this.target);
 			if (!result.success) {
 				ctx.addToStack(new Message('It failed!', this.initiator));
 			}
 		}
 
 		if (item instanceof Pokeball) {
-			let result = item.apply(this.target);
+			const result = item.apply(this.target);
 			if (result.success) {
 				ctx.battleResult.caught = this.target;
 				ctx.battleResult.win = true;

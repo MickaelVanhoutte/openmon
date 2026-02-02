@@ -65,7 +65,7 @@ export class QuestManager {
 
 		if (objective) {
 			objective.complete();
-			let questState = this.questStates.find((qs) => qs.id === questId);
+			const questState = this.questStates.find((qs) => qs.id === questId);
 
 			if (questState) {
 				const obj = questState.objectives.find((o) => o.id === objectiveId);

@@ -125,12 +125,12 @@ export class SavesHolder {
 	}
 
 	newGame(spriteId: number, name: string, gender: 'MALE' | 'FEMALE'): SaveContext {
-		let boxes: Array<PokemonBox> = new Array<PokemonBox>(32);
+		const boxes: Array<PokemonBox> = new Array<PokemonBox>(32);
 		let index = 1;
 		for (let i = 0; i < 32; i++) {
-			let pokeArray = new Array<PokemonInstance | undefined>(20);
+			const pokeArray = new Array<PokemonInstance | undefined>(20);
 			for (let j = 0; j < 20; j++) {
-				let result = this.POKEDEX.findById(index).result;
+				const result = this.POKEDEX.findById(index).result;
 				if (!(result instanceof UnknownMonster)) {
 					pokeArray[j] = result.instanciate(75, 30, false);
 				} else {
@@ -141,7 +141,7 @@ export class SavesHolder {
 			boxes[i] = new PokemonBox('Box ' + (i + 1), pokeArray);
 		}
 
-		let newSave = new SaveContext(
+		const newSave = new SaveContext(
 			this.saves?.length || 0,
 			Date.now(),
 			new MapSave(0),
@@ -168,7 +168,7 @@ export class SavesHolder {
 				this.saves[existingSaveIndex] = save;
 			}
 		}
-		let encoded = JSON.stringify(this.saves, this.replacer);
+		const encoded = JSON.stringify(this.saves, this.replacer);
 		localStorage.setItem('saves', encoded);
 	}
 

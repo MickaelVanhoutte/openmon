@@ -12,7 +12,7 @@
 	let sound: Howl;
 	let soundPlaying = $state(false);
 
-	let messages = [
+	const messages = [
 		'',
 		'Porygon is generating a digital masterpiece!',
 		'Gengar is playing tricks with the data!',
@@ -88,7 +88,7 @@
 		}, 14000);
 
 		intro.addEventListener('click', () => {
-			if (ready) started = true;
+			if (ready) {started = true;}
 		});
 
 		return () => {

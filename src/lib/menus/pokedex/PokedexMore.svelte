@@ -9,7 +9,7 @@
 		pokemon: PokedexEntry;
 	}
 
-	let { pokemon }: Props = $props();
+	const { pokemon }: Props = $props();
 
 	function calculateTypeEffectiveness(type: string, types: string[]) {
 		return types.reduce((acc, type2) => {

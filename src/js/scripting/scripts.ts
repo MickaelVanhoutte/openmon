@@ -70,7 +70,7 @@ export class OpenShop extends Scriptable {
 	}
 
 	buyItem(itemId: string, qty: number) {
-		let price = this.items[itemId] * qty;
+		const price = this.items[itemId] * qty;
 		if (this.context && this.context.player.bag.money >= price) {
 			this.context.player.bag.addItems(parseInt(itemId), qty, this.context.ITEMS);
 			this.context.player.bag.money -= price;
@@ -112,7 +112,7 @@ export class Dialog extends Scriptable {
 	}
 
 	selectOption(index: number): void {
-		if (this.current.options?.length === 0 || index > this.current.options?.length) return;
+		if (this.current.options?.length === 0 || index > this.current.options?.length) {return;}
 		this.selectedOption = index;
 	}
 
@@ -154,7 +154,7 @@ export class MoveTo extends Scriptable {
 	}
 
 	play(context: GameContext, onEnd: () => void): any {
-		let npc = context.map?.npcs?.find((npc) => npc.id === this.npcId);
+		const npc = context.map?.npcs?.find((npc) => npc.id === this.npcId);
 		if (npc) {
 			npc.moving = true;
 			npc.direction =
@@ -200,7 +200,7 @@ export class MoveTo extends Scriptable {
 	}
 
 	private waitMvtEnds(context: GameContext, npc: NPC, onEnd: () => void) {
-		let unsubscribe = setInterval(() => {
+		const unsubscribe = setInterval(() => {
 			if (
 				npc &&
 				npc.position.positionOnMap.x === npc.position.targetPosition.x &&
@@ -217,7 +217,7 @@ export class MoveTo extends Scriptable {
 	}
 
 	private waitUntilAllowed(context: GameContext, npc: NPC, onEnd: () => void) {
-		let retry = setInterval(() => {
+		const retry = setInterval(() => {
 			if (this.canceled) {
 				clearInterval(retry);
 				onEnd();
@@ -278,8 +278,8 @@ export class MoveToPlayer extends Scriptable {
 	}
 
 	play(context: GameContext, onEnd: () => void): any {
-		let npc = context.map?.npcs?.find((npc) => npc.id === this.npcId);
-		let playerPosition = context.player.position.positionOnMap;
+		const npc = context.map?.npcs?.find((npc) => npc.id === this.npcId);
+		const playerPosition = context.player.position.positionOnMap;
 		if (npc && playerPosition) {
 			npc.moving = true;
 			npc.direction =
@@ -332,7 +332,7 @@ export class StartBattle extends Scriptable {
 	}
 
 	play(context: GameContext, onEnd: () => void): any {
-		let npc = context.map?.npcs?.find((npc) => npc.id === this.npcId);
+		const npc = context.map?.npcs?.find((npc) => npc.id === this.npcId);
 		if (npc) {
 			context.startBattle(npc, this.battleType, () => {
 				this.finished = true;
@@ -469,7 +469,7 @@ export class Script {
 	}
 
 	interrupt(): Script {
-		if (this.currentAction) this.currentAction.canceled = true;
+		if (this.currentAction) {this.currentAction.canceled = true;}
 		this.playing = false;
 		return this;
 	}

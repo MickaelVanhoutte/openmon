@@ -46,7 +46,7 @@
 	let filteredList = $derived(
 		<Array<PokemonInstance>>pkmnList.filter((pkmn) => pkmn !== undefined)
 	);
-	let selectedMons = $derived(filteredList[selected]);
+	const selectedMons = $derived(filteredList[selected]);
 
 	function back() {
 		if (statEdit) {

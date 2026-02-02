@@ -23,9 +23,9 @@ function progressToGameHour(progress: number): number {
 }
 
 function getTimeOfDayFromHour(hour: number): TimeOfDay {
-	if (hour >= 6 && hour < 9) return TimeOfDay.DAWN;
-	if (hour >= 9 && hour < 18) return TimeOfDay.DAY;
-	if (hour >= 18 && hour < 21) return TimeOfDay.DUSK;
+	if (hour >= 6 && hour < 9) {return TimeOfDay.DAWN;}
+	if (hour >= 9 && hour < 18) {return TimeOfDay.DAY;}
+	if (hour >= 18 && hour < 21) {return TimeOfDay.DUSK;}
 	return TimeOfDay.NIGHT;
 }
 
