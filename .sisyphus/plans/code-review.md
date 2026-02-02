@@ -208,7 +208,7 @@ Task 6: svelte-check Verification & Final Validation
 
 ---
 
-- [ ] 2. Manual ESLint Fixes (Remaining Errors)
+- [x] 2. Manual ESLint Fixes (Remaining Errors)
 
   **What to do**:
   - Add missing Howl import to App.svelte: `import { Howl } from 'howler';`
