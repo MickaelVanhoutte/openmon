@@ -1,5 +1,6 @@
 <script lang="ts">
 	import '@abraham/reflection';
+	import { Howl } from 'howler';
 	import { onMount } from 'svelte';
 	import Battle from './lib/battle/Battle.svelte';
 	import World from './lib/world/World.svelte';

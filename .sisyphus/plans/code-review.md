@@ -154,7 +154,7 @@ Task 6: svelte-check Verification & Final Validation
 
 ## TODOs
 
-- [ ] 1. ESLint Auto-Fix (Bulk)
+- [x] 1. ESLint Auto-Fix (Bulk)
 
   **What to do**:
   - Run `npm run lint:fix` to auto-fix curly, prefer-const, and formatting errors
