@@ -52,6 +52,9 @@
 	const ally: HTMLImageElement[] = $state([]);
 	const opponent: HTMLImageElement[] = $state([]);
 
+	let allyFainted = $state([false, false]);
+	let opponentFainted = $state([false, false]);
+
 	let entryAnimationsComplete = $state(false);
 	let isInitialBattleEntrance = $state(true);
 	const uiEntranceDelays = {
@@ -372,6 +375,7 @@
 				if (change?.side === 'ally') {
 					const pokemon = battleCtx.playerSide[change?.idx];
 					if (pokemon) {
+						allyFainted[change.idx] = false;
 						animateRun(ally[change?.idx], 'ally').then(() => {
 							battleLoopContext.allydrawn = false;
 						});
@@ -379,10 +383,29 @@
 				} else {
 					const pokemon = battleCtx.oppSide[change?.idx];
 					if (pokemon) {
+						opponentFainted[change.idx] = false;
 						animateRun(opponent[change?.idx], 'opponent').then(() => {
 							battleLoopContext.opponentdrawn = false;
 						});
 					}
+				}
+			}
+		});
+
+		battleCtx.events.playerPokemonFaint.subscribe((pkmn) => {
+			if (pkmn) {
+				const idx = battleCtx.playerSide.findIndex((p) => p === pkmn);
+				if (idx !== -1) {
+					allyFainted[idx] = true;
+				}
+			}
+		});
+
+		battleCtx.events.opponentPokemonFaint.subscribe((pkmn) => {
+			if (pkmn) {
+				const idx = battleCtx.oppSide.findIndex((p) => p === pkmn);
+				if (idx !== -1) {
+					opponentFainted[idx] = true;
 				}
 			}
 		});
@@ -450,7 +473,7 @@
 			isAlly={false}
 			spriteElement={opponent[0]}
 			entranceDelay={isInitialBattleEntrance ? uiEntranceDelays.opponentHp : 0}
-			visible={!battleCtx.oppSide[0].fainted}
+			visible={!opponentFainted[0]}
 		/>
 	{/if}
 	{#if battleCtx.playerSide[0] && entryAnimationsComplete}
@@ -460,7 +483,7 @@
 			isAlly={true}
 			spriteElement={ally[0]}
 			entranceDelay={isInitialBattleEntrance ? uiEntranceDelays.allyHp : 0}
-			visible={!battleCtx.playerSide[0].fainted}
+			visible={!allyFainted[0]}
 		/>
 	{/if}
 
@@ -472,7 +495,7 @@
 				isAlly={false}
 				spriteElement={opponent[1]}
 				entranceDelay={isInitialBattleEntrance ? uiEntranceDelays.opponentHp : 0}
-				visible={!battleCtx.oppSide[1].fainted}
+				visible={!opponentFainted[1]}
 			/>
 		{/if}
 		{#if battleCtx.playerSide[1] && entryAnimationsComplete}
@@ -482,7 +505,7 @@
 				isAlly={true}
 				spriteElement={ally[1]}
 				entranceDelay={isInitialBattleEntrance ? uiEntranceDelays.allyHp : 0}
-				visible={!battleCtx.playerSide[1].fainted}
+				visible={!allyFainted[1]}
 			/>
 		{/if}
 	{/if}
