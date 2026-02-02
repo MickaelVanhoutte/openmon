@@ -384,10 +384,12 @@
 					if (pokemon && ally[change.idx]) {
 						// Reset GSAP transforms from faint animation
 						gsap.set(ally[change.idx], {
+							x: 0,
 							y: 0,
 							filter: 'brightness(1)',
 							opacity: 1,
-							scale: 1
+							scale: 1,
+							transform: ''
 						});
 						// Update sprite src
 						ally[change.idx].src = pokemon.getSprite(true);
@@ -395,7 +397,7 @@
 							// Reset fainted state to show HP bar
 							allyFainted[change.idx] = false;
 							// Animate entry after sprite loads
-							animateRun(ally[change.idx], 'ally');
+							animateEntry(ally[change.idx], 'ally', change.idx);
 						};
 					}
 				} else {
@@ -403,10 +405,12 @@
 					if (pokemon && opponent[change.idx]) {
 						// Reset GSAP transforms from faint animation
 						gsap.set(opponent[change.idx], {
+							x: 0,
 							y: 0,
 							filter: 'brightness(1)',
 							opacity: 1,
-							scale: 1
+							scale: 1,
+							transform: ''
 						});
 						// Update sprite src
 						opponent[change.idx].src = pokemon.getSprite();
@@ -414,7 +418,7 @@
 							// Reset fainted state to show HP bar
 							opponentFainted[change.idx] = false;
 							// Animate entry after sprite loads
-							animateRun(opponent[change.idx], 'opponent');
+							animateEntry(opponent[change.idx], 'opponent', change.idx);
 						};
 					}
 				}
