@@ -381,7 +381,14 @@
 				if (change?.side === 'ally') {
 					const pokemon = battleCtx.playerSide[change?.idx];
 					if (pokemon && ally[change.idx]) {
-						// Update sprite src first
+						// Reset GSAP transforms from faint animation
+						gsap.set(ally[change.idx], {
+							y: 0,
+							filter: 'brightness(1)',
+							opacity: 1,
+							scale: 1
+						});
+						// Update sprite src
 						ally[change.idx].src = pokemon.getSprite(true);
 						ally[change.idx].onload = () => {
 							// Reset fainted state to show HP bar
@@ -393,7 +400,14 @@
 				} else {
 					const pokemon = battleCtx.oppSide[change?.idx];
 					if (pokemon && opponent[change.idx]) {
-						// Update sprite src first
+						// Reset GSAP transforms from faint animation
+						gsap.set(opponent[change.idx], {
+							y: 0,
+							filter: 'brightness(1)',
+							opacity: 1,
+							scale: 1
+						});
+						// Update sprite src
 						opponent[change.idx].src = pokemon.getSprite();
 						opponent[change.idx].onload = () => {
 							// Reset fainted state to show HP bar
