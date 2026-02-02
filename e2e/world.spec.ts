@@ -1,5 +1,12 @@
 import { test, expect } from '@playwright/test';
-import { clearSaveState, waitForPlayerCreation, waitForWorld } from './helpers';
+import {
+	clearSaveState,
+	waitForPlayerCreation,
+	waitForWorld,
+	injectSaveState,
+	waitForLoadSave
+} from './helpers';
+import validSave from './fixtures/valid-save.json' with { type: 'json' };
 
 test.describe('World Navigation', () => {
 	test.beforeEach(async ({ page }) => {
@@ -38,5 +45,65 @@ test.describe('World Navigation', () => {
 		await page.keyboard.press('ArrowDown');
 		await page.keyboard.press('ArrowLeft');
 		await page.keyboard.press('ArrowUp');
+	});
+});
+
+test.describe('Run Toggle', () => {
+	test.beforeEach(async ({ page }) => {
+		await injectSaveState(page, validSave);
+		await page.goto('/');
+		await waitForLoadSave(page);
+		const saveSlot = page.getByTestId('save-slot').first();
+		await saveSlot.dblclick();
+		await waitForWorld(page);
+	});
+
+	test('run button is visible when running shoes are unlocked', async ({ page }) => {
+		const runButton = page.locator('button[aria-label="Toggle Run"]');
+		await expect(runButton).toBeVisible();
+	});
+
+	test('run button toggles active state when clicked', async ({ page }) => {
+		const runButton = page.locator('button[aria-label="Toggle Run"]');
+		await expect(runButton).toBeVisible();
+
+		const hasActiveBefore = await runButton.evaluate((el) => el.classList.contains('active'));
+		expect(hasActiveBefore).toBe(false);
+
+		await runButton.click();
+		await page.waitForTimeout(100);
+
+		const hasActiveAfter = await runButton.evaluate((el) => el.classList.contains('active'));
+		expect(hasActiveAfter).toBe(true);
+
+		await runButton.click();
+		await page.waitForTimeout(100);
+
+		const hasActiveAfterToggleOff = await runButton.evaluate((el) =>
+			el.classList.contains('active')
+		);
+		expect(hasActiveAfterToggleOff).toBe(false);
+	});
+
+	test('shift key toggles run button active state', async ({ page }) => {
+		const runButton = page.locator('button[aria-label="Toggle Run"]');
+		await expect(runButton).toBeVisible();
+
+		const hasActiveBefore = await runButton.evaluate((el) => el.classList.contains('active'));
+		expect(hasActiveBefore).toBe(false);
+
+		await page.keyboard.press('Shift');
+		await page.waitForTimeout(100);
+
+		const hasActiveAfter = await runButton.evaluate((el) => el.classList.contains('active'));
+		expect(hasActiveAfter).toBe(true);
+
+		await page.keyboard.press('Shift');
+		await page.waitForTimeout(100);
+
+		const hasActiveAfterToggleOff = await runButton.evaluate((el) =>
+			el.classList.contains('active')
+		);
+		expect(hasActiveAfterToggleOff).toBe(false);
 	});
 });
