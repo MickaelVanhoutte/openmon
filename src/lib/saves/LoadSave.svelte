@@ -61,7 +61,7 @@
 	});
 </script>
 
-<div class="load-screen">
+<div class="load-screen" data-testid="load-save-screen">
 	{#each Array.from({ length: 8 }) as _}
 		<div class="firefly"></div>
 	{/each}
@@ -73,6 +73,7 @@
 					<button
 						class="save pixel-button"
 						class:selected={selected === save}
+						data-testid="save-slot"
 						onclick={() => {
 							selected === save ? handleSubmit(save) : (selected = save);
 						}}
@@ -117,7 +118,9 @@
 	</div>
 
 	<div class="new-game">
-		<button onclick={() => startNew()} aria-label="Start a new game"> Start a new game </button>
+		<button onclick={() => startNew()} aria-label="Start a new game" data-testid="new-game-button">
+			Start a new game
+		</button>
 	</div>
 </div>
 

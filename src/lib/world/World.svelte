@@ -340,6 +340,7 @@
 
 <div
 	class="world-wrapper"
+	data-testid="world-screen"
 	bind:this={wrapper}
 	class:blur={overWorldCtx.scenes.wakeUp}
 	style="--time-filter: {getTimeFilter($timeOfDay)}"

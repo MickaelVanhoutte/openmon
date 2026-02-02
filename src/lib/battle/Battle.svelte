@@ -402,7 +402,7 @@
 	});
 </script>
 
-<div class="battle">
+<div class="battle" data-testid="battle-screen">
 	<div bind:this={gifsWrapper} class="wrapper">
 		<div
 			bind:this={scene}

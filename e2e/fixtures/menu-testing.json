@@ -1,0 +1,75 @@
+[
+	{
+		"id": 1,
+		"version": 1,
+		"created": "2026-01-01T00:00:00.000Z",
+		"updated": "2026-01-04T00:00:00.000Z",
+		"playTime": 10800,
+		"currentMap": {
+			"mapId": "pokemart",
+			"x": 6,
+			"y": 4
+		},
+		"player": {
+			"name": "MenuTest",
+			"gender": "female",
+			"money": 15000,
+			"badges": [1, 2]
+		},
+		"pokemons": [
+			{
+				"id": 1,
+				"speciesId": 3,
+				"nickname": "Venusaur",
+				"level": 32,
+				"currentHp": 105,
+				"maxHp": 105,
+				"moves": [22, 75, 77, 79],
+				"status": null
+			},
+			{
+				"id": 2,
+				"speciesId": 12,
+				"nickname": "Butterfree",
+				"level": 28,
+				"currentHp": 75,
+				"maxHp": 75,
+				"moves": [78, 48, 79, 93],
+				"status": null
+			},
+			{
+				"id": 3,
+				"speciesId": 65,
+				"nickname": "Alakazam",
+				"level": 30,
+				"currentHp": 85,
+				"maxHp": 85,
+				"moves": [94, 60, 105, 115],
+				"status": null
+			}
+		],
+		"boxes": [],
+		"bag": {
+			"items": [
+				{ "id": 4, "quantity": 20 },
+				{ "id": 1, "quantity": 8 },
+				{ "id": 17, "quantity": 3 },
+				{ "id": 3, "quantity": 5 },
+				{ "id": 5, "quantity": 10 },
+				{ "id": 19, "quantity": 2 }
+			]
+		},
+		"settings": {
+			"musicVolume": 0.5,
+			"sfxVolume": 0.5
+		},
+		"isNewGame": false,
+		"viewedGuides": ["movement", "battle_basics", "items", "pokedex"],
+		"flags": {
+			"first_battle_won": true,
+			"got_running_shoes": true,
+			"beat_gym_1": true,
+			"beat_gym_2": true
+		}
+	}
+]

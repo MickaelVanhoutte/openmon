@@ -1,0 +1,43 @@
+[
+	{
+		"id": 1,
+		"version": 1,
+		"created": "2026-01-01T00:00:00.000Z",
+		"updated": "2026-01-01T00:00:00.000Z",
+		"playTime": 0,
+		"currentMap": {
+			"mapId": "pallet_town",
+			"x": 10,
+			"y": 10
+		},
+		"player": {
+			"name": "TestPlayer",
+			"gender": "male",
+			"money": 3000,
+			"badges": []
+		},
+		"pokemons": [
+			{
+				"id": 1,
+				"speciesId": 4,
+				"nickname": "Charmander",
+				"level": 5,
+				"currentHp": 20,
+				"maxHp": 20,
+				"moves": [10, 52],
+				"status": null
+			}
+		],
+		"boxes": [],
+		"bag": {
+			"items": [{ "id": 4, "quantity": 5 }]
+		},
+		"settings": {
+			"musicVolume": 0.5,
+			"sfxVolume": 0.5
+		},
+		"isNewGame": false,
+		"viewedGuides": [],
+		"flags": {}
+	}
+]

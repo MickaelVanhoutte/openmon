@@ -1,0 +1,57 @@
+[
+	{
+		"id": 1,
+		"version": 1,
+		"created": "2026-01-01T00:00:00.000Z",
+		"updated": "2026-01-03T00:00:00.000Z",
+		"playTime": 7200,
+		"currentMap": {
+			"mapId": "viridian_gym_entrance",
+			"x": 5,
+			"y": 8
+		},
+		"player": {
+			"name": "Battler",
+			"gender": "male",
+			"money": 8000,
+			"badges": [1]
+		},
+		"pokemons": [
+			{
+				"id": 1,
+				"speciesId": 5,
+				"nickname": "Charmeleon",
+				"level": 20,
+				"currentHp": 60,
+				"maxHp": 60,
+				"moves": [10, 52, 53, 163],
+				"status": null
+			},
+			{
+				"id": 2,
+				"speciesId": 16,
+				"nickname": "Pidgey",
+				"level": 15,
+				"currentHp": 40,
+				"maxHp": 40,
+				"moves": [16, 17, 98, 18],
+				"status": null
+			}
+		],
+		"boxes": [],
+		"bag": {
+			"items": [
+				{ "id": 4, "quantity": 15 },
+				{ "id": 1, "quantity": 5 },
+				{ "id": 17, "quantity": 2 }
+			]
+		},
+		"settings": {
+			"musicVolume": 0.5,
+			"sfxVolume": 0.5
+		},
+		"isNewGame": false,
+		"viewedGuides": ["movement", "battle_basics", "items"],
+		"flags": { "first_battle_won": true, "got_running_shoes": true }
+	}
+]

@@ -236,7 +236,7 @@
 	{/if}
 </div>
 
-<nav class="menu-dock" role="navigation" aria-label="Game menu">
+<nav class="menu-dock" data-testid="controls-menu" role="navigation" aria-label="Game menu">
 	<!-- Trigger button - always visible -->
 	<button
 		class="dock-trigger"

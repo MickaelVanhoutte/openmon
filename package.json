@@ -17,6 +17,9 @@
 		"check": "svelte-check --tsconfig ./tsconfig.json",
 		"test": "vitest",
 		"test:run": "vitest run",
+		"test:e2e": "playwright test",
+		"test:e2e:ui": "playwright test --ui",
+		"test:e2e:headed": "playwright test --headed",
 		"generate:sprite-anchors": "node scripts/generate-sprite-anchors.mjs",
 		"copy:shiny-sprites": "node scripts/copy-shiny-sprites.mjs",
 		"graph": "npx depcruise src --include-only '^src' --no-config -T  dot | dot -T svg | npx depcruise-wrap-stream-in-html > dependency-graph.html && open dependency-graph.html"
@@ -25,6 +28,7 @@
 		"@abraham/reflection": "^0.13.0",
 		"@anatine/esbuild-decorators": "^0.2.19",
 		"@eslint/js": "^9.39.2",
+		"@playwright/test": "^1.58.1",
 		"@rollup/plugin-typescript": "^12.3.0",
 		"@sjmc11/tourguidejs": "^0.0.27",
 		"@svelte-put/inline-svg": "^4.0.2",
