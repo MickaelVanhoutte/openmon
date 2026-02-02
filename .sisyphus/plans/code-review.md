@@ -261,7 +261,7 @@ Task 6: svelte-check Verification & Final Validation
 
 ---
 
-- [ ] 3. ExperienceCalculator Test Fix
+- [x] 3. ExperienceCalculator Test Fix
 
   **What to do**:
   - Change ExperienceCalculator from fetch() to static JSON import
@@ -323,7 +323,7 @@ Task 6: svelte-check Verification & Final Validation
 
 ---
 
-- [ ] 4. App.svelte Svelte 5 Migration
+- [x] 4. App.svelte Svelte 5 Migration
 
   **What to do**:
   - Convert `$:` reactive statements (lines 43, 56) to `$effect()` with proper cleanup
