@@ -1,0 +1,306 @@
+<script lang="ts">
+	import { Weather } from '../../js/battle/battle-field';
+
+	interface Props {
+		weather: Weather;
+		weatherTurns: number;
+	}
+
+	const { weather, weatherTurns }: Props = $props();
+
+	const weatherLabels: Record<Weather, string> = {
+		[Weather.NONE]: '',
+		[Weather.RAIN]: 'Rain',
+		[Weather.SUN]: 'Harsh Sunlight',
+		[Weather.SAND]: 'Sandstorm',
+		[Weather.HAIL]: 'Hail'
+	};
+</script>
+
+{#if weather !== Weather.NONE}
+	<div
+		class="weather-overlay"
+		class:rain={weather === Weather.RAIN}
+		class:sun={weather === Weather.SUN}
+		class:sand={weather === Weather.SAND}
+		class:hail={weather === Weather.HAIL}
+	>
+		{#if weather === Weather.RAIN}
+			<div class="rain-container">
+				{#each Array(30) as _, i}
+					<div
+						class="raindrop"
+						style="--delay: {Math.random() * 2}s; --x: {Math.random() * 100}%; --duration: {0.5 +
+							Math.random() * 0.5}s"
+					></div>
+				{/each}
+			</div>
+		{/if}
+
+		{#if weather === Weather.SUN}
+			<div class="sun-rays"></div>
+			<div class="sun-glow"></div>
+		{/if}
+
+		{#if weather === Weather.SAND}
+			<div class="sand-particles">
+				{#each Array(40) as _, i}
+					<div
+						class="sand-particle"
+						style="--delay: {Math.random() * 3}s; --x: {Math.random() * 100}%; --y: {Math.random() *
+							100}%; --size: {2 + Math.random() * 4}px"
+					></div>
+				{/each}
+			</div>
+		{/if}
+
+		{#if weather === Weather.HAIL}
+			<div class="hail-container">
+				{#each Array(20) as _, i}
+					<div
+						class="hailstone"
+						style="--delay: {Math.random() * 2}s; --x: {Math.random() * 100}%; --duration: {0.8 +
+							Math.random() * 0.4}s; --size: {4 + Math.random() * 6}px"
+					></div>
+				{/each}
+			</div>
+		{/if}
+
+		<div class="weather-label">
+			<span class="name">{weatherLabels[weather]}</span>
+			<span class="turns">{weatherTurns}</span>
+		</div>
+	</div>
+{/if}
+
+<style lang="scss">
+	.weather-overlay {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		pointer-events: none;
+		z-index: 2;
+		overflow: hidden;
+		animation: fadeIn 0.5s ease-out;
+	}
+
+	@keyframes fadeIn {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
+
+	.weather-label {
+		position: absolute;
+		top: 8px;
+		left: 50%;
+		transform: translateX(-50%);
+		display: flex;
+		gap: 8px;
+		padding: 4px 12px;
+		background: rgba(0, 0, 0, 0.6);
+		border-radius: 4px;
+		font-size: 12px;
+		font-weight: bold;
+		color: #fff;
+		z-index: 10;
+
+		.turns {
+			background: rgba(255, 255, 255, 0.2);
+			padding: 0 6px;
+			border-radius: 3px;
+		}
+	}
+
+	// Rain
+	.rain-container {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+	}
+
+	.raindrop {
+		position: absolute;
+		left: var(--x);
+		top: -20px;
+		width: 2px;
+		height: 15px;
+		background: linear-gradient(
+			to bottom,
+			transparent,
+			rgba(100, 150, 255, 0.6),
+			rgba(100, 150, 255, 0.8)
+		);
+		border-radius: 0 0 2px 2px;
+		animation: rainfall var(--duration) linear infinite;
+		animation-delay: var(--delay);
+	}
+
+	@keyframes rainfall {
+		0% {
+			transform: translateY(-20px);
+			opacity: 0;
+		}
+		10% {
+			opacity: 1;
+		}
+		90% {
+			opacity: 1;
+		}
+		100% {
+			transform: translateY(100vh);
+			opacity: 0;
+		}
+	}
+
+	.rain {
+		background: linear-gradient(to bottom, rgba(50, 80, 120, 0.2), rgba(30, 50, 80, 0.3));
+	}
+
+	// Sun
+	.sun {
+		background: radial-gradient(ellipse at 70% 20%, rgba(255, 200, 100, 0.3), transparent 50%);
+	}
+
+	.sun-rays {
+		position: absolute;
+		top: -50%;
+		right: -20%;
+		width: 80%;
+		height: 150%;
+		background: repeating-conic-gradient(
+			from 0deg,
+			rgba(255, 200, 50, 0.1) 0deg 10deg,
+			transparent 10deg 20deg
+		);
+		animation: sunRotate 30s linear infinite;
+		opacity: 0.6;
+	}
+
+	.sun-glow {
+		position: absolute;
+		top: 5%;
+		right: 10%;
+		width: 120px;
+		height: 120px;
+		background: radial-gradient(
+			circle,
+			rgba(255, 220, 100, 0.8),
+			rgba(255, 180, 50, 0.4) 40%,
+			transparent 70%
+		);
+		border-radius: 50%;
+		animation: sunPulse 3s ease-in-out infinite;
+	}
+
+	@keyframes sunRotate {
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(360deg);
+		}
+	}
+
+	@keyframes sunPulse {
+		0%,
+		100% {
+			transform: scale(1);
+			opacity: 0.7;
+		}
+		50% {
+			transform: scale(1.15);
+			opacity: 0.9;
+		}
+	}
+
+	// Sandstorm
+	.sand {
+		background: linear-gradient(to right, rgba(180, 140, 80, 0.3), rgba(160, 120, 60, 0.4));
+	}
+
+	.sand-particles {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+	}
+
+	.sand-particle {
+		position: absolute;
+		left: var(--x);
+		top: var(--y);
+		width: var(--size);
+		height: var(--size);
+		background: rgba(180, 140, 80, 0.7);
+		border-radius: 50%;
+		animation: sandSwirl 3s ease-in-out infinite;
+		animation-delay: var(--delay);
+	}
+
+	@keyframes sandSwirl {
+		0% {
+			transform: translate(0, 0) rotate(0deg);
+			opacity: 0;
+		}
+		25% {
+			opacity: 0.8;
+		}
+		50% {
+			transform: translate(100px, 50px) rotate(180deg);
+			opacity: 0.6;
+		}
+		75% {
+			opacity: 0.8;
+		}
+		100% {
+			transform: translate(200px, 0) rotate(360deg);
+			opacity: 0;
+		}
+	}
+
+	// Hail
+	.hail {
+		background: linear-gradient(to bottom, rgba(180, 220, 240, 0.15), rgba(200, 230, 250, 0.2));
+	}
+
+	.hail-container {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+	}
+
+	.hailstone {
+		position: absolute;
+		left: var(--x);
+		top: -30px;
+		width: var(--size);
+		height: var(--size);
+		background: radial-gradient(circle at 30% 30%, #fff, rgba(180, 220, 255, 0.9));
+		border-radius: 50%;
+		box-shadow: 0 0 4px rgba(200, 230, 255, 0.5);
+		animation: hailfall var(--duration) linear infinite;
+		animation-delay: var(--delay);
+	}
+
+	@keyframes hailfall {
+		0% {
+			transform: translateY(-30px) rotate(0deg);
+			opacity: 0;
+		}
+		10% {
+			opacity: 1;
+		}
+		90% {
+			opacity: 1;
+		}
+		100% {
+			transform: translateY(100vh) rotate(360deg);
+			opacity: 0;
+		}
+	}
+</style>

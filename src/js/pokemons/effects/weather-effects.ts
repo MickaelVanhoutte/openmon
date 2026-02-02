@@ -1,4 +1,4 @@
-import { Effect, EffectTiming, EffectResult, EffectForTurn } from './types';
+import { type Effect, EffectTiming, EffectResult, EffectForTurn } from './types';
 import { Weather, BattleField } from '../../battle/battle-field';
 
 export { Weather };
@@ -11,11 +11,19 @@ export function getWeatherDamageMultiplier(battleField: BattleField, moveType: s
 	const type = moveType.toLowerCase();
 
 	if (weather === Weather.RAIN) {
-		if (type === 'water') {return 1.5;}
-		if (type === 'fire') {return 0.5;}
+		if (type === 'water') {
+			return 1.5;
+		}
+		if (type === 'fire') {
+			return 0.5;
+		}
 	} else if (weather === Weather.SUN) {
-		if (type === 'fire') {return 1.5;}
-		if (type === 'water') {return 0.5;}
+		if (type === 'fire') {
+			return 1.5;
+		}
+		if (type === 'water') {
+			return 0.5;
+		}
 	}
 
 	return 1;

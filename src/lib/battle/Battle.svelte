@@ -3,6 +3,9 @@
 	import { gsap } from 'gsap';
 	import ActionBar from './ActionBar.svelte';
 	import FloatingPokemonInfo from './FloatingPokemonInfo.svelte';
+	import WeatherOverlay from './WeatherOverlay.svelte';
+	import HazardSprites from './HazardSprites.svelte';
+	import ScreenBarrier from './ScreenBarrier.svelte';
 	import { BattleContext } from '../../js/context/battleContext';
 	import { BattleType } from '../../js/battle/battle-model';
 	import type { GameContext } from '../../js/context/gameContext';
@@ -453,6 +456,20 @@
 			class="battle-bg"
 			style="background-image: url({beachesImage}); --bg-offset: {backgroundOffset}"
 		></div>
+
+		<WeatherOverlay
+			weather={battleCtx.battleField.weather}
+			weatherTurns={battleCtx.battleField.weatherTurns}
+		/>
+		<HazardSprites
+			allySide={battleCtx.battleField.allySide}
+			enemySide={battleCtx.battleField.enemySide}
+		/>
+		<ScreenBarrier
+			allySide={battleCtx.battleField.allySide}
+			enemySide={battleCtx.battleField.enemySide}
+		/>
+
 		<div class="fx" bind:this={spriteFx}></div>
 		<div class="fx" bind:this={spriteFxPartner}></div>
 		<img
