@@ -166,12 +166,22 @@
 		let sourceIndex = select1.index;
 		let targetIndex = select2.index;
 
+		// Check if first team member will change
+		const firstTeamMemberChanging =
+			(select1.zone === 'party' && sourceIndex === 0) ||
+			(select2.zone === 'party' && targetIndex === 0);
+
 		// swap
 		let temp = sourceList[sourceIndex];
 		sourceList[sourceIndex] = targetList[targetIndex];
 		targetList[targetIndex] = temp;
 
 		context.player.monsters = context.player.monsters.filter((p) => !!p);
+
+		// Update follower if first team member changed
+		if (firstTeamMemberChanging && context.player.monsters[0]) {
+			context.player.setFollower(context.player.monsters[0]);
+		}
 
 		// Force reactivity update for teamSlot and box grid
 		teamTick++;

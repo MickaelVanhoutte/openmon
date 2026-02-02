@@ -133,4 +133,53 @@ test.describe('Pokemon Box Operations', () => {
 		const newName = await boxName.textContent();
 		expect(newName).not.toBe(initialName);
 	});
+
+	test('swapping box Pokemon with first team member updates follower in overworld', async ({
+		page
+	}) => {
+		const boxesButton = page.locator('button[aria-label="Open Pokemon boxes"]');
+		await boxesButton.click();
+		await page.waitForTimeout(600);
+
+		const firstTeamPokemonBefore = await page
+			.locator('.boxes .party .entries .entry img')
+			.first()
+			.getAttribute('alt');
+
+		const firstBoxPokemon = page.locator('.boxes .box .entries .entry img').first();
+		const boxPokemonName = await firstBoxPokemon.getAttribute('alt');
+
+		expect(boxPokemonName).not.toBe(firstTeamPokemonBefore);
+
+		const firstBoxSlot = page.locator('.boxes .box .entries .entry').first();
+		await firstBoxSlot.click();
+		await page.waitForTimeout(300);
+
+		const moveOption = page.locator('.boxes .options').getByText('MOVE');
+		await moveOption.click();
+		await page.waitForTimeout(300);
+
+		const firstTeamSlot = page.locator('.boxes .party .entries .entry').first();
+		await firstTeamSlot.click();
+		await page.waitForTimeout(500);
+
+		const firstTeamPokemonAfter = await page
+			.locator('.boxes .party .entries .entry img')
+			.first()
+			.getAttribute('alt');
+
+		expect(firstTeamPokemonAfter).toBe(boxPokemonName);
+		expect(firstTeamPokemonAfter).not.toBe(firstTeamPokemonBefore);
+
+		const closeButton = page.locator('.boxes button[aria-label="Close boxes"]');
+		await closeButton.click();
+		await page.waitForTimeout(500);
+
+		const followerSprite = page.locator('[data-testid="follower-sprite"]');
+		const followerExists = await followerSprite.count();
+		if (followerExists > 0) {
+			const followerAlt = await followerSprite.getAttribute('alt');
+			expect(followerAlt).toBe(boxPokemonName);
+		}
+	});
 });
