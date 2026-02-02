@@ -398,8 +398,8 @@
 
 	.below-box-indicators {
 		position: absolute;
-		bottom: -18px;
-		left: 0;
+		top: 50px;
+		left: -3px;
 		right: 0;
 		display: flex;
 		justify-content: space-between;
@@ -412,7 +412,7 @@
 		display: flex;
 		flex-wrap: wrap;
 		gap: 3px;
-		max-width: 45%;
+		max-width: 47%;
 	}
 
 	.stat-change {
