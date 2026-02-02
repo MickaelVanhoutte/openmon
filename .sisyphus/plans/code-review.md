@@ -396,7 +396,7 @@ Task 6: svelte-check Verification & Final Validation
 
 ---
 
-- [ ] 5. Child Components $bindable Fixes
+- [x] 5. Child Components $bindable Fixes
 
   **What to do**:
   - Check which props in Battle.svelte, World.svelte need `$bindable()`
@@ -451,7 +451,7 @@ Task 6: svelte-check Verification & Final Validation
 
 ---
 
-- [ ] 6. Final Validation & svelte-check Recovery
+- [x] 6. Final Validation & svelte-check Recovery
 
   **What to do**:
   - Run full svelte-check with 60-second timeout
