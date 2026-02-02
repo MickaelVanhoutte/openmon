@@ -38,6 +38,7 @@
 	}: Props = $props();
 
 	let battleSummaryOpened = $state(false);
+	let summaryOpened = $state(context.overWorldContext.menus.openSummary);
 	let numberOfOptions = $derived(
 		!!itemToUse
 			? 2
@@ -73,6 +74,13 @@
 				first = battleContext?.playerSide?.[0];
 				others = context.player.monsters.filter((pkmn) => pkmn !== first);
 			}
+		});
+		return () => unsubscribe();
+	});
+
+	$effect(() => {
+		const unsubscribe = context.overWorldContext.menus.openSummary$.subscribe((value) => {
+			summaryOpened = value;
 		});
 		return () => unsubscribe();
 	});
@@ -135,6 +143,7 @@
 		if (isBattle) {
 			battleSummaryOpened = true;
 		} else {
+			context.overWorldContext.menus.summaryIndex = selected;
 			context.overWorldContext.openMenu(MenuType.SUMMARY);
 		}
 	}
@@ -177,7 +186,7 @@
 	}
 
 	const listener = (e: KeyboardEvent) => {
-		if (context.overWorldContext.menus.openSummary || battleSummaryOpened) return;
+		if (summaryOpened || battleSummaryOpened) return;
 		if (!openOptions) {
 			if (e.key === 'ArrowUp') {
 				selected = selected === 0 ? others.length : selected - 1;
@@ -390,14 +399,14 @@
 	</div>
 </div>
 
-{#if context.overWorldContext.menus.openSummary || battleSummaryOpened}
+{#if summaryOpened || battleSummaryOpened}
 	<PokemonSummary
 		bind:context
-		bind:selected
+		{selected}
 		bind:isBattle
 		bind:battleSummaryOpened
-		bind:zIndex={zIndexNext}
-		bind:pkmnList={context.player.monsters}
+		zIndex={zIndex + 100}
+		pkmnList={context.player.monsters}
 	/>
 {/if}
 

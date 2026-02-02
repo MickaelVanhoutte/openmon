@@ -20,7 +20,16 @@
 	let selectedBox = $state(0);
 	let over: number = $state(0);
 
-	let box = $derived(context.boxes[selectedBox]);
+	// Force reactivity tick for box updates (nested array mutations aren't tracked by Svelte 5)
+	let boxTick = $state(0);
+	let box = $derived.by(() => {
+		void boxTick;
+		const currentBox = context.boxes[selectedBox];
+		return {
+			name: currentBox.name,
+			values: [...currentBox.values]
+		};
+	});
 
 	// Force reactivity tick for team updates
 	let teamTick = $state(0);
@@ -31,20 +40,31 @@
 				)
 			: []
 	);
-	let pkmnList = $derived(
-		selectZone === 'box'
-			? box.values.filter((p) => p instanceof PokemonInstance)
-			: context.player.monsters
-	);
+	let firstSelection: BoxSelection | undefined = $state(undefined);
+	let pkmnList = $derived.by(() => {
+		if (firstSelection?.zone === 'box' && firstSelection.box !== undefined) {
+			// Use the box where selection was made, not the currently viewed box
+			return context.boxes[firstSelection.box].values.filter((p) => p instanceof PokemonInstance);
+		}
+		return context.player.monsters;
+	});
 	let isBattle = false;
 	let zIndexNext = $state(10);
+
+	// Subscribe to openSummary store for Svelte 5 reactivity
+	let openSummary = $state(false);
+	$effect(() => {
+		const unsub = context.overWorldContext.menus.openSummary$.subscribe((v) => {
+			openSummary = v;
+		});
+		return () => unsub();
+	});
 	let changeLeftHover = $state(false);
 	let changeRightHover = $state(false);
 	let previewOpened: boolean = $state(false);
 	let hasInteracted: boolean = $state(false);
 	let optionsOpened: boolean = $state(false);
 	let selectedOption: number = $state(0);
-	let firstSelection: BoxSelection | undefined = $state(undefined);
 
 	let touchStartX = 0;
 	let touchEndX = 0;
@@ -153,19 +173,33 @@
 
 		context.player.monsters = context.player.monsters.filter((p) => !!p);
 
-		// Force reactivity update for teamSlot
+		// Force reactivity update for teamSlot and box grid
 		teamTick++;
+		boxTick++;
 
 		firstSelection = undefined;
 	}
 
 	function openSum() {
-		let box = context.boxes[selectedBox];
+		if (!firstSelection?.selected) return;
+		// DEBUG: Log the state to understand what's happening
+		console.log('openSum called', {
+			'firstSelection.zone': firstSelection.zone,
+			'firstSelection.box': firstSelection.box,
+			'firstSelection.selected': firstSelection.selected?.name
+		});
+		// Use firstSelection.box (where Pokemon was selected from) not selectedBox (current view)
 		let list =
-			selectZone === 'box'
-				? box.values.filter((p) => p instanceof PokemonInstance)
+			firstSelection.zone === 'box' && firstSelection.box !== undefined
+				? context.boxes[firstSelection.box].values.filter((p) => p instanceof PokemonInstance)
 				: context.player.monsters;
-		pkmnListSelectedIndex = list.indexOf(firstSelection?.selected);
+		console.log('list computed', {
+			listLength: list.length,
+			listNames: list.map((p) => p?.name),
+			isBoxList: firstSelection.zone === 'box' && firstSelection.box !== undefined
+		});
+		pkmnListSelectedIndex = list.indexOf(firstSelection.selected);
+		console.log('pkmnListSelectedIndex', pkmnListSelectedIndex);
 		context.overWorldContext.openMenu(MenuType.SUMMARY);
 	}
 
@@ -427,7 +461,7 @@
 	</div>
 </div>
 
-{#if context.overWorldContext.menus.openSummary && firstSelection}
+{#if openSummary && firstSelection}
 	<PokemonSummary
 		{context}
 		selected={pkmnListSelectedIndex}

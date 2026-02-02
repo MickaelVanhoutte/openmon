@@ -124,9 +124,9 @@
 	</div>
 {/if}
 
-<div class="dialog">
+<div class="dialog" data-testid="dialog-box">
 	<div class="dialog-content">
-		<div class="dialog-text" class:animate bind:this={text}>
+		<div class="dialog-text" data-testid="dialog-text" class:animate bind:this={text}>
 			<div>{current?.text}</div>
 		</div>
 	</div>

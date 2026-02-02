@@ -44,7 +44,7 @@
 	});
 </script>
 
-<div class="create">
+<div class="create" data-testid="player-creation">
 	{#each Array.from({ length: 15 }) as _}
 		<div class="firefly"></div>
 	{/each}
@@ -69,9 +69,11 @@
 		</select>
 
 		<label for="name">What's your name?</label>
-		<input id="name" placeholder={sprite.name} bind:value={playerName} />
+		<input id="name" placeholder={sprite.name} bind:value={playerName} data-testid="name-input" />
 
-		<button type="submit" disabled={playerName?.length === 0}>Start</button>
+		<button type="submit" disabled={playerName?.length === 0} data-testid="confirm-button"
+			>Start</button
+		>
 	</form>
 </div>
 

@@ -56,7 +56,7 @@
 	<PokemonList {context} {isBattle} onChange={() => 0} zIndex={10} onCombo={() => {}} />
 {/if}
 
-{#if openSummary && !pokemonListOpened}
+{#if openSummary && !pokemonListOpened && !boxOpened}
 	<PokemonSummary
 		{context}
 		selected={context.overWorldContext.menus.summaryIndex}

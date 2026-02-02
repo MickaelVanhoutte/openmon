@@ -104,7 +104,7 @@
 
 <svelte:window onload={() => preloadAssets()} />
 
-<div class="intro" bind:this={intro} out:fade>
+<div class="intro" data-testid="intro-screen" bind:this={intro} out:fade>
 	{#each Array.from({ length: 5 }) as i}
 		<div class="firefly"></div>
 	{/each}
@@ -150,7 +150,7 @@
 	<!-- <img class="combo" src="src/assets/menus/combo.svg" alt="gimmick logo" /> -->
 	<img class="darkrai" src="src/assets/darkrai.png" alt="darkrai" />
 	<img class="diancie" src="src/assets/diancie.png" alt="diancie" />
-	<span class="touch">
+	<span class="touch" data-testid="start-button">
 		{#if ready}
 			Touch to start
 		{:else}

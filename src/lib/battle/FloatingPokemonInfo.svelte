@@ -221,6 +221,7 @@
 	<div
 		bind:this={containerElement}
 		class="floating-pokemon-info spatial-panel"
+		data-testid={isAlly ? 'ally-pokemon-info' : 'opponent-pokemon-info'}
 		style="{useComputedPosition
 			? computedStyle
 			: `bottom: ${position.bottom}; left: ${position.left};`} opacity: 0;"
@@ -239,7 +240,7 @@
 			<span class="level-text spatial-text">Lv.{level}</span>
 		</div>
 
-		<div class="hp-bar-container">
+		<div class="hp-bar-container" data-testid={isAlly ? 'ally-hp-bar' : 'opponent-hp-bar'}>
 			<div class="hp-bar-bg">
 				<div class="hp-bar-fill" style="width: {hpPercent}%; background: {hpGradient()}">
 					<span class="hp-value">{currentHp} / {maxHp}</span>
