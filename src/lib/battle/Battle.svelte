@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { gsap } from 'gsap';
 	import ActionBar from './ActionBar.svelte';
 	import FloatingPokemonInfo from './FloatingPokemonInfo.svelte';
 	import { BattleContext } from '../../js/context/battleContext';
