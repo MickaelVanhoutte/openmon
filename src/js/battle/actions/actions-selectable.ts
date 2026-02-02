@@ -3,7 +3,7 @@ import { ActionType, type ActionV2Interface } from './actions-model';
 import type { BattleContext } from '../../context/battleContext';
 import { Player } from '../../characters/player';
 import { type Character } from '../../characters/characters-model';
-import { DamageResults, MOVE_EFFECT_APPLIER } from '../battle-model';
+import { BattleType, DamageResults, MOVE_EFFECT_APPLIER } from '../battle-model';
 import {
 	ApplyEffect,
 	ChangePokemon,
@@ -16,6 +16,8 @@ import {
 import { Pokeball } from '../../items/items';
 import { NPC } from '../../characters/npc';
 import { MasteryType } from '../../characters/mastery-model';
+import { getWeatherDamageMultiplier } from '../../pokemons/effects/weather-effects';
+import { Screen } from '../battle-field';
 
 // SELECTABLE ACTIONS
 export class RunAway implements ActionV2Interface {
@@ -284,7 +286,7 @@ export class Attack implements ActionV2Interface {
 		result.superEffective = typeEffectiveness > 1;
 		result.notVeryEffective = typeEffectiveness < 1;
 		result.immune = typeEffectiveness === 0;
-		const critical = result.immune ? 0 : this.calculateCritical(controller);
+		const critical = result.immune ? 0 : this.calculateCritical(controller, move);
 		result.critical = critical > 1;
 
 		if (move.category !== 'no-damage' && move.power > 0) {
@@ -303,7 +305,9 @@ export class Attack implements ActionV2Interface {
 
 			const random = Math.random() * (1 - 0.85) + 0.85;
 			const stab = this.calculateStab(attacker, move, controller);
-			const other = 1; // TODO weather, badges  ...
+			const weatherMultiplier = getWeatherDamageMultiplier(ctx.battleField, move.type);
+			const screenMultiplier = this.calculateScreenMultiplier(move.category, defender, ctx);
+			const other = weatherMultiplier * screenMultiplier;
 			const modifiers = typeEffectiveness * critical * random * stab * other;
 			result.damages = Math.floor(
 				((((2 * attacker.level) / 5 + 2) * move.power * attack) / defense / 50 + 2) *
@@ -326,13 +330,19 @@ export class Attack implements ActionV2Interface {
 		);
 	}
 
-	private calculateCritical(controller: Character | PokemonInstance) {
+	private calculateCritical(
+		controller: Character | PokemonInstance,
+		move: MoveInstance | ComboMove
+	) {
 		let modifier = 0;
 		if (controller instanceof Player) {
-			// TODO handle opponents
 			modifier = controller.getMasteryBonus(MasteryType.CRITICAL);
 		}
-		return Math.random() < 0.0625 ? 2.0 + modifier / 100 : 1;
+
+		const isHighCrit = move.effect?.move_effect_id === 44 || move.effect?.move_effect_id === 144;
+		const critRate = isHighCrit ? 0.125 : 0.0625;
+
+		return Math.random() < critRate ? 2.0 + modifier / 100 : 1;
 	}
 
 	private calculateStab(
@@ -357,12 +367,33 @@ export class Attack implements ActionV2Interface {
 		}
 	}
 
+	private calculateScreenMultiplier(
+		category: string,
+		defender: PokemonInstance,
+		ctx: BattleContext
+	): number {
+		if (category === 'no-damage') {
+			return 1;
+		}
+
+		const defenderSide = ctx.playerSide.includes(defender) ? 'ally' : 'enemy';
+		const relevantScreen = category === 'physical' ? Screen.REFLECT : Screen.LIGHT_SCREEN;
+
+		if (ctx.battleField.hasScreen(defenderSide, relevantScreen)) {
+			return ctx.battleType === BattleType.DOUBLE ? 2 / 3 : 0.5;
+		}
+
+		return 1;
+	}
+
 	private accuracyApplies(
 		attacker: PokemonInstance,
 		defender: PokemonInstance,
 		move: MoveInstance | ComboMove
 	) {
-		if (!move.accuracy || move.accuracy === 0) {return true;}
+		if (!move.accuracy || move.accuracy === 0) {
+			return true;
+		}
 		const accStage = attacker.statsChanges.accuracy - defender.statsChanges.evasion;
 		const stageMod = accStage >= 0 ? (3 + accStage) / 3 : 3 / (3 - accStage);
 		const finalAccuracy = move.accuracy * stageMod;

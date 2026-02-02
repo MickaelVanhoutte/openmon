@@ -113,7 +113,8 @@ export class VolatileTracker {
 		if (!this.has(VolatileStatus.CONFUSED)) {
 			return false;
 		}
-		return Math.random() < 0.5;
+		// Gen 7+ confusion self-hit rate is 33% (was 50% in Gen 3-6)
+		return Math.random() < 0.33;
 	}
 
 	isFlinched(): boolean {

@@ -139,7 +139,7 @@ describe('VolatileTracker', () => {
 	});
 
 	describe('confusion self-hit check', () => {
-		it('should have 50% chance of self-hit in Gen 3-5', () => {
+		it('should have 33% chance of self-hit in Gen 7+', () => {
 			tracker.add(VolatileStatus.CONFUSED, 3);
 			let selfHitCount = 0;
 			const iterations = 1000;
@@ -149,8 +149,8 @@ describe('VolatileTracker', () => {
 				}
 			}
 			const ratio = selfHitCount / iterations;
-			expect(ratio).toBeGreaterThan(0.4);
-			expect(ratio).toBeLessThan(0.6);
+			expect(ratio).toBeGreaterThan(0.25);
+			expect(ratio).toBeLessThan(0.42);
 		});
 
 		it('should return false when not confused', () => {
