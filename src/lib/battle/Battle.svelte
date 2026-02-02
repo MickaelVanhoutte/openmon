@@ -140,13 +140,19 @@
 
 	battleCtx.events.playerPokemonFaint.subscribe((value) => {
 		if (value && ally) {
-			animateFaint(ally[battleCtx.playerSide.indexOf(value)]);
+			const idx = battleCtx.playerSide.indexOf(value);
+			animateFaint(ally[idx]).then(() => {
+				allyFainted[idx] = true;
+			});
 		}
 	});
 
 	battleCtx.events.opponentPokemonFaint.subscribe((value) => {
 		if (value && opponent) {
-			animateFaint(opponent[battleCtx.oppSide.indexOf(value)]);
+			const idx = battleCtx.oppSide.indexOf(value);
+			animateFaint(opponent[idx]).then(() => {
+				opponentFainted[idx] = true;
+			});
 		}
 	});
 
@@ -388,24 +394,6 @@
 							battleLoopContext.opponentdrawn = false;
 						});
 					}
-				}
-			}
-		});
-
-		battleCtx.events.playerPokemonFaint.subscribe((pkmn) => {
-			if (pkmn) {
-				const idx = battleCtx.playerSide.findIndex((p) => p === pkmn);
-				if (idx !== -1) {
-					allyFainted[idx] = true;
-				}
-			}
-		});
-
-		battleCtx.events.opponentPokemonFaint.subscribe((pkmn) => {
-			if (pkmn) {
-				const idx = battleCtx.oppSide.findIndex((p) => p === pkmn);
-				if (idx !== -1) {
-					opponentFainted[idx] = true;
 				}
 			}
 		});
