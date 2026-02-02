@@ -114,6 +114,24 @@ export const EFFECT_MANIFEST: Record<string, EffectDefinition> = {
 		frames: 6,
 		frameWidth: 192,
 		frameHeight: 192
+	},
+	shadowball: {
+		path: 'src/assets/battle/fx/shadowball-sprite.png',
+		frames: 6,
+		frameWidth: 192,
+		frameHeight: 192
+	},
+	lightball: {
+		path: 'src/assets/battle/fx/lightball-sprite.png',
+		frames: 8,
+		frameWidth: 192,
+		frameHeight: 192
+	},
+	drain: {
+		path: 'src/assets/battle/fx/drain-sprite.png',
+		frames: 8,
+		frameWidth: 192,
+		frameHeight: 192
 	}
 };
 
