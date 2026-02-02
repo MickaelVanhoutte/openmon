@@ -64,6 +64,7 @@
 	let currentCombo: { pokemon: PokemonInstance; move: MoveInstance } | undefined =
 		$state(undefined);
 	let changePokemon = $state(false);
+	let faintedPokemon = $state<PokemonInstance | undefined>(undefined);
 	const isBattle = true;
 	let battleBagOpened = $state(false);
 	let battleSwitchOpened = $state(false);
@@ -437,6 +438,7 @@
 		battleCtx.events.playerPokemonFaint.subscribe((pkmn) => {
 			if (pkmn && haveRemainingPokemons()) {
 				changePokemon = true;
+				faintedPokemon = pkmn;
 			}
 		});
 		return () => {
@@ -713,8 +715,9 @@
 			onChange={(pkm) => {
 				if (!!pkm && battleSwitchOpened) {
 					sendSwitchAction(pkm);
-				} else if (!!pkm && changePokemon) {
-					send(pkm);
+				} else if (!!pkm && changePokemon && faintedPokemon) {
+					send(pkm, faintedPokemon);
+					faintedPokemon = undefined;
 				}
 			}}
 		/>
