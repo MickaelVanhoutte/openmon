@@ -7,7 +7,7 @@
 		onApply?: (edited: PokedexEntry) => void;
 	}
 
-	let { pokemon, onApply }: Props = $props();
+	const { pokemon, onApply }: Props = $props();
 
 	const pokemonTypes = Object.keys(typeChart) as PokemonType[];
 	const learnMethods = [
@@ -91,7 +91,7 @@
 	});
 
 	function handleApply() {
-		if (!pokemon || !onApply) return;
+		if (!pokemon || !onApply) {return;}
 
 		// Rebuild moves from editedMoves
 		const updatedMoves = editedMoves.map((em) => {
@@ -187,7 +187,7 @@
 	}
 
 	function addNewMove() {
-		if (!newMoveName.trim()) return;
+		if (!newMoveName.trim()) {return;}
 
 		const newMove: EditableMove = {
 			id: Date.now(), // Temporary ID

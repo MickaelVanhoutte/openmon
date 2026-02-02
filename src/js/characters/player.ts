@@ -137,17 +137,17 @@ export class Player implements Character {
 
 	public followerCharge(context: OverworldContext, battle: boolean = true) {
 		if (this.follower) {
-			let unsubscribe = setInterval(() => {
+			const unsubscribe = setInterval(() => {
 				if (this.follower && !this.follower.moving) {
 					//const savedSpeed = this.running;
 					context.setPaused(true, 'followerCharge');
 					this.follower.moving = true;
 					this.follower.position.direction = this.position.direction;
-					let playerSide = this.aroundPlayer(this.playerSide());
+					const playerSide = this.aroundPlayer(this.playerSide());
 					// Set the follower to the side of the player
 					this.follower.position.setFuturePosition(playerSide.x, playerSide.y, () => {
 						if (this.follower) {
-							let playerFront = this.aroundPlayer(this.position.direction);
+							const playerFront = this.aroundPlayer(this.position.direction);
 							//this.running = true;
 							this.follower.moving = true;
 							// Set the follower to the front of the player
@@ -160,7 +160,7 @@ export class Player implements Character {
 											// Set the follower to the side of the player again
 											this.follower.position.setFuturePosition(playerSide.x, playerSide.y, () => {
 												if (this.follower && !this.moving) {
-													let playerBack = this.behindPlayer();
+													const playerBack = this.behindPlayer();
 													this.follower.moving = true;
 													// Set the follower to the back of the player
 													this.follower.position.setFuturePosition(
@@ -308,9 +308,9 @@ export class Player implements Character {
 		},
 		drawGrass: boolean
 	): { centerX: number; centerY: number; offsetX: number; offsetY: number } | undefined {
-		let sprite =
+		const sprite =
 			this.running && this.moving ? this.sprite.overworld.running : this.sprite.overworld.walking;
-		let img =
+		const img =
 			this.running && this.moving ? this.sprite.worldRunningImg : this.sprite.worldWalkingImg;
 
 		if (img && img.complete) {

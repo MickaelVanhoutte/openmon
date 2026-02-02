@@ -5,9 +5,9 @@
 		context: GameContext;
 	}
 
-	let { context }: Props = $props();
+	const { context }: Props = $props();
 
-	let playingTime = $derived(new Date(new Date().getTime() - context.created));
+	const playingTime = $derived(new Date(new Date().getTime() - context.created));
 </script>
 
 <div class="trainer-card">

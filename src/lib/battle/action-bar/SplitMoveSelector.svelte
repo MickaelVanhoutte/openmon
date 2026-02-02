@@ -19,7 +19,7 @@
 		spriteElement?: HTMLElement | null;
 	}
 
-	let {
+	const {
 		moves,
 		disabled = false,
 		selectedMoveIdx = 0,
@@ -30,7 +30,7 @@
 		spriteElement = null
 	}: Props = $props();
 
-	let plateElements: HTMLButtonElement[] = [];
+	const plateElements: HTMLButtonElement[] = [];
 	let selectedIdx = $state(selectedMoveIdx);
 	let platePositions = $state<AttackPlatePosition[]>([]);
 
@@ -65,10 +65,10 @@
 	}
 
 	function handleKeyDown(event: KeyboardEvent) {
-		if (disabled || !show) return;
+		if (disabled || !show) {return;}
 
 		const validMoves = moves.filter((m) => m.pp > 0);
-		if (validMoves.length === 0) return;
+		if (validMoves.length === 0) {return;}
 
 		switch (event.key) {
 			case 'ArrowUp':
@@ -118,10 +118,10 @@
 	}
 
 	function animateEntrance() {
-		if (plateElements.length === 0) return;
+		if (plateElements.length === 0) {return;}
 
 		const validPlates = plateElements.filter(Boolean);
-		if (validPlates.length === 0) return;
+		if (validPlates.length === 0) {return;}
 
 		const spritePos = getSpritePosition(spriteElement);
 		const startX = spritePos ? 0 : -100;
@@ -154,7 +154,7 @@
 		updatePositions();
 
 		const animationTimer = setTimeout(() => {
-			if (show) animateEntrance();
+			if (show) {animateEntrance();}
 		}, 50);
 
 		return () => {

@@ -10,7 +10,7 @@
 		onMoveClick: (idx: number, move: MoveInstance) => void;
 	}
 
-	let { moves, selectedMoveIdx, disabled, show, onMoveClick }: Props = $props();
+	const { moves, selectedMoveIdx, disabled, show, onMoveClick }: Props = $props();
 </script>
 
 <div class="moves2" class:show role="menu" aria-label="Available moves">

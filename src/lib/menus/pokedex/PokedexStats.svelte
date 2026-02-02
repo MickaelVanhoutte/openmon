@@ -11,7 +11,7 @@
 		pokemon: PokedexEntry;
 	}
 
-	let { pokemon }: Props = $props();
+	const { pokemon }: Props = $props();
 
 	let abilityName: string = $state('');
 	let abilityDesc: string = $state('');

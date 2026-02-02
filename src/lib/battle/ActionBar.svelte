@@ -55,7 +55,7 @@
 	let show = $state(false);
 	let showAdd = $state(false);
 
-	let currentMessage: String | undefined = $state(undefined);
+	let currentMessage: string | undefined = $state(undefined);
 	let disabled = $state(false);
 	let selectedMoveIdx: number | undefined = $state(undefined);
 	let selectedOptionIdx: number | undefined = $state(undefined);
@@ -64,14 +64,14 @@
 	let currentCombo: { pokemon: PokemonInstance; move: MoveInstance } | undefined =
 		$state(undefined);
 	let changePokemon = $state(false);
-	let isBattle = true;
+	const isBattle = true;
 	let battleBagOpened = $state(false);
 	let battleSwitchOpened = $state(false);
-	let zIndexNext = 120;
+	const zIndexNext = 120;
 	const mechanicRegex = /{[^}]*}/g;
 	const effectRegex = /\$effect_chance/g;
 
-	let comboJauge = battleCtx.player.comboJauge;
+	const comboJauge = battleCtx.player.comboJauge;
 	let comboValue = $state(comboJauge.value);
 	let comboStored = $state(comboJauge.stored);
 	let comboDisabled = $state(
@@ -177,7 +177,7 @@
 		if (selectedTargets && selectedTargets.length > 0) {
 			targets = [...selectedTargets];
 		} else {
-			let found = battleCtx.getPossibleTargets(battleCtx.playerSide[battleCtx.actionIdx], move);
+			const found = battleCtx.getPossibleTargets(battleCtx.playerSide[battleCtx.actionIdx], move);
 			if (found.selectOne) {
 				targetSelectOpened = true;
 				possibleTargets = found.possibleTargets;
@@ -188,7 +188,7 @@
 		}
 
 		if (battleCtx && targets) {
-			if (!!currentCombo) {
+			if (currentCombo) {
 				battleCtx.setPlayerAction(
 					new Attack(
 						new ComboMove(move, currentCombo.move, currentCombo.pokemon),
@@ -233,8 +233,8 @@
 	function send(pokemon: PokemonInstance, replaced: PokemonInstance) {
 		// TODO this code should be in the battle state
 		if (battleCtx) {
-			let replacedIdx = battleCtx.playerSide.indexOf(replaced);
-			let pkmnIdx = battleCtx.player.monsters.indexOf(pokemon);
+			const replacedIdx = battleCtx.playerSide.indexOf(replaced);
+			const pkmnIdx = battleCtx.player.monsters.indexOf(pokemon);
 			[battleCtx.player.monsters[replacedIdx], battleCtx.player.monsters[pkmnIdx]] = [
 				battleCtx.player.monsters[pkmnIdx],
 				battleCtx.player.monsters[replacedIdx]
@@ -268,7 +268,7 @@
 
 	function sendObjectAction(result: { item: number; target?: PokemonInstance }) {
 		battleBagOpened = false;
-		let itm = context.ITEMS.getItem(result.item)?.instanciate();
+		const itm = context.ITEMS.getItem(result.item)?.instanciate();
 		let pokemonIdx = 0;
 		if (result.target) {
 			pokemonIdx = battleCtx?.playerSide.indexOf(result.target);

@@ -12,11 +12,11 @@
 		savesHolder: SavesHolder;
 	}
 
-	let { savesHolder }: Props = $props();
+	const { savesHolder }: Props = $props();
 
 	let selected = $state(1);
-	let templates = [1, 2];
-	let sprite = $derived(CHARACTER_SPRITES.getSprite(selected));
+	const templates = [1, 2];
+	const sprite = $derived(CHARACTER_SPRITES.getSprite(selected));
 	let playerName = $state('');
 	let sound: Howl;
 

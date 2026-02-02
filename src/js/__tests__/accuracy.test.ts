@@ -20,9 +20,9 @@ describe('Move Accuracy Mechanics', () => {
 		): boolean => {
 			mathRandomSpy.mockReturnValue(randomValue);
 
-			if (!moveAccuracy && moveAccuracy !== 0) return true;
-			if (moveAccuracy === 0) return true;
-			if (moveAccuracy === '') return true;
+			if (!moveAccuracy && moveAccuracy !== 0) {return true;}
+			if (moveAccuracy === 0) {return true;}
+			if (moveAccuracy === '') {return true;}
 
 			const netStage = accStage - evaStage;
 			const stageMod = netStage >= 0 ? (3 + netStage) / 3 : 3 / (3 - netStage);

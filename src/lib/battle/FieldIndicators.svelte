@@ -6,7 +6,7 @@
 		battleField: BattleField;
 	}
 
-	let { battleField }: Props = $props();
+	const { battleField }: Props = $props();
 
 	const weatherLabels: Record<Weather, string> = {
 		[Weather.NONE]: '',

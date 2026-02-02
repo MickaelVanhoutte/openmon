@@ -95,9 +95,9 @@ export abstract class MultiHitEffect implements Effect {
 			return this.minHits;
 		}
 		const roll = Math.random();
-		if (roll < 0.35) return 2;
-		if (roll < 0.7) return 3;
-		if (roll < 0.85) return 4;
+		if (roll < 0.35) {return 2;}
+		if (roll < 0.7) {return 3;}
+		if (roll < 0.85) {return 4;}
 		return 5;
 	}
 }
@@ -169,7 +169,7 @@ export abstract class ProtectionEffect implements Effect {
 	}
 
 	checkSuccess(staleCounter: number): boolean {
-		if (staleCounter === 0) return true;
+		if (staleCounter === 0) {return true;}
 		const successChance = Math.pow(0.5, staleCounter);
 		return Math.random() < successChance;
 	}

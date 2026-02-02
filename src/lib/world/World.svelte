@@ -25,7 +25,7 @@
 		savesHolder: SavesHolder;
 	}
 
-	let { context, overWorldCtx, savesHolder }: Props = $props();
+	const { context, overWorldCtx, savesHolder }: Props = $props();
 
 	let canvas: HTMLCanvasElement;
 	let buffer: HTMLCanvasElement;
@@ -71,15 +71,15 @@
 		};
 	});
 
-	let currentDialog = $derived(
+	const currentDialog = $derived(
 		currentAction?.type === 'Dialog' ? (currentAction as Dialog) : undefined
 	);
-	let hasDialog = $derived(currentAction?.type === 'Dialog');
-	let hasShop = $derived(currentAction?.type === 'OpenShop');
-	let currentShop = $derived(
+	const hasDialog = $derived(currentAction?.type === 'Dialog');
+	const hasShop = $derived(currentAction?.type === 'OpenShop');
+	const currentShop = $derived(
 		currentAction?.type === 'OpenShop' ? (currentAction as OpenShop) : undefined
 	);
-	let isHealing = $derived(currentAction?.type === 'HealAll');
+	const isHealing = $derived(currentAction?.type === 'HealAll');
 	function getTimeFilter(tod: TimeOfDay): string {
 		switch (tod) {
 			case TimeOfDay.DAWN:
@@ -93,7 +93,7 @@
 		}
 	}
 
-	let spawned = $derived(context.spawned);
+	const spawned = $derived(context.spawned);
 
 	const timeOfDay = context.timeOfDay.timeOfDay;
 	const progress = context.timeOfDay.progress;
@@ -116,8 +116,8 @@
     Game loop
      */
 	function mainLoop() {
-		let now = Date.now();
-		let elapsed = now - overWorldCtx.frames.then;
+		const now = Date.now();
+		const elapsed = now - overWorldCtx.frames.then;
 
 		if (elapsed > overWorldCtx.frames.fpsInterval && context?.map) {
 			overWorldCtx.frames.then = now - (elapsed % overWorldCtx.frames.fpsInterval);
@@ -134,7 +134,7 @@
 	});
 
 	function drawElements() {
-		if (context.map === undefined) return;
+		if (context.map === undefined) {return;}
 
 		// Clear
 		bufferCtx.fillRect(0, 0, buffer.width, buffer.height);
@@ -142,7 +142,7 @@
 		//canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
 
 		// Background
-		let mapDimensions = context.map.draw(
+		const mapDimensions = context.map.draw(
 			bufferCtx,
 			context.map,
 			overWorldCtx.frames.imageScale,
@@ -231,7 +231,7 @@
 		}
 
 		// Foreground
-		if (!!context.map?.foreground) {
+		if (context.map?.foreground) {
 			context.map.drawFG(
 				bufferCtx,
 				context.map,
@@ -250,12 +250,12 @@
 		);
 
 		if (context.weather?.running) {
-			var w = buffer.width;
-			var h = buffer.height;
+			const w = buffer.width;
+			const h = buffer.height;
 
 			if (weatherParticles.length === 0) {
-				var maxParts = 1000;
-				for (var a = 0; a < maxParts; a++) {
+				const maxParts = 1000;
+				for (let a = 0; a < maxParts; a++) {
 					weatherParticles.push({
 						x: Math.random() * w,
 						y: Math.random() * h,
@@ -270,8 +270,8 @@
 			bufferCtx.lineWidth = 1;
 			bufferCtx.lineCap = 'round';
 
-			for (var c = 0; c < weatherParticles.length; c++) {
-				var p = weatherParticles[c];
+			for (let c = 0; c < weatherParticles.length; c++) {
+				const p = weatherParticles[c];
 				bufferCtx.beginPath();
 				bufferCtx.moveTo(p.x, p.y);
 				bufferCtx.lineTo(p.x + p.l * p.xs, p.y + p.l * p.ys);

@@ -7,7 +7,7 @@
 		onApply?: (edited: Move) => void;
 	}
 
-	let { move, onApply }: Props = $props();
+	const { move, onApply }: Props = $props();
 
 	const pokemonTypes = Object.keys(typeChart) as PokemonType[];
 	const categories = ['physical', 'special', 'no-damage'];
@@ -37,7 +37,7 @@
 	});
 
 	function handleApply() {
-		if (!move || !onApply) return;
+		if (!move || !onApply) {return;}
 
 		const edited: Move = {
 			...move,

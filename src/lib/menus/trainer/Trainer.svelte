@@ -10,7 +10,7 @@
 		context: GameContext;
 	}
 
-	let { context }: Props = $props();
+	const { context }: Props = $props();
 	let optionsOpened = $state(false);
 	let tab = $state(0);
 

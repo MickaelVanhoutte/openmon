@@ -10,7 +10,7 @@
 		context: GameContext;
 	}
 
-	let { context }: Props = $props();
+	const { context }: Props = $props();
 
 	let currentImg: HTMLImageElement;
 	let nextImg: HTMLImageElement;
@@ -20,7 +20,7 @@
 
 	const animationTime = 13;
 
-	let animateD = $state(true);
+	const animateD = $state(true);
 	let dialog = $state<Dialog | undefined>(undefined);
 
 	let currentSprite: string | undefined;
@@ -28,11 +28,11 @@
 
 	function evolveAnimation(poke?: PokemonInstance) {
 		if (poke) {
-			let circles = [...circlesWrap.children] as HTMLDivElement[];
-			let bubbles = [...bubblesWrap.children] as HTMLDivElement[];
+			const circles = [...circlesWrap.children] as HTMLDivElement[];
+			const bubbles = [...bubblesWrap.children] as HTMLDivElement[];
 
 			currentSprite = poke.getSprite();
-			let nextResult =
+			const nextResult =
 				poke?.evolution[0]?.id &&
 				context.POKEDEX.findById(poke?.evolution[0]?.id)?.result?.instanciate(
 					poke.level,
@@ -97,7 +97,7 @@
 		let i = 1;
 		evolveAnimation(toEvolve[0]);
 		setTimeout(() => {}, 16000);
-		if (toEvolve.length === 1) return;
+		if (toEvolve.length === 1) {return;}
 		const interval = setInterval(() => {
 			if (i === toEvolve.length) {
 				clearInterval(interval);

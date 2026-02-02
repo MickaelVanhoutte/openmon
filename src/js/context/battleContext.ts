@@ -52,7 +52,7 @@ export class BattleContext {
 
 	isPlayerTurn: Writable<boolean> = writable(true);
 	currentAction: Writable<ActionV2Interface | undefined> = writable(undefined);
-	currentMessage: Writable<String | undefined> = writable(undefined);
+	currentMessage: Writable<string | undefined> = writable(undefined);
 
 	public battleResult: BattleResult = new BattleResult(false);
 	sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -132,13 +132,13 @@ export class BattleContext {
 		this.oppSide
 			.filter((poke) => !!poke && !poke.fainted)
 			.forEach((poke) => {
-				let oppAction = this.selectOpponentAction(poke);
+				const oppAction = this.selectOpponentAction(poke);
 				if (oppAction) {
 					this.opponentTurnActions.push(oppAction);
 				}
 			});
 
-		let actions = this.sortActions(this.playerTurnActions, this.opponentTurnActions);
+		const actions = this.sortActions(this.playerTurnActions, this.opponentTurnActions);
 
 		this.oppSide
 			.filter((poke) => !!poke && !poke.fainted)
@@ -179,18 +179,18 @@ export class BattleContext {
 		// - switch actions first, fastest first
 		// - item first, player first
 		// - attack, speed order
-		let actions: ActionV2Interface[] = [];
+		const actions: ActionV2Interface[] = [];
 
 		// Player can run only if wild
-		let playerRun = playerActions.find((action) => action.type === ActionType.RUN);
-		let playerSwitches = playerActions.filter((action) => action.type === ActionType.SWITCH);
-		let playerItems = playerActions.filter((action) => action.type === ActionType.ITEM);
-		let playerAttacks = playerActions.filter((action) => action.type === ActionType.ATTACK);
+		const playerRun = playerActions.find((action) => action.type === ActionType.RUN);
+		const playerSwitches = playerActions.filter((action) => action.type === ActionType.SWITCH);
+		const playerItems = playerActions.filter((action) => action.type === ActionType.ITEM);
+		const playerAttacks = playerActions.filter((action) => action.type === ActionType.ATTACK);
 
 		// Opponent cannot run
-		let opponentSwitches = opponentActions.filter((action) => action.type === ActionType.SWITCH);
-		let opponentItems = opponentActions.filter((action) => action.type === ActionType.ITEM);
-		let opponentAttacks = opponentActions.filter((action) => action.type === ActionType.ATTACK);
+		const opponentSwitches = opponentActions.filter((action) => action.type === ActionType.SWITCH);
+		const opponentItems = opponentActions.filter((action) => action.type === ActionType.ITEM);
+		const opponentAttacks = opponentActions.filter((action) => action.type === ActionType.ATTACK);
 
 		let attacks = playerAttacks.concat(opponentAttacks);
 		let switches = playerSwitches.concat(opponentSwitches);
@@ -295,15 +295,15 @@ export class BattleContext {
 	private selectOpponentAction(poke?: PokemonInstance): ActionV2Interface | undefined {
 		if (poke && !poke.fainted) {
 			// TODO : targets calculation
-			let random = Math.floor(Math.random() * poke.moves.length);
+			const random = Math.floor(Math.random() * poke.moves.length);
 			let isBest = false;
-			let move = poke.moves[random];
+			const move = poke.moves[random];
 			let action: ActionV2Interface;
 
-			let found = this.getPossibleTargets(poke, move);
+			const found = this.getPossibleTargets(poke, move);
 			if (found.selectOne) {
 				// random target
-				let randomTarget =
+				const randomTarget =
 					found.possibleTargets[Math.floor(Math.random() * found.possibleTargets.length)];
 				action = new Attack(move, [randomTarget], poke);
 			} else {
@@ -313,12 +313,12 @@ export class BattleContext {
 			if (this.settings.difficulty !== 'NORMAL') {
 				// find a move whose type is super effective against one of allyside
 				let bestTarget = this.playerSide.find((pkmn) => !!pkmn && !pkmn.fainted);
-				let bestMove =
+				const bestMove =
 					poke.moves.find((move: Move) => {
 						return this.playerSide
 							.filter((pkmn) => !!pkmn && !pkmn.fainted)
 							.some((ally: PokemonInstance) => {
-								let effectiveness = this.calculateTypeEffectiveness(move.type, ally.types);
+								const effectiveness = this.calculateTypeEffectiveness(move.type, ally.types);
 								if (effectiveness > 1 && move.power > 0) {
 									bestTarget = ally;
 									isBest = true;
@@ -327,7 +327,7 @@ export class BattleContext {
 							});
 					}) || move;
 
-				let found = this.getPossibleTargets(poke, bestMove);
+				const found = this.getPossibleTargets(poke, bestMove);
 				if (found.selectOne) {
 					// random target
 					action = new Attack(move, [bestTarget], poke);
@@ -337,15 +337,15 @@ export class BattleContext {
 
 				if (this.opponent instanceof NPC) {
 					// may switch or heal
-					let hasAlreadySwitchedThisTurn = this.opponentTurnActions.find(
+					const hasAlreadySwitchedThisTurn = this.opponentTurnActions.find(
 						(action) => action.type === ActionType.SWITCH
 					);
-					let hasAlreadyUsedItemThisTurn = this.opponentTurnActions.find(
+					const hasAlreadyUsedItemThisTurn = this.opponentTurnActions.find(
 						(action) => action.type === ActionType.ITEM
 					);
-					let havePotions = this.havePotions(this.opponent);
-					let haveLowHp = this.oppSide.some((pkmn) => !!pkmn && pkmn.currentHp < pkmn.stats.hp / 4);
-					let betterMons: PokemonInstance | undefined = this.opponent.monsters
+					const havePotions = this.havePotions(this.opponent);
+					const haveLowHp = this.oppSide.some((pkmn) => !!pkmn && pkmn.currentHp < pkmn.stats.hp / 4);
+					const betterMons: PokemonInstance | undefined = this.opponent.monsters
 						.filter((pkmn) => !!pkmn && !pkmn.fainted && !this.oppSide.includes(pkmn))
 						.find((pkmn) => {
 							return this.playerSide.some(
@@ -354,7 +354,7 @@ export class BattleContext {
 						});
 
 					if (haveLowHp && havePotions && !hasAlreadyUsedItemThisTurn) {
-						let itemId = this.opponent.bag.getPocketByCategory(27)?.[0];
+						const itemId = this.opponent.bag.getPocketByCategory(27)?.[0];
 						action = new UseItem(itemId, poke, poke, this.opponent);
 					} else if (betterMons && !hasAlreadySwitchedThisTurn) {
 						action = new Switch(poke, betterMons, this.opponent);
@@ -393,7 +393,7 @@ export class BattleContext {
 
 	// TODO : could be in the remove HP action
 	public checkFainted(target: PokemonInstance, initiator: PokemonInstance): ActionV2Interface[] {
-		let actions: ActionV2Interface[] = [];
+		const actions: ActionV2Interface[] = [];
 		if (target.currentHp <= 0) {
 			target.currentHp = 0;
 
@@ -410,17 +410,17 @@ export class BattleContext {
 
 			// Redirect to another target if double and other side length > 1
 			if (this.battleType === BattleType.DOUBLE) {
-				let actionsWithTarget = this.actionStack.stack.filter((action: ActionV2Interface) => {
+				const actionsWithTarget = this.actionStack.stack.filter((action: ActionV2Interface) => {
 					return !(action.type === ActionType.ATTACK && (action as Attack).target.includes(target));
 				});
 				actionsWithTarget.forEach((action) => {
 					if (action.type === ActionType.ATTACK) {
-						let attack = action as Attack;
-						let targetSide =
+						const attack = action as Attack;
+						const targetSide =
 							this.getPokemonSide(target) === 'ally' ? this.playerSide : this.oppSide;
 
 						if (attack.target.includes(target)) {
-							let newTarget = targetSide.find((poke) => !!poke && poke !== target);
+							const newTarget = targetSide.find((poke) => !!poke && poke !== target);
 							if (newTarget) {
 								attack.target = [newTarget];
 							} else {
@@ -440,7 +440,7 @@ export class BattleContext {
 
 			if (this.oppSide.includes(target)) {
 				this.events.opponentPokemonFaint.set(target);
-				let xp = EXPERIENCE_CHART.howMuchIGet(
+				const xp = EXPERIENCE_CHART.howMuchIGet(
 					target,
 					this.participants.size,
 					!this.isWild,
@@ -448,13 +448,13 @@ export class BattleContext {
 				);
 
 				if (this.settings.xpShare) {
-					let nonParticipants = this.player.monsters.filter(
+					const nonParticipants = this.player.monsters.filter(
 						(monster: PokemonInstance) => !this.participants.has(monster)
 					);
 
 					if (nonParticipants.length > 0) {
-						let npXp = Math.floor(xp / 2);
-						for (let nParticipant of nonParticipants) {
+						const npXp = Math.floor(xp / 2);
+						for (const nParticipant of nonParticipants) {
 							if (!nParticipant.fainted) {
 								actions.push(new XPWin(nParticipant, npXp));
 							}
@@ -465,7 +465,7 @@ export class BattleContext {
 					}
 				}
 
-				for (let participant of this.participants) {
+				for (const participant of this.participants) {
 					if (!participant.fainted) {
 						actions.push(new XPWin(participant, xp));
 						actions.push(new Message(`${participant.name} gets ${xp} experience!`, participant));

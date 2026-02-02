@@ -55,7 +55,7 @@ export class Follower implements Character, Interactive {
 	}
 
 	static fromInstance(follower: Follower): Follower {
-		let followerProto = new Follower(
+		const followerProto = new Follower(
 			new CharacterPosition(follower.position.positionOnMap, follower.position.direction),
 			follower.pokemon
 		);
@@ -66,9 +66,9 @@ export class Follower implements Character, Interactive {
 	interact(playerPosition: Position, gameContext: GameContext): (Script | undefined)[] {
 		if (this.stepCounter > 100) {
 			// TODO: add a selection of items, based on level
-			let max = Object.keys(gameContext.ITEMS.references).length;
-			let idx = Math.floor(Math.random() * (max - 0 + 1)) + 0;
-			let id = gameContext.ITEMS.ids[idx];
+			const max = Object.keys(gameContext.ITEMS.references).length;
+			const idx = Math.floor(Math.random() * (max - 0 + 1)) + 0;
+			const id = gameContext.ITEMS.ids[idx];
 			if (gameContext.ITEMS.getItem(id)) {
 				this.stepCounter = 0;
 				return [
@@ -272,7 +272,7 @@ export class Follower implements Character, Interactive {
 		const relativeX = this.position.positionInPx.x - playerPosition.x;
 		const relativeY = this.position.positionInPx.y - playerPosition.y;
 
-		let { centerX, centerY, offsetX, offsetY } = center
+		const { centerX, centerY, offsetX, offsetY } = center
 			? center
 			: centerObject(ctx, scale, scale, playerPosition, 16, 16, mapDim);
 

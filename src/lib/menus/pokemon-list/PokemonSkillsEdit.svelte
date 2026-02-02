@@ -17,8 +17,8 @@
 		zIndex = $bindable()
 	}: Props = $props();
 
-	let monstMoves = $state([...selectedMons.moves]);
-	let tmp = $derived(
+	const monstMoves = $state([...selectedMons.moves]);
+	const tmp = $derived(
 		context.POKEDEX.findById(selectedMons.id)
 			?.result?.moves?.filter((move) => move.level <= selectedMons.level)
 			?.filter((move) => !monstMoves.find((m) => m.id === move.id)) || []

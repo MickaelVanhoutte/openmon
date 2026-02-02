@@ -49,7 +49,7 @@
 	};
 
 	let selected = $state(0);
-	let pocket = $derived(
+	const pocket = $derived(
 		Object.keys(context.player.bag[categories[tab]])?.map((id) => [
 			id,
 			context.player.bag[categories[tab]][id]
@@ -68,8 +68,8 @@
 	function use(pkmn?: PokemonInstance) {
 		openOptions = false;
 
-		let item = pocket[selected][0];
-		let instance = context.ITEMS.getItem(item)?.instanciate();
+		const item = pocket[selected][0];
+		const instance = context.ITEMS.getItem(item)?.instanciate();
 
 		if (isBattle && !(instance instanceof Pokeball) && !pkmn) {
 			openPokemonList = true;

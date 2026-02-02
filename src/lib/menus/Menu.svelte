@@ -11,7 +11,7 @@
 		context: GameContext;
 	}
 
-	let { context }: Props = $props();
+	const { context }: Props = $props();
 
 	const isBattle = false;
 

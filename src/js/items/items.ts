@@ -29,9 +29,9 @@ export class Pokeball extends AItem {
 }
 
 export function getCaptureRate(target: PokemonInstance, power: number): number {
-    let currentHp = target.currentHp;
-    let maxHp = target.currentStats.hp;
-    let captureRate = target.captureRate;
+    const currentHp = target.currentHp;
+    const maxHp = target.currentStats.hp;
+    const captureRate = target.captureRate;
 
     let statusBonus = 1;
     if (target.status) {

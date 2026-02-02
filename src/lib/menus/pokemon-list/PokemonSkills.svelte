@@ -26,10 +26,10 @@
 
 	let nextZIndex = $derived(zIndex + 1);
 
-	let mechanicRegex = /{[^}]*}/g;
+	const mechanicRegex = /{[^}]*}/g;
 
 	let selectedMons = $derived(pkmnList[selected]);
-	let description = $derived(
+	const description = $derived(
 		selectedMons.moves[selectedMove].description
 			?.replace('$effect_chance', String(selectedMons?.moves[selectedMove]?.effectChance))
 			?.replace(mechanicRegex, '')

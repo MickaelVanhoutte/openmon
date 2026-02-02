@@ -10,7 +10,7 @@
 		pokemon: PokedexEntry;
 	}
 
-	let { pokemon }: Props = $props();
+	const { pokemon }: Props = $props();
 
 	let currentMove: Move = $state(pokemon.moves[0]);
 	let showModal = $state(false);

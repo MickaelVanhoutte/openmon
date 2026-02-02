@@ -19,8 +19,8 @@
 		pkmnList = $bindable()
 	}: Props = $props();
 
-	let selectedMons = $derived(pkmnList[selected]);
-	let expPercent = $derived(
+	const selectedMons = $derived(pkmnList[selected]);
+	const expPercent = $derived(
 		Math.floor((selectedMons?.currentXp * 100) / selectedMons?.xpToNextLevel)
 	);
 </script>

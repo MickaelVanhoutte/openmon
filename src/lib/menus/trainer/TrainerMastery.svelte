@@ -10,7 +10,7 @@
 		context: GameContext;
 	}
 
-	let { context }: Props = $props();
+	const { context }: Props = $props();
 	let masteries: HTMLDivElement;
 	let expert: HTMLDivElement;
 	let showModal = $state(false);
@@ -20,13 +20,13 @@
 	let currentHex: any;
 	let currentGrid: Grid;
 
-	let pMasteries = $derived(context.player.playerMasteries);
-	let masteryPoints = $derived(pMasteries.points);
+	const pMasteries = $derived(context.player.playerMasteries);
+	const masteryPoints = $derived(pMasteries.points);
 
-	let initiateTiles = $derived(pMasteries.novice);
+	const initiateTiles = $derived(pMasteries.novice);
 	let initiateSvg: Svg;
 	let initiateGrid: Grid;
-	let expertTiles = $derived(pMasteries.expert);
+	const expertTiles = $derived(pMasteries.expert);
 	let expertSvg: Svg;
 	let expertGrid: Grid;
 
@@ -46,17 +46,17 @@
 			]
 				.filter((neighbor) => !!neighbor)
 				.some((neighbor) => {
-					let neighborTile = tiles.find((t) => t.q === neighbor.q && t.r === neighbor.r);
+					const neighborTile = tiles.find((t) => t.q === neighbor.q && t.r === neighbor.r);
 					if (neighborTile?.set) {
 						return true;
 					}
 				});
 		}
 
-		let tile = tiles.find((tile) => tile.q === hex.q && tile.r === hex.r);
+		const tile = tiles.find((tile) => tile.q === hex.q && tile.r === hex.r);
 
 		// get highest y value
-		let highestY = Math.min(
+		const highestY = Math.min(
 			hex.corners[0].y,
 			hex.corners[1].y,
 			hex.corners[2].y,
@@ -64,7 +64,7 @@
 			hex.corners[4].y,
 			hex.corners[5].y
 		);
-		let lowestY = Math.max(
+		const lowestY = Math.max(
 			hex.corners[0].y,
 			hex.corners[1].y,
 			hex.corners[2].y,
@@ -73,7 +73,7 @@
 			hex.corners[5].y
 		);
 
-		let highestX = Math.min(
+		const highestX = Math.min(
 			hex.corners[0].x,
 			hex.corners[1].x,
 			hex.corners[2].x,
@@ -81,7 +81,7 @@
 			hex.corners[4].x,
 			hex.corners[5].x
 		);
-		let lowestX = Math.max(
+		const lowestX = Math.max(
 			hex.corners[0].x,
 			hex.corners[1].x,
 			hex.corners[2].x,
@@ -90,11 +90,11 @@
 			hex.corners[5].x
 		);
 
-		let width = Math.abs(lowestX - highestX);
-		let height = Math.abs(lowestY - highestY);
+		const width = Math.abs(lowestX - highestX);
+		const height = Math.abs(lowestY - highestY);
 
 		if (tile) {
-			let hasSetNeighbor = isCurrentNeighborOfSetTile(hex, grid, tiles);
+			const hasSetNeighbor = isCurrentNeighborOfSetTile(hex, grid, tiles);
 			const polygon = draw
 				// create a polygon from a hex's corner points
 				.polygon(hex.corners.map(({ x, y }) => `${x},${y}`))
@@ -112,7 +112,7 @@
 				if (expert && !initiateTiles.every((tile) => tile.set || tile.first)) {
 					polygon.fill({ color: '#000', opacity: 0.5 });
 				} else {
-					var gradient = draw
+					const gradient = draw
 						.gradient('linear', function (add) {
 							// add.stop({ offset: 0, color: '#000', opacity: 1 })   // -> first
 							add.stop({ offset: 0.75, color: '#000', opacity: 0.5 }); // -> second
@@ -177,14 +177,14 @@
 
 	function setNode(tile: any, tiles: any[]) {
 		animating = true;
-		let svgId = initiateTiles === tiles ? 'initiate' : 'expert';
+		const svgId = initiateTiles === tiles ? 'initiate' : 'expert';
 		tiles === initiateTiles
 			? drawGrid(initiateSvg, initiateGrid, initiateTiles, false, currentHex)
 			: drawGrid(expertSvg, expertGrid, expertTiles, true, currentHex);
 		showModal = false;
 		context.player.setMastery(tile);
 
-		let neighbors = [
+		const neighbors = [
 			currentGrid.neighborOf({ q: currentHex.q, r: currentHex.r }, Direction.NE, {
 				allowOutside: false
 			}),
@@ -206,12 +206,12 @@
 		]
 			.filter((neighbor) => !!neighbor)
 			.filter((neighbor) => {
-				let neighborTile = tiles.find((t) => t.q === neighbor.q && t.r === neighbor.r);
+				const neighborTile = tiles.find((t) => t.q === neighbor.q && t.r === neighbor.r);
 				return !neighborTile?.set && !neighborTile.settable;
 			})
 			.map((ng) => '#' + svgId + ' #hex-' + ng.q + '-' + ng.r);
 
-		let tl = gsap.timeline();
+		const tl = gsap.timeline();
 
 		tl.to(
 			'#' + svgId + ' #hex-' + currentHex.q + '-' + currentHex.r,
@@ -278,7 +278,7 @@
 				animating = false;
 
 				if (initiateTiles.every((tile) => tile.set || tile.first)) {
-					let firstExp = expertTiles.find((tile) => tile.first);
+					const firstExp = expertTiles.find((tile) => tile.first);
 					currentGrid = expertGrid;
 					currentHex = expertGrid.getHex({ q: firstExp?.q, r: firstExp?.r });
 					setNode(firstExp, expertTiles);

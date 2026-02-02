@@ -45,7 +45,7 @@
 			battleCtx = value;
 		});
 	}
-	let sound: Howl = new Howl({
+	const sound: Howl = new Howl({
 		src: ['src/assets/audio/battle/battle-start.mp3'],
 		autoplay: false,
 		loop: true,

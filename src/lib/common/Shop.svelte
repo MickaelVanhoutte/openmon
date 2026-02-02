@@ -9,11 +9,11 @@
 		context: GameContext;
 	}
 
-	let { shop, context }: Props = $props();
+	const { shop, context }: Props = $props();
 
 	let unsubscribe: Unsubscriber;
-	let items = Object.keys(shop?.items || {}).map((key) => {
-		let item = context.ITEMS.getItem(Number.parseInt(key));
+	const items = Object.keys(shop?.items || {}).map((key) => {
+		const item = context.ITEMS.getItem(Number.parseInt(key));
 		return {
 			id: key,
 			name: item?.name,
@@ -22,7 +22,7 @@
 		};
 	});
 	let selected = $state(0);
-	let selectedItem = $derived(items[selected]);
+	const selectedItem = $derived(items[selected]);
 	let openQty = $state(false);
 	let qty = $state(1);
 

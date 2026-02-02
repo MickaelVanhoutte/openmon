@@ -100,25 +100,25 @@ export function centerObject(
 		height: number;
 	}
 ) {
-	let centerX = canvas.canvas.width / 2 - (objectWidth * scaleX) / 2;
+	const centerX = canvas.canvas.width / 2 - (objectWidth * scaleX) / 2;
 	// canvas half - half character height scaled
-	let centerY = canvas.canvas.height / 2 - (objectHeight * scaleY) / 2;
+	const centerY = canvas.canvas.height / 2 - (objectHeight * scaleY) / 2;
 
 	let offsetX = 0;
 	let offsetY = 0;
 
 	// translate near the edges
-	let minLeftSide = Math.min(centerX / 2, window.innerWidth / 4 - (objectWidth * scaleX) / 2);
-	let minTopSide = Math.min(centerY / 2, window.innerHeight / 4 - (objectHeight * scaleY) / 2);
-	let minRightSide =
+	const minLeftSide = Math.min(centerX / 2, window.innerWidth / 4 - (objectWidth * scaleX) / 2);
+	const minTopSide = Math.min(centerY / 2, window.innerHeight / 4 - (objectHeight * scaleY) / 2);
+	const minRightSide =
 		mapDim.width - Math.min(centerX / 2, window.innerWidth / 4 - (objectWidth * scaleX) / 2);
-	let minBottomSide =
+	const minBottomSide =
 		mapDim.height - Math.min(centerY / 2, window.innerHeight / 4 - (objectWidth * scaleY) / 2);
 
-	let leftThreshold = objectPosition.x < minLeftSide;
-	let topThreshold = objectPosition.y < minTopSide;
-	let rightThreshold = objectPosition.x > minRightSide;
-	let bottomThreshold = objectPosition.y > minBottomSide;
+	const leftThreshold = objectPosition.x < minLeftSide;
+	const topThreshold = objectPosition.y < minTopSide;
+	const rightThreshold = objectPosition.x > minRightSide;
+	const bottomThreshold = objectPosition.y > minBottomSide;
 
 	if (leftThreshold) {
 		offsetX = minLeftSide - objectPosition.x;

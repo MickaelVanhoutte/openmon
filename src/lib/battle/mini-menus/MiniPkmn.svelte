@@ -25,14 +25,14 @@
 		onCombo: (combo: { pokemon: PokemonInstance; move: MoveInstance } | undefined) => void;
 	}
 
-	let { context, currentPkmn, zIndex, type, onChange, onCombo }: Props = $props();
+	const { context, currentPkmn, zIndex, type, onChange, onCombo }: Props = $props();
 
 	let selectedMons: PokemonInstance = $state(currentPkmn);
 	let selectedMoveIdx = $state(0);
 	let graphWrapper: HTMLDivElement | undefined = $state(undefined);
 	let graph: HTMLCanvasElement | undefined = $state(undefined);
 
-	let data = $derived({
+	const data = $derived({
 		labels: [
 			['HP', selectedMons.currentStats.hp],
 			['Attack', selectedMons.currentStats.attack],
@@ -83,7 +83,7 @@
 		]
 	});
 
-	let config = $derived({
+	const config = $derived({
 		type: 'radar',
 		data: data,
 		responsive: true,

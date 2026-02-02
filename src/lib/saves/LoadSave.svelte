@@ -6,7 +6,7 @@
 		savesHolder: SavesHolder;
 	}
 
-	let { savesHolder }: Props = $props();
+	const { savesHolder }: Props = $props();
 	let selected = $state<SaveContext | null>(null);
 	let sound: Howl;
 
@@ -24,7 +24,7 @@
 	}
 
 	const listener = (e: KeyboardEvent) => {
-		if (!selected) return;
+		if (!selected) {return;}
 		if (e.key === 'ArrowDown') {
 			const index = savesHolder.saves.indexOf(selected);
 			selected = savesHolder.saves[index + 1] || selected;

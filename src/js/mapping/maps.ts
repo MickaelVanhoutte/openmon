@@ -334,7 +334,7 @@ export class OpenMap {
 		position: Position,
 		direction: 'up' | 'down' | 'left' | 'right'
 	): Interactive | undefined {
-		let elementPosition = new Position(position.x, position.y);
+		const elementPosition = new Position(position.x, position.y);
 		switch (direction) {
 			case 'up':
 				elementPosition.y -= 1;
@@ -357,7 +357,7 @@ export class OpenMap {
 		position: Position,
 		direction: 'up' | 'down' | 'left' | 'right'
 	): Interactive | undefined {
-		let elementPosition = new Position(position.x, position.y);
+		const elementPosition = new Position(position.x, position.y);
 		switch (direction) {
 			case 'up':
 				elementPosition.y -= 2;
@@ -372,7 +372,7 @@ export class OpenMap {
 				elementPosition.x += 2;
 				break;
 		}
-		let elem = this.elementAt(elementPosition);
+		const elem = this.elementAt(elementPosition);
 		if (elem && elem.isBehindCounter()) {
 			return elem;
 		}
@@ -510,7 +510,7 @@ export class OpenMap {
 			offsetX = mapDim.offsetX;
 			offsetY = mapDim.offsetY;
 		} else {
-			let screenDimensions = {
+			const screenDimensions = {
 				width: ctx.canvas.width,
 				height: ctx.canvas.height
 			};
@@ -521,15 +521,15 @@ export class OpenMap {
 			offsetX = playerPosition.x;
 			offsetY = playerPosition.y;
 
-			let minLeftSide = Math.min(centerX / 2, window.innerWidth / 4 - (16 * 1) / 2);
-			let minRightSide = image.width * scale - minLeftSide;
-			let minTopSide = Math.min(centerY, window.innerHeight / 4 - (16 * 1) / 2);
-			let minBottomSide = image.height * scale - minTopSide;
+			const minLeftSide = Math.min(centerX / 2, window.innerWidth / 4 - (16 * 1) / 2);
+			const minRightSide = image.width * scale - minLeftSide;
+			const minTopSide = Math.min(centerY, window.innerHeight / 4 - (16 * 1) / 2);
+			const minBottomSide = image.height * scale - minTopSide;
 
-			let leftThreshold = playerPosition.x <= minLeftSide;
-			let rightThreshold = playerPosition.x > minRightSide;
-			let topThreshold = playerPosition.y <= minTopSide;
-			let bottomThreshold = playerPosition.y > minBottomSide;
+			const leftThreshold = playerPosition.x <= minLeftSide;
+			const rightThreshold = playerPosition.x > minRightSide;
+			const topThreshold = playerPosition.y <= minTopSide;
+			const bottomThreshold = playerPosition.y > minBottomSide;
 
 			if (leftThreshold) {
 				offsetX = minLeftSide;
@@ -605,9 +605,9 @@ export class OpenMap {
 			centerY,
 			offsetX = 0,
 			offsetY = 0;
-		let playerPos = new Position(playerPosition.x * 16 * scale, playerPosition.y * 16 * scale);
+		const playerPos = new Position(playerPosition.x * 16 * scale, playerPosition.y * 16 * scale);
 
-		let screenDimensions = {
+		const screenDimensions = {
 			width: ctx.canvas.width,
 			height: ctx.canvas.height
 		};
@@ -618,15 +618,15 @@ export class OpenMap {
 		offsetX = playerPos.x;
 		offsetY = playerPos.y;
 
-		let minLeftSide = Math.min(centerX / 2, window.innerWidth / 4 - (16 * 1) / 2);
-		let minRightSide = image.width * scale - minLeftSide;
-		let minTopSide = Math.min(centerY, window.innerHeight / 4 - (16 * 1) / 2);
-		let minBottomSide = image.height * scale - minTopSide;
+		const minLeftSide = Math.min(centerX / 2, window.innerWidth / 4 - (16 * 1) / 2);
+		const minRightSide = image.width * scale - minLeftSide;
+		const minTopSide = Math.min(centerY, window.innerHeight / 4 - (16 * 1) / 2);
+		const minBottomSide = image.height * scale - minTopSide;
 
-		let leftThreshold = playerPos.x <= minLeftSide;
-		let rightThreshold = playerPos.x > minRightSide;
-		let topThreshold = playerPos.y <= minTopSide;
-		let bottomThreshold = playerPos.y > minBottomSide;
+		const leftThreshold = playerPos.x <= minLeftSide;
+		const rightThreshold = playerPos.x > minRightSide;
+		const topThreshold = playerPos.y <= minTopSide;
+		const bottomThreshold = playerPos.y > minBottomSide;
 
 		if (leftThreshold) {
 			offsetX = minLeftSide;

@@ -39,8 +39,8 @@
 
 	let battleSummaryOpened = $state(false);
 	let summaryOpened = $state(context.overWorldContext.menus.openSummary);
-	let numberOfOptions = $derived(
-		!!itemToUse
+	const numberOfOptions = $derived(
+		itemToUse
 			? 2
 			: isBattle
 				? combo
@@ -51,7 +51,7 @@
 	let switchToIdx: number | undefined = $state(undefined);
 	let openOptions = $state(false);
 	let optionSelected = $state(0);
-	let emptyslots = $state(new Array(6 - context.player.monsters.length).fill(0));
+	const emptyslots = $state(new Array(6 - context.player.monsters.length).fill(0));
 
 	let first: PokemonInstance | undefined = $state(context.player.monsters?.[0]);
 	let others: PokemonInstance[] = $state(context.player.monsters.slice(1));
@@ -64,8 +64,8 @@
 		}
 	});
 
-	let itemName = $derived(itemToUse && context.ITEMS.getItem(itemToUse)?.name);
-	let zIndexNext = $derived(zIndex + 1);
+	const itemName = $derived(itemToUse && context.ITEMS.getItem(itemToUse)?.name);
+	const zIndexNext = $derived(zIndex + 1);
 
 	$effect(() => {
 		const unsubscribe = context.battleContext.subscribe((value) => {
@@ -86,7 +86,7 @@
 	});
 
 	function getPercentage(monster: PokemonInstance | undefined) {
-		if (!monster) return 0;
+		if (!monster) {return 0;}
 		return (monster.currentHp / monster.currentStats.hp) * 100 || 0;
 	}
 
@@ -164,11 +164,11 @@
 
 	function useItem() {
 		if (!isBattle && itemToUse) {
-			let selectedMons = context.player.monsters.at(selected);
+			const selectedMons = context.player.monsters.at(selected);
 			context.player.bag.use(itemToUse, context.ITEMS, selectedMons);
 			context.player.name = context.player.name;
 		} else {
-			let selectedMons = selected === 0 ? first : others[selected - 1];
+			const selectedMons = selected === 0 ? first : others[selected - 1];
 			onChange(selectedMons);
 		}
 		openOptions = false;
@@ -186,7 +186,7 @@
 	}
 
 	const listener = (e: KeyboardEvent) => {
-		if (summaryOpened || battleSummaryOpened) return;
+		if (summaryOpened || battleSummaryOpened) {return;}
 		if (!openOptions) {
 			if (e.key === 'ArrowUp') {
 				selected = selected === 0 ? others.length : selected - 1;
@@ -207,7 +207,7 @@
 			} else if (e.key === 'ArrowDown') {
 				optionSelected = optionSelected === numberOfOptions ? 0 : optionSelected + 1;
 			} else if (e.key === 'Enter') {
-				if (!!itemToUse) {
+				if (itemToUse) {
 					if (optionSelected === 0) {
 						useItem();
 					} else if (optionSelected === numberOfOptions) {

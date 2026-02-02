@@ -26,8 +26,8 @@ let spriteAnchors: Record<number, PMDSpriteAnchors> | null = null;
 let spriteAnchorsPromise: Promise<Record<number, PMDSpriteAnchors>> | null = null;
 
 async function loadSpriteAnchors(): Promise<Record<number, PMDSpriteAnchors>> {
-	if (spriteAnchors) return spriteAnchors;
-	if (spriteAnchorsPromise) return spriteAnchorsPromise;
+	if (spriteAnchors) {return spriteAnchors;}
+	if (spriteAnchorsPromise) {return spriteAnchorsPromise;}
 
 	spriteAnchorsPromise = fetch('./data/sprite-anchors.json')
 		.then((res) => res.json())
@@ -46,9 +46,9 @@ export function getSpriteAnchor(
 	pokemonId: number,
 	animation: 'Walk' | 'Idle'
 ): PMDSpriteAnchor | null {
-	if (!spriteAnchors) return null;
+	if (!spriteAnchors) {return null;}
 	const anchors = spriteAnchors[pokemonId];
-	if (!anchors) return null;
+	if (!anchors) {return null;}
 
 	if (animation === 'Walk') {
 		return anchors.walk;

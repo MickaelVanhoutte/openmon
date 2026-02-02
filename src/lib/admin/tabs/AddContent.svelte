@@ -87,21 +87,21 @@
 		3: 'special'
 	};
 
-	let filteredRawPokemon = $derived(() => {
-		if (!pokemonSearch) return rawPokemon;
+	const filteredRawPokemon = $derived(() => {
+		if (!pokemonSearch) {return rawPokemon;}
 		const query = pokemonSearch.toLowerCase();
 		return rawPokemon.filter(
 			(p) => p.name.english.toLowerCase().includes(query) || p.id.toString().includes(query)
 		);
 	});
 
-	let availableRawPokemon = $derived(() => {
+	const availableRawPokemon = $derived(() => {
 		const existingIds = new Set(currentPokemon.map((p) => p.id));
 		return filteredRawPokemon().filter((p) => !existingIds.has(p.id));
 	});
 
-	let filteredRawMoves = $derived(() => {
-		if (!moveSearch) return rawMoves;
+	const filteredRawMoves = $derived(() => {
+		if (!moveSearch) {return rawMoves;}
 		const query = moveSearch.toLowerCase();
 		return rawMoves.filter((m) => m.identifier.toLowerCase().includes(query));
 	});
@@ -117,7 +117,7 @@
 	});
 
 	function addPokemonToPokedex() {
-		if (!selectedRawPokemon) return;
+		if (!selectedRawPokemon) {return;}
 
 		const raw = selectedRawPokemon;
 		const newEntry = new PokedexEntry(
@@ -157,12 +157,12 @@
 	}
 
 	function assignMovesToPokemon() {
-		if (!selectedCurrentPokemon || selectedMoves.length === 0) return;
+		if (!selectedCurrentPokemon || selectedMoves.length === 0) {return;}
 
 		const movesToAdd = selectedMoves
 			.map((moveId) => {
 				const rawMove = rawMoves.find((m) => m.id.toString() === moveId);
-				if (!rawMove) return null;
+				if (!rawMove) {return null;}
 
 				return new Move(
 					rawMove.id,

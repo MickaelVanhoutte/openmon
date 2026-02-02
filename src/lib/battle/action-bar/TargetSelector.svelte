@@ -14,7 +14,7 @@
 		onTargetClick: (target: PokemonInstance) => void;
 	}
 
-	let {
+	const {
 		possibleTargets,
 		selectedTargetIdx,
 		selectedMove,
@@ -24,12 +24,12 @@
 		onTargetClick
 	}: Props = $props();
 
-	let allyButtons: HTMLButtonElement[] = [];
-	let opponentButtons: HTMLButtonElement[] = [];
+	const allyButtons: HTMLButtonElement[] = [];
+	const opponentButtons: HTMLButtonElement[] = [];
 	let spriteReady = $state(false);
 
 	function getEffectiveness(target: PokemonInstance): number {
-		if (!selectedMove?.type) return 1;
+		if (!selectedMove?.type) {return 1;}
 		return battleCtx?.calculateTypeEffectiveness(selectedMove.type, target.types) ?? 1;
 	}
 
@@ -45,7 +45,7 @@
 	const opponentTargets = $derived(possibleTargets.filter((t) => getTargetSide(t) === 'opponent'));
 
 	function isSpritePositioned(): boolean {
-		if (!spriteElement) return false;
+		if (!spriteElement) {return false;}
 		const rect = spriteElement.getBoundingClientRect();
 		return rect.x > 0 || rect.y > 0;
 	}
@@ -115,7 +115,7 @@
 
 	function animateEntrance() {
 		const allButtons = [...allyButtons, ...opponentButtons].filter(Boolean);
-		if (allButtons.length === 0) return;
+		if (allButtons.length === 0) {return;}
 
 		gsap.fromTo(
 			allButtons,

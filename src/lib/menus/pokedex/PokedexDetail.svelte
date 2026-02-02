@@ -54,10 +54,10 @@
 
 	const listener = (e: KeyboardEvent) => {
 		if (e.key === 'ArrowLeft') {
-			let tab: 1 | 2 | 3 = currentTab === 1 ? 3 : ((currentTab - 1) as 1 | 2 | 3);
+			const tab: 1 | 2 | 3 = currentTab === 1 ? 3 : ((currentTab - 1) as 1 | 2 | 3);
 			selectTab(tab);
 		} else if (e.key === 'ArrowRight') {
-			let tab: 1 | 2 | 3 = currentTab === 3 ? 1 : ((currentTab + 1) as 1 | 2 | 3);
+			const tab: 1 | 2 | 3 = currentTab === 3 ? 1 : ((currentTab + 1) as 1 | 2 | 3);
 			selectTab(tab);
 		}
 	};

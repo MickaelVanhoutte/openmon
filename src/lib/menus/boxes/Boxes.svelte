@@ -22,7 +22,7 @@
 
 	// Force reactivity tick for box updates (nested array mutations aren't tracked by Svelte 5)
 	let boxTick = $state(0);
-	let box = $derived.by(() => {
+	const box = $derived.by(() => {
 		void boxTick;
 		const currentBox = context.boxes[selectedBox];
 		return {
@@ -33,7 +33,7 @@
 
 	// Force reactivity tick for team updates
 	let teamTick = $state(0);
-	let teamSlot = $derived(
+	const teamSlot = $derived(
 		teamTick >= 0
 			? context.player.monsters.concat(
 					new Array(6 - context.player.monsters.length).fill(undefined)
@@ -41,15 +41,15 @@
 			: []
 	);
 	let firstSelection: BoxSelection | undefined = $state(undefined);
-	let pkmnList = $derived.by(() => {
+	const pkmnList = $derived.by(() => {
 		if (firstSelection?.zone === 'box' && firstSelection.box !== undefined) {
 			// Use the box where selection was made, not the currently viewed box
 			return context.boxes[firstSelection.box].values.filter((p) => p instanceof PokemonInstance);
 		}
 		return context.player.monsters;
 	});
-	let isBattle = false;
-	let zIndexNext = $state(10);
+	const isBattle = false;
+	const zIndexNext = $state(10);
 
 	// Subscribe to openSummary store for Svelte 5 reactivity
 	let openSummary = $state(false);
@@ -61,7 +61,7 @@
 	});
 	let changeLeftHover = $state(false);
 	let changeRightHover = $state(false);
-	let previewOpened: boolean = $state(false);
+	const previewOpened: boolean = $state(false);
 	let hasInteracted: boolean = $state(false);
 	let optionsOpened: boolean = $state(false);
 	let selectedOption: number = $state(0);
@@ -159,12 +159,12 @@
 			return;
 		}
 
-		let sourceList =
+		const sourceList =
 			select1.zone === 'party' ? context.player.monsters : context.boxes[select1.box].values;
-		let targetList =
+		const targetList =
 			select2.zone === 'party' ? context.player.monsters : context.boxes[select2.box].values;
-		let sourceIndex = select1.index;
-		let targetIndex = select2.index;
+		const sourceIndex = select1.index;
+		const targetIndex = select2.index;
 
 		// Check if first team member will change
 		const firstTeamMemberChanging =
@@ -172,7 +172,7 @@
 			(select2.zone === 'party' && targetIndex === 0);
 
 		// swap
-		let temp = sourceList[sourceIndex];
+		const temp = sourceList[sourceIndex];
 		sourceList[sourceIndex] = targetList[targetIndex];
 		targetList[targetIndex] = temp;
 
@@ -191,7 +191,7 @@
 	}
 
 	function openSum() {
-		if (!firstSelection?.selected) return;
+		if (!firstSelection?.selected) {return;}
 		// DEBUG: Log the state to understand what's happening
 		console.log('openSum called', {
 			'firstSelection.zone': firstSelection.zone,
@@ -199,7 +199,7 @@
 			'firstSelection.selected': firstSelection.selected?.name
 		});
 		// Use firstSelection.box (where Pokemon was selected from) not selectedBox (current view)
-		let list =
+		const list =
 			firstSelection.zone === 'box' && firstSelection.box !== undefined
 				? context.boxes[firstSelection.box].values.filter((p) => p instanceof PokemonInstance)
 				: context.player.monsters;

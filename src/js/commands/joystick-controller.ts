@@ -240,10 +240,10 @@ export class JoystickController {
 			window.addEventListener('resize', this.recenterJoystick);
 		};
 		this.dynamicPositioningMouse = (e) => {
-			if (this.identifier !== null) return;
-			if (this.mouseButton !== -1 && e.button !== this.mouseButton) return;
+			if (this.identifier !== null) {return;}
+			if (this.mouseButton !== -1 && e.button !== this.mouseButton) {return;}
 			const identifier = e.x + '-' + e.y;
-			if (window[JOYSTICK_WINDOW_IDENTIFIER].has(identifier)) return;
+			if (window[JOYSTICK_WINDOW_IDENTIFIER].has(identifier)) {return;}
 			this.identifier = identifier;
 			window[JOYSTICK_WINDOW_IDENTIFIER].add(this.identifier);
 			const x = e.clientX;
@@ -258,9 +258,9 @@ export class JoystickController {
 		};
 		this.dynamicPositioningTouch = (event) => {
 			// event.preventDefault();
-			if (this.identifier !== null) return;
+			if (this.identifier !== null) {return;}
 			const identifier = event.changedTouches[0].identifier;
-			if (window[JOYSTICK_WINDOW_IDENTIFIER].has(identifier)) return;
+			if (window[JOYSTICK_WINDOW_IDENTIFIER].has(identifier)) {return;}
 			this.identifier = identifier;
 			window[JOYSTICK_WINDOW_IDENTIFIER].add(identifier);
 			// Current touch (for multi-touch)
@@ -272,7 +272,7 @@ export class JoystickController {
 					break;
 				}
 			}
-			if (!touch) return;
+			if (!touch) {return;}
 			const x = touch.clientX;
 			const y = touch.clientY;
 			this.container.style.left = x + 'px';
@@ -284,11 +284,11 @@ export class JoystickController {
 			this.onStartEvent(event, false);
 		};
 		this.removeDynamicPositioning = (e) => {
-			if (this.identifier === null) return;
+			if (this.identifier === null) {return;}
 			if (e.type === 'touchend') {
 				const identifier = e.changedTouches[0].identifier;
-				if (this.identifier !== identifier) return;
-			} else if (this.mouseButton !== -1 && e.button !== this.mouseButton) return;
+				if (this.identifier !== identifier) {return;}
+			} else if (this.mouseButton !== -1 && e.button !== this.mouseButton) {return;}
 			window[JOYSTICK_WINDOW_IDENTIFIER].delete(this.identifier);
 			this.identifier = null;
 			this.onStopEvent(e);
@@ -364,7 +364,7 @@ export class JoystickController {
 		};
 		this.onStartEvent = (event, addIdentifier = true) => {
 			if (event.type === 'mousedown') {
-				if (this.mouseButton !== -1 && event.button !== this.mouseButton) return;
+				if (this.mouseButton !== -1 && event.button !== this.mouseButton) {return;}
 				window.addEventListener('mousemove', this.onMouseEvent);
 				window.addEventListener('mouseup', this.onStopEvent);
 			} else if (addIdentifier) {
@@ -378,7 +378,7 @@ export class JoystickController {
 		};
 		this.onStopEvent = (event) => {
 			if (event.type === 'mouseup') {
-				if (this.mouseButton !== -1 && event.button !== this.mouseButton) return;
+				if (this.mouseButton !== -1 && event.button !== this.mouseButton) {return;}
 				window.removeEventListener('mousemove', this.onMouseEvent);
 				window.removeEventListener('mouseup', this.onStopEvent);
 			} else {
@@ -401,7 +401,7 @@ export class JoystickController {
 					break;
 				}
 			}
-			if (!touch) return;
+			if (!touch) {return;}
 			event.preventDefault();
 			// position of touch
 			const x = touch.clientX;
@@ -411,7 +411,7 @@ export class JoystickController {
 			this.updateCoordinates(x, y);
 		};
 		this.onMouseEvent = (event) => {
-			if (!this.started) return;
+			if (!this.started) {return;}
 			event.preventDefault();
 			// position of mouse
 			const x = event.clientX;
@@ -574,9 +574,9 @@ export class JoystickController {
 
 		// removing from active joysticks
 		if (Array.isArray(window[JOYSTICK_WINDOW_ACTIVE]))
-			window[JOYSTICK_WINDOW_ACTIVE] = window[JOYSTICK_WINDOW_ACTIVE].filter(
+			{window[JOYSTICK_WINDOW_ACTIVE] = window[JOYSTICK_WINDOW_ACTIVE].filter(
 				(joystick) => joystick !== this
-			);
+			);}
 	}
 }
 export default JoystickController;

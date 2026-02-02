@@ -12,7 +12,7 @@
 		onNext: () => void;
 	}
 
-	let {
+	const {
 		boxName,
 		isOver,
 		leftHover,

@@ -29,7 +29,7 @@ export class PokemonBox {
     }
 
     public add(pkmn: PokemonInstance) {
-        let spot = this.firstSpot();
+        const spot = this.firstSpot();
         if (spot !== -1) {
             this.values[spot] = pkmn;
         }
@@ -37,7 +37,7 @@ export class PokemonBox {
 
     public move(index1: number, index2: number) {
         //exchange
-        let val1 = Object.assign({}, this.values[index1]);
+        const val1 = Object.assign({}, this.values[index1]);
         this.values[index1] = Object.assign({}, this.values[index2]);
         this.values[index2] = val1;
     }

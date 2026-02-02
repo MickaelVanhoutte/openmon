@@ -104,7 +104,7 @@ export class ApplyEffect implements ActionV2Interface {
 
 	execute(ctx: BattleContext): void {
 		if (!this.target.fainted && this.moveEffect) {
-			let result = MOVE_EFFECT_APPLIER.apply(this.moveEffect, [this.target], this.initiator);
+			const result = MOVE_EFFECT_APPLIER.apply(this.moveEffect, [this.target], this.initiator);
 			if (result?.effect) {
 				this.target.status = result.effect;
 			}
@@ -163,7 +163,7 @@ export class RemoveHP implements ActionV2Interface {
 			ctx.addToStack(new Sleep(400));
 		}
 
-		let actions = ctx.checkFainted(this.target, this.initiator);
+		const actions = ctx.checkFainted(this.target, this.initiator);
 		if (actions) {
 			actions.forEach((action: ActionV2Interface) => {
 				ctx.addToStack(action);
@@ -230,7 +230,7 @@ export class XPWin implements ActionV2Interface {
 	}
 
 	execute(ctx: BattleContext): void {
-		let result = this.initiator.addXpResult(this.xp, ctx.opponent instanceof Player ? 3 : 1);
+		const result = this.initiator.addXpResult(this.xp, ctx.opponent instanceof Player ? 3 : 1);
 
 		if (result.newMove?.length > 0) {
 			result.newMove.forEach((move: string) => {
@@ -265,7 +265,7 @@ export class LvlUp implements ActionV2Interface {
 		}
 
 		ctx.addToStack(new Message(this.description, this.initiator));
-		let result = this.initiator.levelUp();
+		const result = this.initiator.levelUp();
 		ctx.events.levelUp.set({ pokemon: this.initiator, ...result });
 		if (result?.moves && result.moves.length > 0) {
 			result.moves.forEach((move: Move) => {
@@ -298,7 +298,7 @@ export class EndTurnChecks implements ActionV2Interface {
 			this.initiator.status &&
 			this.initiator.status.when === 'end-turn'
 		) {
-			let effect = this.initiator.status.playEffect(this.initiator);
+			const effect = this.initiator.status.playEffect(this.initiator);
 			actions = ctx.checkFainted(this.initiator, this.initiator);
 
 			if (effect?.message) {
@@ -325,10 +325,10 @@ export class EndTurnChecks implements ActionV2Interface {
 			ctx.addToStack(new EndBattle(this.initiator));
 			ctx.addToStack(new Message('You lost the battle...', this.initiator));
 		} else if (!!ctx.oppSide.find((pk) => pk?.fainted) && ctx.opponent instanceof NPC) {
-			let faintedIdx = ctx.oppSide.findIndex((pk) => pk?.fainted);
+			const faintedIdx = ctx.oppSide.findIndex((pk) => pk?.fainted);
 			if (ctx.settings?.difficulty === 'NORMAL') {
 				// random non fainted
-				let nonFainted = ctx.opponent.monsters
+				const nonFainted = ctx.opponent.monsters
 					.filter((monster: PokemonInstance) => !monster.fainted)
 					.filter((poke) => !ctx.oppSide.includes(poke));
 
@@ -346,10 +346,10 @@ export class EndTurnChecks implements ActionV2Interface {
 				}
 			} else {
 				// non fainted, non already on board with best type advantage
-				let nonFainted = ctx.opponent.monsters
+				const nonFainted = ctx.opponent.monsters
 					.filter((monster: PokemonInstance) => !monster.fainted)
 					.filter((poke) => !ctx.oppSide.includes(poke));
-				let bestTypeAdvantage = ctx.findBestPokemon(
+				const bestTypeAdvantage = ctx.findBestPokemon(
 					ctx.opponent.monsters,
 					ctx.playerSide?.find((pk) => !!pk && !pk.fainted)
 				); // TODO should check all player side (mutualize code with battleContext)
@@ -376,7 +376,7 @@ export class EndTurnChecks implements ActionV2Interface {
 					ctx.oppSide[faintedIdx] = undefined;
 				}
 			}
-		} else if (!!ctx.playerSide.find((pk) => pk?.fainted)) {
+		} else if (ctx.playerSide.find((pk) => pk?.fainted)) {
 			ctx.events.playerPokemonFaint.set(ctx.playerSide.find((pk) => pk?.fainted));
 		}
 		if (actions) {
