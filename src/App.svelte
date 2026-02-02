@@ -18,10 +18,10 @@
 	 */
 
 	const savesHolder = new SavesHolder();
-	let gameContext: GameContext;
-	let newGame: boolean = false;
-	let started: boolean = false || DEBUG;
-	let showAdmin: boolean = false;
+	let gameContext = $state<GameContext | undefined>(undefined);
+	let newGame = $state(false);
+	let started = $state(false || DEBUG);
+	let showAdmin = $state(false);
 
 	function checkDebugRoute(): void {
 		const hash = window.location.hash;
@@ -40,22 +40,32 @@
 		}
 	});
 
-	let battleCtx: BattleContext | undefined = undefined;
-	$: if (gameContext) {
-		gameContext.battleContext.subscribe((value) => {
+	let battleCtx = $state<BattleContext | undefined>(undefined);
+
+	$effect(() => {
+		if (!gameContext) {
+			return;
+		}
+		const unsub = gameContext.battleContext.subscribe((value) => {
 			battleCtx = value;
 		});
-	}
+		return () => unsub();
+	});
+
 	const sound: Howl = new Howl({
 		src: ['src/assets/audio/battle/battle-start.mp3'],
 		autoplay: false,
 		loop: true,
 		volume: 0.7
 	});
-	let battleStarting = false;
-	let battleEnding = false;
-	$: if (battleCtx) {
-		battleCtx.events.starting.subscribe((value) => {
+	let battleStarting = $state(false);
+	let battleEnding = $state(false);
+
+	$effect(() => {
+		if (!battleCtx) {
+			return;
+		}
+		const unsub1 = battleCtx.events.starting.subscribe((value) => {
 			if (value) {
 				battleStarting = value;
 				if (!sound.playing()) {
@@ -69,7 +79,7 @@
 				}, 2000);
 			}
 		});
-		battleCtx.events.ending.subscribe((value) => {
+		const unsub2 = battleCtx.events.ending.subscribe((value) => {
 			if (value) {
 				battleEnding = value;
 				setTimeout(() => {
@@ -78,9 +88,13 @@
 				}, 4000);
 			}
 		});
-	}
+		return () => {
+			unsub1();
+			unsub2();
+		};
+	});
 
-	let rotate = false;
+	let rotate = $state(false);
 
 	// Avoid IOS zoom on double tap
 	if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
