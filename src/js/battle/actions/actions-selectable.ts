@@ -263,6 +263,29 @@ export class Attack implements ActionV2Interface {
 				}
 			});
 
+		// Handle field moves with no target (weather, hazards, etc.)
+		// These moves target the field, not specific Pokemon, so we use initiator as the visual target
+		const validTargets = this.target.filter((tgt) => !!tgt && !tgt.fainted);
+		if (validTargets.length === 0 && !(this.move instanceof ComboMove)) {
+			const hazardMoves = ['spikes', 'toxic-spikes', 'stealth-rock', 'sticky-web'];
+			const isHazardMove = hazardMoves.includes(this.move.name.toLowerCase());
+
+			let animationTarget = this.initiator;
+			if (isHazardMove) {
+				const initiatorSide = ctx.getPokemonSide(this.initiator);
+				const opponentSide = initiatorSide === 'ally' ? ctx.oppSide : ctx.playerSide;
+				const validOpponent = opponentSide.find((p) => p && !p.fainted);
+				if (validOpponent) {
+					animationTarget = validOpponent;
+				}
+			}
+
+			actionsToPush.push(new PlayAnimation(this.move, animationTarget, this.initiator));
+			if (this.effectApplies(this.move.effectChance, this.move.effect)) {
+				actionsToPush.push(new ApplyEffect(this.move.effect, this.initiator, this.initiator));
+			}
+		}
+
 		this.flushActions(ctx, actionsToPush);
 	}
 

@@ -28,11 +28,12 @@
 
 	const mechanicRegex = /{[^}]*}/g;
 
-	let selectedMons = $derived(pkmnList[selected]);
+	// Use a getter-like pattern to always get fresh reference
+	let selectedMons = $derived.by(() => pkmnList[selected]);
 	const description = $derived(
-		selectedMons.moves[selectedMove].description
+		selectedMons.moves[selectedMove]?.description
 			?.replace('$effect_chance', String(selectedMons?.moves[selectedMove]?.effectChance))
-			?.replace(mechanicRegex, '')
+			?.replace(mechanicRegex, '') ?? ''
 	);
 
 	function getTypeColor(type: string) {

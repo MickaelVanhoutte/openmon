@@ -7,7 +7,8 @@
 	import HazardSprites from './HazardSprites.svelte';
 	import ScreenBarrier from './ScreenBarrier.svelte';
 	import { BattleContext } from '../../js/context/battleContext';
-	import { BattleType } from '../../js/battle/battle-model';
+	import { BattleType, TurnPhase } from '../../js/battle/battle-model';
+	import { Weather } from '../../js/battle/battle-field';
 	import type { GameContext } from '../../js/context/gameContext';
 	import type { OverworldContext } from '../../js/context/overworldContext';
 	import {
@@ -61,6 +62,7 @@
 
 	let entryAnimationsComplete = $state(false);
 	let isInitialBattleEntrance = $state(true);
+	let weatherFlash = $state(false);
 	const uiEntranceDelays = {
 		opponentHp: 0,
 		allyHp: 200,
@@ -151,6 +153,18 @@
 		}
 	});
 
+	// Subscribe to turn phases to trigger weather flash at turn start
+	battleCtx.turnPhases.subscribe((phase) => {
+		if (phase === TurnPhase.UPKEEP && battleCtx.battleField.weather !== Weather.NONE) {
+			// Trigger weather flash
+			weatherFlash = true;
+			// Reset flash after animation completes
+			setTimeout(() => {
+				weatherFlash = false;
+			}, 600);
+		}
+	});
+
 	battleCtx.events.opponentPokemonFaint.subscribe((value) => {
 		if (value && opponent) {
 			const idx = battleCtx.oppSide.indexOf(value);
@@ -170,14 +184,28 @@
 
 	battleCtx.events.animateAttack.subscribe((value) => {
 		if (value) {
-			const animTarget =
-				battleCtx.getPokemonSide(value.target) === 'opponent'
-					? opponent[battleCtx.oppSide.indexOf(value.target)]
-					: ally[battleCtx.playerSide.indexOf(value.target)];
 			const animInitiator =
 				battleCtx.getPokemonSide(value.initiator) === 'ally'
 					? ally[battleCtx.playerSide.indexOf(value.initiator)]
 					: opponent[battleCtx.oppSide.indexOf(value.initiator)];
+
+			// For self-targeting moves (weather, field effects), use initiator as target
+			// This handles cases where target === initiator or target element not found
+			let animTarget: HTMLImageElement | undefined;
+			if (value.target === value.initiator) {
+				// Self-targeting move (e.g., Sandstorm, Stealth Rock)
+				animTarget = animInitiator;
+			} else {
+				const targetSide = battleCtx.getPokemonSide(value.target);
+				animTarget =
+					targetSide === 'opponent'
+						? opponent[battleCtx.oppSide.indexOf(value.target)]
+						: ally[battleCtx.playerSide.indexOf(value.target)];
+				// Fallback to initiator if target element not found
+				if (!animTarget) {
+					animTarget = animInitiator;
+				}
+			}
 
 			if (value.move instanceof ComboMove) {
 				const move: ComboMove = value.move;
@@ -460,6 +488,7 @@
 		<WeatherOverlay
 			weather={battleCtx.battleField.weather}
 			weatherTurns={battleCtx.battleField.weatherTurns}
+			flash={weatherFlash}
 		/>
 		<HazardSprites
 			allySide={battleCtx.battleField.allySide}
