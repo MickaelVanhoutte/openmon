@@ -62,16 +62,21 @@ async function ohkoAnimation(engine: AnimationEngine, context: MoveContext): Pro
 	});
 }
 
+const HAZARD_SETTING_MOVES = ['spikes', 'toxic-spikes', 'stealth-rock', 'sticky-web'];
+
 async function fieldAnimation(engine: AnimationEngine, context: MoveContext): Promise<void> {
-	const { attacker, moveType } = context;
+	const { attacker, defender, moveType, moveName } = context;
 	const hue = TYPE_HUE_ANGLES[moveType] ?? 0;
 	const color = engine.getTypeColor(moveType);
 
-	await engine.showSpriteEffect('rock', attacker, {
+	const isHazardMove = HAZARD_SETTING_MOVES.includes(moveName);
+	const targetSprite = isHazardMove && defender && !Array.isArray(defender) ? defender : attacker;
+
+	await engine.showSpriteEffect('rock', targetSprite, {
 		hueRotate: hue,
 		scale: 1.5,
 		tint: color,
-		zIndex: engine.getEffectZIndex(attacker.slot)
+		zIndex: engine.getEffectZIndex(targetSprite.slot)
 	});
 	await engine.backgroundFlash(color, 150);
 	await engine.screenShake(5, 200);

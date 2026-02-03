@@ -3,6 +3,7 @@ import { Move, PokemonInstance, Stats } from '../pokemons/pokedex';
 import { container } from 'tsyringe';
 import { MoveEffectApplier } from '../pokemons/move-effects';
 import type { Character } from '../characters/characters-model';
+import { Weather } from './battle-field';
 import { writable, type Writable } from 'svelte/store';
 
 export type PokemonType =
@@ -72,6 +73,9 @@ export class BattleEvents {
 	runnaway: Writable<boolean> = writable(false);
 
 	animateAttack: Writable<BattleAnimation | undefined> = writable(undefined);
+	weatherDamage: Writable<Weather | undefined> = writable(undefined);
+	hazardDamage: Writable<{ pokemon: PokemonInstance; hazard: string } | undefined> =
+		writable(undefined);
 
 	levelUp: Writable<{ pokemon: PokemonInstance; oldStats?: Stats; newStats?: Stats } | undefined> =
 		writable(undefined);

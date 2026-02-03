@@ -8,13 +8,15 @@ import { type Character } from '../../characters/characters-model';
 import { NPC } from '../../characters/npc';
 import { MOVE_EFFECT_APPLIER } from '../battle-model';
 import { MasteryType } from '../../characters/mastery-model';
-import { Hazard } from '../battle-field';
+import { Hazard, type Side } from '../battle-field';
 import {
 	calculateStealthRockDamage,
 	calculateSpikesDamage,
 	applyToxicSpikes,
 	isGroundedForHazards
 } from '../../pokemons/effects/hazard-effects';
+import { applyWeatherDamage } from '../../pokemons/effects/weather-effects';
+import { Weather } from '../battle-field';
 import { EffectTiming } from '../../pokemons/effects/types';
 
 export class Message implements ActionV2Interface {
@@ -108,6 +110,7 @@ export class ChangePokemon implements ActionV2Interface {
 		if (stealthRockLayers > 0) {
 			const damage = calculateStealthRockDamage(pokemon.stats.hp, types);
 			pokemon.removeHp(damage);
+			ctx.events.hazardDamage.set({ pokemon, hazard: 'stealth-rock' });
 			ctx.addToStack(new Message(`${pokemon.name} was hurt by Stealth Rock!`, pokemon));
 			const faintActions = ctx.checkFainted(pokemon, pokemon);
 			faintActions.forEach((action) => ctx.addToStack(action));
@@ -118,6 +121,7 @@ export class ChangePokemon implements ActionV2Interface {
 			if (spikesLayers > 0 && !pokemon.fainted) {
 				const damage = calculateSpikesDamage(pokemon.stats.hp, spikesLayers);
 				pokemon.removeHp(damage);
+				ctx.events.hazardDamage.set({ pokemon, hazard: 'spikes' });
 				ctx.addToStack(new Message(`${pokemon.name} was hurt by Spikes!`, pokemon));
 				const faintActions = ctx.checkFainted(pokemon, pokemon);
 				faintActions.forEach((action) => ctx.addToStack(action));
@@ -193,6 +197,58 @@ export class ApplyEffect implements ActionV2Interface {
 
 	execute(ctx: BattleContext): void {
 		if (!this.target.fainted && this.moveEffect) {
+			const effect = MOVE_EFFECT_APPLIER.findEffect(this.moveEffect);
+
+			if (!effect) {
+				return;
+			}
+
+			// Weather effects - check by move_effect_id since instanceof doesn't work
+			// (the Effect classes in move-effects.ts don't extend WeatherEffect)
+			const WEATHER_MAP: Record<number, Weather> = {
+				116: Weather.SAND, // Sandstorm
+				137: Weather.RAIN, // Rain Dance
+				138: Weather.SUN, // Sunny Day
+				165: Weather.HAIL // Hail
+			};
+
+			const weatherType = WEATHER_MAP[effect.move_effect_id];
+			if (weatherType !== undefined) {
+				ctx.battleField.setWeather(weatherType, 5);
+				const weatherMessages: Record<Weather, string> = {
+					[Weather.SAND]: 'A sandstorm kicked up!',
+					[Weather.RAIN]: 'It started to rain!',
+					[Weather.SUN]: 'The sunlight turned harsh!',
+					[Weather.HAIL]: 'It started to hail!',
+					[Weather.NONE]: ''
+				};
+				ctx.addToStack(new Message(weatherMessages[weatherType], this.initiator));
+				return;
+			}
+
+			// Hazard effects - check by move_effect_id
+			// (the Effect classes in move-effects.ts don't extend HazardEffect)
+			const HAZARD_MAP: Record<number, Hazard> = {
+				267: Hazard.STEALTH_ROCK, // Stealth Rock
+				113: Hazard.SPIKES, // Spikes
+				191: Hazard.TOXIC_SPIKES // Toxic Spikes
+			};
+
+			const hazardType = HAZARD_MAP[effect.move_effect_id];
+			if (hazardType !== undefined) {
+				const initiatorSide = ctx.getPokemonSide(this.initiator);
+				const targetSide: Side = initiatorSide === 'ally' ? 'enemy' : 'ally';
+				ctx.battleField.addHazard(targetSide, hazardType);
+				const hazardMessages: Record<Hazard, string> = {
+					[Hazard.STEALTH_ROCK]: 'Pointed stones float in the air!',
+					[Hazard.SPIKES]: 'Spikes were scattered on the ground!',
+					[Hazard.TOXIC_SPIKES]: 'Poison spikes were scattered!'
+				};
+				ctx.addToStack(new Message(hazardMessages[hazardType], this.initiator));
+				return;
+			}
+
+			// Default: status effects on Pokemon
 			const result = MOVE_EFFECT_APPLIER.apply(this.moveEffect, [this.target], this.initiator);
 			if (result?.effect) {
 				this.target.status = result.effect;
@@ -367,6 +423,51 @@ export class LvlUp implements ActionV2Interface {
 }
 
 // END CHECKS, END BATTLE
+
+const WEATHER_NAMES: Record<Weather, string> = {
+	[Weather.NONE]: '',
+	[Weather.RAIN]: 'Rain',
+	[Weather.SUN]: 'Harsh Sunlight',
+	[Weather.SAND]: 'Sandstorm',
+	[Weather.HAIL]: 'Hail'
+};
+
+export class WeatherDamage implements ActionV2Interface {
+	type: ActionType;
+	description: string;
+	initiator: PokemonInstance;
+
+	constructor(initiator: PokemonInstance) {
+		this.type = ActionType.END_CHECKS;
+		this.description = 'Weather Damage';
+		this.initiator = initiator;
+	}
+
+	execute(ctx: BattleContext): void {
+		const weather = ctx.battleField.weather;
+		if (weather === Weather.NONE) return;
+
+		const allPokemon = [...ctx.playerSide, ...ctx.oppSide].filter(
+			(p): p is PokemonInstance => !!p && !p.fainted
+		);
+		const damagingWeather = weather === Weather.SAND || weather === Weather.HAIL;
+
+		if (damagingWeather) {
+			ctx.events.weatherDamage.set(weather);
+
+			for (const pokemon of allPokemon) {
+				const damage = applyWeatherDamage(ctx.battleField, pokemon.currentStats.hp, pokemon.types);
+				if (damage > 0) {
+					pokemon.currentHp = Math.max(0, pokemon.currentHp - damage);
+					const actions = ctx.checkFainted(pokemon, pokemon);
+					actions.forEach((a) => ctx.addToStack(a));
+				}
+			}
+		}
+
+		ctx.addToStack(new Message(`The ${WEATHER_NAMES[weather]} rages.`, this.initiator));
+	}
+}
 
 export class EndTurnChecks implements ActionV2Interface {
 	type: ActionType;

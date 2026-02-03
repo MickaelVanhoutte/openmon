@@ -4,9 +4,10 @@
 	interface Props {
 		weather: Weather;
 		weatherTurns: number;
+		flash?: boolean;
 	}
 
-	const { weather, weatherTurns }: Props = $props();
+	const { weather, weatherTurns, flash = false }: Props = $props();
 
 	const weatherLabels: Record<Weather, string> = {
 		[Weather.NONE]: '',
@@ -24,6 +25,7 @@
 		class:sun={weather === Weather.SUN}
 		class:sand={weather === Weather.SAND}
 		class:hail={weather === Weather.HAIL}
+		class:flash
 	>
 		{#if weather === Weather.RAIN}
 			<div class="rain-container">
@@ -84,6 +86,26 @@
 		z-index: 2;
 		overflow: hidden;
 		animation: fadeIn 0.5s ease-out;
+
+		// Flash effect for turn start weather damage
+		&.flash {
+			animation: weatherFlash 0.6s ease-out;
+		}
+	}
+
+	@keyframes weatherFlash {
+		0% {
+			filter: brightness(1);
+		}
+		25% {
+			filter: brightness(1.8);
+		}
+		50% {
+			filter: brightness(1.3);
+		}
+		100% {
+			filter: brightness(1);
+		}
 	}
 
 	@keyframes fadeIn {

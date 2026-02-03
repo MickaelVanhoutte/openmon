@@ -17,7 +17,13 @@ import { writable, type Writable } from 'svelte/store';
 import { ActionType, type ActionV2Interface } from '../battle/actions/actions-model';
 import { EXPERIENCE_CHART } from '../pokemons/experience';
 import { Attack, Switch, UseItem } from '../battle/actions/actions-selectable';
-import { EndTurnChecks, Message, PlayAnimation, XPWin } from '../battle/actions/actions-derived';
+import {
+	EndTurnChecks,
+	Message,
+	PlayAnimation,
+	WeatherDamage,
+	XPWin
+} from '../battle/actions/actions-derived';
 import { ItemsReferences } from '../items/items';
 import { BattleField } from '../battle/battle-field';
 
@@ -150,6 +156,11 @@ export class BattleContext {
 			});
 
 		const actions = this.sortActions(this.playerTurnActions, this.opponentTurnActions);
+
+		const firstActivePokemon = this.playerSide.find((p) => p && !p.fainted);
+		if (firstActivePokemon) {
+			this.addToStack(new WeatherDamage(firstActivePokemon));
+		}
 
 		this.oppSide
 			.filter((poke) => !!poke && !poke.fainted)
