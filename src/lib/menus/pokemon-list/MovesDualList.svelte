@@ -65,14 +65,23 @@
 	// Local state that tracks the selected moves
 	let localSelected: Move[] = $state([...selectedMoves]);
 
+	// Search query for filtering available moves
+	let searchQuery = $state('');
+
 	// Sync when parent's selectedMoves changes
 	$effect(() => {
 		localSelected = [...selectedMoves];
 	});
 
-	// Filter available moves to exclude already selected ones
+	// Filter available moves to exclude already selected ones and match search query
 	let filteredAvailable = $derived(
-		availableMoves.filter((m) => !localSelected.find((s) => s.id === m.id))
+		availableMoves
+			.filter((m) => !localSelected.find((s) => s.id === m.id))
+			.filter((m) => {
+				if (!searchQuery) return true;
+				const query = searchQuery.toLowerCase();
+				return m.name.toLowerCase().includes(query) || m.type.toLowerCase().includes(query);
+			})
 	);
 
 	function addMove(move: Move) {
@@ -108,6 +117,9 @@
 
 <div class="dual-list-container">
 	<div class="list-section all-moves">
+		<div class="search-bar">
+			<input type="text" placeholder="Search moves..." bind:value={searchQuery} />
+		</div>
 		<div class="__wrapper">
 			{#each filteredAvailable as move (move.id)}
 				<div class="move-row">
@@ -141,7 +153,13 @@
 				</div>
 			{/each}
 			{#if filteredAvailable.length === 0}
-				<div class="empty-message">No more moves available</div>
+				<div class="empty-message">
+					{#if searchQuery}
+						No moves matching "{searchQuery}"
+					{:else}
+						No more moves available
+					{/if}
+				</div>
 			{/if}
 		</div>
 	</div>
@@ -206,6 +224,35 @@
 		height: 100%;
 		box-sizing: border-box;
 		padding: 1%;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.search-bar {
+		flex-shrink: 0;
+		margin-bottom: 8px;
+	}
+
+	.search-bar input {
+		width: 100%;
+		padding: 10px 12px;
+		background: #0e2742;
+		border: 2px solid #68c0c8;
+		color: #fff;
+		font-family: inherit;
+		font-size: 1rem;
+		box-sizing: border-box;
+		text-shadow: 1px 1px 1px black;
+	}
+
+	.search-bar input::placeholder {
+		color: #68c0c8;
+		opacity: 0.7;
+	}
+
+	.search-bar input:focus {
+		outline: none;
+		border-color: #fff;
 	}
 
 	.icon {
@@ -220,7 +267,8 @@
 		position: relative;
 		gap: 4%;
 		padding: 1% 5%;
-		height: 100%;
+		flex: 1;
+		min-height: 0;
 		box-sizing: border-box;
 		align-items: flex-end;
 		overflow-y: auto;

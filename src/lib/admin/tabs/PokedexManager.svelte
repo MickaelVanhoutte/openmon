@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { container } from 'tsyringe';
 	import { Pokedex, PokedexEntry, Move, MoveEffect } from '$js/pokemons/pokedex';
+	import { getAllMoves, type HydratedMove } from '$js/pokemons/move-hydration';
 	import { onMount } from 'svelte';
 	import { dndzone } from 'svelte-dnd-action';
 	import { flip } from 'svelte/animate';
@@ -18,6 +19,10 @@
 	let editingPokemon: PokedexEntry | null = $state(null);
 	let editingIndex = $state(0);
 	let hasChanges = $state(false);
+	let showAddMoveModal = $state(false);
+	let allMoves: HydratedMove[] = $state([]);
+	let moveSearchQuery = $state('');
+	let selectedMoveLevel = $state(1);
 
 	const filteredPokemon = $derived(() => {
 		if (!searchQuery) return pokemonList;
@@ -120,6 +125,76 @@
 			editingPokemon = { ...editingPokemon };
 		}
 	}
+
+	function updateMoveLevel(moveIndex: number, level: number) {
+		if (editingPokemon) {
+			editingPokemon.moves[moveIndex].level = level;
+			editingPokemon = { ...editingPokemon };
+		}
+	}
+
+	async function openAddMoveModal() {
+		if (allMoves.length === 0) {
+			allMoves = await getAllMoves();
+		}
+		moveSearchQuery = '';
+		selectedMoveLevel = 1;
+		showAddMoveModal = true;
+	}
+
+	function closeAddMoveModal() {
+		showAddMoveModal = false;
+		moveSearchQuery = '';
+	}
+
+	const filteredMoves = $derived(() => {
+		if (!editingPokemon) return [];
+		const existingMoveIds = new Set(editingPokemon.moves?.map((m) => m.id) ?? []);
+		return allMoves
+			.filter((m) => !existingMoveIds.has(m.id))
+			.filter((m) => {
+				if (!moveSearchQuery) return true;
+				const query = moveSearchQuery.toLowerCase();
+				return m.name.toLowerCase().includes(query) || m.type.toLowerCase().includes(query);
+			})
+			.slice(0, 50);
+	});
+
+	function addMove(move: HydratedMove) {
+		if (!editingPokemon) return;
+		const newMove = new Move(
+			move.id,
+			move.name,
+			move.type,
+			move.category,
+			move.power,
+			move.accuracy,
+			move.pp,
+			move.priority,
+			move.target as
+				| 'all-opponents'
+				| 'selected-pokemon'
+				| 'users-field'
+				| 'user'
+				| 'user-and-allies'
+				| 'entire-field'
+				| 'random-opponent'
+				| 'all-other-pokemon'
+				| 'specific-move'
+				| 'opponents-field'
+				| 'ally'
+				| 'all-pokemon'
+				| 'user-or-ally',
+			move.effect,
+			move.effectChance,
+			move.description,
+			selectedMoveLevel,
+			move.method
+		);
+		editingPokemon.moves = [...(editingPokemon.moves ?? []), newMove];
+		editingPokemon = { ...editingPokemon };
+		closeAddMoveModal();
+	}
 </script>
 
 <div class="pokedex-manager" data-testid="pokedex-manager-tab">
@@ -217,10 +292,20 @@
 				</section>
 
 				<section class="editor-section">
-					<h3>Moves ({editingPokemon.moves?.length ?? 0})</h3>
+					<div class="section-header">
+						<h3>Moves ({editingPokemon.moves?.length ?? 0})</h3>
+						<button class="add-move-btn" onclick={openAddMoveModal}>+ Add Move</button>
+					</div>
 					<div class="moves-list">
 						{#each editingPokemon.moves ?? [] as move, i (move.id + '-' + i)}
 							<div class="move-item">
+								<input
+									type="number"
+									class="move-level"
+									value={move.level ?? 0}
+									onchange={(e) => updateMoveLevel(i, parseInt(e.currentTarget.value) || 0)}
+									title="Level learned"
+								/>
 								<span class="move-name">{move.name}</span>
 								<span class="move-type type-badge {move.type}">{move.type}</span>
 								<span class="move-power">{move.power || '-'}</span>
@@ -235,6 +320,46 @@
 				<button class="cancel-btn" onclick={closeEditor}>Cancel</button>
 				<button class="save-btn" onclick={saveAndClose}>Save & Close</button>
 			</footer>
+
+			{#if showAddMoveModal}
+				<div class="modal-overlay" onclick={closeAddMoveModal}>
+					<div class="add-move-modal" onclick={(e) => e.stopPropagation()}>
+						<header class="modal-header">
+							<h3>Add Move</h3>
+							<button class="close-modal-btn" onclick={closeAddMoveModal}>X</button>
+						</header>
+						<div class="modal-body">
+							<div class="modal-search">
+								<input
+									type="text"
+									placeholder="Search moves by name or type..."
+									bind:value={moveSearchQuery}
+								/>
+							</div>
+							<div class="level-input">
+								<label>Level learned:</label>
+								<input type="number" bind:value={selectedMoveLevel} min="1" max="100" />
+							</div>
+							<div class="moves-search-results">
+								{#each filteredMoves() as move (move.id)}
+									<button class="move-result-item" onclick={() => addMove(move)}>
+										<span class="move-name">{move.name}</span>
+										<span class="type-badge {move.type}">{move.type}</span>
+										<span class="move-power">{move.power || '-'}</span>
+										<span class="move-pp">{move.pp}pp</span>
+									</button>
+								{/each}
+								{#if filteredMoves().length === 0 && moveSearchQuery}
+									<div class="no-results">No moves found</div>
+								{/if}
+								{#if filteredMoves().length === 0 && !moveSearchQuery}
+									<div class="no-results">Type to search moves...</div>
+								{/if}
+							</div>
+						</div>
+					</div>
+				</div>
+			{/if}
 		</div>
 	{:else}
 		<div class="list-view">
@@ -620,6 +745,17 @@
 		text-align: right;
 	}
 
+	.move-level {
+		width: 45px;
+		padding: 0.25rem;
+		background: var(--pixel-bg-input, #1a1a2e);
+		border: 1px solid var(--pixel-border-color, #3d3d5c);
+		color: var(--pixel-text-white, #fff);
+		font-family: inherit;
+		font-size: 0.5rem;
+		text-align: center;
+	}
+
 	.remove-move-btn {
 		padding: 0.25rem 0.5rem;
 		background: var(--pixel-text-stat-red, #f44336);
@@ -695,5 +831,168 @@
 		.editor-section:last-child {
 			grid-column: 1 / -1;
 		}
+	}
+
+	.section-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 0.5rem;
+		border-bottom: 1px solid var(--pixel-border-color, #3d3d5c);
+		padding-bottom: 0.25rem;
+	}
+
+	.section-header h3 {
+		font-size: 0.75rem;
+		margin: 0;
+		border: none;
+		padding: 0;
+	}
+
+	.add-move-btn {
+		padding: 0.25rem 0.5rem;
+		background: var(--pixel-text-stat-green, #4caf50);
+		border: none;
+		color: var(--pixel-text-white, #fff);
+		font-family: inherit;
+		font-size: 0.5rem;
+		cursor: pointer;
+		min-height: 32px;
+	}
+
+	.modal-overlay {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background: rgba(0, 0, 0, 0.8);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		z-index: 200;
+	}
+
+	.add-move-modal {
+		background: var(--pixel-bg-primary, #0f0f23);
+		border: 2px solid var(--pixel-border-color, #3d3d5c);
+		width: 90%;
+		max-width: 500px;
+		max-height: 80vh;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.modal-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 0.75rem;
+		background: var(--pixel-bg-header, #1a1a2e);
+		border-bottom: 2px solid var(--pixel-border-color, #3d3d5c);
+	}
+
+	.modal-header h3 {
+		font-size: 0.875rem;
+		margin: 0;
+	}
+
+	.close-modal-btn {
+		padding: 0.25rem 0.5rem;
+		background: var(--pixel-text-stat-red, #f44336);
+		border: none;
+		color: var(--pixel-text-white, #fff);
+		font-family: inherit;
+		font-size: 0.625rem;
+		cursor: pointer;
+		min-height: 32px;
+	}
+
+	.modal-body {
+		padding: 0.75rem;
+		flex: 1;
+		overflow: hidden;
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+
+	.modal-search input {
+		width: 100%;
+		padding: 0.75rem;
+		background: var(--pixel-bg-input, #1a1a2e);
+		border: 2px solid var(--pixel-border-color, #3d3d5c);
+		color: var(--pixel-text-white, #fff);
+		font-family: inherit;
+		font-size: 0.75rem;
+		min-height: 44px;
+	}
+
+	.level-input {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.level-input label {
+		font-size: 0.625rem;
+	}
+
+	.level-input input {
+		width: 60px;
+		padding: 0.5rem;
+		background: var(--pixel-bg-input, #1a1a2e);
+		border: 2px solid var(--pixel-border-color, #3d3d5c);
+		color: var(--pixel-text-white, #fff);
+		font-family: inherit;
+		font-size: 0.625rem;
+		text-align: center;
+		min-height: 44px;
+	}
+
+	.moves-search-results {
+		flex: 1;
+		overflow-y: auto;
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+		max-height: 300px;
+	}
+
+	.move-result-item {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.5rem;
+		background: var(--pixel-bg-panel, #252540);
+		border: 1px solid var(--pixel-border-color, #3d3d5c);
+		color: var(--pixel-text-white, #fff);
+		font-family: inherit;
+		cursor: pointer;
+		text-align: left;
+		min-height: 44px;
+	}
+
+	.move-result-item:hover {
+		background: var(--pixel-bg-input, #1a1a2e);
+		border-color: var(--pixel-text-stat-green, #4caf50);
+	}
+
+	.move-result-item .move-name {
+		flex: 1;
+		font-size: 0.625rem;
+		text-transform: capitalize;
+	}
+
+	.move-result-item .move-pp {
+		font-size: 0.5rem;
+		opacity: 0.6;
+	}
+
+	.no-results {
+		text-align: center;
+		padding: 1rem;
+		font-size: 0.625rem;
+		opacity: 0.6;
 	}
 </style>

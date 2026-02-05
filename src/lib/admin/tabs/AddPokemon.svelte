@@ -66,8 +66,8 @@
 		isLoading = false;
 	});
 
-	function addPokemon(raw: RawPokedexEntry) {
-		const moves = getMovesByPokemonId(raw.id);
+	async function addPokemon(raw: RawPokedexEntry) {
+		const moves = await getMovesByPokemonId(raw.id);
 		const hydratedMoves = moves.map(
 			(m) =>
 				new Move(
