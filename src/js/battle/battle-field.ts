@@ -43,6 +43,7 @@ const MAX_HAZARD_LAYERS: Record<Hazard, number> = {
 export class BattleField {
 	weather: Weather = Weather.NONE;
 	weatherTurns: number = 0;
+	weatherVersion: number = 0;
 
 	terrain: Terrain = Terrain.NONE;
 	terrainTurns: number = 0;
@@ -74,6 +75,7 @@ export class BattleField {
 			this.weather = weather;
 			this.weatherTurns = turns;
 		}
+		this.weatherVersion++;
 	}
 
 	setTerrain(terrain: Terrain, turns: number = 5): void {
@@ -146,6 +148,7 @@ export class BattleField {
 	tickTurn(): void {
 		if (this.weatherTurns > 0) {
 			this.weatherTurns--;
+			this.weatherVersion++;
 			if (this.weatherTurns === 0) {
 				this.weather = Weather.NONE;
 			}

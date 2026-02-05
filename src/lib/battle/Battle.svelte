@@ -65,6 +65,9 @@
 	let entryAnimationsComplete = $state(false);
 	let isInitialBattleEntrance = $state(true);
 	let weatherFlash = $state(false);
+	let weatherIntensify = $state(false);
+	let currentWeather = $state(battleCtx.battleField.weather);
+	let currentWeatherTurns = $state(battleCtx.battleField.weatherTurns);
 	const uiEntranceDelays = {
 		opponentHp: 0,
 		allyHp: 200,
@@ -155,6 +158,12 @@
 		}
 	});
 
+	// Subscribe to weather version changes to update local reactive weather state
+	battleCtx.weatherVersion.subscribe(() => {
+		currentWeather = battleCtx.battleField.weather;
+		currentWeatherTurns = battleCtx.battleField.weatherTurns;
+	});
+
 	// Subscribe to turn phases to trigger weather flash at turn start
 	battleCtx.turnPhases.subscribe((phase) => {
 		if (phase === TurnPhase.UPKEEP && battleCtx.battleField.weather !== Weather.NONE) {
@@ -164,6 +173,18 @@
 			setTimeout(() => {
 				weatherFlash = false;
 			}, 600);
+		}
+	});
+
+	// Subscribe to weather damage events to intensify weather animation
+	battleCtx.events.weatherDamage.subscribe((weather) => {
+		if (weather && weather !== Weather.NONE) {
+			// Trigger intensified weather animation when damage occurs
+			weatherIntensify = true;
+			// Reset after animation completes
+			setTimeout(() => {
+				weatherIntensify = false;
+			}, 1000);
 		}
 	});
 
@@ -488,9 +509,10 @@
 		></div>
 
 		<WeatherOverlay
-			weather={battleCtx.battleField.weather}
-			weatherTurns={battleCtx.battleField.weatherTurns}
+			weather={currentWeather}
+			weatherTurns={currentWeatherTurns}
 			flash={weatherFlash}
+			intensify={weatherIntensify}
 		/>
 		<HazardSprites
 			allySide={battleCtx.battleField.allySide}

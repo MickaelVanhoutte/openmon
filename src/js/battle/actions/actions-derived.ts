@@ -215,6 +215,7 @@ export class ApplyEffect implements ActionV2Interface {
 			const weatherType = WEATHER_MAP[effect.move_effect_id];
 			if (weatherType !== undefined) {
 				ctx.battleField.setWeather(weatherType, 5);
+				ctx.weatherVersion.update((v) => v + 1);
 				const weatherMessages: Record<Weather, string> = {
 					[Weather.SAND]: 'A sandstorm kicked up!',
 					[Weather.RAIN]: 'It started to rain!',
@@ -449,6 +450,8 @@ export class WeatherDamage implements ActionV2Interface {
 	execute(ctx: BattleContext): void {
 		const weather = ctx.battleField.weather;
 		if (weather === Weather.NONE) return;
+
+		ctx.weatherVersion.update((v) => v + 1);
 
 		const allPokemon = [...ctx.playerSide, ...ctx.oppSide].filter(
 			(p): p is PokemonInstance => !!p && !p.fainted
