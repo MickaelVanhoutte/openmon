@@ -1,10 +1,5 @@
 <script lang="ts">
 	import AnimationsTab from './tabs/AnimationsTab.svelte';
-	import PokemonBrowser from './tabs/PokemonBrowser.svelte';
-	import MovesBrowser from './tabs/MovesBrowser.svelte';
-	import PokemonEditor from './tabs/PokemonEditor.svelte';
-	import MoveEditor from './tabs/MoveEditor.svelte';
-	import AddContent from './tabs/AddContent.svelte';
 	import ExportButton from './components/ExportButton.svelte';
 	import type { PokedexEntry, Move } from '$js/pokemons/pokedex';
 
@@ -14,30 +9,18 @@
 
 	const { onClose }: Props = $props();
 
-	type TabId =
-		| 'animations'
-		| 'pokemon-browser'
-		| 'moves-browser'
-		| 'pokemon-editor'
-		| 'move-editor'
-		| 'add-content';
+	type TabId = 'pokedex-manager' | 'add-pokemon' | 'animations';
 
 	const tabs: { id: TabId; label: string }[] = [
-		{ id: 'animations', label: 'Animations' },
-		{ id: 'pokemon-browser', label: 'Pokemon Browser' },
-		{ id: 'moves-browser', label: 'Moves Browser' },
-		{ id: 'pokemon-editor', label: 'Pokemon Editor' },
-		{ id: 'move-editor', label: 'Move Editor' },
-		{ id: 'add-content', label: 'Add Content' }
+		{ id: 'pokedex-manager', label: 'Pokedex Manager' },
+		{ id: 'add-pokemon', label: 'Add Pokemon' },
+		{ id: 'animations', label: 'Animations' }
 	];
 
-	let activeTab: TabId = $state('animations');
+	let activeTab: TabId = $state('pokedex-manager');
 
-	// Shared state for selections
 	let selectedPokemon: PokedexEntry | undefined = $state(undefined);
-	let selectedMove: Move | undefined = $state(undefined);
 
-	// Edited data storage
 	const editedPokemon: Map<number, PokedexEntry> = $state(new Map());
 	const editedMoves: Map<string, Move> = $state(new Map());
 
@@ -49,24 +32,9 @@
 		}
 	}
 
-	function handleSelectPokemon(pokemon: PokedexEntry) {
-		selectedPokemon = pokemon;
-		activeTab = 'pokemon-editor';
-	}
-
-	function handleSelectMove(move: Move) {
-		selectedMove = move;
-		activeTab = 'move-editor';
-	}
-
 	function handleApplyPokemon(edited: PokedexEntry) {
 		editedPokemon.set(edited.id, edited);
 		selectedPokemon = edited;
-	}
-
-	function handleApplyMove(edited: Move) {
-		editedMoves.set(edited.name, edited);
-		selectedMove = edited;
 	}
 </script>
 
@@ -84,6 +52,7 @@
 			<button
 				class="tab-btn"
 				class:active={activeTab === tab.id}
+				data-testid="{tab.id}-tab"
 				onclick={() => (activeTab = tab.id)}
 			>
 				{tab.label}
@@ -92,18 +61,18 @@
 	</nav>
 
 	<main class="tab-content">
-		{#if activeTab === 'animations'}
+		{#if activeTab === 'pokedex-manager'}
+			<div class="placeholder-content">
+				<h2>Pokedex Manager</h2>
+				<p>Drag & drop reordering + full-screen editor coming soon...</p>
+			</div>
+		{:else if activeTab === 'add-pokemon'}
+			<div class="placeholder-content">
+				<h2>Add Pokemon</h2>
+				<p>Add pokemon from raw pokedex with all moves...</p>
+			</div>
+		{:else if activeTab === 'animations'}
 			<AnimationsTab />
-		{:else if activeTab === 'pokemon-browser'}
-			<PokemonBrowser onSelectPokemon={handleSelectPokemon} />
-		{:else if activeTab === 'moves-browser'}
-			<MovesBrowser onSelectMove={handleSelectMove} />
-		{:else if activeTab === 'pokemon-editor'}
-			<PokemonEditor pokemon={selectedPokemon} onApply={handleApplyPokemon} />
-		{:else if activeTab === 'move-editor'}
-			<MoveEditor move={selectedMove} onApply={handleApplyMove} />
-		{:else if activeTab === 'add-content'}
-			<AddContent />
 		{/if}
 	</main>
 </div>
@@ -112,7 +81,7 @@
 	.admin-page {
 		width: 100%;
 		height: 100vh;
-		height: 100dvh; /* Dynamic viewport height for mobile */
+		height: 100dvh;
 		display: flex;
 		flex-direction: column;
 		background: var(--pixel-bg-primary);
@@ -144,6 +113,7 @@
 		cursor: pointer;
 		font-family: inherit;
 		font-size: 0.75rem;
+		min-height: 44px;
 	}
 
 	.close-btn:hover {
@@ -171,18 +141,19 @@
 	}
 
 	.tab-btn {
-		padding: 0.5rem 0.75rem;
+		padding: 0.75rem 1rem;
 		background: transparent;
 		border: none;
 		border-bottom: 3px solid transparent;
 		color: var(--pixel-text-white);
 		cursor: pointer;
 		font-family: inherit;
-		font-size: 1.2rem;
+		font-size: 0.875rem;
 		opacity: 0.7;
 		transition: opacity 0.2s;
 		white-space: nowrap;
 		flex-shrink: 0;
+		min-height: 44px;
 	}
 
 	.tab-btn:hover {
@@ -201,10 +172,28 @@
 		overflow-x: hidden;
 		-webkit-overflow-scrolling: touch;
 		padding: 0.5rem;
-		min-height: 0; /* Important for flex child scrolling */
+		min-height: 0;
 	}
 
-	/* Mobile-specific adjustments */
+	.placeholder-content {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		height: 100%;
+		text-align: center;
+		opacity: 0.6;
+	}
+
+	.placeholder-content h2 {
+		font-size: 1.25rem;
+		margin-bottom: 1rem;
+	}
+
+	.placeholder-content p {
+		font-size: 0.75rem;
+	}
+
 	@media (max-width: 768px) {
 		.admin-header {
 			padding: 0.375rem 0.5rem;
@@ -215,8 +204,9 @@
 		}
 
 		.tab-btn {
-			padding: 0.375rem 0.5rem;
-			font-size: 0.5rem;
+			padding: 0.75rem 0.75rem;
+			font-size: 0.625rem;
+			min-height: 44px;
 		}
 
 		.tab-content {
