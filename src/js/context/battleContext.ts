@@ -30,6 +30,7 @@ import { BattleField } from '../battle/battle-field';
 export class BattleContext {
 	ITEMS = new ItemsReferences();
 	battleField: BattleField = new BattleField();
+	hazardsVersion: Writable<number> = writable(0);
 
 	turnPhases: Writable<TurnPhase> = writable(TurnPhase.UPKEEP);
 

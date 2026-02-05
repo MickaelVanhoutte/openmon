@@ -229,9 +229,10 @@ export class ApplyEffect implements ActionV2Interface {
 			// Hazard effects - check by move_effect_id
 			// (the Effect classes in move-effects.ts don't extend HazardEffect)
 			const HAZARD_MAP: Record<number, Hazard> = {
-				267: Hazard.STEALTH_ROCK, // Stealth Rock
-				113: Hazard.SPIKES, // Spikes
-				191: Hazard.TOXIC_SPIKES // Toxic Spikes
+				267: Hazard.STEALTH_ROCK,
+				113: Hazard.SPIKES,
+				250: Hazard.TOXIC_SPIKES,
+				341: Hazard.STICKY_WEB
 			};
 
 			const hazardType = HAZARD_MAP[effect.move_effect_id];
@@ -239,10 +240,12 @@ export class ApplyEffect implements ActionV2Interface {
 				const initiatorSide = ctx.getPokemonSide(this.initiator);
 				const targetSide: Side = initiatorSide === 'ally' ? 'enemy' : 'ally';
 				ctx.battleField.addHazard(targetSide, hazardType);
+				ctx.hazardsVersion.update((v) => v + 1);
 				const hazardMessages: Record<Hazard, string> = {
 					[Hazard.STEALTH_ROCK]: 'Pointed stones float in the air!',
 					[Hazard.SPIKES]: 'Spikes were scattered on the ground!',
-					[Hazard.TOXIC_SPIKES]: 'Poison spikes were scattered!'
+					[Hazard.TOXIC_SPIKES]: 'Poison spikes were scattered!',
+					[Hazard.STICKY_WEB]: 'A sticky web spreads out on the ground!'
 				};
 				ctx.addToStack(new Message(hazardMessages[hazardType], this.initiator));
 				return;

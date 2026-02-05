@@ -91,7 +91,7 @@ export abstract class HazardEffect implements Effect {
 }
 
 export class StealthRockEffect extends HazardEffect {
-	move_effect_id: number = 153;
+	move_effect_id: number = 267;
 	hazardType: Hazard = Hazard.STEALTH_ROCK;
 }
 
@@ -101,8 +101,13 @@ export class SpikesEffect extends HazardEffect {
 }
 
 export class ToxicSpikesEffect extends HazardEffect {
-	move_effect_id: number = 191;
+	move_effect_id: number = 250;
 	hazardType: Hazard = Hazard.TOXIC_SPIKES;
+}
+
+export class StickyWebEffect extends HazardEffect {
+	move_effect_id: number = 341;
+	hazardType: Hazard = Hazard.STICKY_WEB;
 }
 
 export class RapidSpinEffect implements Effect {

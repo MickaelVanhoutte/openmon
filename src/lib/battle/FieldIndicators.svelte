@@ -84,6 +84,9 @@
 					T.Spikes x{battleField.allySide.hazards.get(Hazard.TOXIC_SPIKES)}
 				</div>
 			{/if}
+			{#if battleField.allySide.hazards.has(Hazard.STICKY_WEB)}
+				<div class="hazard sticky-web">Web</div>
+			{/if}
 		</div>
 
 		<div class="side enemy-side">
@@ -107,6 +110,9 @@
 				<div class="hazard toxic-spikes">
 					T.Spikes x{battleField.enemySide.hazards.get(Hazard.TOXIC_SPIKES)}
 				</div>
+			{/if}
+			{#if battleField.enemySide.hazards.has(Hazard.STICKY_WEB)}
+				<div class="hazard sticky-web">Web</div>
 			{/if}
 		</div>
 	</div>

@@ -5,6 +5,11 @@ import {
 	TYPE_HUE_ANGLES
 } from '../animation-engine';
 
+import caltropImg from '../../../../assets/battle/fx/caltrop.png';
+import poisonCaltropImg from '../../../../assets/battle/fx/poisoncaltrop.png';
+import webImg from '../../../../assets/battle/fx/web.png';
+import rockImg from '../../../../assets/battle/fx/rock.png';
+
 export const otherMoves: Record<string, MoveAnimation> = {};
 
 async function multiHitAnimation(engine: AnimationEngine, context: MoveContext): Promise<void> {
@@ -64,13 +69,87 @@ async function ohkoAnimation(engine: AnimationEngine, context: MoveContext): Pro
 
 const HAZARD_SETTING_MOVES = ['spikes', 'toxic-spikes', 'stealth-rock', 'sticky-web'];
 
+const HAZARD_SPRITES: Record<string, string> = {
+	spikes: caltropImg,
+	'stealth-rock': rockImg,
+	'toxic-spikes': poisonCaltropImg,
+	'sticky-web': webImg
+};
+
+async function hazardAnimation(engine: AnimationEngine, context: MoveContext): Promise<void> {
+	const { attacker, moveName } = context;
+
+	const normalizedName = moveName.toLowerCase();
+	const spriteUrl = HAZARD_SPRITES[normalizedName];
+	if (!spriteUrl) return;
+
+	const gsap = (await import('gsap')).default;
+
+	const battleScene = document.querySelector('.battle-scene') as HTMLElement;
+	if (!battleScene) return;
+
+	const sceneRect = battleScene.getBoundingClientRect();
+
+	let startX: number;
+	let startY: number;
+	const isAllyAttacker = attacker.slot.side === 'player';
+
+	if (attacker.element) {
+		const attackerRect = attacker.element.getBoundingClientRect();
+		startX = attackerRect.left - sceneRect.left + attackerRect.width / 2;
+		startY = attackerRect.top - sceneRect.top + attackerRect.height / 2;
+	} else {
+		startX = isAllyAttacker ? sceneRect.width * 0.25 : sceneRect.width * 0.75;
+		startY = sceneRect.height * 0.6;
+	}
+
+	const endX = isAllyAttacker ? sceneRect.width * 0.75 : sceneRect.width * 0.25;
+	const endY = sceneRect.height * 0.75;
+
+	const projectile = document.createElement('img');
+	projectile.src = spriteUrl;
+	projectile.style.cssText = `
+		position: absolute;
+		left: ${startX}px;
+		top: ${startY}px;
+		width: 40px;
+		height: 40px;
+		pointer-events: none;
+		z-index: 1000;
+		transform: translate(-50%, -50%);
+	`;
+	battleScene.appendChild(projectile);
+
+	await new Promise<void>((resolve) => {
+		gsap.to(projectile, {
+			left: endX,
+			top: endY,
+			duration: 0.4,
+			ease: 'power2.in',
+			onComplete: () => {
+				projectile.remove();
+				resolve();
+			}
+		});
+	});
+
+	await engine.screenShake(3, 150);
+}
+
 async function fieldAnimation(engine: AnimationEngine, context: MoveContext): Promise<void> {
 	const { attacker, defender, moveType, moveName } = context;
 	const hue = TYPE_HUE_ANGLES[moveType] ?? 0;
 	const color = engine.getTypeColor(moveType);
 
-	const isHazardMove = HAZARD_SETTING_MOVES.includes(moveName);
-	const targetSprite = isHazardMove && defender && !Array.isArray(defender) ? defender : attacker;
+	const normalizedName = moveName.toLowerCase();
+	const isHazardMove = HAZARD_SETTING_MOVES.includes(normalizedName);
+
+	if (isHazardMove) {
+		await hazardAnimation(engine, context);
+		return;
+	}
+
+	const targetSprite = defender && !Array.isArray(defender) ? defender : attacker;
 
 	await engine.showSpriteEffect('rock', targetSprite, {
 		hueRotate: hue,

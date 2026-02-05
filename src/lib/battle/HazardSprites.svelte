@@ -2,16 +2,19 @@
 	import { Hazard, type SideState } from '../../js/battle/battle-field';
 	import caltropImg from '../../assets/battle/fx/caltrop.png';
 	import poisonCaltropImg from '../../assets/battle/fx/poisoncaltrop.png';
-	import rockImg from '../../assets/battle/fx/rock-sprite.png';
+	import webImg from '../../assets/battle/fx/web.png';
+	import rockImg from '../../assets/battle/fx/rock.png';
+	import type { Writable } from 'svelte/store';
 
 	interface Props {
 		allySide: SideState;
 		enemySide: SideState;
+		hazardsVersion: Writable<number>;
 	}
 
-	const { allySide, enemySide }: Props = $props();
+	const { allySide, enemySide, hazardsVersion }: Props = $props();
 
-	function getHazardLayers(side: SideState, hazard: Hazard): number {
+	function getHazardLayers(side: SideState, hazard: Hazard, _version: number): number {
 		return side.hazards.get(hazard) || 0;
 	}
 
@@ -20,14 +23,14 @@
 		isAlly: boolean
 	): Array<{ x: number; y: number; delay: number }> {
 		const positions = [];
-		const baseX = isAlly ? 15 : 60;
-		const spreadX = 25;
-		const baseY = isAlly ? 75 : 55;
+		const baseX = isAlly ? 18 : 58;
+		const spreadX = 40;
+		const baseY = isAlly ? 70 : 65;
 
 		for (let i = 0; i < count; i++) {
 			positions.push({
 				x: baseX + Math.random() * spreadX,
-				y: baseY + Math.random() * 10,
+				y: baseY + Math.random() * 5,
 				delay: i * 0.1
 			});
 		}
@@ -37,84 +40,110 @@
 
 <div class="hazard-sprites">
 	<!-- Ally Side Hazards -->
-	{#if getHazardLayers(allySide, Hazard.STEALTH_ROCK) > 0}
+	{#if getHazardLayers(allySide, Hazard.STEALTH_ROCK, $hazardsVersion) > 0}
 		<div class="hazard-group ally stealth-rock">
-			{#each generatePositions(3, true) as pos}
+			{#each generatePositions(5, true) as pos}
 				<img
 					src={rockImg}
 					alt="Stealth Rock"
 					class="hazard-sprite rock"
-					style="left: {pos.x}%; bottom: {pos.y}%; animation-delay: {pos.delay}s"
+					style="left: {pos.x}%; top: {pos.y}%; animation-delay: {pos.delay}s"
 				/>
 			{/each}
 		</div>
 	{/if}
 
-	{#if getHazardLayers(allySide, Hazard.SPIKES) > 0}
-		{@const layers = getHazardLayers(allySide, Hazard.SPIKES)}
+	{#if getHazardLayers(allySide, Hazard.SPIKES, $hazardsVersion) > 0}
+		{@const layers = getHazardLayers(allySide, Hazard.SPIKES, $hazardsVersion)}
 		<div class="hazard-group ally spikes">
 			{#each generatePositions(layers * 2, true) as pos}
 				<img
 					src={caltropImg}
 					alt="Spikes"
 					class="hazard-sprite caltrop"
-					style="left: {pos.x}%; bottom: {pos.y - 5}%; animation-delay: {pos.delay}s"
+					style="left: {pos.x}%; top: {pos.y}%; animation-delay: {pos.delay}s"
 				/>
 			{/each}
 		</div>
 	{/if}
 
-	{#if getHazardLayers(allySide, Hazard.TOXIC_SPIKES) > 0}
-		{@const layers = getHazardLayers(allySide, Hazard.TOXIC_SPIKES)}
+	{#if getHazardLayers(allySide, Hazard.TOXIC_SPIKES, $hazardsVersion) > 0}
+		{@const layers = getHazardLayers(allySide, Hazard.TOXIC_SPIKES, $hazardsVersion)}
 		<div class="hazard-group ally toxic-spikes">
 			{#each generatePositions(layers * 2, true) as pos}
 				<img
 					src={poisonCaltropImg}
 					alt="Toxic Spikes"
 					class="hazard-sprite poison-caltrop"
-					style="left: {pos.x}%; bottom: {pos.y - 5}%; animation-delay: {pos.delay}s"
+					style="left: {pos.x}%; top: {pos.y}%; animation-delay: {pos.delay}s"
+				/>
+			{/each}
+		</div>
+	{/if}
+
+	{#if getHazardLayers(allySide, Hazard.STICKY_WEB, $hazardsVersion) > 0}
+		<div class="hazard-group ally sticky-web">
+			{#each generatePositions(1, true) as pos}
+				<img
+					src={webImg}
+					alt="Sticky Web"
+					class="hazard-sprite web"
+					style="left: {pos.x}%; top: {pos.y}%; animation-delay: {pos.delay}s"
 				/>
 			{/each}
 		</div>
 	{/if}
 
 	<!-- Enemy Side Hazards -->
-	{#if getHazardLayers(enemySide, Hazard.STEALTH_ROCK) > 0}
+	{#if getHazardLayers(enemySide, Hazard.STEALTH_ROCK, $hazardsVersion) > 0}
 		<div class="hazard-group enemy stealth-rock">
 			{#each generatePositions(3, false) as pos}
 				<img
 					src={rockImg}
 					alt="Stealth Rock"
 					class="hazard-sprite rock"
-					style="left: {pos.x}%; bottom: {pos.y}%; animation-delay: {pos.delay}s"
+					style="left: {pos.x}%; top: {pos.y}%; animation-delay: {pos.delay}s"
 				/>
 			{/each}
 		</div>
 	{/if}
 
-	{#if getHazardLayers(enemySide, Hazard.SPIKES) > 0}
-		{@const layers = getHazardLayers(enemySide, Hazard.SPIKES)}
+	{#if getHazardLayers(enemySide, Hazard.SPIKES, $hazardsVersion) > 0}
+		{@const layers = getHazardLayers(enemySide, Hazard.SPIKES, $hazardsVersion)}
 		<div class="hazard-group enemy spikes">
 			{#each generatePositions(layers * 2, false) as pos}
 				<img
 					src={caltropImg}
 					alt="Spikes"
 					class="hazard-sprite caltrop"
-					style="left: {pos.x}%; bottom: {pos.y - 5}%; animation-delay: {pos.delay}s"
+					style="left: {pos.x}%; top: {pos.y}%; animation-delay: {pos.delay}s"
 				/>
 			{/each}
 		</div>
 	{/if}
 
-	{#if getHazardLayers(enemySide, Hazard.TOXIC_SPIKES) > 0}
-		{@const layers = getHazardLayers(enemySide, Hazard.TOXIC_SPIKES)}
+	{#if getHazardLayers(enemySide, Hazard.TOXIC_SPIKES, $hazardsVersion) > 0}
+		{@const layers = getHazardLayers(enemySide, Hazard.TOXIC_SPIKES, $hazardsVersion)}
 		<div class="hazard-group enemy toxic-spikes">
 			{#each generatePositions(layers * 2, false) as pos}
 				<img
 					src={poisonCaltropImg}
 					alt="Toxic Spikes"
 					class="hazard-sprite poison-caltrop"
-					style="left: {pos.x}%; bottom: {pos.y - 5}%; animation-delay: {pos.delay}s"
+					style="left: {pos.x}%; top: {pos.y}%; animation-delay: {pos.delay}s"
+				/>
+			{/each}
+		</div>
+	{/if}
+
+	{#if getHazardLayers(enemySide, Hazard.STICKY_WEB, $hazardsVersion) > 0}
+		<div class="hazard-group enemy sticky-web">
+			{#each generatePositions(1, false) as pos}
+				<img
+					src={webImg}
+					alt="Sticky Web"
+					class="hazard-sprite web"
+					style="left: {pos.x}%; top: {pos.y}%; animation-delay: {pos.delay}s"
 				/>
 			{/each}
 		</div>
@@ -129,13 +158,14 @@
 		width: 100%;
 		height: 100%;
 		pointer-events: none;
-		z-index: 3;
+		z-index: 50;
 	}
 
 	.hazard-group {
 		position: absolute;
 		width: 100%;
 		height: 100%;
+		z-index: 50;
 	}
 
 	.hazard-sprite {
@@ -144,6 +174,7 @@
 		animation: dropIn 0.4s ease-out forwards;
 		opacity: 0;
 		transform: translateY(-50px);
+		z-index: 50;
 
 		&.rock {
 			width: 24px;
