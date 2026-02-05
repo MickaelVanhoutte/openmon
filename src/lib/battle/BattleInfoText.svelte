@@ -22,7 +22,6 @@
 		position: absolute;
 		bottom: 1%;
 		right: 5%;
-		//transform: translateX(-50%);
 		max-width: 70%;
 		padding: 0;
 		color: white;

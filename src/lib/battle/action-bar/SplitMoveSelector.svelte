@@ -216,7 +216,7 @@
 		>
 			<div class="type-watermark">
 				<div class="type-icon">
-					<img src="/src/assets/types/{move.type.toLowerCase()}-small.png" alt={move.type} />
+					<img src="../../../assets/types/{move.type.toLowerCase()}-small.png" alt={move.type} />
 				</div>
 			</div>
 
