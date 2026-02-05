@@ -1,5 +1,7 @@
 <script lang="ts">
 	import AnimationsTab from './tabs/AnimationsTab.svelte';
+	import AddPokemon from './tabs/AddPokemon.svelte';
+	import PokedexManager from './tabs/PokedexManager.svelte';
 	import ExportButton from './components/ExportButton.svelte';
 	import type { PokedexEntry, Move } from '$js/pokemons/pokedex';
 
@@ -19,8 +21,6 @@
 
 	let activeTab: TabId = $state('pokedex-manager');
 
-	let selectedPokemon: PokedexEntry | undefined = $state(undefined);
-
 	const editedPokemon: Map<number, PokedexEntry> = $state(new Map());
 	const editedMoves: Map<string, Move> = $state(new Map());
 
@@ -32,9 +32,12 @@
 		}
 	}
 
-	function handleApplyPokemon(edited: PokedexEntry) {
-		editedPokemon.set(edited.id, edited);
-		selectedPokemon = edited;
+	function handlePokemonAdded(pokemon: PokedexEntry) {
+		editedPokemon.set(pokemon.id, pokemon);
+	}
+
+	function handlePokemonRemoved(pokemon: PokedexEntry) {
+		editedPokemon.delete(pokemon.id);
 	}
 </script>
 
@@ -62,15 +65,9 @@
 
 	<main class="tab-content">
 		{#if activeTab === 'pokedex-manager'}
-			<div class="placeholder-content">
-				<h2>Pokedex Manager</h2>
-				<p>Drag & drop reordering + full-screen editor coming soon...</p>
-			</div>
+			<PokedexManager onPokemonEdited={handlePokemonAdded} />
 		{:else if activeTab === 'add-pokemon'}
-			<div class="placeholder-content">
-				<h2>Add Pokemon</h2>
-				<p>Add pokemon from raw pokedex with all moves...</p>
-			</div>
+			<AddPokemon onPokemonAdded={handlePokemonAdded} onPokemonRemoved={handlePokemonRemoved} />
 		{:else if activeTab === 'animations'}
 			<AnimationsTab />
 		{/if}
