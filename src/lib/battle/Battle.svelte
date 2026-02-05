@@ -35,6 +35,8 @@
 
 	const backgroundOffset = get(context.timeOfDay.backgroundOffset);
 
+	const hazardsVersion = battleCtx.hazardsVersion;
+
 	let gifsWrapper: HTMLDivElement;
 	let scene: HTMLDivElement;
 	const fx: HTMLImageElement[] = [];
@@ -493,6 +495,7 @@
 		<HazardSprites
 			allySide={battleCtx.battleField.allySide}
 			enemySide={battleCtx.battleField.enemySide}
+			{hazardsVersion}
 		/>
 		<ScreenBarrier
 			allySide={battleCtx.battleField.allySide}

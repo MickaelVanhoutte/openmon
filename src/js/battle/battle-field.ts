@@ -14,7 +14,8 @@ export enum Screen {
 export enum Hazard {
 	STEALTH_ROCK = 'stealth_rock',
 	SPIKES = 'spikes',
-	TOXIC_SPIKES = 'toxic_spikes'
+	TOXIC_SPIKES = 'toxic_spikes',
+	STICKY_WEB = 'sticky_web'
 }
 
 export enum Terrain {
@@ -35,7 +36,8 @@ export interface SideState {
 const MAX_HAZARD_LAYERS: Record<Hazard, number> = {
 	[Hazard.STEALTH_ROCK]: 1,
 	[Hazard.SPIKES]: 3,
-	[Hazard.TOXIC_SPIKES]: 2
+	[Hazard.TOXIC_SPIKES]: 2,
+	[Hazard.STICKY_WEB]: 1
 };
 
 export class BattleField {
@@ -47,6 +49,8 @@ export class BattleField {
 
 	trickRoom: boolean = false;
 	trickRoomTurns: number = 0;
+
+	version: number = 0;
 
 	allySide: SideState = {
 		screens: new Map(),
@@ -117,15 +121,18 @@ export class BattleField {
 		const maxLayers = MAX_HAZARD_LAYERS[hazard];
 		if (currentLayers < maxLayers) {
 			sideState.hazards.set(hazard, currentLayers + 1);
+			this.version++;
 		}
 	}
 
 	removeHazard(side: Side, hazard: Hazard): void {
 		this.getSide(side).hazards.delete(hazard);
+		this.version++;
 	}
 
 	clearHazards(side: Side): void {
 		this.getSide(side).hazards.clear();
+		this.version++;
 	}
 
 	hasHazard(side: Side, hazard: Hazard): boolean {

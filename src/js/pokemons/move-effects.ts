@@ -1285,10 +1285,15 @@ class Bind implements Effect {
 			// Duration is 2-5 turns
 			// 3/8 chance for 2 or 3 turns, 1/8 chance for 4 or 5 turns
 			const rand = Math.random();
-			if (rand < 0.375) {bind.duration = 2;}
-			else if (rand < 0.75) {bind.duration = 3;}
-			else if (rand < 0.875) {bind.duration = 4;}
-			else {bind.duration = 5;}
+			if (rand < 0.375) {
+				bind.duration = 2;
+			} else if (rand < 0.75) {
+				bind.duration = 3;
+			} else if (rand < 0.875) {
+				bind.duration = 4;
+			} else {
+				bind.duration = 5;
+			}
 
 			bind.damages = Math.floor(target[0].currentStats.hp / 16);
 			return new EffectResult(bind, `${target[0].name} was trapped in the vortex!`);
@@ -3175,7 +3180,9 @@ class Protect implements Effect {
 	consecutiveUses: number = 0;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user) {return new EffectResult();}
+		if (!user) {
+			return new EffectResult();
+		}
 
 		// Consecutive uses halve success rate
 		const successRate = Math.pow(0.5, this.consecutiveUses);
@@ -3242,7 +3249,9 @@ class Endure implements Effect {
 	consecutiveUses: number = 0;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user) {return new EffectResult();}
+		if (!user) {
+			return new EffectResult();
+		}
 
 		const successRate = Math.pow(0.5, this.consecutiveUses);
 		if (Math.random() > successRate) {
@@ -3272,7 +3281,9 @@ class BatonPass implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user) {return new EffectResult();}
+		if (!user) {
+			return new EffectResult();
+		}
 		// The actual stat passing logic should be handled by the battle system
 		return new EffectResult(undefined, `${user.name} is passing the baton!`);
 	}
@@ -3295,7 +3306,9 @@ class RapidSpin implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user) {return new EffectResult();}
+		if (!user) {
+			return new EffectResult();
+		}
 		// Remove binding effects
 		user.status = undefined;
 		return new EffectResult(undefined, `${user.name} blew away hazards!`);
@@ -3425,7 +3438,9 @@ class BellyDrum implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user) {return new EffectResult();}
+		if (!user) {
+			return new EffectResult();
+		}
 
 		const hpCost = Math.floor(user.stats.hp / 2);
 		if (user.currentHp <= hpCost) {
@@ -3455,7 +3470,9 @@ class PsychUp implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user || !target[0]) {return new EffectResult();}
+		if (!user || !target[0]) {
+			return new EffectResult();
+		}
 
 		user.statsChanges = { ...target[0].statsChanges };
 		return new EffectResult(undefined, `${user.name} copied the stat changes!`);
@@ -3479,7 +3496,9 @@ class MirrorCoat implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user || !target[0]) {return new EffectResult();}
+		if (!user || !target[0]) {
+			return new EffectResult();
+		}
 
 		const lastDamageTaken = user.lastDamageTaken || 0;
 		if (lastDamageTaken <= 0) {
@@ -3755,7 +3774,9 @@ class Uproar implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user) {return new EffectResult();}
+		if (!user) {
+			return new EffectResult();
+		}
 		// Duration is 2-5 turns
 		this.duration = Math.floor(Math.random() * 4) + 2;
 		return new EffectResult(this, `${user.name} caused an uproar!`);
@@ -3785,7 +3806,9 @@ class Stockpile implements Effect {
 	stockpileCount: number = 0;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user) {return new EffectResult();}
+		if (!user) {
+			return new EffectResult();
+		}
 
 		if (this.stockpileCount >= 3) {
 			return new EffectResult(undefined, 'But it failed!');
@@ -3837,7 +3860,9 @@ class Swallow implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user) {return new EffectResult();}
+		if (!user) {
+			return new EffectResult();
+		}
 
 		// This should check the stockpile count - for now just heal 1/4
 		const healAmount = Math.floor(user.stats.hp / 4);
@@ -3923,7 +3948,9 @@ class Flatter implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!target[0]) {return new EffectResult();}
+		if (!target[0]) {
+			return new EffectResult();
+		}
 
 		target[0].changeBattleStats('specialAttack', 1);
 		const confusion = new Confusion();
@@ -3950,7 +3977,9 @@ class WillOWisp implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!target[0]) {return new EffectResult();}
+		if (!target[0]) {
+			return new EffectResult();
+		}
 
 		if (target[0].status || target[0].types.includes('fire')) {
 			return new EffectResult(undefined, 'But it failed!');
@@ -3980,7 +4009,9 @@ class Memento implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user || !target[0]) {return new EffectResult();}
+		if (!user || !target[0]) {
+			return new EffectResult();
+		}
 
 		target[0].changeBattleStats('attack', -2);
 		target[0].changeBattleStats('specialAttack', -2);
@@ -4007,7 +4038,9 @@ class Charge implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user) {return new EffectResult();}
+		if (!user) {
+			return new EffectResult();
+		}
 
 		user.changeBattleStats('specialDefense', 1);
 		return new EffectResult(this, `${user.name} began charging power!`);
@@ -4035,7 +4068,9 @@ class Taunt implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!target[0]) {return new EffectResult();}
+		if (!target[0]) {
+			return new EffectResult();
+		}
 
 		// Duration is 3-5 turns
 		this.duration = Math.floor(Math.random() * 3) + 3;
@@ -4089,7 +4124,9 @@ class Trick implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user || !target[0]) {return new EffectResult();}
+		if (!user || !target[0]) {
+			return new EffectResult();
+		}
 
 		// Item swap is handled by battle system
 		return new EffectResult(undefined, `${user.name} swapped items with ${target[0].name}!`);
@@ -4113,7 +4150,9 @@ class RolePlay implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user || !target[0]) {return new EffectResult();}
+		if (!user || !target[0]) {
+			return new EffectResult();
+		}
 
 		return new EffectResult(undefined, `${user.name} copied ${target[0].name}'s ability!`);
 	}
@@ -4137,7 +4176,9 @@ class Wish implements Effect {
 	healAmount: number = 0;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user) {return new EffectResult();}
+		if (!user) {
+			return new EffectResult();
+		}
 
 		this.healAmount = Math.floor(user.stats.hp / 2);
 		return new EffectResult(this, `${user.name} made a wish!`);
@@ -4167,7 +4208,9 @@ class Ingrain implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user) {return new EffectResult();}
+		if (!user) {
+			return new EffectResult();
+		}
 
 		return new EffectResult(this, `${user.name} planted its roots!`);
 	}
@@ -4192,7 +4235,9 @@ class Superpower implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user) {return new EffectResult();}
+		if (!user) {
+			return new EffectResult();
+		}
 
 		user.changeBattleStats('attack', -1);
 		user.changeBattleStats('defense', -1);
@@ -4217,7 +4262,9 @@ class MagicCoat implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user) {return new EffectResult();}
+		if (!user) {
+			return new EffectResult();
+		}
 
 		return new EffectResult(this, `${user.name} shrouded itself with Magic Coat!`);
 	}
@@ -4240,7 +4287,9 @@ class Recycle implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user) {return new EffectResult();}
+		if (!user) {
+			return new EffectResult();
+		}
 
 		// Item recovery is handled by battle system
 		return new EffectResult(undefined, `${user.name} found one item!`);
@@ -4308,7 +4357,9 @@ class Yawn implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!target[0]) {return new EffectResult();}
+		if (!target[0]) {
+			return new EffectResult();
+		}
 
 		if (target[0].status) {
 			return new EffectResult(undefined, 'But it failed!');
@@ -4345,7 +4396,9 @@ class KnockOff implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!target[0]) {return new EffectResult();}
+		if (!target[0]) {
+			return new EffectResult();
+		}
 
 		// Item removal is handled by battle system
 		return new EffectResult(undefined, `${target[0].name} dropped its item!`);
@@ -4369,7 +4422,9 @@ class Endeavor implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user || !target[0]) {return new EffectResult();}
+		if (!user || !target[0]) {
+			return new EffectResult();
+		}
 
 		if (target[0].currentHp <= user.currentHp) {
 			return new EffectResult(undefined, 'But it failed!');
@@ -4420,7 +4475,9 @@ class Imprison implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user) {return new EffectResult();}
+		if (!user) {
+			return new EffectResult();
+		}
 
 		return new EffectResult(this, `${user.name} sealed any moves its target shares with it!`);
 	}
@@ -4443,7 +4500,9 @@ class Refresh implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user) {return new EffectResult();}
+		if (!user) {
+			return new EffectResult();
+		}
 
 		if (
 			user.status?.abr === 'BRN' ||
@@ -4475,7 +4534,9 @@ class Grudge implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user) {return new EffectResult();}
+		if (!user) {
+			return new EffectResult();
+		}
 
 		return new EffectResult(this, `${user.name} wants its target to bear a grudge!`);
 	}
@@ -4548,7 +4609,9 @@ class LowerUserSpAtk2 implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user) {return new EffectResult();}
+		if (!user) {
+			return new EffectResult();
+		}
 
 		user.changeBattleStats('specialAttack', -2);
 		return new EffectResult(undefined, `${user.name}'s Special Attack harshly fell!`);
@@ -4572,7 +4635,9 @@ class Tickle implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!target[0]) {return new EffectResult();}
+		if (!target[0]) {
+			return new EffectResult();
+		}
 
 		target[0].changeBattleStats('attack', -1);
 		target[0].changeBattleStats('defense', -1);
@@ -4597,7 +4662,9 @@ class CosmicPower implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user) {return new EffectResult();}
+		if (!user) {
+			return new EffectResult();
+		}
 
 		user.changeBattleStats('defense', 1);
 		user.changeBattleStats('specialDefense', 1);
@@ -4622,7 +4689,9 @@ class BulkUp implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user) {return new EffectResult();}
+		if (!user) {
+			return new EffectResult();
+		}
 
 		user.changeBattleStats('attack', 1);
 		user.changeBattleStats('defense', 1);
@@ -4672,7 +4741,9 @@ class CalmMind implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user) {return new EffectResult();}
+		if (!user) {
+			return new EffectResult();
+		}
 
 		user.changeBattleStats('specialAttack', 1);
 		user.changeBattleStats('specialDefense', 1);
@@ -4697,7 +4768,9 @@ class DragonDance implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user) {return new EffectResult();}
+		if (!user) {
+			return new EffectResult();
+		}
 
 		user.changeBattleStats('attack', 1);
 		user.changeBattleStats('speed', 1);
@@ -4722,7 +4795,9 @@ class Roost implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user) {return new EffectResult();}
+		if (!user) {
+			return new EffectResult();
+		}
 
 		const healAmount = Math.floor(user.stats.hp / 2);
 		user.heal(healAmount);
@@ -4747,7 +4822,9 @@ class MiracleEye implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!target[0]) {return new EffectResult();}
+		if (!target[0]) {
+			return new EffectResult();
+		}
 
 		target[0].statsChanges.evasion = 0;
 		return new EffectResult(this, `${target[0].name} was identified!`);
@@ -4772,7 +4849,9 @@ class WakeUpSlap implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!target[0]) {return new EffectResult();}
+		if (!target[0]) {
+			return new EffectResult();
+		}
 
 		if (target[0].status?.abr === 'SLP') {
 			target[0].status = undefined;
@@ -4799,7 +4878,9 @@ class LowerUserSpeed implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user) {return new EffectResult();}
+		if (!user) {
+			return new EffectResult();
+		}
 
 		user.changeBattleStats('speed', -1);
 		return new EffectResult(undefined, `${user.name}'s Speed fell!`);
@@ -4845,7 +4926,9 @@ class HealingWish implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user) {return new EffectResult();}
+		if (!user) {
+			return new EffectResult();
+		}
 
 		user.currentStats.hp = 0;
 		user.fainted = true;
@@ -4940,7 +5023,9 @@ class UTurn implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user) {return new EffectResult();}
+		if (!user) {
+			return new EffectResult();
+		}
 
 		// Force switch is handled by battle system
 		return new EffectResult(undefined, `${user.name} went back!`);
@@ -4964,7 +5049,9 @@ class CloseCombat implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user) {return new EffectResult();}
+		if (!user) {
+			return new EffectResult();
+		}
 
 		user.changeBattleStats('defense', -1);
 		user.changeBattleStats('specialDefense', -1);
@@ -5055,7 +5142,9 @@ class GastroAcid implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!target[0]) {return new EffectResult();}
+		if (!target[0]) {
+			return new EffectResult();
+		}
 
 		// Ability suppression is handled by battle system
 		return new EffectResult(this, `${target[0].name}'s Ability was suppressed!`);
@@ -5101,7 +5190,9 @@ class WorrySeed implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!target[0]) {return new EffectResult();}
+		if (!target[0]) {
+			return new EffectResult();
+		}
 
 		return new EffectResult(undefined, `${target[0].name}'s ability became Insomnia!`);
 	}
@@ -5163,7 +5254,9 @@ class AquaRing implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user) {return new EffectResult();}
+		if (!user) {
+			return new EffectResult();
+		}
 
 		return new EffectResult(this, `${user.name} surrounded itself with a veil of water!`);
 	}
@@ -5188,7 +5281,9 @@ class MagnetRise implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user) {return new EffectResult();}
+		if (!user) {
+			return new EffectResult();
+		}
 
 		return new EffectResult(this, `${user.name} levitated with electromagnetism!`);
 	}
@@ -5217,7 +5312,9 @@ class FlareBlitz implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user) {return new EffectResult();}
+		if (!user) {
+			return new EffectResult();
+		}
 
 		// Recoil damage
 		if (this.damages > 0) {
@@ -5318,7 +5415,9 @@ class ChanceFreeze implements Effect {
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
 		if (target[0] && !target[0].status && Math.random() * 100 < this.effectChance) {
-			if (target[0].types.includes('ice')) {return new EffectResult();}
+			if (target[0].types.includes('ice')) {
+				return new EffectResult();
+			}
 			return new EffectResult(new Freeze(), `${target[0].name} was frozen solid!`);
 		}
 		return new EffectResult();
@@ -5383,6 +5482,31 @@ class StealthRock implements Effect {
 	}
 }
 
+@injectable()
+@registry([{ token: 'Effect', useClass: Spikes }])
+class Spikes implements Effect {
+	move_effect_id: number = 113;
+	abr: string = 'SPK';
+	duration: number = -1;
+	when: EffectTiming = EffectTiming.AFTER_SWITCH;
+	damages: number = 0;
+	turnsPassed: number = 0;
+	healed = false;
+
+	apply(target: PokemonInstance[], _user?: PokemonInstance): EffectResult {
+		return new EffectResult(this, 'Spikes were scattered on the ground around the opposing team!');
+	}
+
+	playEffect(target: PokemonInstance, _user?: PokemonInstance): EffectForTurn {
+		if (!target.hasType('Flying')) {
+			const baseDamage = Math.floor(target.stats.hp / 8);
+			target.removeHp(baseDamage);
+			return new EffectForTurn(true, `${target.name} was hurt by the spikes!`);
+		}
+		return new EffectForTurn();
+	}
+}
+
 // Effect 275: Ice Fang/Fire Fang etc. - Has a chance to freeze and flinch
 @injectable()
 @registry([{ token: 'Effect', useClass: ChanceFreezeAndFlinch }])
@@ -5397,7 +5521,9 @@ class ChanceFreezeAndFlinch implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!target[0]) {return new EffectResult();}
+		if (!target[0]) {
+			return new EffectResult();
+		}
 
 		let message = '';
 
@@ -5436,7 +5562,9 @@ class ChanceParalyzeAndFlinch implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!target[0]) {return new EffectResult();}
+		if (!target[0]) {
+			return new EffectResult();
+		}
 
 		let message = '';
 
@@ -5520,7 +5648,9 @@ class Autotomize implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user) {return new EffectResult();}
+		if (!user) {
+			return new EffectResult();
+		}
 
 		user.changeBattleStats('speed', 2);
 		return new EffectResult(undefined, `${user.name} became nimble!`);
@@ -5566,7 +5696,9 @@ class QuiverDance implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user) {return new EffectResult();}
+		if (!user) {
+			return new EffectResult();
+		}
 
 		user.changeBattleStats('specialAttack', 1);
 		user.changeBattleStats('specialDefense', 1);
@@ -5614,7 +5746,9 @@ class FlameCharge implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user) {return new EffectResult();}
+		if (!user) {
+			return new EffectResult();
+		}
 
 		user.changeBattleStats('speed', 1);
 		return new EffectResult(undefined, `${user.name}'s Speed rose!`);
@@ -5660,7 +5794,9 @@ class ClearStats implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!target[0]) {return new EffectResult();}
+		if (!target[0]) {
+			return new EffectResult();
+		}
 
 		target[0].statsChanges = {
 			attack: 0,
@@ -5694,7 +5830,9 @@ class ShellSmash implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user) {return new EffectResult();}
+		if (!user) {
+			return new EffectResult();
+		}
 
 		user.changeBattleStats('attack', 2);
 		user.changeBattleStats('specialAttack', 2);
@@ -5722,7 +5860,9 @@ class HealPulse implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!target[0]) {return new EffectResult();}
+		if (!target[0]) {
+			return new EffectResult();
+		}
 
 		const healAmount = Math.floor(target[0].stats.hp / 2);
 		target[0].heal(healAmount);
@@ -5791,7 +5931,9 @@ class WorkUp implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user) {return new EffectResult();}
+		if (!user) {
+			return new EffectResult();
+		}
 
 		user.changeBattleStats('attack', 1);
 		user.changeBattleStats('specialAttack', 1);
@@ -5860,7 +6002,9 @@ class FinalGambit implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user || !target[0]) {return new EffectResult();}
+		if (!user || !target[0]) {
+			return new EffectResult();
+		}
 
 		const damage = user.currentHp;
 		target[0].removeHp(damage);
@@ -5887,7 +6031,9 @@ class Coil implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user) {return new EffectResult();}
+		if (!user) {
+			return new EffectResult();
+		}
 
 		user.changeBattleStats('attack', 1);
 		user.changeBattleStats('defense', 1);
@@ -5913,7 +6059,9 @@ class Bestow implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user || !target[0]) {return new EffectResult();}
+		if (!user || !target[0]) {
+			return new EffectResult();
+		}
 
 		// Item giving is handled by battle system
 		return new EffectResult(undefined, `${user.name} gave its item to ${target[0].name}!`);
@@ -5937,7 +6085,9 @@ class Rototiller implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user) {return new EffectResult();}
+		if (!user) {
+			return new EffectResult();
+		}
 
 		if (user.hasType('Grass')) {
 			user.changeBattleStats('attack', 1);
@@ -5965,7 +6115,9 @@ class CottonGuard implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!user) {return new EffectResult();}
+		if (!user) {
+			return new EffectResult();
+		}
 
 		user.changeBattleStats('defense', 3);
 		return new EffectResult(undefined, `${user.name}'s Defense drastically rose!`);
@@ -5999,6 +6151,30 @@ class HurricaneConfuse implements Effect {
 	}
 
 	playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
+		return new EffectForTurn();
+	}
+}
+
+@injectable()
+@registry([{ token: 'Effect', useClass: StickyWeb }])
+class StickyWeb implements Effect {
+	move_effect_id: number = 341;
+	abr: string = 'SWB';
+	duration: number = -1;
+	when: EffectTiming = EffectTiming.AFTER_SWITCH;
+	damages: number = 0;
+	turnsPassed: number = 0;
+	healed = false;
+
+	apply(target: PokemonInstance[], _user?: PokemonInstance): EffectResult {
+		return new EffectResult(this, 'A sticky web spreads out on the ground!');
+	}
+
+	playEffect(target: PokemonInstance, _user?: PokemonInstance): EffectForTurn {
+		if (!target.hasType('Flying')) {
+			target.statsChanges.speed -= 1;
+			return new EffectForTurn(true, `${target.name}'s Speed was lowered by the sticky web!`);
+		}
 		return new EffectForTurn();
 	}
 }
