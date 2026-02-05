@@ -65,10 +65,14 @@
 	}
 
 	function handleKeyDown(event: KeyboardEvent) {
-		if (disabled || !show) {return;}
+		if (disabled || !show) {
+			return;
+		}
 
 		const validMoves = moves.filter((m) => m.pp > 0);
-		if (validMoves.length === 0) {return;}
+		if (validMoves.length === 0) {
+			return;
+		}
 
 		switch (event.key) {
 			case 'ArrowUp':
@@ -118,10 +122,14 @@
 	}
 
 	function animateEntrance() {
-		if (plateElements.length === 0) {return;}
+		if (plateElements.length === 0) {
+			return;
+		}
 
 		const validPlates = plateElements.filter(Boolean);
-		if (validPlates.length === 0) {return;}
+		if (validPlates.length === 0) {
+			return;
+		}
 
 		const spritePos = getSpritePosition(spriteElement);
 		const startX = spritePos ? 0 : -100;
@@ -154,7 +162,9 @@
 		updatePositions();
 
 		const animationTimer = setTimeout(() => {
-			if (show) {animateEntrance();}
+			if (show) {
+				animateEntrance();
+			}
 		}, 50);
 
 		return () => {
@@ -205,7 +215,9 @@
 			disabled={disabled || move.pp <= 0}
 		>
 			<div class="type-watermark">
-				<div class="type-icon" style="background-color: {getTypeColor(move.type)}"></div>
+				<div class="type-icon">
+					<img src="/src/assets/types/{move.type.toLowerCase()}-small.png" alt={move.type} />
+				</div>
 			</div>
 
 			<div class="plate-content">
@@ -275,12 +287,13 @@
 
 	.type-watermark {
 		position: absolute;
-		right: -8px;
+		right: 4px;
 		top: 50%;
-		transform: translateY(-50%) skewX(var(--skew-counter));
-		width: 45px;
-		height: 45px;
-		opacity: 0.2;
+		transform: translateY(-50%) skewX(var(--skew-counter))
+			rotate(calc(-1 * var(--plate-rotation, 0deg)));
+		width: 32px;
+		height: 32px;
+		opacity: 1;
 		pointer-events: none;
 		z-index: 1;
 		overflow: hidden;
@@ -290,6 +303,15 @@
 		width: 100%;
 		height: 100%;
 		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.type-icon img {
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
 	}
 
 	.plate-content {
