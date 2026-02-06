@@ -86,7 +86,11 @@ function createMockContextWithSides(
 	const mockBattleContext = {
 		battleField,
 		playerSide: overrides.playerSide || [mockPokemon],
-		oppSide: overrides.oppSide || []
+		oppSide: overrides.oppSide || [],
+		addToStack: vi.fn(),
+		weatherVersion: {
+			update: vi.fn((cb) => cb(0))
+		}
 	} as unknown as BattleContext;
 
 	return {
