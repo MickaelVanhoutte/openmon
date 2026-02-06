@@ -19,7 +19,9 @@ import { MasteryType } from '../../characters/mastery-model';
 import {
 	getWeatherDamageMultiplier,
 	getWeatherSpDefMultiplier,
-	getWeatherAccuracyOverride
+	getWeatherAccuracyOverride,
+	getWeatherBallType,
+	getWeatherBallPower
 } from '../../pokemons/effects/weather-effects';
 import { Screen } from '../battle-field';
 import { AbilityTrigger } from '../abilities/ability-types';
@@ -360,14 +362,18 @@ export class Attack implements ActionV2Interface {
 		modifier: number = 1
 	): DamageResults {
 		const result = new DamageResults();
-		const typeEffectiveness = this.calculateTypeEffectiveness(move.type, defender.types, ctx);
+		const isWeatherBall = move.effect?.move_effect_id === 204;
+		const moveType = isWeatherBall ? getWeatherBallType(ctx.battleField.weather) : move.type;
+		const movePower = isWeatherBall ? getWeatherBallPower(ctx.battleField.weather) : move.power;
+
+		const typeEffectiveness = this.calculateTypeEffectiveness(moveType, defender.types, ctx);
 		result.superEffective = typeEffectiveness > 1;
 		result.notVeryEffective = typeEffectiveness < 1;
 		result.immune = typeEffectiveness === 0;
 		const critical = result.immune ? 0 : this.calculateCritical(controller, move);
 		result.critical = critical > 1;
 
-		if (move.category !== 'no-damage' && move.power > 0) {
+		if (move.category !== 'no-damage' && movePower > 0) {
 			let attack =
 				move.category === 'physical'
 					? attacker?.battleStats.attack
@@ -431,13 +437,13 @@ export class Attack implements ActionV2Interface {
 			}
 
 			const random = Math.random() * (1 - 0.85) + 0.85;
-			const stab = this.calculateStab(attacker, move, controller);
-			const weatherMultiplier = getWeatherDamageMultiplier(ctx.battleField, move.type, move.name);
+			const stab = this.calculateStab(attacker, moveType, controller);
+			const weatherMultiplier = getWeatherDamageMultiplier(ctx.battleField, moveType, move.name);
 			const screenMultiplier = this.calculateScreenMultiplier(move.category, defender, ctx);
 			const other = weatherMultiplier * screenMultiplier;
 			const modifiers = typeEffectiveness * critical * random * stab * other;
 			result.damages = Math.floor(
-				((((2 * attacker.level) / 5 + 2) * move.power * attack) / defense / 50 + 2) *
+				((((2 * attacker.level) / 5 + 2) * movePower * attack) / defense / 50 + 2) *
 					modifiers *
 					modifier
 			);
@@ -496,10 +502,10 @@ export class Attack implements ActionV2Interface {
 
 	private calculateStab(
 		attacker: PokemonInstance,
-		move: MoveInstance | ComboMove,
+		moveType: string,
 		controller: Character | PokemonInstance
 	) {
-		if (attacker.types.includes(move.type)) {
+		if (attacker.types.includes(moveType)) {
 			let modifier = 0;
 			if (controller instanceof Player) {
 				// TODO handle opponents

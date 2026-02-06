@@ -1,5 +1,6 @@
 import { type Effect, EffectTiming, EffectResult, EffectForTurn } from './types';
 import { Weather, BattleField } from '../../battle/battle-field';
+import type { PokemonInstance } from '../pokedex';
 
 export { Weather };
 
@@ -101,7 +102,7 @@ export function applyWeatherDamage(
 export function getWeatherAccuracyOverride(
 	battleField: BattleField,
 	moveName: string,
-	baseAccuracy: number
+	_baseAccuracy: number
 ): number | null {
 	const weather = battleField.weather;
 	const name = moveName.toLowerCase();
@@ -123,6 +124,46 @@ export function getWeatherAccuracyOverride(
 	return null;
 }
 
+export function getWeatherBallType(weather: Weather): string {
+	switch (weather) {
+		case Weather.SUN:
+			return 'fire';
+		case Weather.RAIN:
+			return 'water';
+		case Weather.SAND:
+			return 'rock';
+		case Weather.HAIL:
+			return 'ice';
+		default:
+			return 'normal';
+	}
+}
+
+export function getWeatherBallPower(weather: Weather): number {
+	return weather !== Weather.NONE ? 100 : 50;
+}
+
+export function applyWeather(
+	battleField: BattleField,
+	weather: Weather,
+	turns: number = 5,
+	user?: PokemonInstance
+): void {
+	let duration = turns;
+	if (user && typeof user.hasItem === 'function') {
+		if (weather === Weather.RAIN && user.hasItem('Damp Rock')) {
+			duration = 8;
+		} else if (weather === Weather.SUN && user.hasItem('Heat Rock')) {
+			duration = 8;
+		} else if (weather === Weather.SAND && user.hasItem('Smooth Rock')) {
+			duration = 8;
+		} else if (weather === Weather.HAIL && user.hasItem('Icy Rock')) {
+			duration = 8;
+		}
+	}
+	battleField.setWeather(weather, duration);
+}
+
 export abstract class WeatherEffect implements Effect {
 	abstract move_effect_id: number;
 	abstract weatherType: Weather;
@@ -133,16 +174,16 @@ export abstract class WeatherEffect implements Effect {
 	turnsPassed: number = 0;
 	healed: boolean = false;
 
-	apply(target: unknown[], user?: unknown): EffectResult {
+	apply(_target: unknown[], _user?: unknown): EffectResult {
 		return new EffectResult(this, `Weather changed!`);
 	}
 
-	playEffect(target: unknown, user?: unknown): EffectForTurn {
+	playEffect(_target: unknown, _user?: unknown): EffectForTurn {
 		return new EffectForTurn(true);
 	}
 
-	applyWeather(battleField: BattleField, turns: number = 5): void {
-		battleField.setWeather(this.weatherType, turns);
+	applyWeather(battleField: BattleField, turns: number = 5, user?: PokemonInstance): void {
+		applyWeather(battleField, this.weatherType, turns, user);
 	}
 }
 
