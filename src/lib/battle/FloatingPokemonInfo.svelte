@@ -58,12 +58,12 @@
 	// Force reactivity tick - increment this to force re-render
 	let hpTick = $state(0);
 
-	// Reactive derived values from pokemon object
-	const name = $derived(pokemon.name);
-	const level = $derived(pokemon.level);
+	// Reactive derived values from pokemon object (hpTick dependency forces re-evaluation on poll changes)
+	const name = $derived(hpTick >= 0 ? pokemon.name : pokemon.name);
+	const level = $derived(hpTick >= 0 ? pokemon.level : pokemon.level);
 	const currentHp = $derived(hpTick >= 0 ? pokemon.currentHp : pokemon.currentHp);
 	const maxHp = $derived(hpTick >= 0 ? pokemon.currentStats.hp : pokemon.currentStats.hp);
-	const gender = $derived(pokemon.gender || 'unknown');
+	const gender = $derived(hpTick >= 0 ? pokemon.gender || 'unknown' : pokemon.gender || 'unknown');
 	const statusAbr = $derived(hpTick >= 0 ? pokemon.status?.abr || null : null);
 
 	// Subscribe to ability popup store and filter for this pokemon
@@ -106,18 +106,22 @@
 	let lastHp = $state(pokemon.currentHp);
 
 	onMount(() => {
+		let lastName = pokemon.name;
 		let lastStatus = pokemon.status?.abr;
 		let lastStatsJson = JSON.stringify(pokemon.statsChanges || {});
 
 		pollInterval = setInterval(() => {
+			const currentName = pokemon.name;
 			const currentStatus = pokemon.status?.abr;
 			const currentStatsJson = JSON.stringify(pokemon.statsChanges || {});
 
 			if (
+				currentName !== lastName ||
 				pokemon.currentHp !== lastHp ||
 				currentStatus !== lastStatus ||
 				currentStatsJson !== lastStatsJson
 			) {
+				lastName = currentName;
 				lastHp = pokemon.currentHp;
 				lastStatus = currentStatus;
 				lastStatsJson = currentStatsJson;
@@ -134,13 +138,49 @@
 	let useComputedPosition = $state(false);
 	let spriteReady = $state(false);
 
-	// Check if sprite has valid position (not at 0,0)
+	// Check if sprite is ready for positioning (loaded, visible, animation complete, and has dimensions)
 	function isSpritePositioned(): boolean {
 		if (!spriteElement) {
 			return false;
 		}
+
+		// If it's an image, ensure it has fully loaded
+		if (spriteElement instanceof HTMLImageElement) {
+			if (!spriteElement.complete || spriteElement.naturalWidth === 0) {
+				return false;
+			}
+		}
+
 		const rect = spriteElement.getBoundingClientRect();
-		return rect.x > 0 || rect.y > 0;
+
+		// Check sprite is visible (not during entry animation's initial scale: 0, opacity: 0 phase)
+		const style = window.getComputedStyle(spriteElement);
+		const opacity = parseFloat(style.opacity);
+		if (opacity < 0.5) {
+			return false;
+		}
+
+		// Check that scale animation is complete by comparing rendered size to natural size
+		// The entry animation scales from 0 to 1, so we wait until the sprite is at its full size
+		if (spriteElement instanceof HTMLImageElement && spriteElement.naturalWidth > 0) {
+			// Get the actual rendered width vs natural width ratio
+			// Account for CSS scaling (the sprite might have a CSS width set)
+			const cssWidth = parseFloat(style.width);
+			if (cssWidth > 0) {
+				// Calculate expected width based on natural aspect ratio and CSS height
+				const cssHeight = parseFloat(style.height);
+				const aspectRatio = spriteElement.naturalWidth / spriteElement.naturalHeight;
+				const expectedWidth = cssHeight * aspectRatio;
+				// If rendered width is significantly smaller than expected, animation is still in progress
+				// Use 0.9 threshold to account for slight variations
+				if (rect.width < expectedWidth * 0.9) {
+					return false;
+				}
+			}
+		}
+
+		// Check position AND that sprite has valid dimensions (not scaled to 0)
+		return (rect.x > 0 || rect.y > 0) && rect.width > 0 && rect.height > 0;
 	}
 
 	// Poll until sprite is positioned
@@ -162,7 +202,8 @@
 		}
 
 		const rect = spriteElement.getBoundingClientRect();
-		const container = spriteElement.closest('.scene') as HTMLElement | null;
+		// Use .battle container (sprite is in .wrapper which is inside .battle)
+		const container = spriteElement.closest('.battle') as HTMLElement | null;
 		const containerRect = container?.getBoundingClientRect() || { top: 0, left: 0 };
 
 		const widgetHeight = 80;
