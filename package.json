@@ -17,6 +17,7 @@
 		"check": "svelte-check --tsconfig ./tsconfig.json",
 		"test": "vitest",
 		"test:run": "vitest run",
+		"test:abilities": "vitest run src/js/__tests__/abilities/",
 		"test:e2e": "playwright test",
 		"test:e2e:ui": "playwright test --ui",
 		"test:e2e:headed": "playwright test --headed",
