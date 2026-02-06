@@ -2,6 +2,7 @@ import type { Ability, AbilityContext } from '../ability-types';
 import { Weather, Terrain } from '../../battle-field';
 import { VolatileStatus } from '../../../pokemons/volatile-status';
 import { Message } from '../../actions/actions-derived';
+import { PlayStatChange } from '../../actions/actions-derived';
 
 // =============================================================================
 // STAT-LOWERING ON-SWITCH ABILITIES
@@ -17,6 +18,7 @@ export const intimidate: Ability = {
 		);
 		for (const opponent of opponents) {
 			opponent.changeBattleStats('attack', -1);
+			ctx.battleContext.addToStack(new PlayStatChange(opponent, 'attack', -1, ctx.pokemon));
 			ctx.battleContext.addToStack(new Message(`${opponent.name}'s Attack fell!`, ctx.pokemon));
 		}
 	}
