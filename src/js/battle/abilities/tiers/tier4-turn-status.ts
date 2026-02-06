@@ -85,12 +85,29 @@ export const iceBody: Ability = {
 
 /**
  * Dry Skin - Heals 1/8 HP in rain, takes 1/8 damage in sun at turn end.
- * Also has Water immunity (see tier3-damage-contact for onTryHit).
+ * Also heals from Water moves and takes extra Fire damage.
  */
 export const drySkin: Ability = {
 	id: 87,
 	name: 'Dry Skin',
-	description: 'Heals 1/8 max HP in rain; takes 1/8 damage in sun.',
+	description: 'Heals from Water moves; takes extra Fire damage. Heals in rain; hurt by sun.',
+	onTryHit: (ctx: AbilityContext): boolean => {
+		if (ctx.move?.type?.toLowerCase() === 'water') {
+			const healAmount = Math.floor(ctx.pokemon.currentStats.hp / 4);
+			ctx.pokemon.currentHp = Math.min(
+				ctx.pokemon.currentHp + healAmount,
+				ctx.pokemon.currentStats.hp
+			);
+			return false;
+		}
+		return true;
+	},
+	onSourceModifyDamage: (ctx: AbilityContext, damage: number): number => {
+		if (ctx.move?.type?.toLowerCase() === 'fire') {
+			return Math.floor(damage * 1.25);
+		}
+		return damage;
+	},
 	onTurnEnd: (ctx: AbilityContext): void => {
 		const weather = ctx.battleContext.battleField.weather;
 		if (weather === Weather.RAIN) {
@@ -356,6 +373,21 @@ export const waterVeil: Ability = {
 };
 
 /**
+ * Leaf Guard - Prevents status conditions in sun.
+ */
+export const leafGuard: Ability = {
+	id: 102,
+	name: 'Leaf Guard',
+	description: 'Prevents status conditions during harsh sunlight.',
+	onStatus: (ctx: AbilityContext, _status: string): boolean => {
+		if (ctx.battleContext.battleField.weather === Weather.SUN) {
+			return false;
+		}
+		return true;
+	}
+};
+
+/**
  * Comatose - Always drowsy, immune to other statuses.
  */
 export const comatose: Ability = {
@@ -364,21 +396,6 @@ export const comatose: Ability = {
 	description: 'Always considered asleep but can still attack. Immune to status.',
 	onStatus: (_ctx: AbilityContext, _status: string): boolean => {
 		return false;
-	}
-};
-
-/**
- * Pastel Veil - Prevents poison for self and allies.
- */
-export const pastelVeil: Ability = {
-	id: 257,
-	name: 'Pastel Veil',
-	description: 'Protects the pokemon and allies from being poisoned.',
-	onStatus: (_ctx: AbilityContext, status: string): boolean => {
-		if (status === 'PSN' || status === 'TOX') {
-			return false;
-		}
-		return true;
 	}
 };
 
@@ -418,93 +435,6 @@ export const aromaVeil: Ability = {
 // =============================================================================
 
 /**
- * Guts - 1.5x Attack when statused.
- */
-export const guts: Ability = {
-	id: 62,
-	name: 'Guts',
-	description: 'Boosts Attack by 1.5x when the pokemon has a status condition.',
-	onModifyAtk: (ctx: AbilityContext, attack: number): number => {
-		if (ctx.pokemon.status) {
-			return Math.floor(attack * 1.5);
-		}
-		return attack;
-	}
-};
-
-/**
- * Quick Feet - 1.5x Speed when statused.
- */
-export const quickFeet: Ability = {
-	id: 95,
-	name: 'Quick Feet',
-	description: 'Boosts Speed by 1.5x when the pokemon has a status condition.',
-	onModifySpe: (ctx: AbilityContext, speed: number): number => {
-		if (ctx.pokemon.status) {
-			return Math.floor(speed * 1.5);
-		}
-		return speed;
-	}
-};
-
-/**
- * Marvel Scale - 1.5x Defense when statused.
- */
-export const marvelScale: Ability = {
-	id: 63,
-	name: 'Marvel Scale',
-	description: 'Boosts Defense by 1.5x when the pokemon has a status condition.',
-	onModifyDef: (ctx: AbilityContext, defense: number): number => {
-		if (ctx.pokemon.status) {
-			return Math.floor(defense * 1.5);
-		}
-		return defense;
-	}
-};
-
-/**
- * Toxic Boost - 1.5x Attack when poisoned.
- */
-export const toxicBoost: Ability = {
-	id: 137,
-	name: 'Toxic Boost',
-	description: 'Boosts Attack by 1.5x when the pokemon is poisoned.',
-	onModifyAtk: (ctx: AbilityContext, attack: number): number => {
-		const status = ctx.pokemon.status;
-		if (status && (status.abr === 'PSN' || status.abr === 'TOX')) {
-			return Math.floor(attack * 1.5);
-		}
-		return attack;
-	}
-};
-
-/**
- * Flare Boost - 1.5x Special Attack when burned.
- */
-export const flareBoost: Ability = {
-	id: 138,
-	name: 'Flare Boost',
-	description: 'Boosts Special Attack by 1.5x when the pokemon is burned.',
-	onModifySpA: (ctx: AbilityContext, spAtk: number): number => {
-		const status = ctx.pokemon.status;
-		if (status && status.abr === 'BRN') {
-			return Math.floor(spAtk * 1.5);
-		}
-		return spAtk;
-	}
-};
-
-/**
- * Natural Cure - Cures status when switching out.
- */
-export const naturalCure: Ability = {
-	id: 30,
-	name: 'Natural Cure',
-	description: 'Cures status conditions when switching out.',
-	onSwitchIn: (_ctx: AbilityContext): void => {}
-};
-
-/**
  * Synchronize - Passes status to attacker.
  */
 export const synchronize: Ability = {
@@ -526,17 +456,6 @@ export const synchronize: Ability = {
 // =============================================================================
 
 /**
- * Prankster - Gives +1 priority to status moves.
- * Note: Actual priority check requires move category inspection in battle logic.
- */
-export const prankster: Ability = {
-	id: 158,
-	name: 'Prankster',
-	description: 'Gives +1 priority to status moves.',
-	priority: 1
-};
-
-/**
  * Gale Wings - Gives +1 priority to Flying-type moves at full HP.
  * Note: Gen 7+ only works at full HP.
  */
@@ -555,30 +474,6 @@ export const triage: Ability = {
 	name: 'Triage',
 	description: 'Gives +3 priority to healing moves.',
 	priority: 3
-};
-
-/**
- * Queenly Majesty - Blocks priority moves from foes.
- */
-export const queenlyMajesty: Ability = {
-	id: 214,
-	name: 'Queenly Majesty',
-	description: 'Blocks priority moves from foes.',
-	onTryHit: (_ctx: AbilityContext): boolean => {
-		return true;
-	}
-};
-
-/**
- * Dazzling - Blocks priority moves from foes.
- */
-export const dazzling: Ability = {
-	id: 219,
-	name: 'Dazzling',
-	description: 'Blocks priority moves from foes.',
-	onTryHit: (_ctx: AbilityContext): boolean => {
-		return true;
-	}
 };
 
 // =============================================================================
@@ -663,24 +558,15 @@ export const tier4TurnStatusAbilities: Ability[] = [
 	ownTempo,
 	magmaArmor,
 	waterVeil,
+	leafGuard,
 	comatose,
-	pastelVeil,
 	sweetVeil,
 	aromaVeil,
 	// Status Boost
-	guts,
-	quickFeet,
-	marvelScale,
-	toxicBoost,
-	flareBoost,
-	naturalCure,
 	synchronize,
 	// Priority
-	prankster,
 	galeWings,
 	triage,
-	queenlyMajesty,
-	dazzling,
 	// Additional
 	harvest,
 	pickup,
