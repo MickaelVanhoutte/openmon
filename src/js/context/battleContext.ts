@@ -151,6 +151,7 @@ export class BattleContext {
 		this.actionIdx = this.playerSide.findIndex((poke) => !!poke && !poke.fainted);
 		this.turnCount++;
 		this.turnPhases.set(TurnPhase.UPKEEP);
+		this.battleField.tickTurn();
 
 		this.oppSide
 			.filter((poke) => !!poke && !poke.fainted)

@@ -70,6 +70,11 @@
 	let currentWeather = $state(battleCtx.battleField.weather);
 	let currentWeatherTurns = $state(battleCtx.battleField.weatherTurns);
 	let initialAbilitiesTriggered = $state(false);
+
+	// Reactive state for pokemon names to trigger {#key} updates
+	let allyNames = $state(['', '']);
+	let oppNames = $state(['', '']);
+
 	const uiEntranceDelays = {
 		opponentHp: 0,
 		allyHp: 200,
@@ -489,22 +494,24 @@
 				if (change?.side === 'ally') {
 					const pokemon = battleCtx.playerSide[change?.idx];
 					if (pokemon && ally[change.idx]) {
-						// Reset GSAP transforms from faint animation
-						gsap.set(ally[change.idx], {
-							x: 0,
-							y: 0,
-							filter: 'brightness(1)',
-							opacity: 1,
-							scale: 1,
-							transform: ''
-						});
 						// Reset fainted state to show HP bar
 						allyFainted[change.idx] = false;
 						// Update sprite src
 						const newSrc = pokemon.getSprite(true);
 						ally[change.idx].onload = () => {
+							// Reset GSAP transforms from faint animation
+							gsap.set(ally[change.idx], {
+								x: 0,
+								y: 0,
+								filter: 'brightness(1)',
+								opacity: 1,
+								scale: 1,
+								transform: ''
+							});
 							// Animate entry after sprite loads
 							animateEntry(ally[change.idx], 'ally', change.idx);
+							// Update reactive name AFTER animation starts to trigger {#key} re-render
+							allyNames[change.idx] = pokemon.name;
 						};
 						// Force onload to fire even for cached images
 						ally[change.idx].src = '';
@@ -513,22 +520,24 @@
 				} else {
 					const pokemon = battleCtx.oppSide[change?.idx];
 					if (pokemon && opponent[change.idx]) {
-						// Reset GSAP transforms from faint animation
-						gsap.set(opponent[change.idx], {
-							x: 0,
-							y: 0,
-							filter: 'brightness(1)',
-							opacity: 1,
-							scale: 1,
-							transform: ''
-						});
 						// Reset fainted state to show HP bar
 						opponentFainted[change.idx] = false;
 						// Update sprite src
 						const newSrc = pokemon.getSprite();
 						opponent[change.idx].onload = () => {
+							// Reset GSAP transforms from faint animation
+							gsap.set(opponent[change.idx], {
+								x: 0,
+								y: 0,
+								filter: 'brightness(1)',
+								opacity: 1,
+								scale: 1,
+								transform: ''
+							});
 							// Animate entry after sprite loads
 							animateEntry(opponent[change.idx], 'opponent', change.idx);
+							// Update reactive name AFTER animation starts to trigger {#key} re-render
+							oppNames[change.idx] = pokemon.name;
 						};
 						// Force onload to fire even for cached images
 						opponent[change.idx].src = '';
@@ -612,46 +621,62 @@
 	</div>
 	<!-- UI -->
 	{#if battleCtx.oppSide[0] && entryAnimationsComplete}
-		<FloatingPokemonInfo
-			pokemon={battleCtx.oppSide[0]}
-			position={{ bottom: '78%', left: '62%' }}
-			isAlly={false}
-			spriteElement={opponent[0]}
-			entranceDelay={isInitialBattleEntrance ? uiEntranceDelays.opponentHp : 0}
-			visible={!opponentFainted[0]}
-		/>
+		{#key oppNames[0]}
+			<FloatingPokemonInfo
+				pokemon={battleCtx.oppSide[0]}
+				position={{ bottom: '78%', left: '62%' }}
+				isAlly={false}
+				spriteElement={opponent[0]}
+				entranceDelay={isInitialBattleEntrance ? uiEntranceDelays.opponentHp : 0}
+				visible={!opponentFainted[0]}
+				side="opponent"
+				index={0}
+			/>
+		{/key}
 	{/if}
 	{#if battleCtx.playerSide[0] && entryAnimationsComplete}
-		<FloatingPokemonInfo
-			pokemon={battleCtx.playerSide[0]}
-			position={{ bottom: '62%', left: '22%' }}
-			isAlly={true}
-			spriteElement={ally[0]}
-			entranceDelay={isInitialBattleEntrance ? uiEntranceDelays.allyHp : 0}
-			visible={!allyFainted[0]}
-		/>
+		{#key allyNames[0]}
+			<FloatingPokemonInfo
+				pokemon={battleCtx.playerSide[0]}
+				position={{ bottom: '62%', left: '22%' }}
+				isAlly={true}
+				spriteElement={ally[0]}
+				entranceDelay={isInitialBattleEntrance ? uiEntranceDelays.allyHp : 0}
+				visible={!allyFainted[0]}
+				side="ally"
+				index={0}
+			/>
+		{/key}
 	{/if}
 
 	{#if battleCtx.battleType === BattleType.DOUBLE}
 		{#if battleCtx.oppSide[1] && entryAnimationsComplete}
-			<FloatingPokemonInfo
-				pokemon={battleCtx.oppSide[1]}
-				position={{ bottom: '82%', left: '58%' }}
-				isAlly={false}
-				spriteElement={opponent[1]}
-				entranceDelay={isInitialBattleEntrance ? uiEntranceDelays.opponentHp : 0}
-				visible={!opponentFainted[1]}
-			/>
+			{#key oppNames[1]}
+				<FloatingPokemonInfo
+					pokemon={battleCtx.oppSide[1]}
+					position={{ bottom: '82%', left: '58%' }}
+					isAlly={false}
+					spriteElement={opponent[1]}
+					entranceDelay={isInitialBattleEntrance ? uiEntranceDelays.opponentHp : 0}
+					visible={!opponentFainted[1]}
+					side="opponent"
+					index={1}
+				/>
+			{/key}
 		{/if}
 		{#if battleCtx.playerSide[1] && entryAnimationsComplete}
-			<FloatingPokemonInfo
-				pokemon={battleCtx.playerSide[1]}
-				position={{ bottom: '46%', left: '8%' }}
-				isAlly={true}
-				spriteElement={ally[1]}
-				entranceDelay={isInitialBattleEntrance ? uiEntranceDelays.allyHp : 0}
-				visible={!allyFainted[1]}
-			/>
+			{#key allyNames[1]}
+				<FloatingPokemonInfo
+					pokemon={battleCtx.playerSide[1]}
+					position={{ bottom: '46%', left: '8%' }}
+					isAlly={true}
+					spriteElement={ally[1]}
+					entranceDelay={isInitialBattleEntrance ? uiEntranceDelays.allyHp : 0}
+					visible={!allyFainted[1]}
+					side="ally"
+					index={1}
+				/>
+			{/key}
 		{/if}
 	{/if}
 

@@ -25,7 +25,7 @@ function createAbilityPopupStore() {
 
 			setTimeout(() => {
 				update((queue) => queue.filter((p) => p.id !== popup.id));
-			}, 1500);
+			}, 3000);
 		},
 		clear: () => {
 			update(() => []);
