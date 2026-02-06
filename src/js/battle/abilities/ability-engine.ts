@@ -3,6 +3,7 @@ import { PokemonInstance, Move } from '../../pokemons/pokedex';
 import { AbilityTrigger, type AbilityContext, type Ability } from './ability-types';
 import { getAbility } from './ability-registry';
 import { Message } from '../actions/actions-derived';
+import { abilityPopupStore } from '../ability-popup-store';
 
 const SUPPRESSOR_ABILITIES = ['mold-breaker', 'teravolt', 'turboblaze'];
 
@@ -93,6 +94,7 @@ export class AbilityEngine {
 			move: args.find((arg) => arg instanceof Move) as Move
 		};
 
+		abilityPopupStore.showPopup(pokemon.name, ability.name);
 		ctx.addToStack(new Message(`${pokemon.name}'s ${ability.name}!`, pokemon));
 
 		return (hook as (ctx: AbilityContext, ...args: unknown[]) => T)(abilityCtx, ...args);
