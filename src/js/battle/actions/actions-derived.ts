@@ -320,6 +320,29 @@ export class PlayStatChange implements ActionV2Interface {
 	}
 }
 
+export class PlayWeatherChange implements ActionV2Interface {
+	public type: ActionType;
+	public description: string;
+	public initiator: PokemonInstance;
+	public weather: Weather;
+
+	constructor(weather: Weather, initiator: PokemonInstance) {
+		this.type = ActionType.WEATHER_CHANGE;
+		this.description = 'Weather Change';
+		this.weather = weather;
+		this.initiator = initiator;
+	}
+
+	execute(ctx: BattleContext): void {
+		ctx.battleField.setWeather(this.weather);
+		ctx.weatherVersion.update((v) => v + 1);
+		ctx.events.weatherChange.set({
+			weather: this.weather,
+			pokemon: this.initiator
+		});
+	}
+}
+
 export class RemoveHP implements ActionV2Interface {
 	public type: ActionType;
 	public description: string;

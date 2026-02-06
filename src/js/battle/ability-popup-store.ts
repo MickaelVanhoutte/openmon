@@ -4,6 +4,8 @@ export interface PopupData {
 	pokemonName: string;
 	abilityName: string;
 	id: number;
+	side: 'ally' | 'opponent';
+	index: number;
 }
 
 function createAbilityPopupStore() {
@@ -12,8 +14,13 @@ function createAbilityPopupStore() {
 
 	return {
 		subscribe,
-		showPopup: (pokemonName: string, abilityName: string) => {
-			const popup: PopupData = { pokemonName, abilityName, id: nextId++ };
+		showPopup: (
+			pokemonName: string,
+			abilityName: string,
+			side: 'ally' | 'opponent',
+			index: number
+		) => {
+			const popup: PopupData = { pokemonName, abilityName, id: nextId++, side, index };
 			update((queue) => [...queue, popup]);
 
 			setTimeout(() => {

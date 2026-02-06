@@ -282,6 +282,12 @@ export class BattleContext {
 				case ActionType.PLAY_ANIMATION:
 					sleepTime = 2000;
 					break;
+				case ActionType.STAT_CHANGE:
+					sleepTime = 1500;
+					break;
+				case ActionType.WEATHER_CHANGE:
+					sleepTime = 1000;
+					break;
 				default:
 					break;
 			}
@@ -295,6 +301,51 @@ export class BattleContext {
 		}
 	}
 
+	/**
+	 * Execute a single action sequentially (awaitable).
+	 * Used for initial ability processing where we need to wait for each action.
+	 */
+	public async executeActionSequential(action?: ActionV2Interface): Promise<void> {
+		if (!action) {
+			return;
+		}
+
+		this.currentAction.set(action);
+		action.execute(this);
+
+		let sleepTime = 800;
+		switch (action.type) {
+			case ActionType.ATTACK:
+				sleepTime = 1600;
+				break;
+			case ActionType.SWITCH:
+				sleepTime = 2000;
+				break;
+			case ActionType.MESSAGE:
+				sleepTime = 1000;
+				break;
+			case ActionType.XP_WIN:
+				sleepTime = 500;
+				break;
+			case ActionType.LEVEL_UP:
+				sleepTime = 1000;
+				break;
+			case ActionType.PLAY_ANIMATION:
+				sleepTime = 2000;
+				break;
+			case ActionType.STAT_CHANGE:
+				sleepTime = 1500;
+				break;
+			case ActionType.WEATHER_CHANGE:
+				sleepTime = 1000;
+				break;
+			default:
+				break;
+		}
+
+		await this.sleep(sleepTime);
+	}
+
 	private prepareNewTurn() {
 		this.turnPhases.set(TurnPhase.UPKEEP);
 		this.isPlayerTurn.set(true);
@@ -303,22 +354,31 @@ export class BattleContext {
 	}
 
 	public triggerInitialSwitchIn(): void {
-		const activePokemon: PokemonInstance[] = [];
+		console.log('[battleContext.ts] triggerInitialSwitchIn called');
 
-		const playerActive = this.playerSide[0];
-		if (playerActive) {
-			activePokemon.push(playerActive);
+		// Collect ALL active Pokemon from both sides (handles 1v1, 2v2, etc.)
+		const playerActives = this.playerSide.filter((p): p is PokemonInstance => !!p && !p.fainted);
+		const oppActives = this.oppSide.filter((p): p is PokemonInstance => !!p && !p.fainted);
+
+		const activePokemon: { pokemon: PokemonInstance; isPlayer: boolean }[] = [];
+
+		for (const pokemon of playerActives) {
+			console.log('[battleContext.ts] Player active:', pokemon.name);
+			activePokemon.push({ pokemon, isPlayer: true });
 		}
 
-		const oppActive = this.oppSide[0];
-		if (oppActive) {
-			activePokemon.push(oppActive);
+		for (const pokemon of oppActives) {
+			console.log('[battleContext.ts] Opponent active:', pokemon.name);
+			activePokemon.push({ pokemon, isPlayer: false });
 		}
 
-		activePokemon.sort((a, b) => b.battleStats.speed - a.battleStats.speed);
+		// Sort by speed - slowest first so fastest ends up on top of LIFO stack
+		activePokemon.sort((a, b) => a.pokemon.battleStats.speed - b.pokemon.battleStats.speed);
 
-		for (const pokemon of activePokemon) {
-			const target = pokemon === playerActive ? oppActive : playerActive;
+		for (const { pokemon, isPlayer } of activePokemon) {
+			// Target is first opponent on the other side
+			const target = isPlayer ? oppActives[0] : playerActives[0];
+			console.log('[battleContext.ts] Running ON_SWITCH_IN for:', pokemon.name);
 			this.runAbilityEvent(AbilityTrigger.ON_SWITCH_IN, pokemon, target);
 		}
 	}
@@ -326,10 +386,9 @@ export class BattleContext {
 	public async processInitialAbilityActions(): Promise<void> {
 		while (!this.actionStack.isEmpty()) {
 			const action = this.actionStack.pop();
-			if (action) {
-				await this.executeAction(action);
-			}
+			await this.executeActionSequential(action);
 		}
+		this.prepareNewTurn();
 	}
 
 	public runAbilityEvent<T>(
