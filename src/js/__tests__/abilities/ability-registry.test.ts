@@ -37,9 +37,9 @@ describe('Ability Registry', () => {
 
 	it('should handle empty or null inputs gracefully', () => {
 		expect(getAbility('')).toBeUndefined();
-		// @ts-ignore - testing runtime safety
+		// @ts-expect-error - testing runtime safety
 		expect(getAbility(null)).toBeUndefined();
-		// @ts-ignore - testing runtime safety
+		// @ts-expect-error - testing runtime safety
 		expect(getAbility(undefined)).toBeUndefined();
 	});
 

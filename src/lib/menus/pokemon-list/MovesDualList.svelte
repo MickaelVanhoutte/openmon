@@ -60,7 +60,7 @@
 		onUpdate: (selectedMoves: Move[]) => void;
 	}
 
-	let { availableMoves, selectedMoves, onUpdate }: Props = $props();
+	const { availableMoves, selectedMoves, onUpdate }: Props = $props();
 
 	// Local state that tracks the selected moves
 	let localSelected: Move[] = $state([...selectedMoves]);
@@ -74,18 +74,22 @@
 	});
 
 	// Filter available moves to exclude already selected ones and match search query
-	let filteredAvailable = $derived(
+	const filteredAvailable = $derived(
 		availableMoves
 			.filter((m) => !localSelected.find((s) => s.id === m.id))
 			.filter((m) => {
-				if (!searchQuery) return true;
+				if (!searchQuery) {
+					return true;
+				}
 				const query = searchQuery.toLowerCase();
 				return m.name.toLowerCase().includes(query) || m.type.toLowerCase().includes(query);
 			})
 	);
 
 	function addMove(move: Move) {
-		if (localSelected.length >= 4) return;
+		if (localSelected.length >= 4) {
+			return;
+		}
 		const newMove = new MoveInstance(
 			move.id,
 			move.name,
@@ -106,13 +110,15 @@
 	}
 
 	function removeMove(move: Move) {
-		if (localSelected.length <= 1) return;
+		if (localSelected.length <= 1) {
+			return;
+		}
 		localSelected = localSelected.filter((m) => m.id !== move.id);
 		onUpdate(localSelected);
 	}
 
-	let canAdd = $derived(localSelected.length < 4);
-	let canRemove = $derived(localSelected.length > 1);
+	const canAdd = $derived(localSelected.length < 4);
+	const canRemove = $derived(localSelected.length > 1);
 </script>
 
 <div class="dual-list-container">

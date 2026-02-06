@@ -211,7 +211,9 @@ describe('ActionBar State Machine (Characterization)', () => {
 		it('should cycle option index with arrow keys (0-3 for main menu)', () => {
 			// ArrowDown logic for main menu (selectedOptionIdx)
 			const cycleDown = (current: number | undefined) => {
-				if (current === undefined) {return 0;}
+				if (current === undefined) {
+					return 0;
+				}
 				return current === 3 ? 0 : current + 1;
 			};
 
@@ -226,7 +228,9 @@ describe('ActionBar State Machine (Characterization)', () => {
 			// ArrowDown in move selection
 			const movesLength = 4;
 			const cycleMove = (current: number | undefined) => {
-				if (current === undefined) {return 0;}
+				if (current === undefined) {
+					return 0;
+				}
 				return current === movesLength - 1 ? 0 : current + 1;
 			};
 

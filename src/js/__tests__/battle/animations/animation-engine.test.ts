@@ -1,9 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import {
-	AnimationEngine,
-	type PokemonSprite,
-	type MoveContext
-} from '$js/battle/animations/animation-engine';
+import { AnimationEngine, type MoveContext } from '$js/battle/animations/animation-engine';
 import { createMockContainer, createMockElement } from './test-utils';
 
 vi.mock('gsap', () => {

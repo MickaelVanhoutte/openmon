@@ -1,0 +1,5 @@
+- Ability definitions were duplicated across multiple tier files, leading to confusion and potential bugs.
+- The `ability-registry.ts` merges implementations from all tier files, so duplicates are merged (last one wins for overlapping hooks).
+- Some abilities had snake_case names (`unseen_fist`, `armor_tail`, `queenly_majesty`), which were renamed to camelCase for consistency with the rest of the codebase.
+- Weather setting abilities (`drizzle`, `drought`, etc.) were updated to change the weather immediately in `onSwitchIn`, matching the behavior of terrain setters and fixing failing tests.
+- Mocking `BattleContext` in tests requires providing `getPokemonSide` and side arrays (`playerSide`, `oppSide`) for `AbilityEngine` to work correctly.

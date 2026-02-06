@@ -11,24 +11,36 @@ export function getTerrainDamageMultiplier(
 	isGrounded: boolean,
 	moveName?: string
 ): number {
-	if (!isGrounded) {return 1;}
+	if (!isGrounded) {
+		return 1;
+	}
 
 	const typeLower = moveType.toLowerCase();
 	const moveNameLower = moveName?.toLowerCase() ?? '';
 
 	switch (terrain) {
 		case Terrain.ELECTRIC:
-			if (typeLower === 'electric') {return 1.3;}
+			if (typeLower === 'electric') {
+				return 1.3;
+			}
 			break;
 		case Terrain.GRASSY:
-			if (typeLower === 'grass') {return 1.3;}
-			if (GRASSY_HALVED_MOVES.includes(moveNameLower)) {return 0.5;}
+			if (typeLower === 'grass') {
+				return 1.3;
+			}
+			if (GRASSY_HALVED_MOVES.includes(moveNameLower)) {
+				return 0.5;
+			}
 			break;
 		case Terrain.PSYCHIC:
-			if (typeLower === 'psychic') {return 1.3;}
+			if (typeLower === 'psychic') {
+				return 1.3;
+			}
 			break;
 		case Terrain.MISTY:
-			if (typeLower === 'dragon') {return 0.5;}
+			if (typeLower === 'dragon') {
+				return 0.5;
+			}
 			break;
 	}
 
@@ -54,7 +66,9 @@ export function blocksPriorityOnTerrain(terrain: Terrain, targetIsGrounded: bool
 }
 
 export function getGrassyTerrainHealing(maxHp: number, isGrounded: boolean): number {
-	if (!isGrounded) {return 0;}
+	if (!isGrounded) {
+		return 0;
+	}
 	return Math.floor(maxHp / 16);
 }
 

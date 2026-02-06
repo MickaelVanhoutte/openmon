@@ -333,7 +333,9 @@ export class JoystickController {
 			this.joystick.style.left = this.options.radius + this.x + 'px';
 			this.joystick.style.bottom = this.options.radius + this.y + 'px';
 			// distort joystick
-			this.options.distortion && this.distortJoystick();
+			if (this.options.distortion) {
+				this.distortJoystick();
+			}
 			if (this.onMove) {
 				this.onMove({
 					x: this.x,
@@ -356,9 +358,11 @@ export class JoystickController {
 			this.joystick.style.left = this.options.radius + 'px';
 			this.joystick.style.bottom = this.options.radius + 'px';
 			// reset joystick distortion
-			this.options.distortion && this.distortJoystick();
+			if (this.options.distortion) {
+				this.distortJoystick();
+			}
 			// Triggering Event
-			this.onMove &&
+			if (this.onMove) {
 				this.onMove({
 					x: this.x,
 					y: this.y,
@@ -367,6 +371,7 @@ export class JoystickController {
 					distance: this.distance,
 					angle: this.angle
 				});
+			}
 		};
 		this.distortJoystick = () => {
 			if (this.distance > this.options.maxRange * 0.7) {
@@ -558,7 +563,9 @@ export class JoystickController {
 		this.controller.appendChild(this.joystick);
 		this.container.appendChild(this.controller);
 		document.head.appendChild(this.style);
-		!this.options.dynamicPosition && document.body.appendChild(this.container);
+		if (!this.options.dynamicPosition) {
+			document.body.appendChild(this.container);
+		}
 		// Add Event Listeners
 		this.addEventListeners();
 		// center of joystick

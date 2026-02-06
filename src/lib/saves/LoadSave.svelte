@@ -24,7 +24,9 @@
 	}
 
 	const listener = (e: KeyboardEvent) => {
-		if (!selected) {return;}
+		if (!selected) {
+			return;
+		}
 		if (e.key === 'ArrowDown') {
 			const index = savesHolder.saves.indexOf(selected);
 			selected = savesHolder.saves[index + 1] || selected;

@@ -20,7 +20,7 @@
 	const savesHolder = new SavesHolder();
 	let gameContext = $state<GameContext | undefined>(undefined);
 	let newGame = $state(false);
-	let started = $state(false || DEBUG);
+	let started = $state(DEBUG);
 	let showAdmin = $state(false);
 
 	function checkDebugRoute(): void {

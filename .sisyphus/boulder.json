@@ -1,14 +1,9 @@
 {
-  "active_plan": "/Users/20017225/PERSO/openmon/.sisyphus/plans/weather-abilities-battle-start.md",
-  "started_at": "2026-02-06T09:00:00.000Z",
-  "completed_at": null,
+  "active_plan": "/Users/20017225/PERSO/openmon/.sisyphus/plans/weather-completion.md",
+  "started_at": "2026-02-06T19:31:51.846Z",
   "session_ids": [
-    "ses_3cd86f755ffe4EtmIzJG9qrx1Y"
+    "ses_3cb9ad6fdffedniKLwtkfV070p"
   ],
-  "plan_name": "weather-abilities-battle-start",
-  "status": "in_progress",
-  "summary": {
-    "tasks_completed": 0,
-    "total_tasks": 3
-  }
+  "plan_name": "weather-completion",
+  "agent": "atlas"
 }

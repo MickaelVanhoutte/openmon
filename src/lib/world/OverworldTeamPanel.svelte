@@ -95,8 +95,12 @@
 	}
 
 	function getHpColor(percent: number): string {
-		if (percent > 50) {return '#4ade80';} // green
-		if (percent > 20) {return '#facc15';} // yellow
+		if (percent > 50) {
+			return '#4ade80';
+		} // green
+		if (percent > 20) {
+			return '#facc15';
+		} // yellow
 		return '#ef4444'; // red
 	}
 

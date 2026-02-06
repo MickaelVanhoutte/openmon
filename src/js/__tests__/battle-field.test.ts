@@ -1,12 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import {
-	BattleField,
-	Weather,
-	Screen,
-	Hazard,
-	Terrain,
-	type SideState
-} from '../battle/battle-field';
+import { BattleField, Weather, Screen, Hazard, Terrain } from '../battle/battle-field';
 
 describe('BattleField', () => {
 	let field: BattleField;

@@ -180,29 +180,6 @@ export const flashFire: Ability = {
 	}
 };
 
-export const drySkinImmunity: Ability = {
-	id: 87,
-	name: 'Dry Skin',
-	description: 'Heals from Water moves; takes extra Fire damage.',
-	onTryHit: (ctx: AbilityContext): boolean => {
-		if (ctx.move?.type?.toLowerCase() === 'water') {
-			const healAmount = Math.floor(ctx.pokemon.currentStats.hp / 4);
-			ctx.pokemon.currentHp = Math.min(
-				ctx.pokemon.currentHp + healAmount,
-				ctx.pokemon.currentStats.hp
-			);
-			return false;
-		}
-		return true;
-	},
-	onSourceModifyDamage: (ctx: AbilityContext, damage: number): number => {
-		if (ctx.move?.type?.toLowerCase() === 'fire') {
-			return Math.floor(damage * 1.25);
-		}
-		return damage;
-	}
-};
-
 export const sapSipper: Ability = {
 	id: 157,
 	name: 'Sap Sipper',
@@ -303,7 +280,6 @@ export const tier3DamageContactAbilities: Ability[] = [
 	waterAbsorb,
 	voltAbsorb,
 	flashFire,
-	drySkinImmunity,
 	sapSipper,
 	motorDrive,
 	lightningRod,

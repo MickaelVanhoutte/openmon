@@ -115,7 +115,9 @@ export class AnimationEngine {
 	}
 
 	initialize(): void {
-		if (this.initialized) {return;}
+		if (this.initialized) {
+			return;
+		}
 
 		const rect = this.container.getBoundingClientRect();
 		this.positionSystem.setContainerBounds(rect.width, rect.height);
@@ -139,7 +141,9 @@ export class AnimationEngine {
 	}
 
 	async playMove(context: MoveContext): Promise<void> {
-		if (!this.initialized) {this.initialize();}
+		if (!this.initialized) {
+			this.initialize();
+		}
 
 		const animation = this.moveRegistry.get(context.moveName.toLowerCase());
 
@@ -242,7 +246,9 @@ export class AnimationEngine {
 		options: EffectOptions = {}
 	): Promise<void> {
 		const element = this.effectPool.acquire(effectName);
-		if (!element) {return;}
+		if (!element) {
+			return;
+		}
 
 		const definition = EFFECT_MANIFEST[effectName];
 		if (!definition) {
@@ -276,7 +282,9 @@ export class AnimationEngine {
 		easing: EasingType = 'linear'
 	): Promise<void> {
 		const element = this.effectPool.acquire(effectName);
-		if (!element) {return;}
+		if (!element) {
+			return;
+		}
 
 		const definition = EFFECT_MANIFEST[effectName];
 		if (!definition) {
@@ -383,7 +391,9 @@ export class AnimationEngine {
 		options: SpriteEffectOptions = {}
 	): Promise<void> {
 		const element = this.effectPool.acquire(effectName);
-		if (!element) {return;}
+		if (!element) {
+			return;
+		}
 
 		const definition = EFFECT_MANIFEST[effectName];
 		if (!definition) {

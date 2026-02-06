@@ -16,9 +16,11 @@ import * as registry from '../../battle/abilities/ability-registry';
 import { Weather } from '../../battle/battle-field';
 import { Move } from '../../pokemons/pokedex';
 
-import { intimidate, drizzle, moldBreaker } from '../../battle/abilities/tiers/tier2-on-switch';
-import { swiftSwim } from '../../battle/abilities/tiers/tier1-passive-stats';
+import { intimidate, drizzle } from '../../battle/abilities/tiers/tier2-on-switch';
+import { moldBreaker } from '../../battle/abilities/tiers/tier5-suppression';
+import { swiftSwim, hugePower, thickFat } from '../../battle/abilities/tiers/tier1-passive-stats';
 import { levitate, roughSkin } from '../../battle/abilities/tiers/tier3-damage-contact';
+import { speedBoost } from '../../battle/abilities/tiers/tier4-turn-status';
 
 describe('Ability Integration Tests', () => {
 	let engine: AbilityEngine;
@@ -49,7 +51,9 @@ describe('Ability Integration Tests', () => {
 			});
 
 			vi.spyOn(registry, 'getAbility').mockImplementation((name) => {
-				if (name === 'Intimidate') return intimidate;
+				if (name === 'Intimidate') {
+					return intimidate;
+				}
 				return undefined;
 			});
 
@@ -92,7 +96,9 @@ describe('Ability Integration Tests', () => {
 			});
 
 			vi.spyOn(registry, 'getAbility').mockImplementation((name) => {
-				if (name === 'Levitate') return levitate;
+				if (name === 'Levitate') {
+					return levitate;
+				}
 				return undefined;
 			});
 
@@ -124,8 +130,12 @@ describe('Ability Integration Tests', () => {
 			});
 
 			vi.spyOn(registry, 'getAbility').mockImplementation((name) => {
-				if (name === 'Drizzle') return drizzle;
-				if (name === 'Swift Swim') return swiftSwim;
+				if (name === 'Drizzle') {
+					return drizzle;
+				}
+				if (name === 'Swift Swim') {
+					return swiftSwim;
+				}
 				return undefined;
 			});
 
@@ -176,8 +186,12 @@ describe('Ability Integration Tests', () => {
 			});
 
 			vi.spyOn(registry, 'getAbility').mockImplementation((name) => {
-				if (name === 'Levitate') return levitate;
-				if (name === 'Mold Breaker') return moldBreaker;
+				if (name === 'Levitate') {
+					return levitate;
+				}
+				if (name === 'Mold Breaker') {
+					return moldBreaker;
+				}
 				return undefined;
 			});
 
@@ -229,13 +243,110 @@ describe('Ability Integration Tests', () => {
 			});
 
 			vi.spyOn(registry, 'getAbility').mockImplementation((name) => {
-				if (name === 'Rough Skin') return roughSkin;
+				if (name === 'Rough Skin') {
+					return roughSkin;
+				}
 				return undefined;
 			});
 
 			engine.runEvent(AbilityTrigger.ON_CONTACT, roughSkinPokemon, ctx, attacker, physicalMove);
 
 			expect(attacker.currentHp).toBeLessThan(100);
+		});
+	});
+
+	describe('Turn End Triggers', () => {
+		it('Speed Boost should raise speed at turn end', () => {
+			const speedBoostPokemon = createTestPokemon({
+				ability: 'Speed Boost',
+				name: 'Yanmega',
+				speed: 100
+			});
+			const ctx = createTestBattleContext({
+				allySide: [speedBoostPokemon]
+			});
+
+			vi.spyOn(registry, 'getAbility').mockImplementation((name) => {
+				if (name === 'Speed Boost') {
+					return speedBoost;
+				}
+				return undefined;
+			});
+
+			engine.runEvent(AbilityTrigger.ON_TURN_END, speedBoostPokemon, ctx);
+
+			expect(speedBoostPokemon.changeBattleStats).toHaveBeenCalledWith('speed', 1);
+		});
+	});
+
+	describe('Stat Modifier Triggers', () => {
+		it('Huge Power should double Attack stat', () => {
+			const hugePowerPokemon = createTestPokemon({
+				ability: 'Huge Power',
+				name: 'Azumarill',
+				attack: 100
+			});
+			const opponent = createTestPokemon({
+				ability: 'None',
+				name: 'Magikarp'
+			});
+
+			const ctx = createTestBattleContext({
+				allySide: [hugePowerPokemon],
+				oppSide: [opponent]
+			});
+
+			vi.spyOn(registry, 'getAbility').mockImplementation((name) => {
+				if (name === 'Huge Power') {
+					return hugePower;
+				}
+				return undefined;
+			});
+
+			const modifiedAtk = engine.runEvent<number>(
+				AbilityTrigger.ON_MODIFY_ATK,
+				hugePowerPokemon,
+				ctx,
+				opponent,
+				100
+			);
+
+			expect(modifiedAtk).toBe(200);
+		});
+
+		it('Thick Fat should halve Fire damage', () => {
+			const thickFatPokemon = createTestPokemon({
+				ability: 'Thick Fat',
+				name: 'Snorlax'
+			});
+			const attacker = createTestPokemon({
+				ability: 'None',
+				name: 'Charizard'
+			});
+
+			const ctx = createTestBattleContext({
+				allySide: [thickFatPokemon],
+				oppSide: [attacker]
+			});
+
+			vi.spyOn(registry, 'getAbility').mockImplementation((name) => {
+				if (name === 'Thick Fat') {
+					return thickFat;
+				}
+				return undefined;
+			});
+
+			const modifiedDamage = thickFat.onSourceModifyDamage!(
+				{
+					battleContext: ctx,
+					pokemon: thickFatPokemon,
+					target: attacker,
+					move: { type: 'fire' } as any
+				},
+				100
+			);
+
+			expect(modifiedDamage).toBe(50);
 		});
 	});
 });

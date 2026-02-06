@@ -4,9 +4,15 @@ describe('Multi-Hit Move Mechanics', () => {
 	describe('Hit Count Distribution (2-5 hits)', () => {
 		function rollHitCount(): number {
 			const roll = Math.random();
-			if (roll < 0.35) {return 2;}
-			if (roll < 0.7) {return 3;}
-			if (roll < 0.85) {return 4;}
+			if (roll < 0.35) {
+				return 2;
+			}
+			if (roll < 0.7) {
+				return 3;
+			}
+			if (roll < 0.85) {
+				return 4;
+			}
 			return 5;
 		}
 
@@ -22,7 +28,9 @@ describe('Multi-Hit Move Mechanics', () => {
 			let twoHits = 0;
 			const iterations = 10000;
 			for (let i = 0; i < iterations; i++) {
-				if (rollHitCount() === 2) {twoHits++;}
+				if (rollHitCount() === 2) {
+					twoHits++;
+				}
 			}
 			const ratio = twoHits / iterations;
 			expect(ratio).toBeGreaterThan(0.3);
@@ -33,7 +41,9 @@ describe('Multi-Hit Move Mechanics', () => {
 			let threeHits = 0;
 			const iterations = 10000;
 			for (let i = 0; i < iterations; i++) {
-				if (rollHitCount() === 3) {threeHits++;}
+				if (rollHitCount() === 3) {
+					threeHits++;
+				}
 			}
 			const ratio = threeHits / iterations;
 			expect(ratio).toBeGreaterThan(0.3);

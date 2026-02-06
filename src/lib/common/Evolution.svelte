@@ -97,7 +97,9 @@
 		let i = 1;
 		evolveAnimation(toEvolve[0]);
 		setTimeout(() => {}, 16000);
-		if (toEvolve.length === 1) {return;}
+		if (toEvolve.length === 1) {
+			return;
+		}
 		const interval = setInterval(() => {
 			if (i === toEvolve.length) {
 				clearInterval(interval);

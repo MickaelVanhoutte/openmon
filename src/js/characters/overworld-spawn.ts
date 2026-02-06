@@ -1,13 +1,8 @@
 import { Bag } from '../items/bag';
 import type { Position } from '../mapping/positions';
 import type { PokemonInstance } from '../pokemons/pokedex';
-import { CHARACTER_SPRITES, centerObject } from '../sprites/sprites';
-import {
-	RUNNING_SPEED,
-	WALKING_SPEED,
-	type Character,
-	type CharacterPosition
-} from './characters-model';
+import { centerObject } from '../sprites/sprites';
+import { WALKING_SPEED, type Character, type CharacterPosition } from './characters-model';
 import type { MasteryType } from './mastery-model';
 import { ComboJauge } from './player';
 
@@ -36,7 +31,7 @@ export class OverworldSpawn implements Character {
 		this.pokemon = pokemon;
 	}
 
-	getMasteryBonus(type: MasteryType): number {
+	getMasteryBonus(_type: MasteryType): number {
 		throw new Error('Method not implemented.');
 	}
 
@@ -96,7 +91,7 @@ export class OverworldSpawn implements Character {
 		const sY = this.orientationIndexes[orientation] * 64;
 
 		if (this.moving) {
-			const speed = WALKING_SPEED;
+			const _speed = WALKING_SPEED;
 
 			let deltaX = this.position.targetPosition.x - this.position.positionOnMap.x;
 			let deltaY = this.position.targetPosition.y - this.position.positionOnMap.y;
@@ -134,9 +129,11 @@ export class OverworldSpawn implements Character {
 		const relativeX = this.position.positionInPx.x - playerPosition.x;
 		const relativeY = this.position.positionInPx.y - playerPosition.y;
 
-		let { centerX, centerY, offsetX, offsetY } = center
+		const centered = center
 			? center
 			: centerObject(ctx, scale, scale, playerPosition, 16, 16, mapDim);
+		const { centerX, centerY } = centered;
+		let { offsetX, offsetY } = centered;
 		offsetY -= relativeY - 12;
 		offsetX -= relativeX;
 

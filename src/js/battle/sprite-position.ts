@@ -103,7 +103,6 @@ export function getAttackPlatePositions(
 	spritePos: SpritePosition | null,
 	moveCount: number
 ): AttackPlatePosition[] {
-	const positions: AttackPlatePosition[] = [];
 	const count = Math.max(1, Math.min(4, moveCount));
 
 	const viewportHeight = window.innerHeight || 600;

@@ -65,7 +65,9 @@
 	}
 
 	onMount(async () => {
-		if (!sceneElement) {return;}
+		if (!sceneElement) {
+			return;
+		}
 
 		await pokedex.ensureLoaded();
 		pokemonList = pokedex.entries.slice(0, 151).map((p) => ({ id: p.id, name: p.name }));
@@ -83,7 +85,9 @@
 	});
 
 	onDestroy(() => {
-		if (loopInterval) {clearInterval(loopInterval);}
+		if (loopInterval) {
+			clearInterval(loopInterval);
+		}
 		engine?.cancelAll();
 	});
 
@@ -106,7 +110,9 @@
 	}
 
 	async function playAnimation(): Promise<void> {
-		if (!engine || !allySprite || !enemySprite || isPlaying) {return;}
+		if (!engine || !allySprite || !enemySprite || isPlaying) {
+			return;
+		}
 
 		isPlaying = true;
 
@@ -158,8 +164,12 @@
 	function getCategoryType(category: string): 'physical' | 'special' | 'status' {
 		const physicalCategories = ['punch', 'kick', 'slash', 'claw', 'bite', 'tackle', 'chop'];
 		const specialCategories = ['beam', 'projectile', 'burst', 'wave', 'drain'];
-		if (physicalCategories.includes(category)) {return 'physical';}
-		if (specialCategories.includes(category)) {return 'special';}
+		if (physicalCategories.includes(category)) {
+			return 'physical';
+		}
+		if (specialCategories.includes(category)) {
+			return 'special';
+		}
 		return 'status';
 	}
 
@@ -167,7 +177,9 @@
 		loopEnabled = !loopEnabled;
 		if (loopEnabled) {
 			loopInterval = setInterval(() => {
-				if (!isPlaying) {playAnimation();}
+				if (!isPlaying) {
+					playAnimation();
+				}
 			}, 2000);
 		} else if (loopInterval) {
 			clearInterval(loopInterval);
@@ -185,7 +197,6 @@
 	</header>
 
 	<div class="controls-panel">
-
 		<div class="control-group">
 			<label for="category-select">Animation:</label>
 			<select id="category-select" bind:value={selectedCategory}>

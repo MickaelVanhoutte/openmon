@@ -86,7 +86,9 @@
 	});
 
 	function getPercentage(monster: PokemonInstance | undefined) {
-		if (!monster) {return 0;}
+		if (!monster) {
+			return 0;
+		}
 		return (monster.currentHp / monster.currentStats.hp) * 100 || 0;
 	}
 
@@ -186,7 +188,9 @@
 	}
 
 	const listener = (e: KeyboardEvent) => {
-		if (summaryOpened || battleSummaryOpened) {return;}
+		if (summaryOpened || battleSummaryOpened) {
+			return;
+		}
 		if (!openOptions) {
 			if (e.key === 'ArrowUp') {
 				selected = selected === 0 ? others.length : selected - 1;

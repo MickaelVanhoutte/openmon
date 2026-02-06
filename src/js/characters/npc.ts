@@ -86,11 +86,11 @@ export class NPC implements Character, Interactive {
 		return this.behindCounter;
 	}
 
-	getMasteryBonus(type: MasteryType): number {
+	getMasteryBonus(_type: MasteryType): number {
 		return 0;
 	}
 
-	interact(playerPosition: Position, gameContext: GameContext): (Script | undefined)[] {
+	interact(playerPosition: Position, _gameContext: GameContext): (Script | undefined)[] {
 		const previous = this.movingScript?.interrupt();
 		let newScript: Script | undefined;
 
@@ -159,7 +159,7 @@ export class NPC implements Character, Interactive {
 		},
 		center: { centerX: number; centerY: number; offsetX: number; offsetY: number } | undefined
 	) {
-		const frameNumber = this.spriteSheet.overworld.walking.frameNumber;
+		const _frameNumber = this.spriteSheet.overworld.walking.frameNumber;
 		const frameWidth = this.spriteSheet.overworld.walking.width;
 		const frameHeight = this.spriteSheet.overworld.walking.height;
 		const scaleX = frameWidth < 64 ? (56 / frameWidth) * scale : scale;
@@ -214,9 +214,11 @@ export class NPC implements Character, Interactive {
 		const relativeX = this.position.positionInPx.x - playerPosition.x;
 		const relativeY = this.position.positionInPx.y - playerPosition.y;
 
-		let { centerX, centerY, offsetX, offsetY } = center
+		const centered = center
 			? center
 			: centerObject(ctx, scaleX, scaleY, playerPosition, frameWidth / 4, frameHeight / 4, mapDim);
+		const { centerX, centerY } = centered;
+		let { offsetX, offsetY } = centered;
 		offsetY -= relativeY - (frameHeight < 64 ? frameHeight / 6 : frameHeight / 5);
 		offsetX -= relativeX - (frameWidth < 64 ? -(frameWidth / 4) : frameWidth / 16);
 

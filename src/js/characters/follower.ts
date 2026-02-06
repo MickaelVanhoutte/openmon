@@ -46,7 +46,7 @@ export class Follower implements Character, Interactive {
 			`${this.pokemon.name} wants to play!`
 		];
 	}
-	getMasteryBonus(type: MasteryType): number {
+	getMasteryBonus(_type: MasteryType): number {
 		return 0;
 	}
 
@@ -423,15 +423,9 @@ export class PokeWalkerSpriteDrawer {
 		const relativeX = walkerPosition.x - playerPosition.x;
 		const relativeY = walkerPosition.y - playerPosition.y;
 
-		let { centerX, centerY, offsetX, offsetY } = centerObject(
-			ctx,
-			scale,
-			scale,
-			playerPosition,
-			16,
-			16,
-			mapDim
-		);
+		const centered = centerObject(ctx, scale, scale, playerPosition, 16, 16, mapDim);
+		const { centerX, centerY } = centered;
+		let { offsetX, offsetY } = centered;
 		offsetY -= relativeY - 6;
 		offsetX -= relativeX;
 
