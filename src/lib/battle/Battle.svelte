@@ -79,17 +79,14 @@
 
 	$effect(() => {
 		if (isInitialBattleEntrance && entryAnimationsComplete && !initialAbilitiesTriggered) {
+			console.log('[Battle.svelte] Initial battle entrance triggered');
 			initialAbilitiesTriggered = true;
-			// Delay to let FloatingPokemonInfo initialize polling before stats change
-			setTimeout(() => {
+			setTimeout(async () => {
+				console.log('[Battle.svelte] Calling triggerInitialSwitchIn');
 				battleCtx.triggerInitialSwitchIn();
-				battleCtx.processInitialAbilityActions();
-			}, 300);
-
-			const timer = setTimeout(() => {
+				await battleCtx.processInitialAbilityActions();
 				isInitialBattleEntrance = false;
-			}, 1500);
-			return () => clearTimeout(timer);
+			}, 300);
 		}
 	});
 
@@ -230,6 +227,18 @@
 				}
 			}
 			battleCtx.events.statChangeAnimation.set(null);
+		}
+	});
+
+	// Subscribe to weather change events for animation and UI update
+	battleCtx.events.weatherChange.subscribe((data) => {
+		if (data) {
+			currentWeather = data.weather;
+			weatherFlash = true;
+			setTimeout(() => {
+				weatherFlash = false;
+			}, 600);
+			battleCtx.events.weatherChange.set(null);
 		}
 	});
 

@@ -83,6 +83,11 @@ export class BattleEvents {
 		stages: number;
 	} | null> = writable(null);
 
+	weatherChange: Writable<{
+		weather: Weather;
+		pokemon: PokemonInstance;
+	} | null> = writable(null);
+
 	levelUp: Writable<{ pokemon: PokemonInstance; oldStats?: Stats; newStats?: Stats } | undefined> =
 		writable(undefined);
 }

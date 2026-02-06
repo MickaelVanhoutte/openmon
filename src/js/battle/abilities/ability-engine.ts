@@ -94,10 +94,17 @@ export class AbilityEngine {
 			move: args.find((arg) => arg instanceof Move) as Move
 		};
 
-		abilityPopupStore.showPopup(pokemon.name, ability.name);
+		const side = ctx.getPokemonSide(pokemon);
+		const sideArray = side === 'ally' ? ctx.playerSide : ctx.oppSide;
+		const index = sideArray.indexOf(pokemon);
+		abilityPopupStore.showPopup(pokemon.name, ability.name, side, index >= 0 ? index : 0);
+
+		// Run the hook first (pushes effect messages like "attack fell")
+		const result = (hook as (ctx: AbilityContext, ...args: unknown[]) => T)(abilityCtx, ...args);
+		// Then push ability name message (LIFO: this executes first)
 		ctx.addToStack(new Message(`${pokemon.name}'s ${ability.name}!`, pokemon));
 
-		return (hook as (ctx: AbilityContext, ...args: unknown[]) => T)(abilityCtx, ...args);
+		return result;
 	}
 
 	runEventForAll<T>(

@@ -17,6 +17,7 @@ export enum ActionType {
 	PLAY_ANIMATION = 'Play-Animation',
 	SLEEP = 'Sleep',
 	STAT_CHANGE = 'Stat-Change',
+	WEATHER_CHANGE = 'Weather-Change',
 
 	END_CHECKS = 'End-Checks',
 	END_BATTLE = 'End-Battle'

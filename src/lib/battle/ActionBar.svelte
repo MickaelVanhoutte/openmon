@@ -90,11 +90,17 @@
 		(battleSwitchOpened ? 'switch' : combo ? 'combo' : 'change') as 'switch' | 'combo' | 'change'
 	);
 
+	let isPlayerTurnValue = $state(false);
+
 	battleCtx.currentMessage.subscribe((message) => {
 		currentMessage = message;
 	});
-	battleCtx.isPlayerTurn.subscribe((isPlayerTurn) => {
-		disabled = !isPlayerTurn;
+	battleCtx.isPlayerTurn.subscribe((value) => {
+		isPlayerTurnValue = value;
+	});
+
+	$effect(() => {
+		disabled = !isPlayerTurnValue || isInitialEntrance;
 	});
 	battleCtx.events.levelUp.subscribe((lvlUp) => {
 		if (lvlUp && lvlUp.newStats) {
