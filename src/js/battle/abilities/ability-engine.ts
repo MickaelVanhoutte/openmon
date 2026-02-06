@@ -1,4 +1,4 @@
-import { BattleContext } from '../../context/battleContext';
+import type { BattleContext } from '../../context/battleContext';
 import { PokemonInstance } from '../../pokemons/pokedex';
 import { AbilityTrigger, type AbilityContext, type Ability } from './ability-types';
 import { getAbility } from './ability-registry';

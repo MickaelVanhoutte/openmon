@@ -1,4 +1,4 @@
-import { BattleContext } from '../../context/battleContext';
+import type { BattleContext } from '../../context/battleContext';
 import { PokemonInstance, Move } from '../../pokemons/pokedex';
 
 /**
