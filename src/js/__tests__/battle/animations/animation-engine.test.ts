@@ -129,7 +129,7 @@ describe('AnimationEngine', () => {
 			engine.setLayout('SINGLE');
 
 			const pos = engine.getPosition({ side: 'player', index: 0 });
-			expect(pos.x).toBe(25);
+			expect(pos.x).toBe(22);
 			expect(pos.y).toBe(70);
 		});
 	});
@@ -177,7 +177,7 @@ function createMockContext(): MoveContext {
 		attacker: {
 			slot: { side: 'player', index: 0 },
 			element: attackerElement,
-			homePosition: { x: 25, y: 70, z: 0, scale: 1, opacity: 1 }
+			homePosition: { x: 22, y: 70, z: 0, scale: 1, opacity: 1 }
 		},
 		defender: {
 			slot: { side: 'opponent', index: 0 },
