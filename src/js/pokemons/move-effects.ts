@@ -1,6 +1,6 @@
 import '@abraham/reflection';
-import { injectable, injectAll, registry, singleton } from 'tsyringe';
-import { PokemonInstance, MoveInstance } from './pokedex';
+import { injectable, injectAll, registry, singleton, container } from 'tsyringe';
+import type { PokemonInstance, MoveInstance } from './pokedex';
 import { MoveEffect } from './pokedex';
 import { EffectTiming, EffectResult, EffectForTurn, DEFAULT_EFFECT_PROPS } from './effects/types';
 import type { Effect } from './effects/types';
@@ -3651,7 +3651,14 @@ class SolarBeam implements Effect {
 	charging: boolean = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		if (!this.charging) {
+		let battleField: any;
+		try {
+			battleField = container.resolve<any>('BattleField');
+		} catch (e) {}
+
+		const isSun = battleField?.weather === 'sun';
+
+		if (!this.charging && !isSun) {
 			this.charging = true;
 			return new EffectResult(this, `${user?.name} is absorbing light!`);
 		}
@@ -4808,6 +4815,40 @@ class Roost implements Effect {
 	}
 }
 
+@injectable()
+@registry([{ token: 'Effect', useClass: ShoreUp }])
+export class ShoreUp implements Effect {
+	move_effect_id: number = 369;
+	abr: string = 'SHU';
+	duration: number = 0;
+	when: EffectTiming = EffectTiming.AFTER_MOVE;
+	damages: number = 0;
+	turnsPassed: number = 0;
+	healed = false;
+
+	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
+		if (!user) {
+			return new EffectResult();
+		}
+
+		let battleField: BattleField | undefined;
+		try {
+			battleField = container.resolve<BattleField>('BattleField');
+		} catch (e) {}
+
+		const isSandstorm = battleField?.weather === Weather.SAND;
+		const healPercent = isSandstorm ? 2 / 3 : 0.5;
+
+		const healAmount = Math.floor(user.currentStats.hp * healPercent);
+		user.heal(healAmount);
+		return new EffectResult(undefined, `${user.name} regained health!`);
+	}
+
+	playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {
+		return new EffectForTurn();
+	}
+}
+
 // Effect 217: Miracle Eye - Forces the target to have no evasion, Dark takes Psychic damage
 @injectable()
 @registry([{ token: 'Effect', useClass: MiracleEye }])
@@ -5917,12 +5958,12 @@ class CircleThrow implements Effect {
 	}
 }
 
-// Effect 317: Work Up - Raises the user's Attack and Special Attack by one stage
+// Effect 317: Growth - Raises the user's Attack and Special Attack by one stage (two in sun)
 @injectable()
-@registry([{ token: 'Effect', useClass: WorkUp }])
-class WorkUp implements Effect {
+@registry([{ token: 'Effect', useClass: Growth }])
+class Growth implements Effect {
 	move_effect_id: number = 317;
-	abr: string = 'WKU';
+	abr: string = 'GRW';
 	duration: number = 0;
 	when: EffectTiming = EffectTiming.AFTER_MOVE;
 	damages: number = 0;
@@ -5934,9 +5975,22 @@ class WorkUp implements Effect {
 			return new EffectResult();
 		}
 
-		user.changeBattleStats('attack', 1);
-		user.changeBattleStats('specialAttack', 1);
-		return new EffectResult(undefined, `${user.name}'s Attack and Sp. Attack rose!`);
+		let battleField: BattleField | undefined;
+		try {
+			battleField = container.resolve<BattleField>('BattleField');
+		} catch (e) {}
+
+		const isSun = battleField?.weather === Weather.SUN;
+		const boost = isSun ? 2 : 1;
+
+		user.changeBattleStats('attack', boost);
+		user.changeBattleStats('specialAttack', boost);
+		return new EffectResult(
+			undefined,
+			isSun
+				? `${user.name}'s Attack and Sp. Attack rose sharply!`
+				: `${user.name}'s Attack and Sp. Attack rose!`
+		);
 	}
 
 	playEffect(target: PokemonInstance, user?: PokemonInstance): EffectForTurn {

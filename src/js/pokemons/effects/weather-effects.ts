@@ -6,9 +6,25 @@ export { Weather };
 const SANDSTORM_IMMUNE_TYPES = ['rock', 'ground', 'steel'];
 const HAIL_IMMUNE_TYPES = ['ice'];
 
-export function getWeatherDamageMultiplier(battleField: BattleField, moveType: string): number {
+export function getWeatherDamageMultiplier(
+	battleField: BattleField,
+	moveType: string,
+	moveName?: string
+): number {
 	const weather = battleField.weather;
 	const type = moveType.toLowerCase();
+	const name = moveName?.toLowerCase();
+
+	if (weather === Weather.RAIN || weather === Weather.SAND || weather === Weather.HAIL) {
+		if (
+			name === 'solar beam' ||
+			name === 'solar-beam' ||
+			name === 'solar blade' ||
+			name === 'solar-blade'
+		) {
+			return 0.5;
+		}
+	}
 
 	if (weather === Weather.RAIN) {
 		if (type === 'water') {

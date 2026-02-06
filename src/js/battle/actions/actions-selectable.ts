@@ -432,7 +432,7 @@ export class Attack implements ActionV2Interface {
 
 			const random = Math.random() * (1 - 0.85) + 0.85;
 			const stab = this.calculateStab(attacker, move, controller);
-			const weatherMultiplier = getWeatherDamageMultiplier(ctx.battleField, move.type);
+			const weatherMultiplier = getWeatherDamageMultiplier(ctx.battleField, move.type, move.name);
 			const screenMultiplier = this.calculateScreenMultiplier(move.category, defender, ctx);
 			const other = weatherMultiplier * screenMultiplier;
 			const modifiers = typeEffectiveness * critical * random * stab * other;
