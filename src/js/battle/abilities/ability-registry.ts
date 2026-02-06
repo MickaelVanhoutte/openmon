@@ -2,6 +2,14 @@ import abilitiesJson from '../../../assets/data/final/beta/abilities.json';
 import type { Ability } from './ability-types';
 import type { PokemonInstance } from '../../pokemons/pokedex';
 
+// Import all tier ability implementations
+import { tier1PassiveStatAbilities } from './tiers/tier1-passive-stats';
+import { tier2OnSwitchAbilities } from './tiers/tier2-on-switch';
+import { tier3DamageContactAbilities } from './tiers/tier3-damage-contact';
+import { tier4TurnStatusAbilities } from './tiers/tier4-turn-status';
+import { tier5SuppressionAbilities } from './tiers/tier5-suppression';
+import { tier6ComplexAbilities } from './tiers/tier6-complex';
+
 /**
  * Internal map for ability lookups.
  * Keyed by normalized kebab-case name.
@@ -24,9 +32,11 @@ function toKebabCase(str: string): string {
 }
 
 /**
- * Initializes the ability registry from JSON data.
+ * Initializes the ability registry from JSON data,
+ * then merges in hook implementations from tier files.
  */
 function initRegistry(): void {
+	// First, load base ability data from JSON (id, name, description)
 	abilitiesJson.forEach((data: any) => {
 		const key = toKebabCase(data.names);
 		abilityMap[key] = {
@@ -35,6 +45,27 @@ function initRegistry(): void {
 			description: data.description
 		};
 	});
+
+	// Merge in hook implementations from all tier files
+	const allImplementations: Ability[] = [
+		...tier1PassiveStatAbilities,
+		...tier2OnSwitchAbilities,
+		...tier3DamageContactAbilities,
+		...tier4TurnStatusAbilities,
+		...tier5SuppressionAbilities,
+		...tier6ComplexAbilities
+	];
+
+	for (const impl of allImplementations) {
+		const key = toKebabCase(impl.name);
+		if (abilityMap[key]) {
+			// Merge hooks into existing ability entry
+			abilityMap[key] = { ...abilityMap[key], ...impl };
+		} else {
+			// Ability not in JSON, add it directly
+			abilityMap[key] = impl;
+		}
+	}
 }
 
 // Initialize on module load
