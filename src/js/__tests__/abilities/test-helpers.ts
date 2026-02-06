@@ -96,7 +96,13 @@ export function createTestBattleContext(options: TestContextOptions = {}): Battl
 		},
 		addToStack: vi.fn(),
 		runAbilityEvent: vi.fn(),
-		runAbilityEventForAll: vi.fn()
+		runAbilityEventForAll: vi.fn(),
+		weatherVersion: {
+			update: vi.fn((cb) => cb(0))
+		},
+		hazardsVersion: {
+			update: vi.fn((cb) => cb(0))
+		}
 	} as unknown as BattleContext;
 }
 

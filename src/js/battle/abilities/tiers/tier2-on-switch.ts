@@ -1,6 +1,7 @@
 import type { Ability, AbilityContext } from '../ability-types';
 import { Weather, Terrain } from '../../battle-field';
 import { VolatileStatus } from '../../../pokemons/volatile-status';
+import { Message } from '../../actions/actions-derived';
 
 // =============================================================================
 // STAT-LOWERING ON-SWITCH ABILITIES
@@ -16,6 +17,7 @@ export const intimidate: Ability = {
 		);
 		for (const opponent of opponents) {
 			opponent.changeBattleStats('attack', -1);
+			ctx.battleContext.addToStack(new Message(`${opponent.name}'s Attack fell!`, ctx.pokemon));
 		}
 	}
 };
@@ -30,6 +32,8 @@ export const drizzle: Ability = {
 	description: 'Summons rain when entering battle.',
 	onSwitchIn: (ctx: AbilityContext): void => {
 		ctx.battleContext.battleField.setWeather(Weather.RAIN);
+		ctx.battleContext.weatherVersion.update((v) => v + 1);
+		ctx.battleContext.addToStack(new Message('It started to rain!', ctx.pokemon));
 	}
 };
 
@@ -39,6 +43,8 @@ export const drought: Ability = {
 	description: 'Summons harsh sunlight when entering battle.',
 	onSwitchIn: (ctx: AbilityContext): void => {
 		ctx.battleContext.battleField.setWeather(Weather.SUN);
+		ctx.battleContext.weatherVersion.update((v) => v + 1);
+		ctx.battleContext.addToStack(new Message('The sunlight turned harsh!', ctx.pokemon));
 	}
 };
 
@@ -48,6 +54,8 @@ export const sandStream: Ability = {
 	description: 'Summons a sandstorm when entering battle.',
 	onSwitchIn: (ctx: AbilityContext): void => {
 		ctx.battleContext.battleField.setWeather(Weather.SAND);
+		ctx.battleContext.weatherVersion.update((v) => v + 1);
+		ctx.battleContext.addToStack(new Message('A sandstorm kicked up!', ctx.pokemon));
 	}
 };
 
@@ -57,6 +65,8 @@ export const snowWarning: Ability = {
 	description: 'Summons hail when entering battle.',
 	onSwitchIn: (ctx: AbilityContext): void => {
 		ctx.battleContext.battleField.setWeather(Weather.HAIL);
+		ctx.battleContext.weatherVersion.update((v) => v + 1);
+		ctx.battleContext.addToStack(new Message('It started to hail!', ctx.pokemon));
 	}
 };
 
@@ -67,6 +77,8 @@ export const primordialSea: Ability = {
 	description: 'Summons heavy rain that cannot be replaced.',
 	onSwitchIn: (ctx: AbilityContext): void => {
 		ctx.battleContext.battleField.setWeather(Weather.RAIN);
+		ctx.battleContext.weatherVersion.update((v) => v + 1);
+		ctx.battleContext.addToStack(new Message('A heavy rain began to fall!', ctx.pokemon));
 	}
 };
 
@@ -76,6 +88,8 @@ export const desolateLand: Ability = {
 	description: 'Summons extremely harsh sunlight that cannot be replaced.',
 	onSwitchIn: (ctx: AbilityContext): void => {
 		ctx.battleContext.battleField.setWeather(Weather.SUN);
+		ctx.battleContext.weatherVersion.update((v) => v + 1);
+		ctx.battleContext.addToStack(new Message('The sunlight turned extremely harsh!', ctx.pokemon));
 	}
 };
 
@@ -83,9 +97,12 @@ export const deltaStream: Ability = {
 	id: 191,
 	name: 'Delta Stream',
 	description: 'Summons strong winds that weaken Flying-type weaknesses.',
-	onSwitchIn: (_ctx: AbilityContext): void => {
+	onSwitchIn: (ctx: AbilityContext): void => {
 		// Strong winds is a special weather; using clear as placeholder
 		// In real implementation, would need a STRONG_WINDS weather type
+		ctx.battleContext.addToStack(
+			new Message('A mysterious air current is protecting Flying-type Pokémon!', ctx.pokemon)
+		);
 	}
 };
 
@@ -99,6 +116,9 @@ export const electricSurge: Ability = {
 	description: 'Summons Electric Terrain when entering battle.',
 	onSwitchIn: (ctx: AbilityContext): void => {
 		ctx.battleContext.battleField.setTerrain(Terrain.ELECTRIC);
+		ctx.battleContext.addToStack(
+			new Message('An electric current ran across the battlefield!', ctx.pokemon)
+		);
 	}
 };
 
@@ -108,6 +128,7 @@ export const grassySurge: Ability = {
 	description: 'Summons Grassy Terrain when entering battle.',
 	onSwitchIn: (ctx: AbilityContext): void => {
 		ctx.battleContext.battleField.setTerrain(Terrain.GRASSY);
+		ctx.battleContext.addToStack(new Message('Grass grew to cover the battlefield!', ctx.pokemon));
 	}
 };
 
@@ -117,6 +138,7 @@ export const psychicSurge: Ability = {
 	description: 'Summons Psychic Terrain when entering battle.',
 	onSwitchIn: (ctx: AbilityContext): void => {
 		ctx.battleContext.battleField.setTerrain(Terrain.PSYCHIC);
+		ctx.battleContext.addToStack(new Message('The battlefield got weird!', ctx.pokemon));
 	}
 };
 
@@ -126,6 +148,7 @@ export const mistySurge: Ability = {
 	description: 'Summons Misty Terrain when entering battle.',
 	onSwitchIn: (ctx: AbilityContext): void => {
 		ctx.battleContext.battleField.setTerrain(Terrain.MISTY);
+		ctx.battleContext.addToStack(new Message('Mist swirled around the battlefield!', ctx.pokemon));
 	}
 };
 
