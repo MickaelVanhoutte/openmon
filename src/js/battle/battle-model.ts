@@ -77,6 +77,12 @@ export class BattleEvents {
 	hazardDamage: Writable<{ pokemon: PokemonInstance; hazard: string } | undefined> =
 		writable(undefined);
 
+	statChangeAnimation: Writable<{
+		target: PokemonInstance;
+		stat: string;
+		stages: number;
+	} | null> = writable(null);
+
 	levelUp: Writable<{ pokemon: PokemonInstance; oldStats?: Stats; newStats?: Stats } | undefined> =
 		writable(undefined);
 }
@@ -498,6 +504,7 @@ export const typeChart: TypeChart = {
 		dragon: 2,
 		dark: 2,
 		steel: 0.5,
+		fairy: 1,
 		color: 'rgb(224, 149, 226)'
 	}
 };
