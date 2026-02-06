@@ -1,7 +1,7 @@
 import { vi } from 'vitest';
 import type { PokemonInstance } from '../../pokemons/pokedex';
 import type { BattleContext } from '../../context/battleContext';
-import { Weather, Terrain } from '../../battle/battle-field';
+import { Weather, Terrain, BattleField } from '../../battle/battle-field';
 
 export interface TestPokemonOptions {
 	ability?: string;
@@ -80,13 +80,12 @@ export interface TestContextOptions {
 }
 
 export function createTestBattleContext(options: TestContextOptions = {}): BattleContext {
+	const battleField = new BattleField();
+	battleField.weather = options.weather || Weather.NONE;
+	battleField.terrain = options.terrain || Terrain.NONE;
+
 	return {
-		battleField: {
-			weather: options.weather || Weather.NONE,
-			terrain: options.terrain || Terrain.NONE,
-			allySide: { screens: new Map(), hazards: new Map() },
-			enemySide: { screens: new Map(), hazards: new Map() }
-		},
+		battleField,
 		playerSide: options.allySide || [],
 		oppSide: options.oppSide || [],
 		actionStack: {
