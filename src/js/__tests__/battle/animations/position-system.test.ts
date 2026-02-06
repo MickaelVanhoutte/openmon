@@ -15,7 +15,7 @@ describe('BattlePositionSystem', () => {
 			const pos = positionSystem.getSlotPosition({ side: 'player', index: 0 });
 
 			expect(pos.x).toBe(22);
-			expect(pos.y).toBe(70);
+			expect(pos.y).toBe(75);
 			expect(pos.z).toBe(0);
 			expect(pos.scale).toBe(1.0);
 		});
@@ -25,7 +25,7 @@ describe('BattlePositionSystem', () => {
 			const pos = positionSystem.getSlotPosition({ side: 'opponent', index: 0 });
 
 			expect(pos.x).toBe(75);
-			expect(pos.y).toBe(25);
+			expect(pos.y).toBe(30);
 			expect(pos.z).toBe(200);
 			expect(pos.scale).toBe(0.85);
 		});
@@ -41,7 +41,7 @@ describe('BattlePositionSystem', () => {
 			expect(player0.x).toBe(22);
 			expect(player1.x).toBe(35);
 			expect(opponent0.x).toBe(60);
-			expect(opponent1.x).toBe(85);
+			expect(opponent1.x).toBe(92);
 		});
 
 		it('should return fallback position for invalid slot', () => {

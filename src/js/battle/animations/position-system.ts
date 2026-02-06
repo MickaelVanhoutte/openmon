@@ -22,15 +22,15 @@ export interface BattleSlot {
 type BattleType = 'SINGLE' | 'DOUBLE';
 
 const SINGLE_BATTLE_SLOTS: Record<string, Position> = {
-	'player-0': { x: 22, y: 70, z: 0, scale: 1.0, opacity: 1 },
-	'opponent-0': { x: 75, y: 25, z: 200, scale: 0.85, opacity: 1 }
+	'player-0': { x: 22, y: 75, z: 0, scale: 1.0, opacity: 1 },
+	'opponent-0': { x: 75, y: 30, z: 200, scale: 0.85, opacity: 1 }
 };
 
 const DOUBLE_BATTLE_SLOTS: Record<string, Position> = {
-	'player-0': { x: 22, y: 70, z: 0, scale: 0.9, opacity: 1 },
-	'player-1': { x: 35, y: 75, z: 10, scale: 0.9, opacity: 1 },
-	'opponent-0': { x: 60, y: 20, z: 200, scale: 0.75, opacity: 1 },
-	'opponent-1': { x: 85, y: 25, z: 210, scale: 0.75, opacity: 1 }
+	'player-0': { x: 22, y: 75, z: 0, scale: 0.9, opacity: 1 },
+	'player-1': { x: 35, y: 80, z: 10, scale: 0.9, opacity: 1 },
+	'opponent-0': { x: 60, y: 25, z: 200, scale: 0.75, opacity: 1 },
+	'opponent-1': { x: 92, y: 30, z: 210, scale: 0.75, opacity: 1 }
 };
 
 export class BattlePositionSystem {

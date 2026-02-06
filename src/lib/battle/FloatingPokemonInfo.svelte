@@ -196,21 +196,51 @@
 	}
 
 	function updatePositionFromSprite() {
-		if (!spriteElement) {
-			useComputedPosition = false;
-			return;
-		}
-
-		const rect = spriteElement.getBoundingClientRect();
-		// Use .battle container (sprite is in .wrapper which is inside .battle)
-		const container = spriteElement.closest('.battle') as HTMLElement | null;
-		const containerRect = container?.getBoundingClientRect() || { top: 0, left: 0 };
-
 		const widgetHeight = 80;
 		const widgetWidth = 180;
+		const gap = 20;
 
-		const top = rect.top - containerRect.top - widgetHeight - 20;
-		const left = rect.left - containerRect.left + rect.width / 2 - widgetWidth / 2;
+		if (!spriteElement || !containerElement) return;
+		const battleContainer = spriteElement.closest('.battle') as HTMLElement | null;
+		if (!battleContainer) return;
+
+		const rect = spriteElement.getBoundingClientRect();
+		const containerRect = battleContainer.getBoundingClientRect();
+
+		const top = rect.top - containerRect.top - widgetHeight - gap;
+		let left = rect.left - containerRect.left + rect.width / 2 - widgetWidth / 2;
+
+		// Collision avoidance: find same-side sibling panels and push apart horizontally
+		const myTestId = isAlly ? 'ally-pokemon-info' : 'opponent-pokemon-info';
+		const siblings = battleContainer.querySelectorAll(
+			`.floating-pokemon-info[data-testid="${myTestId}"]`
+		);
+
+		for (const sibling of siblings) {
+			if (sibling === containerElement) continue;
+			const sibRect = sibling.getBoundingClientRect();
+			if (sibRect.width === 0) continue;
+
+			const sibLeft = sibRect.left - containerRect.left;
+			const sibTop = sibRect.top - containerRect.top;
+
+			// Check overlap on both axes
+			const hOverlap = left < sibLeft + sibRect.width && left + widgetWidth > sibLeft;
+			const vOverlap = top < sibTop + sibRect.height && top + widgetHeight > sibTop;
+
+			if (hOverlap && vOverlap && index > 0) {
+				if (isAlly) {
+					// Ally index=1 yields LEFT (toward left edge, away from center)
+					left = sibLeft - widgetWidth - 5;
+				} else {
+					// Opponent index=1 yields RIGHT (toward right edge, away from center)
+					left = sibLeft + sibRect.width + 5;
+				}
+			}
+		}
+
+		// Clamp to container bounds
+		left = Math.max(28, Math.min(left, containerRect.width - widgetWidth - 28));
 
 		computedStyle = `top: ${top}px; left: ${left}px;`;
 		useComputedPosition = true;
