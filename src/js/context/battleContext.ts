@@ -26,10 +26,13 @@ import {
 } from '../battle/actions/actions-derived';
 import { ItemsReferences } from '../items/items';
 import { BattleField } from '../battle/battle-field';
+import { AbilityTrigger } from '../battle/abilities/ability-types';
+import { AbilityEngine } from '../battle/abilities/ability-engine';
 
 export class BattleContext {
 	ITEMS = new ItemsReferences();
 	battleField: BattleField = new BattleField();
+	public abilityEngine: AbilityEngine;
 	hazardsVersion: Writable<number> = writable(0);
 	weatherVersion: Writable<number> = writable(0);
 
@@ -80,6 +83,7 @@ export class BattleContext {
 		this.settings = settings;
 		this.events = new BattleEvents();
 		this.battleType = battleType;
+		this.abilityEngine = new AbilityEngine();
 		//this.playerPokemon = this.player.monsters.find(poke => !poke.fainted) || this.player.monsters[0];
 		//this.opponentPokemon = opponent instanceof PokemonInstance ? opponent : (opponent as Player).monsters.find(poke => !poke.fainted) || (opponent as Player).monsters[0];
 		let teamSize = 1;
@@ -296,6 +300,34 @@ export class BattleContext {
 		this.isPlayerTurn.set(true);
 		this.actionIdx = this.playerSide.findIndex((poke) => !!poke && !poke.fainted);
 		this.currentMessage.set(`What should ${this.playerSide[this.actionIdx]?.name} do?`);
+	}
+
+	public runAbilityEvent<T>(
+		event: AbilityTrigger,
+		pokemon: PokemonInstance,
+		target?: PokemonInstance,
+		...args: unknown[]
+	): T | undefined {
+		return this.abilityEngine.runEvent<T>(event, pokemon, this, target, ...args);
+	}
+
+	public runAbilityEventForAll(
+		event: AbilityTrigger,
+		side: 'ally' | 'opponent' | 'all',
+		...args: unknown[]
+	): void {
+		let pokemons: PokemonInstance[] = [];
+		if (side === 'ally') {
+			pokemons = this.playerSide.filter((p): p is PokemonInstance => !!p && !p.fainted);
+		} else if (side === 'opponent') {
+			pokemons = this.oppSide.filter((p): p is PokemonInstance => !!p && !p.fainted);
+		} else {
+			pokemons = [...this.playerSide, ...this.oppSide].filter(
+				(p): p is PokemonInstance => !!p && !p.fainted
+			);
+		}
+
+		this.abilityEngine.runEventForAll(event, pokemons, this, undefined, ...args);
 	}
 
 	public addToStack(action: ActionV2Interface) {
