@@ -7,7 +7,8 @@ import {
 	HailEffect,
 	getWeatherDamageMultiplier,
 	getWeatherSpDefMultiplier,
-	applyWeatherDamage
+	applyWeatherDamage,
+	getWeatherAccuracyOverride
 } from '../pokemons/effects/weather-effects';
 
 describe('Weather Effects', () => {
@@ -163,6 +164,48 @@ describe('Weather Effects', () => {
 			expect(getWeatherSpDefMultiplier(battleField, ['rock'])).toBe(1);
 			battleField.setWeather(Weather.HAIL);
 			expect(getWeatherSpDefMultiplier(battleField, ['rock'])).toBe(1);
+		});
+	});
+
+	describe('Weather Accuracy Overrides', () => {
+		it('Thunder should have 100% accuracy in Rain', () => {
+			battleField.setWeather(Weather.RAIN);
+			expect(getWeatherAccuracyOverride(battleField, 'Thunder', 70)).toBe(100);
+		});
+
+		it('Thunder should have 50% accuracy in Sun', () => {
+			battleField.setWeather(Weather.SUN);
+			expect(getWeatherAccuracyOverride(battleField, 'Thunder', 70)).toBe(50);
+		});
+
+		it('Hurricane should have 100% accuracy in Rain', () => {
+			battleField.setWeather(Weather.RAIN);
+			expect(getWeatherAccuracyOverride(battleField, 'Hurricane', 70)).toBe(100);
+		});
+
+		it('Hurricane should have 50% accuracy in Sun', () => {
+			battleField.setWeather(Weather.SUN);
+			expect(getWeatherAccuracyOverride(battleField, 'Hurricane', 70)).toBe(50);
+		});
+
+		it('Blizzard should have 100% accuracy in Hail', () => {
+			battleField.setWeather(Weather.HAIL);
+			expect(getWeatherAccuracyOverride(battleField, 'Blizzard', 70)).toBe(100);
+		});
+
+		it('should return null for moves not affected by weather', () => {
+			battleField.setWeather(Weather.RAIN);
+			expect(getWeatherAccuracyOverride(battleField, 'Tackle', 100)).toBeNull();
+		});
+
+		it('should return null when no weather is active', () => {
+			expect(getWeatherAccuracyOverride(battleField, 'Thunder', 70)).toBeNull();
+		});
+
+		it('should be case-insensitive', () => {
+			battleField.setWeather(Weather.RAIN);
+			expect(getWeatherAccuracyOverride(battleField, 'thunder', 70)).toBe(100);
+			expect(getWeatherAccuracyOverride(battleField, 'HURRICANE', 70)).toBe(100);
 		});
 	});
 });
