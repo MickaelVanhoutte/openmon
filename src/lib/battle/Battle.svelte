@@ -18,7 +18,8 @@
 		animateRun,
 		initializeAnimationEngine,
 		destroyAnimationEngine,
-		animateAttackWithNewEngine
+		animateAttackWithNewEngine,
+		getAnimationEngine
 	} from '../../js/battle/animations';
 	import beachesImage from '../../assets/battle/beaches.png';
 
@@ -192,8 +193,43 @@
 			weatherIntensify = true;
 			// Reset after animation completes
 			setTimeout(() => {
-				weatherIntensify = false;
+				weatherFlash = false;
 			}, 1000);
+		}
+	});
+
+	battleCtx.events.statChangeAnimation.subscribe(async (data) => {
+		if (data) {
+			const animEngine = getAnimationEngine();
+			if (animEngine) {
+				const isOpponent = battleCtx.oppSide.includes(data.target);
+				const idx = isOpponent
+					? battleCtx.oppSide.indexOf(data.target)
+					: battleCtx.playerSide.indexOf(data.target);
+
+				const spriteEl = isOpponent ? opponent[idx] : ally[idx];
+
+				if (spriteEl) {
+					const slot = {
+						side: (isOpponent ? 'opponent' : 'player') as 'opponent' | 'player',
+						index: idx
+					};
+					const effectName = data.stages > 0 ? 'buff' : 'debuff';
+					await animEngine.showSpriteEffect(
+						effectName,
+						{
+							element: spriteEl,
+							slot,
+							homePosition: animEngine.getPosition(slot)
+						},
+						{
+							scale: 1.2,
+							zIndex: animEngine.getEffectZIndex(slot)
+						}
+					);
+				}
+			}
+			battleCtx.events.statChangeAnimation.set(null);
 		}
 	});
 
