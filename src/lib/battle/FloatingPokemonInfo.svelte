@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import gsap from 'gsap';
 	import type { PokemonInstance } from '../../js/pokemons/pokedex';
+	import { abilityPopupStore, type PopupData } from '../../js/battle/ability-popup-store';
 
 	interface StatChange {
 		stat: string;
@@ -17,6 +18,8 @@
 		spriteElement?: HTMLElement | null;
 		visible?: boolean;
 		entranceDelay?: number;
+		side?: 'ally' | 'opponent';
+		index?: number;
 	}
 
 	const {
@@ -27,7 +30,9 @@
 		expPercent = 0,
 		spriteElement = null,
 		visible = true,
-		entranceDelay = 0
+		entranceDelay = 0,
+		side = 'ally',
+		index = 0
 	}: Props = $props();
 
 	let containerElement: HTMLDivElement;
@@ -60,6 +65,18 @@
 	const maxHp = $derived(hpTick >= 0 ? pokemon.currentStats.hp : pokemon.currentStats.hp);
 	const gender = $derived(pokemon.gender || 'unknown');
 	const statusAbr = $derived(hpTick >= 0 ? pokemon.status?.abr || null : null);
+
+	// Subscribe to ability popup store and filter for this pokemon
+	let activeAbilityPopup = $state<PopupData | null>(null);
+
+	$effect(() => {
+		const unsubscribe = abilityPopupStore.subscribe((popups) => {
+			// Find a popup that matches this FloatingPokemonInfo's side and index
+			const matching = popups.find((p) => p.side === side && p.index === index);
+			activeAbilityPopup = matching ?? null;
+		});
+		return unsubscribe;
+	});
 
 	const statsFormat: Record<string, string> = {
 		attack: 'ATK',
@@ -285,6 +302,12 @@
 		<div class="leader-line"></div>
 
 		<div class="below-box-indicators">
+			{#if activeAbilityPopup}
+				<div class="ability-chip" class:ally={side === 'ally'} class:opponent={side === 'opponent'}>
+					<span class="spatial-text ability-text">{activeAbilityPopup.abilityName}</span>
+				</div>
+			{/if}
+
 			{#if statChanges && statChanges.length > 0}
 				<div class="stat-changes">
 					{#each statChanges as change}
@@ -466,5 +489,44 @@
 		font-weight: 700;
 		color: white;
 		text-transform: uppercase;
+	}
+
+	.ability-chip {
+		position: absolute;
+		top: 100%;
+		left: 0;
+		right: 0;
+		margin-top: 4px;
+		padding: 4px 10px;
+		transform: skewX(var(--skew-angle));
+		font-size: 0.7rem;
+		font-weight: 700;
+		color: #cbd5e1;
+		text-transform: uppercase;
+		letter-spacing: 0.5px;
+		background: linear-gradient(135deg, rgba(40, 50, 70, 0.95) 0%, rgba(30, 40, 55, 0.95) 100%);
+		border: 1px solid rgba(255, 255, 255, 0.25);
+		border-left: 4px solid rgba(255, 255, 255, 0.6);
+		box-shadow:
+			0 2px 8px rgba(0, 0, 0, 0.4),
+			inset 0 1px 0 rgba(255, 255, 255, 0.1);
+		animation: abilitySlideIn 0.25s ease-out;
+		text-align: center;
+		z-index: 51;
+	}
+
+	.ability-chip .ability-text {
+		text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+	}
+
+	@keyframes abilitySlideIn {
+		from {
+			opacity: 0;
+			transform: skewX(var(--skew-angle)) translateY(-8px);
+		}
+		to {
+			opacity: 1;
+			transform: skewX(var(--skew-angle)) translateY(0);
+		}
 	}
 </style>
