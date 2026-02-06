@@ -16,7 +16,10 @@ export enum VolatileStatus {
 	CHARGING = 'charging',
 	RECHARGING = 'recharging',
 	RAMPAGE = 'rampage',
-	PROTECTED = 'protected'
+	PROTECTED = 'protected',
+	UNNERVED = 'unnerved',
+	SLOW_START = 'slow_start',
+	TRUANT = 'truant'
 }
 
 interface VolatileData {
