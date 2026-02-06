@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs from 'fs';
 
 //const sourcePath = '/Users/perso/workspace/perso/walking-gen8/Regular/';
 //const shinySourcePath = '/Users/perso/workspace/perso/walking-gen8/Shiny/';
@@ -6,7 +6,7 @@ import fs from "fs";
 //const sourcePath = '/Users/perso/workspace/perso/walking-all/'
 //const destPath = '/Users/perso/workspace/perso/walking2/';
 
-import ids from '../dex/pokemon-ids.json' assert {type: 'json'};
+import ids from '../dex/pokemon-ids.json' assert { type: 'json' };
 
 // ids.forEach((id, index) => {
 //     let number = ("00" + id).slice(-3);
@@ -31,23 +31,18 @@ import ids from '../dex/pokemon-ids.json' assert {type: 'json'};
 //     }
 // });
 
-
 import imageSize from 'image-size';
-const sourcePath = '/Users/perso/workspace/perso/openmon/src/assets/monsters/walking'
+const sourcePath = '/Users/perso/workspace/perso/openmon/src/assets/monsters/walking';
 fs.readdir(sourcePath, (err, files) => {
-    files.forEach(file => {
-        if (file.includes('.png')) {
-            let dimensions = imageSize(sourcePath + '/' + file);
-            if (dimensions.width !== 256 || dimensions.height !== 256) {
-                console.log(file + ' ' + dimensions.width + 'x' + dimensions.height);
-            }
-        }
-    });
+	files.forEach((file) => {
+		if (file.includes('.png')) {
+			let dimensions = imageSize(sourcePath + '/' + file);
+			if (dimensions.width !== 256 || dimensions.height !== 256) {
+				console.log(file + ' ' + dimensions.width + 'x' + dimensions.height);
+			}
+		}
+	});
 });
-
-
-
-
 
 //foreach files in sourcePath
 // fs.readdir(sourcePath, (err, files) => {

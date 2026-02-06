@@ -1,31 +1,29 @@
-import ids from './pokemon-ids.json' assert {type: 'json'};
-import pokedex from '../../final/beta/pokedex-animatedV3.json' assert {type: 'json'};
+import ids from './pokemon-ids.json' assert { type: 'json' };
+import pokedex from '../../final/beta/pokedex-animatedV3.json' assert { type: 'json' };
 import blessed from 'blessed';
 import contrib from 'blessed-contrib';
 
-let types = pokedex
-.reduce((acc, pokemon) => {
-    //console.log(pokemon.name?.english);
+let types = pokedex.reduce((acc, pokemon) => {
+	//console.log(pokemon.name?.english);
 
-    let type = pokemon.types[0];
-    if (acc[type]) {
-        acc[type]++;
-    } else {
-        acc[type] = 1;
-    }
+	let type = pokemon.types[0];
+	if (acc[type]) {
+		acc[type]++;
+	} else {
+		acc[type] = 1;
+	}
 
-    if (pokemon.types[1]) {
-        type = pokemon.types[1];
-        if (acc[type]) {
-            acc[type]++;
-        } else {
-            acc[type] = 1;
-        }
-    }
+	if (pokemon.types[1]) {
+		type = pokemon.types[1];
+		if (acc[type]) {
+			acc[type]++;
+		} else {
+			acc[type] = 1;
+		}
+	}
 
-    return acc;
+	return acc;
 }, {});
-
 
 // sort by number of pokemons for this type
 
@@ -33,32 +31,33 @@ types = Object.entries(types).sort((a, b) => a[1] - b[1]);
 
 console.log(ids?.length);
 
-let screen = blessed.screen()
-     , bar = contrib.bar(
-        { label: 'Pokemons by type'
-        , barWidth: 5
-        , barSpacing: 6
-        , xOffset: 0
-        , maxHeight: 9})
-     screen.append(bar) //must append before setting data
-     bar.setData(
-        { titles: types.map((type, idx) => type[0].substring(0, 5))
-        , data: types.map(type => type[1])})
-   screen.render()
+let screen = blessed.screen(),
+	bar = contrib.bar({
+		label: 'Pokemons by type',
+		barWidth: 5,
+		barSpacing: 6,
+		xOffset: 0,
+		maxHeight: 9
+	});
+screen.append(bar); //must append before setting data
+bar.setData({
+	titles: types.map((type, idx) => type[0].substring(0, 5)),
+	data: types.map((type) => type[1])
+});
+screen.render();
 
 // get every pokemons with higher sp.attack than attack
 let spAttack = [];
 let attack = [];
-pokedex.map(pk => {
-    if (pk?.stats.specialAttack > pk?.stats.attack) {
-        spAttack.push(pk);
-    }else {
-        attack.push(pk);
-    }
+pokedex.map((pk) => {
+	if (pk?.stats.specialAttack > pk?.stats.attack) {
+		spAttack.push(pk);
+	} else {
+		attack.push(pk);
+	}
 });
 console.log(spAttack?.length, ids?.length - spAttack?.length);
 //console.log(spAttack);
-
 
 // every flying :
 // let flying = ids.map(id => {
@@ -82,7 +81,6 @@ console.log(spAttack?.length, ids?.length - spAttack?.length);
 // }).filter(pokemon => pokemon.type[0] === 'Rock' || pokemon.type[1] === 'Rock').map(pokemon => pokemon.name?.english);
 
 // console.log(rock);
-
 
 // min an max heights
 // import dex from '../../final/beta/pokedex-animatedV3.json' assert {type: 'json'};

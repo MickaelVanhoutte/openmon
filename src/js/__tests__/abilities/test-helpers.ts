@@ -64,6 +64,9 @@ export function createTestPokemon(options: TestPokemonOptions = {}): PokemonInst
 		hasType: function (type: string) {
 			return types.map((t: string) => t.toLowerCase()).includes(type.toLowerCase());
 		},
+		hasItem: function (itemName: string) {
+			return this.heldItem?.name === itemName;
+		},
 		changeBattleStats: vi.fn(),
 		removeHp: vi.fn(),
 		heal: vi.fn(),
