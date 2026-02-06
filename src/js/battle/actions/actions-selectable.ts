@@ -18,6 +18,7 @@ import { NPC } from '../../characters/npc';
 import { MasteryType } from '../../characters/mastery-model';
 import { getWeatherDamageMultiplier } from '../../pokemons/effects/weather-effects';
 import { Screen } from '../battle-field';
+import { AbilityTrigger } from '../abilities/ability-types';
 
 // SELECTABLE ACTIONS
 export class RunAway implements ActionV2Interface {
@@ -108,6 +109,18 @@ export class Attack implements ActionV2Interface {
 
 		const actionsToPush: ActionV2Interface[] = [];
 
+		// Check if ability prevents the move (ON_BEFORE_MOVE)
+		const canMove = ctx.runAbilityEvent<boolean>(
+			AbilityTrigger.ON_BEFORE_MOVE,
+			attacker,
+			this.target[0]
+		);
+		if (canMove === false) {
+			actionsToPush.push(new Message(`${attacker.name} can't move!`, attacker));
+			this.flushActions(ctx, actionsToPush);
+			return;
+		}
+
 		// start turn statuses (sleep, paralysis..)
 		if (attacker.status?.when === 'start-turn') {
 			const effect = attacker.status.playEffect(attacker);
@@ -129,6 +142,18 @@ export class Attack implements ActionV2Interface {
 		this.target
 			.filter((tgt) => !!tgt && !tgt.fainted)
 			.forEach((tgt) => {
+				// Check defender ability for type immunity (ON_TRY_HIT)
+				const canHit = ctx.runAbilityEvent<boolean>(
+					AbilityTrigger.ON_TRY_HIT,
+					tgt,
+					attacker,
+					this.move
+				);
+				if (canHit === false) {
+					actionsToPush.push(new Message(`It doesn't affect ${tgt.name}...`, this.initiator));
+					return;
+				}
+
 				const success = this.accuracyApplies(attacker, tgt, this.move);
 				if (!success) {
 					actionsToPush.push(new Message('But it failed!', this.initiator));
@@ -210,6 +235,17 @@ export class Attack implements ActionV2Interface {
 
 						actionsToPush.push(new RemoveHP(result.damages + result2.damages, tgt, this.initiator));
 
+						// Trigger ON_CONTACT for physical/contact moves (for abilities like Rough Skin)
+						if (move.move1.category === 'physical') {
+							ctx.runAbilityEvent(
+								AbilityTrigger.ON_CONTACT,
+								tgt,
+								attacker,
+								move.move1,
+								result.damages + result2.damages
+							);
+						}
+
 						move.effects.forEach((effect, index) => {
 							const eff = MOVE_EFFECT_APPLIER.findEffect(effect);
 							if (
@@ -252,6 +288,17 @@ export class Attack implements ActionV2Interface {
 							new ComboBoost(this.initiator, controller, result.superEffective, result.critical)
 						);
 
+						// ON_CONTACT for physical/contact moves
+						if (this.move.category === 'physical' && result.damages > 0) {
+							ctx.runAbilityEvent(
+								AbilityTrigger.ON_CONTACT,
+								tgt,
+								attacker,
+								this.move,
+								result.damages
+							);
+						}
+
 						if (
 							!result.immune &&
 							this.effectApplies(this.move.effectChance, this.move.effect) &&
@@ -285,6 +332,9 @@ export class Attack implements ActionV2Interface {
 				actionsToPush.push(new ApplyEffect(this.move.effect, this.initiator, this.initiator));
 			}
 		}
+
+		// ON_AFTER_MOVE
+		ctx.runAbilityEvent(AbilityTrigger.ON_AFTER_MOVE, attacker, this.target[0]);
 
 		this.flushActions(ctx, actionsToPush);
 	}

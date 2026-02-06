@@ -1,5 +1,5 @@
 import type { BattleContext } from '../../context/battleContext';
-import { PokemonInstance } from '../../pokemons/pokedex';
+import { PokemonInstance, Move } from '../../pokemons/pokedex';
 import { AbilityTrigger, type AbilityContext, type Ability } from './ability-types';
 import { getAbility } from './ability-registry';
 import { Message } from '../actions/actions-derived';
@@ -38,7 +38,14 @@ const TRIGGER_TO_HOOK: Record<AbilityTrigger, HookName> = {
 	[AbilityTrigger.ON_TURN_START]: 'onTurnStart',
 	[AbilityTrigger.ON_FAINT]: 'onFaint',
 	[AbilityTrigger.ON_STATUS]: 'onStatus',
-	[AbilityTrigger.ON_STAT_CHANGE]: 'onStatChange'
+	[AbilityTrigger.ON_STAT_CHANGE]: 'onStatChange',
+	[AbilityTrigger.ON_MODIFY_ATK]: 'onModifyAtk',
+	[AbilityTrigger.ON_MODIFY_DEF]: 'onModifyDef',
+	[AbilityTrigger.ON_MODIFY_SPA]: 'onModifySpA',
+	[AbilityTrigger.ON_MODIFY_SPD]: 'onModifySpD',
+	[AbilityTrigger.ON_MODIFY_SPE]: 'onModifySpe',
+	[AbilityTrigger.ON_MODIFY_DAMAGE]: 'onModifyDamage',
+	[AbilityTrigger.ON_SOURCE_MODIFY_DAMAGE]: 'onSourceModifyDamage'
 };
 
 function toKebabCase(str: string): string {
@@ -82,7 +89,8 @@ export class AbilityEngine {
 		const abilityCtx: AbilityContext = {
 			battleContext: ctx,
 			pokemon,
-			target
+			target,
+			move: args.find((arg) => arg instanceof Move) as Move
 		};
 
 		ctx.addToStack(new Message(`${pokemon.name}'s ${ability.name}!`, pokemon));
