@@ -142,6 +142,7 @@ describe('Weather Effects', () => {
 			battleField.setWeather(Weather.SAND);
 			expect(getWeatherSpDefMultiplier(battleField, ['rock'])).toBe(1.5);
 			expect(getWeatherSpDefMultiplier(battleField, ['rock', 'ground'])).toBe(1.5);
+			expect(getWeatherSpDefMultiplier(battleField, ['steel', 'rock'])).toBe(1.5);
 		});
 
 		it('should not boost Special Defense of non-Rock types in Sandstorm', () => {
