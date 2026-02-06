@@ -22,6 +22,7 @@ import { ItemsReferences } from '../items/items';
 import { BattleField } from '../battle/battle-field';
 import { AbilityTrigger } from '../battle/abilities/ability-types';
 import { AbilityEngine } from '../battle/abilities/ability-engine';
+import { container } from 'tsyringe';
 
 export class BattleContext {
 	ITEMS = new ItemsReferences();
@@ -72,7 +73,9 @@ export class BattleContext {
 		settings: Settings,
 		battleType: BattleType = BattleType.SINGLE
 	) {
+		container.registerInstance('BattleField', this.battleField);
 		this.player = player;
+
 		this.opponent = opponent;
 		this.settings = settings;
 		this.events = new BattleEvents();
