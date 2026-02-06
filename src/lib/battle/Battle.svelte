@@ -6,7 +6,6 @@
 	import WeatherOverlay from './WeatherOverlay.svelte';
 	import HazardSprites from './HazardSprites.svelte';
 	import ScreenBarrier from './ScreenBarrier.svelte';
-	import AbilityPopup from './AbilityPopup.svelte';
 	import { BattleContext } from '../../js/context/battleContext';
 	import { BattleType, TurnPhase } from '../../js/battle/battle-model';
 	import { Weather } from '../../js/battle/battle-field';
@@ -555,7 +554,6 @@
 </script>
 
 <div class="battle" data-testid="battle-screen">
-	<AbilityPopup />
 	<div bind:this={gifsWrapper} class="wrapper">
 		<div
 			bind:this={scene}
