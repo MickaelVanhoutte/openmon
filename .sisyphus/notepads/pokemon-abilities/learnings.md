@@ -159,3 +159,14 @@
   - **Rough Skin:** Verified contact damage recoil (requires `move` in context).
 - **Regression Testing:** Confirmed that the ability system doesn't break battles for Pokemon without abilities or with unknown abilities.
 - **Vitest Environment:** Mocked `src/js/sprites/pmd-sprite-data.ts` in tests to prevent unhandled `fetch` errors during module import in the test environment.
+
+## UI Integration and Final Polish (Task 15)
+
+- **AbilityPopup Store:** Created a Svelte store (`abilityPopupStore`) to manage a queue of ability activation popups.
+- **AbilityPopup Component:** Implemented a visually striking popup using GSAP-like CSS animations (`slideIn`, `fadeOut`) and a dark gradient theme with gold borders.
+- **Engine Integration:** `AbilityEngine.runEvent` now calls `abilityPopupStore.showPopup()` whenever an ability hook is successfully invoked.
+- **Battle Screen Integration:** Added `<AbilityPopup />` to `src/lib/battle/Battle.svelte` to display popups over the battle scene.
+- **Display Names:** Used `pokemon.name` for popups as `PokemonInstance` does not have a `nickname` property in this codebase.
+- **Z-Index Management:** Set `AbilityPopup` container to `z-index: 1000` to ensure it appears above all other battle UI elements.
+- **Foundational Hooks:** Integrated `ON_SWITCH_IN` trigger into `ChangePokemon` action to ensure entry abilities (like Intimidate) activate correctly during battle.
+- **Volatile Status Expansion:** Added `UNNERVED`, `SLOW_START`, and `TRUANT` to `VolatileStatus` enum to support complex ability states.

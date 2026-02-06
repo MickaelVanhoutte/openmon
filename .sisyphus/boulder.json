@@ -1,6 +1,15 @@
 {
-	"active_plan": "/Users/mvanhoutte/IdeaProjects/openmon/.sisyphus/plans/admin-rework.md",
-	"started_at": "2026-02-05T17:03:25.503Z",
-	"session_ids": ["ses_3d156b605ffekCWSjDmTsOpou1"],
-	"plan_name": "admin-rework"
+	"active_plan": "/Users/20017225/PERSO/openmon/.sisyphus/plans/pokemon-abilities.md",
+	"started_at": "2026-02-06T05:28:32.375Z",
+	"completed_at": "2026-02-06T08:15:00.000Z",
+	"session_ids": ["ses_3ce939ec5ffeZZYwCRp9tWgEt6"],
+	"plan_name": "pokemon-abilities",
+	"status": "completed",
+	"summary": {
+		"tasks_completed": 15,
+		"total_tests": 794,
+		"ability_tests": 274,
+		"abilities_implemented": 300,
+		"commits": 13
+	}
 }
