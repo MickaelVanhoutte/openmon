@@ -177,12 +177,12 @@ export class ChangePokemon implements ActionV2Interface {
 							}
 						};
 						ctx.addToStack(new Message(`${pokemon.name} was badly poisoned!`, pokemon));
+					}
 				}
 			}
 		}
 	}
 }
-
 
 export class ApplyEffect implements ActionV2Interface {
 	public type: ActionType;
@@ -294,6 +294,32 @@ export class PlayAnimation implements ActionV2Interface {
 	}
 }
 
+export class PlayStatChange implements ActionV2Interface {
+	public type: ActionType;
+	public description: string;
+	public initiator: PokemonInstance;
+	public target: PokemonInstance;
+	public stat: string;
+	public stages: number;
+
+	constructor(target: PokemonInstance, stat: string, stages: number, initiator: PokemonInstance) {
+		this.type = ActionType.STAT_CHANGE;
+		this.description = 'Stat Change Animation';
+		this.target = target;
+		this.stat = stat;
+		this.stages = stages;
+		this.initiator = initiator;
+	}
+
+	execute(ctx: BattleContext): void {
+		ctx.events.statChangeAnimation.set({
+			target: this.target,
+			stat: this.stat,
+			stages: this.stages
+		});
+	}
+}
+
 export class RemoveHP implements ActionV2Interface {
 	public type: ActionType;
 	public description: string;
@@ -347,7 +373,7 @@ export class ComboBoost implements ActionV2Interface {
 		this.critical = critical;
 	}
 
-	execute(ctx: BattleContext): void {
+	execute(_ctx: BattleContext): void {
 		if (!(this.controller instanceof PokemonInstance) && !!this.controller.comboJauge) {
 			let valueToAdd = 5;
 			if (this.superEffective) {
