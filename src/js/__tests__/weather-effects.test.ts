@@ -6,6 +6,7 @@ import {
 	SandstormEffect,
 	HailEffect,
 	getWeatherDamageMultiplier,
+	getWeatherSpDefMultiplier,
 	applyWeatherDamage
 } from '../pokemons/effects/weather-effects';
 
@@ -133,6 +134,34 @@ describe('Weather Effects', () => {
 
 		it('should deal no damage when no weather', () => {
 			expect(applyWeatherDamage(battleField, 100, ['normal'])).toBe(0);
+		});
+	});
+
+	describe('Weather Stat Boosts', () => {
+		it('should boost Special Defense of Rock types in Sandstorm (1.5x)', () => {
+			battleField.setWeather(Weather.SAND);
+			expect(getWeatherSpDefMultiplier(battleField, ['rock'])).toBe(1.5);
+			expect(getWeatherSpDefMultiplier(battleField, ['rock', 'ground'])).toBe(1.5);
+		});
+
+		it('should not boost Special Defense of non-Rock types in Sandstorm', () => {
+			battleField.setWeather(Weather.SAND);
+			expect(getWeatherSpDefMultiplier(battleField, ['ground'])).toBe(1);
+			expect(getWeatherSpDefMultiplier(battleField, ['steel'])).toBe(1);
+			expect(getWeatherSpDefMultiplier(battleField, ['water'])).toBe(1);
+		});
+
+		it('should not boost Special Defense when no weather', () => {
+			expect(getWeatherSpDefMultiplier(battleField, ['rock'])).toBe(1);
+		});
+
+		it('should not boost Special Defense in other weathers', () => {
+			battleField.setWeather(Weather.RAIN);
+			expect(getWeatherSpDefMultiplier(battleField, ['rock'])).toBe(1);
+			battleField.setWeather(Weather.SUN);
+			expect(getWeatherSpDefMultiplier(battleField, ['rock'])).toBe(1);
+			battleField.setWeather(Weather.HAIL);
+			expect(getWeatherSpDefMultiplier(battleField, ['rock'])).toBe(1);
 		});
 	});
 });

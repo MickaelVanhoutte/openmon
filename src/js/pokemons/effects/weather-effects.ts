@@ -29,6 +29,20 @@ export function getWeatherDamageMultiplier(battleField: BattleField, moveType: s
 	return 1;
 }
 
+export function getWeatherSpDefMultiplier(
+	battleField: BattleField,
+	pokemonTypes: string[]
+): number {
+	const weather = battleField.weather;
+	const types = pokemonTypes.map((t) => t.toLowerCase());
+
+	if (weather === Weather.SAND && types.includes('rock')) {
+		return 1.5;
+	}
+
+	return 1;
+}
+
 export function applyWeatherDamage(
 	battleField: BattleField,
 	maxHp: number,

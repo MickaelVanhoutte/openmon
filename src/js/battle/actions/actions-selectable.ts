@@ -16,7 +16,10 @@ import {
 import { Pokeball } from '../../items/items';
 import { NPC } from '../../characters/npc';
 import { MasteryType } from '../../characters/mastery-model';
-import { getWeatherDamageMultiplier } from '../../pokemons/effects/weather-effects';
+import {
+	getWeatherDamageMultiplier,
+	getWeatherSpDefMultiplier
+} from '../../pokemons/effects/weather-effects';
 import { Screen } from '../battle-field';
 import { AbilityTrigger } from '../abilities/ability-types';
 
@@ -37,8 +40,10 @@ export class RunAway implements ActionV2Interface {
 			// randomized based on opponent speed
 			ctx.escapeAttempts++;
 			const random = Math.random() * 255;
+			const oppSideAlive = ctx.oppSide.filter((p): p is PokemonInstance => !!p);
 			const avgPokeSpeed =
-				ctx.oppSide.reduce((total, next) => total + next.battleStats.speed, 0) / ctx.oppSide.length;
+				oppSideAlive.reduce((total, next) => total + next.battleStats.speed, 0) /
+				(oppSideAlive.length || 1);
 			const f =
 				Math.floor((avgPokeSpeed * 128) / this.initiator.battleStats.speed) +
 				30 * ctx.escapeAttempts * random;
@@ -367,12 +372,17 @@ export class Attack implements ActionV2Interface {
 				move.category === 'physical'
 					? attacker?.battleStats.attack
 					: attacker?.battleStats.specialAttack;
-			const defense =
+			let defense =
 				move.category === 'physical'
 					? defender?.battleStats.defense
 					: defender?.battleStats.specialDefense;
 
-			if (move.category === 'physical' && attacker?.status === 'burn') {
+			if (move.category === 'special') {
+				const spDefMultiplier = getWeatherSpDefMultiplier(ctx.battleField, defender.types);
+				defense = Math.floor(defense * spDefMultiplier);
+			}
+
+			if (move.category === 'physical' && attacker?.status?.abr === 'BRN') {
 				attack = Math.floor(attack * 0.5);
 			}
 
