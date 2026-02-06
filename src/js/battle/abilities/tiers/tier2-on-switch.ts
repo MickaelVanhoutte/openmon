@@ -1,5 +1,6 @@
 import type { Ability, AbilityContext } from '../ability-types';
 import { Weather, Terrain } from '../../battle-field';
+import { applyWeather } from '../../../pokemons/effects/weather-effects';
 import { VolatileStatus } from '../../../pokemons/volatile-status';
 import { Message } from '../../actions/actions-derived';
 import { PlayStatChange, PlayWeatherChange } from '../../actions/actions-derived';
@@ -33,7 +34,7 @@ export const drizzle: Ability = {
 	name: 'Drizzle',
 	description: 'Summons rain when entering battle.',
 	onSwitchIn: (ctx: AbilityContext): void => {
-		ctx.battleContext.battleField.setWeather(Weather.RAIN);
+		applyWeather(ctx.battleContext.battleField, Weather.RAIN, 5, ctx.pokemon);
 		ctx.battleContext.addToStack(new PlayWeatherChange(Weather.RAIN, ctx.pokemon));
 		ctx.battleContext.addToStack(new Message('It started to rain!', ctx.pokemon));
 	}
@@ -44,7 +45,7 @@ export const drought: Ability = {
 	name: 'Drought',
 	description: 'Summons harsh sunlight when entering battle.',
 	onSwitchIn: (ctx: AbilityContext): void => {
-		ctx.battleContext.battleField.setWeather(Weather.SUN);
+		applyWeather(ctx.battleContext.battleField, Weather.SUN, 5, ctx.pokemon);
 		ctx.battleContext.addToStack(new PlayWeatherChange(Weather.SUN, ctx.pokemon));
 		ctx.battleContext.addToStack(new Message('The sunlight turned harsh!', ctx.pokemon));
 	}
@@ -55,7 +56,7 @@ export const sandStream: Ability = {
 	name: 'Sand Stream',
 	description: 'Summons a sandstorm when entering battle.',
 	onSwitchIn: (ctx: AbilityContext): void => {
-		ctx.battleContext.battleField.setWeather(Weather.SAND);
+		applyWeather(ctx.battleContext.battleField, Weather.SAND, 5, ctx.pokemon);
 		ctx.battleContext.addToStack(new PlayWeatherChange(Weather.SAND, ctx.pokemon));
 		ctx.battleContext.addToStack(new Message('A sandstorm kicked up!', ctx.pokemon));
 	}
@@ -66,7 +67,7 @@ export const snowWarning: Ability = {
 	name: 'Snow Warning',
 	description: 'Summons hail when entering battle.',
 	onSwitchIn: (ctx: AbilityContext): void => {
-		ctx.battleContext.battleField.setWeather(Weather.HAIL);
+		applyWeather(ctx.battleContext.battleField, Weather.HAIL, 5, ctx.pokemon);
 		ctx.battleContext.addToStack(new PlayWeatherChange(Weather.HAIL, ctx.pokemon));
 		ctx.battleContext.addToStack(new Message('It started to hail!', ctx.pokemon));
 	}
@@ -78,7 +79,7 @@ export const primordialSea: Ability = {
 	name: 'Primordial Sea',
 	description: 'Summons heavy rain that cannot be replaced.',
 	onSwitchIn: (ctx: AbilityContext): void => {
-		ctx.battleContext.battleField.setWeather(Weather.RAIN);
+		applyWeather(ctx.battleContext.battleField, Weather.RAIN, 5, ctx.pokemon);
 		ctx.battleContext.addToStack(new PlayWeatherChange(Weather.RAIN, ctx.pokemon));
 		ctx.battleContext.addToStack(new Message('A heavy rain began to fall!', ctx.pokemon));
 	}
@@ -89,7 +90,7 @@ export const desolateLand: Ability = {
 	name: 'Desolate Land',
 	description: 'Summons extremely harsh sunlight that cannot be replaced.',
 	onSwitchIn: (ctx: AbilityContext): void => {
-		ctx.battleContext.battleField.setWeather(Weather.SUN);
+		applyWeather(ctx.battleContext.battleField, Weather.SUN, 5, ctx.pokemon);
 		ctx.battleContext.addToStack(new PlayWeatherChange(Weather.SUN, ctx.pokemon));
 		ctx.battleContext.addToStack(new Message('The sunlight turned extremely harsh!', ctx.pokemon));
 	}

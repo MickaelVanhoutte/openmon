@@ -15,7 +15,7 @@ import {
 	applyToxicSpikes,
 	isGroundedForHazards
 } from '../../pokemons/effects/hazard-effects';
-import { applyWeatherDamage } from '../../pokemons/effects/weather-effects';
+import { applyWeatherDamage, applyWeather } from '../../pokemons/effects/weather-effects';
 import { Weather } from '../battle-field';
 import { EffectTiming } from '../../pokemons/effects/types';
 import { AbilityTrigger } from '../abilities/ability-types';
@@ -218,7 +218,7 @@ export class ApplyEffect implements ActionV2Interface {
 
 			const weatherType = WEATHER_MAP[effect.move_effect_id];
 			if (weatherType !== undefined) {
-				ctx.battleField.setWeather(weatherType, 5);
+				applyWeather(ctx.battleField, weatherType, 5, this.initiator);
 				ctx.weatherVersion.update((v) => v + 1);
 				const weatherMessages: Record<Weather, string> = {
 					[Weather.SAND]: 'A sandstorm kicked up!',
@@ -334,7 +334,7 @@ export class PlayWeatherChange implements ActionV2Interface {
 	}
 
 	execute(ctx: BattleContext): void {
-		ctx.battleField.setWeather(this.weather);
+		applyWeather(ctx.battleField, this.weather, 5, this.initiator);
 		ctx.weatherVersion.update((v) => v + 1);
 		ctx.events.weatherChange.set({
 			weather: this.weather,
