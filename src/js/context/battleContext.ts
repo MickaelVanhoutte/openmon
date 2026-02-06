@@ -109,6 +109,7 @@ export class BattleContext {
 			?.filter((poke) => !!poke && !poke.fainted)
 			.forEach((poke) => this.participants.add(poke));
 		this.prepareNewTurn();
+		this.triggerInitialSwitchIn();
 	}
 
 	setPlayerAction(action: ActionV2Interface) {
@@ -300,6 +301,27 @@ export class BattleContext {
 		this.isPlayerTurn.set(true);
 		this.actionIdx = this.playerSide.findIndex((poke) => !!poke && !poke.fainted);
 		this.currentMessage.set(`What should ${this.playerSide[this.actionIdx]?.name} do?`);
+	}
+
+	private triggerInitialSwitchIn(): void {
+		const activePokemon: PokemonInstance[] = [];
+
+		const playerActive = this.playerSide[0];
+		if (playerActive) {
+			activePokemon.push(playerActive);
+		}
+
+		const oppActive = this.oppSide[0];
+		if (oppActive) {
+			activePokemon.push(oppActive);
+		}
+
+		activePokemon.sort((a, b) => b.battleStats.speed - a.battleStats.speed);
+
+		for (const pokemon of activePokemon) {
+			const target = pokemon === playerActive ? oppActive : playerActive;
+			this.runAbilityEvent(AbilityTrigger.ON_SWITCH_IN, pokemon, target);
+		}
 	}
 
 	public runAbilityEvent<T>(
