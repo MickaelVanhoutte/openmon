@@ -16,6 +16,7 @@ export enum ActionType {
 	LEVEL_UP = 'Level-Up',
 	PLAY_ANIMATION = 'Play-Animation',
 	SLEEP = 'Sleep',
+	STAT_CHANGE = 'Stat-Change',
 
 	END_CHECKS = 'End-Checks',
 	END_BATTLE = 'End-Battle'
