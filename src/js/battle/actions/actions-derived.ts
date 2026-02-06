@@ -18,6 +18,7 @@ import {
 import { applyWeatherDamage } from '../../pokemons/effects/weather-effects';
 import { Weather } from '../battle-field';
 import { EffectTiming } from '../../pokemons/effects/types';
+import { AbilityTrigger } from '../abilities/ability-types';
 
 export class Message implements ActionV2Interface {
 	public type: ActionType;
@@ -93,6 +94,9 @@ export class ChangePokemon implements ActionV2Interface {
 		}
 
 		this.applyEntryHazards(ctx, this.target, side);
+
+		// ON_SWITCH_IN ability hook
+		ctx.runAbilityEvent(AbilityTrigger.ON_SWITCH_IN, this.target);
 	}
 
 	private applyEntryHazards(
