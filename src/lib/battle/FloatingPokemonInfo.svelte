@@ -209,7 +209,7 @@
 		const widgetHeight = 80;
 		const widgetWidth = 180;
 
-		const top = rect.top - containerRect.top - widgetHeight - 10;
+		const top = rect.top - containerRect.top - widgetHeight - 20;
 		const left = rect.left - containerRect.left + rect.width / 2 - widgetWidth / 2;
 
 		computedStyle = `top: ${top}px; left: ${left}px;`;

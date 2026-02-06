@@ -672,7 +672,7 @@
 			{#key allyNames[1]}
 				<FloatingPokemonInfo
 					pokemon={battleCtx.playerSide[1]}
-					position={{ bottom: '46%', left: '8%' }}
+					position={{ bottom: '68%', left: '8%' }}
 					isAlly={true}
 					spriteElement={ally[1]}
 					entranceDelay={isInitialBattleEntrance ? uiEntranceDelays.allyHp : 0}
