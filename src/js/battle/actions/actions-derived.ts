@@ -177,12 +177,12 @@ export class ChangePokemon implements ActionV2Interface {
 							}
 						};
 						ctx.addToStack(new Message(`${pokemon.name} was badly poisoned!`, pokemon));
-					}
 				}
 			}
 		}
 	}
 }
+
 
 export class ApplyEffect implements ActionV2Interface {
 	public type: ActionType;
