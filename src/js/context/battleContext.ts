@@ -109,7 +109,6 @@ export class BattleContext {
 			?.filter((poke) => !!poke && !poke.fainted)
 			.forEach((poke) => this.participants.add(poke));
 		this.prepareNewTurn();
-		this.triggerInitialSwitchIn();
 	}
 
 	setPlayerAction(action: ActionV2Interface) {
@@ -254,7 +253,7 @@ export class BattleContext {
 	 * Action executions, recursive, until stack is empty
 	 * @param action an action to execute
 	 */
-	private executeAction(action?: ActionV2Interface) {
+	public executeAction(action?: ActionV2Interface) {
 		this.currentAction.set(action);
 		if (action !== undefined) {
 			if (action.type === ActionType.END_CHECKS) {
@@ -303,7 +302,7 @@ export class BattleContext {
 		this.currentMessage.set(`What should ${this.playerSide[this.actionIdx]?.name} do?`);
 	}
 
-	private triggerInitialSwitchIn(): void {
+	public triggerInitialSwitchIn(): void {
 		const activePokemon: PokemonInstance[] = [];
 
 		const playerActive = this.playerSide[0];
@@ -321,6 +320,15 @@ export class BattleContext {
 		for (const pokemon of activePokemon) {
 			const target = pokemon === playerActive ? oppActive : playerActive;
 			this.runAbilityEvent(AbilityTrigger.ON_SWITCH_IN, pokemon, target);
+		}
+	}
+
+	public async processInitialAbilityActions(): Promise<void> {
+		while (!this.actionStack.isEmpty()) {
+			const action = this.actionStack.pop();
+			if (action) {
+				await this.executeAction(action);
+			}
 		}
 	}
 

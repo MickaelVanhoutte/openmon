@@ -77,6 +77,10 @@
 
 	$effect(() => {
 		if (isInitialBattleEntrance && entryAnimationsComplete) {
+			// Trigger initial switch-in abilities after UI is mounted
+			battleCtx.triggerInitialSwitchIn();
+			battleCtx.processInitialAbilityActions();
+
 			const timer = setTimeout(() => {
 				isInitialBattleEntrance = false;
 			}, 1500);
