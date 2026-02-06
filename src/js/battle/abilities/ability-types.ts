@@ -7,10 +7,12 @@ import { PokemonInstance, Move } from '../../pokemons/pokedex';
  */
 export enum AbilityTrigger {
 	ON_SWITCH_IN = 'ON_SWITCH_IN',
+	ON_SWITCH_OUT = 'ON_SWITCH_OUT',
 	ON_BEFORE_MOVE = 'ON_BEFORE_MOVE',
 	ON_AFTER_MOVE = 'ON_AFTER_MOVE',
 	ON_DAMAGE_CALC = 'ON_DAMAGE_CALC',
 	ON_CONTACT = 'ON_CONTACT',
+	ON_TRY_HIT = 'ON_TRY_HIT',
 	ON_TURN_END = 'ON_TURN_END',
 	ON_TURN_START = 'ON_TURN_START',
 	ON_FAINT = 'ON_FAINT',
@@ -46,6 +48,9 @@ export interface Ability {
 
 	/** Triggered when the pokemon switches into battle */
 	onSwitchIn?: (ctx: AbilityContext) => void;
+
+	/** Triggered when the pokemon switches out of battle */
+	onSwitchOut?: (ctx: AbilityContext) => void;
 
 	/** Triggered before the pokemon uses a move. Return false to prevent the move. */
 	onBeforeMove?: (ctx: AbilityContext) => boolean;
