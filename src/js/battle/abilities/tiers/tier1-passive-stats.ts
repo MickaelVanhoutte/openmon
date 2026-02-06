@@ -102,18 +102,6 @@ export const defeatist: Ability = {
 	}
 };
 
-export const slowStart: Ability = {
-	id: 112,
-	name: 'Slow Start',
-	description: 'Halves Attack and Speed for the first five turns in battle.',
-	onModifyAtk: (_ctx: AbilityContext, attack: number): number => {
-		return Math.floor(attack * 0.5);
-	},
-	onModifySpe: (_ctx: AbilityContext, speed: number): number => {
-		return Math.floor(speed * 0.5);
-	}
-};
-
 // =============================================================================
 // DEFENSE MODIFIERS
 // =============================================================================
@@ -338,15 +326,6 @@ export const flowerVeil: Ability = {
 	}
 };
 
-export const assaultVest: Ability = {
-	id: 0,
-	name: 'Assault Vest Effect',
-	description: 'Boosts Special Defense by 50% (item effect placeholder).',
-	onModifySpD: (_ctx: AbilityContext, spDef: number): number => {
-		return Math.floor(spDef * 1.5);
-	}
-};
-
 // =============================================================================
 // TYPE-SPECIFIC DAMAGE MODIFIERS
 // =============================================================================
@@ -405,69 +384,6 @@ export const heatproof: Ability = {
 	}
 };
 
-export const drySkin: Ability = {
-	id: 87,
-	name: 'Dry Skin',
-	description: 'Heals from Water moves, takes extra Fire damage.',
-	onSourceModifyDamage: (ctx: AbilityContext, damage: number): number => {
-		if (ctx.move?.type === 'fire') {
-			return Math.floor(damage * 1.25);
-		}
-		return damage;
-	}
-};
-
-export const filter: Ability = {
-	id: 111,
-	name: 'Filter',
-	description: 'Reduces super effective damage by 25%.',
-	onSourceModifyDamage: (_ctx: AbilityContext, damage: number): number => {
-		return Math.floor(damage * 0.75);
-	}
-};
-
-export const solidRock: Ability = {
-	id: 116,
-	name: 'Solid Rock',
-	description: 'Reduces super effective damage by 25%.',
-	onSourceModifyDamage: (_ctx: AbilityContext, damage: number): number => {
-		return Math.floor(damage * 0.75);
-	}
-};
-
-export const prismArmor: Ability = {
-	id: 232,
-	name: 'Prism Armor',
-	description: 'Reduces super effective damage by 25%.',
-	onSourceModifyDamage: (_ctx: AbilityContext, damage: number): number => {
-		return Math.floor(damage * 0.75);
-	}
-};
-
-export const multiscale: Ability = {
-	id: 136,
-	name: 'Multiscale',
-	description: 'Halves damage taken at full HP.',
-	onSourceModifyDamage: (ctx: AbilityContext, damage: number): number => {
-		if (ctx.pokemon.currentHp === ctx.pokemon.currentStats.hp) {
-			return Math.floor(damage * 0.5);
-		}
-		return damage;
-	}
-};
-
-export const shadowShield: Ability = {
-	id: 231,
-	name: 'Shadow Shield',
-	description: 'Halves damage taken at full HP.',
-	onSourceModifyDamage: (ctx: AbilityContext, damage: number): number => {
-		if (ctx.pokemon.currentHp === ctx.pokemon.currentStats.hp) {
-			return Math.floor(damage * 0.5);
-		}
-		return damage;
-	}
-};
-
 // =============================================================================
 // DAMAGE BOOST ABILITIES (require damage hook)
 // =============================================================================
@@ -485,24 +401,6 @@ export const adaptability: Ability = {
 	id: 91,
 	name: 'Adaptability',
 	description: 'Powers up moves of the same type as the Pokemon (STAB: 1.5x -> 2x).',
-	onModifyDamage: (_ctx: AbilityContext, damage: number): number => {
-		return damage;
-	}
-};
-
-export const tintedLens: Ability = {
-	id: 110,
-	name: 'Tinted Lens',
-	description: 'Powers up not very effective moves.',
-	onModifyDamage: (_ctx: AbilityContext, damage: number): number => {
-		return damage;
-	}
-};
-
-export const neuroforce: Ability = {
-	id: 233,
-	name: 'Neuroforce',
-	description: 'Powers up super effective moves by 25%.',
 	onModifyDamage: (_ctx: AbilityContext, damage: number): number => {
 		return damage;
 	}
@@ -655,24 +553,6 @@ export const victoryStarAura: Ability = {
 	}
 };
 
-export const competitiveSpirit: Ability = {
-	id: 172,
-	name: 'Competitive',
-	description: 'Boosts Special Attack sharply when a stat is lowered.',
-	onModifySpA: (_ctx: AbilityContext, spAtk: number): number => {
-		return spAtk;
-	}
-};
-
-export const download: Ability = {
-	id: 88,
-	name: 'Download',
-	description: "Boosts Attack or Sp. Atk based on foe's lower defensive stat.",
-	onModifyAtk: (_ctx: AbilityContext, attack: number): number => {
-		return attack;
-	}
-};
-
 // =============================================================================
 // MISC PASSIVE ABILITIES
 // =============================================================================
@@ -686,13 +566,10 @@ export const rivalry: Ability = {
 	}
 };
 
-export const hushedVoice: Ability = {
-	id: 0,
-	name: 'Hushed Voice',
-	description: 'Placeholder ability.',
-	onModifySpA: (_ctx: AbilityContext, spAtk: number): number => {
-		return spAtk;
-	}
+export const overcoat: Ability = {
+	id: 142,
+	name: 'Overcoat',
+	description: 'Protects against damage from weather.'
 };
 
 // =============================================================================
@@ -708,7 +585,6 @@ export const tier1PassiveStatAbilities: Ability[] = [
 	toxicBoost,
 	flareBoost,
 	defeatist,
-	slowStart,
 	furCoat,
 	marvelScale,
 	grassPelt,
@@ -730,16 +606,8 @@ export const tier1PassiveStatAbilities: Ability[] = [
 	waterBubble,
 	steelworker,
 	heatproof,
-	drySkin,
-	filter,
-	solidRock,
-	prismArmor,
-	multiscale,
-	shadowShield,
 	sniper,
 	adaptability,
-	tintedLens,
-	neuroforce,
 	stakeout,
 	analytic,
 	technician,
@@ -754,7 +622,6 @@ export const tier1PassiveStatAbilities: Ability[] = [
 	sandForce,
 	flowerGift,
 	victoryStarAura,
-	competitiveSpirit,
-	download,
-	rivalry
+	rivalry,
+	overcoat
 ];

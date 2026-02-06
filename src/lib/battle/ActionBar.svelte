@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onDestroy, onMount } from 'svelte';
+	import { onMount } from 'svelte';
 	import {
 		ComboMove,
 		Stats,
@@ -7,14 +7,11 @@
 		type PokemonInstance
 	} from '../../js/pokemons/pokedex';
 	import type { GameContext } from '../../js/context/gameContext';
-	import { BattleType, typeChart } from '../../js/battle/battle-model';
+	import { BattleType } from '../../js/battle/battle-model';
 	import { BattleContext } from '../../js/context/battleContext';
 	import { Attack, RunAway, Switch, UseItem } from '../../js/battle/actions/actions-selectable';
-	import PokemonList from '../menus/pokemon-list/PokemonList.svelte';
-	import Bag from '../menus/bag/Bag.svelte';
 	import { Pokeball } from '../../js/items/items';
 	import { MenuType, OverworldContext } from '../../js/context/overworldContext';
-	import { inlineSvg } from '@svelte-put/inline-svg';
 	import MiniPkmn from './mini-menus/MiniPkmn.svelte';
 	import MiniBag from './mini-menus/MiniBag.svelte';
 	import SplitActionButtons from './action-bar/SplitActionButtons.svelte';
@@ -33,9 +30,9 @@
 	}
 
 	let {
-		context,
-		battleCtx,
-		overWorldCtx,
+		context = $bindable(),
+		battleCtx = $bindable(),
+		overWorldCtx = $bindable(),
 		allySprites = [],
 		entranceDelay = 0,
 		isInitialEntrance = true,
@@ -50,9 +47,7 @@
 	let moveOpened = $state(false);
 	let targetSelectOpened = $state(false);
 	let possibleTargets: PokemonInstance[] = $state([]);
-	let infoOpened = $state(false);
 	let showInfoBack = $state(false);
-	let show = $state(false);
 	let showAdd = $state(false);
 
 	let currentMessage: string | undefined = $state(undefined);
@@ -65,28 +60,20 @@
 		$state(undefined);
 	let changePokemon = $state(false);
 	let faintedPokemon = $state<PokemonInstance | undefined>(undefined);
-	const isBattle = true;
 	let battleBagOpened = $state(false);
 	let battleSwitchOpened = $state(false);
 	const zIndexNext = 120;
-	const mechanicRegex = /{[^}]*}/g;
-	const effectRegex = /\$effect_chance/g;
 
 	const comboJauge = battleCtx.player.comboJauge;
 	let comboValue = $state(comboJauge.value);
 	let comboStored = $state(comboJauge.stored);
-	let comboDisabled = $state(
-		battleCtx.player.comboJauge.stored === 0 ||
-			battleCtx.player.monsters?.filter((p) => !p.fainted).length === 1
-	);
 	let updating = $state(false);
-	let disableComboTransition = $state(false);
 
 	let levelUpRecap: { pokemon: PokemonInstance; oldStats?: Stats; newStats?: Stats } | undefined =
 		$state(undefined);
 	const statSkip = ['total', 'accuracy', 'evasion'];
 
-	let menuType = $derived(
+	const menuType = $derived(
 		(battleSwitchOpened ? 'switch' : combo ? 'combo' : 'change') as 'switch' | 'combo' | 'change'
 	);
 
@@ -106,16 +93,14 @@
 		if (lvlUp && lvlUp.newStats) {
 			setTimeout(() => {
 				levelUpRecap = lvlUp;
-				infoOpened = true;
 			}, 500);
 			setTimeout(() => {
-				infoOpened = false;
 				levelUpRecap = undefined;
 			}, 3500);
 		}
 	});
 
-	battleCtx.currentAction.subscribe((action) => {
+	battleCtx.currentAction.subscribe(() => {
 		if (battleCtx.player.comboJauge.value != comboValue && !updating) {
 			updating = true;
 			showAdd = true;
@@ -129,19 +114,16 @@
 			) {
 				setTimeout(() => {
 					// goes to 100 animated
-					disableComboTransition = false;
 					comboValue = 100;
 				}, 50);
 
 				setTimeout(() => {
 					// then 0 without transition
-					disableComboTransition = true;
 					comboValue = 0;
 				}, 950);
 
 				setTimeout(() => {
 					// then set new values
-					disableComboTransition = false;
 					comboValue = battleCtx.player.comboJauge.value;
 					comboStored = battleCtx.player.comboJauge.stored;
 					updating = false;
@@ -151,25 +133,21 @@
 				comboStored = battleCtx.player.comboJauge.stored;
 				updating = false;
 			}
-			comboDisabled =
-				battleCtx.player.comboJauge.stored === 0 ||
-				battleCtx.player.monsters?.filter((p) => !p.fainted).length === 1;
 		}
 	});
 
 	function escape() {
-		if (battleCtx) {
-			battleCtx.setPlayerAction(new RunAway(battleCtx.playerSide[battleCtx.actionIdx]));
+		const currentPkmn = battleCtx.playerSide[battleCtx.actionIdx];
+		if (battleCtx && currentPkmn) {
+			battleCtx.setPlayerAction(new RunAway(currentPkmn));
 		}
 	}
 
 	function switchOpen() {
-		//overWorldCtx.openMenu(MenuType.SWITCH);
 		battleSwitchOpened = true;
 	}
 
 	function openBag() {
-		//overWorldCtx.openMenu(MenuType.BAG);
 		battleBagOpened = true;
 	}
 
@@ -180,11 +158,16 @@
 		}
 
 		let targets: PokemonInstance[];
+		const currentPkmn = battleCtx.playerSide[battleCtx.actionIdx];
+
+		if (!currentPkmn) {
+			return;
+		}
 
 		if (selectedTargets && selectedTargets.length > 0) {
 			targets = [...selectedTargets];
 		} else {
-			const found = battleCtx.getPossibleTargets(battleCtx.playerSide[battleCtx.actionIdx], move);
+			const found = battleCtx.getPossibleTargets(currentPkmn, move);
 			if (found.selectOne) {
 				targetSelectOpened = true;
 				possibleTargets = found.possibleTargets;
@@ -200,7 +183,7 @@
 					new Attack(
 						new ComboMove(move, currentCombo.move, currentCombo.pokemon),
 						targets,
-						battleCtx.playerSide[battleCtx.actionIdx]
+						currentPkmn
 					)
 				);
 
@@ -209,16 +192,13 @@
 
 				return;
 			} else {
-				battleCtx.setPlayerAction(
-					new Attack(move, targets, battleCtx.playerSide[battleCtx.actionIdx])
-				);
+				battleCtx.setPlayerAction(new Attack(move, targets, currentPkmn));
 			}
 
 			selectedTargetIdx = undefined;
 			selectedMoveIdx = undefined;
 			possibleTargets = [];
 			targetSelectOpened = false;
-			infoOpened = false;
 			moveOpened = false;
 			showAdd = false;
 		}
@@ -230,10 +210,9 @@
 
 	function sendSwitchAction(newMonster: PokemonInstance) {
 		battleSwitchOpened = false;
-		if (battleCtx?.playerSide[battleCtx.actionIdx]) {
-			battleCtx?.setPlayerAction(
-				new Switch(battleCtx.playerSide[battleCtx.actionIdx], newMonster, battleCtx.player)
-			);
+		const currentPkmn = battleCtx?.playerSide[battleCtx.actionIdx];
+		if (currentPkmn) {
+			battleCtx?.setPlayerAction(new Switch(currentPkmn, newMonster, battleCtx.player));
 		}
 	}
 
@@ -247,29 +226,21 @@
 				battleCtx.player.monsters[replacedIdx]
 			];
 			battleCtx.playerSide[replacedIdx] = battleCtx.player.monsters[replacedIdx];
-			battleCtx.participants.add(battleCtx.playerSide[replacedIdx]);
+			const newPkmn = battleCtx.playerSide[replacedIdx];
+			if (newPkmn) {
+				battleCtx.participants.add(newPkmn);
+				battleCtx.currentMessage.set(`What should ${newPkmn.name} do?`);
+			}
 			changePokemon = false;
 			selectedOptionIdx = 0;
 			selectedMoveIdx = 0;
 			battleCtx.events.pokemonChange.set({ side: 'ally', idx: replacedIdx });
-			battleCtx.currentMessage.set(`What should ${battleCtx.playerSide[replacedIdx].name} do?`);
-		}
-	}
-
-	function toggleCombo() {
-		if (!combo && !currentCombo) {
-			combo = true;
-		} else if (!combo && currentCombo) {
-			currentCombo = undefined;
-			infoOpened = false;
-			showInfoBack = false;
 		}
 	}
 
 	function prepareCombo(pokemon: PokemonInstance, move: MoveInstance) {
 		//console.log(pokemon, move);
 		currentCombo = { pokemon, move };
-		infoOpened = true;
 		showInfoBack = true;
 	}
 
@@ -280,19 +251,11 @@
 		if (result.target) {
 			pokemonIdx = battleCtx?.playerSide.indexOf(result.target);
 		}
-		if (result.target && battleCtx) {
-			if (
-				itm &&
-				battleCtx &&
-				itm.doesApply(result.target, battleCtx.playerSide[pokemonIdx], battleCtx)
-			) {
+		const currentPkmn = battleCtx?.playerSide[pokemonIdx];
+		if (result.target && battleCtx && currentPkmn) {
+			if (itm && itm.doesApply(result.target, currentPkmn, battleCtx)) {
 				battleCtx?.setPlayerAction(
-					new UseItem(
-						result.item,
-						result.target,
-						battleCtx.playerSide[pokemonIdx],
-						battleCtx.player
-					)
+					new UseItem(result.item, result.target, currentPkmn, battleCtx.player)
 				);
 				overWorldCtx.closeMenu(MenuType.BAG);
 			} else {
@@ -302,10 +265,12 @@
 		} else if (
 			itm instanceof Pokeball &&
 			battleCtx &&
-			itm.doesApply(target, battleCtx.playerSide[pokemonIdx], battleCtx)
+			battleCtx.oppSide[0] &&
+			currentPkmn &&
+			itm.doesApply(battleCtx.oppSide[0], currentPkmn, battleCtx)
 		) {
 			battleCtx?.setPlayerAction(
-				new UseItem(result.item, target, battleCtx.playerSide[pokemonIdx], battleCtx.player)
+				new UseItem(result.item, battleCtx.oppSide[0], currentPkmn, battleCtx.player)
 			);
 			overWorldCtx.closeMenu(MenuType.BAG);
 		} else {
@@ -329,6 +294,8 @@
 			}
 		}
 
+		const currentPkmn = battleCtx.playerSide[battleCtx.actionIdx];
+
 		if (
 			!context.overWorldContext.menus.bagOpened &&
 			!context.overWorldContext.menus.switchOpened &&
@@ -342,14 +309,12 @@
 						selectedTargetIdx =
 							selectedTargetIdx === 0 ? possibleTargets.length - 1 : selectedTargetIdx - 1;
 					}
-				} else if (moveOpened) {
+				} else if (moveOpened && currentPkmn) {
 					if (selectedMoveIdx === undefined) {
 						selectedMoveIdx = 0;
 					} else {
 						selectedMoveIdx =
-							selectedMoveIdx === 0
-								? battleCtx.playerSide[battleCtx.actionIdx].moves.length - 1
-								: selectedMoveIdx - 1;
+							selectedMoveIdx === 0 ? currentPkmn.moves.length - 1 : selectedMoveIdx - 1;
 					}
 				} else {
 					if (selectedOptionIdx === undefined) {
@@ -366,11 +331,9 @@
 						selectedTargetIdx =
 							selectedTargetIdx === possibleTargets.length - 1 ? 0 : selectedTargetIdx + 1;
 					}
-				} else if (moveOpened) {
+				} else if (moveOpened && currentPkmn) {
 					selectedMoveIdx =
-						selectedMoveIdx === battleCtx.playerSide[battleCtx.actionIdx].moves.length - 1
-							? 0
-							: selectedMoveIdx + 1;
+						selectedMoveIdx === currentPkmn.moves.length - 1 ? 0 : (selectedMoveIdx ?? 0) + 1;
 				} else {
 					if (selectedOptionIdx === undefined) {
 						selectedOptionIdx = 0;
@@ -378,22 +341,16 @@
 						selectedOptionIdx = selectedOptionIdx === 3 ? 0 : selectedOptionIdx + 1;
 					}
 				}
-			} else if (e.key === 'Enter' && selectedMoveIdx !== undefined) {
+			} else if (e.key === 'Enter' && selectedMoveIdx !== undefined && currentPkmn) {
 				if (moveOpened && targetSelectOpened && selectedTargetIdx !== undefined) {
-					launchMove(
-						selectedMoveIdx,
-						battleCtx.playerSide[battleCtx.actionIdx].moves[selectedMoveIdx],
-						[possibleTargets[selectedTargetIdx]]
-					);
+					launchMove(selectedMoveIdx, currentPkmn.moves[selectedMoveIdx], [
+						possibleTargets[selectedTargetIdx]
+					]);
 				} else if (moveOpened) {
-					launchMove(
-						selectedMoveIdx,
-						battleCtx.playerSide[battleCtx.actionIdx].moves[selectedMoveIdx]
-					);
+					launchMove(selectedMoveIdx, currentPkmn.moves[selectedMoveIdx]);
 				} else {
 					if (selectedOptionIdx === 0) {
 						moveOpened = true;
-						show = true;
 						showAdd = true;
 						showInfoBack = true;
 					} else if (selectedOptionIdx === 1) {
@@ -410,7 +367,7 @@
 					!showAdd &&
 					!showInfoBack &&
 					!targetSelectOpened &&
-					battleCtx.playerTurnActions?.length > 0
+					(battleCtx.playerTurnActions?.length ?? 0) > 0
 				) {
 					battleCtx.cancelLastAction();
 				} else {
@@ -431,7 +388,6 @@
 	}
 
 	onMount(() => {
-		show = true;
 		window.addEventListener('keydown', listener);
 
 		// Poll for actionIdx changes (for double battles)
@@ -619,8 +575,12 @@
 				{disabled}
 				{selectedMoveIdx}
 				spriteElement={activeSprite}
-				onMoveClick={(index) =>
-					launchMove(index, battleCtx?.playerSide[battleCtx.actionIdx]?.moves[index])}
+				onMoveClick={(index) => {
+					const move = battleCtx?.playerSide[battleCtx.actionIdx]?.moves[index];
+					if (move) {
+						launchMove(index, move);
+					}
+				}}
 				onCancel={() => {
 					moveOpened = false;
 					showAdd = false;
@@ -634,17 +594,21 @@
 			<TargetSelector
 				{possibleTargets}
 				{selectedTargetIdx}
-				selectedMove={battleCtx?.playerSide[battleCtx.actionIdx]?.moves[selectedMoveIdx]}
+				selectedMove={selectedMoveIdx !== undefined
+					? battleCtx?.playerSide[battleCtx.actionIdx]?.moves[selectedMoveIdx]
+					: undefined}
 				{battleCtx}
 				show={true}
 				spriteElement={activeSprite}
 				onTargetClick={(target) => {
 					const targetIdx = possibleTargets.indexOf(target);
-					launchMove(
-						targetIdx,
-						battleCtx?.playerSide[battleCtx.actionIdx]?.moves[selectedMoveIdx],
-						[target]
-					);
+					const move =
+						selectedMoveIdx !== undefined
+							? battleCtx?.playerSide[battleCtx.actionIdx]?.moves[selectedMoveIdx]
+							: undefined;
+					if (move) {
+						launchMove(targetIdx, move, [target]);
+					}
 				}}
 			/>
 		{/if}
@@ -670,7 +634,7 @@
 		/>
 	{/if}
 
-	{#if levelUpRecap}
+	{#if levelUpRecap && levelUpRecap.oldStats && levelUpRecap.newStats}
 		<div class="level-up">
 			<ul>
 				{#each Object.keys(levelUpRecap.oldStats) as stat}
@@ -682,9 +646,10 @@
 								.replace(/defense/i, 'def')
 								.replace('special', 'sp.')
 								.toUpperCase()}
-							data-val1="{levelUpRecap.oldStats[stat]} + {levelUpRecap.newStats[stat] -
-								levelUpRecap.oldStats[stat]}"
-							data-val2={levelUpRecap.newStats[stat]}
+							data-val1="{(levelUpRecap.oldStats as any)[stat]} + {(levelUpRecap.newStats as any)[
+								stat
+							] - (levelUpRecap.oldStats as any)[stat]}"
+							data-val2={(levelUpRecap.newStats as any)[stat]}
 						></li>
 					{/if}
 				{/each}
@@ -700,6 +665,7 @@
 					battleSwitchOpened = false;
 					combo = false;
 				}}
+				aria-label="Go back"
 			>
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
 					><path
@@ -710,9 +676,9 @@
 		{/if}
 
 		<MiniPkmn
-			bind:context
-			bind:currentPkmn={battleCtx.playerSide[battleCtx.actionIdx]}
-			bind:type={menuType}
+			{context}
+			currentPkmn={battleCtx.playerSide[battleCtx.actionIdx] as PokemonInstance}
+			type={menuType}
 			zIndex={zIndexNext}
 			onCombo={(cb) => {
 				!!cb && prepareCombo(cb.pokemon, cb.move);
@@ -735,6 +701,7 @@
 			onclick={() => {
 				battleBagOpened = false;
 			}}
+			aria-label="Go back"
 		>
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
 				><path
@@ -744,9 +711,9 @@
 		</button>
 
 		<MiniBag
-			bind:context
-			bind:currentPkmn={battleCtx.playerSide[battleCtx.actionIdx]}
-			bind:battleCtx
+			{context}
+			currentPkmn={battleCtx.playerSide[battleCtx.actionIdx] as PokemonInstance}
+			{battleCtx}
 			zIndex={zIndexNext}
 			onChange={(result) => sendObjectAction(result)}
 		/>
@@ -882,257 +849,12 @@
 			min-height: 44px;
 			transition: transform 0.5s ease-in-out;
 
-			&:hover,
-			&.selected {
+			&:hover {
 				transform: translateX(0);
 				filter: brightness(1.1);
 				border: 3px solid var(--pixel-text-gold);
 				color: var(--pixel-text-white);
 				justify-content: center;
-			}
-		}
-	}
-
-	.info {
-		z-index: 1;
-		width: 62%;
-		position: absolute;
-		left: -40%;
-		bottom: 1%;
-		transition: left 0.5s ease-in-out;
-		border: 2px solid #000;
-		box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
-		display: flex;
-		align-items: center;
-		align-content: center;
-		justify-content: space-around;
-		box-sizing: border-box;
-		padding: 1%;
-		height: 25%;
-		background-color: hsl(206.77deg 61.9% 20.59% / 62%);
-		opacity: 0;
-
-		&.show {
-			animation: info-appear 0.5s ease-in forwards;
-		}
-
-		._inner {
-			z-index: 1;
-			height: 100%;
-			font-size: 32px;
-			font-weight: 500;
-			letter-spacing: 0.5px;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			width: 100%;
-			text-align: center;
-			box-sizing: border-box;
-			color: var(--pixel-text-white);
-		}
-	}
-
-	.actions2,
-	.moves2 {
-		width: 30%;
-		max-height: 220px;
-		position: absolute;
-		bottom: -25%;
-		right: 5%;
-		transition: bottom 0.5s ease-in-out;
-		animation: appear 0.5s ease-in forwards;
-		align-items: flex-end;
-		gap: 6px;
-		display: flex;
-		flex-direction: column;
-		z-index: 9;
-
-		&.target-select {
-			justify-content: center;
-		}
-
-		.action2-btn {
-			width: 100%;
-			height: 44px;
-			background-color: var(--pixel-bg-header);
-			border: 2px solid var(--pixel-border-color);
-			color: var(--pixel-text-white);
-			transform: translateX(20%);
-			display: flex;
-			justify-content: flex-start;
-			align-items: center;
-			padding: 0 20px;
-			font-size: 36px;
-			min-width: 44px;
-			min-height: 44px;
-			transition: transform 0.3s ease-in-out;
-
-			&:hover,
-			&.selected {
-				filter: brightness(1.1);
-				border: 3px solid var(--pixel-text-gold);
-				color: var(--pixel-text-white);
-			}
-		}
-
-		.move-btn,
-		.target-btn {
-			width: 100%;
-			height: calc(80% / 4);
-			background-color: var(--pixel-bg-header);
-			border: 2px solid var(--pixel-border-color);
-			border-left: 5px solid var(--color, var(--pixel-bg-header));
-			color: var(--pixel-text-white);
-			display: flex;
-			align-items: center;
-			justify-content: space-between;
-			padding: 0 12px 0 10px;
-			transform: translateX(8%);
-			font-size: 24px;
-			min-width: 44px;
-			min-height: 44px;
-			transition: transform 0.5s ease-in-out;
-			box-sizing: border-box;
-
-			&.target-btn {
-				border: 2px solid var(--pixel-border-color);
-				border-left: 5px solid var(--color, var(--pixel-bg-header));
-				justify-content: flex-start;
-				gap: 10%;
-
-				&:hover,
-				&.selected {
-					background-color: var(--pixel-bg-header);
-					color: var(--pixel-text-white);
-				}
-
-				span:first-child {
-					margin-left: 10%;
-				}
-				span:last-child {
-					font-size: 26px;
-					font-weight: bold;
-					text-shadow: 0px 0px 5px var(--eff-color, transparent);
-				}
-			}
-
-			&:hover,
-			&.selected {
-				//transform: translateX(0);
-				filter: brightness(1.1);
-				border: 3px solid var(--pixel-text-gold);
-				border-left: 5px solid var(--color, var(--pixel-bg-header));
-				color: var(--pixel-text-white);
-				opacity: 1;
-			}
-
-			.move-name {
-				max-width: 70%;
-				//overflow: hidden;
-				text-overflow: ellipsis;
-				white-space: nowrap;
-			}
-
-			.move-pp {
-				font-size: 16px;
-			}
-		}
-	}
-
-	.combo {
-		width: 60%;
-		height: 7dvh;
-		display: flex;
-		justify-content: flex-end;
-		position: absolute;
-		right: 37%;
-		bottom: 29%;
-		opacity: 0;
-		transition: opacity 0.5s ease-in-out;
-		transition-delay: 0.3s;
-
-		&.show {
-			opacity: 1;
-		}
-
-		.counter {
-			display: flex;
-			align-items: center;
-			justify-content: flex-start;
-			height: 100%;
-			width: 15%;
-			gap: 1%;
-
-			svg {
-				height: 175%;
-				width: auto;
-			}
-		}
-
-		.combo-info {
-			height: 100%;
-			width: 85%;
-			font-size: 26px;
-			padding: 1% 4%;
-			background-color: var(--pixel-bg-panel);
-			border: 2px solid var(--pixel-border-color);
-			box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
-			color: var(--pixel-text-white);
-			text-shadow: 1px 0px 0px black;
-			text-overflow: ellipsis;
-			overflow: hidden;
-			white-space: nowrap;
-			text-align: left;
-		}
-
-		.combo-jauge {
-			height: 100%;
-			width: 85%;
-			font-size: 26px;
-			padding: 1% 2%;
-			background-color: var(--pixel-bg-panel);
-			border: 2px solid var(--pixel-border-color);
-			box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
-			color: var(--pixel-text-white);
-			display: flex;
-			gap: 2%;
-			align-items: center;
-
-			.progressbar-wrapper {
-				height: 100%;
-				width: 100%;
-				background-color: rgba(0, 0, 0, 0.25);
-				position: relative;
-
-				.progressbar {
-					width: var(--width);
-					background: var(--pixel-bg-header);
-					height: 100%;
-					position: relative;
-					overflow: hidden;
-					display: flex;
-					text-align: center;
-					align-items: center;
-					justify-content: center;
-					transition: width 1s ease-in-out;
-
-					&.noTransition {
-						transition: none;
-					}
-
-					&:after {
-						display: none;
-					}
-
-					span {
-						position: absolute;
-						display: block;
-						width: 100%;
-						height: 64px;
-						top: 0;
-						left: 0;
-					}
-				}
 			}
 		}
 	}
@@ -1187,81 +909,6 @@
 					height: 100%;
 					max-height: 100%;
 					max-width: 100%;
-				}
-			}
-		}
-
-		.move-desc {
-			width: 85%;
-			color: white;
-			text-transform: initial;
-			text-align: left;
-			font-size: 26px;
-			word-break: break-word;
-			box-sizing: border-box;
-			height: 100%;
-			overflow: auto;
-			-webkit-overflow-scrolling: touch;
-			scrollbar-width: thin;
-			scrollbar-color: #68c0c8 #0e2742f0;
-			background-color: hsl(206.77deg 61.9% 20.59% / 62%);
-			border: 2px solid #000;
-			box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
-			transition: bottom 0.5s ease-in-out;
-			opacity: 1;
-			z-index: 9;
-
-			h4,
-			h5,
-			ul,
-			p {
-				margin: 0;
-			}
-
-			&.show {
-				animation: appear 0.5s ease-in forwards;
-			}
-
-			.wrapper {
-				box-shadow: none;
-				background: transparent;
-				height: 100%;
-			}
-
-			._desc {
-				width: 100%;
-				height: 100%;
-				padding: 2%;
-				box-sizing: border-box;
-				position: relative;
-				overflow: hidden;
-
-				visibility: hidden;
-
-				&.show {
-					visibility: visible;
-				}
-
-				hr {
-					margin: 0.5rem 0;
-				}
-
-				.head {
-					display: flex;
-					justify-content: space-between;
-					align-items: center;
-				}
-
-				.desc-txt {
-					font-size: 20px;
-				}
-
-				.move-cat {
-					position: absolute;
-					bottom: 1%;
-					right: 1%;
-					height: 32px;
-					width: 32px;
 				}
 			}
 		}

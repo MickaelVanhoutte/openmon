@@ -197,7 +197,7 @@ export const myceliumMight: Ability = {
 	}
 };
 
-export const unseen_fist: Ability = {
+export const unseenFist: Ability = {
 	id: 260,
 	name: 'Unseen Fist',
 	description: 'Contact moves bypass Protect-like moves.'
@@ -215,14 +215,14 @@ export const scrappy: Ability = {
 	description: 'Normal and Fighting moves can hit Ghost-types.'
 };
 
-export const armor_tail: Ability = {
+export const armorTail: Ability = {
 	id: 296,
 	name: 'Armor Tail',
 	description: 'Opponent cannot use priority moves.',
 	suppressedBy: MOLD_BREAKER_FAMILY
 };
 
-export const queenly_majesty: Ability = {
+export const queenlyMajesty: Ability = {
 	id: 214,
 	name: 'Queenly Majesty',
 	description: 'Opponent cannot use priority moves.',
@@ -236,28 +236,10 @@ export const dazzling: Ability = {
 	suppressedBy: MOLD_BREAKER_FAMILY
 };
 
-export const psychicSurge_priority: Ability = {
-	id: 227,
-	name: 'Psychic Surge',
-	description: 'Sets Psychic Terrain, blocking priority moves against grounded Pokemon.'
-};
-
-export const oblivious: Ability = {
-	id: 12,
-	name: 'Oblivious',
-	description: 'Prevents Attract, Taunt, and Intimidate.'
-};
-
-export const innerfocus: Ability = {
+export const innerFocus: Ability = {
 	id: 39,
 	name: 'Inner Focus',
 	description: 'Prevents flinching and Intimidate.'
-};
-
-export const owntempo: Ability = {
-	id: 20,
-	name: 'Own Tempo',
-	description: 'Prevents confusion and Intimidate.'
 };
 
 export const rattled: Ability = {
@@ -365,15 +347,13 @@ export const tier5SuppressionAbilities: Ability[] = [
 	damp,
 	corrosion,
 	myceliumMight,
-	unseen_fist,
+	unseenFist,
 	mindsEye,
 	scrappy,
-	armor_tail,
-	queenly_majesty,
+	armorTail,
+	queenlyMajesty,
 	dazzling,
-	oblivious,
-	innerfocus,
-	owntempo,
+	innerFocus,
 	rattled,
 	competitive,
 	defiant,

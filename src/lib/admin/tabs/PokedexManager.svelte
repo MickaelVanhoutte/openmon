@@ -25,7 +25,9 @@
 	let selectedMoveLevel = $state(1);
 
 	const filteredPokemon = $derived(() => {
-		if (!searchQuery) return pokemonList;
+		if (!searchQuery) {
+			return pokemonList;
+		}
 		const query = searchQuery.toLowerCase();
 		return pokemonList.filter(
 			(p) =>
@@ -148,12 +150,16 @@
 	}
 
 	const filteredMoves = $derived(() => {
-		if (!editingPokemon) return [];
+		if (!editingPokemon) {
+			return [];
+		}
 		const existingMoveIds = new Set(editingPokemon.moves?.map((m) => m.id) ?? []);
 		return allMoves
 			.filter((m) => !existingMoveIds.has(m.id))
 			.filter((m) => {
-				if (!moveSearchQuery) return true;
+				if (!moveSearchQuery) {
+					return true;
+				}
 				const query = moveSearchQuery.toLowerCase();
 				return m.name.toLowerCase().includes(query) || m.type.toLowerCase().includes(query);
 			})
@@ -161,7 +167,9 @@
 	});
 
 	function addMove(move: HydratedMove) {
-		if (!editingPokemon) return;
+		if (!editingPokemon) {
+			return;
+		}
 		const newMove = new Move(
 			move.id,
 			move.name,

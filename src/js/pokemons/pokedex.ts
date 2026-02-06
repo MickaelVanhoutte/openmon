@@ -192,7 +192,9 @@ export class Pokedex {
 	}
 
 	private async loadPokedex(savedEntries: SavedEntry[]): Promise<void> {
-		if (this.initialized) {return;}
+		if (this.initialized) {
+			return;
+		}
 		const response = await fetch('./data/pokedex-animatedV3.json');
 		const pokedexJson = await response.json();
 		this.importFromJson(pokedexJson, savedEntries);

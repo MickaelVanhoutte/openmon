@@ -85,7 +85,7 @@ export enum MasteryGroup {
 }
 
 export class MasteriesBonuses {
-	[key: string]: number;
+	[key: string]: any;
 	catch: number = 0;
 	xp: number = 0;
 	ev: number = 0;
@@ -334,9 +334,9 @@ export class PlayerMasteries {
 	setMastery(mastery: Mastery) {
 		this.bonuses.enableMastery(mastery.type, mastery.value);
 		const node =
-			mastery.group == MasteryGroup.NOVICE
-				? this.novice.find((m) => m.q == mastery.q && m.r == mastery.r)
-				: this.expert.find((m) => m.q == mastery.q && m.r == mastery.r);
+			mastery.group === MasteryGroup.NOVICE
+				? this.novice.find((m) => m.q === mastery.q && m.r === mastery.r)
+				: this.expert.find((m) => m.q === mastery.q && m.r === mastery.r);
 
 		if (node && !node.set && this.points >= node.cost) {
 			node.set = true;

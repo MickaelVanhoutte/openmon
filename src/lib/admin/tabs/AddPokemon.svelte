@@ -43,7 +43,9 @@
 	let isLoading = $state(true);
 
 	const filteredPokemon = $derived(() => {
-		if (!searchQuery) return rawPokemon;
+		if (!searchQuery) {
+			return rawPokemon;
+		}
 		const query = searchQuery.toLowerCase();
 		return rawPokemon.filter(
 			(p) => p.name.english.toLowerCase().includes(query) || p.id.toString().includes(query)

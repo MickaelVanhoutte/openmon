@@ -33,6 +33,7 @@ export const drizzle: Ability = {
 	name: 'Drizzle',
 	description: 'Summons rain when entering battle.',
 	onSwitchIn: (ctx: AbilityContext): void => {
+		ctx.battleContext.battleField.setWeather(Weather.RAIN);
 		ctx.battleContext.addToStack(new PlayWeatherChange(Weather.RAIN, ctx.pokemon));
 		ctx.battleContext.addToStack(new Message('It started to rain!', ctx.pokemon));
 	}
@@ -43,6 +44,7 @@ export const drought: Ability = {
 	name: 'Drought',
 	description: 'Summons harsh sunlight when entering battle.',
 	onSwitchIn: (ctx: AbilityContext): void => {
+		ctx.battleContext.battleField.setWeather(Weather.SUN);
 		ctx.battleContext.addToStack(new PlayWeatherChange(Weather.SUN, ctx.pokemon));
 		ctx.battleContext.addToStack(new Message('The sunlight turned harsh!', ctx.pokemon));
 	}
@@ -53,6 +55,7 @@ export const sandStream: Ability = {
 	name: 'Sand Stream',
 	description: 'Summons a sandstorm when entering battle.',
 	onSwitchIn: (ctx: AbilityContext): void => {
+		ctx.battleContext.battleField.setWeather(Weather.SAND);
 		ctx.battleContext.addToStack(new PlayWeatherChange(Weather.SAND, ctx.pokemon));
 		ctx.battleContext.addToStack(new Message('A sandstorm kicked up!', ctx.pokemon));
 	}
@@ -63,6 +66,7 @@ export const snowWarning: Ability = {
 	name: 'Snow Warning',
 	description: 'Summons hail when entering battle.',
 	onSwitchIn: (ctx: AbilityContext): void => {
+		ctx.battleContext.battleField.setWeather(Weather.HAIL);
 		ctx.battleContext.addToStack(new PlayWeatherChange(Weather.HAIL, ctx.pokemon));
 		ctx.battleContext.addToStack(new Message('It started to hail!', ctx.pokemon));
 	}
@@ -74,6 +78,7 @@ export const primordialSea: Ability = {
 	name: 'Primordial Sea',
 	description: 'Summons heavy rain that cannot be replaced.',
 	onSwitchIn: (ctx: AbilityContext): void => {
+		ctx.battleContext.battleField.setWeather(Weather.RAIN);
 		ctx.battleContext.addToStack(new PlayWeatherChange(Weather.RAIN, ctx.pokemon));
 		ctx.battleContext.addToStack(new Message('A heavy rain began to fall!', ctx.pokemon));
 	}
@@ -84,6 +89,7 @@ export const desolateLand: Ability = {
 	name: 'Desolate Land',
 	description: 'Summons extremely harsh sunlight that cannot be replaced.',
 	onSwitchIn: (ctx: AbilityContext): void => {
+		ctx.battleContext.battleField.setWeather(Weather.SUN);
 		ctx.battleContext.addToStack(new PlayWeatherChange(Weather.SUN, ctx.pokemon));
 		ctx.battleContext.addToStack(new Message('The sunlight turned extremely harsh!', ctx.pokemon));
 	}
@@ -151,21 +157,6 @@ export const mistySurge: Ability = {
 // =============================================================================
 // ABILITY-COPYING ABILITIES
 // =============================================================================
-
-export const trace: Ability = {
-	id: 36,
-	name: 'Trace',
-	description: "Copies a random opposing Pokemon's Ability on switch-in.",
-	onSwitchIn: (ctx: AbilityContext): void => {
-		const opponents = ctx.battleContext.oppSide.filter(
-			(p): p is NonNullable<typeof p> => !!p && !p.fainted
-		);
-		if (opponents.length > 0) {
-			const randomOpponent = opponents[Math.floor(Math.random() * opponents.length)];
-			ctx.pokemon.currentAbility = randomOpponent.currentAbility;
-		}
-	}
-};
 
 // =============================================================================
 // STAT-BOOSTING ON-SWITCH ABILITIES
@@ -276,6 +267,7 @@ export const airLock: Ability = {
 	name: 'Air Lock',
 	description: 'Negates all weather effects.',
 	onSwitchIn: (ctx: AbilityContext): void => {
+		ctx.battleContext.battleField.setWeather(Weather.NONE);
 		ctx.battleContext.addToStack(new PlayWeatherChange(Weather.NONE, ctx.pokemon));
 	}
 };
@@ -285,6 +277,7 @@ export const cloudNine: Ability = {
 	name: 'Cloud Nine',
 	description: 'Negates all weather effects.',
 	onSwitchIn: (ctx: AbilityContext): void => {
+		ctx.battleContext.battleField.setWeather(Weather.NONE);
 		ctx.battleContext.addToStack(new PlayWeatherChange(Weather.NONE, ctx.pokemon));
 	}
 };
@@ -292,16 +285,6 @@ export const cloudNine: Ability = {
 // =============================================================================
 // ABILITY SUPPRESSION ABILITIES
 // =============================================================================
-
-export const neutralizingGas: Ability = {
-	id: 256,
-	name: 'Neutralizing Gas',
-	description: 'All other Abilities are suppressed while this Pokemon is on the field.',
-	onSwitchIn: (_ctx: AbilityContext): void => {
-		// Sets a field-wide suppression flag
-		// Would need integration with ability engine
-	}
-};
 
 // =============================================================================
 // INTIMIDATION/PRESSURE ABILITIES
@@ -320,33 +303,6 @@ export const pressure: Ability = {
 // =============================================================================
 // MOLD BREAKER FAMILY (Ability-Ignoring)
 // =============================================================================
-
-export const moldBreaker: Ability = {
-	id: 104,
-	name: 'Mold Breaker',
-	description: "Ignores the target's Ability when attacking.",
-	onSwitchIn: (_ctx: AbilityContext): void => {
-		// Display message: "[Pokemon] breaks the mold!"
-	}
-};
-
-export const teravolt: Ability = {
-	id: 164,
-	name: 'Teravolt',
-	description: "Ignores the target's Ability when attacking.",
-	onSwitchIn: (_ctx: AbilityContext): void => {
-		// Display message: "[Pokemon] is radiating Teravolt!"
-	}
-};
-
-export const turboblaze: Ability = {
-	id: 163,
-	name: 'Turboblaze',
-	description: "Ignores the target's Ability when attacking.",
-	onSwitchIn: (_ctx: AbilityContext): void => {
-		// Display message: "[Pokemon] is radiating Turboblaze!"
-	}
-};
 
 // =============================================================================
 // ADDITIONAL ON-SWITCH ABILITIES
@@ -419,6 +375,12 @@ export const pastelVeil: Ability = {
 				ally.status = undefined;
 			}
 		}
+	},
+	onStatus: (_ctx: AbilityContext, status: string): boolean => {
+		if (status === 'PSN' || status === 'TOX') {
+			return false;
+		}
+		return true;
 	}
 };
 
@@ -449,24 +411,6 @@ export const auraBreak: Ability = {
 	}
 };
 
-export const slowStart: Ability = {
-	id: 112,
-	name: 'Slow Start',
-	description: 'Halves Attack and Speed for the first five turns.',
-	onSwitchIn: (ctx: AbilityContext): void => {
-		ctx.pokemon.volatiles.add(VolatileStatus.SLOW_START, 5);
-	}
-};
-
-export const truant: Ability = {
-	id: 54,
-	name: 'Truant',
-	description: 'Can only use moves every other turn.',
-	onSwitchIn: (ctx: AbilityContext): void => {
-		ctx.pokemon.volatiles.add(VolatileStatus.TRUANT);
-	}
-};
-
 // =============================================================================
 // EXPORT ALL TIER 2 ABILITIES
 // =============================================================================
@@ -487,8 +431,6 @@ export const tier2OnSwitchAbilities: Ability[] = [
 	grassySurge,
 	psychicSurge,
 	mistySurge,
-	// Ability copying
-	trace,
 	// Stat boosting
 	download,
 	intrepidSword,
@@ -502,14 +444,8 @@ export const tier2OnSwitchAbilities: Ability[] = [
 	// Weather suppression
 	airLock,
 	cloudNine,
-	// Ability suppression
-	neutralizingGas,
 	// Intimidation
 	pressure,
-	// Mold breaker family
-	moldBreaker,
-	teravolt,
-	turboblaze,
 	// Additional
 	screenCleaner,
 	asOneIce,
@@ -518,7 +454,5 @@ export const tier2OnSwitchAbilities: Ability[] = [
 	pastelVeil,
 	fairyAura,
 	darkAura,
-	auraBreak,
-	slowStart,
-	truant
+	auraBreak
 ];

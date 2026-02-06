@@ -88,7 +88,9 @@
 		}, 14000);
 
 		intro.addEventListener('click', () => {
-			if (ready) {started = true;}
+			if (ready) {
+				started = true;
+			}
 		});
 
 		return () => {

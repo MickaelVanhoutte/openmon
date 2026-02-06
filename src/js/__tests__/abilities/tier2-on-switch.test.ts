@@ -15,7 +15,6 @@ import {
 	grassySurge,
 	psychicSurge,
 	mistySurge,
-	trace,
 	download,
 	unnerve,
 	frisk,
@@ -24,13 +23,16 @@ import {
 	airLock,
 	cloudNine,
 	pressure,
-	moldBreaker,
-	teravolt,
-	turboblaze,
 	intrepidSword,
 	dauntlessShield,
 	tier2OnSwitchAbilities
 } from '../../battle/abilities/tiers/tier2-on-switch';
+import {
+	trace,
+	moldBreaker,
+	teravolt,
+	turboblaze
+} from '../../battle/abilities/tiers/tier5-suppression';
 
 function createMockContextWithSides(
 	overrides: {

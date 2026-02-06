@@ -30,10 +30,18 @@ export class Keys {
 	}
 
 	getHeldDirection(): 'up' | 'down' | 'left' | 'right' | null {
-		if (this._upHeld) {return 'up';}
-		if (this._downHeld) {return 'down';}
-		if (this._leftHeld) {return 'left';}
-		if (this._rightHeld) {return 'right';}
+		if (this._upHeld) {
+			return 'up';
+		}
+		if (this._downHeld) {
+			return 'down';
+		}
+		if (this._leftHeld) {
+			return 'left';
+		}
+		if (this._rightHeld) {
+			return 'right';
+		}
 		return null;
 	}
 

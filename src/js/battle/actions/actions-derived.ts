@@ -502,7 +502,9 @@ export class WeatherDamage implements ActionV2Interface {
 
 	execute(ctx: BattleContext): void {
 		const weather = ctx.battleField.weather;
-		if (weather === Weather.NONE) return;
+		if (weather === Weather.NONE) {
+			return;
+		}
 
 		ctx.weatherVersion.update((v) => v + 1);
 
@@ -515,7 +517,12 @@ export class WeatherDamage implements ActionV2Interface {
 			ctx.events.weatherDamage.set(weather);
 
 			for (const pokemon of allPokemon) {
-				const damage = applyWeatherDamage(ctx.battleField, pokemon.currentStats.hp, pokemon.types);
+				const damage = applyWeatherDamage(
+					ctx.battleField,
+					pokemon.currentStats.hp,
+					pokemon.types,
+					pokemon.currentAbility
+				);
 				if (damage > 0) {
 					pokemon.currentHp = Math.max(0, pokemon.currentHp - damage);
 					const actions = ctx.checkFainted(pokemon, pokemon);
@@ -540,7 +547,8 @@ export class EndTurnChecks implements ActionV2Interface {
 	}
 
 	execute(ctx: BattleContext): void {
-		// end turn effects (burn, poison..)
+		ctx.runAbilityEvent(AbilityTrigger.ON_TURN_END, this.initiator);
+
 		let actions: ActionV2Interface[] = [];
 		if (
 			!this.initiator.fainted &&
@@ -651,10 +659,11 @@ export class EndBattle implements ActionV2Interface {
 		ctx.player.monsters?.forEach((monster: PokemonInstance) => {
 			monster.resetBattleStats();
 		});
-		ctx?.opponent instanceof NPC &&
+		if (ctx?.opponent instanceof NPC) {
 			ctx.opponent.monsters.forEach((monster: PokemonInstance) => {
 				monster.resetBattleStats();
 			});
+		}
 		ctx.clearStack();
 		ctx.events.end.set(ctx.battleResult);
 		ctx.events.battleEnded = true;

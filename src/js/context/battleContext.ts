@@ -512,9 +512,11 @@ export class BattleContext {
 	): PokemonInstance | undefined {
 		// find a poke which have a type that is strong against playerPokemon
 		return monsters.find((poke) => {
-			!poke.fainted &&
+			return (
+				!poke.fainted &&
 				!this.oppSide.includes(poke) &&
-				poke.types.some((type) => playerPokemon?.weaknesses.includes(type));
+				poke.types.some((type) => playerPokemon?.weaknesses.includes(type))
+			);
 		});
 	}
 

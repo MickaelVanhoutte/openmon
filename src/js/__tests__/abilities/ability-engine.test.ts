@@ -18,10 +18,6 @@ describe('AbilityEngine', () => {
 	beforeEach(() => {
 		engine = new AbilityEngine();
 
-		mockBattleContext = {
-			addToStack: vi.fn()
-		} as unknown as BattleContext;
-
 		mockPokemon = {
 			currentAbility: 'Intimidate',
 			name: 'Gyarados',
@@ -33,6 +29,13 @@ describe('AbilityEngine', () => {
 			name: 'Gengar',
 			battleStats: { speed: 80 }
 		} as unknown as PokemonInstance;
+
+		mockBattleContext = {
+			addToStack: vi.fn(),
+			getPokemonSide: vi.fn().mockReturnValue('ally'),
+			playerSide: [mockPokemon],
+			oppSide: [mockTarget]
+		} as unknown as BattleContext;
 	});
 
 	describe('runEvent', () => {

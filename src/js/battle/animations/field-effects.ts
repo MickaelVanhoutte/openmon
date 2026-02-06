@@ -16,7 +16,9 @@ export async function animateWeather(
 	weather: WeatherType,
 	container: HTMLElement
 ): Promise<void> {
-	if (weather === 'none') {return;}
+	if (weather === 'none') {
+		return;
+	}
 
 	const overlay = document.createElement('div');
 	overlay.className = `weather-overlay weather-${weather}`;
@@ -38,7 +40,9 @@ export async function animateTerrain(
 	terrain: TerrainType,
 	container: HTMLElement
 ): Promise<void> {
-	if (terrain === 'none') {return;}
+	if (terrain === 'none') {
+		return;
+	}
 
 	const overlay = document.createElement('div');
 	overlay.className = `terrain-overlay terrain-${terrain}`;

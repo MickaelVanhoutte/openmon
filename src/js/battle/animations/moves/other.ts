@@ -81,12 +81,16 @@ async function hazardAnimation(engine: AnimationEngine, context: MoveContext): P
 
 	const normalizedName = moveName.toLowerCase();
 	const spriteUrl = HAZARD_SPRITES[normalizedName];
-	if (!spriteUrl) return;
+	if (!spriteUrl) {
+		return;
+	}
 
 	const gsap = (await import('gsap')).default;
 
 	const battleScene = document.querySelector('.battle-scene') as HTMLElement;
-	if (!battleScene) return;
+	if (!battleScene) {
+		return;
+	}
 
 	const sceneRect = battleScene.getBoundingClientRect();
 

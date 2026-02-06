@@ -417,7 +417,9 @@ export class GameContext {
 	}
 
 	checkForJunction() {
-		if (this.map === undefined) {return;}
+		if (this.map === undefined) {
+			return;
+		}
 		const jonction = this.map.jonctionAt(this.player.position.positionOnMap);
 		if (jonction !== undefined) {
 			this.changeMap(jonction);

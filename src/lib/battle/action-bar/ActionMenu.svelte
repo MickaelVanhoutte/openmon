@@ -91,7 +91,9 @@
 
 	function animateEntrance() {
 		const validButtons = buttonElements.filter(Boolean);
-		if (validButtons.length === 0) {return;}
+		if (validButtons.length === 0) {
+			return;
+		}
 
 		gsap.fromTo(
 			validButtons,
@@ -116,7 +118,9 @@
 		updatePositions();
 
 		const animationTimer = setTimeout(() => {
-			if (show) {animateEntrance();}
+			if (show) {
+				animateEntrance();
+			}
 		}, 50);
 
 		return () => {

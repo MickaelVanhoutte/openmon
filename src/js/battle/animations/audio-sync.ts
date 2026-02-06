@@ -37,10 +37,14 @@ export async function playMoveSound(
 	playFn: (soundId: string, volume: number) => void
 ): Promise<void> {
 	const config = getMoveAudio(moveName);
-	if (!config) {return;}
+	if (!config) {
+		return;
+	}
 
 	const cue = config[cueType];
-	if (!cue) {return;}
+	if (!cue) {
+		return;
+	}
 
 	if (cue.offset > 0) {
 		await new Promise((resolve) => setTimeout(resolve, cue.offset));

@@ -37,7 +37,9 @@
 
 	// Check if sprite has valid position (not at 0,0)
 	function isSpritePositioned(): boolean {
-		if (!spriteElement) {return false;}
+		if (!spriteElement) {
+			return false;
+		}
 		const rect = spriteElement.getBoundingClientRect();
 		return rect.x > 0 || rect.y > 0;
 	}
@@ -142,7 +144,9 @@
 	}
 
 	function handleKeyDown(event: KeyboardEvent) {
-		if (disabled || !show) {return;}
+		if (disabled || !show) {
+			return;
+		}
 
 		switch (event.key) {
 			case 'ArrowUp':
@@ -173,7 +177,9 @@
 
 	function animateEntrance() {
 		const validButtons = buttonElements.filter(Boolean);
-		if (validButtons.length === 0) {return;}
+		if (validButtons.length === 0) {
+			return;
+		}
 
 		if (isInitialEntrance) {
 			// Full staggered animation for battle start

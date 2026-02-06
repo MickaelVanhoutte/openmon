@@ -191,7 +191,9 @@
 	}
 
 	function openSum() {
-		if (!firstSelection?.selected) {return;}
+		if (!firstSelection?.selected) {
+			return;
+		}
 		// DEBUG: Log the state to understand what's happening
 		console.log('openSum called', {
 			'firstSelection.zone': firstSelection.zone,

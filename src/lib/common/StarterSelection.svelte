@@ -28,7 +28,9 @@
 	let angle = $state(0);
 	let currentIndex = $state(0);
 	const currentPokemon = $derived(monsters[currentIndex]);
-	const dialog = $derived(new Dialog([new Message(`Hmm... Is ${currentPokemon.name} my Pokemon ?`)]));
+	const dialog = $derived(
+		new Dialog([new Message(`Hmm... Is ${currentPokemon.name} my Pokemon ?`)])
+	);
 
 	function prev() {
 		angle -= 360 / monsters?.length;

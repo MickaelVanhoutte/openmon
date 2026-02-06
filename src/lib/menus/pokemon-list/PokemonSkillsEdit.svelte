@@ -18,7 +18,7 @@
 	}: Props = $props();
 
 	// Calculate available moves (what the Pokemon can learn at current level, excluding already selected)
-	let availableMoves = $derived([
+	const availableMoves = $derived([
 		...new Map(
 			(
 				context.POKEDEX.findById(selectedMons.id)

@@ -112,7 +112,9 @@ export class Dialog extends Scriptable {
 	}
 
 	selectOption(index: number): void {
-		if (this.current.options?.length === 0 || index > this.current.options?.length) {return;}
+		if (this.current.options?.length === 0 || index > this.current.options?.length) {
+			return;
+		}
 		this.selectedOption = index;
 	}
 
@@ -469,7 +471,9 @@ export class Script {
 	}
 
 	interrupt(): Script {
-		if (this.currentAction) {this.currentAction.canceled = true;}
+		if (this.currentAction) {
+			this.currentAction.canceled = true;
+		}
 		this.playing = false;
 		return this;
 	}

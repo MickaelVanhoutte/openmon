@@ -32,17 +32,18 @@
 		overWorldCtx: OverworldContext;
 	}
 
-	let { context, battleCtx, overWorldCtx }: Props = $props();
+	let {
+		context = $bindable(),
+		battleCtx = $bindable(),
+		overWorldCtx = $bindable()
+	}: Props = $props();
 
 	const backgroundOffset = get(context.timeOfDay.backgroundOffset);
 
 	const hazardsVersion = battleCtx.hazardsVersion;
 
 	let gifsWrapper: HTMLDivElement;
-	let scene: HTMLDivElement;
 	const fx: HTMLImageElement[] = [];
-	let spriteFx: HTMLDivElement;
-	let spriteFxPartner: HTMLDivElement;
 	let drawInterval: number;
 
 	const battleLoopContext = {
@@ -60,8 +61,8 @@
 	const ally: HTMLImageElement[] = $state([]);
 	const opponent: HTMLImageElement[] = $state([]);
 
-	let allyFainted = $state([false, false]);
-	let opponentFainted = $state([false, false]);
+	const allyFainted = $state([false, false]);
+	const opponentFainted = $state([false, false]);
 
 	let entryAnimationsComplete = $state(false);
 	let isInitialBattleEntrance = $state(true);
@@ -72,8 +73,8 @@
 	let initialAbilitiesTriggered = $state(false);
 
 	// Reactive state for pokemon names to trigger {#key} updates
-	let allyNames = $state(['', '']);
-	let oppNames = $state(['', '']);
+	const allyNames = $state(['', '']);
+	const oppNames = $state(['', '']);
 
 	const uiEntranceDelays = {
 		opponentHp: 0,
@@ -85,7 +86,7 @@
 		if (isInitialBattleEntrance && entryAnimationsComplete && !initialAbilitiesTriggered) {
 			console.log('[Battle.svelte] Initial battle entrance triggered');
 			initialAbilitiesTriggered = true;
-			setTimeout(async () => {
+			window.setTimeout(async () => {
 				console.log('[Battle.svelte] Calling triggerInitialSwitchIn');
 				battleCtx.triggerInitialSwitchIn();
 				await battleCtx.processInitialAbilityActions();
@@ -181,7 +182,7 @@
 			// Trigger weather flash
 			weatherFlash = true;
 			// Reset flash after animation completes
-			setTimeout(() => {
+			window.setTimeout(() => {
 				weatherFlash = false;
 			}, 600);
 		}
@@ -193,7 +194,7 @@
 			// Trigger intensified weather animation when damage occurs
 			weatherIntensify = true;
 			// Reset after animation completes
-			setTimeout(() => {
+			window.setTimeout(() => {
 				weatherFlash = false;
 			}, 1000);
 		}
@@ -239,7 +240,7 @@
 		if (data) {
 			currentWeather = data.weather;
 			weatherFlash = true;
-			setTimeout(() => {
+			window.setTimeout(() => {
 				weatherFlash = false;
 			}, 600);
 			battleCtx.events.weatherChange.set(null);
@@ -357,7 +358,7 @@
 	});
 
 	function addPartner(target: string, pokemon: PokemonInstance): Promise<HTMLImageElement> {
-		return new Promise((resolve, reject) => {
+		return new Promise((resolve, _reject) => {
 			const partner = document.createElement('img') as HTMLImageElement;
 			partner.classList.add(target + '-partner-sprite');
 			if (target === 'opponent') {
@@ -378,10 +379,10 @@
 	}
 
 	function draw() {
-		drawInterval = setInterval(() => {
+		drawInterval = window.setInterval(() => {
 			if (!battleLoopContext.opponentdrawn && battleLoopContext.bgDrawn) {
 				if (opponent?.length !== battleCtx.oppSide.length) {
-					battleCtx.oppSide.forEach((element, idx) => {
+					battleCtx.oppSide.forEach((_element, idx) => {
 						const img = document.createElement('img') as HTMLImageElement;
 						img.addEventListener('click', () => {
 							// Click handler - no action needed
@@ -434,7 +435,7 @@
 
 			if (!battleLoopContext.allydrawn && battleLoopContext.bgDrawn) {
 				if (ally?.length !== battleCtx.playerSide.length) {
-					battleCtx.playerSide.forEach((element, idx) => {
+					battleCtx.playerSide.forEach((_element, idx) => {
 						const img = document.createElement('img') as HTMLImageElement;
 						img.addEventListener('click', () => {
 							// Click handler - no action needed
@@ -446,7 +447,11 @@
 				} else {
 					const allyEntryPromises: Promise<gsap.core.Timeline>[] = [];
 					ally.forEach((element, idx) => {
-						element.src = battleCtx?.playerSide[idx]?.getSprite(true);
+						const pokemon = battleCtx?.playerSide[idx];
+						if (!pokemon) {
+							return;
+						}
+						element.src = pokemon.getSprite(true);
 						element.onload = () => {
 							const imgHeight = element.naturalHeight;
 							const screenHeight = window.innerHeight;
@@ -565,7 +570,6 @@
 <div class="battle" data-testid="battle-screen">
 	<div bind:this={gifsWrapper} class="wrapper">
 		<div
-			bind:this={scene}
 			class="battle-bg"
 			style="background-image: url({beachesImage}); --bg-offset: {backgroundOffset}"
 		></div>
@@ -586,8 +590,8 @@
 			enemySide={battleCtx.battleField.enemySide}
 		/>
 
-		<div class="fx" bind:this={spriteFx}></div>
-		<div class="fx" bind:this={spriteFxPartner}></div>
+		<div class="fx"></div>
+		<div class="fx"></div>
 		<img
 			bind:this={fx[0]}
 			class="fx"
@@ -683,7 +687,7 @@
 	<ActionBar
 		bind:context
 		bind:battleCtx
-		bind:overWorldCtx={context.overWorldContext}
+		bind:overWorldCtx
 		allySprites={ally}
 		entranceDelay={isInitialBattleEntrance && entryAnimationsComplete
 			? uiEntranceDelays.actionButtons

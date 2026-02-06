@@ -88,6 +88,9 @@ export function createTestBattleContext(options: TestContextOptions = {}): Battl
 		battleField,
 		playerSide: options.allySide || [],
 		oppSide: options.oppSide || [],
+		getPokemonSide: function (pokemon: PokemonInstance) {
+			return (options.allySide || []).includes(pokemon) ? 'ally' : 'opponent';
+		},
 		actionStack: {
 			push: vi.fn(),
 			pop: vi.fn(),

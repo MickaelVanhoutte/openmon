@@ -594,17 +594,13 @@ export class OpenMap {
 	private drawMiniImage(
 		ctx: CanvasRenderingContext2D,
 		image: HTMLImageElement,
-		map: OpenMap,
-		scaleInit: number,
+		_map: OpenMap,
+		_scaleInit: number,
 		playerPosition: Position,
-		debug: boolean = false,
+		_debug: boolean = false,
 		enlargedMap: boolean = false
 	) {
 		const scale = 1 * (enlargedMap ? 0.8 : 1);
-		let centerX,
-			centerY,
-			offsetX = 0,
-			offsetY = 0;
 		const playerPos = new Position(playerPosition.x * 16 * scale, playerPosition.y * 16 * scale);
 
 		const screenDimensions = {
@@ -612,11 +608,10 @@ export class OpenMap {
 			height: ctx.canvas.height
 		};
 
-		centerX = screenDimensions.width / 2;
-		centerY = screenDimensions.height / 2;
-
-		offsetX = playerPos.x;
-		offsetY = playerPos.y;
+		const centerX = screenDimensions.width / 2;
+		const centerY = screenDimensions.height / 2;
+		let offsetX = playerPos.x;
+		let offsetY = playerPos.y;
 
 		const minLeftSide = Math.min(centerX / 2, window.innerWidth / 4 - (16 * 1) / 2);
 		const minRightSide = image.width * scale - minLeftSide;

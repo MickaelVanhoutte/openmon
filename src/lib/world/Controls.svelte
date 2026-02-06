@@ -37,7 +37,9 @@
 
 	// Poll for running shoes unlock (flags don't have a store)
 	$effect(() => {
-		if (runningShoesUnlocked) {return;}
+		if (runningShoesUnlocked) {
+			return;
+		}
 		const interval = setInterval(() => {
 			if (context.flags.getFlag(FlagEntry.RUNNING_SHOES_UNLOCKED)) {
 				runningShoesUnlocked = true;

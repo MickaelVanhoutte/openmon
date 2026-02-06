@@ -30,6 +30,8 @@ export function registerCustomEasings(): void {
 }
 
 export function getEasing(type: EasingType): (x: number) => number {
-	if (type === 'linear') {return (x) => x;}
+	if (type === 'linear') {
+		return (x) => x;
+	}
 	return easingFunctions[type as keyof typeof easingFunctions] || ((x) => x);
 }
