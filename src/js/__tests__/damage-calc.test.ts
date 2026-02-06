@@ -1,6 +1,9 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { BattleField, Weather, Screen, Terrain } from '../battle/battle-field';
-import { getWeatherDamageMultiplier } from '../pokemons/effects/weather-effects';
+import {
+	getWeatherDamageMultiplier,
+	getWeatherSpDefMultiplier
+} from '../pokemons/effects/weather-effects';
 import { getScreenDamageMultiplier } from '../pokemons/effects/screen-effects';
 import { getTerrainDamageMultiplier } from '../pokemons/effects/terrain-effects';
 
@@ -34,6 +37,18 @@ describe('Damage Calculation Modifiers', () => {
 			battleField.setWeather(Weather.SUN, 5);
 			const multiplier = getWeatherDamageMultiplier(battleField, 'water');
 			expect(multiplier).toBe(0.5);
+		});
+
+		it('should boost Special Defense of Rock types in Sandstorm (1.5x)', () => {
+			battleField.setWeather(Weather.SAND, 5);
+			expect(getWeatherSpDefMultiplier(battleField, ['rock'])).toBe(1.5);
+			expect(getWeatherSpDefMultiplier(battleField, ['rock', 'ground'])).toBe(1.5);
+		});
+
+		it('should not boost Special Defense of non-Rock types in Sandstorm', () => {
+			battleField.setWeather(Weather.SAND, 5);
+			expect(getWeatherSpDefMultiplier(battleField, ['ground'])).toBe(1);
+			expect(getWeatherSpDefMultiplier(battleField, ['steel'])).toBe(1);
 		});
 
 		it('should not affect other types', () => {
