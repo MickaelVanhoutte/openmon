@@ -20,15 +20,18 @@ import {
 	ownTempo,
 	magmaArmor,
 	waterVeil,
+	leafGuard,
+	galeWings,
+	tier4TurnStatusAbilities
+} from '../../battle/abilities/tiers/tier4-turn-status';
+import {
 	guts,
 	quickFeet,
 	marvelScale,
 	toxicBoost,
-	flareBoost,
-	prankster,
-	galeWings,
-	tier4TurnStatusAbilities
-} from '../../battle/abilities/tiers/tier4-turn-status';
+	flareBoost
+} from '../../battle/abilities/tiers/tier1-passive-stats';
+import { prankster } from '../../battle/abilities/tiers/tier6-complex';
 
 function createTestAbilityContext(
 	options: {
@@ -482,6 +485,34 @@ describe('Tier 4 - Status Immunity Abilities', () => {
 			const result = waterVeil.onStatus!(ctx, 'BRN');
 
 			expect(result).toBe(false);
+		});
+	});
+
+	describe('Leaf Guard', () => {
+		it('should have correct metadata', () => {
+			expect(leafGuard.id).toBe(102);
+			expect(leafGuard.name).toBe('Leaf Guard');
+			expect(leafGuard.description).toContain('sun');
+		});
+
+		it('should block status in sun', () => {
+			const ctx = createTestAbilityContext({
+				weather: Weather.SUN
+			});
+
+			const result = leafGuard.onStatus!(ctx, 'PSN');
+
+			expect(result).toBe(false);
+		});
+
+		it('should not block status when not in sun', () => {
+			const ctx = createTestAbilityContext({
+				weather: Weather.NONE
+			});
+
+			const result = leafGuard.onStatus!(ctx, 'PSN');
+
+			expect(result).toBe(true);
 		});
 	});
 });
