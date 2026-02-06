@@ -1,9 +1,10 @@
 import '@abraham/reflection';
 import { injectable, injectAll, registry, singleton, container } from 'tsyringe';
-import type { PokemonInstance, MoveInstance } from './pokedex';
-import { MoveEffect } from './pokedex';
+import type { PokemonInstance, MoveInstance, MoveEffect } from './pokedex';
 import { EffectTiming, EffectResult, EffectForTurn, DEFAULT_EFFECT_PROPS } from './effects/types';
 import type { Effect } from './effects/types';
+import { Weather } from '../battle/battle-field';
+import type { BattleField } from '../battle/battle-field';
 
 export { EffectTiming, EffectResult, EffectForTurn, DEFAULT_EFFECT_PROPS };
 export type { Effect };
@@ -3651,12 +3652,12 @@ class SolarBeam implements Effect {
 	charging: boolean = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		let battleField: any;
+		let battleField: BattleField | undefined;
 		try {
-			battleField = container.resolve<any>('BattleField');
+			battleField = container.resolve<BattleField>('BattleField');
 		} catch (e) {}
 
-		const isSun = battleField?.weather === 'sun';
+		const isSun = battleField?.weather === Weather.SUN;
 
 		if (!this.charging && !isSun) {
 			this.charging = true;
