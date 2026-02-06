@@ -17,13 +17,7 @@ import { writable, type Writable } from 'svelte/store';
 import { ActionType, type ActionV2Interface } from '../battle/actions/actions-model';
 import { EXPERIENCE_CHART } from '../pokemons/experience';
 import { Attack, Switch, UseItem } from '../battle/actions/actions-selectable';
-import {
-	EndTurnChecks,
-	Message,
-	PlayAnimation,
-	WeatherDamage,
-	XPWin
-} from '../battle/actions/actions-derived';
+import { EndTurnChecks, Message, WeatherDamage, XPWin } from '../battle/actions/actions-derived';
 import { ItemsReferences } from '../items/items';
 import { BattleField } from '../battle/battle-field';
 import { AbilityTrigger } from '../battle/abilities/ability-types';
@@ -106,7 +100,7 @@ export class BattleContext {
 		}
 
 		this.playerSide
-			?.filter((poke) => !!poke && !poke.fainted)
+			?.filter((poke): poke is PokemonInstance => !!poke && !poke.fainted)
 			.forEach((poke) => this.participants.add(poke));
 		this.prepareNewTurn();
 	}
@@ -152,6 +146,8 @@ export class BattleContext {
 		this.turnCount++;
 		this.turnPhases.set(TurnPhase.UPKEEP);
 		this.battleField.tickTurn();
+
+		this.runAbilityEventForAll(AbilityTrigger.ON_TURN_START, 'all');
 
 		this.oppSide
 			.filter((poke) => !!poke && !poke.fainted)
@@ -355,8 +351,6 @@ export class BattleContext {
 	}
 
 	public triggerInitialSwitchIn(): void {
-		console.log('[battleContext.ts] triggerInitialSwitchIn called');
-
 		// Collect ALL active Pokemon from both sides (handles 1v1, 2v2, etc.)
 		const playerActives = this.playerSide.filter((p): p is PokemonInstance => !!p && !p.fainted);
 		const oppActives = this.oppSide.filter((p): p is PokemonInstance => !!p && !p.fainted);
@@ -364,12 +358,10 @@ export class BattleContext {
 		const activePokemon: { pokemon: PokemonInstance; isPlayer: boolean }[] = [];
 
 		for (const pokemon of playerActives) {
-			console.log('[battleContext.ts] Player active:', pokemon.name);
 			activePokemon.push({ pokemon, isPlayer: true });
 		}
 
 		for (const pokemon of oppActives) {
-			console.log('[battleContext.ts] Opponent active:', pokemon.name);
 			activePokemon.push({ pokemon, isPlayer: false });
 		}
 
@@ -379,7 +371,6 @@ export class BattleContext {
 		for (const { pokemon, isPlayer } of activePokemon) {
 			// Target is first opponent on the other side
 			const target = isPlayer ? oppActives[0] : playerActives[0];
-			console.log('[battleContext.ts] Running ON_SWITCH_IN for:', pokemon.name);
 			this.runAbilityEvent(AbilityTrigger.ON_SWITCH_IN, pokemon, target);
 		}
 	}
@@ -442,7 +433,6 @@ export class BattleContext {
 		if (poke && !poke.fainted) {
 			// TODO : targets calculation
 			const random = Math.floor(Math.random() * poke.moves.length);
-			let isBest = false;
 			const move = poke.moves[random];
 			let action: ActionV2Interface;
 
@@ -462,21 +452,21 @@ export class BattleContext {
 				const bestMove =
 					poke.moves.find((move: Move) => {
 						return this.playerSide
-							.filter((pkmn) => !!pkmn && !pkmn.fainted)
+							.filter((pkmn): pkmn is PokemonInstance => !!pkmn && !pkmn.fainted)
 							.some((ally: PokemonInstance) => {
 								const effectiveness = this.calculateTypeEffectiveness(move.type, ally.types);
 								if (effectiveness > 1 && move.power > 0) {
 									bestTarget = ally;
-									isBest = true;
 									return true;
 								}
+								return false;
 							});
 					}) || move;
 
 				const found = this.getPossibleTargets(poke, bestMove);
 				if (found.selectOne) {
 					// random target
-					action = new Attack(move, [bestTarget], poke);
+					action = new Attack(move, bestTarget ? [bestTarget] : [], poke);
 				} else {
 					action = new Attack(move, found.possibleTargets, poke);
 				}
@@ -548,8 +538,6 @@ export class BattleContext {
 			target.fainted = true;
 			target.status = undefined;
 			target.resetBattleStats();
-
-			//console.log(target.name + ' fainted!', initiator);
 
 			// remove target attack from stack
 			this.actionStack.stack = this.actionStack.stack.filter((action: ActionV2Interface) => {
@@ -650,26 +638,29 @@ export class BattleContext {
 			opponentSide = opponentSide.filter((poke) => !!poke && !poke.fainted);
 
 			if (move.target === 'all-opponents') {
-				possibleTargets = opponentSide;
+				possibleTargets = opponentSide as PokemonInstance[];
 			} else if (move.target === 'all-allies') {
 				// no matching move for now TODO
-				possibleTargets = currentSide;
+				possibleTargets = currentSide as PokemonInstance[];
 			} else if (move.target === 'user-and-allies') {
-				possibleTargets = currentSide;
+				possibleTargets = currentSide as PokemonInstance[];
 			} else if (move.target === 'random-opponent') {
-				possibleTargets = opponentSide[Math.floor(Math.random() * opponentSide.length)];
+				const randomTarget = opponentSide[Math.floor(Math.random() * opponentSide.length)];
+				possibleTargets = randomTarget ? [randomTarget as PokemonInstance] : [];
 			} else if (move.target === 'all-other-pokemon') {
-				possibleTargets = [...opponentSide, ...currentSide].filter((p) => p !== initiator);
+				possibleTargets = ([...opponentSide, ...currentSide] as PokemonInstance[]).filter(
+					(p) => p !== initiator
+				);
 			} else if (move.target === 'ally') {
-				possibleTargets = [currentSide.filter((p) => p !== initiator)];
+				possibleTargets = currentSide.filter((p) => p !== initiator) as PokemonInstance[];
 			} else if (move.target === 'all-pokemon') {
-				possibleTargets = [...opponentSide, ...currentSide];
+				possibleTargets = [...opponentSide, ...currentSide] as PokemonInstance[];
 			} else if (move.target === 'user') {
 				possibleTargets = [initiator];
 			} else if (move.target === 'specific-move') {
 				if (move.name === 'curse') {
 					if (initiator.types.includes('ghost')) {
-						possibleTargets = opponentSide;
+						possibleTargets = opponentSide as PokemonInstance[];
 						selectOne = true;
 					} else {
 						possibleTargets = [initiator];
@@ -680,10 +671,10 @@ export class BattleContext {
 					possibleTargets = [initiator];
 				}
 			} else if (move.target === 'user-or-ally') {
-				possibleTargets = currentSide;
+				possibleTargets = currentSide as PokemonInstance[];
 				selectOne = true;
 			} else if (move.target === 'selected-pokemon') {
-				possibleTargets = opponentSide;
+				possibleTargets = opponentSide as PokemonInstance[];
 				selectOne = true;
 			}
 			//else no target (fields)

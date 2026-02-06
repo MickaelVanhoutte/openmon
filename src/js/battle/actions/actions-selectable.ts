@@ -345,7 +345,6 @@ export class Attack implements ActionV2Interface {
 	}
 
 	private flushActions(ctx: BattleContext, actionsToPush: ActionV2Interface[]) {
-		// console.log(actionsToPush);
 		if (actionsToPush && actionsToPush.length > 0) {
 			actionsToPush.reverse().forEach((action: ActionV2Interface) => ctx.addToStack(action));
 		}
@@ -516,8 +515,6 @@ export class UseItem implements ActionV2Interface {
 	}
 
 	execute(ctx: BattleContext): void {
-		//console.log('UseItem', this.itemId, this.target, this.initiator, this.owner);
-
 		const item = this.owner.bag.getItem(this.itemId, ctx.ITEMS);
 
 		if (item && !(item instanceof Pokeball)) {
