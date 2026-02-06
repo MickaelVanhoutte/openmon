@@ -1,12 +1,5 @@
 import '@abraham/reflection';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-
-vi.mock('../battle/battle-model', () => ({
-	TurnPhase: { UPKEEP: 'UPKEEP', MAIN: 'MAIN', END: 'END' },
-	BattleType: { SINGLE: 0, DOUBLE: 1 },
-	typeChart: {}
-}));
-
+import { describe, it, expect, beforeEach } from 'vitest';
 import { Weather, BattleField } from '../battle/battle-field';
 import { container } from 'tsyringe';
 import { ShoreUp } from '../pokemons/move-effects';

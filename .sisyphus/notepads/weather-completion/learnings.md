@@ -49,3 +49,9 @@
 - Implementation uses `container.resolve<BattleField>('BattleField')` to access current weather.
 - Verified with isolated test `src/js/__tests__/growth.test.ts`.
 - Note: The class was previously named `WorkUp` in `move-effects.ts` but had ID 317 (which is Growth). Renamed class to `Growth` and updated registry.
+
+## Shore Up Implementation
+- Shore Up (Effect ID 369) heals 50% HP normally and 66% (2/3) in Sandstorm.
+- Implementation uses `user.currentStats.hp` for max HP calculation, which is more accurate than `user.stats.hp` used in some other healing moves.
+- Weather state is accessed via `container.resolve<BattleField>('BattleField')`.
+- Circular dependencies in tests can be avoided by exporting the effect class and instantiating it directly, or by mocking `battle-model.ts`.
