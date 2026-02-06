@@ -8,6 +8,7 @@ const SUPPRESSOR_ABILITIES = ['mold-breaker', 'teravolt', 'turboblaze'];
 
 type HookName =
 	| 'onSwitchIn'
+	| 'onSwitchOut'
 	| 'onBeforeMove'
 	| 'onAfterMove'
 	| 'onModifyAtk'
@@ -27,10 +28,12 @@ type HookName =
 
 const TRIGGER_TO_HOOK: Record<AbilityTrigger, HookName> = {
 	[AbilityTrigger.ON_SWITCH_IN]: 'onSwitchIn',
+	[AbilityTrigger.ON_SWITCH_OUT]: 'onSwitchOut',
 	[AbilityTrigger.ON_BEFORE_MOVE]: 'onBeforeMove',
 	[AbilityTrigger.ON_AFTER_MOVE]: 'onAfterMove',
 	[AbilityTrigger.ON_DAMAGE_CALC]: 'onModifyAtk',
 	[AbilityTrigger.ON_CONTACT]: 'onDamagingHit',
+	[AbilityTrigger.ON_TRY_HIT]: 'onTryHit',
 	[AbilityTrigger.ON_TURN_END]: 'onTurnEnd',
 	[AbilityTrigger.ON_TURN_START]: 'onTurnStart',
 	[AbilityTrigger.ON_FAINT]: 'onFaint',
