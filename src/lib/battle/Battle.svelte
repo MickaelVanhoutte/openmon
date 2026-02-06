@@ -69,6 +69,7 @@
 	let weatherIntensify = $state(false);
 	let currentWeather = $state(battleCtx.battleField.weather);
 	let currentWeatherTurns = $state(battleCtx.battleField.weatherTurns);
+	let initialAbilitiesTriggered = $state(false);
 	const uiEntranceDelays = {
 		opponentHp: 0,
 		allyHp: 200,
@@ -76,10 +77,13 @@
 	};
 
 	$effect(() => {
-		if (isInitialBattleEntrance && entryAnimationsComplete) {
-			// Trigger initial switch-in abilities after UI is mounted
-			battleCtx.triggerInitialSwitchIn();
-			battleCtx.processInitialAbilityActions();
+		if (isInitialBattleEntrance && entryAnimationsComplete && !initialAbilitiesTriggered) {
+			initialAbilitiesTriggered = true;
+			// Delay to let FloatingPokemonInfo initialize polling before stats change
+			setTimeout(() => {
+				battleCtx.triggerInitialSwitchIn();
+				battleCtx.processInitialAbilityActions();
+			}, 300);
 
 			const timer = setTimeout(() => {
 				isInitialBattleEntrance = false;
