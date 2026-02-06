@@ -46,17 +46,33 @@ export function getWeatherSpDefMultiplier(
 export function applyWeatherDamage(
 	battleField: BattleField,
 	maxHp: number,
-	pokemonTypes: string[]
+	pokemonTypes: string[],
+	ability?: string
 ): number {
 	const weather = battleField.weather;
 	const types = pokemonTypes.map((t) => t.toLowerCase());
+	const normalizedAbility = ability?.toLowerCase().trim().replace(/\s+/g, '-');
+
+	if (normalizedAbility === 'magic-guard' || normalizedAbility === 'overcoat') {
+		return 0;
+	}
 
 	if (weather === Weather.SAND) {
+		if (
+			normalizedAbility === 'sand-veil' ||
+			normalizedAbility === 'sand-force' ||
+			normalizedAbility === 'sand-rush'
+		) {
+			return 0;
+		}
 		const isImmune = types.some((t) => SANDSTORM_IMMUNE_TYPES.includes(t));
 		if (!isImmune) {
 			return Math.floor(maxHp / 16);
 		}
 	} else if (weather === Weather.HAIL) {
+		if (normalizedAbility === 'ice-body' || normalizedAbility === 'snow-cloak') {
+			return 0;
+		}
 		const isImmune = types.some((t) => HAIL_IMMUNE_TYPES.includes(t));
 		if (!isImmune) {
 			return Math.floor(maxHp / 16);
@@ -64,6 +80,31 @@ export function applyWeatherDamage(
 	}
 
 	return 0;
+}
+
+export function getWeatherAccuracyOverride(
+	battleField: BattleField,
+	moveName: string,
+	baseAccuracy: number
+): number | null {
+	const weather = battleField.weather;
+	const name = moveName.toLowerCase();
+
+	if (weather === Weather.RAIN) {
+		if (name === 'thunder' || name === 'hurricane') {
+			return 100;
+		}
+	} else if (weather === Weather.SUN) {
+		if (name === 'thunder' || name === 'hurricane') {
+			return 50;
+		}
+	} else if (weather === Weather.HAIL) {
+		if (name === 'blizzard') {
+			return 100;
+		}
+	}
+
+	return null;
 }
 
 export abstract class WeatherEffect implements Effect {

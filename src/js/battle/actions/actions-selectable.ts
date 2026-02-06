@@ -18,7 +18,8 @@ import { NPC } from '../../characters/npc';
 import { MasteryType } from '../../characters/mastery-model';
 import {
 	getWeatherDamageMultiplier,
-	getWeatherSpDefMultiplier
+	getWeatherSpDefMultiplier,
+	getWeatherAccuracyOverride
 } from '../../pokemons/effects/weather-effects';
 import { Screen } from '../battle-field';
 import { AbilityTrigger } from '../abilities/ability-types';
@@ -159,7 +160,7 @@ export class Attack implements ActionV2Interface {
 					return;
 				}
 
-				const success = this.accuracyApplies(attacker, tgt, this.move);
+				const success = this.accuracyApplies(attacker, tgt, this.move, ctx);
 				if (!success) {
 					actionsToPush.push(new Message('But it failed!', this.initiator));
 				} else {
@@ -376,6 +377,50 @@ export class Attack implements ActionV2Interface {
 					? defender?.battleStats.defense
 					: defender?.battleStats.specialDefense;
 
+			if (move.category === 'physical') {
+				const modifiedAtk = ctx.runAbilityEvent<number>(
+					AbilityTrigger.ON_MODIFY_ATK,
+					attacker,
+					defender,
+					move,
+					attack
+				);
+				if (modifiedAtk !== undefined) {
+					attack = modifiedAtk;
+				}
+				const modifiedDef = ctx.runAbilityEvent<number>(
+					AbilityTrigger.ON_MODIFY_DEF,
+					defender,
+					attacker,
+					move,
+					defense
+				);
+				if (modifiedDef !== undefined) {
+					defense = modifiedDef;
+				}
+			} else {
+				const modifiedSpA = ctx.runAbilityEvent<number>(
+					AbilityTrigger.ON_MODIFY_SPA,
+					attacker,
+					defender,
+					move,
+					attack
+				);
+				if (modifiedSpA !== undefined) {
+					attack = modifiedSpA;
+				}
+				const modifiedSpD = ctx.runAbilityEvent<number>(
+					AbilityTrigger.ON_MODIFY_SPD,
+					defender,
+					attacker,
+					move,
+					defense
+				);
+				if (modifiedSpD !== undefined) {
+					defense = modifiedSpD;
+				}
+			}
+
 			if (move.category === 'special') {
 				const spDefMultiplier = getWeatherSpDefMultiplier(ctx.battleField, defender.types);
 				defense = Math.floor(defense * spDefMultiplier);
@@ -396,6 +441,28 @@ export class Attack implements ActionV2Interface {
 					modifiers *
 					modifier
 			);
+
+			const attackerDamageMod = ctx.runAbilityEvent<number>(
+				AbilityTrigger.ON_MODIFY_DAMAGE,
+				attacker,
+				defender,
+				move,
+				result.damages
+			);
+			if (attackerDamageMod !== undefined) {
+				result.damages = attackerDamageMod;
+			}
+
+			const defenderDamageMod = ctx.runAbilityEvent<number>(
+				AbilityTrigger.ON_SOURCE_MODIFY_DAMAGE,
+				defender,
+				attacker,
+				move,
+				result.damages
+			);
+			if (defenderDamageMod !== undefined) {
+				result.damages = defenderDamageMod;
+			}
 		} else {
 			result.damages = 0;
 		}
@@ -471,14 +538,18 @@ export class Attack implements ActionV2Interface {
 	private accuracyApplies(
 		attacker: PokemonInstance,
 		defender: PokemonInstance,
-		move: MoveInstance | ComboMove
+		move: MoveInstance | ComboMove,
+		ctx: BattleContext
 	) {
 		if (!move.accuracy || move.accuracy === 0) {
 			return true;
 		}
+
+		const weatherAccuracy = getWeatherAccuracyOverride(ctx.battleField, move.name, move.accuracy);
+
 		const accStage = attacker.statsChanges.accuracy - defender.statsChanges.evasion;
 		const stageMod = accStage >= 0 ? (3 + accStage) / 3 : 3 / (3 - accStage);
-		const finalAccuracy = move.accuracy * stageMod;
+		const finalAccuracy = (weatherAccuracy ?? move.accuracy) * stageMod;
 		return Math.random() * 100 < finalAccuracy;
 	}
 
