@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 
-describe('Status Effects - Gen 3-5 Mechanics Verification', () => {
+describe('Status Effects - Gen 7+ Mechanics Verification', () => {
 	describe('Sleep', () => {
 		it('should last 1-3 turns in Gen 5 (2-5 turns in Gen 3-4)', () => {
 			const minTurns = 1;
@@ -16,17 +16,17 @@ describe('Status Effects - Gen 3-5 Mechanics Verification', () => {
 			expect(paraChance).toBe(0.25);
 		});
 
-		it('should reduce Speed by 75% (Gen 3-6) or 50% (Gen 7+)', () => {
-			const speedModifier = 0.25;
-			expect(speedModifier).toBe(0.25);
+		it('should reduce Speed by 50% (Gen 7+)', () => {
+			const speedModifier = 0.5;
+			expect(speedModifier).toBe(0.5);
 		});
 	});
 
 	describe('Burn', () => {
-		it('should deal 1/8 max HP per turn', () => {
+		it('should deal 1/16 max HP per turn (Gen 7+)', () => {
 			const maxHp = 100;
-			const burnDamage = Math.floor(maxHp / 8);
-			expect(burnDamage).toBe(12);
+			const burnDamage = Math.floor(maxHp / 16);
+			expect(burnDamage).toBe(6);
 		});
 
 		it('should reduce physical Attack by 50%', () => {
@@ -70,9 +70,9 @@ describe('Status Effects - Gen 3-5 Mechanics Verification', () => {
 			expect(maxTurns).toBe(4);
 		});
 
-		it('should have 50% self-hit chance (Gen 3-6) or 33% (Gen 7+)', () => {
-			const selfHitChance = 0.5;
-			expect(selfHitChance).toBe(0.5);
+		it('should have 33% self-hit chance (Gen 7+)', () => {
+			const selfHitChance = 1 / 3;
+			expect(selfHitChance).toBeCloseTo(1 / 3);
 		});
 
 		it('should calculate self-hit damage at 40 base power', () => {
