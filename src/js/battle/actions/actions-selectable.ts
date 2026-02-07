@@ -24,6 +24,12 @@ import {
 	getWeatherBallPower
 } from '../../pokemons/effects/weather-effects';
 import { Screen } from '../battle-field';
+import {
+	getTerrainDamageMultiplier,
+	blocksPriorityOnTerrain,
+	isGroundedForTerrain,
+	Terrain
+} from '../../pokemons/effects/terrain-effects';
 import { AbilityTrigger } from '../abilities/ability-types';
 
 // SELECTABLE ACTIONS
@@ -150,6 +156,24 @@ export class Attack implements ActionV2Interface {
 		actionsToPush.push(
 			new Message(attacker.name + ' used ' + this.move.name + '!', this.initiator)
 		);
+
+		// Psychic Terrain blocks priority moves against grounded targets
+		if (
+			!(this.move instanceof ComboMove) &&
+			this.move.priority > 0 &&
+			ctx.battleField.terrain !== Terrain.NONE
+		) {
+			const allBlocked = resolvedTargets.every((tgt) =>
+				blocksPriorityOnTerrain(ctx.battleField.terrain, isGroundedForTerrain(tgt.types))
+			);
+			if (allBlocked && resolvedTargets.length > 0) {
+				actionsToPush.push(
+					new Message(`${attacker.name} cannot use ${this.move.name}!`, this.initiator)
+				);
+				this.flushActions(ctx, actionsToPush);
+				return;
+			}
+		}
 
 		if (resolvedTargets.length === 0 && this.target.length > 0) {
 			const isFieldMove =
@@ -467,7 +491,13 @@ export class Attack implements ActionV2Interface {
 			const stab = this.calculateStab(attacker, moveType, controller);
 			const weatherMultiplier = getWeatherDamageMultiplier(ctx.battleField, moveType, move.name);
 			const screenMultiplier = this.calculateScreenMultiplier(move.category, defenderSide, ctx);
-			const other = weatherMultiplier * screenMultiplier;
+			const terrainMultiplier = getTerrainDamageMultiplier(
+				ctx.battleField.terrain,
+				moveType,
+				isGroundedForTerrain(attacker.types),
+				move.name
+			);
+			const other = weatherMultiplier * screenMultiplier * terrainMultiplier;
 			const modifiers = typeEffectiveness * critical * random * stab * other;
 			result.damages = Math.floor(
 				((((2 * attacker.level) / 5 + 2) * movePower * attack) / defense / 50 + 2) *
