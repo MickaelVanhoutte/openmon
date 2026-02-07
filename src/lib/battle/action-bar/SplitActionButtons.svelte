@@ -62,10 +62,10 @@
 	}
 
 	const actions: ActionButton[] = [
-		{ label: 'FIGHT', color: '#dc5959', action: onFight },
-		{ label: 'BAG', color: '#eca859', action: onBag },
-		{ label: 'POKEMON', color: '#7EAF53', action: onSwitch },
-		{ label: 'RUN', color: '#599bdc', action: onRun }
+		{ label: 'FIGHT', color: 'rgba(220,89,89,0.8)', action: onFight },
+		{ label: 'BAG', color: 'rgba(236,168,89,0.8)', action: onBag },
+		{ label: 'POKEMON', color: 'rgba(126,175,83,0.8)', action: onSwitch },
+		{ label: 'RUN', color: 'rgba(89,155,220,0.8)', action: onRun }
 	];
 
 	function getButtonPositions(

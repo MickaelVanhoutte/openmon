@@ -357,7 +357,9 @@
 		<div class="hp-bar-container" data-testid={isAlly ? 'ally-hp-bar' : 'opponent-hp-bar'}>
 			<div class="hp-bar-bg">
 				<div class="hp-bar-fill" style="width: {hpPercent}%; background: {hpGradient()}">
-					<span class="hp-value">{currentHp} / {maxHp}</span>
+					{#if isAlly}
+						<span class="hp-value">{currentHp} / {maxHp}</span>
+					{/if}
 				</div>
 			</div>
 		</div>
@@ -410,6 +412,7 @@
 		--skew-angle: -15deg;
 		--skew-counter: 15deg;
 		--spatial-bg: rgba(20, 25, 35, 0.92);
+		--ink-color: #2a224d;
 	}
 
 	.floating-pokemon-info {
@@ -419,11 +422,9 @@
 		padding: 0 8px 8px 8px;
 		transform: skewX(var(--skew-angle));
 		background: rgb(43, 71, 112);
-		border: 2px solid rgba(255, 255, 255, 0.25);
-		border-left: 4px solid rgba(255, 255, 255, 0.6);
-		box-shadow:
-			0 4px 20px rgba(0, 0, 0, 0.5),
-			inset 0 1px 0 rgba(255, 255, 255, 0.1);
+		border: 3px solid var(--ink-color);
+		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+		overflow: visible;
 	}
 
 	.spatial-text {
@@ -475,7 +476,7 @@
 	}
 
 	.hp-bar-bg {
-		height: 8px;
+		height: 10px;
 		background: rgba(0, 0, 0, 0.6);
 		overflow: hidden;
 		border: 1px solid rgba(255, 255, 255, 0.15);
@@ -492,11 +493,11 @@
 
 	.hp-value {
 		position: absolute;
-		top: -4px;
+		top: -5px;
 		left: 12px;
-		font-size: 1rem;
+		font-size: 1.3rem;
 		font-weight: bold;
-		color: white;
+		color: #2a224d;
 	}
 
 	.exp-bar-container {
@@ -576,11 +577,8 @@
 		text-transform: uppercase;
 		letter-spacing: 0.5px;
 		background: linear-gradient(135deg, rgba(40, 50, 70, 0.95) 0%, rgba(30, 40, 55, 0.95) 100%);
-		border: 1px solid rgba(255, 255, 255, 0.25);
-		border-left: 4px solid rgba(255, 255, 255, 0.6);
-		box-shadow:
-			0 2px 8px rgba(0, 0, 0, 0.4),
-			inset 0 1px 0 rgba(255, 255, 255, 0.1);
+		border: 3px solid var(--ink-color);
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 		animation: abilitySlideIn 0.25s ease-out;
 		text-align: center;
 		z-index: 51;
