@@ -87,6 +87,27 @@ export class SavesHolder {
 		this.saves.forEach((save) => {
 			Object.setPrototypeOf(save, SaveContext.prototype);
 			Object.setPrototypeOf(save.player, Player.prototype);
+			save.questStates =
+				save.questStates?.map((questState) => {
+					Object.setPrototypeOf(questState, QuestState.prototype);
+					questState.objectives = questState.objectives.map((objectiveState) => {
+						Object.setPrototypeOf(objectiveState, ObjectiveState.prototype);
+						return objectiveState;
+					});
+					return questState;
+				}) || [];
+			save.flags = save?.flags ? new Flags(save?.flags?.flags) : new Flags();
+		});
+		this.saves = this.saves.sort((a, b) => b.updated - a.updated);
+	}
+
+	/**
+	 * Waits for the POKEDEX to finish loading, then rehydrates all saved pokemon
+	 * data. Must be awaited before accessing saves that contain pokemon.
+	 */
+	async init(): Promise<void> {
+		await this.POKEDEX.ensureLoaded();
+		this.saves.forEach((save) => {
 			save.player.setPrototypes(this.POKEDEX);
 			save.boxes = save.boxes.map((box) => {
 				Object.setPrototypeOf(box, PokemonBox.prototype);
@@ -99,19 +120,7 @@ export class SavesHolder {
 				});
 				return box;
 			});
-			save.questStates =
-				save.questStates?.map((questState) => {
-					Object.setPrototypeOf(questState, QuestState.prototype);
-					questState.objectives = questState.objectives.map((objectiveState) => {
-						Object.setPrototypeOf(objectiveState, ObjectiveState.prototype);
-						return objectiveState;
-					});
-					return questState;
-				}) || [];
-
-			save.flags = save?.flags ? new Flags(save?.flags?.flags) : new Flags();
 		});
-		this.saves = this.saves.sort((a, b) => b.updated - a.updated);
 	}
 
 	// TODO: fix, seems to remove the bad one

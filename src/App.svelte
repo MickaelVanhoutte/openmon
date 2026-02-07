@@ -14,6 +14,10 @@
 	 */
 
 	const savesHolder = new SavesHolder();
+	let ready = $state(false);
+	savesHolder.init().then(() => {
+		ready = true;
+	});
 	let gameContext = $state<GameContext | undefined>(undefined);
 	let newGame = $state(false);
 	let started = $state(DEBUG);
@@ -167,7 +171,7 @@
 			{#if battleEnding}
 				<div class="battleEnd"></div>
 			{/if}
-		{:else if savesHolder.saves?.length > 0 && !newGame}
+		{:else if !ready}{:else if savesHolder.saves?.length > 0 && !newGame}
 			<!-- select a save / start new -->
 			<LoadSave {savesHolder} />
 		{:else}
@@ -299,14 +303,5 @@
 		100% {
 			opacity: 0;
 		}
-	}
-
-	:global(.guide-dialog) {
-		font-family: pokemon, serif;
-		font-size: 28px !important;
-	}
-
-	:global(.guide-dialog .tg-dialog-title) {
-		font-size: 32px !important;
 	}
 </style>
