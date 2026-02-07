@@ -392,7 +392,10 @@ export const sniper: Ability = {
 	id: 97,
 	name: 'Sniper',
 	description: 'Powers up moves on critical hits. (1.5x -> 2.25x)',
-	onModifyDamage: (_ctx: AbilityContext, damage: number): number => {
+	onModifyDamage: (ctx: AbilityContext, damage: number): number => {
+		if (ctx.pokemon.lastHitCritical) {
+			return Math.floor(damage * 1.5);
+		}
 		return damage;
 	}
 };

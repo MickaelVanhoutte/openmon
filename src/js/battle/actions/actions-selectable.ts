@@ -423,6 +423,7 @@ export class Attack implements ActionV2Interface {
 		result.immune = typeEffectiveness === 0;
 		const critical = result.immune ? 0 : this.calculateCritical(controller, move);
 		result.critical = critical > 1;
+		attacker.lastHitCritical = result.critical;
 
 		if (move.category !== 'no-damage' && movePower > 0) {
 			let attack =
@@ -554,7 +555,7 @@ export class Attack implements ActionV2Interface {
 		const isHighCrit = move.effect?.move_effect_id === 44 || move.effect?.move_effect_id === 144;
 		const critRate = isHighCrit ? 0.125 : 0.0625;
 
-		return Math.random() < critRate ? 2.0 + modifier / 100 : 1;
+		return Math.random() < critRate ? 1.5 + modifier / 100 : 1;
 	}
 
 	private calculateStab(
