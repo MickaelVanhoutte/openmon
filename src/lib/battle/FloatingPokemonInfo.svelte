@@ -198,7 +198,7 @@
 	function updatePositionFromSprite() {
 		const widgetHeight = 80;
 		const widgetWidth = 180;
-		const gap = 20;
+		const gap = 16;
 
 		if (!spriteElement || !containerElement) return;
 		const battleContainer = spriteElement.closest('.battle') as HTMLElement | null;
@@ -240,7 +240,7 @@
 		}
 
 		// Clamp to container bounds
-		left = Math.max(28, Math.min(left, containerRect.width - widgetWidth - 28));
+		left = Math.max(20, Math.min(left, containerRect.width - widgetWidth - 20));
 
 		computedStyle = `top: ${top}px; left: ${left}px;`;
 		useComputedPosition = true;
@@ -497,7 +497,8 @@
 		left: 12px;
 		font-size: 1.3rem;
 		font-weight: bold;
-		color: #2a224d;
+		color: white;
+		text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
 	}
 
 	.exp-bar-container {

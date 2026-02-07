@@ -125,12 +125,12 @@ export function getAttackPlatePositions(
 	};
 
 	const horizontalOffset = spritePos.width * 0.7 + 80;
-	const verticalOffset = 45;
+	const verticalOffset = 50;
 
 	const leftX = spriteCenter.x - horizontalOffset;
 	const rightX = spriteCenter.x + horizontalOffset - 150;
 	const topY = spriteCenter.y - verticalOffset;
-	const bottomY = spriteCenter.y + verticalOffset - 15;
+	const bottomY = spriteCenter.y + verticalOffset - 35;
 
 	// Convert to percentages and clamp to screen bounds (min 0%)
 	const leftXPercent = Math.max(0, (leftX / viewportWidth) * 100);
