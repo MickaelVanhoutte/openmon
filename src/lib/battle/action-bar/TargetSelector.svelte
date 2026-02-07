@@ -220,7 +220,7 @@
 	.target-plate {
 		position: absolute;
 		min-width: 120px;
-		height: 45px;
+		height: 40px;
 		padding: 0;
 		transform: skewX(var(--skew-angle));
 		background: transparent;

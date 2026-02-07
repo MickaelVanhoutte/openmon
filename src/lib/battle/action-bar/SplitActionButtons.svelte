@@ -75,8 +75,8 @@
 		// Layout:  [FIGHT]     [BAG]
 		//              (sprite)
 		//        [POKEMON]   [RUN]
-		console.log(spritePos);
 		if (!spritePos) {
+			console.log('fallback action position');
 			// Fallback positions around center-left where ally typically is
 			return [
 				{ top: 42, left: 8, rotation: -1 }, // FIGHT - top left
@@ -94,13 +94,13 @@
 			y: spritePos.y + spritePos.height / 2
 		};
 
-		const horizontalOffset = spritePos.width * 0.7 + 80;
+		const horizontalOffset = spritePos.width * 0.7 + 60;
 		const verticalOffset = 50;
 
 		const leftX = spriteCenter.x - horizontalOffset;
-		const rightX = spriteCenter.x + horizontalOffset - 150;
+		const rightX = spriteCenter.x + horizontalOffset - 130;
 		const topY = spriteCenter.y - verticalOffset;
-		const bottomY = spriteCenter.y + verticalOffset - 15;
+		const bottomY = spriteCenter.y + verticalOffset - 35;
 
 		// Convert to percentages and clamp to screen bounds (min 0%)
 		const leftXPercent = Math.max(0, (leftX / viewportWidth) * 100);
@@ -291,7 +291,7 @@
 	.action-plate {
 		position: absolute;
 		min-width: 120px;
-		height: 45px;
+		height: 40px;
 		padding: 0;
 		margin-top: 10px;
 		transform: skewX(var(--skew-angle));

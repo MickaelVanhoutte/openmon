@@ -251,7 +251,7 @@
 	.attack-plate {
 		position: absolute;
 		min-width: 140px;
-		height: 45px;
+		height: 40px;
 		margin-top: 10px;
 		transform: skewX(var(--skew-angle));
 		cursor: pointer;
