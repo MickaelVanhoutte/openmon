@@ -1,5 +1,5 @@
 import { EXPERIENCE_CHART } from './experience';
-import type { Effect } from './move-effects';
+import type { Effect } from './effects/types';
 import { typeChart, type PokemonType } from '../battle/battle-model';
 import { VolatileTracker } from './volatile-status';
 
