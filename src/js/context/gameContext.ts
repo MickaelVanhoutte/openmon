@@ -722,7 +722,9 @@ export class GameContext {
 					this.overWorldContext.setPaused(false, 'battle-end gameContext');
 					this.battleContext.set(undefined);
 					this.audioManager.stopBattleMusic();
-					this.hasEvolutions = this.player.monsters.some((pkmn) => pkmn.canEvolve());
+					this.hasEvolutions = this.player.monsters.some(
+						(pkmn) => battleContext.leveledUpMonsterIds.has(pkmn.id) && pkmn.canEvolve()
+					);
 					if (onEnd) {
 						onEnd();
 					}

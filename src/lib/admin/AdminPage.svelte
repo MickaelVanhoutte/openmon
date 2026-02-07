@@ -1,5 +1,6 @@
 <script lang="ts">
 	import AnimationsTab from './tabs/AnimationsTab.svelte';
+	import EvolutionTab from './tabs/EvolutionTab.svelte';
 	import AddPokemon from './tabs/AddPokemon.svelte';
 	import PokedexManager from './tabs/PokedexManager.svelte';
 	import ExportButton from './components/ExportButton.svelte';
@@ -11,12 +12,13 @@
 
 	const { onClose }: Props = $props();
 
-	type TabId = 'pokedex-manager' | 'add-pokemon' | 'animations';
+	type TabId = 'pokedex-manager' | 'add-pokemon' | 'animations' | 'evolution';
 
 	const tabs: { id: TabId; label: string }[] = [
 		{ id: 'pokedex-manager', label: 'Pokedex Manager' },
 		{ id: 'add-pokemon', label: 'Add Pokemon' },
-		{ id: 'animations', label: 'Animations' }
+		{ id: 'animations', label: 'Animations' },
+		{ id: 'evolution', label: 'Evolution' }
 	];
 
 	let activeTab: TabId = $state('pokedex-manager');
@@ -70,6 +72,8 @@
 			<AddPokemon onPokemonAdded={handlePokemonAdded} onPokemonRemoved={handlePokemonRemoved} />
 		{:else if activeTab === 'animations'}
 			<AnimationsTab />
+		{:else if activeTab === 'evolution'}
+			<EvolutionTab />
 		{/if}
 	</main>
 </div>

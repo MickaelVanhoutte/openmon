@@ -468,6 +468,7 @@ export class LvlUp implements ActionV2Interface {
 
 		ctx.addToStack(new Message(this.description, this.initiator));
 		const result = this.initiator.levelUp();
+		ctx.leveledUpMonsterIds.add(this.initiator.id);
 		ctx.events.levelUp.set({ pokemon: this.initiator, ...result });
 		if (result?.moves && result.moves.length > 0) {
 			result.moves.forEach((move: Move) => {

@@ -96,13 +96,18 @@
 	async function iteration(toEvolve: PokemonInstance[]) {
 		let i = 1;
 		evolveAnimation(toEvolve[0]);
-		setTimeout(() => {}, 16000);
 		if (toEvolve.length === 1) {
+			setTimeout(() => {
+				context.hasEvolutions = false;
+			}, 16000);
 			return;
 		}
 		const interval = setInterval(() => {
 			if (i === toEvolve.length) {
 				clearInterval(interval);
+				setTimeout(() => {
+					context.hasEvolutions = false;
+				}, 16000);
 			} else {
 				evolveAnimation(toEvolve[i++]);
 			}
@@ -367,7 +372,7 @@
 			margin: calc(-1 * (45dvh / 2)) 0 0 calc(-1 * (45dvh / 2));
 			width: 45dvh;
 			height: 45dvh;
-			border-radius: 50%;
+			border-radius: 50% !important;
 			opacity: 0;
 
 			&.c1 {
@@ -398,7 +403,7 @@
 				left: 50%;
 				top: 6%;
 				opacity: 0;
-				border-radius: 50%;
+				border-radius: 50% !important;
 			}
 
 			@for $i from 1 through 20 {

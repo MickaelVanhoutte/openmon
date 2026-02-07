@@ -4,6 +4,7 @@ import { Weather, BattleField } from '../battle/battle-field';
 import { container } from 'tsyringe';
 import { PokemonInstance, MoveInstance } from '../pokemons/pokedex';
 import { Attack } from '../battle/actions/actions-selectable';
+import type { TargetSlot } from '../battle/actions/actions-model';
 import { BattleContext } from '../context/battleContext';
 
 describe('Weather Ball Mechanics', () => {
@@ -91,7 +92,7 @@ describe('Weather Ball Mechanics', () => {
 	it('should be Normal type and 50 power in no weather', () => {
 		battleField.setWeather(Weather.NONE);
 		const move = createWeatherBall();
-		const attack = new Attack(move, [target], user);
+		const attack = new Attack(move, [{ side: 'opponent', index: 0 }] as TargetSlot[], user);
 
 		const result = (attack as any).calculateDamage(user, target, move, ctx, user, 1);
 
@@ -102,7 +103,7 @@ describe('Weather Ball Mechanics', () => {
 	it('should be Fire type and 100 power in Sun', () => {
 		battleField.setWeather(Weather.SUN);
 		const move = createWeatherBall();
-		const attack = new Attack(move, [target], user);
+		const attack = new Attack(move, [{ side: 'opponent', index: 0 }] as TargetSlot[], user);
 
 		const result = (attack as any).calculateDamage(user, target, move, ctx, user, 1);
 
@@ -113,7 +114,7 @@ describe('Weather Ball Mechanics', () => {
 	it('should be Water type and 100 power in Rain', () => {
 		battleField.setWeather(Weather.RAIN);
 		const move = createWeatherBall();
-		const attack = new Attack(move, [target], user);
+		const attack = new Attack(move, [{ side: 'opponent', index: 0 }] as TargetSlot[], user);
 
 		const result = (attack as any).calculateDamage(user, target, move, ctx, user, 1);
 
@@ -124,7 +125,7 @@ describe('Weather Ball Mechanics', () => {
 	it('should be Rock type and 100 power in Sandstorm', () => {
 		battleField.setWeather(Weather.SAND);
 		const move = createWeatherBall();
-		const attack = new Attack(move, [target], user);
+		const attack = new Attack(move, [{ side: 'opponent', index: 0 }] as TargetSlot[], user);
 
 		const result = (attack as any).calculateDamage(user, target, move, ctx, user, 1);
 
@@ -135,7 +136,7 @@ describe('Weather Ball Mechanics', () => {
 	it('should be Ice type and 100 power in Hail', () => {
 		battleField.setWeather(Weather.HAIL);
 		const move = createWeatherBall();
-		const attack = new Attack(move, [target], user);
+		const attack = new Attack(move, [{ side: 'opponent', index: 0 }] as TargetSlot[], user);
 
 		const result = (attack as any).calculateDamage(user, target, move, ctx, user, 1);
 

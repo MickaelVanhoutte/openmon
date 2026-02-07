@@ -1,17 +1,13 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import {
-		ComboMove,
-		Stats,
-		type MoveInstance,
-		type PokemonInstance
-	} from '../../js/pokemons/pokedex';
-	import type { GameContext } from '../../js/context/gameContext';
-	import { BattleType } from '../../js/battle/battle-model';
+	import { ComboMove, Stats, type MoveInstance, type PokemonInstance } from '$js/pokemons/pokedex';
+	import type { GameContext } from '$js/context/gameContext';
+	import { BattleType } from '$js/battle/battle-model';
 	import { BattleContext } from '../../js/context/battleContext';
-	import { Attack, RunAway, Switch, UseItem } from '../../js/battle/actions/actions-selectable';
-	import { Pokeball } from '../../js/items/items';
-	import { MenuType, OverworldContext } from '../../js/context/overworldContext';
+	import { Attack, RunAway, Switch, UseItem } from '$js/battle/actions/actions-selectable';
+	import { type TargetSlot } from '../../js/battle/actions/actions-model';
+	import { Pokeball } from '$js/items/items';
+	import { MenuType, OverworldContext } from '$js/context/overworldContext';
 	import MiniPkmn from './mini-menus/MiniPkmn.svelte';
 	import MiniBag from './mini-menus/MiniBag.svelte';
 	import SplitActionButtons from './action-bar/SplitActionButtons.svelte';
@@ -49,6 +45,7 @@
 	let moveOpened = $state(false);
 	let targetSelectOpened = $state(false);
 	let possibleTargets: PokemonInstance[] = $state([]);
+	let possibleSlots: TargetSlot[] = $state([]);
 	let showInfoBack = $state(false);
 	let showAdd = $state(false);
 
@@ -163,7 +160,7 @@
 			return;
 		}
 
-		let targets: PokemonInstance[];
+		let targets: TargetSlot[];
 		const currentPkmn = battleCtx.playerSide[battleCtx.actionIdx];
 
 		if (!currentPkmn) {
@@ -171,15 +168,16 @@
 		}
 
 		if (selectedTargets && selectedTargets.length > 0) {
-			targets = [...selectedTargets];
+			targets = selectedTargets.map((t) => possibleSlots[possibleTargets.indexOf(t)]);
 		} else {
-			const found = battleCtx.getPossibleTargets(currentPkmn, move);
-			if (found.selectOne) {
+			const { slots, displayTargets, selectOne } = battleCtx.getPossibleTargets(currentPkmn, move);
+			if (selectOne) {
 				targetSelectOpened = true;
-				possibleTargets = found.possibleTargets;
+				possibleTargets = displayTargets;
+				possibleSlots = slots;
 				return;
 			} else {
-				targets = found.possibleTargets;
+				targets = slots;
 			}
 		}
 
@@ -204,6 +202,7 @@
 			selectedTargetIdx = undefined;
 			selectedMoveIdx = undefined;
 			possibleTargets = [];
+			possibleSlots = [];
 			targetSelectOpened = false;
 			moveOpened = false;
 			showAdd = false;
