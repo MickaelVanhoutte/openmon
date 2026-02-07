@@ -274,62 +274,74 @@
 			role="menuitem"
 			aria-label={action.label}
 		>
-			<span class="action-label">{action.label}</span>
+			<div class="card-body">
+				<span class="action-label">{action.label}</span>
+			</div>
 		</button>
 	{/each}
 {/if}
 
 <style>
 	:root {
-		--skew-angle: -10deg;
-		--skew-counter: 10deg;
+		--skew-angle: -15deg;
+		--skew-counter: 15deg;
+		--ink-color: #2a224d;
 	}
 
 	.action-plate {
 		position: absolute;
-		min-width: 150px;
-		padding: 14px 28px;
-		transform: skewX(var(--skew-angle)) rotate(var(--plate-rotation, 0deg));
-		background: linear-gradient(90deg, var(--action-color) 30%, transparent 100%);
-		border: 3px solid var(--action-color);
-		border-left: 5px solid var(--action-color);
-		color: white;
+		min-width: 120px;
+		height: 45px;
+		padding: 0;
+		margin-top: 10px;
+		transform: skewX(var(--skew-angle));
+		background: transparent;
+		border: none;
 		cursor: pointer;
 		transition: all 0.2s ease;
-		box-shadow:
-			0 4px 16px rgba(0, 0, 0, 0.4),
-			inset 0 1px 0 rgba(255, 255, 255, 0.15);
 		z-index: 100;
 		pointer-events: auto;
+		overflow: visible;
 	}
 
 	.action-plate::before {
 		content: '';
 		position: absolute;
-		inset: 0;
-		background: rgba(20, 25, 35, 0.7);
-		z-index: 0;
+		top: -5px;
+		right: -5px;
+		width: 60%;
+		height: 70%;
+		background-color: transparent;
+		border-top: 3px solid var(--ink-color);
+		border-right: 3px solid var(--ink-color);
+		z-index: -1;
 	}
 
-	.action-plate:hover:not(:disabled),
-	.action-plate.selected:not(:disabled) {
-		transform: skewX(var(--skew-angle)) rotate(var(--plate-rotation, 0deg)) scale(1.1);
-		border-color: rgba(255, 255, 255, 0.9);
-		z-index: 110;
-		box-shadow:
-			0 8px 30px rgba(0, 0, 0, 0.5),
-			0 0 30px color-mix(in srgb, var(--action-color) 60%, transparent),
-			inset 0 1px 0 rgba(255, 255, 255, 0.25);
+	.action-plate::after {
+		content: '';
+		position: absolute;
+		bottom: -5px;
+		left: 3px;
+		width: 84%;
+		height: 100%;
+		background-color: transparent;
+		border-bottom: 3px solid var(--ink-color);
+		z-index: -1;
 	}
 
-	.action-plate:active:not(:disabled) {
-		transform: skewX(var(--skew-angle)) rotate(var(--plate-rotation, 0deg)) scale(0.95);
-	}
-
-	.action-plate:disabled {
-		opacity: 0.5;
-		cursor: not-allowed;
-		filter: grayscale(0.5);
+	.card-body {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background-color: var(--action-color);
+		border: 4px solid var(--ink-color);
+		z-index: 2;
+		overflow: hidden;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 	}
 
 	.action-label {
@@ -337,10 +349,42 @@
 		z-index: 2;
 		display: inline-block;
 		transform: skewX(var(--skew-counter));
-		font-size: 1.15rem;
-		font-weight: 700;
+		font-size: 1.5rem;
+		font-weight: bold;
 		text-transform: uppercase;
-		letter-spacing: 1.5px;
-		text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+		letter-spacing: 1px;
+		color: var(--ink-color);
+		text-shadow: none;
+	}
+
+	.action-plate:hover:not(:disabled),
+	.action-plate.selected:not(:disabled) {
+		transform: skewX(var(--skew-angle)) scale(1.08);
+		z-index: 110;
+	}
+
+	.action-plate:hover:not(:disabled):before,
+	.action-plate:hover:not(:disabled):after,
+	.action-plate.selected:not(:disabled):before,
+	.action-plate.selected:not(:disabled):after {
+		border-color: white;
+		box-shadow: 0 0 15px color-mix(in srgb, var(--type-color) 60%, transparent);
+	}
+
+	.action-plate:hover:not(:disabled) > .card-body > .action-label,
+	.action-plate:hover:not(:disabled) > .card-body > .action-label,
+	.action-plate.selected:not(:disabled) > .card-body > .action-label,
+	.action-plate.selected:not(:disabled) > .card-body > .action-label{
+		color: white !important;
+	}
+
+	.action-plate:active:not(:disabled) {
+		transform: skewX(var(--skew-angle)) scale(0.98);
+	}
+
+	.action-plate:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+		filter: grayscale(0.5);
 	}
 </style>

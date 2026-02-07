@@ -1038,41 +1038,63 @@
 		position: absolute;
 		bottom: 4%;
 		left: 5%;
-		padding: 12px 24px;
+		padding: 6px 12px;
 		transform: skewX(-15deg);
-		background: linear-gradient(135deg, rgba(71, 85, 105, 0.95) 0%, rgba(51, 65, 85, 0.9) 100%);
-		border: none;
-		border-left: 4px solid #94a3b8;
+		background-color: #3d365c; /* Muted dark indigo-slate */
+		border: 3px solid #2a224d;
 		color: white;
-		cursor: pointer;
 		z-index: 100;
+		cursor: pointer;
 		display: flex;
 		align-items: center;
 		gap: 10px;
-		font-family: inherit;
-		font-size: 0.9rem;
-		box-shadow:
-			0 4px 12px rgba(0, 0, 0, 0.4),
-			inset 0 1px 0 rgba(255, 255, 255, 0.1);
-		transition: all 0.2s ease;
+		pointer-events: auto;
+		overflow: visible;
+		box-shadow: none;
+		transition:
+			transform 0.15s ease,
+			border-color 0.15s ease;
+	}
+
+	.back-plate::before {
+		content: '';
+		position: absolute;
+		top: -7px;
+		right: -7px;
+		width: 60%;
+		height: 70%;
+		background-color: transparent;
+		border-top: 3px solid #2a224d;
+		border-right: 3px solid #2a224d;
+		z-index: -1;
+	}
+
+	.back-plate::after {
+		content: '';
+		position: absolute;
+		bottom: -7px;
+		left: 3px;
+		width: 84%;
+		height: 100%;
+		background-color: transparent;
+		border-bottom: 3px solid #2a224d;
+		z-index: -1;
 	}
 
 	.back-plate:hover {
-		background: linear-gradient(135deg, rgba(100, 116, 139, 0.95) 0%, rgba(71, 85, 105, 0.9) 100%);
-		border-left-color: #cbd5e1;
-		transform: skewX(-15deg) translateX(-3px);
-		box-shadow:
-			0 6px 16px rgba(0, 0, 0, 0.5),
-			inset 0 1px 0 rgba(255, 255, 255, 0.15);
+		transform: skewX(-15deg) scale(1.08);
+		border-color: white;
+		box-shadow: 0 0 12px rgba(90, 82, 136, 0.5);
 	}
 
 	.back-plate:active {
-		transform: skewX(-15deg) translateX(-1px) scale(0.98);
+		transform: skewX(-15deg) scale(0.98);
 	}
 
 	.back-plate svg {
 		width: 20px;
 		height: 20px;
+		fill: white;
 		transform: skewX(15deg);
 		opacity: 0.9;
 	}
@@ -1082,6 +1104,7 @@
 		font-weight: 700;
 		letter-spacing: 1.5px;
 		text-transform: uppercase;
-		text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+		color: white;
+		text-shadow: none;
 	}
 </style>
