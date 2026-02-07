@@ -214,16 +214,25 @@
 			}}
 			disabled={disabled || move.pp <= 0}
 		>
-			<div class="type-watermark">
-				<div class="type-icon">
-					<img src="src/assets/types/{move.type.toLowerCase()}-small.png" alt={move.type} />
+			<!-- Info badge circle -->
+			<div class="info-badge">
+				<span class="info-badge-text">i</span>
+			</div>
+
+			<!-- Main card body with type color bg -->
+			<div class="card-body">
+				<div class="plate-content">
+					<span class="move-name">{move.name.toUpperCase()}</span>
+				</div>
+				<!-- Type icon watermark -->
+				<div class="type-watermark">
+					<div class="type-icon">
+						<img src="src/assets/types/{move.type.toLowerCase()}-small.png" alt={move.type} />
+					</div>
 				</div>
 			</div>
 
-			<div class="plate-content">
-				<span class="move-name">{move.name.toUpperCase()}</span>
-			</div>
-
+			<!-- PP tag -->
 			<div class="pp-tag">
 				<span class="pp-text">{move.currentPp}/{move.pp}</span>
 			</div>
@@ -233,67 +242,138 @@
 
 <style>
 	:root {
-		--skew-angle: -10deg;
-		--skew-counter: 10deg;
+		--skew-angle: -15deg;
+		--skew-counter: 15deg;
+		--ink-color: #2a224d;
+		--pp-bg: #5a5288;
 	}
 
 	.attack-plate {
 		position: absolute;
-		min-width: 180px;
-		padding: 12px 22px 12px 16px;
-		transform: skewX(var(--skew-angle)) rotate(var(--plate-rotation, 0deg));
-		background: linear-gradient(90deg, var(--type-color) 25%, transparent 100%);
-		border: 3px solid var(--type-color);
-		border-left: 5px solid var(--type-color);
-		color: white;
+		min-width: 140px;
+		height: 45px;
+		margin-top: 10px;
+		transform: skewX(var(--skew-angle));
 		cursor: pointer;
 		transition: all 0.2s ease;
-		box-shadow:
-			0 4px 16px rgba(0, 0, 0, 0.4),
-			inset 0 1px 0 rgba(255, 255, 255, 0.15);
-		overflow: visible;
 		z-index: 100;
 		pointer-events: auto;
+		overflow: visible;
+		background: transparent;
+		border: none;
+		padding: 0;
 	}
 
 	.attack-plate::before {
 		content: '';
 		position: absolute;
-		inset: 0;
-		background: rgba(20, 25, 35, 0.75);
-		z-index: 0;
+		top: -5px;
+		right: -5px;
+		width: 60%;
+		height: 70%;
+		background-color: transparent;
+		border-top: 3px solid var(--ink-color);
+		border-right: 3px solid var(--ink-color);
+		z-index: -1;
 	}
 
-	.attack-plate:hover:not(:disabled),
-	.attack-plate.selected:not(:disabled) {
-		transform: skewX(var(--skew-angle)) rotate(var(--plate-rotation, 0deg)) scale(1.08);
-		border-color: rgba(255, 255, 255, 0.85);
-		z-index: 110;
-		box-shadow:
-			0 8px 28px rgba(0, 0, 0, 0.5),
-			0 0 25px color-mix(in srgb, var(--type-color) 60%, transparent),
-			inset 0 1px 0 rgba(255, 255, 255, 0.25);
+	.attack-plate::after {
+		content: '';
+		position: absolute;
+		bottom: -5px;
+		left: 3px;
+		width: 74%;
+		height: 100%;
+		background-color: transparent;
+		border-bottom: 3px solid var(--ink-color);
+		z-index: -1;
 	}
 
-	.attack-plate:active:not(:disabled) {
-		transform: skewX(var(--skew-angle)) rotate(var(--plate-rotation, 0deg)) scale(0.98);
+	.card-body {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background-color: var(--type-color);
+		border: 4px solid var(--ink-color);
+		z-index: 2;
+		overflow: hidden;
 	}
 
-	.attack-plate.disabled-move {
-		opacity: 0.4;
-		cursor: not-allowed;
-		filter: grayscale(0.7);
+	.plate-content {
+		position: relative;
+		height: 100%;
+		display: flex;
+		align-items: center;
+		padding-left: 28px;
+		transform: skewX(var(--skew-counter));
+		z-index: 2;
+	}
+
+	.move-name {
+		color: var(--ink-color);
+		font-size: 1.5rem;
+		font-weight: bold;
+		text-transform: uppercase;
+		letter-spacing: 1px;
+		text-shadow: none;
+	}
+
+	.info-badge {
+		position: absolute;
+		top: -15px;
+		left: -15px;
+		width: 30px;
+		height: 30px;
+		background: white;
+		border: 3px solid var(--ink-color);
+		border-radius: 50% !important;
+		z-index: 5;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		box-shadow: 2px 2px 0px var(--ink-color);
+		transform: skewX(var(--skew-counter));
+		cursor: pointer;
+	}
+
+	.info-badge-text {
+		font-family: 'Arial', sans-serif;
+		font-style: italic;
+		color: var(--ink-color);
+		font-size: 1rem;
+		font-weight: 700;
+	}
+
+	.pp-tag {
+		position: absolute;
+		bottom: -12px;
+		right: -6px;
+		background: var(--pp-bg);
+		border: 3px solid var(--ink-color);
+		padding: 3px 12px;
+		z-index: 5;
+		transform: skewX(var(--skew-angle));
+		box-shadow: 2px 2px 0px var(--ink-color);
+	}
+
+	.pp-text {
+		display: inline-block;
+		transform: skewX(var(--skew-counter));
+		font-size: 1rem;
+		font-weight: 700;
+		color: white;
 	}
 
 	.type-watermark {
 		position: absolute;
-		right: 4px;
+		right: -5px;
 		top: 50%;
-		transform: translateY(-50%) skewX(var(--skew-counter))
-			rotate(calc(-1 * var(--plate-rotation, 0deg)));
-		width: 32px;
-		height: 32px;
-		opacity: 1;
+		transform: translateY(-50%) skewX(var(--skew-counter)) rotate(-10deg);
+		width: 64px;
+		height: 64px;
+		opacity: 0.45;
 		pointer-events: none;
 		z-index: 1;
 		overflow: hidden;
@@ -302,7 +382,6 @@
 	.type-icon {
 		width: 100%;
 		height: 100%;
-		border-radius: 50%;
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -314,41 +393,34 @@
 		object-fit: contain;
 	}
 
-	.plate-content {
-		position: relative;
-		z-index: 2;
-		transform: skewX(var(--skew-counter));
+	.attack-plate:hover:not(:disabled),
+	.attack-plate.selected:not(:disabled) {
+		transform: skewX(var(--skew-angle)) scale(1.08);
+		z-index: 110;
 	}
 
-	.move-name {
-		font-size: 1rem;
-		font-weight: 700;
-		text-transform: uppercase;
-		letter-spacing: 0.5px;
-		text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
+	.attack-plate:hover:not(:disabled):before,
+	.attack-plate:hover:not(:disabled):after,
+	.attack-plate.selected:not(:disabled):before,
+	.attack-plate.selected:not(:disabled):after {
+		border-color: white;
+		box-shadow: 0 0 15px color-mix(in srgb, var(--type-color) 60%, transparent);
 	}
 
-	.pp-tag {
-		position: absolute;
-		right: 6px;
-		bottom: -10px;
-		padding: 2px 8px;
-		background: rgba(15, 20, 30, 0.95);
-		transform: skewX(var(--skew-angle));
-		border-bottom: 2px solid var(--type-color);
-		z-index: 3;
+	.attack-plate:hover:not(:disabled) > .card-body > .plate-content > .move-name,
+	.attack-plate:hover:not(:disabled) > .card-body > .plate-content > .move-name,
+	.attack-plate.selected:not(:disabled) > .card-body > .plate-content > .move-name,
+	.attack-plate.selected:not(:disabled) > .card-body > .plate-content > .move-name{
+		color: white !important;
 	}
 
-	.pp-text {
-		display: inline-block;
-		transform: skewX(var(--skew-counter));
-		font-size: 0.7rem;
-		font-weight: 600;
-		color: #94a3b8;
+	.attack-plate:active:not(:disabled) {
+		transform: skewX(var(--skew-angle)) scale(0.98);
 	}
 
-	.attack-plate.selected .pp-text,
-	.attack-plate:hover .pp-text {
-		color: white;
+	.attack-plate.disabled-move {
+		opacity: 0.4;
+		cursor: not-allowed;
+		filter: grayscale(0.7);
 	}
 </style>
