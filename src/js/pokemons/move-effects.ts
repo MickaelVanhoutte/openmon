@@ -81,7 +81,7 @@ class Poison implements Effect {
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
 		const poison = new Poison();
-		poison.damages = Math.floor(target[0].currentStats.hp / 16);
+		poison.damages = Math.floor(target[0].currentStats.hp / 8);
 		return new EffectResult(poison, `${target[0].name} is poisoned`);
 	}
 
@@ -5289,12 +5289,12 @@ class ToxicSpikes implements Effect {
 		if (!target.hasType('Poison') && !target.hasType('Steel') && !target.hasType('Flying')) {
 			if (this.layers === 1) {
 				const poison = new Poison();
-				poison.damages = Math.floor(target.stats.hp / 16);
+				poison.damages = Math.floor(target.currentStats.hp / 8);
 				target.status = poison;
 				return new EffectForTurn(true, `${target.name} was poisoned!`);
 			} else {
 				const badlyPoison = new BadlyPoison();
-				badlyPoison.damages = Math.floor(target.stats.hp / 16);
+				badlyPoison.damages = Math.floor(target.currentStats.hp / 16);
 				target.status = badlyPoison;
 				return new EffectForTurn(true, `${target.name} was badly poisoned!`);
 			}

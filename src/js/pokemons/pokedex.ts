@@ -742,6 +742,7 @@ export class PokemonInstance extends PokedexEntry {
 	public lastMove?: MoveInstance;
 	public lastDamageTaken?: number;
 	public lastAttacker?: PokemonInstance;
+	public lastHitCritical?: boolean;
 	public selectedMove?: MoveInstance;
 
 	public isShiny: boolean = false;
@@ -774,8 +775,8 @@ export class PokemonInstance extends PokedexEntry {
 		// Accuracy/Evasion use different formula: +1 = 1.33x, -1 = 0.75x
 		const accEvaMultiplier = (stage: number) => (stage >= 0 ? (3 + stage) / 3 : 3 / (3 - stage));
 
-		// Apply paralysis speed reduction (25% of normal)
-		const paralysisSpeedMod = this.status === 'paralysis' ? 0.25 : 1;
+		// Apply paralysis speed reduction (50% of normal, Gen 7+)
+		const paralysisSpeedMod = this.status === 'paralysis' ? 0.5 : 1;
 
 		return new Stats(
 			this.currentStats.hp,
@@ -923,14 +924,7 @@ export class PokemonInstance extends PokedexEntry {
 	private fromBaseStats(): Stats {
 		return new Stats(
 			Math.floor(
-				(((this.ivs.hp + this.stats.hp * 2 + this.evs.hp / 4) * this.level) / 100 +
-					10 +
-					this.level) *
-					(this.nature.increasedStatId === 'hp'
-						? 1.1
-						: this.nature.decreasedStatId === 'hp'
-							? 0.9
-							: 1)
+				((this.ivs.hp + this.stats.hp * 2 + this.evs.hp / 4) * this.level) / 100 + 10 + this.level
 			),
 			Math.floor(
 				(((this.ivs.attack + this.stats.attack * 2 + this.evs.attack / 4) * this.level) / 100 + 5) *
