@@ -14,3 +14,4 @@ vite.config.ts.timestamp-*
 /src/assets/monsters/heartgold-soulsilver/
 /tiled/beta/openmon.tiled-session
 .sisyphus
+/coverage/
