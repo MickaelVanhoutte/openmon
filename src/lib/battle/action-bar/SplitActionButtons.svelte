@@ -76,7 +76,6 @@
 		//              (sprite)
 		//        [POKEMON]   [RUN]
 		if (!spritePos) {
-			console.log('fallback action position');
 			// Fallback positions around center-left where ally typically is
 			return [
 				{ top: 42, left: 8, rotation: -1 }, // FIGHT - top left

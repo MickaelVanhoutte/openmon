@@ -194,24 +194,12 @@
 		if (!firstSelection?.selected) {
 			return;
 		}
-		// DEBUG: Log the state to understand what's happening
-		console.log('openSum called', {
-			'firstSelection.zone': firstSelection.zone,
-			'firstSelection.box': firstSelection.box,
-			'firstSelection.selected': firstSelection.selected?.name
-		});
 		// Use firstSelection.box (where Pokemon was selected from) not selectedBox (current view)
 		const list =
 			firstSelection.zone === 'box' && firstSelection.box !== undefined
 				? context.boxes[firstSelection.box].values.filter((p) => p instanceof PokemonInstance)
 				: context.player.monsters;
-		console.log('list computed', {
-			listLength: list.length,
-			listNames: list.map((p) => p?.name),
-			isBoxList: firstSelection.zone === 'box' && firstSelection.box !== undefined
-		});
 		pkmnListSelectedIndex = list.indexOf(firstSelection.selected);
-		console.log('pkmnListSelectedIndex', pkmnListSelectedIndex);
 		context.overWorldContext.openMenu(MenuType.SUMMARY);
 	}
 

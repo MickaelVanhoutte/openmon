@@ -116,8 +116,10 @@
 
 		return () => {
 			window.removeEventListener('keydown', keyDownListener);
-			pokeballs.removeEventListener('touchmove', touchDown);
+			pokeballs.removeEventListener('touchstart', touchDown);
 			pokeballs.removeEventListener('touchend', touchUp);
+			pokeballs.removeEventListener('mousedown', mouseDown);
+			pokeballs.removeEventListener('mouseup', mouseUp);
 			aUnsubscribe?.();
 			bUnsubscribe?.();
 		};

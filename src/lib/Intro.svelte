@@ -87,15 +87,18 @@
 			}, 300);
 		}, 14000);
 
-		intro.addEventListener('click', () => {
+		function handleIntroClick() {
 			if (ready) {
 				started = true;
 			}
-		});
+		}
+
+		intro.addEventListener('click', handleIntroClick);
 
 		return () => {
 			clearInterval(messageInterval);
 			clearInterval(readyCheckInterval);
+			intro.removeEventListener('click', handleIntroClick);
 			sound.fade(0.5, 0, 1000);
 			setTimeout(() => {
 				sound.stop();

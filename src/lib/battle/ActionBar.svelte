@@ -82,6 +82,8 @@
 
 	let isPlayerTurnValue = $state(false);
 
+	const pendingTimeouts: ReturnType<typeof setTimeout>[] = [];
+
 	battleCtx.currentMessage.subscribe((message) => {
 		currentMessage = message;
 	});
@@ -94,12 +96,16 @@
 	});
 	battleCtx.events.levelUp.subscribe((lvlUp) => {
 		if (lvlUp && lvlUp.newStats) {
-			setTimeout(() => {
-				levelUpRecap = lvlUp;
-			}, 500);
-			setTimeout(() => {
-				levelUpRecap = undefined;
-			}, 3500);
+			pendingTimeouts.push(
+				setTimeout(() => {
+					levelUpRecap = lvlUp;
+				}, 500)
+			);
+			pendingTimeouts.push(
+				setTimeout(() => {
+					levelUpRecap = undefined;
+				}, 3500)
+			);
 		}
 	});
 
@@ -107,30 +113,38 @@
 		if (battleCtx.player.comboJauge.value != comboValue && !updating) {
 			updating = true;
 			showAdd = true;
-			setTimeout(() => {
-				showAdd = false;
-			}, 4000);
+			pendingTimeouts.push(
+				setTimeout(() => {
+					showAdd = false;
+				}, 4000)
+			);
 
 			if (
 				battleCtx.player.comboJauge.value < comboValue &&
 				battleCtx.player.comboJauge.stored >= comboStored
 			) {
-				setTimeout(() => {
-					// goes to 100 animated
-					comboValue = 100;
-				}, 50);
+				pendingTimeouts.push(
+					setTimeout(() => {
+						// goes to 100 animated
+						comboValue = 100;
+					}, 50)
+				);
 
-				setTimeout(() => {
-					// then 0 without transition
-					comboValue = 0;
-				}, 950);
+				pendingTimeouts.push(
+					setTimeout(() => {
+						// then 0 without transition
+						comboValue = 0;
+					}, 950)
+				);
 
-				setTimeout(() => {
-					// then set new values
-					comboValue = battleCtx.player.comboJauge.value;
-					comboStored = battleCtx.player.comboJauge.stored;
-					updating = false;
-				}, 1900);
+				pendingTimeouts.push(
+					setTimeout(() => {
+						// then set new values
+						comboValue = battleCtx.player.comboJauge.value;
+						comboStored = battleCtx.player.comboJauge.stored;
+						updating = false;
+					}, 1900)
+				);
 			} else {
 				comboValue = battleCtx.player.comboJauge.value;
 				comboStored = battleCtx.player.comboJauge.stored;
@@ -244,7 +258,6 @@
 	}
 
 	function prepareCombo(pokemon: PokemonInstance, move: MoveInstance) {
-		//console.log(pokemon, move);
 		currentCombo = { pokemon, move };
 		showInfoBack = true;
 	}
@@ -465,6 +478,7 @@
 		return () => {
 			window.removeEventListener('keydown', listener);
 			clearInterval(actionIdxPoll);
+			pendingTimeouts.forEach(clearTimeout);
 		};
 	});
 </script>
