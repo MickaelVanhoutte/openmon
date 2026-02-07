@@ -9,3 +9,9 @@ export {
 	waitForPlayerCreation,
 	goThroughIntro
 } from './game-state';
+export {
+	createBattleReadyFixture,
+	createMenuTestingFixture,
+	createFullTeamFixture,
+	createWorldExplorationFixture
+} from './fixture-factories';
