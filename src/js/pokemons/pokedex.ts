@@ -909,6 +909,9 @@ export class PokemonInstance extends PokedexEntry {
 		this.statCalc = new StatCalculator(this);
 		this.xpMgr = new XpManager(this);
 		this.moveMgr = new MoveManager(this);
+
+		this.statsChanges = new Stats();
+		this.volatiles = new VolatileTracker();
 	}
 
 	toJSON() {

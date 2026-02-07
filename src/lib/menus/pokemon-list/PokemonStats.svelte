@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import {
 		Chart,
 		RadarController,
@@ -12,7 +11,6 @@
 	import { fade, slide } from 'svelte/transition';
 	import { backInOut } from 'svelte/easing';
 	import type { GameContext } from '../../../js/context/gameContext';
-	import { GUIDES_STEPS } from '../../../js/context/guides-steps';
 
 	Chart.register(RadarController, RadialLinearScale, PointElement, LineElement, Filler);
 
@@ -36,8 +34,6 @@
 
 	let graphWrapper: HTMLDivElement | undefined = $state(undefined);
 	let graph: HTMLCanvasElement | undefined = $state(undefined);
-	let editBtn: HTMLButtonElement | undefined = $state(undefined);
-	let editLines: HTMLTableSectionElement | undefined = $state(undefined);
 
 	type StatKey = 'hp' | 'attack' | 'defense' | 'specialAttack' | 'specialDefense' | 'speed';
 
@@ -83,22 +79,6 @@
 
 	function openEdition() {
 		statEdit = !statEdit;
-		setTimeout(() => {
-			if (
-				statEdit &&
-				editLines?.rows?.length &&
-				editLines.rows.length > 0 &&
-				!context.viewedGuides.includes(GUIDES_STEPS.EVS_EDIT.order)
-			) {
-				context.tg.setOptions({
-					steps: [GUIDES_STEPS.EVS_EDIT].map((step) => ({
-						...step,
-						target: editLines?.rows[1]
-					}))
-				});
-				context.tg.refresh();
-			}
-		}, 510);
 	}
 
 	function addEv(stat: StatKey, number: number) {
@@ -239,20 +219,6 @@
 		};
 	}
 
-	onMount(() => {
-		setTimeout(() => {
-			if (editBtn && !context.viewedGuides.includes(GUIDES_STEPS.EVS.order)) {
-				context.tg.setOptions({
-					steps: [GUIDES_STEPS.EVS].map((step) => ({
-						...step,
-						target: editBtn
-					}))
-				});
-				context.tg.refresh();
-			}
-		}, 610);
-	});
-
 	function getStatBarWidth(value: number) {
 		const max = 300;
 		return Math.min(100, (value / max) * 100) + '%';
@@ -284,7 +250,6 @@
 					<div class="col-label">
 						{#if !isBattle}
 							<button
-								bind:this={editBtn}
 								class="edit-btn"
 								class:flash={selectedMons.evsToDistribute > 0}
 								onclick={() => openEdition()}
@@ -361,7 +326,7 @@
 					<th width="50%">EV ({selectedMons.evsToDistribute})</th>
 				</tr>
 			</thead>
-			<tbody bind:this={editLines}>
+			<tbody>
 				{#each statsKeys as key}
 					<tr>
 						<td style="color:{natureColor(key, selectedMons.nature)}"
