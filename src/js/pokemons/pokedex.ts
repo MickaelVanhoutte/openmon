@@ -2,6 +2,9 @@ import { EXPERIENCE_CHART } from './experience';
 import type { Effect } from './effects/types';
 import { typeChart, type PokemonType } from '../battle/battle-model';
 import { VolatileTracker } from './volatile-status';
+import { StatCalculator } from './helpers/stat-calculator';
+import { XpManager } from './helpers/xp-manager';
+import { MoveManager } from './helpers/move-manager';
 
 export class Nature {
 	public id: number;
@@ -750,6 +753,10 @@ export class PokemonInstance extends PokedexEntry {
 	public status?: Effect;
 	public volatiles: VolatileTracker = new VolatileTracker();
 
+	private statCalc!: StatCalculator;
+	private xpMgr!: XpManager;
+	private moveMgr!: MoveManager;
+
 	get spriteScale(): number {
 		return 1;
 	}
@@ -770,30 +777,7 @@ export class PokemonInstance extends PokedexEntry {
      }*/
 
 	get battleStats(): Stats {
-		// Gen 4 stat stage multipliers: +1 = 1.5x, +2 = 2x, +6 = 4x, -1 = 0.67x, -6 = 0.25x
-		const stageMultiplier = (stage: number) => (stage >= 0 ? (2 + stage) / 2 : 2 / (2 - stage));
-		// Accuracy/Evasion use different formula: +1 = 1.33x, -1 = 0.75x
-		const accEvaMultiplier = (stage: number) => (stage >= 0 ? (3 + stage) / 3 : 3 / (3 - stage));
-
-		// Apply paralysis speed reduction (50% of normal, Gen 7+)
-		const paralysisSpeedMod = this.status === 'paralysis' ? 0.5 : 1;
-
-		return new Stats(
-			this.currentStats.hp,
-			Math.floor(this.currentStats.attack * stageMultiplier(this.statsChanges.attack)),
-			Math.floor(this.currentStats.defense * stageMultiplier(this.statsChanges.defense)),
-			Math.floor(
-				this.currentStats.specialAttack * stageMultiplier(this.statsChanges.specialAttack)
-			),
-			Math.floor(
-				this.currentStats.specialDefense * stageMultiplier(this.statsChanges.specialDefense)
-			),
-			Math.floor(
-				this.currentStats.speed * stageMultiplier(this.statsChanges.speed) * paralysisSpeedMod
-			),
-			Math.floor(this.currentStats.evasion * accEvaMultiplier(this.statsChanges.evasion)),
-			Math.floor(this.currentStats.accuracy * accEvaMultiplier(this.statsChanges.accuracy))
-		);
+		return this.statCalc.computeBattleStats();
 	}
 
 	constructor(
@@ -823,6 +807,10 @@ export class PokemonInstance extends PokedexEntry {
 			pokedexEntry.evolution,
 			pokedexEntry.sprites
 		);
+
+		this.statCalc = new StatCalculator(this);
+		this.xpMgr = new XpManager(this);
+		this.moveMgr = new MoveManager(this);
 
 		if (fromInstance) {
 			// keep current if exists or random from new abilities
@@ -888,98 +876,19 @@ export class PokemonInstance extends PokedexEntry {
 			| 'accuracy',
 		value: number
 	) {
-		const currentStage = this.statsChanges[stat];
-		const newStage = Math.min(6, Math.max(-6, currentStage + value));
-		if (newStage === currentStage) {
-			// Stat change cannot go higher/lower
-		} else {
-			this.statsChanges[stat] = newStage;
-		}
+		this.statCalc.changeBattleStats(stat, value);
 	}
 
 	public resetBattleStats() {
-		this.statsChanges = new Stats();
+		this.statCalc.resetBattleStats();
 	}
 
 	public selectMove(iaLvl: 'Random' | 'Easy', target?: PokemonInstance): MoveInstance {
-		const random = Math.floor(Math.random() * this.moves.length);
-		const move = this.moves[random];
-		if (iaLvl === 'Easy' && !!target) {
-			const matchTargetTypes =
-				target?.types.length === 2
-					? this.moves.find((move: Move) => move.type === target.types[0] && move.power > 0)
-					: this.moves.find(
-							(move: Move) =>
-								(move.type === target.types[0] || move.type === target.types[1]) && move.power > 0
-						);
-			if (matchTargetTypes && matchTargetTypes.power > 0) {
-				return move;
-			}
-		}
-
-		// TODO hard IA should include switching, using items, setup before attacking...
-		return move;
-	}
-
-	private fromBaseStats(): Stats {
-		return new Stats(
-			Math.floor(
-				((this.ivs.hp + this.stats.hp * 2 + this.evs.hp / 4) * this.level) / 100 + 10 + this.level
-			),
-			Math.floor(
-				(((this.ivs.attack + this.stats.attack * 2 + this.evs.attack / 4) * this.level) / 100 + 5) *
-					(this.nature.increasedStatId === 'attack'
-						? 1.1
-						: this.nature.decreasedStatId === 'attack'
-							? 0.9
-							: 1)
-			),
-			Math.floor(
-				(((this.ivs.defense + this.stats.defense * 2 + this.evs.defense / 4) * this.level) / 100 +
-					5) *
-					(this.nature.increasedStatId === 'defense'
-						? 1.1
-						: this.nature.decreasedStatId === 'defense'
-							? 0.9
-							: 1)
-			),
-			Math.floor(
-				(((this.ivs.specialAttack + this.stats.specialAttack * 2 + this.evs.specialAttack / 4) *
-					this.level) /
-					100 +
-					5) *
-					(this.nature.increasedStatId === 'specialAttack'
-						? 1.1
-						: this.nature.decreasedStatId === 'specialAttack'
-							? 0.9
-							: 1)
-			),
-			Math.floor(
-				(((this.ivs.specialDefense + this.stats.specialDefense * 2 + this.evs.specialDefense / 4) *
-					this.level) /
-					100 +
-					5) *
-					(this.nature.increasedStatId === 'specialDefense'
-						? 1.1
-						: this.nature.decreasedStatId === 'specialDefense'
-							? 0.9
-							: 1)
-			),
-			Math.floor(
-				(((this.ivs.speed + this.stats.speed * 2 + this.evs.speed / 4) * this.level) / 100 + 5) *
-					(this.nature.increasedStatId === 'speed'
-						? 1.1
-						: this.nature.decreasedStatId === 'speed'
-							? 0.9
-							: 1)
-			)
-		);
+		return this.moveMgr.selectMove(iaLvl, target);
 	}
 
 	public canEvolve() {
-		return (
-			this.evolution?.filter((evo) => evo.method === 'level' && evo.level <= this.level)?.length > 0
-		);
+		return this.xpMgr.canEvolve();
 	}
 
 	public removeHp(hp: number) {
@@ -1007,87 +916,30 @@ export class PokemonInstance extends PokedexEntry {
 	}
 
 	public howMuchXpWon(
-		opponent: PokemonInstance,
+		_opponent: PokemonInstance,
 		participated: number = 1,
 		fromTrainer: boolean = false,
 		xpShare: boolean
 	): number {
-		return EXPERIENCE_CHART.howMuchIGet(this, participated, fromTrainer, xpShare);
+		return this.xpMgr.howMuchXpWon(participated, fromTrainer, xpShare);
 	}
 
 	public addXpResult(
 		totalXp: number,
 		evs: number
 	): { levelup: boolean; xpLeft: number; newMove: string[] } {
-		this.evsToDistribute += this.totalEvs + evs <= 510 ? evs : this.totalEvs + evs - 510;
-		if (this.level < 100) {
-			let xpLeft = 0;
-			if (this.xpToNextLevel < this.currentXp + totalXp) {
-				xpLeft = totalXp - (this.xpToNextLevel - this.currentXp);
-				const xpToAddNow = totalXp - xpLeft;
-				this.currentXp += xpToAddNow;
-
-				return {
-					levelup: true,
-					xpLeft: xpLeft,
-					newMove: []
-					//newMove: POKEDEX.findById(this.id).result?.moves.filter((move) => move.level === this.level + 1).map((move) => move.name) || []
-				};
-			} else {
-				this.currentXp += totalXp;
-			}
-		}
-
-		return {
-			levelup: false,
-			xpLeft: 0,
-			newMove: []
-		};
+		return this.xpMgr.addXpResult(totalXp, evs);
 	}
 
 	public addEv(
 		ev: 'hp' | 'attack' | 'defense' | 'specialAttack' | 'specialDefense' | 'speed',
 		value: number
 	) {
-		const total = this.totalEvs;
-		if (
-			this.evsToDistribute >= value &&
-			this.evs[ev] + value <= 252 &&
-			this.evs[ev] + value > 0 &&
-			total + value <= 510
-		) {
-			const toAdd = this.evs[ev] + value <= 252 && total + value <= 510 ? value : 0;
-			this.evs[ev] += toAdd;
-			this.evsToDistribute -= toAdd;
-			this.updateCurrentStats();
-		}
+		this.xpMgr.addEv(ev, value);
 	}
 
 	public levelUp(): { oldStats?: Stats; newStats?: Stats; moves?: Move[] } {
-		if (this.level >= 100) {
-			return {};
-		}
-		const oldStats = { ...this.currentStats };
-
-		let currentHp = this.currentStats.hp;
-		this.level += 1;
-		this.updateCurrentStats();
-		const newStats = { ...this.currentStats };
-
-		// heal added hp
-		currentHp = this.currentStats.hp - currentHp;
-		this.currentHp += currentHp;
-		this.currentXp = 0;
-
-		return { oldStats, newStats, moves: this.checkForNewMoves() };
-
-		// TODO
-		//this.checkForNewMoves();
-		//this.checkForEvolutions();
-	}
-
-	private checkForNewMoves(): Move[] {
-		return this.moves.filter((move) => move.level === this.level);
+		return this.xpMgr.levelUp();
 	}
 
 	evolve(future: PokedexSearchResult): PokemonInstance {
@@ -1106,7 +958,7 @@ export class PokemonInstance extends PokedexEntry {
 	}
 
 	public updateCurrentStats() {
-		this.currentStats = this.fromBaseStats();
+		this.currentStats = this.statCalc.computeFromBaseStats();
 		this.xpToNextLevel = EXPERIENCE_CHART.howMuchINeed(this.level, this.growthRateId);
 	}
 
@@ -1119,28 +971,7 @@ export class PokemonInstance extends PokedexEntry {
 	}
 
 	private selectLatestMoves(pokedexEntry: PokedexEntry) {
-		// get 4 last moves based on current level
-		return pokedexEntry.moves
-			.filter((move) => move.level <= this.level && move.method === 1)
-			.slice(-4)
-			.map(
-				(move) =>
-					new MoveInstance(
-						move.id,
-						move.name,
-						move.type,
-						move.category,
-						move.power,
-						move.accuracy,
-						move.pp,
-						move.priority,
-						move.target,
-						move.effect,
-						move.effectChance,
-						move.description,
-						move.level
-					)
-			);
+		return this.moveMgr.selectLatestMoves(pokedexEntry);
 	}
 
 	public getSprite(back?: boolean): string {
