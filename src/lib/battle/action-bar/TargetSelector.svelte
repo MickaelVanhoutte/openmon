@@ -90,7 +90,7 @@
 			side === 'ally' ? spriteCenter.x - horizontalOffset : spriteCenter.x + horizontalOffset - 80;
 
 		return Array.from({ length: count }, (_, i) => {
-			const topY = spriteCenter.y - 30 + i * 55;
+			const topY = spriteCenter.y - 50 + i * 65;
 			return {
 				top: Math.max(0, (topY / viewportHeight) * 100),
 				left: Math.max(0, (baseX / viewportWidth) * 100)
@@ -169,16 +169,18 @@
 			role="menuitem"
 			aria-label="Target {target.name}, ally, effectiveness {getEffectiveness(target)}x"
 		>
-			<span class="target-name">{target.name.toUpperCase()}</span>
-			{#if getEffectiveness(target) !== 1}
-				<span
-					class="effectiveness"
-					class:super-effective={getEffectiveness(target) > 1}
-					class:not-effective={getEffectiveness(target) < 1}
-				>
-					x{getEffectiveness(target)}
-				</span>
-			{/if}
+			<div class="card-body">
+				<span class="target-label">{target.name.toUpperCase()}</span>
+				{#if getEffectiveness(target) !== 1}
+					<span
+						class="effectiveness"
+						class:super-effective={getEffectiveness(target) > 1}
+						class:not-effective={getEffectiveness(target) < 1}
+					>
+						x{getEffectiveness(target)}
+					</span>
+				{/if}
+			</div>
 		</button>
 	{/each}
 
@@ -192,99 +194,146 @@
 			role="menuitem"
 			aria-label="Target {target.name}, opponent, effectiveness {getEffectiveness(target)}x"
 		>
-			<span class="target-name">{target.name.toUpperCase()}</span>
-			{#if getEffectiveness(target) !== 1}
-				<span
-					class="effectiveness"
-					class:super-effective={getEffectiveness(target) > 1}
-					class:not-effective={getEffectiveness(target) < 1}
-				>
-					x{getEffectiveness(target)}
-				</span>
-			{/if}
+			<div class="card-body">
+				<span class="target-label">{target.name.toUpperCase()}</span>
+				{#if getEffectiveness(target) !== 1}
+					<span
+						class="effectiveness"
+						class:super-effective={getEffectiveness(target) > 1}
+						class:not-effective={getEffectiveness(target) < 1}
+					>
+						x{getEffectiveness(target)}
+					</span>
+				{/if}
+			</div>
 		</button>
 	{/each}
 {/if}
 
 <style>
 	:root {
-		--skew-angle: -10deg;
-		--skew-counter: 10deg;
+		--skew-angle: -15deg;
+		--skew-counter: 15deg;
+		--ink-color: #2a224d;
 	}
 
 	.target-plate {
 		position: absolute;
-		min-width: 160px;
-		padding: 12px 20px;
+		min-width: 120px;
+		height: 45px;
+		padding: 0;
 		transform: skewX(var(--skew-angle));
-		background: rgba(20, 25, 35, 0.92);
-		border: 3px solid var(--target-color);
-		border-left: 5px solid var(--target-color);
-		color: white;
+		background: transparent;
+		border: none;
 		cursor: pointer;
 		transition: all 0.2s ease;
-		box-shadow:
-			0 4px 16px rgba(0, 0, 0, 0.4),
-			inset 0 1px 0 rgba(255, 255, 255, 0.1);
+		z-index: 100;
+		pointer-events: auto;
+		overflow: visible;
+	}
+
+	.target-plate::before {
+		content: '';
+		position: absolute;
+		top: -5px;
+		right: -5px;
+		width: 60%;
+		height: 70%;
+		background-color: transparent;
+		border-top: 3px solid var(--ink-color);
+		border-right: 3px solid var(--ink-color);
+		z-index: -1;
+	}
+
+	.target-plate::after {
+		content: '';
+		position: absolute;
+		bottom: -5px;
+		left: 3px;
+		width: 84%;
+		height: 100%;
+		background-color: transparent;
+		border-bottom: 3px solid var(--ink-color);
+		z-index: -1;
+	}
+
+	.card-body {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background-color: var(--target-color);
+		border: 4px solid var(--ink-color);
+		z-index: 2;
+		overflow: hidden;
 		display: flex;
 		align-items: center;
-		justify-content: space-between;
-		gap: 12px;
-		z-index: 100;
+		justify-content: center;
+		gap: 8px;
 	}
 
-	.target-plate.ally {
-		border-left: 5px solid var(--target-color);
-		border-right: 3px solid var(--target-color);
-	}
-
-	.target-plate.opponent {
-		border-right: 5px solid var(--target-color);
-		border-left: 3px solid var(--target-color);
-	}
-
-	.target-plate:hover,
-	.target-plate.selected {
-		transform: skewX(var(--skew-angle)) scale(1.03);
-		border-color: rgba(255, 255, 255, 0.8);
-		box-shadow:
-			0 6px 20px rgba(0, 0, 0, 0.5),
-			0 0 15px color-mix(in srgb, var(--target-color) 40%, transparent),
-			inset 0 1px 0 rgba(255, 255, 255, 0.2);
-	}
-
-	.target-plate:active {
-		transform: skewX(var(--skew-angle)) scale(0.98);
-	}
-
-	.target-name {
+	.target-label {
+		position: relative;
+		z-index: 2;
 		display: inline-block;
 		transform: skewX(var(--skew-counter));
-		font-size: 1rem;
-		font-weight: 700;
+		font-size: 1.5rem;
+		font-weight: bold;
 		text-transform: uppercase;
-		letter-spacing: 0.5px;
-		text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-		max-width: 120px;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
+		letter-spacing: 1px;
+		color: var(--ink-color);
+		text-shadow: none;
 	}
 
 	.effectiveness {
 		display: inline-block;
 		transform: skewX(var(--skew-counter));
-		font-size: 0.9rem;
-		font-weight: 700;
-		padding: 2px 8px;
+		font-size: 1.5rem;
+		font-weight: bold;
+		padding: 2px 6px;
+		color: var(--ink-color);
 	}
 
 	.effectiveness.super-effective {
-		color: #facc15;
-		text-shadow: 0 0 8px rgba(250, 204, 21, 0.6);
+		color: #92400e;
 	}
 
 	.effectiveness.not-effective {
-		color: #94a3b8;
+		color: #475569;
+	}
+
+	.target-plate:hover,
+	.target-plate.selected {
+		transform: skewX(var(--skew-angle)) scale(1.08);
+		z-index: 110;
+	}
+
+	.target-plate:hover::before,
+	.target-plate:hover::after,
+	.target-plate.selected::before,
+	.target-plate.selected::after {
+		border-color: white;
+		box-shadow: 0 0 15px color-mix(in srgb, var(--target-color) 60%, transparent);
+	}
+
+	.target-plate:hover > .card-body > .target-label,
+	.target-plate.selected > .card-body > .target-label {
+		color: white !important;
+	}
+
+	.target-plate:hover > .card-body > .effectiveness,
+	.target-plate.selected > .card-body > .effectiveness {
+		color: white !important;
+	}
+
+	.target-plate:hover > .card-body > .effectiveness.super-effective,
+	.target-plate.selected > .card-body > .effectiveness.super-effective {
+		color: #fef08a !important;
+		text-shadow: 0 0 8px rgba(250, 204, 21, 0.6);
+	}
+
+	.target-plate:active {
+		transform: skewX(var(--skew-angle)) scale(0.98);
 	}
 </style>
