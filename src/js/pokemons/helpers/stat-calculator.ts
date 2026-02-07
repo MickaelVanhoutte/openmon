@@ -93,4 +93,9 @@ export class StatCalculator {
 	resetBattleStats() {
 		this.owner.statsChanges = new Stats();
 	}
+
+	computeTotalEvs(): number {
+		const { evs } = this.owner;
+		return evs.attack + evs.defense + evs.specialAttack + evs.specialDefense + evs.speed + evs.hp;
+	}
 }
