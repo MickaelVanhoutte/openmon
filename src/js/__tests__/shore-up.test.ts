@@ -2,7 +2,7 @@ import '@abraham/reflection';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { Weather, BattleField } from '../battle/battle-field';
 import { container } from 'tsyringe';
-import { ShoreUp } from '../pokemons/move-effects';
+import { ShoreUp } from '../pokemons/effects/moves';
 import { PokemonInstance } from '../pokemons/pokedex';
 
 describe('Shore Up Move Effect', () => {

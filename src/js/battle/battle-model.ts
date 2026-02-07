@@ -1,7 +1,7 @@
 import '@abraham/reflection';
 import { Move, PokemonInstance, Stats } from '../pokemons/pokedex';
 import { container } from 'tsyringe';
-import { MoveEffectApplier } from '../pokemons/move-effects';
+import { MoveEffectApplier } from '../pokemons/effects/moves';
 import type { Character } from '../characters/characters-model';
 import { Weather } from './battle-field';
 import { writable, type Writable } from 'svelte/store';
