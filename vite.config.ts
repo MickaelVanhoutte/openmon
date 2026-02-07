@@ -104,7 +104,7 @@ export default defineConfig({
 			tsconfig: './tsconfig.json'
 		}),
 		svelte({
-			emitCss: false,
+			emitCss: true,
 			inspector: false,
 			compilerOptions: {
 				accessors: true
