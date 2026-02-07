@@ -2,16 +2,12 @@
 	import '@abraham/reflection';
 	import { Howl } from 'howler';
 	import { onMount } from 'svelte';
-	import Battle from './lib/battle/Battle.svelte';
-	import World from './lib/world/World.svelte';
 	import LoadSave from './lib/saves/LoadSave.svelte';
 	import PlayerCreation from './lib/saves/PlayerCreation.svelte';
 	import { SaveContext, SavesHolder } from './js/context/savesHolder';
 	import type { GameContext } from './js/context/gameContext';
 	import type { BattleContext } from './js/context/battleContext';
-	import Intro from './lib/Intro.svelte';
 	import { DEBUG } from './js/env';
-	import AdminPage from './lib/admin/AdminPage.svelte';
 
 	/**
 	 * Main component, handling screens transitions
@@ -144,19 +140,25 @@
 
 <div id="wrapper">
 	{#if showAdmin}
-		<AdminPage
-			onClose={() => {
-				showAdmin = false;
-				window.location.hash = '';
-			}}
-		/>
+		{#await import('./lib/admin/AdminPage.svelte') then { default: AdminPage }}
+			<AdminPage
+				onClose={() => {
+					showAdmin = false;
+					window.location.hash = '';
+				}}
+			/>
+		{/await}
 	{:else if started}
 		{#if gameContext}
 			<!-- game started -->
 			{#if battleCtx !== undefined && !battleStarting}
-				<Battle context={gameContext} overWorldCtx={gameContext.overWorldContext} {battleCtx} />
+				{#await import('./lib/battle/Battle.svelte') then { default: Battle }}
+					<Battle context={gameContext} overWorldCtx={gameContext.overWorldContext} {battleCtx} />
+				{/await}
 			{:else if gameContext.overWorldContext !== undefined}
-				<World context={gameContext} overWorldCtx={gameContext.overWorldContext} {savesHolder} />
+				{#await import('./lib/world/World.svelte') then { default: World }}
+					<World context={gameContext} overWorldCtx={gameContext.overWorldContext} {savesHolder} />
+				{/await}
 			{/if}
 
 			{#if battleStarting}
@@ -174,7 +176,9 @@
 		{/if}
 	{:else}
 		<!-- game not started -->
-		<Intro bind:started />
+		{#await import('./lib/Intro.svelte') then { default: Intro }}
+			<Intro bind:started />
+		{/await}
 	{/if}
 
 	{#if rotate}
