@@ -393,7 +393,7 @@
 		disabled={!currentNode?.settable ||
 			masteryPoints < currentNode?.cost ||
 			(currentGrid === expertGrid && !initiateTiles.every((tile) => tile.set || tile.first))}
-		on:click={() => {
+		onclick={() => {
 			setNode(currentNode, currentTiles);
 		}}>Activate</button
 	>
