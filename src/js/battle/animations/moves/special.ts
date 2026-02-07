@@ -5,6 +5,7 @@ import {
 	TYPE_HUE_ANGLES,
 	type PokemonSprite
 } from '../animation-engine';
+import { gsap } from 'gsap';
 
 export const specialMoves: Record<string, MoveAnimation> = {};
 
@@ -70,7 +71,6 @@ async function projectileAnimation(engine: AnimationEngine, context: MoveContext
 		zIndex: engine.getEffectZIndex(attacker.slot)
 	});
 
-	const gsap = (await import('gsap')).default;
 	const projectile = document.createElement('div');
 	projectile.style.cssText = `
 		position: absolute;
@@ -174,7 +174,6 @@ async function drainAnimation(engine: AnimationEngine, context: MoveContext): Pr
 	});
 	await engine.shake(target.element, 6, 150);
 
-	const gsap = (await import('gsap')).default;
 	for (let i = 0; i < 3; i++) {
 		const orb = document.createElement('div');
 		orb.style.cssText = `

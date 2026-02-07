@@ -4,6 +4,7 @@ import {
 	type MoveAnimation,
 	TYPE_HUE_ANGLES
 } from '../animation-engine';
+import { gsap } from 'gsap';
 
 export const statusMoves: Record<string, MoveAnimation> = {};
 
@@ -42,7 +43,6 @@ async function debuffAnimation(engine: AnimationEngine, context: MoveContext): P
 		zIndex: engine.getEffectZIndex(attacker.slot)
 	});
 
-	const gsap = (await import('gsap')).default;
 	await new Promise<void>((resolve) => {
 		gsap.to(target.element, {
 			filter: 'brightness(0.7) saturate(0.8)',
@@ -93,7 +93,6 @@ async function statusConditionAnimation(
 		zIndex: engine.getEffectZIndex(attacker.slot)
 	});
 
-	const gsap = (await import('gsap')).default;
 	await new Promise<void>((resolve) => {
 		const tl = gsap.timeline({ onComplete: resolve });
 		tl.to(target.element, {
@@ -111,8 +110,6 @@ async function statusConditionAnimation(
 
 async function protectAnimation(engine: AnimationEngine, context: MoveContext): Promise<void> {
 	const { attacker } = context;
-
-	const gsap = (await import('gsap')).default;
 
 	const shield = document.createElement('div');
 	shield.style.cssText = `

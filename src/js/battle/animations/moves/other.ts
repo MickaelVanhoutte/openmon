@@ -9,6 +9,7 @@ import caltropImg from '../../../../assets/battle/fx/caltrop.png';
 import poisonCaltropImg from '../../../../assets/battle/fx/poisoncaltrop.png';
 import webImg from '../../../../assets/battle/fx/web.png';
 import rockImg from '../../../../assets/battle/fx/rock.png';
+import { gsap } from 'gsap';
 
 export const otherMoves: Record<string, MoveAnimation> = {};
 
@@ -55,7 +56,6 @@ async function ohkoAnimation(engine: AnimationEngine, context: MoveContext): Pro
 		engine.flashSprite(target, color, 300)
 	]);
 
-	const gsap = (await import('gsap')).default;
 	await new Promise<void>((resolve) => {
 		gsap.to(target.element, {
 			filter: 'brightness(3) contrast(2)',
@@ -84,8 +84,6 @@ async function hazardAnimation(engine: AnimationEngine, context: MoveContext): P
 	if (!spriteUrl) {
 		return;
 	}
-
-	const gsap = (await import('gsap')).default;
 
 	const battleScene = document.querySelector('.battle-scene') as HTMLElement;
 	if (!battleScene) {
@@ -169,8 +167,6 @@ async function transformAnimation(engine: AnimationEngine, context: MoveContext)
 	const { attacker } = context;
 	const homeScale = attacker.homePosition?.scale ?? 1;
 
-	const gsap = (await import('gsap')).default;
-
 	await new Promise<void>((resolve) => {
 		const tl = gsap.timeline({ onComplete: resolve });
 		tl.to(attacker.element, { filter: 'brightness(3)', scale: homeScale * 0.8, duration: 0.2 })
@@ -222,8 +218,6 @@ async function sizeChangeAnimation(engine: AnimationEngine, context: MoveContext
 
 	const growMoves = ['growth', 'belly-drum', 'bulk-up', 'work-up'];
 	const shrinkMoves = ['minimize'];
-
-	const gsap = (await import('gsap')).default;
 
 	if (shrinkMoves.includes(moveName)) {
 		await new Promise<void>((resolve) => {
