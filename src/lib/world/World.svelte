@@ -127,11 +127,12 @@
 	}
 
 	// TEST -> TODO : smash rock, cut trees... using pkmn charge
-	document.addEventListener('keydown', (e) => {
+	function handleChargeKeydown(e: KeyboardEvent) {
 		if (e.key === 'c') {
 			context.player.followerCharge(overWorldCtx, false);
 		}
-	});
+	}
+	document.addEventListener('keydown', handleChargeKeydown);
 
 	function drawElements() {
 		if (context.map === undefined) {
@@ -336,6 +337,7 @@
 				canvasCtx?.clearRect(0, 0, canvas.width, canvas.height);
 			}
 			window.cancelAnimationFrame(overWorldCtx.frames.frameId);
+			document.removeEventListener('keydown', handleChargeKeydown);
 		};
 	});
 </script>

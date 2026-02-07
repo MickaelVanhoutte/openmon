@@ -301,7 +301,7 @@
 
 		drawGrid(initiateSvg, initiateGrid, initiateTiles, false);
 
-		masteries.addEventListener('click', ({ target, offsetX, offsetY }) => {
+		function handleMasteriesClick({ target, offsetX, offsetY }: MouseEvent) {
 			const hex = initiateGrid.pointToHex({ x: offsetX, y: offsetY }, { allowOutside: false });
 			openModal(
 				initiateTiles.find((tile) => tile.q === hex.q && tile.r === hex.r),
@@ -310,8 +310,8 @@
 				hex,
 				initiateGrid
 			);
-		});
-		masteries.addEventListener('touch', ({ target, offsetX, offsetY }) => {
+		}
+		function handleMasteriesTouch({ target, offsetX, offsetY }: MouseEvent) {
 			const hex = initiateGrid.pointToHex({ x: offsetX, y: offsetY }, { allowOutside: false });
 			openModal(
 				initiateTiles.find((tile) => tile.q === hex.q && tile.r === hex.r),
@@ -320,7 +320,10 @@
 				hex,
 				initiateGrid
 			);
-		});
+		}
+
+		masteries.addEventListener('click', handleMasteriesClick);
+		masteries.addEventListener('touch', handleMasteriesTouch);
 
 		// EXPERT
 		expertSvg = SVG().addTo(expert).id('expert').size('100%', '100%');
@@ -330,7 +333,7 @@
 		});
 		expertGrid = new Grid(Hex2, rectangle({ width: 15, height: 4 }));
 		drawGrid(expertSvg, expertGrid, expertTiles, true);
-		expert.addEventListener('click', ({ target, offsetX, offsetY }) => {
+		function handleExpertClick({ target, offsetX, offsetY }: MouseEvent) {
 			const hex = expertGrid.pointToHex({ x: offsetX, y: offsetY }, { allowOutside: false });
 			openModal(
 				expertTiles.find((tile) => tile.q === hex.q && tile.r === hex.r),
@@ -339,8 +342,8 @@
 				hex,
 				expertGrid
 			);
-		});
-		expert.addEventListener('touch', ({ target, offsetX, offsetY }) => {
+		}
+		function handleExpertTouch({ target, offsetX, offsetY }: MouseEvent) {
 			const hex = expertGrid.pointToHex({ x: offsetX, y: offsetY }, { allowOutside: false });
 			openModal(
 				expertTiles.find((tile) => tile.q === hex.q && tile.r === hex.r),
@@ -349,7 +352,17 @@
 				hex,
 				expertGrid
 			);
-		});
+		}
+
+		expert.addEventListener('click', handleExpertClick);
+		expert.addEventListener('touch', handleExpertTouch);
+
+		return () => {
+			masteries.removeEventListener('click', handleMasteriesClick);
+			masteries.removeEventListener('touch', handleMasteriesTouch);
+			expert.removeEventListener('click', handleExpertClick);
+			expert.removeEventListener('touch', handleExpertTouch);
+		};
 	});
 </script>
 

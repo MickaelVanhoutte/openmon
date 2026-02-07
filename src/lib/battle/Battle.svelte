@@ -84,10 +84,8 @@
 
 	$effect(() => {
 		if (isInitialBattleEntrance && entryAnimationsComplete && !initialAbilitiesTriggered) {
-			console.log('[Battle.svelte] Initial battle entrance triggered');
 			initialAbilitiesTriggered = true;
 			window.setTimeout(async () => {
-				console.log('[Battle.svelte] Calling triggerInitialSwitchIn');
 				battleCtx.triggerInitialSwitchIn();
 				await battleCtx.processInitialAbilityActions();
 				isInitialBattleEntrance = false;
@@ -554,15 +552,18 @@
 
 		draw();
 
-		window.addEventListener('keydown', (e) => {
+		function handleDebugKeydown(e: KeyboardEvent) {
 			if (e.key === 'x') {
 				battleLoopContext.debug = !battleLoopContext.debug;
 			}
-		});
+		}
+
+		window.addEventListener('keydown', handleDebugKeydown);
 
 		return () => {
 			destroyAnimationEngine();
 			clearInterval(drawInterval);
+			window.removeEventListener('keydown', handleDebugKeydown);
 		};
 	});
 </script>
