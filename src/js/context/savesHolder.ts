@@ -87,12 +87,13 @@ export class SavesHolder {
 		this.saves.forEach((save) => {
 			Object.setPrototypeOf(save, SaveContext.prototype);
 			Object.setPrototypeOf(save.player, Player.prototype);
-			save.player.setPrototypes();
+			save.player.setPrototypes(this.POKEDEX);
 			save.boxes = save.boxes.map((box) => {
 				Object.setPrototypeOf(box, PokemonBox.prototype);
 				box.values = box.values.map((pkmn) => {
 					if (pkmn) {
 						Object.setPrototypeOf(pkmn, PokemonInstance.prototype);
+						pkmn.rehydrate(this.POKEDEX);
 					}
 					return pkmn;
 				});
@@ -176,7 +177,17 @@ export class SavesHolder {
 		localStorage.setItem('saves', encoded);
 	}
 
+	private static readonly TRANSIENT_KEYS = new Set([
+		'statCalc',
+		'xpMgr',
+		'moveMgr',
+		'lastAttacker'
+	]);
+
 	replacer(key: any, value: any) {
+		if (SavesHolder.TRANSIENT_KEYS.has(key)) {
+			return undefined;
+		}
 		if (value instanceof Map) {
 			return {
 				dataType: 'Map',

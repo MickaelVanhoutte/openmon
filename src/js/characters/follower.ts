@@ -1,7 +1,7 @@
 import type { GameContext } from '../context/gameContext';
 import { Bag } from '../items/bag';
 import type { Position } from '../mapping/positions';
-import { PokemonInstance } from '../pokemons/pokedex';
+import { Pokedex, PokemonInstance } from '../pokemons/pokedex';
 import { Dialog, GiveItem, Message, Script } from '../scripting/scripts';
 import { centerObject } from '../sprites/sprites';
 import {
@@ -54,12 +54,13 @@ export class Follower implements Character, Interactive {
 		return false;
 	}
 
-	static fromInstance(follower: Follower): Follower {
+	static fromInstance(follower: Follower, pokedex?: Pokedex): Follower {
 		const followerProto = new Follower(
 			new CharacterPosition(follower.position.positionOnMap, follower.position.direction),
 			follower.pokemon
 		);
 		Object.setPrototypeOf(followerProto.pokemon, PokemonInstance.prototype);
+		followerProto.pokemon.rehydrate(pokedex);
 		return followerProto;
 	}
 

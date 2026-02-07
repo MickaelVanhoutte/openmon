@@ -724,6 +724,13 @@ export class MoveInstance extends Move {
 		);
 		this.currentPp = pp;
 	}
+
+	toJSON() {
+		return {
+			id: this.id,
+			currentPp: this.currentPp
+		};
+	}
 }
 
 export class PokemonInstance extends PokedexEntry {
@@ -862,6 +869,68 @@ export class PokemonInstance extends PokedexEntry {
 					: 'female'
 				: 'unknown';
 		}
+	}
+
+	public rehydrate(pokedex?: Pokedex): void {
+		if (pokedex) {
+			const entry = pokedex.findById(this.id).result;
+			this.regionalId = entry.regionalId;
+			this.name = entry.name;
+			this.normalizedName = entry.normalizedName;
+			this.types = entry.types;
+			this.abilities = entry.abilities;
+			this.stats = entry.stats;
+			this.height = entry.height;
+			this.weight = entry.weight;
+			this.description = entry.description;
+			this.isLegendary = entry.isLegendary;
+			this.captureRate = entry.captureRate;
+			this.growthRateId = entry.growthRateId;
+			this.baseXp = entry.baseXp;
+			this.percentageMale = entry.percentageMale;
+			this.evolution = entry.evolution;
+			this.sprites = entry.sprites;
+
+			const savedMoves = this.moves as unknown as { id: number; currentPp: number }[];
+			this.moves = savedMoves
+				.map((saved) => {
+					const move = entry.moves.find((m) => m.id === saved.id);
+					if (!move) {
+						return undefined;
+					}
+					const instance = Object.create(MoveInstance.prototype) as MoveInstance;
+					Object.assign(instance, move);
+					instance.currentPp = saved.currentPp;
+					return instance;
+				})
+				.filter((m): m is MoveInstance => m !== undefined);
+		}
+
+		this.statCalc = new StatCalculator(this);
+		this.xpMgr = new XpManager(this);
+		this.moveMgr = new MoveManager(this);
+	}
+
+	toJSON() {
+		return {
+			id: this.id,
+			currentStats: this.currentStats,
+			currentHp: this.currentHp,
+			currentXp: this.currentXp,
+			xpToNextLevel: this.xpToNextLevel,
+			currentAbility: this.currentAbility,
+			level: this.level,
+			evsToDistribute: this.evsToDistribute,
+			fainted: this.fainted,
+			moves: this.moves,
+			ivs: this.ivs,
+			evs: this.evs,
+			nature: this.nature,
+			gender: this.gender,
+			heldItem: this.heldItem,
+			isShiny: this.isShiny,
+			status: this.status
+		};
 	}
 
 	public changeBattleStats(

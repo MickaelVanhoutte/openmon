@@ -1,4 +1,4 @@
-import { PokemonInstance } from '../pokemons/pokedex';
+import { Pokedex, PokemonInstance } from '../pokemons/pokedex';
 import { VolatileTracker } from '../pokemons/volatile-status';
 import { Bag } from '../items/bag';
 import { Position } from '../mapping/positions';
@@ -106,14 +106,15 @@ export class Player implements Character {
 		);
 	}
 
-	public setPrototypes(): Player {
+	public setPrototypes(pokedex?: Pokedex): Player {
 		this.monsters.forEach((monster) => {
 			Object.setPrototypeOf(monster, PokemonInstance.prototype);
+			monster.rehydrate(pokedex);
 			monster.volatiles = new VolatileTracker();
 		});
 		this.bag = new Bag(this.bag);
 		if (this.follower) {
-			this.follower = Follower.fromInstance(this.follower);
+			this.follower = Follower.fromInstance(this.follower, pokedex);
 		}
 		return this;
 	}
