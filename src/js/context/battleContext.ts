@@ -14,7 +14,11 @@ import type { Settings } from '../characters/settings';
 import { ActionStack } from '../battle/actions/action-stack';
 import { NPC } from '../characters/npc';
 import { writable, type Writable } from 'svelte/store';
-import { ActionType, type ActionV2Interface } from '../battle/actions/actions-model';
+import {
+	ActionType,
+	type ActionV2Interface,
+	type TargetSlot
+} from '../battle/actions/actions-model';
 import { EXPERIENCE_CHART } from '../pokemons/experience';
 import { Attack, Switch, UseItem } from '../battle/actions/actions-selectable';
 import { EndTurnChecks, Message, WeatherDamage, XPWin } from '../battle/actions/actions-derived';
@@ -49,6 +53,7 @@ export class BattleContext {
 
 	escapeAttempts: number = 0;
 	participants: Set<PokemonInstance> = new Set<PokemonInstance>();
+	leveledUpMonsterIds: Set<number> = new Set();
 
 	opponentTurnActions: ActionV2Interface[] = [];
 	playerTurnActions: ActionV2Interface[] = [];
@@ -442,11 +447,10 @@ export class BattleContext {
 			const found = this.getPossibleTargets(poke, move);
 			if (found.selectOne) {
 				// random target
-				const randomTarget =
-					found.possibleTargets[Math.floor(Math.random() * found.possibleTargets.length)];
-				action = new Attack(move, [randomTarget], poke);
+				const randomIdx = Math.floor(Math.random() * found.slots.length);
+				action = new Attack(move, [found.slots[randomIdx]], poke);
 			} else {
-				action = new Attack(move, found.possibleTargets, poke);
+				action = new Attack(move, found.slots, poke);
 			}
 
 			if (this.settings.difficulty !== 'NORMAL') {
@@ -468,10 +472,14 @@ export class BattleContext {
 
 				const found = this.getPossibleTargets(poke, bestMove);
 				if (found.selectOne) {
-					// random target
-					action = new Attack(move, bestTarget ? [bestTarget] : [], poke);
+					const bestTargetIdx = bestTarget ? this.playerSide.indexOf(bestTarget) : -1;
+					const bestSlot: TargetSlot | undefined =
+						bestTargetIdx !== -1
+							? { side: 'player' as const, index: bestTargetIdx }
+							: found.slots[0];
+					action = new Attack(bestMove, bestSlot ? [bestSlot] : [], poke);
 				} else {
-					action = new Attack(move, found.possibleTargets, poke);
+					action = new Attack(bestMove, found.slots, poke);
 				}
 
 				if (this.opponent instanceof NPC) {
@@ -551,27 +559,34 @@ export class BattleContext {
 
 			// Redirect to another target if double and other side length > 1
 			if (this.battleType === BattleType.DOUBLE) {
-				const actionsWithTarget = this.actionStack.stack.filter((action: ActionV2Interface) => {
-					return !(action.type === ActionType.ATTACK && (action as Attack).target.includes(target));
-				});
-				actionsWithTarget.forEach((action) => {
+				const targetSide: 'player' | 'opponent' = this.playerSide.includes(target)
+					? 'player'
+					: 'opponent';
+				const sideArray = targetSide === 'player' ? this.playerSide : this.oppSide;
+				const targetIdx = sideArray.indexOf(target);
+
+				this.actionStack.stack = this.actionStack.stack.filter((action: ActionV2Interface) => {
 					if (action.type === ActionType.ATTACK) {
 						const attack = action as Attack;
-						const targetSide =
-							this.getPokemonSide(target) === 'ally' ? this.playerSide : this.oppSide;
-
-						if (attack.target.includes(target)) {
-							const newTarget = targetSide.find((poke) => !!poke && poke !== target);
-							if (newTarget) {
-								attack.target = [newTarget];
-							} else {
-								// remove from stack
-								this.actionStack.stack = this.actionStack.stack.filter(
-									(action) => action !== attack
+						const targetsThis = attack.target.some(
+							(slot) => slot.side === targetSide && slot.index === targetIdx
+						);
+						if (targetsThis) {
+							const newIdx = sideArray.findIndex(
+								(poke, idx) => idx !== targetIdx && !!poke && !poke.fainted
+							);
+							if (newIdx !== -1) {
+								attack.target = attack.target.map((slot) =>
+									slot.side === targetSide && slot.index === targetIdx
+										? { side: targetSide, index: newIdx }
+										: slot
 								);
+								return true;
 							}
+							return false;
 						}
 					}
+					return true;
 				});
 			}
 
@@ -632,7 +647,7 @@ export class BattleContext {
 	public getPossibleTargets(
 		initiator: PokemonInstance,
 		move: Move
-	): { possibleTargets: PokemonInstance[]; selectOne: boolean } {
+	): { slots: TargetSlot[]; displayTargets: PokemonInstance[]; selectOne: boolean } {
 		let possibleTargets: PokemonInstance[] = [];
 		let selectOne = false;
 
@@ -685,6 +700,16 @@ export class BattleContext {
 			//else no target (fields)
 		}
 		selectOne = selectOne && possibleTargets.length > 1;
-		return { possibleTargets, selectOne };
+
+		const slots: TargetSlot[] = possibleTargets.map((poke) => {
+			const playerIdx = this.playerSide.indexOf(poke);
+			if (playerIdx !== -1) {
+				return { side: 'player' as const, index: playerIdx };
+			}
+			const oppIdx = this.oppSide.indexOf(poke);
+			return { side: 'opponent' as const, index: oppIdx };
+		});
+
+		return { slots, displayTargets: possibleTargets, selectOne };
 	}
 }

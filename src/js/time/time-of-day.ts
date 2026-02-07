@@ -21,7 +21,7 @@ const DEFAULT_CONFIG: DayCycleConfig = {
 // Starting hour offset: 07:23 AM
 // (7 * 60 + 23) / (24 * 60) of a day = 443/1440
 // As ms with 1hr cycle: 443/1440 * 3600000 = 1107500ms
-const START_HOUR_OFFSET_MS = 0;
+const START_HOUR_OFFSET_MS = 1107500;
 
 function progressToGameHour(progress: number): number {
 	return progress * 24;

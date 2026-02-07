@@ -31,3 +31,5 @@ export interface ActionV2Interface {
 
 	execute(ctx: BattleContext): void;
 }
+
+export type TargetSlot = { side: 'player' | 'opponent'; index: number };

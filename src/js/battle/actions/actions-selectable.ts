@@ -1,5 +1,5 @@
 import { ComboMove, MoveEffect, MoveInstance, PokemonInstance } from '../../pokemons/pokedex';
-import { ActionType, type ActionV2Interface } from './actions-model';
+import { ActionType, type ActionV2Interface, type TargetSlot } from './actions-model';
 import type { BattleContext } from '../../context/battleContext';
 import { Player } from '../../characters/player';
 import { type Character } from '../../characters/characters-model';
@@ -94,14 +94,10 @@ export class Attack implements ActionV2Interface {
 	public name: string;
 	public description: string;
 	public move: MoveInstance | ComboMove;
-	public target: PokemonInstance[];
+	public target: TargetSlot[];
 	public initiator: PokemonInstance;
 
-	constructor(
-		move: MoveInstance | ComboMove,
-		target: PokemonInstance[],
-		initiator: PokemonInstance
-	) {
+	constructor(move: MoveInstance | ComboMove, target: TargetSlot[], initiator: PokemonInstance) {
 		this.type = ActionType.ATTACK;
 		this.name = move.name;
 		this.description = move.description;
@@ -110,10 +106,18 @@ export class Attack implements ActionV2Interface {
 		this.initiator = initiator;
 	}
 
+	resolveTargets(ctx: BattleContext): PokemonInstance[] {
+		return this.target
+			.map((slot) =>
+				slot.side === 'player' ? ctx.playerSide[slot.index] : ctx.oppSide[slot.index]
+			)
+			.filter((p): p is PokemonInstance => !!p && !p.fainted);
+	}
+
 	execute(ctx: BattleContext): void {
 		const attacker = this.initiator;
-		// TODO : this.target[0] is not always the target, it's the first target of the move
-		const controller = ctx.playerSide.includes(this.target[0]) ? ctx.player : ctx.opponent;
+		const resolvedTargets = this.resolveTargets(ctx);
+		const controller = this.target[0]?.side === 'player' ? ctx.player : ctx.opponent;
 
 		const actionsToPush: ActionV2Interface[] = [];
 
@@ -121,7 +125,7 @@ export class Attack implements ActionV2Interface {
 		const canMove = ctx.runAbilityEvent<boolean>(
 			AbilityTrigger.ON_BEFORE_MOVE,
 			attacker,
-			this.target[0]
+			resolvedTargets[0]
 		);
 		if (canMove === false) {
 			actionsToPush.push(new Message(`${attacker.name} can't move!`, attacker));
@@ -147,181 +151,201 @@ export class Attack implements ActionV2Interface {
 			new Message(attacker.name + ' used ' + this.move.name + '!', this.initiator)
 		);
 
-		this.target
-			.filter((tgt) => !!tgt && !tgt.fainted)
-			.forEach((tgt) => {
-				// Check defender ability for type immunity (ON_TRY_HIT)
-				const canHit = ctx.runAbilityEvent<boolean>(
-					AbilityTrigger.ON_TRY_HIT,
-					tgt,
+		if (resolvedTargets.length === 0 && this.target.length > 0) {
+			const isFieldMove =
+				!(this.move instanceof ComboMove) &&
+				(this.move.category === 'no-damage' || this.move.power === 0);
+			if (!isFieldMove) {
+				actionsToPush.push(new Message('But there was no target!', this.initiator));
+			}
+		}
+
+		this.target.forEach((slot) => {
+			const tgt = slot.side === 'player' ? ctx.playerSide[slot.index] : ctx.oppSide[slot.index];
+			if (!tgt || tgt.fainted) {
+				return;
+			}
+
+			// Check defender ability for type immunity (ON_TRY_HIT)
+			const canHit = ctx.runAbilityEvent<boolean>(
+				AbilityTrigger.ON_TRY_HIT,
+				tgt,
+				attacker,
+				this.move
+			);
+			if (canHit === false) {
+				actionsToPush.push(new Message(`It doesn't affect ${tgt.name}...`, this.initiator));
+				return;
+			}
+
+			const success = this.accuracyApplies(attacker, tgt, this.move, ctx);
+			if (!success) {
+				actionsToPush.push(new Message('But it failed!', this.initiator));
+			} else {
+				const result = this.calculateDamage(
 					attacker,
-					this.move
+					tgt,
+					this.move,
+					ctx,
+					controller,
+					1,
+					slot.side
 				);
-				if (canHit === false) {
-					actionsToPush.push(new Message(`It doesn't affect ${tgt.name}...`, this.initiator));
-					return;
-				}
 
-				const success = this.accuracyApplies(attacker, tgt, this.move, ctx);
-				if (!success) {
-					actionsToPush.push(new Message('But it failed!', this.initiator));
-				} else {
-					const result = this.calculateDamage(attacker, tgt, this.move, ctx, controller, 1);
+				if (this.move instanceof ComboMove) {
+					const move: ComboMove = this.move;
 
-					if (this.move instanceof ComboMove) {
-						const move: ComboMove = this.move;
+					if (
+						controller instanceof NPC ||
+						(controller instanceof Player && controller?.comboJauge)
+					) {
+						controller.comboJauge.consume();
+					}
 
-						if (
-							controller instanceof NPC ||
-							(controller instanceof Player && controller?.comboJauge)
-						) {
-							controller.comboJauge.consume();
-						}
+					let comboDmgModifier = 0;
+					if (controller instanceof Player) {
+						comboDmgModifier = controller.getMasteryBonus(MasteryType.COMBO_DAMAGE);
+					}
+					const result2 = this.calculateDamage(
+						attacker,
+						tgt,
+						move.move2,
+						ctx,
+						controller,
+						0.5 + comboDmgModifier / 100,
+						slot.side
+					);
 
-						let comboDmgModifier = 0;
-						if (controller instanceof Player) {
-							comboDmgModifier = controller.getMasteryBonus(MasteryType.COMBO_DAMAGE);
-						}
-						const result2 = this.calculateDamage(
-							attacker,
-							tgt,
-							move.move2,
-							ctx,
-							controller,
-							0.5 + comboDmgModifier / 100
-						);
+					actionsToPush.push(new PlayAnimation(this.move, tgt, this.initiator));
 
-						actionsToPush.push(new PlayAnimation(this.move, tgt, this.initiator));
+					actionsToPush.push(
+						new Message(move.pokemon2.name + ' used ' + move.move2.name + '!', this.initiator)
+					);
 
-						actionsToPush.push(
-							new Message(move.pokemon2.name + ' used ' + move.move2.name + '!', this.initiator)
-						);
-
-						move.effects.forEach((eff, index) => {
-							const effect = MOVE_EFFECT_APPLIER.findEffect(eff);
-							if (
-								effect.when === 'before-move' &&
-								this.effectApplies(move.effectsChances[index], eff)
-							) {
-								actionsToPush.push(new ApplyEffect(eff, tgt, this.initiator));
-							}
-						});
-
-						if (result2.immune) {
-							actionsToPush.push(
-								new Message(move.move2.name + " doesn't affect " + tgt.name + '...', this.initiator)
-							);
-						} else if (result2.notVeryEffective) {
-							actionsToPush.push(
-								new Message(move.move2.name + ' is not very effective...', this.initiator)
-							);
-						} else if (result2.superEffective) {
-							actionsToPush.push(
-								new Message(move.move2.name + ' is super effective!', this.initiator)
-							);
-						}
-						if (result2.critical) {
-							actionsToPush.push(new Message(move.move2.name + ' critical hit!', this.initiator));
-						}
-
-						if (result.immune) {
-							actionsToPush.push(
-								new Message(move.move1.name + " doesn't affect " + tgt.name + '...', this.initiator)
-							);
-						} else if (result.notVeryEffective) {
-							actionsToPush.push(
-								new Message(move.move1.name + ' is not very effective...', this.initiator)
-							);
-						} else if (result.superEffective) {
-							actionsToPush.push(
-								new Message(move.move1.name + ' is super effective!', this.initiator)
-							);
-						}
-						if (result.critical) {
-							actionsToPush.push(new Message(move.move1.name + ' critical hit!', this.initiator));
-						}
-
-						actionsToPush.push(new RemoveHP(result.damages + result2.damages, tgt, this.initiator));
-
-						// Trigger ON_CONTACT for physical/contact moves (for abilities like Rough Skin)
-						if (move.move1.category === 'physical') {
-							ctx.runAbilityEvent(
-								AbilityTrigger.ON_CONTACT,
-								tgt,
-								attacker,
-								move.move1,
-								result.damages + result2.damages
-							);
-						}
-
-						move.effects.forEach((effect, index) => {
-							const eff = MOVE_EFFECT_APPLIER.findEffect(effect);
-							if (
-								this.effectApplies(move.effectsChances[index], effect) &&
-								eff.when !== 'before-move'
-							) {
-								actionsToPush.push(new ApplyEffect(effect, tgt, this.initiator));
-							}
-						});
-					} else {
-						const effect = MOVE_EFFECT_APPLIER.findEffect(this.move.effect);
-						let hitCount: number | undefined;
+					move.effects.forEach((eff, index) => {
+						const effect = MOVE_EFFECT_APPLIER.findEffect(eff);
 						if (
 							effect.when === 'before-move' &&
-							this.effectApplies(this.move.effectChance, this.move.effect)
+							this.effectApplies(move.effectsChances[index], eff)
 						) {
-							const effectResult = effect.apply([tgt], this.initiator);
-							hitCount = effectResult?.hitCount;
-							actionsToPush.push(new ApplyEffect(this.move.effect, tgt, this.initiator));
+							actionsToPush.push(new ApplyEffect(eff, tgt, this.initiator));
 						}
+					});
 
-						if (!result.immune) {
-							actionsToPush.push(new PlayAnimation(this.move, tgt, this.initiator, hitCount));
-						}
-						if (result.immune) {
-							actionsToPush.push(
-								new Message("It doesn't affect " + tgt.name + '...', this.initiator)
-							);
-						} else if (result.notVeryEffective) {
-							actionsToPush.push(new Message("It's not very effective...", this.initiator));
-						} else if (result.superEffective) {
-							actionsToPush.push(new Message("It's super effective!", this.initiator));
-						}
-						if (result.critical) {
-							actionsToPush.push(new Message('A critical hit!', this.initiator));
-						}
-
-						actionsToPush.push(new RemoveHP(result.damages, tgt, this.initiator));
+					if (result2.immune) {
 						actionsToPush.push(
-							new ComboBoost(this.initiator, controller, result.superEffective, result.critical)
+							new Message(move.move2.name + " doesn't affect " + tgt.name + '...', this.initiator)
 						);
+					} else if (result2.notVeryEffective) {
+						actionsToPush.push(
+							new Message(move.move2.name + ' is not very effective...', this.initiator)
+						);
+					} else if (result2.superEffective) {
+						actionsToPush.push(
+							new Message(move.move2.name + ' is super effective!', this.initiator)
+						);
+					}
+					if (result2.critical) {
+						actionsToPush.push(new Message(move.move2.name + ' critical hit!', this.initiator));
+					}
 
-						// ON_CONTACT for physical/contact moves
-						if (this.move.category === 'physical' && result.damages > 0) {
-							ctx.runAbilityEvent(
-								AbilityTrigger.ON_CONTACT,
-								tgt,
-								attacker,
-								this.move,
-								result.damages
-							);
-						}
+					if (result.immune) {
+						actionsToPush.push(
+							new Message(move.move1.name + " doesn't affect " + tgt.name + '...', this.initiator)
+						);
+					} else if (result.notVeryEffective) {
+						actionsToPush.push(
+							new Message(move.move1.name + ' is not very effective...', this.initiator)
+						);
+					} else if (result.superEffective) {
+						actionsToPush.push(
+							new Message(move.move1.name + ' is super effective!', this.initiator)
+						);
+					}
+					if (result.critical) {
+						actionsToPush.push(new Message(move.move1.name + ' critical hit!', this.initiator));
+					}
 
+					actionsToPush.push(new RemoveHP(result.damages + result2.damages, tgt, this.initiator));
+
+					// Trigger ON_CONTACT for physical/contact moves (for abilities like Rough Skin)
+					if (move.move1.category === 'physical') {
+						ctx.runAbilityEvent(
+							AbilityTrigger.ON_CONTACT,
+							tgt,
+							attacker,
+							move.move1,
+							result.damages + result2.damages
+						);
+					}
+
+					move.effects.forEach((effect, index) => {
+						const eff = MOVE_EFFECT_APPLIER.findEffect(effect);
 						if (
-							!result.immune &&
-							this.effectApplies(this.move.effectChance, this.move.effect) &&
-							effect.when !== 'before-move'
+							this.effectApplies(move.effectsChances[index], effect) &&
+							eff.when !== 'before-move'
 						) {
-							actionsToPush.push(new ApplyEffect(this.move.effect, tgt, this.initiator));
+							actionsToPush.push(new ApplyEffect(effect, tgt, this.initiator));
 						}
+					});
+				} else {
+					const effect = MOVE_EFFECT_APPLIER.findEffect(this.move.effect);
+					let hitCount: number | undefined;
+					if (
+						effect.when === 'before-move' &&
+						this.effectApplies(this.move.effectChance, this.move.effect)
+					) {
+						const effectResult = effect.apply([tgt], this.initiator);
+						hitCount = effectResult?.hitCount;
+						actionsToPush.push(new ApplyEffect(this.move.effect, tgt, this.initiator));
+					}
+
+					if (!result.immune) {
+						actionsToPush.push(new PlayAnimation(this.move, tgt, this.initiator, hitCount));
+					}
+					if (result.immune) {
+						actionsToPush.push(
+							new Message("It doesn't affect " + tgt.name + '...', this.initiator)
+						);
+					} else if (result.notVeryEffective) {
+						actionsToPush.push(new Message("It's not very effective...", this.initiator));
+					} else if (result.superEffective) {
+						actionsToPush.push(new Message("It's super effective!", this.initiator));
+					}
+					if (result.critical) {
+						actionsToPush.push(new Message('A critical hit!', this.initiator));
+					}
+
+					actionsToPush.push(new RemoveHP(result.damages, tgt, this.initiator));
+					actionsToPush.push(
+						new ComboBoost(this.initiator, controller, result.superEffective, result.critical)
+					);
+
+					// ON_CONTACT for physical/contact moves
+					if (this.move.category === 'physical' && result.damages > 0) {
+						ctx.runAbilityEvent(
+							AbilityTrigger.ON_CONTACT,
+							tgt,
+							attacker,
+							this.move,
+							result.damages
+						);
+					}
+
+					if (
+						!result.immune &&
+						this.effectApplies(this.move.effectChance, this.move.effect) &&
+						effect.when !== 'before-move'
+					) {
+						actionsToPush.push(new ApplyEffect(this.move.effect, tgt, this.initiator));
 					}
 				}
-			});
+			}
+		});
 
 		// Handle field moves with no target (weather, hazards, etc.)
 		// These moves target the field, not specific Pokemon, so we use initiator as the visual target
-		const validTargets = this.target.filter((tgt) => !!tgt && !tgt.fainted);
-		if (validTargets.length === 0 && !(this.move instanceof ComboMove)) {
+		if (resolvedTargets.length === 0 && !(this.move instanceof ComboMove)) {
 			const hazardMoves = ['spikes', 'toxic-spikes', 'stealth-rock', 'sticky-web'];
 			const isHazardMove = hazardMoves.includes(this.move.name.toLowerCase());
 
@@ -342,7 +366,9 @@ export class Attack implements ActionV2Interface {
 		}
 
 		// ON_AFTER_MOVE
-		ctx.runAbilityEvent(AbilityTrigger.ON_AFTER_MOVE, attacker, this.target[0]);
+		if (resolvedTargets[0]) {
+			ctx.runAbilityEvent(AbilityTrigger.ON_AFTER_MOVE, attacker, resolvedTargets[0]);
+		}
 
 		this.flushActions(ctx, actionsToPush);
 	}
@@ -359,7 +385,8 @@ export class Attack implements ActionV2Interface {
 		move: MoveInstance | ComboMove,
 		ctx: BattleContext,
 		controller: Character | PokemonInstance,
-		modifier: number = 1
+		modifier: number = 1,
+		defenderSide: 'player' | 'opponent' = 'opponent'
 	): DamageResults {
 		const result = new DamageResults();
 		const isWeatherBall = move.effect?.move_effect_id === 204;
@@ -439,7 +466,7 @@ export class Attack implements ActionV2Interface {
 			const random = Math.random() * (1 - 0.85) + 0.85;
 			const stab = this.calculateStab(attacker, moveType, controller);
 			const weatherMultiplier = getWeatherDamageMultiplier(ctx.battleField, moveType, move.name);
-			const screenMultiplier = this.calculateScreenMultiplier(move.category, defender, ctx);
+			const screenMultiplier = this.calculateScreenMultiplier(move.category, defenderSide, ctx);
 			const other = weatherMultiplier * screenMultiplier;
 			const modifiers = typeEffectiveness * critical * random * stab * other;
 			result.damages = Math.floor(
@@ -524,17 +551,17 @@ export class Attack implements ActionV2Interface {
 
 	private calculateScreenMultiplier(
 		category: string,
-		defender: PokemonInstance,
+		defenderSide: 'player' | 'opponent',
 		ctx: BattleContext
 	): number {
 		if (category === 'no-damage') {
 			return 1;
 		}
 
-		const defenderSide = ctx.playerSide.includes(defender) ? 'ally' : 'enemy';
+		const sideKey = defenderSide === 'player' ? 'ally' : 'enemy';
 		const relevantScreen = category === 'physical' ? Screen.REFLECT : Screen.LIGHT_SCREEN;
 
-		if (ctx.battleField.hasScreen(defenderSide, relevantScreen)) {
+		if (ctx.battleField.hasScreen(sideKey, relevantScreen)) {
 			return ctx.battleType === BattleType.DOUBLE ? 2 / 3 : 0.5;
 		}
 
