@@ -14,6 +14,7 @@
 		selectedMoveIdx?: number;
 		show?: boolean;
 		onMoveClick?: (idx: number) => void;
+		onInfoClick?: (idx: number) => void;
 		onCancel?: () => void;
 		onHover?: (idx: number) => void;
 		spriteElement?: HTMLElement | null;
@@ -25,7 +26,8 @@
 		selectedMoveIdx = 0,
 		show = true,
 		onMoveClick = () => {},
-		onCancel = () => {},
+		onInfoClick = () => {},
+		onCancel: _onCancel,
 		onHover = () => {},
 		spriteElement = null
 	}: Props = $props();
@@ -64,63 +66,6 @@
 		platePositions = getAttackPlatePositions(spritePos, moves.length);
 	}
 
-	function handleKeyDown(event: KeyboardEvent) {
-		if (disabled || !show) {
-			return;
-		}
-
-		const validMoves = moves.filter((m) => m.pp > 0);
-		if (validMoves.length === 0) {
-			return;
-		}
-
-		switch (event.key) {
-			case 'ArrowUp':
-				event.preventDefault();
-				navigateVertical(-1);
-				break;
-			case 'ArrowDown':
-				event.preventDefault();
-				navigateVertical(1);
-				break;
-			case 'ArrowLeft':
-				event.preventDefault();
-				navigateHorizontal(-1);
-				break;
-			case 'ArrowRight':
-				event.preventDefault();
-				navigateHorizontal(1);
-				break;
-			case 'Enter':
-			case ' ':
-				event.preventDefault();
-				if (moves[selectedIdx] && moves[selectedIdx].pp > 0) {
-					onMoveClick(selectedIdx);
-				}
-				break;
-			case 'Escape':
-				event.preventDefault();
-				onCancel();
-				break;
-		}
-	}
-
-	function navigateVertical(direction: number) {
-		const newIdx = selectedIdx + direction;
-		if (newIdx >= 0 && newIdx < moves.length && moves[newIdx].pp > 0) {
-			selectedIdx = newIdx;
-			onHover(selectedIdx);
-		}
-	}
-
-	function navigateHorizontal(direction: number) {
-		const newIdx = selectedIdx + direction * 2;
-		if (newIdx >= 0 && newIdx < moves.length && moves[newIdx].pp > 0) {
-			selectedIdx = newIdx;
-			onHover(selectedIdx);
-		}
-	}
-
 	function animateEntrance() {
 		if (plateElements.length === 0) {
 			return;
@@ -156,7 +101,6 @@
 	}
 
 	onMount(() => {
-		window.addEventListener('keydown', handleKeyDown);
 		window.addEventListener('resize', updatePositions);
 
 		updatePositions();
@@ -168,7 +112,6 @@
 		}, 50);
 
 		return () => {
-			window.removeEventListener('keydown', handleKeyDown);
 			window.removeEventListener('resize', updatePositions);
 			clearTimeout(animationTimer);
 		};
@@ -189,6 +132,36 @@
 			updatePositions();
 		}
 	});
+
+	let longTouchTimer: ReturnType<typeof setTimeout> | null = null;
+	let longTouchTriggered = false;
+
+	function handleTouchStart(_e: TouchEvent, idx: number) {
+		longTouchTriggered = false;
+		longTouchTimer = setTimeout(() => {
+			longTouchTriggered = true;
+			onInfoClick(idx);
+		}, 500);
+	}
+
+	function handleTouchEnd(e: TouchEvent, _idx: number) {
+		if (longTouchTimer) {
+			clearTimeout(longTouchTimer);
+			longTouchTimer = null;
+		}
+		if (longTouchTriggered) {
+			e.preventDefault();
+			longTouchTriggered = false;
+		}
+	}
+
+	function clearLongTouch() {
+		if (longTouchTimer) {
+			clearTimeout(longTouchTimer);
+			longTouchTimer = null;
+		}
+		longTouchTriggered = false;
+	}
 </script>
 
 {#if show}
@@ -206,6 +179,9 @@
 				--plate-rotation: {pos.rotation}deg;
 			"
 			onclick={() => move.pp > 0 && onMoveClick(i)}
+			ontouchstart={(e: TouchEvent) => handleTouchStart(e, i)}
+			ontouchend={(e: TouchEvent) => handleTouchEnd(e, i)}
+			ontouchcancel={() => clearLongTouch()}
 			onmouseenter={() => {
 				if (move.pp > 0) {
 					selectedIdx = i;
@@ -215,7 +191,16 @@
 			disabled={disabled || move.pp <= 0}
 		>
 			<!-- Info badge circle -->
-			<div class="info-badge">
+			<div
+				class="info-badge"
+				onclick={(e: MouseEvent) => {
+					e.stopPropagation();
+					onInfoClick(i);
+				}}
+				role="button"
+				tabindex="-1"
+				aria-label="Move info"
+			>
 				<span class="info-badge-text">i</span>
 			</div>
 
@@ -410,7 +395,7 @@
 	.attack-plate:hover:not(:disabled) > .card-body > .plate-content > .move-name,
 	.attack-plate:hover:not(:disabled) > .card-body > .plate-content > .move-name,
 	.attack-plate.selected:not(:disabled) > .card-body > .plate-content > .move-name,
-	.attack-plate.selected:not(:disabled) > .card-body > .plate-content > .move-name{
+	.attack-plate.selected:not(:disabled) > .card-body > .plate-content > .move-name {
 		color: white !important;
 	}
 

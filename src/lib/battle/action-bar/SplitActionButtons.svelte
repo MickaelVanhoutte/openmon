@@ -143,38 +143,6 @@
 		positions = getButtonPositions(spritePos);
 	}
 
-	function handleKeyDown(event: KeyboardEvent) {
-		if (disabled || !show) {
-			return;
-		}
-
-		switch (event.key) {
-			case 'ArrowUp':
-				event.preventDefault();
-				selectedIdx = selectedIdx > 0 ? selectedIdx - 1 : actions.length - 1;
-				onHover(selectedIdx);
-				break;
-			case 'ArrowDown':
-				event.preventDefault();
-				selectedIdx = selectedIdx < actions.length - 1 ? selectedIdx + 1 : 0;
-				onHover(selectedIdx);
-				break;
-			case 'ArrowLeft':
-			case 'ArrowRight':
-				event.preventDefault();
-				break;
-			case 'Enter':
-			case ' ':
-				event.preventDefault();
-				actions[selectedIdx].action();
-				break;
-			case 'Escape':
-				event.preventDefault();
-				onRun();
-				break;
-		}
-	}
-
 	function animateEntrance() {
 		const validButtons = buttonElements.filter(Boolean);
 		if (validButtons.length === 0) {
@@ -213,11 +181,9 @@
 	}
 
 	onMount(() => {
-		window.addEventListener('keydown', handleKeyDown);
 		window.addEventListener('resize', updatePositions);
 
 		return () => {
-			window.removeEventListener('keydown', handleKeyDown);
 			window.removeEventListener('resize', updatePositions);
 		};
 	});
@@ -374,7 +340,7 @@
 	.action-plate:hover:not(:disabled) > .card-body > .action-label,
 	.action-plate:hover:not(:disabled) > .card-body > .action-label,
 	.action-plate.selected:not(:disabled) > .card-body > .action-label,
-	.action-plate.selected:not(:disabled) > .card-body > .action-label{
+	.action-plate.selected:not(:disabled) > .card-body > .action-label {
 		color: white !important;
 	}
 

@@ -98,8 +98,8 @@
 			float: right;
 			background: var(--pixel-bg-button);
 			border: 2px solid var(--pixel-border-color);
-			min-height: 44px;
-			min-width: 44px;
+			min-height: 36px;
+			min-width: 36px;
 			color: var(--pixel-text-white);
 			display: flex;
 			align-items: center;

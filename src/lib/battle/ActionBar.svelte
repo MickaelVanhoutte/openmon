@@ -16,8 +16,10 @@
 	import MiniBag from './mini-menus/MiniBag.svelte';
 	import SplitActionButtons from './action-bar/SplitActionButtons.svelte';
 	import SplitMoveSelector from './action-bar/SplitMoveSelector.svelte';
+	import MoveInfoModal from './action-bar/MoveInfoModal.svelte';
 	import TargetSelector from './action-bar/TargetSelector.svelte';
 	import BattleInfoText from './BattleInfoText.svelte';
+	import { navigateActionGrid } from '$js/battle/grid-navigation';
 
 	interface Props {
 		context: GameContext;
@@ -55,6 +57,10 @@
 	let selectedMoveIdx: number | undefined = $state(undefined);
 	let selectedOptionIdx: number | undefined = $state(undefined);
 	let selectedTargetIdx: number | undefined = $state(undefined);
+
+	let moveInfoModalOpen = $state(false);
+	let moveInfoMove: MoveInstance | undefined = $state(undefined);
+
 	let combo = $state(false);
 	let currentCombo: { pokemon: PokemonInstance; move: MoveInstance } | undefined =
 		$state(undefined);
@@ -283,6 +289,15 @@
 		if (!battleCtx) {
 			return;
 		}
+
+		if (moveInfoModalOpen) {
+			if (e.key === 'i' || e.key === 'I') {
+				e.preventDefault();
+				moveInfoModalOpen = false;
+			}
+			return;
+		}
+
 		if (battleSwitchOpened || changePokemon || combo || battleBagOpened) {
 			if (e.key === 'Escape') {
 				battleSwitchOpened = false;
@@ -301,47 +316,77 @@
 			!context.overWorldContext.menus.switchOpened &&
 			!disabled
 		) {
-			if (e.key === 'ArrowUp') {
+			if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+				e.preventDefault();
 				if (moveOpened && targetSelectOpened) {
-					if (selectedTargetIdx === undefined) {
-						selectedTargetIdx = 0;
+					if (e.key === 'ArrowUp') {
+						if (selectedTargetIdx === undefined) {
+							selectedTargetIdx = 0;
+						} else {
+							selectedTargetIdx =
+								selectedTargetIdx === 0 ? possibleTargets.length - 1 : selectedTargetIdx - 1;
+						}
 					} else {
-						selectedTargetIdx =
-							selectedTargetIdx === 0 ? possibleTargets.length - 1 : selectedTargetIdx - 1;
+						if (selectedTargetIdx === undefined) {
+							selectedTargetIdx = 0;
+						} else {
+							selectedTargetIdx =
+								selectedTargetIdx === possibleTargets.length - 1 ? 0 : selectedTargetIdx + 1;
+						}
 					}
 				} else if (moveOpened && currentPkmn) {
-					if (selectedMoveIdx === undefined) {
-						selectedMoveIdx = 0;
-					} else {
-						selectedMoveIdx =
-							selectedMoveIdx === 0 ? currentPkmn.moves.length - 1 : selectedMoveIdx - 1;
+					const dir = e.key === 'ArrowUp' ? 'up' : 'down';
+					const newIdx = navigateActionGrid(selectedMoveIdx ?? 0, dir, 2, currentPkmn.moves.length);
+					if (currentPkmn.moves[newIdx].pp > 0) {
+						selectedMoveIdx = newIdx;
 					}
 				} else {
 					if (selectedOptionIdx === undefined) {
 						selectedOptionIdx = 0;
 					} else {
-						selectedOptionIdx = selectedOptionIdx === 0 ? 3 : selectedOptionIdx - 1;
+						const direction = e.key === 'ArrowUp' ? 'up' : 'down';
+						selectedOptionIdx = navigateActionGrid(selectedOptionIdx, direction, 2, 4);
 					}
 				}
-			} else if (e.key === 'ArrowDown') {
+			} else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+				e.preventDefault();
 				if (moveOpened && targetSelectOpened) {
-					if (selectedTargetIdx === undefined) {
-						selectedTargetIdx = 0;
+					// Treat as ArrowUp/ArrowDown aliases for target selection
+					if (e.key === 'ArrowLeft') {
+						if (selectedTargetIdx === undefined) {
+							selectedTargetIdx = 0;
+						} else {
+							selectedTargetIdx =
+								selectedTargetIdx === 0 ? possibleTargets.length - 1 : selectedTargetIdx - 1;
+						}
 					} else {
-						selectedTargetIdx =
-							selectedTargetIdx === possibleTargets.length - 1 ? 0 : selectedTargetIdx + 1;
+						if (selectedTargetIdx === undefined) {
+							selectedTargetIdx = 0;
+						} else {
+							selectedTargetIdx =
+								selectedTargetIdx === possibleTargets.length - 1 ? 0 : selectedTargetIdx + 1;
+						}
 					}
 				} else if (moveOpened && currentPkmn) {
-					selectedMoveIdx =
-						selectedMoveIdx === currentPkmn.moves.length - 1 ? 0 : (selectedMoveIdx ?? 0) + 1;
+					const dir = e.key === 'ArrowLeft' ? 'left' : 'right';
+					const newIdx = navigateActionGrid(selectedMoveIdx ?? 0, dir, 2, currentPkmn.moves.length);
+					if (currentPkmn.moves[newIdx].pp > 0) {
+						selectedMoveIdx = newIdx;
+					}
 				} else {
 					if (selectedOptionIdx === undefined) {
 						selectedOptionIdx = 0;
 					} else {
-						selectedOptionIdx = selectedOptionIdx === 3 ? 0 : selectedOptionIdx + 1;
+						const direction = e.key === 'ArrowLeft' ? 'left' : 'right';
+						selectedOptionIdx = navigateActionGrid(selectedOptionIdx, direction, 2, 4);
 					}
 				}
-			} else if (e.key === 'Enter' && selectedMoveIdx !== undefined && currentPkmn) {
+			} else if (
+				(e.key === 'Enter' || e.key === ' ') &&
+				selectedMoveIdx !== undefined &&
+				currentPkmn
+			) {
+				e.preventDefault();
 				if (moveOpened && targetSelectOpened && selectedTargetIdx !== undefined) {
 					launchMove(selectedMoveIdx, currentPkmn.moves[selectedMoveIdx], [
 						possibleTargets[selectedTargetIdx]
@@ -376,9 +421,24 @@
 					showAdd = false;
 					showInfoBack = false;
 				}
+			} else if ((e.key === 'i' || e.key === 'I') && moveOpened) {
+				e.preventDefault();
+				const currentPkmn = battleCtx.playerSide[battleCtx.actionIdx];
+				if (currentPkmn && selectedMoveIdx !== undefined) {
+					moveInfoMove = currentPkmn.moves[selectedMoveIdx];
+					moveInfoModalOpen = true;
+				}
 			}
 		}
 	};
+
+	function handleMoveInfo(idx: number) {
+		const currentPkmn = battleCtx?.playerSide[battleCtx.actionIdx];
+		if (currentPkmn && currentPkmn.moves[idx]) {
+			moveInfoMove = currentPkmn.moves[idx];
+			moveInfoModalOpen = true;
+		}
+	}
 
 	function haveRemainingPokemons() {
 		return (
@@ -588,6 +648,7 @@
 				onHover={(idx) => {
 					selectedMoveIdx = idx;
 				}}
+				onInfoClick={(idx) => handleMoveInfo(idx)}
 			/>
 		{:else}
 			<!-- targets -->
@@ -719,6 +780,8 @@
 		/>
 	{/if}
 {/if}
+
+<MoveInfoModal bind:showModal={moveInfoModalOpen} move={moveInfoMove} />
 
 <style lang="scss">
 	@keyframes appear {
