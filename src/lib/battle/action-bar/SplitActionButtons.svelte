@@ -196,6 +196,9 @@
 			// Reset and wait for sprite to be positioned
 			spriteReady = false;
 			waitForSpritePosition();
+		} else {
+			// No sprite element available - use fallback positions immediately
+			spriteReady = true;
 		}
 	});
 
