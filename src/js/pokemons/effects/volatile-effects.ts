@@ -1,4 +1,10 @@
-import { Effect, EffectTiming, EffectResult, EffectForTurn, DEFAULT_EFFECT_PROPS } from './types';
+import {
+	type Effect,
+	EffectTiming,
+	EffectResult,
+	EffectForTurn,
+	DEFAULT_EFFECT_PROPS
+} from './types';
 import { PokemonInstance } from '../pokedex';
 import { VolatileStatus, VolatileTracker } from '../volatile-status';
 
