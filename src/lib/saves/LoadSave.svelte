@@ -15,7 +15,7 @@
 	}
 
 	function remove(save: SaveContext) {
-		savesHolder.removeSave(savesHolder.saves.indexOf(save));
+		savesHolder.removeSave(save.id);
 		selected = savesHolder.saves[0] || null;
 	}
 

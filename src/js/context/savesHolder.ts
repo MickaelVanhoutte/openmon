@@ -114,9 +114,12 @@ export class SavesHolder {
 	}
 
 	// TODO: fix, seems to remove the bad one
-	removeSave(index: number) {
-		this.saves.splice(index, 1);
-		this.persist();
+	removeSave(id: number) {
+		const index = this.saves.findIndex((s) => s.id === id);
+		if (index !== -1) {
+			this.saves.splice(index, 1);
+			this.persist();
+		}
 	}
 
 	selectSave(index: number) {
@@ -141,8 +144,9 @@ export class SavesHolder {
 			boxes[i] = new PokemonBox('Box ' + (i + 1), pokeArray);
 		}
 
+		const newId = this.saves.length > 0 ? Math.max(...this.saves.map((s) => s.id)) + 1 : 0;
 		const newSave = new SaveContext(
-			this.saves?.length || 0,
+			newId,
 			Date.now(),
 			new MapSave(0),
 			Player.fromScratch(spriteId, name, gender),
