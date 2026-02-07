@@ -1,4 +1,4 @@
-import { Effect, EffectTiming, EffectResult, EffectForTurn } from './types';
+import { type Effect, EffectTiming, EffectResult, EffectForTurn } from './types';
 import { Terrain, BattleField } from '../../battle/battle-field';
 
 export { Terrain };
