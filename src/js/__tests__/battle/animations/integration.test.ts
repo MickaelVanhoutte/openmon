@@ -3,7 +3,8 @@ import {
 	initializeAnimationEngine,
 	getAnimationEngine,
 	destroyAnimationEngine,
-	animateAttackWithNewEngine
+	animateAttackWithNewEngine,
+	type LegacyAnimateAttackParams
 } from '$js/battle/animations';
 import { createMockContainer, createMockElement } from './test-utils';
 
@@ -18,18 +19,20 @@ vi.mock('gsap', () => {
 		kill: vi.fn()
 	};
 
+	const gsapMock = {
+		timeline: vi.fn(() => mockTimeline),
+		to: vi.fn().mockImplementation((_target, options) => {
+			if (options?.onComplete) {
+				setTimeout(() => options.onComplete(), 0);
+			}
+			return mockTimeline;
+		}),
+		set: vi.fn(),
+		registerEase: vi.fn()
+	};
 	return {
-		default: {
-			timeline: vi.fn(() => mockTimeline),
-			to: vi.fn().mockImplementation((target, options) => {
-				if (options?.onComplete) {
-					setTimeout(() => options.onComplete(), 0);
-				}
-				return mockTimeline;
-			}),
-			set: vi.fn(),
-			registerEase: vi.fn()
-		}
+		default: gsapMock,
+		gsap: gsapMock
 	};
 });
 
@@ -144,14 +147,14 @@ describe('Animation Integration', () => {
 	});
 });
 
-function createMockAttackParams() {
+function createMockAttackParams(): LegacyAnimateAttackParams {
 	return {
 		initiator: createMockElement('attacker'),
 		target: createMockElement('defender'),
 		initiatorSlot: { side: 'player' as const, index: 0 },
 		targetSlot: { side: 'opponent' as const, index: 0 },
 		moveName: 'tackle',
-		moveCategory: 'physical' as const,
+		moveCategory: 'physical',
 		moveType: 'normal'
 	};
 }
