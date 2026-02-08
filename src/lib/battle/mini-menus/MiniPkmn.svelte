@@ -8,8 +8,8 @@
 		LineElement,
 		Filler
 	} from 'chart.js';
-	import { backInOut } from 'svelte/easing';
-	import { slide } from 'svelte/transition';
+	import { gsap } from 'gsap';
+	import { onMount } from 'svelte';
 	import { typeChart } from '../../../js/battle/battle-model';
 	import type { GameContext } from '../../../js/context/gameContext';
 	import type { MoveInstance, Nature, PokemonInstance } from '../../../js/pokemons/pokedex';
@@ -31,6 +31,29 @@
 	let selectedMoveIdx = $state(0);
 	let graphWrapper: HTMLDivElement | undefined = $state(undefined);
 	let graph: HTMLCanvasElement | undefined = $state(undefined);
+	let containerEl: HTMLDivElement;
+
+	onMount(() => {
+		if (containerEl) {
+			const head = containerEl.querySelector('.head');
+			const body = containerEl.querySelector('.body');
+			gsap.fromTo(containerEl, { opacity: 0 }, { opacity: 1, duration: 0.2, ease: 'power2.out' });
+			if (head) {
+				gsap.fromTo(
+					head.children,
+					{ opacity: 0, y: -15 },
+					{ opacity: 1, y: 0, duration: 0.3, stagger: 0.04, ease: 'power2.out', delay: 0.1 }
+				);
+			}
+			if (body) {
+				gsap.fromTo(
+					body.children,
+					{ opacity: 0, y: 20 },
+					{ opacity: 1, y: 0, duration: 0.3, stagger: 0.08, ease: 'power2.out', delay: 0.2 }
+				);
+			}
+		}
+	});
 
 	const data = $derived({
 		labels: [
@@ -53,8 +76,8 @@
 					selectedMons.currentStats.specialAttack
 				],
 				fill: true,
-				backgroundColor: 'rgba(242, 228, 3, .3)',
-				borderColor: 'rgba(242, 228, 3, 0)',
+				backgroundColor: 'rgba(100, 180, 255, 0.25)',
+				borderColor: 'rgba(100, 180, 255, 0.8)',
 				borderWidth: 2,
 				pointBorderWidth: 0,
 				pointStyle: false,
@@ -72,8 +95,8 @@
 					selectedMons.evs.specialAttack
 				],
 				fill: true,
-				backgroundColor: 'rgba(242, 228, 3, 1)',
-				borderColor: 'rgba(242, 228, 3, 0)',
+				backgroundColor: 'rgba(80, 150, 230, 0.15)',
+				borderColor: 'rgba(80, 150, 230, 0.6)',
 				borderWidth: 2,
 				pointBorderWidth: 0,
 				pointStyle: false,
@@ -125,7 +148,10 @@
 						color: 'white'
 					},
 					grid: {
-						color: 'rgba(255, 255, 255, 0.3)'
+						color: 'rgba(255, 255, 255, 0.12)'
+					},
+					angleLines: {
+						color: 'rgba(255, 255, 255, 0.12)'
 					},
 					gridLines: {
 						display: false
@@ -153,13 +179,13 @@
 
 	function natureColor(stat: string, nature: Nature) {
 		if (nature.increasedStatId === nature.decreasedStatId) {
-			return 'white';
+			return 'rgba(200, 210, 230, 0.9)';
 		} else if (nature.increasedStatId === stat) {
 			return '#fb607c';
 		} else if (nature.decreasedStatId === stat) {
 			return '#50aeff';
 		} else {
-			return 'white';
+			return 'rgba(200, 210, 230, 0.9)';
 		}
 	}
 
@@ -178,12 +204,7 @@
 	}
 </script>
 
-<div
-	class="mini-pkmn-menu"
-	style="--zIndex: {zIndex}"
-	in:slide={{ duration: 500, delay: 100, axis: 'y', easing: backInOut }}
-	out:slide={{ duration: 500, delay: 100, axis: 'y', easing: backInOut }}
->
+<div class="mini-pkmn-menu" style="--zIndex: {zIndex}" bind:this={containerEl}>
 	<div class="head">
 		{#each context.player.monsters as poke}
 			<div
@@ -339,7 +360,7 @@
 						onclick={() => onChange(selectedMons)}
 						disabled={selectedMons === currentPkmn || selectedMons.fainted}
 					>
-						<span>Switch</span>
+						<span>SWITCH</span>
 						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
 							><path d="M16 16V12L21 17L16 22V18H4V16H16ZM8 2V5.999L20 6V8H8V12L3 7L8 2Z"
 							></path></svg
@@ -397,10 +418,11 @@
 		left: 1%;
 		width: 98%;
 		height: 98%;
-		background-color: rgba(88, 83, 100, 0.95);
-		box-shadow: 0 0 10px 5px rgba(0, 0, 0, 0.7);
+		background-color: rgba(20, 25, 35, 0.92);
+		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 		z-index: var(--zIndex, 100);
-		border-radius: 8px;
+
+		border: 3px solid #2a224d;
 		gap: 2%;
 		display: flex;
 		flex-direction: column;
@@ -432,7 +454,7 @@
 
 				&.selected {
 					img {
-						filter: drop-shadow(0 0 5px white);
+						filter: drop-shadow(0 0 8px rgba(100, 180, 255, 0.6));
 						animation: pulse 1s infinite;
 					}
 				}
@@ -458,7 +480,7 @@
 					color: orange;
 					align-items: center;
 					justify-content: space-evenly;
-					border-radius: 5px;
+
 					padding: 2px 4px;
 
 					& > span {
@@ -470,9 +492,10 @@
 					.progressbar-wrapper {
 						height: 16px;
 						width: 100%;
-						background-color: #595b59;
-						border-radius: 4px;
-						//border: 2px solid white;
+						background-color: rgba(0, 0, 0, 0.6);
+
+						border: 1px solid rgba(255, 255, 255, 0.15);
+						clip-path: polygon(2% 0%, 100% 0%, 98% 100%, 0% 100%);
 
 						position: relative;
 
@@ -496,7 +519,7 @@
 								rgb(86, 170, 58) 50%,
 								rgb(86, 170, 58) 100%
 							);
-							border-radius: 2px;
+
 							display: flex;
 							text-align: center;
 							align-items: center;
@@ -535,7 +558,7 @@
 			// height: 66%;
 			gap: 2%;
 			//padding: 2%;
-			border-top: 1px solid rgba(255, 255, 255, 0.3);
+			border-top: 2px solid #2a224d;
 
 			.actions {
 				display: flex;
@@ -557,11 +580,20 @@
 						gap: 4px;
 						font-size: 22px;
 						height: 40px;
-						background-color: #4c69bf;
-						border: 1px solid #2a3043;
+						background-color: rgba(30, 40, 55, 0.85);
+						border: 2px solid #2a224d;
 						color: white;
-						border-radius: 4px;
+
 						width: unset;
+						text-transform: uppercase;
+						font-weight: bold;
+						letter-spacing: 1px;
+						transition: all 0.2s ease;
+
+						&:hover {
+							box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+							background: rgba(40, 55, 75, 0.9);
+						}
 
 						svg {
 							width: 22px;
@@ -573,7 +605,7 @@
 					width: 100px;
 					height: 40px;
 					background-color: rgba(255, 255, 255, 0.5);
-					border-radius: 4px;
+
 					display: flex;
 					justify-content: center;
 					align-items: center;
@@ -656,7 +688,8 @@
 			height: 8dvh;
 			width: 20dvh;
 			background-color: rgba(44, 56, 69, 0.85);
-			border-radius: 6px;
+
+			border: 2px solid #2a224d;
 			color: white;
 			display: flex;
 			align-items: center;
@@ -665,7 +698,7 @@
 
 			&.shine {
 				animation: sparkle 3s infinite;
-				border: 1px solid rgba(44, 56, 69, 0.85);
+				border: 2px solid #2a224d;
 			}
 
 			svg {
@@ -690,7 +723,8 @@
 	.move-btn {
 		width: 100%;
 		height: calc(76% / 4);
-		background-color: rgba(44, 56, 69, 0.65);
+		background-color: rgba(20, 30, 45, 0.75);
+		border: 2px solid #2a224d;
 		color: white;
 		display: flex;
 		align-items: center;
@@ -699,11 +733,20 @@
 		padding: 0 3%;
 		transition: transform 0.5s ease-in-out;
 
+		&:hover {
+			box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+			background-color: rgba(30, 40, 60, 0.85);
+		}
+
+		&.selected {
+			border-left: 6px solid var(--color);
+		}
+
 		.move-type {
 			display: flex;
 			position: relative;
 			left: 5%; //calc(-5% + var(--offset));
-			border-radius: 4px;
+
 			height: 9dvh;
 			width: 9dvh;
 			//background: white;

@@ -4,8 +4,8 @@
 	import { Pokeball, getCaptureRate } from '../../../js/items/items';
 	import { UseItemAction } from '../../../js/items/items-model';
 	import type { PokemonInstance } from '../../../js/pokemons/pokedex';
-	import { backInOut } from 'svelte/easing';
-	import { slide } from 'svelte/transition';
+	import { gsap } from 'gsap';
+	import { onMount } from 'svelte';
 
 	interface Props {
 		context: GameContext;
@@ -26,6 +26,19 @@
 	const isWild = battleCtx.isWild;
 	let selectedIdx = $state(0);
 	let itemIdx = $state(0);
+	let containerEl: HTMLDivElement | undefined = $state();
+
+	const opponentPokemon = $derived(isWild ? (battleCtx.opponent as PokemonInstance) : undefined);
+
+	onMount(() => {
+		if (containerEl) {
+			gsap.fromTo(
+				containerEl.children,
+				{ opacity: 0, y: 20 },
+				{ opacity: 1, y: 0, duration: 0.3, stagger: 0.05, ease: 'power2.out' }
+			);
+		}
+	});
 
 	const pocket = $derived(
 		Object.keys(context.player.bag[categories[selectedIdx]])?.map((id) => [
@@ -58,12 +71,7 @@
 	}
 </script>
 
-<div
-	class="mini-bag"
-	style="--zIndex: {zIndex}"
-	in:slide={{ duration: 500, delay: 100, axis: 'y', easing: backInOut }}
-	out:slide={{ duration: 500, delay: 100, axis: 'y', easing: backInOut }}
->
+<div class="mini-bag" style="--zIndex: {zIndex}" bind:this={containerEl}>
 	<nav class="nav" role="navigation" aria-label="Battle bag">
 		<div class="nav-left">
 			<div class="tabs" role="tablist">
@@ -151,19 +159,19 @@
 					<div
 						class="poke catch"
 						style="height: 100%"
-						data-rate={`Catch rate: ${Math.floor(getCaptureRate(battleCtx.opponentPokemon, item?.power || 0) * 100)}%`}
+						data-rate={`Catch rate: ${Math.floor(getCaptureRate(opponentPokemon!, item?.power || 0) * 100)}%`}
 					>
 						<button class="button" onclick={() => catchPkmn()} aria-label="Catch wild Pokemon"
 							>Catch</button
 						>
 						<img
-							src={battleCtx.opponentPokemon?.sprites?.[battleCtx.opponentPokemon?.gender]?.front[
-								battleCtx.opponentPokemon.isShiny ? 'shiny1' : 'frame1'
+							src={opponentPokemon?.sprites?.[opponentPokemon?.gender]?.front[
+								opponentPokemon.isShiny ? 'shiny1' : 'frame1'
 							] ||
-								battleCtx.opponentPokemon?.sprites?.male?.front[
-									battleCtx.opponentPokemon.isShiny ? 'shiny1' : 'frame1'
+								opponentPokemon?.sprites?.male?.front[
+									opponentPokemon.isShiny ? 'shiny1' : 'frame1'
 								]}
-							alt={battleCtx.opponentPokemon.name}
+							alt={opponentPokemon?.name}
 						/>
 						<div class="hp-status">
 							<div class="hp">
@@ -171,16 +179,14 @@
 								<div class="progressbar-wrapper">
 									<div
 										class="progressbar"
-										class:warning={(battleCtx.opponentPokemon.currentHp /
-											battleCtx.opponentPokemon.currentStats.hp) *
+										class:warning={(opponentPokemon!.currentHp / opponentPokemon!.currentStats.hp) *
 											100 <=
 											50}
-										class:danger={(battleCtx.opponentPokemon.currentHp /
-											battleCtx.opponentPokemon.currentStats.hp) *
+										class:danger={(opponentPokemon!.currentHp / opponentPokemon!.currentStats.hp) *
 											100 <
 											15}
-										style="--width:{(battleCtx.opponentPokemon.currentHp /
-											battleCtx.opponentPokemon.currentStats.hp) *
+										style="--width:{(opponentPokemon!.currentHp /
+											opponentPokemon!.currentStats.hp) *
 											100 +
 											'%'}"
 									></div>
@@ -201,10 +207,10 @@
 		left: 1%;
 		width: 98%;
 		height: 98%;
-		background-color: rgba(88, 83, 100, 0.95);
-		box-shadow: 0 0 10px 5px rgba(0, 0, 0, 0.7);
+		background-color: rgba(20, 25, 35, 0.92);
+		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 		z-index: var(--zIndex, 100);
-		border-radius: 8px;
+		border: 3px solid #2a224d;
 		gap: 2%;
 		display: flex;
 		flex-direction: row;
@@ -236,9 +242,8 @@
 					flex-direction: row;
 					padding: 0 1%;
 
-					border: 1px solid black;
-					border-radius: 32px;
-					background: rgba(0, 0, 0, 0.36);
+					border: 2px solid #2a224d;
+					background: rgba(20, 25, 35, 0.7);
 				}
 			}
 		}
@@ -259,7 +264,6 @@
 				background: rgba(0, 0, 0, 0.36);
 				color: white;
 				padding: 4px 12px;
-				border-radius: 12px;
 			}
 
 			img {
@@ -270,7 +274,16 @@
 				padding: 0;
 				aspect-ratio: 1 / 1;
 				height: 80%;
-				border-radius: 50%;
+				border: 2px solid #2a224d;
+				background: rgba(30, 40, 55, 0.85);
+				text-transform: uppercase;
+				font-weight: bold;
+				transition: all 0.2s ease;
+
+				&:hover {
+					box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+					transform: scale(1.05);
+				}
 			}
 
 			.hp-status {
@@ -286,7 +299,6 @@
 					color: orange;
 					align-items: center;
 					justify-content: space-evenly;
-					border-radius: 5px;
 					padding: 2px 4px;
 
 					& > span {
@@ -298,9 +310,9 @@
 					.progressbar-wrapper {
 						height: 14px;
 						width: 100%;
-						background-color: #595b59;
-						border-radius: 4px;
-						//border: 2px solid white;
+						background-color: rgba(0, 0, 0, 0.6);
+						border: 1px solid rgba(255, 255, 255, 0.15);
+						clip-path: polygon(2% 0%, 100% 0%, 98% 100%, 0% 100%);
 						position: relative;
 
 						.hp-value {
@@ -323,7 +335,6 @@
 								rgb(86, 170, 58) 50%,
 								rgb(86, 170, 58) 100%
 							);
-							border-radius: 2px;
 							display: flex;
 							text-align: center;
 							align-items: center;
@@ -365,8 +376,23 @@
 			gap: 4%;
 
 			.tabs {
+				display: flex;
+				gap: 10px;
 				a {
 					color: white;
+					padding: 8px 16px;
+					text-transform: uppercase;
+					font-weight: bold;
+					border-bottom: 2px solid transparent;
+					transition: all 0.2s ease;
+					cursor: pointer;
+
+					&.active,
+					&:hover {
+						border-bottom: 2px solid #2a224d;
+						background: rgba(255, 255, 255, 0.1);
+						text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+					}
 				}
 			}
 		}
@@ -384,6 +410,17 @@
 				width: 70%;
 				height: 100%;
 				overflow-y: auto;
+
+				&::-webkit-scrollbar {
+					width: 8px;
+				}
+				&::-webkit-scrollbar-track {
+					background: rgba(0, 0, 0, 0.3);
+				}
+				&::-webkit-scrollbar-thumb {
+					background: #2a224d;
+				}
+
 				ul {
 					list-style: none;
 					padding: 0;
@@ -400,16 +437,22 @@
 							align-items: center;
 							padding: 0 2%;
 							cursor: pointer;
+							border-left: 3px solid transparent;
+							transition: all 0.2s ease;
+
 							&:hover {
-								background-color: rgba(255, 255, 255, 0.1);
+								background-color: rgba(255, 255, 255, 0.08);
+								border-left: 3px solid rgba(255, 255, 255, 0.5);
 							}
 							&:not(.selected) {
 								&:hover {
-									background-color: rgba(255, 255, 255, 0.1);
+									background-color: rgba(255, 255, 255, 0.08);
+									border-left: 3px solid rgba(255, 255, 255, 0.5);
 								}
 							}
 							&.selected {
-								background-color: rgba(255, 255, 255, 0.2);
+								background-color: rgba(255, 255, 255, 0.12);
+								border-left: 3px solid rgba(255, 255, 255, 0.8);
 							}
 						}
 					}
