@@ -1030,7 +1030,13 @@
 		background-color: transparent;
 		color: white;
 		overflow: hidden;
-		z-index: 100;
+		z-index: 200;
+		transition: all 0.15s ease;
+
+		&:hover {
+			background-color: rgba(255, 255, 255, 0.1);
+			transform: scale(1.1);
+		}
 
 		svg {
 			height: 100%;
