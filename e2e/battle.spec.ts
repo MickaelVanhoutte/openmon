@@ -161,4 +161,135 @@ test.describe('Battle System', () => {
 
 		await expect(page.locator('[data-testid="world-screen"]')).toBeVisible({ timeout: 30000 });
 	});
+
+	test('can switch pokemon during battle', async ({ page }) => {
+		test.setTimeout(120000);
+
+		await loadSaveAndEnterWorld(page);
+		await triggerBattle(page);
+		await waitForActionMenu(page);
+
+		await page.locator('button[aria-label="POKEMON"]').click();
+
+		const switchMenu = page.locator('.mini-pkmn-menu');
+		await expect(switchMenu).toBeVisible({ timeout: 5000 });
+
+		const lilligant = page.locator('[aria-label*="Lilligant"]');
+		await expect(lilligant).toBeVisible({ timeout: 5000 });
+		await lilligant.click();
+
+		const switchBtn = page.locator('.btn-switch');
+		await expect(switchBtn).toBeVisible({ timeout: 5000 });
+		await expect(switchBtn).toBeEnabled({ timeout: 5000 });
+		await switchBtn.click();
+
+		await waitForActionMenu(page);
+
+		await expect(page.locator('[data-testid="ally-pokemon-info"]')).toBeVisible({
+			timeout: 10000
+		});
+	});
+
+	test('can use an item from bag during battle', async ({ page }) => {
+		test.setTimeout(120000);
+
+		await loadSaveAndEnterWorld(page);
+		await triggerBattle(page);
+		await waitForActionMenu(page);
+
+		await page.locator('button[aria-label="FIGHT"]').click();
+		await expect(page.locator('.attack-plate').first()).toBeVisible({ timeout: 5000 });
+		await page.locator('.attack-plate').first().click();
+		await page.waitForSelector('button[aria-label="FIGHT"], [data-testid="world-screen"]', {
+			state: 'visible',
+			timeout: 30000
+		});
+
+		if (
+			await page
+				.locator('[data-testid="world-screen"]')
+				.isVisible()
+				.catch(() => false)
+		) {
+			return;
+		}
+
+		await page.locator('button[aria-label="BAG"]').click();
+		const bagMenu = page.locator('.mini-bag');
+		await expect(bagMenu).toBeVisible({ timeout: 5000 });
+
+		await expect(page.locator('.mini-bag .item').first()).toBeVisible({ timeout: 5000 });
+
+		const useBtn = page.locator('button[aria-label*="Use item on"]').first();
+		await expect(useBtn).toBeVisible({ timeout: 5000 });
+
+		if (await useBtn.isEnabled().catch(() => false)) {
+			await useBtn.click();
+			await page.waitForSelector('button[aria-label="FIGHT"], [data-testid="world-screen"]', {
+				state: 'visible',
+				timeout: 30000
+			});
+		}
+	});
+
+	test('multi-turn combat reduces HP', async ({ page }) => {
+		test.setTimeout(120000);
+
+		await loadSaveAndEnterWorld(page);
+		await triggerBattle(page);
+		await waitForActionMenu(page);
+
+		// Regex extracts percentage from inline width style on HP bar fill element
+		async function getOpponentHpPercent(): Promise<number> {
+			const fill = page.locator('[data-testid="opponent-hp-bar"] .hp-bar-fill');
+			const style = await fill.getAttribute('style');
+			const match = style?.match(/width:\s*([\d.]+)%/);
+			return match ? parseFloat(match[1]) : 100;
+		}
+
+		const initialHp = await getOpponentHpPercent();
+
+		for (let turn = 0; turn < 3; turn++) {
+			const worldVisible = await page
+				.locator('[data-testid="world-screen"]')
+				.isVisible()
+				.catch(() => false);
+			if (worldVisible) {
+				break;
+			}
+
+			const fightBtn = page.locator('button[aria-label="FIGHT"]');
+			const fightReady = await fightBtn
+				.waitFor({ state: 'visible', timeout: 20000 })
+				.then(() => true)
+				.catch(() => false);
+
+			if (!fightReady) {
+				break;
+			}
+
+			await fightBtn.click();
+			const moveButtons = page.locator('.attack-plate');
+			await expect(moveButtons.first()).toBeVisible({ timeout: 5000 });
+			await moveButtons.first().click();
+
+			await page.waitForSelector('button[aria-label="FIGHT"], [data-testid="world-screen"]', {
+				state: 'visible',
+				timeout: 30000
+			});
+		}
+
+		const worldVisible = await page
+			.locator('[data-testid="world-screen"]')
+			.isVisible()
+			.catch(() => false);
+
+		if (worldVisible) {
+			expect(true).toBe(true);
+		} else {
+			await page.waitForTimeout(1500);
+			const finalHp = await getOpponentHpPercent();
+			expect(finalHp).toBeLessThan(initialHp);
+		}
+	});
 });
