@@ -4,7 +4,7 @@
 	import { onMount } from 'svelte';
 	import { backInOut } from 'svelte/easing';
 	import { fade, slide } from 'svelte/transition';
-	import Bag from '../bag/Bag.svelte';
+	import BagMenu from '../bag/Bag.svelte';
 	import type { GameContext } from '../../../js/context/gameContext';
 	import { MenuType } from '../../../js/context/overworldContext';
 	import type { BattleContext } from '../../../js/context/battleContext';
@@ -39,14 +39,18 @@
 
 	let battleSummaryOpened = $state(false);
 	let summaryOpened = $state(context.overWorldContext.menus.openSummary);
+	const selectedPokemon = $derived(context.player.monsters.at(selected));
+	const hasHeldItem = $derived(!!selectedPokemon?.heldItem);
 	const numberOfOptions = $derived(
 		itemToUse
-			? 2
+			? 1
 			: isBattle
 				? combo
-					? context.player.monsters.at(selected)?.moves?.length || 0
+					? (selectedPokemon?.moves?.length || 1) - 1
+					: 2
+				: hasHeldItem
+					? 4
 					: 3
-				: 4
 	);
 	let switchToIdx: number | undefined = $state(undefined);
 	let openOptions = $state(false);
@@ -164,6 +168,15 @@
 		}
 	}
 
+	function takeItem() {
+		const pkmn = selectedPokemon;
+		if (pkmn?.heldItem) {
+			(context.player.bag as any).takeHeldItem(pkmn);
+			context.player.monsters = [...context.player.monsters];
+		}
+		openOptions = false;
+	}
+
 	function useItem() {
 		if (!isBattle && itemToUse) {
 			const selectedMons = context.player.monsters.at(selected);
@@ -226,6 +239,8 @@
 						saveSwitch();
 					} else if (optionSelected === 2 && !isBattle) {
 						context.overWorldContext.openMenu(MenuType.BAG);
+					} else if (optionSelected === 3 && !isBattle && hasHeldItem) {
+						takeItem();
 					}
 				}
 			} else if (e.key === 'Escape') {
@@ -273,6 +288,9 @@
 					</div>
 					<div>
 						<span>{first?.name}</span>
+						{#if first?.heldItem}
+							<span class="held-item">{first.heldItem.name}</span>
+						{/if}
 						<span>Lv{first?.level}</span>
 					</div>
 					<!-- img, name, level, gender-->
@@ -308,6 +326,9 @@
 						</div>
 						<div>
 							<span>{monster.name}</span>
+							{#if monster.heldItem}
+								<span class="held-item">{monster.heldItem.name}</span>
+							{/if}
 							<span>Lv{monster.level}</span>
 						</div>
 						<!-- img, name, level, gender-->
@@ -389,9 +410,14 @@
 						>
 							ITEM
 						</li>
+						{#if hasHeldItem}
+							<li class:selected={optionSelected === 3} onclick={() => takeItem()} role="menuitem">
+								TAKE ITEM
+							</li>
+						{/if}
 					{/if}
 					<li
-						class:selected={optionSelected === 3}
+						class:selected={optionSelected === numberOfOptions}
 						onclick={() => (openOptions = false)}
 						role="menuitem"
 					>
@@ -415,7 +441,7 @@
 {/if}
 
 {#if context.overWorldContext.menus.bagOpened && !itemToUse}
-	<Bag
+	<BagMenu
 		bind:context
 		{isBattle}
 		selectedMons={selected}
@@ -694,6 +720,11 @@
 				border-radius: 0;
 				border: 2px solid rgba(0, 0, 0, 0.7);
 			}
+		}
+
+		.held-item {
+			font-size: 20px;
+			color: var(--pixel-text-gold);
 		}
 	}
 
