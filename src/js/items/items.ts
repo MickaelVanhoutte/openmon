@@ -1,8 +1,10 @@
 import type { PokemonInstance } from '../pokemons/pokedex';
 import itemsJson from '../../assets/data/final/beta/usable-items.json';
+import heldItemsJson from '../../assets/data/final/beta/held-items.json';
 import { Player } from '../characters/player';
 import { AItem, ItemUsageResult } from './items-model';
 import type { BattleContext } from '../context/battleContext';
+import type { HeldItemData } from '$js/items/held-items-model';
 
 export class Pokeball extends AItem {
 	constructor(id: number, categoryId: number, name: string, description: string, power: number) {
@@ -95,9 +97,11 @@ export class ItemsReferences {
 	public static POKEBALL = 34;
 	public static POTION = 27;
 	public static REVIVE = 29;
+	public static HELD_ITEM = 40;
 
 	public references: Record<number, AItem> = {};
 	public ids: number[] = [];
+	public heldItemsMap: Map<number, HeldItemData> = new Map();
 
 	constructor() {
 		itemsJson.forEach((item: any) => {
@@ -134,9 +138,30 @@ export class ItemsReferences {
 					break;
 			}
 		});
+
+		(heldItemsJson as HeldItemData[]).forEach((item) => {
+			this.heldItemsMap.set(item.id, item);
+		});
 	}
 
 	public getItem(id: number): AItem | undefined {
 		return this.references[id];
+	}
+
+	public getHeldItemById(id: number): HeldItemData | undefined {
+		return this.heldItemsMap.get(id);
+	}
+
+	public getHeldItemByName(name: string): HeldItemData | undefined {
+		for (const item of this.heldItemsMap.values()) {
+			if (item.name === name) {
+				return item;
+			}
+		}
+		return undefined;
+	}
+
+	public getAllHeldItems(): HeldItemData[] {
+		return Array.from(this.heldItemsMap.values());
 	}
 }
