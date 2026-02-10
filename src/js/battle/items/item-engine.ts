@@ -10,6 +10,8 @@ export interface ItemContext {
 	move?: Move;
 	damage?: number;
 	battleCtx?: BattleContext;
+	statValue?: number;
+	effectiveness?: number;
 }
 
 type ItemHookName =
@@ -67,7 +69,8 @@ export class ItemEngine {
 		const result = (hook as (ctx: ItemContext) => T).call(effect, ctx);
 
 		// Auto-consume consumable items (berries) after effect fires
-		if (pokemon.heldItem?.consumable) {
+		// Items returning false explicitly (e.g. status-specific berries on wrong status) are preserved
+		if (pokemon.heldItem?.consumable && result !== false) {
 			pokemon.consumeHeldItem();
 		}
 
