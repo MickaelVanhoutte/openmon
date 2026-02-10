@@ -39,23 +39,44 @@
 	const tabs: Record<number, string> = {
 		0: 'HEALING',
 		1: 'REVIVE',
-		2: 'POKEBALLS'
+		2: 'POKEBALLS',
+		3: 'HELD ITEMS'
 	};
 
 	const categories: Record<number, string> = {
 		0: 'potions',
 		1: 'revives',
-		2: 'balls'
+		2: 'balls',
+		3: 'heldItems'
 	};
 
 	let selected = $state(0);
 	const pocket = $derived(
-		Object.keys(context.player.bag[categories[tab]])?.map((id) => [
+		Object.keys(
+			context.player.bag[categories[tab] as 'balls' | 'potions' | 'revives' | 'heldItems']
+		)?.map((id) => [
 			id,
-			context.player.bag[categories[tab]][id]
+			context.player.bag[categories[tab] as 'balls' | 'potions' | 'revives' | 'heldItems'][id]
 		])
 	);
 	let itemToUse = $derived((pocket && pocket[selected]?.[0]) || undefined);
+	const isHeldItemTab = $derived(tab === 3);
+
+	function getItemName(id: string | number | undefined): string {
+		if (!id) return '';
+		if (isHeldItemTab) {
+			return context.ITEMS.getHeldItemById(Number(id))?.name || '';
+		}
+		return context.ITEMS.getItem(Number(id))?.name || '';
+	}
+
+	function getItemDescription(id: string | number | undefined): string {
+		if (!id) return '';
+		if (isHeldItemTab) {
+			return context.ITEMS.getHeldItemById(Number(id))?.description || '';
+		}
+		return context.ITEMS.getItem(Number(id))?.description || '';
+	}
 
 	function back() {
 		if (isBattle) {
@@ -69,17 +90,29 @@
 		openOptions = false;
 
 		const item = pocket[selected][0];
-		const instance = context.ITEMS.getItem(item)?.instanciate();
+
+		if (isHeldItemTab) {
+			if (!pkmn) {
+				openPokemonList = true;
+			} else {
+				context.player.bag.giveHeldItem(Number(item), pkmn, context.ITEMS);
+				context.player.bag = new Bag(context.player.bag);
+				back();
+			}
+			return;
+		}
+
+		const instance = context.ITEMS.getItem(Number(item))?.instanciate();
 
 		if (isBattle && !(instance instanceof Pokeball) && !pkmn) {
 			openPokemonList = true;
 		} else if (isBattle && instance instanceof Pokeball) {
-			onChange(new UseItemAction(item));
+			onChange(new UseItemAction(Number(item)));
 		} else if (isBattle && pkmn !== undefined) {
-			onChange(new UseItemAction(item, pkmn));
+			onChange(new UseItemAction(Number(item), pkmn));
 		} else if (!isBattle) {
 			if (selectedMons !== undefined) {
-				context.player.bag.use(item, context.ITEMS, context.player.monsters[selectedMons]);
+				context.player.bag.use(Number(item), context.ITEMS, context.player.monsters[selectedMons]);
 				context.player.bag = new Bag(context.player.bag);
 				back();
 			} else {
@@ -103,10 +136,10 @@
 	const listener = (e: KeyboardEvent) => {
 		if (!openOptions) {
 			if (e.key === 'ArrowRight') {
-				tab = (tab + 1) % 3;
+				tab = (tab + 1) % 4;
 				selected = 0;
 			} else if (e.key === 'ArrowLeft') {
-				tab = (tab + 2) % 3;
+				tab = (tab + 3) % 4;
 				selected = 0;
 			} else if (e.key === 'ArrowUp') {
 				selected = (selected + pocket.length - 1) % pocket.length;
@@ -181,6 +214,12 @@
 					role="tab"
 					aria-selected={tab === 2}>{tabs[2].replace('$POKEMON', '')}</a
 				>
+				<a
+					class:active={tab === 3}
+					onclick={() => changeTab(3)}
+					role="tab"
+					aria-selected={tab === 3}>{tabs[3].replace('$POKEMON', '')}</a
+				>
 			</div>
 		</div>
 		<div class="nav-right">
@@ -197,8 +236,8 @@
 	<div class="tab-content">
 		<div class="item-desc">
 			<div class="content">
-				<p>{context.ITEMS.getItem(itemToUse)?.name || ''}</p>
-				<p>{context.ITEMS.getItem(itemToUse)?.description || ''}</p>
+				<p>{getItemName(itemToUse)}</p>
+				<p>{getItemDescription(itemToUse)}</p>
 			</div>
 		</div>
 
@@ -214,7 +253,7 @@
 								openOptions = true;
 							}}
 						>
-							<span class="item-name">{context.ITEMS.getItem(id)?.name}</span>
+							<span class="item-name">{getItemName(id)}</span>
 							<span class="item-qty">x{qty}</span>
 						</div>
 					</li>
@@ -225,7 +264,9 @@
 
 	<div class="options" class:hidden={!openOptions} role="menu" aria-label="Item options">
 		<ul>
-			<li class:selected={optionSelected === 0} onclick={() => use()} role="menuitem">USE</li>
+			<li class:selected={optionSelected === 0} onclick={() => use()} role="menuitem">
+				{isHeldItemTab ? 'GIVE' : 'USE'}
+			</li>
 			<li
 				class:selected={optionSelected === 1}
 				onclick={() => (openOptions = false)}
@@ -239,9 +280,9 @@
 
 {#if openPokemonList}
 	<PokemonList
-		bind:context
-		bind:isBattle
-		bind:itemToUse
+		{context}
+		{isBattle}
+		{itemToUse}
 		onChange={(pkmn) => use(pkmn)}
 		onCombo={() => {}}
 		zIndex={zIndex + 1}
