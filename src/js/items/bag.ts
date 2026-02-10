@@ -7,6 +7,7 @@ export class Bag {
 	public balls: Record<number, number> = {};
 	public potions: Record<number, number> = {};
 	public revives: Record<number, number> = {};
+	public heldItems: Record<number, number> = {};
 	public money: number = 3000;
 
 	constructor(bag?: Bag) {
@@ -23,6 +24,12 @@ export class Bag {
 				const numKey = parseInt(key);
 				this.revives[numKey] = bag.revives[numKey] ?? 0;
 			});
+			if (bag.heldItems) {
+				Object.keys(bag.heldItems).forEach((key) => {
+					const numKey = parseInt(key);
+					this.heldItems[numKey] = bag.heldItems[numKey] ?? 0;
+				});
+			}
 			this.money = bag.money;
 		}
 	}
@@ -62,6 +69,8 @@ export class Bag {
 				return this.potions;
 			case 29:
 				return this.revives;
+			case 40:
+				return this.heldItems;
 			default:
 				throw new Error('No pocket for this category');
 		}
@@ -72,5 +81,32 @@ export class Bag {
 		if (item !== undefined && pokemonInstance !== undefined) {
 			return item.apply(pokemonInstance);
 		}
+	}
+
+	public giveHeldItem(itemId: number, pokemon: PokemonInstance, items: ItemsReferences): void {
+		const heldItemData = items.getHeldItemById(itemId);
+		if (!heldItemData) {
+			throw new Error(`Held item with ID ${itemId} not found`);
+		}
+		if (pokemon.heldItem) {
+			this.takeHeldItem(pokemon);
+		}
+		if (!this.heldItems[itemId] || this.heldItems[itemId] <= 0) {
+			throw new Error(`No ${heldItemData.name} in bag`);
+		}
+		this.heldItems[itemId]--;
+		if (this.heldItems[itemId] <= 0) {
+			delete this.heldItems[itemId];
+		}
+		pokemon.heldItem = heldItemData;
+	}
+
+	public takeHeldItem(pokemon: PokemonInstance): void {
+		if (!pokemon.heldItem) {
+			return;
+		}
+		const itemId = pokemon.heldItem.id;
+		this.heldItems[itemId] = (this.heldItems[itemId] || 0) + 1;
+		pokemon.heldItem = undefined;
 	}
 }
