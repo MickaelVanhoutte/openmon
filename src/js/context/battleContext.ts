@@ -631,7 +631,11 @@ export class BattleContext {
 						const npXp = Math.floor(xp / 2);
 						for (const nParticipant of nonParticipants) {
 							if (!nParticipant.fainted) {
-								actions.push(new XPWin(nParticipant, npXp));
+								let finalNpXp = npXp;
+								if (nParticipant.heldItem?.name === 'Lucky Egg') {
+									finalNpXp = Math.floor(npXp * 1.5);
+								}
+								actions.push(new XPWin(nParticipant, finalNpXp));
 							}
 						}
 						actions.push(
@@ -642,8 +646,14 @@ export class BattleContext {
 
 				for (const participant of this.participants) {
 					if (!participant.fainted) {
-						actions.push(new XPWin(participant, xp));
-						actions.push(new Message(`${participant.name} gets ${xp} experience!`, participant));
+						let finalXp = xp;
+						if (participant.heldItem?.name === 'Lucky Egg') {
+							finalXp = Math.floor(xp * 1.5);
+						}
+						actions.push(new XPWin(participant, finalXp));
+						actions.push(
+							new Message(`${participant.name} gets ${finalXp} experience!`, participant)
+						);
 					}
 				}
 			} else {
