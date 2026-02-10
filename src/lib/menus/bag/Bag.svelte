@@ -59,7 +59,9 @@
 			context.player.bag[categories[tab] as 'balls' | 'potions' | 'revives' | 'heldItems'][id]
 		])
 	);
-	let itemToUse = $derived((pocket && pocket[selected]?.[0]) || undefined);
+	let itemToUse = $derived(
+		pocket && pocket[selected]?.[0] ? Number(pocket[selected][0]) : undefined
+	);
 	const isHeldItemTab = $derived(tab === 3);
 
 	function getItemName(id: string | number | undefined): string {
@@ -104,6 +106,7 @@
 				);
 				context.player.bag = new Bag(context.player.bag);
 				back();
+				context.overWorldContext.closeMenu(MenuType.POKEMON_LIST);
 			} else {
 				openPokemonList = true;
 			}
