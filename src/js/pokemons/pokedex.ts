@@ -5,6 +5,7 @@ import { VolatileTracker } from './volatile-status';
 import { StatCalculator } from './helpers/stat-calculator';
 import { XpManager } from './helpers/xp-manager';
 import { MoveManager } from './helpers/move-manager';
+import type { HeldItemData } from '$js/items/held-items-model';
 
 export class Nature {
 	public id: number;
@@ -748,7 +749,8 @@ export class PokemonInstance extends PokedexEntry {
 	public evs: Stats = new Stats();
 	public nature: Nature;
 	public gender: 'male' | 'female' | 'unknown';
-	public heldItem: any = {}; // TODO
+	public heldItem: HeldItemData | undefined = undefined;
+	public choiceLockedMove: string | undefined = undefined;
 	public lastMove?: MoveInstance;
 	public lastDamageTaken?: number;
 	public lastAttacker?: PokemonInstance;
@@ -910,6 +912,14 @@ export class PokemonInstance extends PokedexEntry {
 		this.xpMgr = new XpManager(this);
 		this.moveMgr = new MoveManager(this);
 
+		if (
+			this.heldItem &&
+			typeof this.heldItem === 'object' &&
+			Object.keys(this.heldItem as object).length === 0
+		) {
+			this.heldItem = undefined;
+		}
+
 		this.statsChanges = new Stats();
 		this.volatiles = new VolatileTracker();
 	}
@@ -1040,6 +1050,10 @@ export class PokemonInstance extends PokedexEntry {
 
 	public hasItem(itemName: string): boolean {
 		return this.heldItem?.name === itemName;
+	}
+
+	public consumeHeldItem(): void {
+		this.heldItem = undefined;
 	}
 
 	private selectLatestMoves(pokedexEntry: PokedexEntry) {
