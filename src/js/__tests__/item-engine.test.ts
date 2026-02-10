@@ -191,7 +191,7 @@ describe('ItemEngine', () => {
 			expect(onAfterHit.mock.calls[0][0].opponent).toBe(opponent);
 		});
 
-		it('should handle onStatusInflicted returning boolean', () => {
+		it('should not consume consumable items when hook returns false', () => {
 			const effect: HeldItemEffect = {
 				name: 'Lum Berry',
 				onStatusInflicted: (_ctx: ItemContext) => false
@@ -204,7 +204,7 @@ describe('ItemEngine', () => {
 			const result = engine.runItemEvent<boolean>(HeldItemTrigger.ON_STATUS_INFLICTED, ctx);
 
 			expect(result).toBe(false);
-			expect(pokemon.heldItem).toBeUndefined();
+			expect(pokemon.heldItem).toBeDefined();
 		});
 	});
 });
