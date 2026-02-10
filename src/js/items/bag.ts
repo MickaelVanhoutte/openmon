@@ -101,6 +101,14 @@ export class Bag {
 		pokemon.heldItem = heldItemData;
 	}
 
+	public addHeldItem(id: number, quantity: number, items: ItemsReferences): void {
+		const heldItemData = items.getHeldItemById(id);
+		if (!heldItemData) {
+			throw new Error(`Held item with ID ${id} not found`);
+		}
+		this.heldItems[id] = (this.heldItems[id] || 0) + quantity;
+	}
+
 	public takeHeldItem(pokemon: PokemonInstance): void {
 		if (!pokemon.heldItem) {
 			return;

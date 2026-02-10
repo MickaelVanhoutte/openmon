@@ -386,7 +386,7 @@ export const firstBeach = OpenMap.fromSparse(
 						ctx.player.bag.addItems(17, 3, ctx.ITEMS);
 						// Add one of each held item for testing
 						for (let i = 4001; i <= 4022; i++) {
-							ctx.player.bag.heldItems[i] = 1;
+							ctx.player.bag.addHeldItem(i, 1, ctx.ITEMS);
 						}
 						ctx.validateQuestObjective(0, 3);
 					})
