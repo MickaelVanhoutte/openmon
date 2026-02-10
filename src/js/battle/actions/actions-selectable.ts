@@ -31,6 +31,7 @@ import {
 	Terrain
 } from '../../pokemons/effects/terrain-effects';
 import { AbilityTrigger } from '../abilities/ability-types';
+import { HeldItemTrigger } from '../../items/held-items-model';
 
 // SELECTABLE ACTIONS
 export class RunAway implements ActionV2Interface {
@@ -126,6 +127,11 @@ export class Attack implements ActionV2Interface {
 		const controller = this.target[0]?.side === 'player' ? ctx.player : ctx.opponent;
 
 		const actionsToPush: ActionV2Interface[] = [];
+
+		ctx.runItemEvent(HeldItemTrigger.ON_MOVE_SELECTED, this.initiator, {
+			move: this.move,
+			opponent: resolvedTargets[0]
+		});
 
 		// Check if ability prevents the move (ON_BEFORE_MOVE)
 		const canMove = ctx.runAbilityEvent<boolean>(
@@ -392,6 +398,10 @@ export class Attack implements ActionV2Interface {
 		// ON_AFTER_MOVE
 		if (resolvedTargets[0]) {
 			ctx.runAbilityEvent(AbilityTrigger.ON_AFTER_MOVE, attacker, resolvedTargets[0]);
+			ctx.runItemEvent(HeldItemTrigger.ON_AFTER_HIT, this.initiator, {
+				opponent: resolvedTargets[0],
+				move: this.move
+			});
 		}
 
 		this.flushActions(ctx, actionsToPush);
@@ -446,6 +456,14 @@ export class Attack implements ActionV2Interface {
 				if (modifiedAtk !== undefined) {
 					attack = modifiedAtk;
 				}
+				const itemAtk = ctx.runItemEvent<number>(HeldItemTrigger.ON_MODIFY_ATK, attacker, {
+					statValue: attack,
+					opponent: defender,
+					move
+				});
+				if (itemAtk !== undefined) {
+					attack = itemAtk;
+				}
 				const modifiedDef = ctx.runAbilityEvent<number>(
 					AbilityTrigger.ON_MODIFY_DEF,
 					defender,
@@ -455,6 +473,14 @@ export class Attack implements ActionV2Interface {
 				);
 				if (modifiedDef !== undefined) {
 					defense = modifiedDef;
+				}
+				const itemDef = ctx.runItemEvent<number>(HeldItemTrigger.ON_MODIFY_DEF, defender, {
+					statValue: defense,
+					opponent: attacker,
+					move
+				});
+				if (itemDef !== undefined) {
+					defense = itemDef;
 				}
 			} else {
 				const modifiedSpA = ctx.runAbilityEvent<number>(
@@ -467,6 +493,14 @@ export class Attack implements ActionV2Interface {
 				if (modifiedSpA !== undefined) {
 					attack = modifiedSpA;
 				}
+				const itemSpa = ctx.runItemEvent<number>(HeldItemTrigger.ON_MODIFY_SPA, attacker, {
+					statValue: attack,
+					opponent: defender,
+					move
+				});
+				if (itemSpa !== undefined) {
+					attack = itemSpa;
+				}
 				const modifiedSpD = ctx.runAbilityEvent<number>(
 					AbilityTrigger.ON_MODIFY_SPD,
 					defender,
@@ -476,6 +510,14 @@ export class Attack implements ActionV2Interface {
 				);
 				if (modifiedSpD !== undefined) {
 					defense = modifiedSpD;
+				}
+				const itemSpd = ctx.runItemEvent<number>(HeldItemTrigger.ON_MODIFY_SPD, defender, {
+					statValue: defense,
+					opponent: attacker,
+					move
+				});
+				if (itemSpd !== undefined) {
+					defense = itemSpd;
 				}
 			}
 
@@ -526,6 +568,25 @@ export class Attack implements ActionV2Interface {
 			);
 			if (defenderDamageMod !== undefined) {
 				result.damages = defenderDamageMod;
+			}
+
+			const itemDmg = ctx.runItemEvent<number>(HeldItemTrigger.ON_MODIFY_DAMAGE, attacker, {
+				damage: result.damages,
+				opponent: defender,
+				move,
+				effectiveness: typeEffectiveness
+			});
+			if (itemDmg !== undefined) {
+				result.damages = itemDmg;
+			}
+			const itemDefDmg = ctx.runItemEvent<number>(HeldItemTrigger.ON_MODIFY_DAMAGE, defender, {
+				damage: result.damages,
+				opponent: attacker,
+				move,
+				effectiveness: typeEffectiveness
+			});
+			if (itemDefDmg !== undefined) {
+				result.damages = itemDefDmg;
 			}
 		} else {
 			result.damages = 0;

@@ -67,7 +67,8 @@ describe('Weather Ball Mechanics', () => {
 			playerSide: [user],
 			oppSide: [target],
 			fromTypeChart: () => 1.0,
-			runAbilityEvent: () => undefined
+			runAbilityEvent: () => undefined,
+			runItemEvent: () => undefined
 		} as unknown as BattleContext;
 	});
 
