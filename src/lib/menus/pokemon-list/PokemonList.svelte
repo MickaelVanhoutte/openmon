@@ -296,9 +296,6 @@
 					</div>
 					<div>
 						<span>{first?.name}</span>
-						{#if first?.heldItem}
-							<span class="held-item">{first.heldItem.name}</span>
-						{/if}
 						<span>Lv{first?.level}</span>
 					</div>
 					<!-- img, name, level, gender-->
@@ -334,9 +331,6 @@
 						</div>
 						<div>
 							<span>{monster.name}</span>
-							{#if monster.heldItem}
-								<span class="held-item">{monster.heldItem.name}</span>
-							{/if}
 							<span>Lv{monster.level}</span>
 						</div>
 						<!-- img, name, level, gender-->
