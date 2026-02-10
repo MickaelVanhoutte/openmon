@@ -19,7 +19,11 @@ export class KnockOff implements Effect {
 			return new EffectResult();
 		}
 
-		// Item removal is handled by battle system
+		if (!target[0].heldItem) {
+			return new EffectResult();
+		}
+
+		target[0].heldItem = undefined;
 		return new EffectResult(undefined, `${target[0].name} dropped its item!`);
 	}
 
