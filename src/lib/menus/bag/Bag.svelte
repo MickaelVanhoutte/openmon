@@ -366,6 +366,7 @@
 				min-height: 44px;
 				display: inline-flex;
 				align-items: center;
+				white-space: nowrap;
 
 				&.active {
 					color: var(--pixel-text-white);
