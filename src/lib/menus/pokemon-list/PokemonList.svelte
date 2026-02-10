@@ -68,7 +68,11 @@
 		}
 	});
 
-	const itemName = $derived(itemToUse && context.ITEMS.getItem(itemToUse)?.name);
+	const itemName = $derived(
+		itemToUse &&
+			(context.ITEMS.getItem(itemToUse)?.name || context.ITEMS.getHeldItemById(itemToUse)?.name)
+	);
+	const isHeldItemToGive = $derived(!!itemToUse && !!context.ITEMS.getHeldItemById(itemToUse));
 	const zIndexNext = $derived(zIndex + 1);
 
 	$effect(() => {
@@ -180,8 +184,12 @@
 	function useItem() {
 		if (!isBattle && itemToUse) {
 			const selectedMons = context.player.monsters.at(selected);
-			context.player.bag.use(itemToUse, context.ITEMS, selectedMons);
-			context.player.name = context.player.name;
+			if (isHeldItemToGive) {
+				onChange(selectedMons);
+			} else {
+				context.player.bag.use(itemToUse, context.ITEMS, selectedMons);
+				context.player.name = context.player.name;
+			}
 		} else {
 			const selectedMons = selected === 0 ? first : others[selected - 1];
 			onChange(selectedMons);
@@ -377,7 +385,7 @@
 			<ul>
 				{#if !!itemToUse}
 					<li class:selected={optionSelected === 0} onclick={() => useItem()} role="menuitem">
-						USE ({itemName})
+						{isHeldItemToGive ? 'GIVE' : 'USE'} ({itemName})
 					</li>
 					<li
 						class:selected={optionSelected === 1}

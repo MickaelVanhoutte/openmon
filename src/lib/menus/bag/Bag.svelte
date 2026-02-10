@@ -92,12 +92,20 @@
 		const item = pocket[selected][0];
 
 		if (isHeldItemTab) {
-			if (!pkmn) {
-				openPokemonList = true;
-			} else {
+			if (pkmn) {
 				context.player.bag.giveHeldItem(Number(item), pkmn, context.ITEMS);
 				context.player.bag = new Bag(context.player.bag);
 				back();
+			} else if (selectedMons !== undefined) {
+				context.player.bag.giveHeldItem(
+					Number(item),
+					context.player.monsters[selectedMons],
+					context.ITEMS
+				);
+				context.player.bag = new Bag(context.player.bag);
+				back();
+			} else {
+				openPokemonList = true;
 			}
 			return;
 		}
