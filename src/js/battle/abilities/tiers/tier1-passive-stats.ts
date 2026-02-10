@@ -233,7 +233,7 @@ export const unburden: Ability = {
 	name: 'Unburden',
 	description: 'Doubles Speed when the held item is lost.',
 	onModifySpe: (ctx: AbilityContext, speed: number): number => {
-		if (!ctx.pokemon.heldItem || Object.keys(ctx.pokemon.heldItem).length === 0) {
+		if (!ctx.pokemon.heldItem) {
 			return speed * 2;
 		}
 		return speed;
