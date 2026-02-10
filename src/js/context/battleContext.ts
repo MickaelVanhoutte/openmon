@@ -26,12 +26,17 @@ import { ItemsReferences } from '../items/items';
 import { BattleField } from '../battle/battle-field';
 import { AbilityTrigger } from '../battle/abilities/ability-types';
 import { AbilityEngine } from '../battle/abilities/ability-engine';
+import { ItemEngine } from '../battle/items/item-engine';
+import type { ItemContext } from '../battle/items/item-engine';
+import { HeldItemTrigger } from '../items/held-items-model';
+import '../battle/items/held-items-effects'; // Side-effect: registers all item effects
 import { container } from 'tsyringe';
 
 export class BattleContext {
 	ITEMS = new ItemsReferences();
 	battleField: BattleField = new BattleField();
 	public abilityEngine: AbilityEngine;
+	public itemEngine: ItemEngine;
 	hazardsVersion: Writable<number> = writable(0);
 	weatherVersion: Writable<number> = writable(0);
 
@@ -86,6 +91,7 @@ export class BattleContext {
 		this.events = new BattleEvents();
 		this.battleType = battleType;
 		this.abilityEngine = new AbilityEngine();
+		this.itemEngine = new ItemEngine();
 		//this.playerPokemon = this.player.monsters.find(poke => !poke.fainted) || this.player.monsters[0];
 		//this.opponentPokemon = opponent instanceof PokemonInstance ? opponent : (opponent as Player).monsters.find(poke => !poke.fainted) || (opponent as Player).monsters[0];
 		let teamSize = 1;
@@ -380,6 +386,7 @@ export class BattleContext {
 			// Target is first opponent on the other side
 			const target = isPlayer ? oppActives[0] : playerActives[0];
 			this.runAbilityEvent(AbilityTrigger.ON_SWITCH_IN, pokemon, target);
+			this.runItemEvent(HeldItemTrigger.ON_SWITCH_IN, pokemon, { opponent: target });
 		}
 	}
 
@@ -417,6 +424,18 @@ export class BattleContext {
 		}
 
 		this.abilityEngine.runEventForAll(event, pokemons, this, undefined, ...args);
+	}
+
+	public runItemEvent<T>(
+		trigger: HeldItemTrigger,
+		pokemon: PokemonInstance,
+		extraCtx: Partial<ItemContext> = {}
+	): T | undefined {
+		return this.itemEngine.runItemEvent<T>(trigger, {
+			pokemon,
+			battleCtx: this,
+			...extraCtx
+		});
 	}
 
 	public addToStack(action: ActionV2Interface) {

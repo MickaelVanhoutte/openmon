@@ -103,6 +103,7 @@ export function createTestBattleContext(options: TestContextOptions = {}): Battl
 		addToStack: vi.fn(),
 		runAbilityEvent: vi.fn(),
 		runAbilityEventForAll: vi.fn(),
+		runItemEvent: vi.fn(),
 		weatherVersion: {
 			update: vi.fn((cb) => cb(0))
 		},

@@ -19,6 +19,7 @@ import { applyWeatherDamage, applyWeather } from '../../pokemons/effects/weather
 import { Weather } from '../battle-field';
 import { EffectTiming } from '../../pokemons/effects/types';
 import { AbilityTrigger } from '../abilities/ability-types';
+import { HeldItemTrigger } from '../../items/held-items-model';
 
 export class Message implements ActionV2Interface {
 	public type: ActionType;
@@ -95,8 +96,9 @@ export class ChangePokemon implements ActionV2Interface {
 
 		this.applyEntryHazards(ctx, this.target, side);
 
-		// ON_SWITCH_IN ability hook
+		this.target.choiceLockedMove = undefined;
 		ctx.runAbilityEvent(AbilityTrigger.ON_SWITCH_IN, this.target);
+		ctx.runItemEvent(HeldItemTrigger.ON_SWITCH_IN, this.target);
 	}
 
 	private applyEntryHazards(
@@ -260,6 +262,7 @@ export class ApplyEffect implements ActionV2Interface {
 			const result = MOVE_EFFECT_APPLIER.apply(this.moveEffect, [this.target], this.initiator);
 			if (result?.effect) {
 				this.target.status = result.effect;
+				ctx.runItemEvent(HeldItemTrigger.ON_STATUS_INFLICTED, this.target);
 			}
 			if (result?.message) {
 				ctx.addToStack(new Message(result.message, this.initiator));
@@ -360,6 +363,7 @@ export class RemoveHP implements ActionV2Interface {
 
 	execute(ctx: BattleContext): void {
 		this.target.currentHp = this.target.currentHp - this.damages;
+		ctx.runItemEvent(HeldItemTrigger.ON_HP_CHANGED, this.target);
 
 		if (this.target.currentHp <= 0) {
 			ctx.addToStack(new Sleep(400));
@@ -549,6 +553,7 @@ export class EndTurnChecks implements ActionV2Interface {
 
 	execute(ctx: BattleContext): void {
 		ctx.runAbilityEvent(AbilityTrigger.ON_TURN_END, this.initiator);
+		ctx.runItemEvent(HeldItemTrigger.ON_TURN_END, this.initiator);
 
 		let actions: ActionV2Interface[] = [];
 		if (
