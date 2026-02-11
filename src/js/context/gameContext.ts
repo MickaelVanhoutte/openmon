@@ -457,8 +457,8 @@ export class GameContext {
 
 		const npcOnEnter = map.npcs?.filter((npc) => npc.movingScript);
 
-		// TODO set in overWorldCtx
 		this.map = map;
+		this.overWorldContext.map = map;
 
 		// Re-index scripts for the new map
 		const allScripts = this.scriptRunner.collectAllScripts(map.scripts, map.npcs);

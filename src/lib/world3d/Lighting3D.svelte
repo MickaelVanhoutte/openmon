@@ -4,9 +4,10 @@
 
 	interface Props {
 		timeOfDay?: string;
+		playerPosition?: { x: number; y: number; z: number };
 	}
 
-	let { timeOfDay = 'day' }: Props = $props();
+	let { timeOfDay = 'day', playerPosition = { x: 0, y: 0, z: 0 } }: Props = $props();
 
 	interface LightingConfig {
 		directionalIntensity: number;
@@ -15,6 +16,7 @@
 		hemiSkyColor: number;
 		hemiGroundColor: number;
 		hemiIntensity: number;
+		playerLightIntensity: number;
 	}
 
 	const LIGHTING_PRESETS: Record<string, LightingConfig> = {
@@ -24,7 +26,8 @@
 			ambientIntensity: 0.25,
 			hemiSkyColor: 0xffd4a0, // warm sky
 			hemiGroundColor: 0x362907,
-			hemiIntensity: 0.3
+			hemiIntensity: 0.3,
+			playerLightIntensity: 1.5
 		},
 		day: {
 			directionalIntensity: 1.2,
@@ -32,7 +35,8 @@
 			ambientIntensity: 0.3,
 			hemiSkyColor: 0x87ceeb, // blue sky
 			hemiGroundColor: 0x362907,
-			hemiIntensity: 0.3
+			hemiIntensity: 0.3,
+			playerLightIntensity: 0.3
 		},
 		dusk: {
 			directionalIntensity: 0.7,
@@ -40,15 +44,17 @@
 			ambientIntensity: 0.2,
 			hemiSkyColor: 0xff8c69, // salmon sky
 			hemiGroundColor: 0x1a0a00,
-			hemiIntensity: 0.25
+			hemiIntensity: 0.25,
+			playerLightIntensity: 5.0
 		},
 		night: {
-			directionalIntensity: 0.3,
+			directionalIntensity: 0.5,
 			directionalColor: 0x4169e1, // royal blue moonlight
 			ambientIntensity: 0.1,
 			hemiSkyColor: 0x191970, // midnight blue
 			hemiGroundColor: 0x0a0a1a,
-			hemiIntensity: 0.15
+			hemiIntensity: 0.15,
+			playerLightIntensity: 45.0
 		}
 	};
 
@@ -76,3 +82,11 @@
 <T.AmbientLight intensity={config.ambientIntensity} />
 
 <T.HemisphereLight args={[config.hemiSkyColor, config.hemiGroundColor, config.hemiIntensity]} />
+
+<T.PointLight
+	position={[playerPosition.x, playerPosition.y + 1.5, playerPosition.z]}
+	color={0xffaa44}
+	intensity={config.playerLightIntensity}
+	distance={8}
+	decay={2}
+/>

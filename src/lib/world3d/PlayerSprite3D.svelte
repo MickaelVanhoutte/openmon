@@ -74,7 +74,9 @@
 	// Movement + animation task
 	useTask('player-movement', (delta) => {
 		const tex =
-			player.running && player.position.isMovingToTarget ? runningTexture : walkingTexture;
+			player.running && player.position.isMovingToTarget && runningTexture
+				? runningTexture
+				: walkingTexture;
 		if (!tex) return;
 		currentTexture = tex;
 
@@ -95,7 +97,10 @@
 			const dz = target.z - visualPosition.z;
 			const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
 
-			if (dist < 0.05) {
+			if (dist > 2) {
+				// Teleport — snap instantly (map change, warp, etc.)
+				visualPosition = { ...target };
+			} else if (dist < 0.05) {
 				visualPosition = { ...target };
 				player.position.arriveAtTarget();
 				player.moving = false;
@@ -113,7 +118,8 @@
 
 			// Animate walk frames
 			animElapsed += delta;
-			if (animElapsed >= 1 / ANIM_FPS) {
+			const currentAnimFPS = player.running ? 14 : ANIM_FPS;
+			if (animElapsed >= 1 / currentAnimFPS) {
 				animElapsed = 0;
 				animFrame = (animFrame + 1) % 4;
 			}

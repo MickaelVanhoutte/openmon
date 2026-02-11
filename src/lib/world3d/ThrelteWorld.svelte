@@ -42,17 +42,17 @@
 
 	const { context, overWorldCtx, savesHolder }: Props = $props();
 
+	// Polled reactive state for map, follower and running (plain class properties not reactive in Svelte 5)
+	let currentMap = $state(context.map);
+	let currentFollower = $state<Follower | undefined>(context.player.follower);
+	let playerIsRunning = $state(false);
+	let isChangingMap = $state(false);
+
 	// Resolve ThrelteMapData from the current map
-	let mapData = $derived(
-		getThrelteMap(overWorldCtx.map.mapId) ?? getOrConvertMap(overWorldCtx.map)
-	);
+	let mapData = $derived(getThrelteMap(currentMap.mapId) ?? getOrConvertMap(currentMap));
 
 	// Visual position for player sprite, bound from PlayerSprite3D and passed to GameCamera3D
 	let playerVisualPosition = $state({ x: 0, y: 0, z: 0 });
-
-	// Polled reactive state for follower and running (plain class properties not reactive in Svelte 5)
-	let currentFollower = $state<Follower | undefined>(context.player.follower);
-	let playerIsRunning = $state(false);
 
 	let wrapper: HTMLDivElement;
 	let minimap: HTMLCanvasElement;
@@ -169,6 +169,8 @@
 		const pollInterval = setInterval(() => {
 			currentFollower = context.player.follower;
 			playerIsRunning = context.player.running;
+			currentMap = context.map;
+			isChangingMap = overWorldCtx.changingMap;
 		}, 100);
 
 		return () => {
@@ -188,7 +190,7 @@
 	<div class="canvas-wrapper">
 		<Canvas autoRender={false}>
 			<Renderer3D />
-			<Lighting3D timeOfDay={$timeOfDay} />
+			<Lighting3D timeOfDay={$timeOfDay} playerPosition={playerVisualPosition} />
 			<WeatherParticles3D
 				weatherType={context.weather?.type}
 				running={context.weather?.running ?? false}
@@ -201,13 +203,13 @@
 				{mapData}
 				bind:visualPosition={playerVisualPosition}
 			/>
-			{#each context.map.npcs as npc (npc.id)}
+			{#each currentMap.npcs as npc (npc.id)}
 				<NPCSprite3D {npc} {mapData} />
 			{/each}
 			{#if currentFollower}
 				<FollowerSprite3D follower={currentFollower} {mapData} running={playerIsRunning} />
 			{/if}
-			{#each context.map.items as item (item.id ?? item.name)}
+			{#each currentMap.items as item (item.id ?? item.name)}
 				<OverworldItem3D {item} {mapData} />
 			{/each}
 			{#if spawned}
@@ -256,7 +258,7 @@
 
 	<div class="healing" class:show={isHealing}></div>
 
-	<div class="changing-map" class:show={overWorldCtx.changingMap}></div>
+	<div class="changing-map" class:show={isChangingMap}></div>
 
 	<Controls {context} {overWorldCtx} {savesHolder} />
 	<ScenesView {context} {canvasWidth} />
@@ -346,11 +348,10 @@
 			background-color: black;
 			opacity: 0;
 			transition: opacity 0.5s ease-in-out;
-			z-index: -100;
+			z-index: 100;
 			pointer-events: none;
 
 			&.show {
-				z-index: 100;
 				opacity: 1;
 			}
 		}
