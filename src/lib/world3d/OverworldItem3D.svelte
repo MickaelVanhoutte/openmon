@@ -16,6 +16,7 @@
 
 	let texture = $state<THREE.Texture | null>(null);
 	let yOffset = $state(0);
+	let isVisible = $state(!item.pickedUp && item.visible);
 
 	function gridTo3D(gridX: number, gridY: number): { x: number; y: number; z: number } {
 		const tileType = mapData.tiles[gridY]?.[gridX] ?? TileType3D.GRASS;
@@ -41,13 +42,14 @@
 		texture = tex;
 	});
 
-	// Bobbing animation
+	// Bobbing animation + poll visibility
 	useTask((_delta) => {
 		yOffset = Math.sin(Date.now() / 500) * 0.05;
+		isVisible = !item.pickedUp && item.visible;
 	});
 </script>
 
-{#if !item.pickedUp && item.visible && texture}
+{#if isVisible && texture}
 	<Billboard position={[position.x, position.y + yOffset, position.z]}>
 		<T.Mesh castShadow>
 			<T.PlaneGeometry args={[0.6, 0.6]} />

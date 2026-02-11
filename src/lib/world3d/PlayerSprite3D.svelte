@@ -14,7 +14,8 @@
 	let { player, mapData, visualPosition = $bindable({ x: 0, y: 1.7, z: 0 }) }: Props = $props();
 
 	const BASE_HEIGHT = 1;
-	const MOVEMENT_SPEED = 4;
+	const WALKING_SPEED_3D = 4;
+	const RUNNING_SPEED_3D = 8;
 	const ANIM_FPS = 8;
 
 	const DIRECTION_UV_Y: Record<string, number> = {
@@ -24,7 +25,9 @@
 		up: 0.0
 	};
 
-	let texture = $state<THREE.Texture | null>(null);
+	let walkingTexture = $state<THREE.Texture | null>(null);
+	let runningTexture = $state<THREE.Texture | null>(null);
+	let currentTexture = $state<THREE.Texture | null>(null);
 	let animFrame = $state(0);
 	let animElapsed = $state(0);
 
@@ -45,25 +48,41 @@
 	);
 	visualPosition = { ...startPos };
 
-	// Load texture
+	// Load walking and running textures
 	$effect(() => {
-		const source = player.sprite.overworld.walking.source;
 		const loader = new THREE.TextureLoader();
-		const tex = loader.load(source);
-		tex.magFilter = THREE.NearestFilter;
-		tex.minFilter = THREE.NearestFilter;
-		tex.colorSpace = THREE.SRGBColorSpace;
-		tex.repeat.set(0.25, 0.25);
-		texture = tex;
+
+		const walkSrc = player.sprite.overworld.walking.source;
+		const walkTex = loader.load(walkSrc);
+		walkTex.magFilter = THREE.NearestFilter;
+		walkTex.minFilter = THREE.NearestFilter;
+		walkTex.colorSpace = THREE.SRGBColorSpace;
+		walkTex.repeat.set(0.25, 0.25);
+		walkingTexture = walkTex;
+
+		const runSrc = player.sprite.overworld.running?.source;
+		if (runSrc) {
+			const runTex = loader.load(runSrc);
+			runTex.magFilter = THREE.NearestFilter;
+			runTex.minFilter = THREE.NearestFilter;
+			runTex.colorSpace = THREE.SRGBColorSpace;
+			runTex.repeat.set(0.25, 0.25);
+			runningTexture = runTex;
+		}
 	});
 
 	// Movement + animation task
 	useTask('player-movement', (delta) => {
-		if (!texture) return;
+		const tex =
+			player.running && player.position.isMovingToTarget ? runningTexture : walkingTexture;
+		if (!tex) return;
+		currentTexture = tex;
+
+		const speed = player.running ? RUNNING_SPEED_3D : WALKING_SPEED_3D;
 
 		const direction = player.position.movementDirection;
 		const uvY = DIRECTION_UV_Y[direction] ?? 0.75;
-		texture.offset.y = uvY;
+		tex.offset.y = uvY;
 
 		if (player.position.isMovingToTarget) {
 			const target = gridTo3D(
@@ -83,7 +102,7 @@
 				animFrame = 0;
 				animElapsed = 0;
 			} else {
-				const step = MOVEMENT_SPEED * delta;
+				const step = speed * delta;
 				const ratio = Math.min(step / dist, 1);
 				visualPosition = {
 					x: visualPosition.x + dx * ratio,
@@ -98,7 +117,7 @@
 				animElapsed = 0;
 				animFrame = (animFrame + 1) % 4;
 			}
-			texture.offset.x = animFrame * 0.25;
+			tex.offset.x = animFrame * 0.25;
 		} else {
 			// Idle
 			const current = gridTo3D(
@@ -106,18 +125,23 @@
 				player.position.currentGridPosition.y
 			);
 			visualPosition = { ...current };
-			texture.offset.x = 0;
+			tex.offset.x = 0;
 			animFrame = 0;
 			animElapsed = 0;
 		}
 	});
 </script>
 
-{#if texture}
+{#if walkingTexture}
 	<Billboard position={[visualPosition.x, visualPosition.y, visualPosition.z]}>
 		<T.Mesh castShadow>
 			<T.PlaneGeometry args={[1, 1]} />
-			<T.MeshStandardMaterial map={texture} transparent alphaTest={0.5} side={THREE.DoubleSide} />
+			<T.MeshStandardMaterial
+				map={currentTexture}
+				transparent
+				alphaTest={0.5}
+				side={THREE.DoubleSide}
+			/>
 		</T.Mesh>
 	</Billboard>
 {/if}

@@ -8,12 +8,14 @@
 	interface Props {
 		follower: Follower;
 		mapData: ThrelteMapData;
+		running?: boolean;
 	}
 
-	let { follower, mapData }: Props = $props();
+	let { follower, mapData, running = false }: Props = $props();
 
 	const BASE_HEIGHT = 1;
-	const MOVEMENT_SPEED = 4;
+	const WALKING_SPEED_3D = 4;
+	const RUNNING_SPEED_3D = 8;
 	const ANIM_FPS = 8;
 	const IDLE_THRESHOLD_MS = 2000;
 
@@ -93,7 +95,8 @@
 				animFrame = 0;
 				animElapsed = 0;
 			} else {
-				const step = MOVEMENT_SPEED * delta;
+				const speed = running ? RUNNING_SPEED_3D : WALKING_SPEED_3D;
+				const step = speed * delta;
 				const ratio = Math.min(step / dist, 1);
 				visualPosition = {
 					x: visualPosition.x + dx * ratio,
