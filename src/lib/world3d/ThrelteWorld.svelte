@@ -16,6 +16,9 @@
 	import { TimeOfDay } from '../../js/time/time-of-day';
 	import InstancedTerrain from './InstancedTerrain.svelte';
 	import PlayerSprite3D from './PlayerSprite3D.svelte';
+	import NPCSprite3D from './NPCSprite3D.svelte';
+	import OverworldItem3D from './OverworldItem3D.svelte';
+	import OverworldSpawn3D from './OverworldSpawn3D.svelte';
 	import GameCamera3D from './GameCamera3D.svelte';
 	import Renderer3D from './Renderer3D.svelte';
 	import Lighting3D from './Lighting3D.svelte';
@@ -176,9 +179,16 @@
 				{mapData}
 				bind:visualPosition={playerVisualPosition}
 			/>
-			<!-- Task 8: NPCs will go here -->
+			{#each context.map.npcs as npc (npc.id)}
+				<NPCSprite3D {npc} {mapData} />
+			{/each}
 			<!-- Task 9: Follower will go here -->
-			<!-- Task 10: Items and spawns will go here -->
+			{#each context.map.items as item (item.id ?? item.name)}
+				<OverworldItem3D {item} {mapData} />
+			{/each}
+			{#if spawned}
+				<OverworldSpawn3D spawn={spawned} {mapData} />
+			{/if}
 		</Canvas>
 	</div>
 
