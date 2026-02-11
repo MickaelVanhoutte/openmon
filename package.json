@@ -38,6 +38,7 @@
 		"@types/gsap": "^3.0.0",
 		"@types/howler": "^2.2.11",
 		"@types/node": "^25.2.0",
+		"@types/three": "^0.182.0",
 		"@vitest/coverage-v8": "^4.0.17",
 		"dependency-cruiser": "^17.3.6",
 		"eslint": "^9.39.2",
@@ -65,12 +66,16 @@
 		"@abraham/reflection": "^0.13.0",
 		"@anatine/esbuild-decorators": "^0.2.19",
 		"@svgdotjs/svg.js": "^3.2.5",
+		"@threlte/core": "^8.3.1",
+		"@threlte/extras": "^9.7.1",
 		"chart.js": "^4.5.1",
 		"chota": "^0.9.2",
 		"gsap": "^3.14.2",
 		"honeycomb-grid": "^4.1.5",
 		"howler": "^2.2.4",
+		"postprocessing": "^6.38.2",
 		"svelte-dnd-action": "^0.9.69",
+		"three": "^0.182.0",
 		"tsyringe": "^4.10.0"
 	}
 }
