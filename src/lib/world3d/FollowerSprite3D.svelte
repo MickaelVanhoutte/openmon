@@ -4,6 +4,12 @@
 	import * as THREE from 'three';
 	import type { Follower } from '$js/characters/follower';
 	import { TileType3D, TILE_HEIGHTS, type ThrelteMapData } from '$js/mapping/threlte-maps/types';
+	import {
+		getPMDSpritePath,
+		PMD_DIRECTION_MAP,
+		getPMDSpriteInfoFromAnimData
+	} from '$js/sprites/pmd-sprite-data';
+	import { loadAnimData } from '$js/sprites/pmd-anim-data';
 
 	interface Props {
 		follower: Follower;
@@ -19,14 +25,17 @@
 	const ANIM_FPS = 8;
 	const IDLE_THRESHOLD_MS = 2000;
 
-	const DIRECTION_UV_Y: Record<string, number> = {
-		down: 0.75,
-		left: 0.5,
-		right: 0.25,
-		up: 0.0
-	};
+	function getDirectionUVY(direction: string): number {
+		const row = PMD_DIRECTION_MAP[direction] ?? 0;
+		return (row * frameHeight) / imgHeight;
+	}
 
 	let texture = $state<THREE.Texture | null>(null);
+	let frameCount = $state(4); // default, updated after image loads
+	let frameWidth = $state(0);
+	let frameHeight = $state(0);
+	let imgWidth = $state(1);
+	let imgHeight = $state(1);
 	let animFrame = $state(0);
 	let animElapsed = $state(0);
 	let stationaryTime = $state(0);
@@ -41,12 +50,6 @@
 		};
 	}
 
-	function getFollowerSpritePath(pokemonId: number, isShiny: boolean): string {
-		let id = ('00' + pokemonId).slice(-3);
-		id = isShiny ? id + 's' : id;
-		return `src/assets/monsters/walking/${id}.png`;
-	}
-
 	// Initialize position
 	const startPos = gridTo3D(
 		follower.position.currentGridPosition.x,
@@ -56,23 +59,75 @@
 
 	// Load/reload texture when pokemon changes
 	$effect(() => {
-		const path = getFollowerSpritePath(follower.pokemon.id, follower.pokemon.isShiny);
-		const loader = new THREE.TextureLoader();
-		const tex = loader.load(path);
-		tex.magFilter = THREE.NearestFilter;
-		tex.minFilter = THREE.NearestFilter;
-		tex.colorSpace = THREE.SRGBColorSpace;
-		tex.repeat.set(0.25, 0.25);
-		texture = tex;
+		const pokemonId = follower.pokemon.regionalId;
+		const isShiny = follower.pokemon.isShiny;
+		const path = getPMDSpritePath(pokemonId, 'Walk', isShiny);
+
+		// Load AnimData.xml for exact frame dimensions
+		loadAnimData(pokemonId, isShiny).then((animDataFile) => {
+			const img = new Image();
+			img.src = path;
+			img.onload = () => {
+				// Get accurate sprite info from AnimData
+				const info = getPMDSpriteInfoFromAnimData(animDataFile, 'Walk', pokemonId, img);
+				frameCount = info.frameCount;
+				frameWidth = info.frameWidth;
+				frameHeight = info.frameHeight;
+				imgWidth = img.width;
+				imgHeight = img.height;
+
+				const loader = new THREE.TextureLoader();
+				const tex = loader.load(path);
+				tex.magFilter = THREE.NearestFilter;
+				tex.minFilter = THREE.NearestFilter;
+				tex.colorSpace = THREE.SRGBColorSpace;
+				// CORRECT UV: use pixel ratios, not assumptions
+				tex.repeat.set(info.frameWidth / img.width, info.frameHeight / img.height);
+				texture = tex;
+			};
+			img.onerror = () => {
+				if (isShiny) {
+					// Fallback to non-shiny
+					const fallbackPath = getPMDSpritePath(pokemonId, 'Walk', false);
+					loadAnimData(pokemonId, false).then((fallbackAnimData) => {
+						const fallbackImg = new Image();
+						fallbackImg.src = fallbackPath;
+						fallbackImg.onload = () => {
+							const info = getPMDSpriteInfoFromAnimData(
+								fallbackAnimData,
+								'Walk',
+								pokemonId,
+								fallbackImg
+							);
+							frameCount = info.frameCount;
+							frameWidth = info.frameWidth;
+							frameHeight = info.frameHeight;
+							imgWidth = fallbackImg.width;
+							imgHeight = fallbackImg.height;
+
+							const loader = new THREE.TextureLoader();
+							const tex = loader.load(fallbackPath);
+							tex.magFilter = THREE.NearestFilter;
+							tex.minFilter = THREE.NearestFilter;
+							tex.colorSpace = THREE.SRGBColorSpace;
+							tex.repeat.set(
+								info.frameWidth / fallbackImg.width,
+								info.frameHeight / fallbackImg.height
+							);
+							texture = tex;
+						};
+					});
+				}
+			};
+		});
 	});
 
 	// Movement + animation task
 	useTask('follower-movement', (delta) => {
-		if (!texture) return;
+		if (!texture || frameWidth === 0) return;
 
 		const direction = follower.position.movementDirection;
-		const uvY = DIRECTION_UV_Y[direction] ?? 0.75;
-		texture.offset.y = uvY;
+		texture.offset.y = getDirectionUVY(direction);
 
 		if (follower.position.isMovingToTarget) {
 			// Reset stationary time when moving
@@ -109,9 +164,9 @@
 			animElapsed += delta;
 			if (animElapsed >= 1 / ANIM_FPS) {
 				animElapsed = 0;
-				animFrame = (animFrame + 1) % 4;
+				animFrame = (animFrame + 1) % frameCount;
 			}
-			texture.offset.x = animFrame * 0.25;
+			texture.offset.x = (animFrame * frameWidth) / imgWidth;
 		} else {
 			// Not moving — accumulate stationary time
 			stationaryTime += delta * 1000;
