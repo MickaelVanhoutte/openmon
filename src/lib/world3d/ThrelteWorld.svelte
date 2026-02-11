@@ -19,6 +19,7 @@
 	import NPCSprite3D from './NPCSprite3D.svelte';
 	import OverworldItem3D from './OverworldItem3D.svelte';
 	import OverworldSpawn3D from './OverworldSpawn3D.svelte';
+	import FollowerSprite3D from './FollowerSprite3D.svelte';
 	import GameCamera3D from './GameCamera3D.svelte';
 	import Renderer3D from './Renderer3D.svelte';
 	import Lighting3D from './Lighting3D.svelte';
@@ -182,7 +183,9 @@
 			{#each context.map.npcs as npc (npc.id)}
 				<NPCSprite3D {npc} {mapData} />
 			{/each}
-			<!-- Task 9: Follower will go here -->
+			{#if context.player.follower}
+				<FollowerSprite3D follower={context.player.follower} {mapData} />
+			{/if}
 			{#each context.map.items as item (item.id ?? item.name)}
 				<OverworldItem3D {item} {mapData} />
 			{/each}
