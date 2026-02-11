@@ -20,6 +20,7 @@
 	import OverworldItem3D from './OverworldItem3D.svelte';
 	import OverworldSpawn3D from './OverworldSpawn3D.svelte';
 	import FollowerSprite3D from './FollowerSprite3D.svelte';
+	import type { Follower } from '$js/characters/follower';
 	import GameCamera3D from './GameCamera3D.svelte';
 	import Renderer3D from './Renderer3D.svelte';
 	import Lighting3D from './Lighting3D.svelte';
@@ -48,6 +49,10 @@
 
 	// Visual position for player sprite, bound from PlayerSprite3D and passed to GameCamera3D
 	let playerVisualPosition = $state({ x: 0, y: 0, z: 0 });
+
+	// Polled reactive state for follower and running (plain class properties not reactive in Svelte 5)
+	let currentFollower = $state<Follower | undefined>(context.player.follower);
+	let playerIsRunning = $state(false);
 
 	let wrapper: HTMLDivElement;
 	let minimap: HTMLCanvasElement;
@@ -160,7 +165,14 @@
 			currentMessages = value;
 		});
 
+		// Poll plain class properties into reactive $state for Svelte 5 template reactivity
+		const pollInterval = setInterval(() => {
+			currentFollower = context.player.follower;
+			playerIsRunning = context.player.running;
+		}, 100);
+
 		return () => {
+			clearInterval(pollInterval);
 			document.removeEventListener('keydown', handleChargeKeydown);
 		};
 	});
@@ -192,8 +204,8 @@
 			{#each context.map.npcs as npc (npc.id)}
 				<NPCSprite3D {npc} {mapData} />
 			{/each}
-			{#if context.player.follower}
-				<FollowerSprite3D follower={context.player.follower} {mapData} />
+			{#if currentFollower}
+				<FollowerSprite3D follower={currentFollower} {mapData} running={playerIsRunning} />
 			{/if}
 			{#each context.map.items as item (item.id ?? item.name)}
 				<OverworldItem3D {item} {mapData} />
