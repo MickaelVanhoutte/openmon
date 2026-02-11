@@ -82,4 +82,34 @@ export class CharacterPosition {
 		this.targetPositionInPx = new Position(x * tileSize * scale, y * tileSize * scale);
 		this.onReachTarget = onEnd;
 	}
+
+	public arriveAtTarget(): void {
+		this.positionInPx.x = this.targetPositionInPx.x;
+		this.positionInPx.y = this.targetPositionInPx.y;
+		this.positionOnMap = this.targetPosition;
+		if (this.onReachTarget) {
+			const callback = this.onReachTarget;
+			this.onReachTarget = undefined;
+			callback();
+		}
+	}
+
+	get targetGridPosition(): Position {
+		return this.targetPosition;
+	}
+
+	get currentGridPosition(): Position {
+		return this.positionOnMap;
+	}
+
+	get movementDirection(): 'up' | 'down' | 'left' | 'right' {
+		return this.direction;
+	}
+
+	get isMovingToTarget(): boolean {
+		return (
+			this.positionOnMap.x !== this.targetPosition.x ||
+			this.positionOnMap.y !== this.targetPosition.y
+		);
+	}
 }
