@@ -160,7 +160,7 @@
 					<Battle context={gameContext} overWorldCtx={gameContext.overWorldContext} {battleCtx} />
 				{/await}
 			{:else if gameContext.overWorldContext !== undefined}
-				{#await import('./lib/world/World.svelte') then { default: World }}
+				{#await import('./lib/world3d/ThrelteWorld.svelte') then { default: World }}
 					<World context={gameContext} overWorldCtx={gameContext.overWorldContext} {savesHolder} />
 				{/await}
 			{/if}
