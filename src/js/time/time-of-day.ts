@@ -132,7 +132,7 @@ export class TimeOfDayService {
 	}
 
 	getElapsedMs(): number {
-		return Date.now() - this.startTime;
+		return Date.now() - this.startTime - START_HOUR_OFFSET_MS;
 	}
 }
 

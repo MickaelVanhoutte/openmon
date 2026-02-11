@@ -27,7 +27,7 @@
 
 	function getDirectionUVY(direction: string): number {
 		const row = PMD_DIRECTION_MAP[direction] ?? 0;
-		return (row * frameHeight) / imgHeight;
+		return 1 - ((row + 1) * frameHeight) / imgHeight;
 	}
 
 	let texture = $state<THREE.Texture | null>(null);
@@ -45,7 +45,7 @@
 		const tileHeight = TILE_HEIGHTS.get(tileType) ?? 0.2;
 		return {
 			x: gridX - mapData.width / 2 + 0.5,
-			y: BASE_HEIGHT + tileHeight + 0.5,
+			y: BASE_HEIGHT + tileHeight + 0.3,
 			z: gridY - mapData.height / 2 + 0.5
 		};
 	}
@@ -143,7 +143,10 @@
 			const dz = target.z - visualPosition.z;
 			const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
 
-			if (dist < 0.05) {
+			if (dist > 2) {
+				// Teleport — snap instantly (map change, warp, etc.)
+				visualPosition = { ...target };
+			} else if (dist < 0.05) {
 				visualPosition = { ...target };
 				follower.position.arriveAtTarget();
 				follower.moving = false;
@@ -162,7 +165,8 @@
 
 			// Animate walk frames
 			animElapsed += delta;
-			if (animElapsed >= 1 / ANIM_FPS) {
+			const currentAnimFPS = running ? 14 : ANIM_FPS;
+			if (animElapsed >= 1 / currentAnimFPS) {
 				animElapsed = 0;
 				animFrame = (animFrame + 1) % frameCount;
 			}
@@ -195,7 +199,7 @@
 {#if texture}
 	<Billboard position={[visualPosition.x, visualPosition.y, visualPosition.z]}>
 		<T.Mesh castShadow>
-			<T.PlaneGeometry args={[1, 1]} />
+			<T.PlaneGeometry args={[1.3, 1.3]} />
 			<T.MeshStandardMaterial map={texture} transparent alphaTest={0.5} side={THREE.DoubleSide} />
 		</T.Mesh>
 	</Billboard>
