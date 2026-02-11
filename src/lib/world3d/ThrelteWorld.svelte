@@ -23,6 +23,8 @@
 	import GameCamera3D from './GameCamera3D.svelte';
 	import Renderer3D from './Renderer3D.svelte';
 	import Lighting3D from './Lighting3D.svelte';
+	import WeatherParticles3D from './WeatherParticles3D.svelte';
+	import Decorations3D from './Decorations3D.svelte';
 	import { getThrelteMap } from '$js/mapping/threlte-maps/threlte-map-registry';
 	import { demoTown } from '$js/mapping/threlte-maps/demo-town';
 
@@ -172,9 +174,14 @@
 	<div class="canvas-wrapper">
 		<Canvas autoRender={false}>
 			<Renderer3D />
-			<Lighting3D />
+			<Lighting3D timeOfDay={$timeOfDay} />
+			<WeatherParticles3D
+				weatherType={context.weather?.type}
+				running={context.weather?.running ?? false}
+			/>
 			<GameCamera3D targetPosition={playerVisualPosition} {mapData} />
 			<InstancedTerrain {mapData} />
+			<Decorations3D {mapData} />
 			<PlayerSprite3D
 				player={context.player}
 				{mapData}
