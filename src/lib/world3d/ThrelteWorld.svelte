@@ -26,7 +26,7 @@
 	import WeatherParticles3D from './WeatherParticles3D.svelte';
 	import Decorations3D from './Decorations3D.svelte';
 	import { getThrelteMap } from '$js/mapping/threlte-maps/threlte-map-registry';
-	import { demoTown } from '$js/mapping/threlte-maps/demo-town';
+	import { getOrConvertMap } from '$js/mapping/threlte-maps/openmap-converter';
 
 	/**
 	 * 3D Overworld component.
@@ -42,7 +42,9 @@
 	const { context, overWorldCtx, savesHolder }: Props = $props();
 
 	// Resolve ThrelteMapData from the current map
-	let mapData = $derived(getThrelteMap(overWorldCtx.map.mapId) ?? demoTown);
+	let mapData = $derived(
+		getThrelteMap(overWorldCtx.map.mapId) ?? getOrConvertMap(overWorldCtx.map)
+	);
 
 	// Visual position for player sprite, bound from PlayerSprite3D and passed to GameCamera3D
 	let playerVisualPosition = $state({ x: 0, y: 0, z: 0 });
