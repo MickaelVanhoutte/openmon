@@ -39,6 +39,19 @@
 	let animFrame = $state(0);
 	let animElapsed = $state(0);
 	let stationaryTime = $state(0);
+	const PLAYER_HEIGHT_M = 1.5; // Player is ~1.6m tall
+	const MIN_SCALE = .9;
+	const MAX_SCALE = 5.0;
+
+	// Scale follower sprite based on Pokemon's real height (in meters)
+	// Uses sqrt compression so huge Pokemon don't fill the entire screen
+	let pokemonHeight = $derived(follower.pokemon.height || 1.0);
+	let sizeScale = $derived(
+		Math.min(Math.max(Math.sqrt(pokemonHeight / PLAYER_HEIGHT_M), MIN_SCALE), MAX_SCALE)
+	);
+	let maxDim = $derived(Math.max(frameWidth, frameHeight) || 1);
+	let planeWidth = $derived((sizeScale * frameWidth) / maxDim);
+	let planeHeight = $derived((sizeScale * frameHeight) / maxDim);
 
 	function gridTo3D(gridX: number, gridY: number): { x: number; y: number; z: number } {
 		const tileType = mapData.tiles[gridY]?.[gridX] ?? TileType3D.GRASS;
@@ -199,7 +212,7 @@
 {#if texture}
 	<Billboard position={[visualPosition.x, visualPosition.y, visualPosition.z]}>
 		<T.Mesh castShadow>
-			<T.PlaneGeometry args={[1.3, 1.3]} />
+			<T.PlaneGeometry args={[planeWidth, planeHeight]} />
 			<T.MeshStandardMaterial map={texture} transparent alphaTest={0.5} side={THREE.DoubleSide} />
 		</T.Mesh>
 	</Billboard>
