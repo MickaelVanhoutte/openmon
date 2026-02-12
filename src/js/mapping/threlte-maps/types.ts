@@ -11,7 +11,16 @@ export enum TileType3D {
 	TREE_GROUND = 4,
 	FLOWER_GROUND = 5,
 	TALL_GRASS = 6,
-	BUILDING_FLOOR = 7
+	BUILDING_FLOOR = 7,
+	WALL = 8,
+	DUNGEON_FLOOR = 9,
+	STAIRS_DOWN = 10,
+	BOSS_GATE = 11,
+	REST_FLOOR = 12,
+	SHOP_FLOOR = 13,
+	LAVA = 14,
+	SWAMP = 15,
+	DARK_FLOOR = 16
 }
 
 export const TILE_HEIGHTS: Map<TileType3D, number> = new Map([
@@ -22,7 +31,16 @@ export const TILE_HEIGHTS: Map<TileType3D, number> = new Map([
 	[TileType3D.TREE_GROUND, 0.1],
 	[TileType3D.FLOWER_GROUND, 0.1],
 	[TileType3D.TALL_GRASS, 0.15],
-	[TileType3D.BUILDING_FLOOR, 0]
+	[TileType3D.BUILDING_FLOOR, 0],
+	[TileType3D.WALL, 0.6],
+	[TileType3D.DUNGEON_FLOOR, 0],
+	[TileType3D.STAIRS_DOWN, -0.1],
+	[TileType3D.BOSS_GATE, 0.3],
+	[TileType3D.REST_FLOOR, 0],
+	[TileType3D.SHOP_FLOOR, 0],
+	[TileType3D.LAVA, -0.2],
+	[TileType3D.SWAMP, -0.05],
+	[TileType3D.DARK_FLOOR, 0]
 ]);
 
 export const TILE_WALKABLE: Map<TileType3D, boolean> = new Map([
@@ -33,7 +51,16 @@ export const TILE_WALKABLE: Map<TileType3D, boolean> = new Map([
 	[TileType3D.TREE_GROUND, false],
 	[TileType3D.FLOWER_GROUND, true],
 	[TileType3D.TALL_GRASS, true],
-	[TileType3D.BUILDING_FLOOR, false]
+	[TileType3D.BUILDING_FLOOR, false],
+	[TileType3D.WALL, false],
+	[TileType3D.DUNGEON_FLOOR, true],
+	[TileType3D.STAIRS_DOWN, true],
+	[TileType3D.BOSS_GATE, true],
+	[TileType3D.REST_FLOOR, true],
+	[TileType3D.SHOP_FLOOR, true],
+	[TileType3D.LAVA, false],
+	[TileType3D.SWAMP, true],
+	[TileType3D.DARK_FLOOR, true]
 ]);
 
 export const TILE_COLORS: Map<TileType3D, number> = new Map([
@@ -44,7 +71,16 @@ export const TILE_COLORS: Map<TileType3D, number> = new Map([
 	[TileType3D.TREE_GROUND, 0x2e7d32],
 	[TileType3D.FLOWER_GROUND, 0x66bb6a],
 	[TileType3D.TALL_GRASS, 0x388e3c],
-	[TileType3D.BUILDING_FLOOR, 0x78909c]
+	[TileType3D.BUILDING_FLOOR, 0x78909c],
+	[TileType3D.WALL, 0x795548],
+	[TileType3D.DUNGEON_FLOOR, 0x9e9e9e],
+	[TileType3D.STAIRS_DOWN, 0xffc107],
+	[TileType3D.BOSS_GATE, 0xd32f2f],
+	[TileType3D.REST_FLOOR, 0x81c784],
+	[TileType3D.SHOP_FLOOR, 0xce93d8],
+	[TileType3D.LAVA, 0xff5722],
+	[TileType3D.SWAMP, 0x558b2f],
+	[TileType3D.DARK_FLOOR, 0x424242]
 ]);
 
 export interface ThrelteMapData {
