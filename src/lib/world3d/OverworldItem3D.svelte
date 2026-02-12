@@ -23,7 +23,7 @@
 		const tileHeight = TILE_HEIGHTS.get(tileType) ?? 0.2;
 		return {
 			x: gridX - mapData.width / 2 + 0.5,
-			y: BASE_HEIGHT + tileHeight + 0.5,
+			y: BASE_HEIGHT + tileHeight + 0.3,
 			z: gridY - mapData.height / 2 + 0.5
 		};
 	}
