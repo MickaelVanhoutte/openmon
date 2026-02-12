@@ -198,22 +198,24 @@
 			<GameCamera3D targetPosition={playerVisualPosition} {mapData} battleActive={!!battleCtx} />
 			<InstancedTerrain {mapData} />
 			<Decorations3D {mapData} />
-			<PlayerSprite3D
-				player={context.player}
-				{mapData}
-				bind:visualPosition={playerVisualPosition}
-			/>
-			{#each currentMap.npcs as npc (npc.id)}
-				<NPCSprite3D {npc} {mapData} />
-			{/each}
-			{#if currentFollower}
-				<FollowerSprite3D follower={currentFollower} {mapData} running={playerIsRunning} />
-			{/if}
-			{#each currentMap.items as item (item.id ?? item.name)}
-				<OverworldItem3D {item} {mapData} />
-			{/each}
-			{#if spawned}
-				<OverworldSpawn3D spawn={spawned} {mapData} />
+			{#if !battleCtx}
+				<PlayerSprite3D
+					player={context.player}
+					{mapData}
+					bind:visualPosition={playerVisualPosition}
+				/>
+				{#each currentMap.npcs as npc (npc.id)}
+					<NPCSprite3D {npc} {mapData} />
+				{/each}
+				{#if currentFollower}
+					<FollowerSprite3D follower={currentFollower} {mapData} running={playerIsRunning} />
+				{/if}
+				{#each currentMap.items as item (item.id ?? item.name)}
+					<OverworldItem3D {item} {mapData} />
+				{/each}
+				{#if spawned}
+					<OverworldSpawn3D spawn={spawned} {mapData} />
+				{/if}
 			{/if}
 		</Canvas>
 	</div>
