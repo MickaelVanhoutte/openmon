@@ -15,7 +15,7 @@ import { Dialog, Message, Script } from '../scripting/scripts';
 import { NPC } from '../characters/npc';
 import { ItemsReferences } from '../items/items';
 import { firstBeach } from '../mapping/maps/firstBeach';
-import { writable, type Writable } from 'svelte/store';
+import { get, writable, type Writable } from 'svelte/store';
 import { SaveContext } from './savesHolder';
 import type { Jonction } from '../mapping/collisions';
 import { pokecenter1 } from '../mapping/maps/pokecenter1';
@@ -26,6 +26,15 @@ import { Notifications } from '../scripting/notifications';
 import { BattleType } from '../battle/battle-model';
 import { AudioManager, QuestManager, ScriptRunner } from './managers';
 import { TimeOfDayService } from '../time/time-of-day';
+import { DungeonContext, dungeonContext } from '../dungeon/dungeon-context';
+import { generateFloor } from '../dungeon/floor-generator';
+import { getBiomeForFloor } from '../dungeon/biomes';
+import {
+	registerThrelteMap,
+	clearThrelteMapCache,
+	getThrelteMap
+} from '../mapping/threlte-maps/threlte-map-registry';
+import { TileType3D } from '../mapping/threlte-maps/types';
 
 /**
  * The current game context
@@ -351,6 +360,7 @@ export class GameContext {
 						// on reach destination
 						this.checkForStepInScript();
 						this.checkForJunction();
+						this.checkForStairs();
 						this.checkForBattle();
 						this.checkForInSight();
 
@@ -486,6 +496,10 @@ export class GameContext {
 
 	overworldSpawn() {
 		setInterval(() => {
+			const dc = get(dungeonContext);
+			if (dc?.isDungeonMode) {
+				return;
+			}
 			if (!this.spawned) {
 				let direction: 'up' | 'down' | 'left' | 'right' = 'right';
 				let x =
@@ -572,6 +586,86 @@ export class GameContext {
 				BattleType.SINGLE
 			); //monster.level
 		}
+	}
+
+	checkForStairs() {
+		const dc = get(dungeonContext);
+		if (!dc?.isDungeonMode) {
+			return;
+		}
+
+		const threlteMap = getThrelteMap(this.map.mapId);
+		if (!threlteMap) {
+			return;
+		}
+
+		const px = this.player.position.positionOnMap.x;
+		const py = this.player.position.positionOnMap.y;
+
+		if (
+			py >= 0 &&
+			py < threlteMap.tiles.length &&
+			px >= 0 &&
+			px < threlteMap.tiles[py].length &&
+			threlteMap.tiles[py][px] === TileType3D.STAIRS_DOWN
+		) {
+			if (dc.isFloorBoss(dc.currentFloor)) {
+				const bossId = `boss_floor_${dc.currentFloor}`;
+				if (!dc.defeatedTrainers.has(bossId)) {
+					this.playScript(
+						new Script('onStep', [
+							new Dialog([new Message('The way forward is blocked. Defeat the boss first!')])
+						])
+					);
+					return;
+				}
+			}
+
+			this.changeDungeonFloor(dc);
+		}
+	}
+
+	changeDungeonFloor(dungeonCtx: DungeonContext) {
+		this.overWorldContext.setPaused(true, 'dungeon-floor-transition');
+		this.audioManager.fadeOutMapSound();
+
+		this.scriptRunner.interruptCurrent();
+		this.map?.npcs.forEach((npc) => npc.movingScript?.interrupt());
+		this.scriptRunner.clear();
+
+		this.overWorldContext.changingMap = true;
+
+		setTimeout(() => {
+			const previousMapId = 1000 + dungeonCtx.currentFloor;
+
+			dungeonCtx.advanceFloor();
+
+			const biome = getBiomeForFloor(dungeonCtx.currentFloor);
+			const floorData = generateFloor(dungeonCtx.runSeed, dungeonCtx.currentFloor, biome);
+
+			clearThrelteMapCache(previousMapId);
+
+			registerThrelteMap(floorData.threlteMap.mapId, floorData.threlteMap);
+			this.MAPS[floorData.openMap.mapId] = floorData.openMap;
+
+			this.map = floorData.openMap;
+			this.overWorldContext.map = floorData.openMap;
+			this.player.position.setPosition(floorData.playerStart);
+
+			const allScripts = this.scriptRunner.collectAllScripts(
+				floorData.openMap.scripts,
+				floorData.openMap.npcs
+			);
+			this.scriptRunner.indexScripts(allScripts);
+
+			dungeonContext.set(dungeonCtx);
+
+			setTimeout(() => {
+				this.overWorldContext.changingMap = false;
+				this.overWorldContext.setPaused(false, 'dungeon-floor-transition');
+				this.playMapSound();
+			}, 500);
+		}, 500);
 	}
 
 	checkForInSightNpc(npcId: number): boolean {

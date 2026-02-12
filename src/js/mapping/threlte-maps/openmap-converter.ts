@@ -63,3 +63,7 @@ export function getOrConvertMap(openMap: OpenMap): ThrelteMapData {
 	cache.set(openMap.mapId, converted);
 	return converted;
 }
+
+export function clearConverterCache(mapId: number): void {
+	cache.delete(mapId);
+}

@@ -7,7 +7,12 @@ import {
 	TILE_HEIGHTS,
 	TILE_COLORS
 } from '../mapping/threlte-maps/types';
-import { threlteMapRegistry, getThrelteMap } from '../mapping/threlte-maps/threlte-map-registry';
+import {
+	threlteMapRegistry,
+	getThrelteMap,
+	registerThrelteMap,
+	clearThrelteMapCache
+} from '../mapping/threlte-maps/threlte-map-registry';
 
 describe('threlte map data', () => {
 	describe('type lookup maps', () => {
@@ -225,6 +230,47 @@ describe('threlte map data', () => {
 
 		it('getThrelteMap should return undefined for unknown mapId', () => {
 			expect(getThrelteMap(999)).toBeUndefined();
+		});
+
+		it('registerThrelteMap should make the map available via getThrelteMap', () => {
+			const fakeMap = {
+				mapId: 1001,
+				name: 'Floor 1',
+				width: 5,
+				height: 5,
+				tiles: [],
+				playerStart: { x: 1, y: 1 },
+				jonctions: [],
+				npcs: [],
+				items: [],
+				monsters: [],
+				levelRange: [3, 6] as [number, number],
+				battleTileIndices: new Set<number>()
+			};
+			registerThrelteMap(1001, fakeMap);
+			expect(getThrelteMap(1001)).toBe(fakeMap);
+			clearThrelteMapCache(1001);
+		});
+
+		it('clearThrelteMapCache should remove a previously registered map', () => {
+			const fakeMap = {
+				mapId: 1002,
+				name: 'Floor 2',
+				width: 5,
+				height: 5,
+				tiles: [],
+				playerStart: { x: 1, y: 1 },
+				jonctions: [],
+				npcs: [],
+				items: [],
+				monsters: [],
+				levelRange: [3, 6] as [number, number],
+				battleTileIndices: new Set<number>()
+			};
+			registerThrelteMap(1002, fakeMap);
+			expect(getThrelteMap(1002)).toBe(fakeMap);
+			clearThrelteMapCache(1002);
+			expect(getThrelteMap(1002)).toBeUndefined();
 		});
 	});
 });
