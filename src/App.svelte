@@ -16,6 +16,7 @@
 	import { Settings } from './js/characters/settings';
 	import { MapSave } from './js/mapping/maps';
 	import { Flags } from './js/scripting/quests';
+	import PokeballThrow from './lib/battle/PokeballThrow.svelte';
 
 	/**
 	 * Main component, handling screens transitions
@@ -247,6 +248,7 @@
 
 			{#if battleStarting}
 				<div class="battleStart"></div>
+				<PokeballThrow />
 			{/if}
 			{#if battleEnding}
 				<div class="battleEnd"></div>
