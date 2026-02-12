@@ -249,5 +249,37 @@ describe('CharacterPosition', () => {
 			expect(pos.targetPositionInPx.x).toBe(192);
 			expect(pos.targetPositionInPx.y).toBe(384);
 		});
+
+		describe('same-position behavior', () => {
+			it('should fire callback immediately when target equals current position', () => {
+				const pos = new CharacterPosition(new Position(5, 10));
+				let called = false;
+				pos.setFuturePosition(5, 10, () => {
+					called = true;
+				});
+				expect(called).toBe(true);
+			});
+
+			it('should clear onReachTarget after immediate callback fire', () => {
+				const pos = new CharacterPosition(new Position(5, 10));
+				pos.setFuturePosition(5, 10, () => {});
+				expect(pos.onReachTarget).toBeUndefined();
+			});
+
+			it('should NOT fire callback immediately when target differs from current', () => {
+				const pos = new CharacterPosition(new Position(5, 10));
+				let called = false;
+				pos.setFuturePosition(6, 10, () => {
+					called = true;
+				});
+				expect(called).toBe(false);
+				expect(pos.onReachTarget).toBeDefined();
+			});
+
+			it('should not throw when at same position with no callback', () => {
+				const pos = new CharacterPosition(new Position(3, 3));
+				expect(() => pos.setFuturePosition(3, 3)).not.toThrow();
+			});
+		});
 	});
 });
