@@ -31,6 +31,8 @@ import { TimeOfDayService } from '../time/time-of-day';
 import { DungeonContext, dungeonContext } from '../dungeon/dungeon-context';
 import { generateFloor } from '../dungeon/floor-generator';
 import { getBiomeForFloor } from '../dungeon/biomes';
+import { populateFloor } from '../dungeon/trainer-factory';
+import { placeItems as placeDungeonItems } from '../dungeon/item-placer';
 import {
 	registerThrelteMap,
 	clearThrelteMapCache,
@@ -664,12 +666,29 @@ export class GameContext {
 									ctx.player.monsters.push(pokemon);
 									ctx.POKEDEX.setCaught(starterId);
 								}
+								// Complete all 'A fresh start' quest objectives to unlock menus and movement
+								for (let i = 0; i <= 4; i++) {
+									ctx.validateQuestObjective(0, i);
+								}
 							})
 						])
 					]
 				);
 				floorData.openMap.items.push(starterBall);
 			}
+
+			// Materialize trainers and items from generated positions
+			const populateRng = new SeededRNG(
+				dungeonCtx.runSeed + '-populate-' + dungeonCtx.currentFloor
+			);
+			const npcs = populateFloor(floorData, dungeonCtx.currentFloor, biome, populateRng);
+			floorData.openMap.npcs.push(...npcs);
+			const dungeonItems = placeDungeonItems(
+				floorData.itemPositions,
+				dungeonCtx.currentFloor,
+				populateRng
+			);
+			floorData.openMap.items.push(...dungeonItems);
 
 			clearThrelteMapCache(previousMapId);
 
