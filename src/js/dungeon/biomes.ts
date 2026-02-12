@@ -8,6 +8,7 @@ export interface BiomeConfig {
 	levelRange: [number, number];
 	encounterRate: number;
 	trainerCount: [number, number];
+	itemCount: [number, number];
 	floorSizeRange: [number, number];
 	ambientTrack?: string;
 }
@@ -28,7 +29,8 @@ export const GRASS_FOREST: BiomeConfig = {
 	],
 	levelRange: [5, 12],
 	encounterRate: 0.1,
-	trainerCount: [1, 2],
+	trainerCount: [2, 4],
+	itemCount: [2, 4],
 	floorSizeRange: [15, 25]
 };
 
@@ -48,7 +50,8 @@ export const CAVE_ROCK: BiomeConfig = {
 	],
 	levelRange: [12, 22],
 	encounterRate: 0.12,
-	trainerCount: [1, 3],
+	trainerCount: [3, 5],
+	itemCount: [3, 5],
 	floorSizeRange: [20, 30]
 };
 
@@ -69,7 +72,8 @@ export const WATER_SWAMP: BiomeConfig = {
 	],
 	levelRange: [22, 32],
 	encounterRate: 0.15,
-	trainerCount: [2, 4],
+	trainerCount: [4, 6],
+	itemCount: [3, 6],
 	floorSizeRange: [25, 35]
 };
 
@@ -90,7 +94,8 @@ export const FIRE_VOLCANIC: BiomeConfig = {
 	],
 	levelRange: [32, 42],
 	encounterRate: 0.18,
-	trainerCount: [2, 5],
+	trainerCount: [4, 7],
+	itemCount: [4, 6],
 	floorSizeRange: [30, 40]
 };
 
@@ -111,7 +116,8 @@ export const DARK_HAUNTED: BiomeConfig = {
 	],
 	levelRange: [42, 55],
 	encounterRate: 0.2,
-	trainerCount: [3, 6],
+	trainerCount: [5, 8],
+	itemCount: [4, 7],
 	floorSizeRange: [35, 50]
 };
 
