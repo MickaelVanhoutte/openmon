@@ -21,10 +21,9 @@ describe('ItemPlacer', () => {
 		dungeonContext.set(new DungeonContext());
 	});
 
-	it('should place 1-3 items on a normal floor', () => {
+	it('should place one item per position', () => {
 		const items = placeItems(positions, 1, rng);
-		expect(items.length).toBeGreaterThanOrEqual(1);
-		expect(items.length).toBeLessThanOrEqual(3);
+		expect(items.length).toBe(positions.length);
 	});
 
 	it('should use items from Tier 1 for floors 1-10', () => {

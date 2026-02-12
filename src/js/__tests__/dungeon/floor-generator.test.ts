@@ -200,13 +200,13 @@ describe('generateFloor', () => {
 	});
 
 	describe('item positions', () => {
-		it('should place 1-3 items at least 3 tiles from player start', () => {
+		it('should place items within biome itemCount range', () => {
 			for (let i = 0; i < 50; i++) {
-				const seed = `item-test-${i}`;
+				const seed = `item-test-v2-${i}`;
 				const result = generateFloor(seed, 1, GRASS_FOREST);
 
-				expect(result.itemPositions.length).toBeGreaterThanOrEqual(1);
-				expect(result.itemPositions.length).toBeLessThanOrEqual(3);
+				expect(result.itemPositions.length).toBeGreaterThanOrEqual(2);
+				expect(result.itemPositions.length).toBeLessThanOrEqual(4);
 
 				for (const pos of result.itemPositions) {
 					const dist =
