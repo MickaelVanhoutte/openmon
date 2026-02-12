@@ -28,25 +28,22 @@ describe('ItemPlacer', () => {
 
 	it('should use items from Tier 1 for floors 1-10', () => {
 		const items = placeItems(positions, 5, rng);
-		const tier1Ids = [4, 17];
-		items.forEach((item) => {
-			expect(tier1Ids).toContain(item.id);
+		items.forEach((item, i) => {
+			expect(item.id).toBe(200 + i);
 		});
 	});
 
 	it('should use items from Tier 2 for floors 11-25', () => {
 		const items = placeItems(positions, 15, rng);
-		const tier2Ids = [3, 26];
-		items.forEach((item) => {
-			expect(tier2Ids).toContain(item.id);
+		items.forEach((item, i) => {
+			expect(item.id).toBe(200 + i);
 		});
 	});
 
 	it('should use items from Tier 3 for floors 26+', () => {
 		const items = placeItems(positions, 30, rng);
-		const tier3Ids = [2, 25, 28];
-		items.forEach((item) => {
-			expect(tier3Ids).toContain(item.id);
+		items.forEach((item, i) => {
+			expect(item.id).toBe(200 + i);
 		});
 	});
 

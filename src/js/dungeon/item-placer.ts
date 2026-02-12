@@ -45,7 +45,7 @@ export function placeItems(
 				])
 			]
 		);
-		item.id = itemId;
+		item.id = 200 + i;
 		item.pickedUp = isPicked;
 		items.push(item);
 	}
