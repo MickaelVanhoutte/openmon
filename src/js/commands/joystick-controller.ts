@@ -515,7 +515,7 @@ export class JoystickController {
             opacity: ${this.options.opacity};
             width: ${this.options.radius * 2}px;
             height: ${this.options.radius * 2}px;
-            border-radius: 50%;
+            border-radius: 50% !important;
             position: relative;
             outline: 2px solid #4c4c4c77;
             background: radial-gradient(circle,#ebebeb55, #5c5c5c55);
@@ -529,7 +529,7 @@ export class JoystickController {
             width: ${this.options.joystickRadius * 2}px;
             height: ${this.options.joystickRadius * 2}px;
             z-index: 1;
-            border-radius: 50%;
+            border-radius: 50% !important;
             left: 50%;
             bottom: 50%;
             transform: translate(-50%, 50%);
