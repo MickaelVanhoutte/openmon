@@ -2,18 +2,43 @@
 	import { T, useTask } from '@threlte/core';
 	import { PerspectiveCamera } from 'three';
 	import type { ThrelteMapData } from '$js/mapping/threlte-maps/types';
+	import gsap from 'gsap';
 
 	interface Props {
 		targetPosition: { x: number; y: number; z: number };
 		mapData: ThrelteMapData;
+		battleActive?: boolean;
 	}
 
-	let { targetPosition, mapData }: Props = $props();
+	let { targetPosition, mapData, battleActive = false }: Props = $props();
 
-	const CAMERA_OFFSET = { x: 0, y: 10, z: 10 };
+	const OVERWORLD_OFFSET = { x: 0, y: 10, z: 10 };
+	const BATTLE_OFFSET = { x: 0, y: 4, z: 5 };
+
+	// Mutable offset object for GSAP to animate
+	const currentOffset = { ...OVERWORLD_OFFSET };
+
 	const LERP_FACTOR = 0.08;
 
 	let camera: PerspectiveCamera | undefined = $state();
+
+	$effect(() => {
+		if (battleActive) {
+			gsap.to(currentOffset, {
+				y: BATTLE_OFFSET.y,
+				z: BATTLE_OFFSET.z,
+				duration: 1.5,
+				ease: 'power2.inOut'
+			});
+		} else {
+			gsap.to(currentOffset, {
+				y: OVERWORLD_OFFSET.y,
+				z: OVERWORLD_OFFSET.z,
+				duration: 2,
+				ease: 'power2.inOut'
+			});
+		}
+	});
 
 	useTask(
 		'camera-follow',
@@ -33,9 +58,9 @@
 			const clampedX = Math.max(minX, Math.min(maxX, targetPosition.x));
 			const clampedZ = Math.max(minZ, Math.min(maxZ, targetPosition.z));
 
-			const desiredX = clampedX + CAMERA_OFFSET.x;
-			const desiredY = targetPosition.y + CAMERA_OFFSET.y;
-			const desiredZ = clampedZ + CAMERA_OFFSET.z;
+			const desiredX = clampedX + currentOffset.x;
+			const desiredY = targetPosition.y + currentOffset.y;
+			const desiredZ = clampedZ + currentOffset.z;
 
 			camera.position.x += (desiredX - camera.position.x) * LERP_FACTOR;
 			camera.position.y += (desiredY - camera.position.y) * LERP_FACTOR;
@@ -64,9 +89,9 @@
 		const clampedZ = Math.max(minZ, Math.min(maxZ, targetPosition.z));
 
 		camera.position.set(
-			clampedX + CAMERA_OFFSET.x,
-			targetPosition.y + CAMERA_OFFSET.y,
-			clampedZ + CAMERA_OFFSET.z
+			clampedX + currentOffset.x,
+			targetPosition.y + currentOffset.y,
+			clampedZ + currentOffset.z
 		);
 		camera.lookAt(clampedX, targetPosition.y, clampedZ);
 	}}

@@ -195,7 +195,7 @@
 				weatherType={context.weather?.type}
 				running={context.weather?.running ?? false}
 			/>
-			<GameCamera3D targetPosition={playerVisualPosition} {mapData} />
+			<GameCamera3D targetPosition={playerVisualPosition} {mapData} battleActive={!!battleCtx} />
 			<InstancedTerrain {mapData} />
 			<Decorations3D {mapData} />
 			<PlayerSprite3D
