@@ -290,7 +290,6 @@
 		.canvas-wrapper {
 			position: absolute;
 			inset: 0;
-			z-index: 1;
 			filter: var(--time-filter, none);
 			transition: filter 2s ease-in-out;
 		}
