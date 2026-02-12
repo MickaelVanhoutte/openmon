@@ -233,13 +233,15 @@
 	{:else if started}
 		{#if gameContext}
 			<!-- game started -->
+			{#if gameContext.overWorldContext !== undefined}
+				{#await import('./lib/world3d/ThrelteWorld.svelte') then { default: World }}
+					<World context={gameContext} overWorldCtx={gameContext.overWorldContext} {savesHolder} />
+				{/await}
+			{/if}
+
 			{#if battleCtx !== undefined && !battleStarting}
 				{#await import('./lib/battle/Battle.svelte') then { default: Battle }}
 					<Battle context={gameContext} overWorldCtx={gameContext.overWorldContext} {battleCtx} />
-				{/await}
-			{:else if gameContext.overWorldContext !== undefined}
-				{#await import('./lib/world3d/ThrelteWorld.svelte') then { default: World }}
-					<World context={gameContext} overWorldCtx={gameContext.overWorldContext} {savesHolder} />
 				{/await}
 			{/if}
 
@@ -368,7 +370,7 @@
 		background: #000000;
 		height: 100dvh;
 		width: 100dvw;
-		position: absolute;
+		position: fixed;
 		top: 0;
 		left: 0;
 		transition: opacity 0.5s ease-in-out;
@@ -402,7 +404,7 @@
 		background: #000000;
 		height: 100dvh;
 		width: 100dvw;
-		position: absolute;
+		position: fixed;
 		top: 0;
 		left: 0;
 		z-index: 10;
