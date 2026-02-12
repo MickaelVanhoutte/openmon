@@ -17,6 +17,8 @@
 
 	// Mutable offset object for GSAP to animate
 	const currentOffset = { ...OVERWORLD_OFFSET };
+	const swayOffset = { x: 0, y: 0 };
+	let elapsedTime = 0;
 
 	const LERP_FACTOR = 0.08;
 
@@ -35,16 +37,26 @@
 				y: OVERWORLD_OFFSET.y,
 				z: OVERWORLD_OFFSET.z,
 				duration: 2,
-				ease: 'power2.inOut'
+				ease: 'back.out(1.2)'
 			});
 		}
 	});
 
 	useTask(
 		'camera-follow',
-		() => {
+		(delta) => {
 			if (!camera) {
 				return;
+			}
+
+			if (battleActive) {
+				elapsedTime += delta;
+				swayOffset.y = Math.sin(elapsedTime * ((2 * Math.PI) / 5)) * 0.15;
+				swayOffset.x = Math.sin(elapsedTime * ((2 * Math.PI) / 8)) * 0.05;
+			} else {
+				elapsedTime = 0;
+				swayOffset.x = 0;
+				swayOffset.y = 0;
 			}
 
 			// Calculate clamped target position
@@ -58,8 +70,8 @@
 			const clampedX = Math.max(minX, Math.min(maxX, targetPosition.x));
 			const clampedZ = Math.max(minZ, Math.min(maxZ, targetPosition.z));
 
-			const desiredX = clampedX + currentOffset.x;
-			const desiredY = targetPosition.y + currentOffset.y;
+			const desiredX = clampedX + currentOffset.x + swayOffset.x;
+			const desiredY = targetPosition.y + currentOffset.y + swayOffset.y;
 			const desiredZ = clampedZ + currentOffset.z;
 
 			camera.position.x += (desiredX - camera.position.x) * LERP_FACTOR;
