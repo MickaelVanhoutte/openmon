@@ -4,10 +4,18 @@
 	import { onMount } from 'svelte';
 	import LoadSave from './lib/saves/LoadSave.svelte';
 	import PlayerCreation from './lib/saves/PlayerCreation.svelte';
+	import DungeonLobby from './lib/dungeon/DungeonLobby.svelte';
 	import { SaveContext, SavesHolder } from './js/context/savesHolder';
-	import type { GameContext } from './js/context/gameContext';
+	import { GameContext } from './js/context/gameContext';
 	import type { BattleContext } from './js/context/battleContext';
 	import { DEBUG } from './js/env';
+	import { DungeonContext, dungeonContext } from './js/dungeon/dungeon-context';
+	import { loadDungeonRun } from './js/dungeon/dungeon-save';
+	import { Player } from './js/characters/player';
+	import { PokemonBox } from './js/pokemons/boxes';
+	import { Settings } from './js/characters/settings';
+	import { MapSave } from './js/mapping/maps';
+	import { Flags, QUESTS } from './js/scripting/quests';
 
 	/**
 	 * Main component, handling screens transitions
@@ -22,6 +30,7 @@
 	let newGame = $state(false);
 	let started = $state(DEBUG);
 	let showAdmin = $state(false);
+	let showDungeonLobby = $state(false);
 
 	function checkDebugRoute(): void {
 		const hash = window.location.hash;
@@ -39,6 +48,81 @@
 			newGame = true;
 		}
 	});
+
+	function createDungeonSaveContext(): SaveContext {
+		const player = Player.fromScratch(1, 'Explorer', 'MALE');
+
+		// Give a starter (Pikachu)
+		const starter = savesHolder.POKEDEX.findById(25).result;
+		if (starter && 'instanciate' in starter) {
+			player.monsters.push(starter.instanciate(5));
+		}
+
+		const boxes: Array<PokemonBox> = new Array<PokemonBox>(32);
+		for (let i = 0; i < 32; i++) {
+			boxes[i] = new PokemonBox('Box ' + (i + 1), new Array(20).fill(undefined));
+		}
+
+		return new SaveContext(
+			-1,
+			Date.now(),
+			new MapSave(0),
+			player,
+			boxes,
+			new Settings(),
+			true,
+			[],
+			[],
+			QUESTS.map((q) => q.toState()),
+			new Flags()
+		);
+	}
+
+	function startDungeonRun() {
+		const save = createDungeonSaveContext();
+		const ctx = save.toGameContext();
+
+		const dCtx = new DungeonContext();
+		dCtx.startRun();
+		dungeonContext.set(dCtx);
+
+		gameContext = ctx;
+		started = true;
+		showDungeonLobby = false;
+
+		setTimeout(() => {
+			gameContext?.changeDungeonFloor(dCtx);
+		}, 100);
+	}
+
+	function continueDungeonRun() {
+		const run = loadDungeonRun();
+		if (!run) {
+			return;
+		}
+
+		const save = createDungeonSaveContext();
+		const ctx = save.toGameContext();
+
+		const dCtx = new DungeonContext();
+		dCtx.runSeed = run.runSeed;
+		dCtx.currentFloor = run.currentFloor;
+		dCtx.isDungeonMode = true;
+		dCtx.isRunActive = true;
+		dCtx.defeatedTrainers = new Set(run.defeatedTrainers);
+		dCtx.pickedItems = new Set(run.pickedItems);
+		dCtx.runCurrency = run.runCurrency;
+
+		dungeonContext.set(dCtx);
+
+		gameContext = ctx;
+		started = true;
+		showDungeonLobby = false;
+
+		setTimeout(() => {
+			gameContext?.changeDungeonFloor(dCtx);
+		}, 100);
+	}
 
 	let battleCtx = $state<BattleContext | undefined>(undefined);
 
