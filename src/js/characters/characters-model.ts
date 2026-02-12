@@ -81,6 +81,13 @@ export class CharacterPosition {
 		this.targetPosition = new Position(x, y);
 		this.targetPositionInPx = new Position(x * tileSize * scale, y * tileSize * scale);
 		this.onReachTarget = onEnd;
+
+		// If already at target position, fire callback immediately
+		if (this.positionOnMap.x === x && this.positionOnMap.y === y && this.onReachTarget) {
+			const callback = this.onReachTarget;
+			this.onReachTarget = undefined;
+			callback();
+		}
 	}
 
 	public arriveAtTarget(): void {
