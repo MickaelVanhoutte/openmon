@@ -705,7 +705,7 @@
 		height: 100dvh;
 		overflow: hidden;
 		position: relative;
-		background-color: black;
+		background: transparent;
 		box-sizing: border-box;
 		border: solid 3px transparent;
 	}
@@ -865,9 +865,14 @@
 		position: absolute;
 		top: 0;
 		left: 0;
-		background-size: 100% 300%;
-		background-position: 0 var(--bg-offset, 0%);
-		background-repeat: no-repeat;
+		background: radial-gradient(
+			ellipse at center,
+			rgba(0, 0, 0, 0) 0%,
+			rgba(0, 0, 0, 0.4) 100%
+		) !important;
+		background-size: 100% 100% !important;
+		background-position: center !important;
+		background-repeat: no-repeat !important;
 		image-rendering: pixelated;
 		pointer-events: none;
 	}
