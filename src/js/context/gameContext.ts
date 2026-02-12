@@ -11,7 +11,9 @@ import { PokemonBox } from '../pokemons/boxes';
 import { Position } from '../mapping/positions';
 import { MenuType, OverworldContext, SceneType } from './overworldContext';
 import { BattleContext } from './battleContext';
-import { Dialog, Message, Script } from '../scripting/scripts';
+import { CustomScriptable, Dialog, Message, Script } from '../scripting/scripts';
+import { OverworldItem } from '../items/overworldItem';
+import { SeededRNG } from '../dungeon/prng';
 import { NPC } from '../characters/npc';
 import { ItemsReferences } from '../items/items';
 import { firstBeach } from '../mapping/maps/firstBeach';
@@ -642,6 +644,32 @@ export class GameContext {
 
 			const biome = getBiomeForFloor(dungeonCtx.currentFloor);
 			const floorData = generateFloor(dungeonCtx.runSeed, dungeonCtx.currentFloor, biome);
+
+			if (dungeonCtx.currentFloor === 1) {
+				const STARTERS = [1, 4, 7];
+				const rng = new SeededRNG(dungeonCtx.runSeed + '-starter');
+				const starterId = rng.pick(STARTERS);
+				const starterBall = new OverworldItem(
+					'Pokeball',
+					true,
+					new Position(floorData.playerStart.x + 1, floorData.playerStart.y),
+					'src/assets/menus/pokeball.png',
+					undefined,
+					[
+						new Script('onInteract', [
+							new Dialog([new Message('You found a starter Pokemon!', 'System')]),
+							new CustomScriptable((ctx: GameContext) => {
+								const pokemon = ctx.POKEDEX.findById(starterId).result?.instanciate(5);
+								if (pokemon) {
+									ctx.player.monsters.push(pokemon);
+									ctx.POKEDEX.setCaught(starterId);
+								}
+							})
+						])
+					]
+				);
+				floorData.openMap.items.push(starterBall);
+			}
 
 			clearThrelteMapCache(previousMapId);
 
