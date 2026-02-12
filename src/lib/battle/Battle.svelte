@@ -868,7 +868,7 @@
 		background: radial-gradient(
 			ellipse at center,
 			rgba(0, 0, 0, 0) 0%,
-			rgba(0, 0, 0, 0.4) 100%
+			rgba(0, 0, 0, 0.15) 100%
 		) !important;
 		background-size: 100% 100% !important;
 		background-position: center !important;
