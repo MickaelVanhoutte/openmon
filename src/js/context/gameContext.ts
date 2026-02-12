@@ -654,7 +654,7 @@ export class GameContext {
 				const starterBall = new OverworldItem(
 					'Pokeball',
 					true,
-					new Position(floorData.playerStart.x + 1, floorData.playerStart.y),
+					floorData.starterItemPosition,
 					'src/assets/menus/pokeball.png',
 					undefined,
 					[
