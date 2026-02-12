@@ -1,4 +1,4 @@
-import { deriveSeed } from './prng';
+import { SeededRNG, deriveSeed } from './prng';
 import { TileType3D, type ThrelteMapData } from '../mapping/threlte-maps/types';
 import { OpenMap } from '../mapping/maps';
 import { Position } from '../mapping/positions';
@@ -6,6 +6,8 @@ import type { FloorData } from './floor-generator';
 import type { SparseMapData } from '../mapping/sparse-collision';
 import { NPC } from '../characters/npc';
 import { Script, Dialog, Message, HealAll, OpenShop } from '../scripting/scripts';
+import { createBossTrainer } from './trainer-factory';
+import { getBiomeForFloor } from './biomes';
 
 const REST_FLOOR_WIDTH = 10;
 const REST_FLOOR_HEIGHT = 10;
@@ -95,6 +97,93 @@ export function generateRestFloor(floor: number, runSeed: string): FloorData {
 		playerStart,
 		stairsPosition,
 		trainerPositions: [],
+		itemPositions: [],
+		grassPatches: []
+	};
+}
+
+const BOSS_FLOOR_WIDTH = 15;
+const BOSS_FLOOR_HEIGHT = 15;
+
+export function generateBossFloor(floor: number, runSeed: string): FloorData {
+	const floorSeed = deriveSeed(runSeed, floor);
+	const rng = new SeededRNG(floorSeed);
+	const width = BOSS_FLOOR_WIDTH;
+	const height = BOSS_FLOOR_HEIGHT;
+	const mapId = 1000 + floor;
+
+	const grid: TileType3D[][] = [];
+	for (let y = 0; y < height; y++) {
+		const row: TileType3D[] = [];
+		for (let x = 0; x < width; x++) {
+			if (x === 0 || x === width - 1 || y === 0 || y === height - 1) {
+				row.push(TileType3D.BOSS_GATE);
+			} else {
+				row.push(TileType3D.DUNGEON_FLOOR);
+			}
+		}
+		grid.push(row);
+	}
+
+	const playerStart = new Position(Math.floor(width / 2), height - 2);
+
+	const stairsPosition = new Position(Math.floor(width / 2), 1);
+	grid[stairsPosition.y][stairsPosition.x] = TileType3D.STAIRS_DOWN;
+
+	const biome = getBiomeForFloor(floor);
+	const bossPosition = new Position(Math.floor(width / 2), Math.floor(height / 2));
+	const bossNpc = createBossTrainer(bossPosition, floor, biome, rng);
+
+	const threlteMap: ThrelteMapData = {
+		mapId,
+		name: `Boss Floor ${floor}`,
+		width,
+		height,
+		tiles: grid.map((row) => [...row]),
+		playerStart,
+		jonctions: [],
+		npcs: [bossNpc],
+		items: [],
+		monsters: [],
+		levelRange: biome.levelRange,
+		battleTileIndices: new Set<number>()
+	};
+
+	const collisionIndices: number[] = [];
+	for (let y = 0; y < height; y++) {
+		for (let x = 0; x < width; x++) {
+			if (grid[y][x] === TileType3D.BOSS_GATE) {
+				collisionIndices.push(y * width + x);
+			}
+		}
+	}
+
+	const sparseData: SparseMapData = {
+		collisionIndices,
+		waterIndices: [],
+		battleIndices: []
+	};
+
+	const openMap = OpenMap.fromSparse(
+		mapId,
+		'dungeon',
+		width,
+		height,
+		sparseData,
+		[],
+		playerStart,
+		biome.levelRange,
+		[],
+		undefined,
+		[bossNpc]
+	);
+
+	return {
+		threlteMap,
+		openMap,
+		playerStart,
+		stairsPosition,
+		trainerPositions: [bossPosition],
 		itemPositions: [],
 		grassPatches: []
 	};
