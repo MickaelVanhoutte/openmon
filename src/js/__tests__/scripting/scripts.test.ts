@@ -698,6 +698,92 @@ describe('MoveTo', () => {
 
 		expect(onEnd).toHaveBeenCalledOnce();
 	});
+
+	it('should call onEnd exactly once when NPC is already at target and setFuturePosition fires immediately', () => {
+		const mt = new MoveTo(1, new Position(5, 3));
+		const onEnd = vi.fn();
+
+		// setFuturePosition fires callback immediately (same-position fix)
+		const setFuturePosition = vi.fn((_x: number, _y: number, cb: () => void) => cb());
+		const npc = {
+			id: 1,
+			moving: false,
+			direction: 'down',
+			position: {
+				positionOnMap: { x: 5, y: 3 },
+				targetPosition: { x: 5, y: 3 },
+				setFuturePosition
+			}
+		};
+
+		const mockContext = {
+			map: {
+				npcs: [npc],
+				hasBoundaryAt: vi.fn(() => false),
+				npcAt: vi.fn(() => false)
+			},
+			player: {
+				position: { positionOnMap: { x: 0, y: 0 } }
+			},
+			followerAt: vi.fn(() => false)
+		} as unknown as GameContext;
+
+		mt.play(mockContext, onEnd);
+
+		// Even with timers advancing, onEnd should only be called once
+		vi.advanceTimersByTime(1000);
+
+		expect(onEnd).toHaveBeenCalledOnce();
+	});
+
+	it('should call onEnd exactly once when canceled and move unblocks simultaneously', () => {
+		const mt = new MoveTo(1, new Position(5, 3));
+		const onEnd = vi.fn();
+
+		// NPC already at target position
+		const npc = {
+			id: 1,
+			moving: false,
+			direction: 'down',
+			position: {
+				positionOnMap: { x: 5, y: 3 },
+				targetPosition: { x: 5, y: 3 },
+				setFuturePosition: vi.fn()
+			}
+		};
+
+		// Move initially blocked
+		const hasBoundaryAt = vi.fn(() => true);
+		const mockContext = {
+			map: {
+				npcs: [npc],
+				hasBoundaryAt,
+				npcAt: vi.fn(() => false)
+			},
+			player: {
+				position: { positionOnMap: { x: 0, y: 0 } }
+			},
+			followerAt: vi.fn(() => false),
+			checkForInSightNpc: vi.fn(() => false),
+			playScript: vi.fn()
+		} as unknown as GameContext;
+
+		mt.play(mockContext, onEnd);
+
+		// Both conditions become true simultaneously:
+		// canceled fires onEnd via the cancel branch,
+		// moveAllowed also becomes true, triggering waitMvtEnds
+		// which would fire onEnd again since NPC is already at target
+		mt.canceled = true;
+		hasBoundaryAt.mockReturnValue(false);
+
+		// First tick: waitUntilAllowed sees both canceled and moveAllowed
+		vi.advanceTimersByTime(200);
+		// Second tick: waitMvtEnds would fire onEnd again without guard
+		vi.advanceTimersByTime(200);
+
+		expect(onEnd).toHaveBeenCalledOnce();
+	});
 });
 
 // ---------------------------------------------------------------------------
