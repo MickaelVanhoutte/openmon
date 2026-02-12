@@ -19,10 +19,87 @@ const WALL_INIT_PROBABILITY = 0.45;
 const SMOOTHING_PASSES = 5;
 const WALL_NEIGHBOR_THRESHOLD = 5;
 
+const GENERATION_TIMEOUT_MS = 500;
+const FALLBACK_SIZE = 10;
+
 export function generateFloor(
 	seed: string,
 	floorNumber: number,
 	biomeConfig: BiomeConfig
+): FloorData {
+	const startTime = performance.now();
+
+	try {
+		const result = generateFloorInternal(seed, floorNumber, biomeConfig, startTime);
+		return result;
+	} catch {
+		return generateFallbackFloor(floorNumber, biomeConfig);
+	}
+}
+
+function generateFallbackFloor(floorNumber: number, biomeConfig: BiomeConfig): FloorData {
+	const width = FALLBACK_SIZE;
+	const height = FALLBACK_SIZE;
+	const mapId = 1000 + floorNumber;
+
+	const grid: TileType3D[][] = [];
+	for (let y = 0; y < height; y++) {
+		const row: TileType3D[] = [];
+		for (let x = 0; x < width; x++) {
+			if (x === 0 || x === width - 1 || y === 0 || y === height - 1) {
+				row.push(TileType3D.WALL);
+			} else {
+				row.push(TileType3D.DUNGEON_FLOOR);
+			}
+		}
+		grid.push(row);
+	}
+
+	const playerStart = new Position(1, 1);
+	const stairsPosition = new Position(8, 8);
+	grid[stairsPosition.y][stairsPosition.x] = TileType3D.STAIRS_DOWN;
+
+	const monsters = biomeConfig.monsterTable.map((m) => m.id);
+
+	const threlteMap = buildThrelteMap(
+		grid,
+		width,
+		height,
+		mapId,
+		floorNumber,
+		playerStart,
+		monsters,
+		biomeConfig.levelRange,
+		biomeConfig.ambientTrack
+	);
+
+	const openMap = buildOpenMap(
+		grid,
+		width,
+		height,
+		mapId,
+		playerStart,
+		monsters,
+		biomeConfig.levelRange,
+		biomeConfig.ambientTrack
+	);
+
+	return {
+		threlteMap,
+		openMap,
+		playerStart,
+		stairsPosition,
+		trainerPositions: [],
+		itemPositions: [],
+		grassPatches: []
+	};
+}
+
+function generateFloorInternal(
+	seed: string,
+	floorNumber: number,
+	biomeConfig: BiomeConfig,
+	startTime: number
 ): FloorData {
 	const floorSeed = deriveSeed(seed, floorNumber);
 	const rng = new SeededRNG(floorSeed);
@@ -34,7 +111,15 @@ export function generateFloor(
 		smoothGrid(grid, width, height);
 	}
 
+	if (performance.now() - startTime > GENERATION_TIMEOUT_MS) {
+		return generateFallbackFloor(floorNumber, biomeConfig);
+	}
+
 	ensureConnectivity(grid, width, height);
+
+	if (performance.now() - startTime > GENERATION_TIMEOUT_MS) {
+		return generateFallbackFloor(floorNumber, biomeConfig);
+	}
 
 	const playerStart = findWalkableNearEdge(grid, width, height, 'bottom');
 
