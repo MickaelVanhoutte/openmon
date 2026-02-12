@@ -58,6 +58,7 @@ describe('generateFloor', () => {
 		expect(result.threlteMap).toBeDefined();
 		expect(result.openMap).toBeDefined();
 		expect(result.playerStart).toBeDefined();
+		expect(result.starterItemPosition).toBeDefined();
 		expect(result.stairsPosition).toBeDefined();
 		expect(result.trainerPositions).toBeDefined();
 		expect(result.itemPositions).toBeDefined();
@@ -70,6 +71,8 @@ describe('generateFloor', () => {
 
 		expect(result1.playerStart.x).toBe(result2.playerStart.x);
 		expect(result1.playerStart.y).toBe(result2.playerStart.y);
+		expect(result1.starterItemPosition.x).toBe(result2.starterItemPosition.x);
+		expect(result1.starterItemPosition.y).toBe(result2.starterItemPosition.y);
 		expect(result1.stairsPosition.x).toBe(result2.stairsPosition.x);
 		expect(result1.stairsPosition.y).toBe(result2.stairsPosition.y);
 		expect(result1.trainerPositions.length).toBe(result2.trainerPositions.length);
@@ -231,6 +234,28 @@ describe('generateFloor', () => {
 				Math.abs(result.stairsPosition.y - result.playerStart.y);
 			const minExpectedDistance = Math.floor(result.threlteMap.width / 2);
 			expect(dist).toBeGreaterThanOrEqual(minExpectedDistance);
+		});
+	});
+
+	describe('starter item position', () => {
+		it('should be adjacent to playerStart and on a walkable tile', () => {
+			for (let i = 0; i < 100; i++) {
+				const seed = `starter-pos-test-${i}`;
+				const result = generateFloor(seed, 1, GRASS_FOREST);
+				const { starterItemPosition, playerStart, threlteMap } = result;
+
+				expect(starterItemPosition).toBeDefined();
+
+				const manhattan =
+					Math.abs(starterItemPosition.x - playerStart.x) +
+					Math.abs(starterItemPosition.y - playerStart.y);
+				expect(manhattan).toBe(1);
+
+				const tile = threlteMap.tiles[starterItemPosition.y][starterItemPosition.x];
+				expect(tile).not.toBe(TileType3D.WALL);
+				expect(tile).not.toBe(TileType3D.LAVA);
+				expect(tile).not.toBe(TileType3D.WATER);
+			}
 		});
 	});
 

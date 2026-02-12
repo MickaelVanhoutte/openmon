@@ -9,6 +9,7 @@ export interface FloorData {
 	threlteMap: ThrelteMapData;
 	openMap: OpenMap;
 	playerStart: Position;
+	starterItemPosition: Position;
 	stairsPosition: Position;
 	trainerPositions: Position[];
 	itemPositions: Position[];
@@ -56,6 +57,7 @@ function generateFallbackFloor(floorNumber: number, biomeConfig: BiomeConfig): F
 	}
 
 	const playerStart = new Position(1, 1);
+	const starterItemPosition = new Position(2, 1);
 	const stairsPosition = new Position(8, 8);
 	grid[stairsPosition.y][stairsPosition.x] = TileType3D.STAIRS_DOWN;
 
@@ -88,6 +90,7 @@ function generateFallbackFloor(floorNumber: number, biomeConfig: BiomeConfig): F
 		threlteMap,
 		openMap,
 		playerStart,
+		starterItemPosition,
 		stairsPosition,
 		trainerPositions: [],
 		itemPositions: [],
@@ -126,6 +129,8 @@ function generateFloorInternal(
 	const stairsPosition = findStairsPosition(grid, width, height, playerStart);
 	grid[stairsPosition.y][stairsPosition.x] = TileType3D.STAIRS_DOWN;
 
+	const starterItemPosition = findAdjacentWalkable(grid, playerStart, width, height);
+
 	const grassPatches = placeGrassPatches(grid, width, height, rng, playerStart, stairsPosition);
 
 	const trainerPositions = placeTrainers(grid, width, height, rng, biomeConfig, playerStart);
@@ -162,6 +167,7 @@ function generateFloorInternal(
 		threlteMap,
 		openMap,
 		playerStart,
+		starterItemPosition,
 		stairsPosition,
 		trainerPositions,
 		itemPositions,
@@ -306,6 +312,34 @@ function floodFill(
 
 function isFloorTile(tile: TileType3D): boolean {
 	return tile !== TileType3D.WALL && tile !== TileType3D.LAVA && tile !== TileType3D.WATER;
+}
+
+function findAdjacentWalkable(
+	grid: TileType3D[][],
+	playerStart: Position,
+	width: number,
+	height: number
+): Position {
+	const cardinalOffsets = [
+		{ dx: 1, dy: 0 },
+		{ dx: -1, dy: 0 },
+		{ dx: 0, dy: 1 },
+		{ dx: 0, dy: -1 }
+	];
+
+	for (const { dx, dy } of cardinalOffsets) {
+		const nx = playerStart.x + dx;
+		const ny = playerStart.y + dy;
+		if (nx >= 0 && nx < width && ny >= 0 && ny < height && isFloorTile(grid[ny][nx])) {
+			return new Position(nx, ny);
+		}
+	}
+
+	// No adjacent walkable tile found — carve one to the right
+	const carveX = playerStart.x + 1;
+	const carveY = playerStart.y;
+	grid[carveY][carveX] = TileType3D.DUNGEON_FLOOR;
+	return new Position(carveX, carveY);
 }
 
 function findWalkableNearEdge(
