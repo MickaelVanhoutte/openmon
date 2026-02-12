@@ -130,7 +130,7 @@ describe('AnimationEngine', () => {
 
 			const pos = engine.getPosition({ side: 'player', index: 0 });
 			expect(pos.x).toBe(22);
-			expect(pos.y).toBe(75);
+			expect(pos.y).toBe(80);
 		});
 	});
 
@@ -177,12 +177,12 @@ function createMockContext(): MoveContext {
 		attacker: {
 			slot: { side: 'player', index: 0 },
 			element: attackerElement,
-			homePosition: { x: 22, y: 75, z: 0, scale: 1, opacity: 1 }
+			homePosition: { x: 22, y: 80, z: 0, scale: 1, opacity: 1 }
 		},
 		defender: {
 			slot: { side: 'opponent', index: 0 },
 			element: defenderElement,
-			homePosition: { x: 75, y: 30, z: 200, scale: 0.85, opacity: 1 }
+			homePosition: { x: 75, y: 37, z: 200, scale: 0.85, opacity: 1 }
 		},
 		moveName: 'tackle',
 		moveCategory: 'physical',
