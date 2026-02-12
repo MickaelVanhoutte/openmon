@@ -258,6 +258,15 @@
 		{:else if !ready}{:else if savesHolder.saves?.length > 0 && !newGame}
 			<!-- select a save / start new -->
 			<LoadSave {savesHolder} />
+			<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
+			<div
+				class="dungeon-entry"
+				onclick={() => {
+					showDungeonLobby = true;
+				}}
+			>
+				Dungeon Mode
+			</div>
 		{:else}
 			<!-- create a new save -->
 			<PlayerCreation {savesHolder} />
@@ -267,6 +276,15 @@
 		{#await import('./lib/Intro.svelte') then { default: Intro }}
 			<Intro bind:started />
 		{/await}
+	{/if}
+	{#if showDungeonLobby}
+		<DungeonLobby
+			onStartRun={startDungeonRun}
+			onContinueRun={continueDungeonRun}
+			onBack={() => {
+				showDungeonLobby = false;
+			}}
+		/>
 	{/if}
 
 	{#if rotate}
@@ -328,6 +346,26 @@
 
 		img {
 			width: 100dvw;
+		}
+	}
+
+	.dungeon-entry {
+		position: fixed;
+		bottom: 20px;
+		right: 20px;
+		background: #1a1a2e;
+		border: 2px solid #333;
+		color: #fff;
+		padding: 12px 24px;
+		font-size: 1rem;
+		cursor: pointer;
+		text-transform: uppercase;
+		letter-spacing: 1px;
+		z-index: 10;
+		box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.4);
+
+		&:hover {
+			filter: brightness(1.3);
 		}
 	}
 
