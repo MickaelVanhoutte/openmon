@@ -15,13 +15,11 @@ export function placeItems(
 	rng: SeededRNG
 ): OverworldItem[] {
 	const items: OverworldItem[] = [];
-	const itemCount = rng.nextInt(1, 3);
 	const shuffledPositions = rng.shuffle(itemPositions);
-	const actualItemCount = Math.min(itemCount, shuffledPositions.length);
 
 	const itemPool = getPoolForFloor(floorNumber);
 
-	for (let i = 0; i < actualItemCount; i++) {
+	for (let i = 0; i < shuffledPositions.length; i++) {
 		const itemId = rng.pick(itemPool);
 		const position = shuffledPositions[i];
 		const itemKey = `${floorNumber}-${i}`;

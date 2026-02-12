@@ -15,8 +15,8 @@ export interface FloorData {
 	grassPatches: Position[][];
 }
 
-const WALL_INIT_PROBABILITY = 0.45;
-const SMOOTHING_PASSES = 5;
+const WALL_INIT_PROBABILITY = 0.5;
+const SMOOTHING_PASSES = 4;
 const WALL_NEIGHBOR_THRESHOLD = 5;
 
 const GENERATION_TIMEOUT_MS = 500;
@@ -130,7 +130,7 @@ function generateFloorInternal(
 
 	const trainerPositions = placeTrainers(grid, width, height, rng, biomeConfig, playerStart);
 
-	const itemPositions = placeItems(grid, width, height, rng, playerStart);
+	const itemPositions = placeItems(grid, width, height, rng, playerStart, biomeConfig);
 
 	const mapId = 1000 + floorNumber;
 	const monsters = biomeConfig.monsterTable.map((m) => m.id);
@@ -542,9 +542,10 @@ function placeItems(
 	width: number,
 	height: number,
 	rng: SeededRNG,
-	playerStart: Position
+	playerStart: Position,
+	biomeConfig: BiomeConfig
 ): Position[] {
-	const itemCount = rng.nextInt(1, 3);
+	const itemCount = rng.nextInt(biomeConfig.itemCount[0], biomeConfig.itemCount[1]);
 	const positions: Position[] = [];
 
 	const candidates: Position[] = [];
