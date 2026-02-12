@@ -13,10 +13,12 @@
 	let { targetPosition, mapData, battleActive = false }: Props = $props();
 
 	const OVERWORLD_OFFSET = { x: 0, y: 10, z: 10 };
-	const BATTLE_OFFSET = { x: 0, y: 4, z: 5 };
+	const BATTLE_OFFSET = { x: 0, y: 1.5, z: 3 };
+	const BATTLE_LOOKAT_Y_OFFSET = 0.5;
 
 	// Mutable offset object for GSAP to animate
 	const currentOffset = { ...OVERWORLD_OFFSET };
+	const lookAtOffset = { y: 0 };
 	const swayOffset = { x: 0, y: 0 };
 	let elapsedTime = 0;
 
@@ -32,10 +34,20 @@
 				duration: 1.5,
 				ease: 'power2.inOut'
 			});
+			gsap.to(lookAtOffset, {
+				y: BATTLE_LOOKAT_Y_OFFSET,
+				duration: 1.5,
+				ease: 'power2.inOut'
+			});
 		} else {
 			gsap.to(currentOffset, {
 				y: OVERWORLD_OFFSET.y,
 				z: OVERWORLD_OFFSET.z,
+				duration: 2,
+				ease: 'back.out(1.2)'
+			});
+			gsap.to(lookAtOffset, {
+				y: 0,
 				duration: 2,
 				ease: 'back.out(1.2)'
 			});
@@ -78,7 +90,7 @@
 			camera.position.y += (desiredY - camera.position.y) * LERP_FACTOR;
 			camera.position.z += (desiredZ - camera.position.z) * LERP_FACTOR;
 
-			camera.lookAt(clampedX, targetPosition.y, clampedZ);
+			camera.lookAt(clampedX, targetPosition.y + lookAtOffset.y, clampedZ);
 		},
 		{ after: 'player-movement' }
 	);
@@ -105,6 +117,6 @@
 			targetPosition.y + currentOffset.y,
 			clampedZ + currentOffset.z
 		);
-		camera.lookAt(clampedX, targetPosition.y, clampedZ);
+		camera.lookAt(clampedX, targetPosition.y + lookAtOffset.y, clampedZ);
 	}}
 />
