@@ -93,6 +93,39 @@
 		}
 	});
 
+	$effect(() => {
+		if (entryAnimationsComplete) {
+			const shadows = gifsWrapper?.querySelectorAll('.ally-shadow, .opponent-shadow');
+			shadows?.forEach((shadow) => {
+				(shadow as HTMLElement).style.opacity = '1';
+			});
+		}
+	});
+
+	$effect(() => {
+		// Track fainted state to trigger reactivity
+		const allyF = [...allyFainted];
+		const oppF = [...opponentFainted];
+
+		allyF.forEach((fainted, idx) => {
+			const shadow = gifsWrapper?.querySelector(
+				`.ally-shadow[style*="--offSet: ${idx}"]`
+			) as HTMLElement;
+			if (shadow) {
+				shadow.style.opacity = fainted ? '0' : entryAnimationsComplete ? '1' : '0';
+			}
+		});
+
+		oppF.forEach((fainted, idx) => {
+			const shadow = gifsWrapper?.querySelector(
+				`.opponent-shadow[style*="--offSet: ${idx}"]`
+			) as HTMLElement;
+			if (shadow) {
+				shadow.style.opacity = fainted ? '0' : entryAnimationsComplete ? '1' : '0';
+			}
+		});
+	});
+
 	// Helper to play move animation with new engine
 	function playMoveAnimation(
 		move: Move,
@@ -387,6 +420,12 @@
 						});
 						img.classList.add('opponent-sprite');
 						img.style.setProperty('--offSet', `${idx}`);
+
+						const shadow = document.createElement('div');
+						shadow.classList.add('opponent-shadow');
+						shadow.style.setProperty('--offSet', `${idx}`);
+						gifsWrapper.appendChild(shadow);
+
 						opponent[idx] = img;
 					});
 				} else {
@@ -440,6 +479,12 @@
 						});
 						img.classList.add('ally-sprite');
 						img.style.setProperty('--offSet', `${idx}`);
+
+						const shadow = document.createElement('div');
+						shadow.classList.add('ally-shadow');
+						shadow.style.setProperty('--offSet', `${idx}`);
+						gifsWrapper.appendChild(shadow);
+
 						ally[idx] = img;
 					});
 				} else {
@@ -843,6 +888,34 @@
 		right: calc(22% + var(--offSet) * -18%);
 		animation: impatience calc(8s + var(--offSet) * 1.5s) infinite;
 		animation-delay: calc(2s + var(--offSet) * 1.5s);
+	}
+
+	.wrapper :global(.ally-shadow) {
+		position: absolute;
+		z-index: calc(7 + var(--offSet) * -1);
+		width: 80px;
+		height: 16px;
+		background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0) 70%);
+		border-radius: 50%;
+		bottom: calc(0% + var(--offSet) * 5%);
+		left: calc(30% + var(--offSet) * -18%);
+		opacity: 0;
+		transition: opacity 0.5s ease-in;
+		pointer-events: none;
+	}
+
+	.wrapper :global(.opponent-shadow) {
+		position: absolute;
+		z-index: calc(4 + var(--offSet));
+		width: 60px;
+		height: 12px;
+		background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0) 70%);
+		border-radius: 50%;
+		bottom: calc(8% + var(--offSet) * 5%);
+		right: calc(30% + var(--offSet) * -18%);
+		opacity: 0;
+		transition: opacity 0.5s ease-in;
+		pointer-events: none;
 	}
 
 	.wrapper :global(.opponent-partner-sprite) {
