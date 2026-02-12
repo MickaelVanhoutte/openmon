@@ -15,7 +15,7 @@
 	import { PokemonBox } from './js/pokemons/boxes';
 	import { Settings } from './js/characters/settings';
 	import { MapSave } from './js/mapping/maps';
-	import { Flags, QUESTS } from './js/scripting/quests';
+	import { Flags } from './js/scripting/quests';
 
 	/**
 	 * Main component, handling screens transitions
@@ -52,12 +52,6 @@
 	function createDungeonSaveContext(): SaveContext {
 		const player = Player.fromScratch(1, 'Explorer', 'MALE');
 
-		// Give a starter (Pikachu)
-		const starter = savesHolder.POKEDEX.findById(25).result;
-		if (starter && 'instanciate' in starter) {
-			player.monsters.push(starter.instanciate(5));
-		}
-
 		const boxes: Array<PokemonBox> = new Array<PokemonBox>(32);
 		for (let i = 0; i < 32; i++) {
 			boxes[i] = new PokemonBox('Box ' + (i + 1), new Array(20).fill(undefined));
@@ -70,10 +64,10 @@
 			player,
 			boxes,
 			new Settings(),
-			true,
+			false,
 			[],
 			[],
-			QUESTS.map((q) => q.toState()),
+			[],
 			new Flags()
 		);
 	}
