@@ -647,7 +647,7 @@ export class GameContext {
 			const biome = getBiomeForFloor(dungeonCtx.currentFloor);
 			const floorData = generateFloor(dungeonCtx.runSeed, dungeonCtx.currentFloor, biome);
 
-			if (dungeonCtx.currentFloor === 1) {
+			if (dungeonCtx.currentFloor === 2) {
 				const STARTERS = [1, 4, 7];
 				const rng = new SeededRNG(dungeonCtx.runSeed + '-starter');
 				const starterId = rng.pick(STARTERS);
