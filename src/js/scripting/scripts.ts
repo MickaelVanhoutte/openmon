@@ -156,6 +156,14 @@ export class MoveTo extends Scriptable {
 	}
 
 	play(context: GameContext, onEnd: () => void): any {
+		let callbackFired = false;
+		const guardedOnEnd = () => {
+			if (!callbackFired) {
+				callbackFired = true;
+				onEnd();
+			}
+		};
+
 		const npc = context.map?.npcs?.find((npc) => npc.id === this.npcId);
 		if (npc) {
 			npc.moving = true;
@@ -172,20 +180,20 @@ export class MoveTo extends Scriptable {
 				npc.position.setFuturePosition(this.position.x, this.position.y, () => {
 					npc.moving = false;
 					this.finished = true;
-					onEnd();
+					guardedOnEnd();
 				});
 			} else {
 				if (context.checkForInSightNpc(npc.id)) {
 					this.finished = true;
-					onEnd();
+					guardedOnEnd();
 					context.playScript(npc.mainScript);
 				} else {
-					this.waitUntilAllowed(context, npc, onEnd);
+					this.waitUntilAllowed(context, npc, guardedOnEnd);
 				}
 			}
 		} else {
 			this.finished = true;
-			onEnd();
+			guardedOnEnd();
 		}
 	}
 
