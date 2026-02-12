@@ -153,7 +153,7 @@
 		return undefined;
 	});
 	// battleCtx used for future battle integration
-	void battleCtx;
+	// void battleCtx;
 
 	function enlargeMap() {
 		mapEnlarged = !mapEnlarged;
@@ -218,36 +218,38 @@
 		</Canvas>
 	</div>
 
-	<div class="minimap-wrapper" class:enlarged={overWorldCtx.menus.mapOpened && mapEnlarged}>
-		<canvas
-			bind:this={minimap}
-			id="minimap"
-			width="1024"
-			height={1024 * (window.innerHeight / window.innerWidth)}
-			style="z-index: 5"
-			class:opened={overWorldCtx.menus.mapOpened}
-		></canvas>
-		<button
-			class="enlarge"
-			class:opened={overWorldCtx.menus.mapOpened}
-			onclick={() => enlargeMap()}
-		>
-			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-				><path
-					d="M17.5858 5H14V3H21V10H19V6.41421L14.7071 10.7071L13.2929 9.29289L17.5858 5ZM3 14H5V17.5858L9.29289 13.2929L10.7071 14.7071L6.41421 19H10V21H3V14Z"
-				></path></svg
+	{#if !battleCtx}
+		<div class="minimap-wrapper" class:enlarged={overWorldCtx.menus.mapOpened && mapEnlarged}>
+			<canvas
+				bind:this={minimap}
+				id="minimap"
+				width="1024"
+				height={1024 * (window.innerHeight / window.innerWidth)}
+				style="z-index: 5"
+				class:opened={overWorldCtx.menus.mapOpened}
+			></canvas>
+			<button
+				class="enlarge"
+				class:opened={overWorldCtx.menus.mapOpened}
+				onclick={() => enlargeMap()}
 			>
-		</button>
-	</div>
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+					><path
+						d="M17.5858 5H14V3H21V10H19V6.41421L14.7071 10.7071L13.2929 9.29289L17.5858 5ZM3 14H5V17.5858L9.29289 13.2929L10.7071 14.7071L6.41421 19H10V21H3V14Z"
+					></path></svg
+				>
+			</button>
+		</div>
 
-	<div class="time-clock">
-		<span class="time-icon">{@html TIME_ICONS[$timeOfDay]}</span>
-		<span class="time-text">{formatGameTime($progress)}</span>
-	</div>
+		<div class="time-clock">
+			<span class="time-icon">{@html TIME_ICONS[$timeOfDay]}</span>
+			<span class="time-text">{formatGameTime($progress)}</span>
+		</div>
 
-	<!-- <OverworldTeamPanel {context} /> -->
+		<!-- <OverworldTeamPanel {context} /> -->
 
-	<Menu {context} />
+		<Menu {context} />
+	{/if}
 
 	{#if hasDialog}
 		<DialogView dialog={currentDialog} {context} />
@@ -260,19 +262,21 @@
 
 	<div class="changing-map" class:show={isChangingMap}></div>
 
-	<Controls {context} {overWorldCtx} {savesHolder} />
-	<ScenesView {context} {canvasWidth} />
+	{#if !battleCtx}
+		<Controls {context} {overWorldCtx} {savesHolder} />
+		<ScenesView {context} {canvasWidth} />
 
-	{#if currentMessages.length > 0}
-		<div
-			class="notifications"
-			in:slide={{ duration: 500, delay: 100, axis: 'y', easing: backInOut }}
-			out:fade
-		>
-			{#each currentMessages as message}
-				<div class="notification">{message}</div>
-			{/each}
-		</div>
+		{#if currentMessages.length > 0}
+			<div
+				class="notifications"
+				in:slide={{ duration: 500, delay: 100, axis: 'y', easing: backInOut }}
+				out:fade
+			>
+				{#each currentMessages as message}
+					<div class="notification">{message}</div>
+				{/each}
+			</div>
+		{/if}
 	{/if}
 </div>
 
