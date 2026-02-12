@@ -629,7 +629,7 @@
 		{#key oppNames[0]}
 			<FloatingPokemonInfo
 				pokemon={battleCtx.oppSide[0]}
-				position={{ bottom: '73%', left: '62%' }}
+				position={{ bottom: '66%', left: '62%' }}
 				isAlly={false}
 				spriteElement={opponent[0]}
 				entranceDelay={isInitialBattleEntrance ? uiEntranceDelays.opponentHp : 0}
@@ -643,7 +643,7 @@
 		{#key allyNames[0]}
 			<FloatingPokemonInfo
 				pokemon={battleCtx.playerSide[0]}
-				position={{ bottom: '57%', left: '22%' }}
+				position={{ bottom: '50%', left: '22%' }}
 				isAlly={true}
 				spriteElement={ally[0]}
 				entranceDelay={isInitialBattleEntrance ? uiEntranceDelays.allyHp : 0}
@@ -659,7 +659,7 @@
 			{#key oppNames[1]}
 				<FloatingPokemonInfo
 					pokemon={battleCtx.oppSide[1]}
-					position={{ bottom: '77%', left: '58%' }}
+					position={{ bottom: '70%', left: '58%' }}
 					isAlly={false}
 					spriteElement={opponent[1]}
 					entranceDelay={isInitialBattleEntrance ? uiEntranceDelays.opponentHp : 0}
@@ -673,7 +673,7 @@
 			{#key allyNames[1]}
 				<FloatingPokemonInfo
 					pokemon={battleCtx.playerSide[1]}
-					position={{ bottom: '63%', left: '8%' }}
+					position={{ bottom: '56%', left: '8%' }}
 					isAlly={true}
 					spriteElement={ally[1]}
 					entranceDelay={isInitialBattleEntrance ? uiEntranceDelays.allyHp : 0}
@@ -810,7 +810,7 @@
 		transform-origin: bottom left;
 		/* offSet=0 -> bottom: 7%, left: 22% */
 		/* offSet=1 -> bottom: 12%, left: 4% */
-		bottom: calc(7% + var(--offSet) * 5%);
+		bottom: calc(2% + var(--offSet) * 5%);
 		left: calc(22% + var(--offSet) * -18%);
 		animation: impatience calc(8s + var(--offSet) * 1.5s) infinite;
 		animation-delay: calc(1.5s + var(--offSet) * 1.5s);
@@ -839,7 +839,7 @@
 		transform-origin: bottom right;
 		/* offSet=0 -> bottom: 17%, right: 22% */
 		/* offSet=1 -> bottom: 22%, right: 4% */
-		bottom: calc(17% + var(--offSet) * 5%);
+		bottom: calc(10% + var(--offSet) * 5%);
 		right: calc(22% + var(--offSet) * -18%);
 		animation: impatience calc(8s + var(--offSet) * 1.5s) infinite;
 		animation-delay: calc(2s + var(--offSet) * 1.5s);
