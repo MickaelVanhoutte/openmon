@@ -2,6 +2,7 @@ import { writable, type Writable } from 'svelte/store';
 import { getBiomeForFloor } from './biomes';
 import type { BiomeConfig } from './biomes';
 import { deriveSeed } from './prng';
+import { updateMetaProgress, loadMetaProgress, type MetaProgress } from './meta-progress';
 
 export class DungeonContext {
 	runSeed: string = '';
@@ -13,6 +14,11 @@ export class DungeonContext {
 	pickedItems: Set<string> = new Set();
 	bestFloor: number = 0;
 	runCurrency: number = 0;
+
+	constructor() {
+		const meta = loadMetaProgress();
+		this.bestFloor = meta.bestFloor;
+	}
 
 	startRun(seed?: string): void {
 		this.isDungeonMode = true;
@@ -30,7 +36,7 @@ export class DungeonContext {
 		this.currentBiome = getBiomeForFloor(this.currentFloor);
 	}
 
-	endRun(won: boolean): void {
+	endRun(won: boolean): MetaProgress {
 		this.isRunActive = false;
 		if (this.currentFloor > this.bestFloor) {
 			this.bestFloor = this.currentFloor;
@@ -38,6 +44,7 @@ export class DungeonContext {
 		if (!won) {
 			this.isDungeonMode = false;
 		}
+		return updateMetaProgress(this);
 	}
 
 	getCurrentFloorType(): 'normal' | 'rest' | 'boss' {
