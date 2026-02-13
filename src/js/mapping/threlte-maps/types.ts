@@ -24,13 +24,13 @@ export enum TileType3D {
 }
 
 export const TILE_HEIGHTS: Map<TileType3D, number> = new Map([
-	[TileType3D.GRASS, 0.1],
+	[TileType3D.GRASS, 0],
 	[TileType3D.PATH, 0],
 	[TileType3D.WATER, -0.15],
 	[TileType3D.SAND, 0.05],
 	[TileType3D.TREE_GROUND, 0.1],
 	[TileType3D.FLOWER_GROUND, 0.1],
-	[TileType3D.TALL_GRASS, 0.15],
+	[TileType3D.TALL_GRASS, 0],
 	[TileType3D.BUILDING_FLOOR, 0],
 	[TileType3D.WALL, 0.6],
 	[TileType3D.DUNGEON_FLOOR, 0],
