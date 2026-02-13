@@ -10,8 +10,6 @@ import wallUrl from '../../../assets/tiles/wall.png';
 import rock1Url from '../../../assets/tiles/rock1.png';
 import pavmentUrl from '../../../assets/tiles/pavment.png';
 import rock2Url from '../../../assets/tiles/rock2.png';
-import bushUrl from '../../../assets/tiles/bush.png';
-import bush2Url from '../../../assets/tiles/bush2.png';
 import tree1Url from '../../../assets/tiles/tree1.png';
 import tree2Url from '../../../assets/tiles/tree2.png';
 
@@ -22,7 +20,7 @@ export const TILE_TEXTURES: Record<TileType3D, string | null> = {
 	[TileType3D.SAND]: sandUrl,
 	[TileType3D.TREE_GROUND]: grass1Url,
 	[TileType3D.FLOWER_GROUND]: grassFlowersUrl,
-	[TileType3D.TALL_GRASS]: highGrassUrl,
+	[TileType3D.TALL_GRASS]: grass1Url,
 	[TileType3D.BUILDING_FLOOR]: planksUrl,
 	[TileType3D.WALL]: dirtUrl,
 	[TileType3D.DUNGEON_FLOOR]: dirtUrl,
@@ -37,7 +35,7 @@ export const TILE_TEXTURES: Record<TileType3D, string | null> = {
 
 export const TREE_TEXTURES: string[] = [tree1Url, tree2Url];
 
-export const BUSH_TEXTURES: string[] = [bushUrl, bush2Url];
+export const BUSH_TEXTURES: string[] = [highGrassUrl];
 
 export const WALL_SIDE_TEXTURE: string = wallUrl;
 
