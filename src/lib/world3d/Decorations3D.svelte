@@ -119,7 +119,7 @@
 						const bz = z + offsetZ;
 
 						const spriteMat = new THREE.Matrix4();
-						spriteMat.compose(new THREE.Vector3(bx, by + 0.3, bz), identityQuat, oneScale);
+						spriteMat.compose(new THREE.Vector3(bx, by + 0.3, bz + 0.45), identityQuat, oneScale);
 						if (!bushSpriteMap.has(bushTexIdx)) {
 							bushSpriteMap.set(bushTexIdx, []);
 						}
@@ -152,7 +152,7 @@
 						const by = BASE_HEIGHT + tileHeight;
 
 						const spriteMat = new THREE.Matrix4();
-						spriteMat.compose(new THREE.Vector3(x, by + 0.3, z), identityQuat, oneScale);
+						spriteMat.compose(new THREE.Vector3(x, by + 0.3, z + 0.45), identityQuat, oneScale);
 						if (!bushSpriteMap.has(bushTexIdx)) {
 							bushSpriteMap.set(bushTexIdx, []);
 						}
@@ -167,7 +167,7 @@
 					const by = BASE_HEIGHT + tileHeight;
 
 					const spriteMat = new THREE.Matrix4();
-					spriteMat.compose(new THREE.Vector3(x, by + 0.3, z), identityQuat, oneScale);
+					spriteMat.compose(new THREE.Vector3(x, by + 0.3, z + 0.45), identityQuat, oneScale);
 					if (!bushSpriteMap.has(bushTexIdx)) {
 						bushSpriteMap.set(bushTexIdx, []);
 					}
