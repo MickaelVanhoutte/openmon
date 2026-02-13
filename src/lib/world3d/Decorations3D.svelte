@@ -252,7 +252,9 @@
 		for (let g = 0; g < bushMeshRefs.length; g++) {
 			const mesh = bushMeshRefs[g];
 			const bases = bushBaseMatrices[g];
-			if (!mesh || !bases) {continue;}
+			if (!mesh || !bases) {
+				continue;
+			}
 
 			let needsUpdate = false;
 
@@ -266,8 +268,14 @@
 				// Quick reject: skip instances far from player
 				if (Math.abs(dx) > 2 || Math.abs(dz) > 2) {
 					if (swayTriggers.has(key)) {
+						const triggerTime = swayTriggers.get(key)!;
+						if (triggerTime < 0) {
+							// Sentinel: decay finished, player far away, clean up
+							swayTriggers.delete(key);
+							continue;
+						}
 						// Check if still decaying
-						const age = elapsedTime - swayTriggers.get(key)!;
+						const age = elapsedTime - triggerTime;
 						const amplitude = SWAY_STRENGTH * Math.exp(-SWAY_DECAY * age);
 						if (amplitude < SWAY_THRESHOLD) {
 							mesh.setMatrixAt(i, bases[i]);
@@ -293,15 +301,15 @@
 					}
 				}
 
-				// Animate if triggered (whether inside or outside radius now)
-				if (swayTriggers.has(key)) {
+				// Animate if triggered (skip sentinel: decay finished)
+				if (swayTriggers.has(key) && swayTriggers.get(key)! >= 0) {
 					const age = elapsedTime - swayTriggers.get(key)!;
 					const amplitude = SWAY_STRENGTH * Math.exp(-SWAY_DECAY * age);
 
 					if (amplitude < SWAY_THRESHOLD) {
-						// Decay finished — reset to base and stop tracking
+						// Decay finished — reset to base, keep sentinel to prevent re-trigger
 						mesh.setMatrixAt(i, bases[i]);
-						swayTriggers.delete(key);
+						swayTriggers.set(key, -1);
 						needsUpdate = true;
 					} else {
 						const sway = Math.sin(elapsedTime * 10 + i * 1.5) * amplitude;
@@ -310,6 +318,9 @@
 						mesh.setMatrixAt(i, tmpMatrix);
 						needsUpdate = true;
 					}
+				} else if (swayTriggers.get(key) === -1 && dist >= SWAY_RADIUS) {
+					// Player left tile, clear sentinel so re-entry can trigger again
+					swayTriggers.delete(key);
 				}
 			}
 
