@@ -158,6 +158,20 @@
 						bushSpriteMap.get(bushTexIdx)!.push(spriteMat);
 					}
 				}
+
+				// Place high-grass billboards on every TALL_GRASS tile
+				if (tile === TileType3D.TALL_GRASS) {
+					const tileHeight = TILE_HEIGHTS.get(tile) ?? 0;
+					const bushTexIdx = (row * 7 + col * 3) % bushTextures.length;
+					const by = BASE_HEIGHT + tileHeight;
+
+					const spriteMat = new THREE.Matrix4();
+					spriteMat.compose(new THREE.Vector3(x, by + 0.6, z), identityQuat, oneScale);
+					if (!bushSpriteMap.has(bushTexIdx)) {
+						bushSpriteMap.set(bushTexIdx, []);
+					}
+					bushSpriteMap.get(bushTexIdx)!.push(spriteMat);
+				}
 			}
 		}
 
