@@ -12,7 +12,7 @@
 		playerPosition: { x: number; y: number; z: number };
 	}
 
-	let { mapData, playerPosition }: Props = $props();
+	const { mapData, playerPosition }: Props = $props();
 
 	const BASE_HEIGHT = 1;
 
@@ -232,9 +232,11 @@
 	// Bush sway animation state
 	const bushMeshRefs: THREE.InstancedMesh[] = [];
 	const bushBaseMatrices: THREE.Matrix4[][] = [];
-	const displacedInstances = new Set<string>();
-	const SWAY_RADIUS = 0.9;
-	const SWAY_STRENGTH = 0.08;
+	const swayTriggers = new Map<string, number>(); // key -> trigger time
+	const SWAY_RADIUS = 0.5;
+	const SWAY_STRENGTH = 0.1;
+	const SWAY_DECAY = 4.0; // exponential decay rate (higher = faster stop)
+	const SWAY_THRESHOLD = 0.002; // amplitude below which we stop
 	const tmpMatrix = new THREE.Matrix4();
 	let elapsedTime = 0;
 
@@ -250,7 +252,7 @@
 		for (let g = 0; g < bushMeshRefs.length; g++) {
 			const mesh = bushMeshRefs[g];
 			const bases = bushBaseMatrices[g];
-			if (!mesh || !bases) continue;
+			if (!mesh || !bases) {continue;}
 
 			let needsUpdate = false;
 
@@ -263,10 +265,21 @@
 
 				// Quick reject: skip instances far from player
 				if (Math.abs(dx) > 2 || Math.abs(dz) > 2) {
-					if (displacedInstances.has(key)) {
-						mesh.setMatrixAt(i, bases[i]);
-						displacedInstances.delete(key);
-						needsUpdate = true;
+					if (swayTriggers.has(key)) {
+						// Check if still decaying
+						const age = elapsedTime - swayTriggers.get(key)!;
+						const amplitude = SWAY_STRENGTH * Math.exp(-SWAY_DECAY * age);
+						if (amplitude < SWAY_THRESHOLD) {
+							mesh.setMatrixAt(i, bases[i]);
+							swayTriggers.delete(key);
+							needsUpdate = true;
+						} else {
+							const sway = Math.sin(elapsedTime * 10 + i * 1.5) * amplitude;
+							tmpMatrix.copy(bases[i]);
+							tmpMatrix.elements[12] += sway;
+							mesh.setMatrixAt(i, tmpMatrix);
+							needsUpdate = true;
+						}
 					}
 					continue;
 				}
@@ -274,17 +287,29 @@
 				const dist = Math.sqrt(dx * dx + dz * dz);
 
 				if (dist < SWAY_RADIUS) {
-					const swayFactor = 1 - dist / SWAY_RADIUS;
-					const sway = Math.sin(elapsedTime * 8 + i * 1.5) * SWAY_STRENGTH * swayFactor;
-					tmpMatrix.copy(bases[i]);
-					tmpMatrix.elements[12] += sway;
-					mesh.setMatrixAt(i, tmpMatrix);
-					displacedInstances.add(key);
-					needsUpdate = true;
-				} else if (displacedInstances.has(key)) {
-					mesh.setMatrixAt(i, bases[i]);
-					displacedInstances.delete(key);
-					needsUpdate = true;
+					// Trigger sway if not already triggered
+					if (!swayTriggers.has(key)) {
+						swayTriggers.set(key, elapsedTime);
+					}
+				}
+
+				// Animate if triggered (whether inside or outside radius now)
+				if (swayTriggers.has(key)) {
+					const age = elapsedTime - swayTriggers.get(key)!;
+					const amplitude = SWAY_STRENGTH * Math.exp(-SWAY_DECAY * age);
+
+					if (amplitude < SWAY_THRESHOLD) {
+						// Decay finished — reset to base and stop tracking
+						mesh.setMatrixAt(i, bases[i]);
+						swayTriggers.delete(key);
+						needsUpdate = true;
+					} else {
+						const sway = Math.sin(elapsedTime * 10 + i * 1.5) * amplitude;
+						tmpMatrix.copy(bases[i]);
+						tmpMatrix.elements[12] += sway;
+						mesh.setMatrixAt(i, tmpMatrix);
+						needsUpdate = true;
+					}
 				}
 			}
 
