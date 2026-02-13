@@ -409,6 +409,39 @@
 		});
 	}
 
+	function findFeetOffset(img: HTMLImageElement): number {
+		try {
+			const canvas = document.createElement('canvas');
+			canvas.width = img.naturalWidth;
+			canvas.height = img.naturalHeight;
+			const ctx = canvas.getContext('2d');
+			if (!ctx) return 0;
+			ctx.drawImage(img, 0, 0);
+			const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+			const data = imageData.data;
+			for (let y = canvas.height - 1; y >= 0; y--) {
+				for (let x = 0; x < canvas.width; x++) {
+					const alpha = data[(y * canvas.width + x) * 4 + 3];
+					if (alpha > 10) {
+						return (canvas.height - 1 - y) / canvas.height;
+					}
+				}
+			}
+		} catch {
+			// Canvas operations may fail due to CORS
+		}
+		return 0;
+	}
+
+	function updateShadowPosition(side: 'ally' | 'opponent', idx: number, feetRatio: number) {
+		const shadowClass = side === 'ally' ? 'ally-shadow' : 'opponent-shadow';
+		const shadow = gifsWrapper?.querySelector(`.${shadowClass}[data-idx="${idx}"]`) as HTMLElement;
+		if (!shadow) return;
+		const baseBottom = side === 'ally' ? 0 : 8;
+		const feetOffset = feetRatio * 50;
+		shadow.style.bottom = `calc(${baseBottom + feetOffset}% + var(--offSet) * 5%)`;
+	}
+
 	function draw() {
 		drawInterval = window.setInterval(() => {
 			if (!battleLoopContext.opponentdrawn && battleLoopContext.bgDrawn) {
@@ -424,6 +457,7 @@
 						const shadow = document.createElement('div');
 						shadow.classList.add('opponent-shadow');
 						shadow.style.setProperty('--offSet', `${idx}`);
+						shadow.dataset.idx = `${idx}`;
 						gifsWrapper.appendChild(shadow);
 
 						opponent[idx] = img;
@@ -446,6 +480,9 @@
 							element.style.setProperty('--width', element.naturalWidth + 'px');
 							element.style.setProperty('--height', element.naturalHeight + 'px');
 							gifsWrapper.appendChild(element);
+
+							const feetRatio = findFeetOffset(element);
+							updateShadowPosition('opponent', idx, feetRatio);
 
 							const entryPromise = animateEntry(
 								element,
@@ -483,6 +520,7 @@
 						const shadow = document.createElement('div');
 						shadow.classList.add('ally-shadow');
 						shadow.style.setProperty('--offSet', `${idx}`);
+						shadow.dataset.idx = `${idx}`;
 						gifsWrapper.appendChild(shadow);
 
 						ally[idx] = img;
@@ -505,6 +543,9 @@
 							element.style.setProperty('--width', element.naturalWidth + 'px');
 							element.style.setProperty('--height', element.naturalHeight + 'px');
 							gifsWrapper.appendChild(element);
+
+							const feetRatio = findFeetOffset(element);
+							updateShadowPosition('ally', idx, feetRatio);
 
 							const entryPromise = animateEntry(
 								element,
@@ -558,6 +599,9 @@
 							});
 							// Animate entry after sprite loads
 							animateEntry(ally[change.idx], 'ally', change.idx);
+							// Update shadow position for new sprite
+							const allyFeetRatio = findFeetOffset(ally[change.idx]);
+							updateShadowPosition('ally', change.idx, allyFeetRatio);
 							// Update reactive name AFTER animation starts to trigger {#key} re-render
 							allyNames[change.idx] = pokemon.name;
 						};
@@ -584,6 +628,9 @@
 							});
 							// Animate entry after sprite loads
 							animateEntry(opponent[change.idx], 'opponent', change.idx);
+							// Update shadow position for new sprite
+							const oppFeetRatio = findFeetOffset(opponent[change.idx]);
+							updateShadowPosition('opponent', change.idx, oppFeetRatio);
 							// Update reactive name AFTER animation starts to trigger {#key} re-render
 							oppNames[change.idx] = pokemon.name;
 						};

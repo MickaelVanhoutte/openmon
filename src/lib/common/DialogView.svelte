@@ -117,7 +117,7 @@
 	</div>
 {:else if current?.speaker === 'System'}
 	<!-- System speaker - no image -->
-{:else if !Number.isNaN(current?.speaker)}
+{:else if src}
 	<img {src} alt="speaker" class="speaker-img" />
 	<div class="speaker-name">
 		{npcName}

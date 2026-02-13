@@ -8,7 +8,7 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
-		"build": "vite build && rm -rf docs && mkdir docs && mkdir docs/src && cp -R dist/ docs && cp -R src/assets docs/src",
+		"build": "vite build && rm -rf docs && mkdir docs && mkdir docs/src && cp -R dist/ docs && cp -R src/assets docs/src && rm -rf \"docs/src/assets/tileset/HGSS for RMXP\"",
 		"preview": "vite preview",
 		"lint": "eslint src/",
 		"lint:fix": "eslint src/ --fix",
@@ -22,6 +22,7 @@
 		"test:e2e:ui": "playwright test --ui",
 		"test:e2e:headed": "playwright test --headed",
 		"generate:sprite-anchors": "node scripts/generate-sprite-anchors.mjs",
+		"extract:tiles": "node scripts/extract-tiles.mjs",
 		"copy:shiny-sprites": "node scripts/copy-shiny-sprites.mjs",
 		"graph": "npx depcruise src --include-only '^src' --no-config -T  dot | dot -T svg | npx depcruise-wrap-stream-in-html > dependency-graph.html && open dependency-graph.html"
 	},

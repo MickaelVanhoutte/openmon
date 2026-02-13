@@ -40,7 +40,7 @@
 	let animElapsed = $state(0);
 	let stationaryTime = $state(0);
 	const PLAYER_HEIGHT_M = 1.5; // Player is ~1.6m tall
-	const MIN_SCALE = .9;
+	const MIN_SCALE = 0.9;
 	const MAX_SCALE = 5.0;
 
 	// Scale follower sprite based on Pokemon's real height (in meters)
@@ -58,7 +58,7 @@
 		const tileHeight = TILE_HEIGHTS.get(tileType) ?? 0.2;
 		return {
 			x: gridX - mapData.width / 2 + 0.5,
-			y: BASE_HEIGHT + tileHeight + 0.3,
+			y: BASE_HEIGHT + tileHeight,
 			z: gridY - mapData.height / 2 + 0.5
 		};
 	}
@@ -210,8 +210,15 @@
 </script>
 
 {#if texture}
-	<Billboard position={[visualPosition.x, visualPosition.y, visualPosition.z]}>
-		<T.Mesh castShadow>
+	<T.Mesh
+		position={[visualPosition.x, visualPosition.y + 0.02, visualPosition.z]}
+		rotation.x={-Math.PI / 2}
+	>
+		<T.CircleGeometry args={[0.2 * sizeScale, 16]} />
+		<T.MeshBasicMaterial color="#000000" transparent opacity={0.25} depthWrite={false} />
+	</T.Mesh>
+	<Billboard position={[visualPosition.x, visualPosition.y + planeHeight / 2, visualPosition.z]}>
+		<T.Mesh>
 			<T.PlaneGeometry args={[planeWidth, planeHeight]} />
 			<T.MeshStandardMaterial map={texture} transparent alphaTest={0.5} side={THREE.DoubleSide} />
 		</T.Mesh>

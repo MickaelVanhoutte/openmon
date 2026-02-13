@@ -12,8 +12,8 @@
 
 	let { targetPosition, mapData, battleActive = false }: Props = $props();
 
-	const OVERWORLD_OFFSET = { x: 0, y: 10, z: 10 };
-	const BATTLE_OFFSET = { x: 0, y: 1.5, z: 3 };
+	const OVERWORLD_OFFSET = { x: 0, y: 8, z: 10 };
+	const BATTLE_OFFSET = { x: 0, y: 1, z: 3 };
 	const BATTLE_LOOKAT_Y_OFFSET = 0.5;
 
 	// Mutable offset object for GSAP to animate
