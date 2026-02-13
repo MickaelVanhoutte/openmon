@@ -197,7 +197,7 @@
 			/>
 			<GameCamera3D targetPosition={playerVisualPosition} {mapData} battleActive={!!battleCtx} />
 			<InstancedTerrain {mapData} />
-			<Decorations3D {mapData} />
+			<Decorations3D {mapData} playerPosition={playerVisualPosition} />
 			{#if !battleCtx}
 				<PlayerSprite3D
 					player={context.player}
