@@ -50,8 +50,12 @@
 </script>
 
 {#if isVisible && texture}
+	<T.Mesh position={[position.x, position.y - 0.29, position.z]} rotation.x={-Math.PI / 2}>
+		<T.CircleGeometry args={[0.2, 16]} />
+		<T.MeshBasicMaterial color="#000000" transparent opacity={0.25} depthWrite={false} />
+	</T.Mesh>
 	<Billboard position={[position.x, position.y + yOffset, position.z]}>
-		<T.Mesh castShadow>
+		<T.Mesh>
 			<T.PlaneGeometry args={[0.6, 0.6]} />
 			<T.MeshStandardMaterial map={texture} transparent alphaTest={0.5} side={THREE.DoubleSide} />
 		</T.Mesh>

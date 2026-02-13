@@ -68,7 +68,7 @@
 			alertElapsed = 0;
 		}
 
-		const direction = npc.position.movementDirection;
+		const direction = npc.direction;
 		const uvY = DIRECTION_UV_Y[direction] ?? 0.75;
 		texture.offset.y = uvY;
 
@@ -118,8 +118,15 @@
 </script>
 
 {#if texture}
+	<T.Mesh
+		position={[visualPosition.x, visualPosition.y - 0.49, visualPosition.z]}
+		rotation.x={-Math.PI / 2}
+	>
+		<T.CircleGeometry args={[0.3, 16]} />
+		<T.MeshBasicMaterial color="#000000" transparent opacity={0.25} depthWrite={false} />
+	</T.Mesh>
 	<Billboard position={[visualPosition.x, visualPosition.y, visualPosition.z]}>
-		<T.Mesh castShadow>
+		<T.Mesh>
 			<T.PlaneGeometry args={[1, 1]} />
 			<T.MeshStandardMaterial map={texture} transparent alphaTest={0.5} side={THREE.DoubleSide} />
 		</T.Mesh>
