@@ -10,9 +10,12 @@
 	interface Props {
 		mapData: ThrelteMapData;
 		playerPosition: { x: number; y: number; z: number };
+		battleActive?: boolean;
 	}
 
-	const { mapData, playerPosition }: Props = $props();
+	const { mapData, playerPosition, battleActive = false }: Props = $props();
+	// battleActive used by future battle-clearing animation (Task 2)
+	void battleActive;
 
 	const BASE_HEIGHT = 1;
 
@@ -246,6 +249,26 @@
 		bushBaseMatrices[groupIndex] = matrices.map((m) => m.clone());
 	}
 
+	// Tree ref storage (2 cross-planes per texture group)
+	const treeMeshRefs: THREE.InstancedMesh[] = [];
+	const treeBaseMatrices: THREE.Matrix4[][] = [];
+
+	function initTreeMesh(ref: THREE.InstancedMesh, matrices: THREE.Matrix4[], index: number) {
+		applyMatrices(ref, matrices);
+		treeMeshRefs[index] = ref;
+		treeBaseMatrices[index] = matrices.map((m) => m.clone());
+	}
+
+	// Rock ref storage
+	const rockMeshRefs: THREE.InstancedMesh[] = [];
+	const rockBaseMatrices: THREE.Matrix4[][] = [];
+
+	function initRockMesh(ref: THREE.InstancedMesh, matrices: THREE.Matrix4[], index: number) {
+		applyMatrices(ref, matrices);
+		rockMeshRefs[index] = ref;
+		rockBaseMatrices[index] = matrices.map((m) => m.clone());
+	}
+
 	useTask('bush-sway', (delta) => {
 		elapsedTime += delta;
 
@@ -333,24 +356,24 @@
 
 {#key mapData}
 	<!-- Tree cross-billboards: plane 1 (facing Z) -->
-	{#each instances.treePlane1Groups as group (group.texIdx)}
+	{#each instances.treePlane1Groups as group, groupIndex (group.texIdx)}
 		<T.InstancedMesh
 			args={[undefined, undefined, group.matrices.length]}
 			material={treeMaterials[group.texIdx]}
 			castShadow
-			oncreate={(ref) => applyMatrices(ref, group.matrices)}
+			oncreate={(ref) => initTreeMesh(ref, group.matrices, groupIndex * 2)}
 		>
 			<T.PlaneGeometry args={[2, 2]} />
 		</T.InstancedMesh>
 	{/each}
 
 	<!-- Tree cross-billboards: plane 2 (facing X, rotated 90deg) -->
-	{#each instances.treePlane2Groups as group (group.texIdx)}
+	{#each instances.treePlane2Groups as group, groupIndex (group.texIdx)}
 		<T.InstancedMesh
 			args={[undefined, undefined, group.matrices.length]}
 			material={treeMaterials[group.texIdx]}
 			castShadow
-			oncreate={(ref) => applyMatrices(ref, group.matrices)}
+			oncreate={(ref) => initTreeMesh(ref, group.matrices, groupIndex * 2 + 1)}
 		>
 			<T.PlaneGeometry args={[2, 2]} />
 		</T.InstancedMesh>
@@ -369,12 +392,12 @@
 	{/each}
 
 	<!-- Rock sprites (one instanced mesh per texture variant) -->
-	{#each instances.rockSpriteGroups as group (group.texIdx)}
+	{#each instances.rockSpriteGroups as group, groupIndex (group.texIdx)}
 		<T.InstancedMesh
 			args={[undefined, undefined, group.matrices.length]}
 			material={rockSpriteMaterials[group.texIdx]}
 			castShadow
-			oncreate={(ref) => applyMatrices(ref, group.matrices)}
+			oncreate={(ref) => initRockMesh(ref, group.matrices, groupIndex)}
 		>
 			<T.PlaneGeometry args={[1, 1]} />
 		</T.InstancedMesh>
