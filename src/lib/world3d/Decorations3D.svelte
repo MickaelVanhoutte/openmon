@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { T } from '@threlte/core';
+	import { T, useTask } from '@threlte/core';
 	import * as THREE from 'three';
 	import { TileType3D, TILE_HEIGHTS, type ThrelteMapData } from '$js/mapping/threlte-maps/types';
 	import {
@@ -9,9 +9,10 @@
 	} from '$js/mapping/threlte-maps/tile-textures';
 	interface Props {
 		mapData: ThrelteMapData;
+		playerPosition: { x: number; y: number; z: number };
 	}
 
-	let { mapData }: Props = $props();
+	let { mapData, playerPosition }: Props = $props();
 
 	const BASE_HEIGHT = 1;
 
@@ -69,6 +70,13 @@
 	const identityQuat = new THREE.Quaternion();
 	const oneScale = new THREE.Vector3(1, 1, 1);
 
+	// Bush layer offsets: [zOffset, yVariation, xVariation] for multi-layer fill
+	const BUSH_LAYERS = [
+		{ z: 0.4, y: 0.0, x: 0.0 }, // front layer
+		{ z: 0.0, y: -0.04, x: 0.15 }, // middle layer, slightly lower, offset right
+		{ z: -0.35, y: 0.03, x: -0.1 } // back layer, slightly higher, offset left
+	];
+
 	interface InstanceGroupData {
 		texIdx: number;
 		matrices: THREE.Matrix4[];
@@ -117,12 +125,18 @@
 						const by = BASE_HEIGHT + tileHeight;
 						const bz = z + offsetZ;
 
-						const spriteMat = new THREE.Matrix4();
-						spriteMat.compose(new THREE.Vector3(bx, by + 0.3, bz + 0.45), identityQuat, oneScale);
-						if (!bushSpriteMap.has(bushTexIdx)) {
-							bushSpriteMap.set(bushTexIdx, []);
+						for (const layer of BUSH_LAYERS) {
+							const spriteMat = new THREE.Matrix4();
+							spriteMat.compose(
+								new THREE.Vector3(bx + layer.x, by + 0.3 + layer.y, bz + layer.z),
+								identityQuat,
+								oneScale
+							);
+							if (!bushSpriteMap.has(bushTexIdx)) {
+								bushSpriteMap.set(bushTexIdx, []);
+							}
+							bushSpriteMap.get(bushTexIdx)!.push(spriteMat);
 						}
-						bushSpriteMap.get(bushTexIdx)!.push(spriteMat);
 					}
 				}
 
@@ -150,12 +164,18 @@
 						const bushTexIdx = (row * 47 + col * 59) % bushTextures.length;
 						const by = BASE_HEIGHT + tileHeight;
 
-						const spriteMat = new THREE.Matrix4();
-						spriteMat.compose(new THREE.Vector3(x, by + 0.3, z + 0.45), identityQuat, oneScale);
-						if (!bushSpriteMap.has(bushTexIdx)) {
-							bushSpriteMap.set(bushTexIdx, []);
+						for (const layer of BUSH_LAYERS) {
+							const spriteMat = new THREE.Matrix4();
+							spriteMat.compose(
+								new THREE.Vector3(x + layer.x, by + 0.3 + layer.y, z + layer.z),
+								identityQuat,
+								oneScale
+							);
+							if (!bushSpriteMap.has(bushTexIdx)) {
+								bushSpriteMap.set(bushTexIdx, []);
+							}
+							bushSpriteMap.get(bushTexIdx)!.push(spriteMat);
 						}
-						bushSpriteMap.get(bushTexIdx)!.push(spriteMat);
 					}
 				}
 
@@ -165,12 +185,18 @@
 					const bushTexIdx = (row * 7 + col * 3) % bushTextures.length;
 					const by = BASE_HEIGHT + tileHeight;
 
-					const spriteMat = new THREE.Matrix4();
-					spriteMat.compose(new THREE.Vector3(x, by + 0.3, z + 0.45), identityQuat, oneScale);
-					if (!bushSpriteMap.has(bushTexIdx)) {
-						bushSpriteMap.set(bushTexIdx, []);
+					for (const layer of BUSH_LAYERS) {
+						const spriteMat = new THREE.Matrix4();
+						spriteMat.compose(
+							new THREE.Vector3(x + layer.x, by + 0.3 + layer.y, z + layer.z),
+							identityQuat,
+							oneScale
+						);
+						if (!bushSpriteMap.has(bushTexIdx)) {
+							bushSpriteMap.set(bushTexIdx, []);
+						}
+						bushSpriteMap.get(bushTexIdx)!.push(spriteMat);
 					}
-					bushSpriteMap.get(bushTexIdx)!.push(spriteMat);
 				}
 			}
 		}
@@ -202,6 +228,71 @@
 		}
 		ref.instanceMatrix.needsUpdate = true;
 	}
+
+	// Bush sway animation state
+	const bushMeshRefs: THREE.InstancedMesh[] = [];
+	const bushBaseMatrices: THREE.Matrix4[][] = [];
+	const displacedInstances = new Set<string>();
+	const SWAY_RADIUS = 0.9;
+	const SWAY_STRENGTH = 0.08;
+	const tmpMatrix = new THREE.Matrix4();
+	let elapsedTime = 0;
+
+	function initBushMesh(ref: THREE.InstancedMesh, matrices: THREE.Matrix4[], groupIndex: number) {
+		applyMatrices(ref, matrices);
+		bushMeshRefs[groupIndex] = ref;
+		bushBaseMatrices[groupIndex] = matrices.map((m) => m.clone());
+	}
+
+	useTask('bush-sway', (delta) => {
+		elapsedTime += delta;
+
+		for (let g = 0; g < bushMeshRefs.length; g++) {
+			const mesh = bushMeshRefs[g];
+			const bases = bushBaseMatrices[g];
+			if (!mesh || !bases) continue;
+
+			let needsUpdate = false;
+
+			for (let i = 0; i < bases.length; i++) {
+				const baseX = bases[i].elements[12];
+				const baseZ = bases[i].elements[14];
+				const dx = baseX - playerPosition.x;
+				const dz = baseZ - playerPosition.z;
+				const key = `${g}-${i}`;
+
+				// Quick reject: skip instances far from player
+				if (Math.abs(dx) > 2 || Math.abs(dz) > 2) {
+					if (displacedInstances.has(key)) {
+						mesh.setMatrixAt(i, bases[i]);
+						displacedInstances.delete(key);
+						needsUpdate = true;
+					}
+					continue;
+				}
+
+				const dist = Math.sqrt(dx * dx + dz * dz);
+
+				if (dist < SWAY_RADIUS) {
+					const swayFactor = 1 - dist / SWAY_RADIUS;
+					const sway = Math.sin(elapsedTime * 8 + i * 1.5) * SWAY_STRENGTH * swayFactor;
+					tmpMatrix.copy(bases[i]);
+					tmpMatrix.elements[12] += sway;
+					mesh.setMatrixAt(i, tmpMatrix);
+					displacedInstances.add(key);
+					needsUpdate = true;
+				} else if (displacedInstances.has(key)) {
+					mesh.setMatrixAt(i, bases[i]);
+					displacedInstances.delete(key);
+					needsUpdate = true;
+				}
+			}
+
+			if (needsUpdate) {
+				mesh.instanceMatrix.needsUpdate = true;
+			}
+		}
+	});
 </script>
 
 {#key mapData}
@@ -230,12 +321,12 @@
 	{/each}
 
 	<!-- Bush sprites (one instanced mesh per texture variant) -->
-	{#each instances.bushSpriteGroups as group (group.texIdx)}
+	{#each instances.bushSpriteGroups as group, groupIndex (group.texIdx)}
 		<T.InstancedMesh
 			args={[undefined, undefined, group.matrices.length]}
 			material={bushSpriteMaterials[group.texIdx]}
 			castShadow
-			oncreate={(ref) => applyMatrices(ref, group.matrices)}
+			oncreate={(ref) => initBushMesh(ref, group.matrices, groupIndex)}
 		>
 			<T.PlaneGeometry args={[1, 0.6]} />
 		</T.InstancedMesh>
