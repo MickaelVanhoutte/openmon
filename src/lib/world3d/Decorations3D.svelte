@@ -7,6 +7,7 @@
 		BUSH_TEXTURES,
 		ROCK_TEXTURES
 	} from '$js/mapping/threlte-maps/tile-textures';
+	import gsap from 'gsap';
 	interface Props {
 		mapData: ThrelteMapData;
 		playerPosition: { x: number; y: number; z: number };
@@ -14,9 +15,6 @@
 	}
 
 	const { mapData, playerPosition, battleActive = false }: Props = $props();
-	// battleActive used by future battle-clearing animation (Task 2)
-	void battleActive;
-
 	const BASE_HEIGHT = 1;
 
 	const textureLoader = new THREE.TextureLoader();
@@ -269,7 +267,55 @@
 		rockBaseMatrices[index] = matrices.map((m) => m.clone());
 	}
 
+	// Battle push animation
+	const CLEARING_RADIUS = 6; // world units
+	const MAX_PUSH_DISTANCE = 4; // max push offset
+	let pushProgress = $state(0); // 0 = normal, 1 = fully pushed
+	let playerSnapshot = { x: 0, z: 0 }; // captured when battle starts
+	let pushTween: gsap.core.Tween | undefined;
+	const pushTmpMatrix = new THREE.Matrix4();
+
+	$effect(() => {
+		// Kill any in-progress tween
+		if (pushTween) {
+			pushTween.kill();
+		}
+
+		if (battleActive) {
+			// Snapshot player position at battle start
+			playerSnapshot = { x: playerPosition.x, z: playerPosition.z };
+
+			// Push outward: 0 → 1 over 0.8s
+			pushTween = gsap.to(
+				{ value: pushProgress },
+				{
+					value: 1,
+					duration: 0.8,
+					ease: 'power3.out',
+					onUpdate: function () {
+						pushProgress = this.targets()[0].value;
+					}
+				}
+			);
+		} else {
+			// Reverse: 1 → 0 over 1.2s
+			pushTween = gsap.to(
+				{ value: pushProgress },
+				{
+					value: 0,
+					duration: 1.2,
+					ease: 'power2.inOut',
+					onUpdate: function () {
+						pushProgress = this.targets()[0].value;
+					}
+				}
+			);
+		}
+	});
+
 	useTask('bush-sway', (delta) => {
+		// Pause sway during battle
+		if (battleActive) return;
 		elapsedTime += delta;
 
 		for (let g = 0; g < bushMeshRefs.length; g++) {
@@ -351,6 +397,76 @@
 				mesh.instanceMatrix.needsUpdate = true;
 			}
 		}
+	});
+
+	useTask('battle-push', () => {
+		// Only run when there's actually a push happening
+		if (pushProgress === 0) return;
+
+		// Helper: apply push to a single decoration mesh
+		const applyPushToMesh = (mesh: THREE.InstancedMesh, baseMatrices: THREE.Matrix4[]) => {
+			for (let i = 0; i < mesh.count; i++) {
+				const base = baseMatrices[i];
+				if (!base) continue;
+
+				// Get base position from stored matrix
+				const baseX = base.elements[12];
+				const baseZ = base.elements[14];
+
+				// Calculate distance from player snapshot
+				const dx = baseX - playerSnapshot.x;
+				const dz = baseZ - playerSnapshot.z;
+				const distance = Math.sqrt(dx * dx + dz * dz);
+
+				// Only push decorations within clearing radius
+				if (distance >= CLEARING_RADIUS) {
+					// Outside radius — restore to base position
+					mesh.setMatrixAt(i, base);
+					continue;
+				}
+
+				// Guard zero distance (decoration exactly on player)
+				if (distance < 0.01) continue;
+
+				// Calculate push amount (stronger near center, weaker at edge)
+				const pushAmount = MAX_PUSH_DISTANCE * (1 - distance / CLEARING_RADIUS) * pushProgress;
+
+				// Direction: radial outward from player in XZ plane
+				const dirX = dx / distance;
+				const dirZ = dz / distance;
+
+				// Apply offset to base matrix
+				pushTmpMatrix.copy(base);
+				pushTmpMatrix.elements[12] = baseX + dirX * pushAmount;
+				pushTmpMatrix.elements[14] = baseZ + dirZ * pushAmount;
+
+				mesh.setMatrixAt(i, pushTmpMatrix);
+			}
+			mesh.instanceMatrix.needsUpdate = true;
+		};
+
+		// Apply push to ALL decoration types
+
+		// Bushes (multiple mesh refs, multiple layers)
+		bushMeshRefs.forEach((mesh, meshIdx) => {
+			if (mesh && bushBaseMatrices[meshIdx]) {
+				applyPushToMesh(mesh, bushBaseMatrices[meshIdx]);
+			}
+		});
+
+		// Trees (multiple mesh refs for cross-planes)
+		treeMeshRefs.forEach((mesh, meshIdx) => {
+			if (mesh && treeBaseMatrices[meshIdx]) {
+				applyPushToMesh(mesh, treeBaseMatrices[meshIdx]);
+			}
+		});
+
+		// Rocks
+		rockMeshRefs.forEach((mesh, meshIdx) => {
+			if (mesh && rockBaseMatrices[meshIdx]) {
+				applyPushToMesh(mesh, rockBaseMatrices[meshIdx]);
+			}
+		});
 	});
 </script>
 
