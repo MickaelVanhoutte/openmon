@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { T, useTask } from '@threlte/core';
+	import { untrack } from 'svelte';
 	import * as THREE from 'three';
 	import { TileType3D, TILE_HEIGHTS, type ThrelteMapData } from '$js/mapping/threlte-maps/types';
 	import {
@@ -275,19 +276,41 @@
 	let pushTween: gsap.core.Tween | undefined;
 	const pushTmpMatrix = new THREE.Matrix4();
 
+	function restoreAllToBase() {
+		bushMeshRefs.forEach((mesh, idx) => {
+			if (mesh && bushBaseMatrices[idx]) {
+				applyMatrices(mesh, bushBaseMatrices[idx]);
+			}
+		});
+		treeMeshRefs.forEach((mesh, idx) => {
+			if (mesh && treeBaseMatrices[idx]) {
+				applyMatrices(mesh, treeBaseMatrices[idx]);
+			}
+		});
+		rockMeshRefs.forEach((mesh, idx) => {
+			if (mesh && rockBaseMatrices[idx]) {
+				applyMatrices(mesh, rockBaseMatrices[idx]);
+			}
+		});
+	}
+
 	$effect(() => {
 		// Kill any in-progress tween
 		if (pushTween) {
 			pushTween.kill();
 		}
 
+		// Read pushProgress without tracking to avoid re-triggering
+		// the effect on every tween update (Zeno's paradox bug)
+		const currentProgress = untrack(() => pushProgress);
+
 		if (battleActive) {
-			// Snapshot player position at battle start
-			playerSnapshot = { x: playerPosition.x, z: playerPosition.z };
+			// Snapshot player position at battle start (untracked to avoid re-triggering)
+			playerSnapshot = untrack(() => ({ x: playerPosition.x, z: playerPosition.z }));
 
 			// Push outward: 0 → 1 over 0.8s
 			pushTween = gsap.to(
-				{ value: pushProgress },
+				{ value: currentProgress },
 				{
 					value: 1,
 					duration: 0.8,
@@ -300,13 +323,17 @@
 		} else {
 			// Reverse: 1 → 0 over 1.2s
 			pushTween = gsap.to(
-				{ value: pushProgress },
+				{ value: currentProgress },
 				{
 					value: 0,
 					duration: 1.2,
 					ease: 'power2.inOut',
 					onUpdate: function () {
 						pushProgress = this.targets()[0].value;
+					},
+					onComplete: () => {
+						pushProgress = 0;
+						restoreAllToBase();
 					}
 				}
 			);
