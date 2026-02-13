@@ -46,7 +46,6 @@
 				map: tex,
 				transparent: true,
 				alphaTest: 0.5,
-				depthTest: false,
 				side: THREE.DoubleSide,
 				roughness: 0.9,
 				color: 0xffffff
@@ -235,7 +234,6 @@
 		<T.InstancedMesh
 			args={[undefined, undefined, group.matrices.length]}
 			material={bushSpriteMaterials[group.texIdx]}
-			renderOrder={10}
 			castShadow
 			oncreate={(ref) => applyMatrices(ref, group.matrices)}
 		>
