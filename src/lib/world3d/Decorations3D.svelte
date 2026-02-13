@@ -118,7 +118,7 @@
 						const bz = z + offsetZ;
 
 						const spriteMat = new THREE.Matrix4();
-						spriteMat.compose(new THREE.Vector3(bx, by + 0.6, bz), identityQuat, oneScale);
+						spriteMat.compose(new THREE.Vector3(bx, by + 0.3, bz), identityQuat, oneScale);
 						if (!bushSpriteMap.has(bushTexIdx)) {
 							bushSpriteMap.set(bushTexIdx, []);
 						}
@@ -151,7 +151,7 @@
 						const by = BASE_HEIGHT + tileHeight;
 
 						const spriteMat = new THREE.Matrix4();
-						spriteMat.compose(new THREE.Vector3(x, by + 0.6, z), identityQuat, oneScale);
+						spriteMat.compose(new THREE.Vector3(x, by + 0.3, z), identityQuat, oneScale);
 						if (!bushSpriteMap.has(bushTexIdx)) {
 							bushSpriteMap.set(bushTexIdx, []);
 						}
@@ -166,7 +166,7 @@
 					const by = BASE_HEIGHT + tileHeight;
 
 					const spriteMat = new THREE.Matrix4();
-					spriteMat.compose(new THREE.Vector3(x, by + 0.6, z), identityQuat, oneScale);
+					spriteMat.compose(new THREE.Vector3(x, by + 0.3, z), identityQuat, oneScale);
 					if (!bushSpriteMap.has(bushTexIdx)) {
 						bushSpriteMap.set(bushTexIdx, []);
 					}
@@ -237,7 +237,7 @@
 			castShadow
 			oncreate={(ref) => applyMatrices(ref, group.matrices)}
 		>
-			<T.PlaneGeometry args={[1, 1.2]} />
+			<T.PlaneGeometry args={[0.5, 0.6]} />
 		</T.InstancedMesh>
 	{/each}
 
