@@ -36,6 +36,7 @@
 	let frameHeight = $state(0);
 	let imgWidth = $state(1);
 	let imgHeight = $state(1);
+	let bottomOffset = $state(0);
 	let animFrame = $state(0);
 	let animElapsed = $state(0);
 	let stationaryTime = $state(0);
@@ -86,6 +87,7 @@
 				frameCount = info.frameCount;
 				frameWidth = info.frameWidth;
 				frameHeight = info.frameHeight;
+				bottomOffset = info.bottomOffset;
 				imgWidth = img.width;
 				imgHeight = img.height;
 
@@ -115,6 +117,7 @@
 							frameCount = info.frameCount;
 							frameWidth = info.frameWidth;
 							frameHeight = info.frameHeight;
+							bottomOffset = info.bottomOffset;
 							imgWidth = fallbackImg.width;
 							imgHeight = fallbackImg.height;
 
@@ -217,7 +220,13 @@
 		<T.CircleGeometry args={[0.2 * sizeScale, 16]} />
 		<T.MeshBasicMaterial color="#000000" transparent opacity={0.25} depthWrite={false} />
 	</T.Mesh>
-	<Billboard position={[visualPosition.x, visualPosition.y + planeHeight / 2, visualPosition.z]}>
+	<Billboard
+		position={[
+			visualPosition.x,
+			visualPosition.y + planeHeight / 2 - (bottomOffset * planeHeight) / (frameHeight || 1),
+			visualPosition.z
+		]}
+	>
 		<T.Mesh>
 			<T.PlaneGeometry args={[planeWidth, planeHeight]} />
 			<T.MeshStandardMaterial map={texture} transparent alphaTest={0.5} side={THREE.DoubleSide} />
