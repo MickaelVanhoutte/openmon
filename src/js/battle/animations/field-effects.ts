@@ -1,5 +1,4 @@
 import { type AnimationEngine } from './animation-engine';
-import { type Position } from './position-system';
 
 export type WeatherType = 'rain' | 'sun' | 'sandstorm' | 'hail' | 'snow' | 'none';
 export type TerrainType = 'electric' | 'grassy' | 'psychic' | 'misty' | 'none';
@@ -64,8 +63,8 @@ export async function animateTerrain(
 
 export async function animateEntryHazard(
 	engine: AnimationEngine,
-	hazardType: string,
-	side: 'player' | 'opponent'
+	_hazardType?: string,
+	_side?: 'player' | 'opponent'
 ): Promise<void> {
 	await engine.wait(50);
 }

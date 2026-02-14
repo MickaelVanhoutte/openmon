@@ -5,7 +5,6 @@ import dirtUrl from '../../../assets/tiles/dirt.png';
 import sandUrl from '../../../assets/tiles/sand.png';
 import grassFlowersUrl from '../../../assets/tiles/grass-flowers.png';
 import highGrassUrl from '../../../assets/tiles/high-grass2.png';
-import bushUrl from '../../../assets/tiles/bush.png';
 import planksUrl from '../../../assets/tiles/planks.png';
 import wallUrl from '../../../assets/tiles/wall.png';
 import rock1Url from '../../../assets/tiles/rock1.png';

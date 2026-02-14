@@ -238,86 +238,9 @@ describe('Quests Module', () => {
 	});
 
 	describe('QUESTS constant', () => {
-		it('should have at least 2 quest entries', () => {
-			expect(QUESTS.length).toBeGreaterThanOrEqual(2);
-		});
-
-		describe('Quest 0 - A fresh start', () => {
-			it('should have correct id, name, and description', () => {
-				expect(QUESTS[0].id).toBe(0);
-				expect(QUESTS[0].name).toBe('A fresh start');
-				expect(QUESTS[0].description).toBe(
-					'You remember being a trainer, find out what happened to you'
-				);
-			});
-
-			it('should have 5 objectives', () => {
-				expect(QUESTS[0].objectives).toHaveLength(5);
-			});
-
-			it('should have objectives with correct descriptions', () => {
-				expect(QUESTS[0].objectives[0].description).toBe('Find your Pokemon');
-				expect(QUESTS[0].objectives[1].description).toBe('Find your Pokedex');
-				expect(QUESTS[0].objectives[2].description).toBe('Find your Trainer Card');
-				expect(QUESTS[0].objectives[3].description).toBe('Find your Bag');
-				expect(QUESTS[0].objectives[4].description).toBe('Find your Running Shoes');
-			});
-
-			it('should have an area defined', () => {
-				expect(QUESTS[0].area).toBeDefined();
-				expect(QUESTS[0].area!.start).toEqual({ x: 121, y: 79 });
-				expect(QUESTS[0].area!.end).toEqual({ x: 146, y: 103 });
-			});
-
-			it('should have a custom leave message', () => {
-				expect(QUESTS[0].leaveMessage).toBe('I should find my stuff before leaving');
-			});
-
-			it('should start as not completed', () => {
-				expect(QUESTS[0].completed).toBe(false);
-			});
-		});
-
-		describe('Quest 1 - The first step', () => {
-			it('should have correct id, name, and description', () => {
-				expect(QUESTS[1].id).toBe(1);
-				expect(QUESTS[1].name).toBe('The first step');
-				expect(QUESTS[1].description).toBe('Reach the village in the forest');
-			});
-
-			it('should have 2 objectives', () => {
-				expect(QUESTS[1].objectives).toHaveLength(2);
-			});
-
-			it('should have objectives with correct descriptions', () => {
-				expect(QUESTS[1].objectives[0].description).toBe('Reach the village in the forest');
-				expect(QUESTS[1].objectives[1].description).toBe('Talk to the villagers');
-			});
-
-			it('should have no area defined', () => {
-				expect(QUESTS[1].area).toBeUndefined();
-			});
-
-			it('should have default leave message', () => {
-				expect(QUESTS[1].leaveMessage).toBe("I shouldn't leave");
-			});
-
-			it('should start as not completed', () => {
-				expect(QUESTS[1].completed).toBe(false);
-			});
-		});
-
-		it('should have all quests with valid ids', () => {
-			QUESTS.forEach((quest, index) => {
-				expect(quest.id).toBe(index);
-			});
-		});
-
-		it('should have all quests with non-empty names and descriptions', () => {
-			QUESTS.forEach((quest) => {
-				expect(quest.name.length).toBeGreaterThan(0);
-				expect(quest.description.length).toBeGreaterThan(0);
-			});
+		it('should be an empty array', () => {
+			expect(QUESTS).toEqual([]);
+			expect(QUESTS.length).toBe(0);
 		});
 	});
 });

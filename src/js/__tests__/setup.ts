@@ -2,7 +2,6 @@ import { vi } from 'vitest';
 
 // Mock fetch globally
 const originalFetch = global.fetch;
-// @ts-ignore
 global.fetch = vi.fn((url: string | URL | Request, init?: RequestInit) => {
 	const urlString = typeof url === 'string' ? url : url instanceof URL ? url.toString() : url.url;
 
@@ -37,8 +36,7 @@ vi.mock('howler', () => ({
 
 // Mock CanvasRenderingContext2D if not already available in jsdom
 if (typeof window !== 'undefined' && !window.CanvasRenderingContext2D) {
-	// @ts-ignore
-	window.CanvasRenderingContext2D = vi.fn();
+	window.CanvasRenderingContext2D = vi.fn() as any;
 }
 
 // Mock gsap

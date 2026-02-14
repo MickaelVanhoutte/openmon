@@ -89,19 +89,23 @@ describe('High Floor Edge Cases', () => {
 
 	describe('floor type classification at boundaries', () => {
 		it('should classify floor 50 as boss (50 % 5 === 0)', () => {
-			expect(50 % 5 === 0 && 50 > 0).toBe(true);
+			const floorNumber = 50;
+			expect(floorNumber % 5 === 0 && floorNumber > 0).toBe(true);
 		});
 
 		it('should classify floor 75 as boss (75 % 5 === 0)', () => {
-			expect(75 % 5 === 0 && 75 > 0).toBe(true);
+			const floorNumber = 75;
+			expect(floorNumber % 5 === 0 && floorNumber > 0).toBe(true);
 		});
 
 		it('should classify floor 100 as boss (100 % 5 === 0)', () => {
-			expect(100 % 5 === 0 && 100 > 0).toBe(true);
+			const floorNumber = 100;
+			expect(floorNumber % 5 === 0 && floorNumber > 0).toBe(true);
 		});
 
 		it('should classify floor 99 as rest (99 % 5 === 4)', () => {
-			expect(99 % 5 === 4 && 99 > 0).toBe(true);
+			const floorNumber = 99;
+			expect(floorNumber % 5 === 4 && floorNumber > 0).toBe(true);
 		});
 	});
 

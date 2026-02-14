@@ -1,7 +1,7 @@
 import '@abraham/reflection';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { Weather, BattleField } from '../battle/battle-field';
-import { container, injectable, registry } from 'tsyringe';
+import { container } from 'tsyringe';
 
 // Mocking the interfaces and classes needed for the test
 interface EffectResult {

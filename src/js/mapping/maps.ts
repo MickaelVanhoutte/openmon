@@ -196,6 +196,34 @@ export class OpenMap {
 		return map;
 	}
 
+	/**
+	 * Creates a minimal 1x1 stub map for use when no real map is available.
+	 * Used as a fallback when MAPS[mapId] is undefined (e.g. dungeon bootstrap).
+	 */
+	public static empty(): OpenMap {
+		return new OpenMap(
+			-1,
+			'',
+			1,
+			1,
+			[],
+			[],
+			[],
+			[],
+			new Position(0, 0),
+			[1, 1],
+			[],
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+			[],
+			[],
+			undefined,
+			[]
+		);
+	}
+
 	// TODO : scripts/npc states
 	public static fromInstance(map: OpenMap, playerPosition?: Position): OpenMap {
 		const newMap = new OpenMap(
@@ -388,273 +416,5 @@ export class OpenMap {
 				);
 			}) || this.itemAt(elementPosition)
 		);
-	}
-
-	private images: Record<string, HTMLImageElement> = {};
-
-	draw(
-		ctx: CanvasRenderingContext2D,
-		map: OpenMap,
-		scale: number,
-		playerPosition: Position,
-		debug: boolean = false
-	): {
-		width: number;
-		height: number;
-		centerX: number;
-		offsetX: number;
-		centerY: number;
-		offsetY: number;
-	} {
-		let image = this.images[map.background];
-		if (image && image.complete) {
-			return this.drawImage(ctx, image, map, scale, playerPosition, debug);
-		} else {
-			image = new Image();
-			image.src = map.background;
-			image.onload = () => {
-				this.images[map.background] = image;
-				return this.drawImage(ctx, image, map, scale, playerPosition, debug);
-			};
-		}
-		return { width: 0, height: 0, centerX: 0, offsetX: 0, centerY: 0, offsetY: 0 };
-	}
-
-	drawFG(
-		ctx: CanvasRenderingContext2D,
-		map: OpenMap,
-		scale: number,
-		playerPosition: Position,
-		mapDim: {
-			width: number;
-			height: number;
-			centerX: number;
-			offsetX: number;
-			centerY: number;
-			offsetY: number;
-		}
-	) {
-		if (map.foreground !== undefined) {
-			let image = this.images[map.foreground];
-			if (image && image.complete) {
-				this.drawImage(ctx, image, map, scale, playerPosition, false, mapDim);
-			} else {
-				image = new Image();
-				image.src = map.foreground;
-				image.onload = () => {
-					if (map.foreground) {
-						this.images[map.foreground] = image;
-						this.drawImage(ctx, image, map, scale, playerPosition, false, mapDim);
-					}
-				};
-			}
-		}
-	}
-
-	drawMini(
-		ctx: CanvasRenderingContext2D,
-		map: OpenMap,
-		scale: number,
-		playerPosition: Position,
-		enlargedMap: boolean = false
-	) {
-		if (map.background !== undefined) {
-			let image = this.images[map.background];
-			if (image && image.complete) {
-				this.drawMiniImage(ctx, image, map, scale, playerPosition, false, enlargedMap);
-			} else {
-				image = new Image();
-				image.src = map.background;
-				image.onload = () => {
-					if (map.background) {
-						this.images[map.background] = image;
-						this.drawMiniImage(ctx, image, map, scale, playerPosition, false, enlargedMap);
-					}
-				};
-			}
-		}
-	}
-
-	private drawImage(
-		ctx: CanvasRenderingContext2D,
-		image: HTMLImageElement,
-		map: OpenMap,
-		scale: number,
-		playerPosition: Position,
-		debug: boolean = false,
-		mapDim?: {
-			width: number;
-			height: number;
-			centerX: number;
-			offsetX: number;
-			centerY: number;
-			offsetY: number;
-		}
-	): {
-		width: number;
-		height: number;
-		centerX: number;
-		offsetX: number;
-		centerY: number;
-		offsetY: number;
-	} {
-		let centerX,
-			centerY,
-			offsetX = 0,
-			offsetY = 0;
-
-		if (mapDim) {
-			// Do not recalculates the center of the screen (for foreground)
-			centerX = mapDim.centerX;
-			centerY = mapDim.centerY;
-			offsetX = mapDim.offsetX;
-			offsetY = mapDim.offsetY;
-		} else {
-			const screenDimensions = {
-				width: ctx.canvas.width,
-				height: ctx.canvas.height
-			};
-
-			centerX = screenDimensions.width / 2;
-			centerY = screenDimensions.height / 2;
-
-			offsetX = playerPosition.x;
-			offsetY = playerPosition.y;
-
-			const minLeftSide = Math.min(centerX / 2, window.innerWidth / 4 - (16 * 1) / 2);
-			const minRightSide = image.width * scale - minLeftSide;
-			const minTopSide = Math.min(centerY, window.innerHeight / 4 - (16 * 1) / 2);
-			const minBottomSide = image.height * scale - minTopSide;
-
-			const leftThreshold = playerPosition.x <= minLeftSide;
-			const rightThreshold = playerPosition.x > minRightSide;
-			const topThreshold = playerPosition.y <= minTopSide;
-			const bottomThreshold = playerPosition.y > minBottomSide;
-
-			if (leftThreshold) {
-				offsetX = minLeftSide;
-			}
-			if (topThreshold) {
-				offsetY = minTopSide;
-			}
-			if (rightThreshold) {
-				offsetX = minRightSide;
-			}
-			if (bottomThreshold) {
-				offsetY = minBottomSide;
-			}
-		}
-
-		ctx.save();
-		ctx.translate(centerX - offsetX, centerY - offsetY);
-
-		ctx.drawImage(
-			image,
-			0,
-			0,
-			image.width,
-			image.height,
-			0,
-			0,
-			image.width * scale,
-			image.height * scale
-		);
-
-		if (debug) {
-			ctx.font = '8px Arial';
-			for (let i = 0; i < map.width; i++) {
-				for (let j = 0; j < map.height; j++) {
-					if (map.hasBoundaryAt(new Position(i, j))) {
-						ctx.fillStyle = 'rgba(0, 0, 255, 0.3)';
-						ctx.fillRect(i * 16 * scale, j * 16 * scale, 16 * scale, 16 * scale);
-					} else if (map.hasBattleZoneAt(new Position(i, j))) {
-						ctx.fillStyle = 'rgba(0, 255, 0, 0.3)';
-						ctx.fillRect(i * 16 * scale, j * 16 * scale, 16 * scale, 16 * scale);
-					}
-					ctx.strokeStyle = 'rgba(0, 0, 0, 0.8)';
-					ctx.strokeRect(i * 16 * scale, j * 16 * scale, 16 * scale, 16 * scale);
-					ctx.fillStyle = 'rgba(0, 0, 0, 1)';
-					ctx.fillText(`[${i}, ${j}]`, i * 16 * scale + 4, j * 16 * scale + 12);
-				}
-			}
-		}
-
-		ctx.restore();
-
-		return {
-			width: image.width * scale,
-			height: image.height * scale,
-			centerX,
-			offsetX,
-			centerY,
-			offsetY
-		};
-	}
-
-	private drawMiniImage(
-		ctx: CanvasRenderingContext2D,
-		image: HTMLImageElement,
-		_map: OpenMap,
-		_scaleInit: number,
-		playerPosition: Position,
-		_debug: boolean = false,
-		enlargedMap: boolean = false
-	) {
-		const scale = 1 * (enlargedMap ? 0.8 : 1);
-		const playerPos = new Position(playerPosition.x * 16 * scale, playerPosition.y * 16 * scale);
-
-		const screenDimensions = {
-			width: ctx.canvas.width,
-			height: ctx.canvas.height
-		};
-
-		const centerX = screenDimensions.width / 2;
-		const centerY = screenDimensions.height / 2;
-		let offsetX = playerPos.x;
-		let offsetY = playerPos.y;
-
-		const minLeftSide = Math.min(centerX / 2, window.innerWidth / 4 - (16 * 1) / 2);
-		const minRightSide = image.width * scale - minLeftSide;
-		const minTopSide = Math.min(centerY, window.innerHeight / 4 - (16 * 1) / 2);
-		const minBottomSide = image.height * scale - minTopSide;
-
-		const leftThreshold = playerPos.x <= minLeftSide;
-		const rightThreshold = playerPos.x > minRightSide;
-		const topThreshold = playerPos.y <= minTopSide;
-		const bottomThreshold = playerPos.y > minBottomSide;
-
-		if (leftThreshold) {
-			offsetX = minLeftSide;
-		}
-		if (topThreshold) {
-			offsetY = minTopSide;
-		}
-		if (rightThreshold) {
-			offsetX = minRightSide;
-		}
-		if (bottomThreshold) {
-			offsetY = minBottomSide;
-		}
-
-		ctx.save();
-		ctx.translate(centerX - offsetX, centerY - offsetY);
-
-		ctx.drawImage(
-			image,
-			0,
-			0,
-			image.width,
-			image.height,
-			0,
-			0,
-			image.width * scale,
-			image.height * scale
-		);
-
-		ctx.fillStyle = 'blue';
-		ctx.fillRect(playerPos.x - 12 * scale, playerPos.y - 12 * scale, 24 * scale, 24 * scale);
-		ctx.fillStyle = 'black';
-
-		ctx.restore();
 	}
 }
