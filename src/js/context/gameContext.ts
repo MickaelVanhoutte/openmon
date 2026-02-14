@@ -664,6 +664,7 @@ export class GameContext {
 								const pokemon = ctx.POKEDEX.findById(starterId).result?.instanciate(5);
 								if (pokemon) {
 									ctx.player.monsters.push(pokemon);
+									ctx.player.setFollower(pokemon);
 									ctx.POKEDEX.setCaught(starterId);
 								}
 								// Complete all 'A fresh start' quest objectives to unlock menus and movement
@@ -851,6 +852,9 @@ export class GameContext {
 						if (availableBox) {
 							availableBox.add(result.caught);
 						}
+					}
+					if (!this.player.follower) {
+						this.player.setFollower(result.caught);
 					}
 				}
 
