@@ -103,24 +103,4 @@ export class QuestState {
 	}
 }
 
-export const QUESTS = [
-	new Quest(
-		0,
-		'A fresh start',
-		'You remember being a trainer, find out what happened to you',
-		[
-			new Objective(0, 'Find your Pokemon'),
-			new Objective(1, 'Find your Pokedex'),
-			new Objective(2, 'Find your Trainer Card'),
-			new Objective(3, 'Find your Bag'),
-			new Objective(4, 'Find your Running Shoes')
-			// new Objective(5, "Discover what happened here"),
-		],
-		{ start: { x: 121, y: 79 }, end: { x: 146, y: 103 } },
-		'I should find my stuff before leaving'
-	),
-	new Quest(1, 'The first step', 'Reach the village in the forest', [
-		new Objective(0, 'Reach the village in the forest'),
-		new Objective(1, 'Talk to the villagers')
-	])
-];
+export const QUESTS: Quest[] = [];

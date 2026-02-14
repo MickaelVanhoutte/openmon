@@ -2,13 +2,8 @@ import { Pokedex, PokemonInstance } from '../pokemons/pokedex';
 import { VolatileTracker } from '../pokemons/volatile-status';
 import { Bag } from '../items/bag';
 import { Position } from '../mapping/positions';
-import { centerObject, CHARACTER_SPRITES, PlayerSprite } from '../sprites/sprites';
-import {
-	type Character,
-	CharacterPosition,
-	RUNNING_SPEED,
-	WALKING_SPEED
-} from './characters-model';
+import { CHARACTER_SPRITES, PlayerSprite } from '../sprites/sprites';
+import { type Character, CharacterPosition } from './characters-model';
 import { Follower } from './follower';
 import type { OverworldContext } from '../context/overworldContext';
 import { Mastery, MasteryType, PlayerMasteries } from './mastery-model';
@@ -267,124 +262,6 @@ export class Player implements Character {
 				return 'right';
 			case 'right':
 				return 'left';
-		}
-	}
-
-	public draw(
-		ctx: CanvasRenderingContext2D,
-		scale: number,
-		mapDim: {
-			width: number;
-			height: number;
-			centerX: number;
-			offsetX: number;
-			centerY: number;
-			offsetY: number;
-		},
-		drawGrass: boolean
-	): { centerX: number; centerY: number; offsetX: number; offsetY: number } | undefined {
-		if (this.monsters.length > 0) {
-			if (this.position.direction === 'up') {
-				return this.drawPlayer(ctx, scale, mapDim, drawGrass);
-				//this.walkerDrawer.draw(ctx, playerPosition, this.direction, scale, this.moving, playerPosition, this.monsters[0], mapDim, drawGrass);
-			} else {
-				//this.walkerDrawer.draw(ctx, playerPosition, this.direction, scale, this.moving, playerPosition, this.monsters[0], mapDim, drawGrass);
-				return this.drawPlayer(ctx, scale, mapDim, drawGrass);
-			}
-		} else {
-			return this.drawPlayer(ctx, scale, mapDim, drawGrass);
-		}
-	}
-
-	private drawPlayer(
-		ctx: CanvasRenderingContext2D,
-		scale: number,
-		mapDim: {
-			width: number;
-			height: number;
-			centerX: number;
-			offsetX: number;
-			centerY: number;
-			offsetY: number;
-		},
-		drawGrass: boolean
-	): { centerX: number; centerY: number; offsetX: number; offsetY: number } | undefined {
-		const sprite =
-			this.running && this.moving ? this.sprite.overworld.running : this.sprite.overworld.walking;
-		const img =
-			this.running && this.moving ? this.sprite.worldRunningImg : this.sprite.worldWalkingImg;
-
-		if (img && img.complete) {
-			if (this.moving) {
-				if (this.sprite.frames.max > 1) {
-					this.sprite.frames.elapsed += 1;
-				}
-
-				if (this.sprite.frames.elapsed % 2 === 0) {
-					this.sprite.frames.val += 1;
-				}
-
-				if (this.sprite.frames.val > this.sprite.frames.max - 1) {
-					this.sprite.frames.val = 0;
-				}
-			} else {
-				this.sprite.frames.val = 0;
-			}
-
-			const sY = this.sprite.orientationIndexes[this.position.direction] * (sprite?.height || 64);
-
-			if (this.moving) {
-				const speed = this.running ? RUNNING_SPEED : WALKING_SPEED;
-
-				const deltaX = this.position.targetPosition.x - this.position.positionOnMap.x;
-				const deltaY = this.position.targetPosition.y - this.position.positionOnMap.y;
-
-				const deltaXPx = this.position.targetPositionInPx.x - this.position.positionInPx.x;
-				const deltaYPx = this.position.targetPositionInPx.y - this.position.positionInPx.y;
-
-				const moveByX = ((16 * 2.5) / 2) * speed * deltaX;
-				const moveByY = ((16 * 2.5) / 2) * speed * deltaY;
-
-				const distance = Math.sqrt(deltaXPx * deltaXPx + deltaYPx * deltaYPx);
-
-				if (distance < Math.abs(moveByX) + Math.abs(moveByY) + 1) {
-					this.position.positionInPx.x = this.position.targetPositionInPx.x;
-					this.position.positionInPx.y = this.position.targetPositionInPx.y;
-					this.position.positionOnMap = this.position.targetPosition;
-					this.moving = false;
-					if (this.position.onReachTarget) {
-						const callback = this.position.onReachTarget;
-						this.position.onReachTarget = undefined;
-						callback();
-					}
-				} else {
-					this.position.positionInPx.x += moveByX;
-					this.position.positionInPx.y += moveByY;
-				}
-			}
-
-			const centered = centerObject(ctx, scale, scale, this.position.positionInPx, 16, 16, mapDim);
-			const { centerX, centerY } = centered;
-			let { offsetX, offsetY } = centered;
-			offsetY += 12;
-			offsetX += 4;
-
-			ctx.save();
-			ctx.translate(centerX - offsetX, centerY - offsetY);
-
-			ctx.drawImage(
-				img,
-				this.sprite.frames.val * (sprite?.width || 64),
-				sY,
-				sprite?.width || 64,
-				drawGrass ? (sprite?.height || 64) * 0.8 : sprite?.height || 64,
-				0,
-				0,
-				(sprite?.width || 64) * scale,
-				drawGrass ? (sprite?.height || 64) * scale * 0.8 : (sprite?.height || 64) * scale
-			);
-			ctx.restore();
-			return { centerX, centerY, offsetX, offsetY };
 		}
 	}
 }

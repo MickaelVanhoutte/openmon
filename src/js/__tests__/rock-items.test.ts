@@ -37,7 +37,6 @@ describe('Weather Duration Rock Items', () => {
 		it('should last 8 turns with Damp Rock', () => {
 			const effect = new RainEffect();
 			const user = createMockPokemon('Damp Rock');
-			// @ts-ignore - we will add user parameter to applyWeather
 			effect.applyWeather(battleField, 5, user);
 			expect(battleField.weather).toBe(Weather.RAIN);
 			expect(battleField.weatherTurns).toBe(8);
@@ -56,7 +55,6 @@ describe('Weather Duration Rock Items', () => {
 		it('should last 8 turns with Heat Rock', () => {
 			const effect = new SunEffect();
 			const user = createMockPokemon('Heat Rock');
-			// @ts-ignore
 			effect.applyWeather(battleField, 5, user);
 			expect(battleField.weather).toBe(Weather.SUN);
 			expect(battleField.weatherTurns).toBe(8);
@@ -75,7 +73,6 @@ describe('Weather Duration Rock Items', () => {
 		it('should last 8 turns with Smooth Rock', () => {
 			const effect = new SandstormEffect();
 			const user = createMockPokemon('Smooth Rock');
-			// @ts-ignore
 			effect.applyWeather(battleField, 5, user);
 			expect(battleField.weather).toBe(Weather.SAND);
 			expect(battleField.weatherTurns).toBe(8);
@@ -94,7 +91,6 @@ describe('Weather Duration Rock Items', () => {
 		it('should last 8 turns with Icy Rock', () => {
 			const effect = new HailEffect();
 			const user = createMockPokemon('Icy Rock');
-			// @ts-ignore
 			effect.applyWeather(battleField, 5, user);
 			expect(battleField.weather).toBe(Weather.HAIL);
 			expect(battleField.weatherTurns).toBe(8);

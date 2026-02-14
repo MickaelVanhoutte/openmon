@@ -75,7 +75,7 @@ export class OverworldContext {
 
 	map: OpenMap;
 
-	setPaused(paused: boolean, caller: string, infos?: any) {
+	setPaused(paused: boolean, _caller?: string, _infos?: any) {
 		this.isPaused = paused;
 	}
 

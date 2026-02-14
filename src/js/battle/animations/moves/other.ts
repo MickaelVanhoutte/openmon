@@ -216,7 +216,6 @@ async function sizeChangeAnimation(engine: AnimationEngine, context: MoveContext
 	const { attacker, moveName } = context;
 	const homeScale = attacker.homePosition?.scale ?? 1;
 
-	const growMoves = ['growth', 'belly-drum', 'bulk-up', 'work-up'];
 	const shrinkMoves = ['minimize'];
 
 	if (shrinkMoves.includes(moveName)) {

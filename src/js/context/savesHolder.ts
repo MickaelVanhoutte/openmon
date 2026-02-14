@@ -5,7 +5,7 @@ import { Pokedex, PokemonInstance, SavedEntry, UnknownMonster } from '../pokemon
 import { Settings } from '../characters/settings';
 import { GameContext } from './gameContext';
 import { writable, type Writable } from 'svelte/store';
-import { FlagEntry, Flags, ObjectiveState, QuestState } from '../scripting/quests';
+import { Flags, ObjectiveState, QuestState } from '../scripting/quests';
 import { QUESTS } from '../scripting/quests';
 
 /**

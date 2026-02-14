@@ -2,8 +2,7 @@ import {
 	type AnimationEngine,
 	type MoveContext,
 	type MoveAnimation,
-	TYPE_HUE_ANGLES,
-	type PokemonSprite
+	TYPE_HUE_ANGLES
 } from '../animation-engine';
 import { gsap } from 'gsap';
 

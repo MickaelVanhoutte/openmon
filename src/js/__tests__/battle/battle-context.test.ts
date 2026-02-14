@@ -49,7 +49,9 @@ describe('BattleContext Utilities', () => {
 			actions.sort((a, b) => {
 				const aPri = typePriority[a.type] ?? 0;
 				const bPri = typePriority[b.type] ?? 0;
-				if (aPri !== bPri) return aPri - bPri; // ascending for LIFO
+				if (aPri !== bPri) {
+					return aPri - bPri; // ascending for LIFO
+				}
 				return (a.initiator.battleStats?.speed ?? 0) - (b.initiator.battleStats?.speed ?? 0);
 			});
 
@@ -79,7 +81,9 @@ describe('BattleContext Utilities', () => {
 			actions.sort((a, b) => {
 				const aPri = a.move?.priority ?? 0;
 				const bPri = b.move?.priority ?? 0;
-				if (aPri !== bPri) return aPri - bPri;
+				if (aPri !== bPri) {
+					return aPri - bPri;
+				}
 				return (a.initiator.battleStats?.speed ?? 0) - (b.initiator.battleStats?.speed ?? 0);
 			});
 

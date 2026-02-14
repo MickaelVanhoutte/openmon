@@ -58,7 +58,7 @@ export function createMockTimeline(): MockTimeline {
 			return timeline;
 		},
 
-		add(child, _position) {
+		add(_child, _position) {
 			// For nested timelines, we'd need more complex handling
 			return timeline;
 		},
@@ -104,7 +104,7 @@ export function createMockGsap() {
 	const timelines: MockTimeline[] = [];
 
 	return {
-		timeline: (config?: Record<string, unknown>) => {
+		timeline: (_config?: Record<string, unknown>) => {
 			const tl = createMockTimeline();
 			timelines.push(tl);
 			return tl;

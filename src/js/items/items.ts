@@ -15,7 +15,7 @@ export class Pokeball extends AItem {
 		return new Pokeball(this.id, this.categoryId, this.name, this.description, this.power);
 	}
 
-	doesApply(target: PokemonInstance, current?: PokemonInstance, ctx?: BattleContext): boolean {
+	doesApply(_target: PokemonInstance, _current?: PokemonInstance, ctx?: BattleContext): boolean {
 		return !(!ctx || ctx.opponent instanceof Player);
 	}
 
@@ -54,7 +54,7 @@ export class HealingItem extends AItem {
 		return new HealingItem(this.id, this.categoryId, this.name, this.description, this.power);
 	}
 
-	doesApply(target: PokemonInstance, current?: PokemonInstance, ctx?: BattleContext): boolean {
+	doesApply(target: PokemonInstance, _current?: PokemonInstance, _ctx?: BattleContext): boolean {
 		return !(!target.fainted && target.currentHp === target.currentStats.hp);
 	}
 
@@ -76,7 +76,7 @@ export class ReviveItem extends AItem {
 		return new ReviveItem(this.id, this.categoryId, this.name, this.description, this.power);
 	}
 
-	doesApply(target: PokemonInstance, current?: PokemonInstance, ctx?: BattleContext): boolean {
+	doesApply(target: PokemonInstance, _current?: PokemonInstance, _ctx?: BattleContext): boolean {
 		return target.fainted;
 	}
 	apply(target: PokemonInstance): ItemUsageResult {

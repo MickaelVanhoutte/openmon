@@ -1,10 +1,5 @@
 import gsap from 'gsap';
-import {
-	BattlePositionSystem,
-	type Position,
-	type ScreenCoords,
-	type BattleSlot
-} from './position-system';
+import { BattlePositionSystem, type Position, type BattleSlot } from './position-system';
 import { EffectPool } from './effect-pool';
 import { EFFECT_MANIFEST } from './effect-manifest';
 import { registerCustomEasings, type EasingType } from './easing';

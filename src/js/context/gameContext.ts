@@ -6,7 +6,7 @@ import {
 	type Interactive
 } from '../characters/characters-model';
 import { Settings } from '../characters/settings';
-import { Pokedex, PokemonInstance, SavedEntry } from '../pokemons/pokedex';
+import { Pokedex, PokemonInstance } from '../pokemons/pokedex';
 import { PokemonBox } from '../pokemons/boxes';
 import { Position } from '../mapping/positions';
 import { MenuType, OverworldContext, SceneType } from './overworldContext';
@@ -16,14 +16,11 @@ import { OverworldItem } from '../items/overworldItem';
 import { SeededRNG } from '../dungeon/prng';
 import { NPC } from '../characters/npc';
 import { ItemsReferences } from '../items/items';
-import { firstBeach } from '../mapping/maps/firstBeach';
 import { get, writable, type Writable } from 'svelte/store';
 import { SaveContext } from './savesHolder';
 import type { Jonction } from '../mapping/collisions';
-import { pokecenter1 } from '../mapping/maps/pokecenter1';
-import { forest } from '../mapping/maps/forest';
 import { OverworldSpawn } from '../characters/overworld-spawn';
-import { Flags, Objective, ObjectiveState, QUESTS, Quest, QuestState } from '../scripting/quests';
+import { Flags, ObjectiveState, Quest, QuestState } from '../scripting/quests';
 import { Notifications } from '../scripting/notifications';
 import { BattleType } from '../battle/battle-model';
 import { AudioManager, QuestManager, ScriptRunner } from './managers';
@@ -46,11 +43,7 @@ import { TileType3D } from '../mapping/threlte-maps/types';
 export class GameContext {
 	ITEMS = new ItemsReferences();
 	POKEDEX = new Pokedex();
-	MAPS: Record<number, OpenMap> = {
-		0: firstBeach,
-		1: forest,
-		99: pokecenter1
-	};
+	MAPS: Record<number, OpenMap> = {};
 
 	id: number;
 	updated: number;
@@ -105,11 +98,10 @@ export class GameContext {
 					box.values.map((pkmn) => (pkmn ? (pkmn as PokemonInstance) : undefined))
 				)
 		);
+		const mapTemplate = this.MAPS[save.currentMap.mapId] ?? OpenMap.empty();
 		this.map = OpenMap.fromInstance(
-			this.MAPS[save.currentMap.mapId],
-			save.isNewGame
-				? this.MAPS[save.currentMap.mapId].playerInitialPosition
-				: save.player.position.positionOnMap
+			mapTemplate,
+			save.isNewGame ? mapTemplate.playerInitialPosition : save.player.position.positionOnMap
 		);
 		this.map.items = this.map.items.filter((i) => !save.currentMap.pickedItems.includes(i.id || 0));
 		this.settings = save.settings;
@@ -489,66 +481,11 @@ export class GameContext {
 			if (npcOnEnter?.length > 0) {
 				this.scriptRunner.playMovements(npcOnEnter, this);
 			}
-
-			this.overworldSpawn();
 		}, 1000);
 		setTimeout(() => {
 			//overworldContext.displayChangingMap = false;
 			//checkForGameStart();
 		}, 2000);
-	}
-
-	overworldSpawn() {
-		setInterval(() => {
-			const dc = get(dungeonContext);
-			if (dc?.isDungeonMode) {
-				return;
-			}
-			if (!this.spawned) {
-				let direction: 'up' | 'down' | 'left' | 'right' = 'right';
-				let x =
-					this.player.position.positionOnMap.x - 20 < 0
-						? 0
-						: this.player.position.positionOnMap.x - 20;
-				if (Math.random() > 0.5) {
-					direction = 'left';
-					x =
-						this.player.position.positionOnMap.x + 20 > this.map.width
-							? this.map.width - 1
-							: this.player.position.positionOnMap.x + 20;
-				}
-				let y = Math.floor(Math.random() * 21) - 10 + this.player.position.positionOnMap.y;
-				if (y < 0) {
-					y = 0;
-				}
-				if (y > this.map.height) {
-					y = this.map.height - 1;
-				}
-
-				const destX =
-					direction === 'right'
-						? this.player.position.positionOnMap.x + 40 > this.map.width
-							? this.map.width - 1
-							: this.player.position.positionOnMap.x + 40
-						: this.player.position.positionOnMap.x - 40 < 0
-							? 0
-							: this.player.position.positionOnMap.x - 40;
-				const destY = y;
-
-				const currentPos = new CharacterPosition(new Position(x, y), direction);
-				currentPos.setFuturePosition(destX, destY, () => {
-					this.spawned = undefined;
-				});
-				const possiblePokes = [10, 11, 13, 14, 72, 149, 165, 207];
-				// randomly select one :
-				const pokeId = possiblePokes[Math.floor(Math.random() * possiblePokes.length)];
-				const spawned = new OverworldSpawn(
-					currentPos,
-					this.POKEDEX.findById(pokeId).result.instanciate(5)
-				);
-				this.spawned = spawned;
-			}
-		}, 6000);
 	}
 
 	checkForStepInScript() {
