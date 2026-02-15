@@ -225,11 +225,20 @@
 
 		// Poll plain class properties into reactive $state for Svelte 5 template reactivity
 		const pollInterval = setInterval(() => {
-			currentFollower = context.player.follower;
-			playerIsRunning = context.player.running;
-			currentMap = context.map;
-			isChangingMap = overWorldCtx.changingMap;
-			isGamePaused = overWorldCtx.isPaused;
+			const newFollower = context.player.follower;
+			if (newFollower !== currentFollower) currentFollower = newFollower;
+
+			const newRunning = context.player.running;
+			if (newRunning !== playerIsRunning) playerIsRunning = newRunning;
+
+			const newMap = context.map;
+			if (newMap !== currentMap) currentMap = newMap;
+
+			const newChangingMap = overWorldCtx.changingMap;
+			if (newChangingMap !== isChangingMap) isChangingMap = newChangingMap;
+
+			const newPaused = overWorldCtx.isPaused;
+			if (newPaused !== isGamePaused) isGamePaused = newPaused;
 
 			// Poll player grid position for dungeon minimap
 			const newGridX = context.player.position.positionOnMap.x;
