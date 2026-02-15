@@ -30,7 +30,9 @@ export const TILE_TEXTURES: Record<TileType3D, string | null> = {
 	[TileType3D.SHOP_FLOOR]: pavmentUrl,
 	[TileType3D.LAVA]: null,
 	[TileType3D.SWAMP]: null,
-	[TileType3D.DARK_FLOOR]: dirtUrl
+	[TileType3D.DARK_FLOOR]: dirtUrl,
+	[TileType3D.CLIFF_ROCK]: dirtUrl,
+	[TileType3D.CAVE_ENTRANCE]: dirtUrl
 };
 
 export const TREE_TEXTURES: string[] = [tree1Url, tree2Url];

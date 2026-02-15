@@ -105,7 +105,9 @@
 	});
 </script>
 
-{#if current?.speaker && current?.speaker === 'self'}
+{#if current?.speaker && current?.speaker === 'thought'}
+	<!-- Thought speaker - no image or name -->
+{:else if current?.speaker && current?.speaker === 'self'}
 	<img src={context.player.sprite.full.source} alt="speaker" class="speaker-img" />
 	<div class="speaker-name">
 		{context.player.name}
@@ -126,7 +128,13 @@
 
 <div class="dialog" data-testid="dialog-box">
 	<div class="dialog-content">
-		<div class="dialog-text" data-testid="dialog-text" class:animate bind:this={text}>
+		<div
+			class="dialog-text"
+			data-testid="dialog-text"
+			class:animate
+			class:thought-dialog={current?.speaker === 'thought'}
+			bind:this={text}
+		>
 			<div>{current?.text}</div>
 		</div>
 	</div>
@@ -263,6 +271,11 @@
 					animation:
 						typing 1s steps(20, end) forwards,
 						blink-caret 0.5s step-end infinite;
+				}
+
+				&.thought-dialog div {
+					font-style: italic;
+					opacity: 0.9;
 				}
 
 				div {

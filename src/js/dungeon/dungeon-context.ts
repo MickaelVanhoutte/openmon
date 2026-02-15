@@ -16,6 +16,7 @@ export class DungeonContext {
 	bestFloor: number = 0;
 	runCurrency: number = 0;
 	starterPicked: boolean = false;
+	prologueCompleted: boolean = false;
 
 	// TODO: Auto-save dungeon state after trainer defeat
 	// When defeatedTrainers.add() is called in battle victory logic,
@@ -36,6 +37,7 @@ export class DungeonContext {
 		this.pickedItems.clear();
 		this.runCurrency = 0;
 		this.starterPicked = false;
+		this.prologueCompleted = false;
 	}
 
 	advanceFloor(): void {
@@ -62,6 +64,7 @@ export class DungeonContext {
 		this.pickedItems = new Set(save.dungeonItems ?? []);
 		this.runCurrency = save.dungeonCurrency ?? 0;
 		this.starterPicked = save.dungeonStarterPicked ?? false;
+		this.prologueCompleted = save.dungeonPrologueCompleted ?? false;
 		this.currentFloor = (save.dungeonFloor ?? 1) - 1;
 		this.currentBiome = getBiomeForFloor(this.currentFloor > 0 ? this.currentFloor : 1);
 	}

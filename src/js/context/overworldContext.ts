@@ -56,12 +56,14 @@ export enum MenuType {
 
 export enum SceneType {
 	WAKE_UP = 0,
-	STARTER_SELECTION = 1
+	STARTER_SELECTION = 1,
+	PROLOGUE = 2
 }
 
 export class Scenes {
 	wakeUp: boolean = false;
 	starterSelection: boolean = false;
+	prologue: boolean = false;
 }
 
 export class OverworldContext {
@@ -87,6 +89,7 @@ export class OverworldContext {
 		this.isPaused = true;
 		this.scenes.wakeUp = sceneType === SceneType.WAKE_UP;
 		this.scenes.starterSelection = sceneType === SceneType.STARTER_SELECTION;
+		this.scenes.prologue = sceneType === SceneType.PROLOGUE;
 	}
 
 	endScene(sceneType: SceneType) {
@@ -97,6 +100,9 @@ export class OverworldContext {
 				break;
 			case SceneType.STARTER_SELECTION:
 				this.scenes.starterSelection = false;
+				break;
+			case SceneType.PROLOGUE:
+				this.scenes.prologue = false;
 				break;
 		}
 	}

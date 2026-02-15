@@ -20,7 +20,9 @@ export enum TileType3D {
 	SHOP_FLOOR = 13,
 	LAVA = 14,
 	SWAMP = 15,
-	DARK_FLOOR = 16
+	DARK_FLOOR = 16,
+	CLIFF_ROCK = 17,
+	CAVE_ENTRANCE = 18
 }
 
 export const TILE_HEIGHTS: Map<TileType3D, number> = new Map([
@@ -40,7 +42,9 @@ export const TILE_HEIGHTS: Map<TileType3D, number> = new Map([
 	[TileType3D.SHOP_FLOOR, 0],
 	[TileType3D.LAVA, -0.2],
 	[TileType3D.SWAMP, -0.05],
-	[TileType3D.DARK_FLOOR, 0]
+	[TileType3D.DARK_FLOOR, 0],
+	[TileType3D.CLIFF_ROCK, 0.6],
+	[TileType3D.CAVE_ENTRANCE, 0]
 ]);
 
 export const TILE_WALKABLE: Map<TileType3D, boolean> = new Map([
@@ -60,7 +64,9 @@ export const TILE_WALKABLE: Map<TileType3D, boolean> = new Map([
 	[TileType3D.SHOP_FLOOR, true],
 	[TileType3D.LAVA, false],
 	[TileType3D.SWAMP, true],
-	[TileType3D.DARK_FLOOR, true]
+	[TileType3D.DARK_FLOOR, true],
+	[TileType3D.CLIFF_ROCK, false],
+	[TileType3D.CAVE_ENTRANCE, true]
 ]);
 
 export const TILE_COLORS: Map<TileType3D, number> = new Map([
@@ -80,7 +86,9 @@ export const TILE_COLORS: Map<TileType3D, number> = new Map([
 	[TileType3D.SHOP_FLOOR, 0xce93d8],
 	[TileType3D.LAVA, 0xff5722],
 	[TileType3D.SWAMP, 0x558b2f],
-	[TileType3D.DARK_FLOOR, 0x424242]
+	[TileType3D.DARK_FLOOR, 0x424242],
+	[TileType3D.CLIFF_ROCK, 0x4a4a4a],
+	[TileType3D.CAVE_ENTRANCE, 0x1a1a1a]
 ]);
 
 export interface ThrelteMapData {

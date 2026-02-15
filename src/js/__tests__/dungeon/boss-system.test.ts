@@ -126,7 +126,7 @@ describe('Boss System', () => {
 				35: 'Pyro Ember',
 				40: 'Inferno Rex',
 				45: 'Phantom Nyx',
-				50: 'Overlord Shade'
+				50: 'V'
 			};
 
 			for (const [floor, name] of Object.entries(expected)) {

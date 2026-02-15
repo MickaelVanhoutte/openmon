@@ -128,12 +128,24 @@ export function createBossTrainer(
 		const monsterIds = dungeonTeam.map((m) => m.speciesId);
 		const rewardLevel = Math.max(...dungeonTeam.map((m) => m.level));
 
+		// Convert dialogBefore to array of Message objects
+		const dialogBeforeArray = Array.isArray(bossDef.dialogBefore)
+			? bossDef.dialogBefore
+			: [bossDef.dialogBefore];
+		const beforeMessages = dialogBeforeArray.map((text) => new Message(text, name));
+
+		// Convert dialogAfter to array of Message objects
+		const dialogAfterArray = Array.isArray(bossDef.dialogAfter)
+			? bossDef.dialogAfter
+			: [bossDef.dialogAfter];
+		const afterMessages = dialogAfterArray.map((text) => new Message(text, name));
+
 		const mainScript = new Script('onSight', [
 			new MoveToPlayer(id),
-			new Dialog([new Message(bossDef.dialogBefore, name)]),
+			new Dialog(beforeMessages),
 			new StartBattle(id),
 			new GiveMoney(500 + floorNumber * 50 + rewardLevel * 5),
-			new Dialog([new Message(bossDef.dialogAfter, name)])
+			new Dialog(afterMessages)
 		]);
 
 		const npc = new NPC(
