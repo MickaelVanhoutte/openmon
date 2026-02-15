@@ -1,0 +1,12 @@
+- generic [ref=e4]:
+  - generic [ref=e6]:
+    - generic [ref=e7]:
+      - button "0 - TestPlayer Wed, 28 Jan 2026 10:33:48 GMT Continue !" [ref=e8] [cursor=pointer]:
+        - paragraph [ref=e9]: 0 - TestPlayer
+        - paragraph [ref=e10]: Wed, 28 Jan 2026 10:33:48 GMT
+        - generic [ref=e11]: Continue !
+      - button "Delete save file" [ref=e13] [cursor=pointer]:
+        - img [ref=e14]
+    - button "TestPlayer" [ref=e16]:
+      - img "TestPlayer"
+  - button "Start a new game" [ref=e18] [cursor=pointer]
