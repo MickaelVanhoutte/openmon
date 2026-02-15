@@ -24,7 +24,6 @@
 
 	import { ComboMove, PokemonInstance } from '../../js/pokemons/pokedex';
 	import type { Move } from '../../js/pokemons/pokedex';
-	import { get } from 'svelte/store';
 
 	interface Props {
 		context: GameContext;
@@ -37,8 +36,6 @@
 		battleCtx = $bindable(),
 		overWorldCtx = $bindable()
 	}: Props = $props();
-
-	const backgroundOffset = get(context.timeOfDay.backgroundOffset);
 
 	const hazardsVersion = battleCtx.hazardsVersion;
 
@@ -662,10 +659,7 @@
 
 <div class="battle" data-testid="battle-screen">
 	<div bind:this={gifsWrapper} class="wrapper">
-		<div
-			class="battle-bg"
-			style="background-image: url({beachesImage}); --bg-offset: {backgroundOffset}"
-		></div>
+		<div class="battle-bg" style="background-image: url({beachesImage})"></div>
 
 		<WeatherOverlay
 			weather={currentWeather}

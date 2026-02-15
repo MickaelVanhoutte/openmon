@@ -40,6 +40,8 @@ export function placeItems(
 						const currentDc = get(dungeonContext);
 						if (currentDc) {
 							currentDc.pickedItems.add(itemKey);
+							// TODO: Auto-save dungeon state after item pickup
+							// Need to pass savesHolder through to call persistDungeonState(currentDc, savesHolder)
 						}
 					})
 				])

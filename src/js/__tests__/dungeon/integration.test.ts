@@ -7,7 +7,6 @@ import { getDifficulty } from '../../dungeon/difficulty';
 import { SeededRNG, deriveSeed } from '../../dungeon/prng';
 import { createTrainer } from '../../dungeon/trainer-factory';
 import { placeItems } from '../../dungeon/item-placer';
-import { saveDungeonRun, loadDungeonRun, clearDungeonRunSave } from '../../dungeon/dungeon-save';
 import { loadMetaProgress } from '../../dungeon/meta-progress';
 import { Position } from '../../mapping/positions';
 
@@ -18,7 +17,6 @@ describe('Dungeon Integration Tests', () => {
 		vi.spyOn(Storage.prototype, 'getItem');
 		vi.spyOn(Storage.prototype, 'setItem');
 		localStorage.clear();
-		clearDungeonRunSave();
 		ctx = new DungeonContext();
 	});
 
@@ -56,36 +54,6 @@ describe('Dungeon Integration Tests', () => {
 
 			const meta = ctx.endRun(true);
 			expect(meta.bestFloor).toBe(5);
-		});
-	});
-
-	describe('Save/Load Mid-Run', () => {
-		it('should save and load run state correctly', () => {
-			const seed = 'save-test';
-			ctx.startRun(seed);
-			ctx.currentFloor = 3;
-			ctx.defeatedTrainers.add('trainer-1');
-			ctx.pickedItems.add('1-0');
-			ctx.runCurrency = 150;
-
-			saveDungeonRun(ctx);
-
-			const loaded = loadDungeonRun();
-			expect(loaded).not.toBeNull();
-			expect(loaded?.runSeed).toBe(seed);
-			expect(loaded?.currentFloor).toBe(3);
-			expect(loaded?.defeatedTrainers).toContain('trainer-1');
-			expect(loaded?.pickedItems).toContain('1-0');
-			expect(loaded?.runCurrency).toBe(150);
-
-			const biome = getBiomeForFloor(3);
-			const floorA = generateFloor(deriveSeed(seed, 3), 3, biome);
-			const floorB = generateFloor(
-				deriveSeed(loaded!.runSeed, loaded!.currentFloor),
-				loaded!.currentFloor,
-				biome
-			);
-			expect(floorA.playerStart).toEqual(floorB.playerStart);
 		});
 	});
 

@@ -3,6 +3,7 @@ import { generateFloor } from '../../dungeon/floor-generator';
 import { GRASS_FOREST, CAVE_ROCK, FIRE_VOLCANIC } from '../../dungeon/biomes';
 import { TileType3D } from '../../mapping/threlte-maps/types';
 import { Position } from '../../mapping/positions';
+import { MAP_PAD_SIZE } from '../../mapping/threlte-maps/openmap-converter';
 
 function bfsReachable(
 	tiles: TileType3D[][],
@@ -232,7 +233,8 @@ describe('generateFloor', () => {
 			const dist =
 				Math.abs(result.stairsPosition.x - result.playerStart.x) +
 				Math.abs(result.stairsPosition.y - result.playerStart.y);
-			const minExpectedDistance = Math.floor(result.threlteMap.width / 2);
+			const unpaddedWidth = result.threlteMap.width - 2 * MAP_PAD_SIZE;
+			const minExpectedDistance = Math.floor(unpaddedWidth / 2);
 			expect(dist).toBeGreaterThanOrEqual(minExpectedDistance);
 		});
 	});

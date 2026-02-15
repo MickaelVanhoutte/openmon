@@ -3,6 +3,7 @@ import { getBiomeForFloor } from './biomes';
 import type { BiomeConfig } from './biomes';
 import { deriveSeed } from './prng';
 import { updateMetaProgress, loadMetaProgress, type MetaProgress } from './meta-progress';
+import { SaveContext } from '../context/savesHolder';
 
 export class DungeonContext {
 	runSeed: string = '';
@@ -14,6 +15,11 @@ export class DungeonContext {
 	pickedItems: Set<string> = new Set();
 	bestFloor: number = 0;
 	runCurrency: number = 0;
+	starterPicked: boolean = false;
+
+	// TODO: Auto-save dungeon state after trainer defeat
+	// When defeatedTrainers.add() is called in battle victory logic,
+	// call persistDungeonState(this, savesHolder) to persist progress
 
 	constructor() {
 		const meta = loadMetaProgress();
@@ -23,12 +29,13 @@ export class DungeonContext {
 	startRun(seed?: string): void {
 		this.isDungeonMode = true;
 		this.isRunActive = true;
-		this.currentFloor = 1;
+		this.currentFloor = 0;
 		this.runSeed = seed ?? Date.now().toString();
 		this.currentBiome = getBiomeForFloor(1);
 		this.defeatedTrainers.clear();
 		this.pickedItems.clear();
 		this.runCurrency = 0;
+		this.starterPicked = false;
 	}
 
 	advanceFloor(): void {
@@ -45,6 +52,18 @@ export class DungeonContext {
 			this.isDungeonMode = false;
 		}
 		return updateMetaProgress(this);
+	}
+
+	restoreRun(save: SaveContext): void {
+		this.isDungeonMode = true;
+		this.isRunActive = true;
+		this.runSeed = save.dungeonSeed ?? Date.now().toString();
+		this.defeatedTrainers = new Set(save.dungeonDefeated ?? []);
+		this.pickedItems = new Set(save.dungeonItems ?? []);
+		this.runCurrency = save.dungeonCurrency ?? 0;
+		this.starterPicked = save.dungeonStarterPicked ?? false;
+		this.currentFloor = (save.dungeonFloor ?? 1) - 1;
+		this.currentBiome = getBiomeForFloor(this.currentFloor > 0 ? this.currentFloor : 1);
 	}
 
 	getCurrentFloorType(): 'normal' | 'rest' | 'boss' {

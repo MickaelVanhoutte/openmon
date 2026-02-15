@@ -259,10 +259,19 @@ describe('GameContext Utility Functions (Characterization)', () => {
 		const haveInSight = (
 			npcPosition: { x: number; y: number },
 			npcDirection: 'up' | 'down' | 'left' | 'right',
-			playerPosition: { x: number; y: number }
+			playerPosition: { x: number; y: number },
+			wallPositions: Set<string> = new Set()
 		): boolean => {
 			const positionsInFront = getPositionsInFront(npcPosition, npcDirection);
-			return positionsInFront.some((p) => p.x === playerPosition.x && p.y === playerPosition.y);
+			for (const pos of positionsInFront) {
+				if (wallPositions.has(`${pos.x},${pos.y}`)) {
+					return false;
+				}
+				if (pos.x === playerPosition.x && pos.y === playerPosition.y) {
+					return true;
+				}
+			}
+			return false;
 		};
 
 		it('should detect player 1 tile in front (down)', () => {
@@ -291,6 +300,32 @@ describe('GameContext Utility Functions (Characterization)', () => {
 
 		it('should detect player in front when facing right', () => {
 			expect(haveInSight({ x: 10, y: 10 }, 'right', { x: 12, y: 10 })).toBe(true);
+		});
+
+		it('should not detect player when wall is between NPC and player', () => {
+			const walls = new Set(['11,10']);
+			expect(haveInSight({ x: 10, y: 10 }, 'right', { x: 12, y: 10 }, walls)).toBe(false);
+		});
+
+		it('should detect player when no wall between them', () => {
+			const walls = new Set(['13,10']);
+			expect(haveInSight({ x: 10, y: 10 }, 'right', { x: 12, y: 10 }, walls)).toBe(true);
+		});
+
+		it('should not detect player on a wall tile', () => {
+			const walls = new Set(['10,13']);
+			expect(haveInSight({ x: 10, y: 10 }, 'down', { x: 10, y: 13 }, walls)).toBe(false);
+		});
+
+		it('should stop at first wall and not see past it', () => {
+			const walls = new Set(['10,11']);
+			expect(haveInSight({ x: 10, y: 10 }, 'down', { x: 10, y: 12 }, walls)).toBe(false);
+			expect(haveInSight({ x: 10, y: 10 }, 'down', { x: 10, y: 13 }, walls)).toBe(false);
+		});
+
+		it('should detect player before a wall', () => {
+			const walls = new Set(['10,12']);
+			expect(haveInSight({ x: 10, y: 10 }, 'down', { x: 10, y: 11 }, walls)).toBe(true);
 		});
 	});
 

@@ -316,6 +316,11 @@ export class OpenMap {
 		return this.battleSet.has(index);
 	}
 
+	hasCollisionAt(position: Position) {
+		const index = positionToIndex(position.x, position.y, this.width);
+		return this.collisionSet.has(index);
+	}
+
 	hasBoundaryAt(position: Position) {
 		const index = positionToIndex(position.x, position.y, this.width);
 		return (
