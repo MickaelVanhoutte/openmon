@@ -50,6 +50,10 @@
 
 	const { context, overWorldCtx, savesHolder }: Props = $props();
 
+	// Mobile device pixel ratio optimization
+	const isMobile = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches;
+	const dpr = isMobile ? Math.min(window.devicePixelRatio, 1.5) : window.devicePixelRatio;
+
 	// Polled reactive state for map, follower and running (plain class properties not reactive in Svelte 5)
 	let currentMap = $state(context.map);
 	let currentFollower = $state<Follower | undefined>(context.player.follower);
@@ -253,7 +257,7 @@
 	class:blur={overWorldCtx.scenes.wakeUp}
 >
 	<div class="canvas-wrapper">
-		<Canvas autoRender={false}>
+		<Canvas autoRender={false} {dpr}>
 			<Renderer3D />
 			<Lighting3D mood={currentLightingMood} playerPosition={playerVisualPosition} />
 			<WeatherParticles3D
