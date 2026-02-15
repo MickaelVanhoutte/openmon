@@ -19,8 +19,8 @@
 	color={config.directionalColor}
 	castShadow
 	oncreate={(ref: DirectionalLight) => {
-		ref.shadow.mapSize.width = 2048;
-		ref.shadow.mapSize.height = 2048;
+		ref.shadow.mapSize.width = 512;
+		ref.shadow.mapSize.height = 512;
 		ref.shadow.camera.left = -15;
 		ref.shadow.camera.right = 15;
 		ref.shadow.camera.top = 15;

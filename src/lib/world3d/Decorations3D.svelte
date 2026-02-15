@@ -692,7 +692,6 @@
 		<T.InstancedMesh
 			args={[undefined, undefined, group.matrices.length]}
 			material={bushSpriteMaterials[group.texIdx]}
-			castShadow
 			oncreate={(ref) => initBushMesh(ref, group.matrices, groupIndex)}
 		>
 			<T.PlaneGeometry args={[1, 0.6]} />
@@ -704,7 +703,6 @@
 		<T.InstancedMesh
 			args={[undefined, undefined, group.matrices.length]}
 			material={rockSpriteMaterials[group.texIdx]}
-			castShadow
 			oncreate={(ref) => initRockMesh(ref, group.matrices, groupIndex)}
 		>
 			<T.PlaneGeometry args={[1, 1]} />
