@@ -486,7 +486,8 @@
 								'opponent',
 								idx,
 								false,
-								battleCtx.battleType === BattleType.DOUBLE
+								battleCtx.battleType === BattleType.DOUBLE,
+								battleCtx.isWild
 							);
 							entryPromises.push(entryPromise);
 
@@ -549,7 +550,8 @@
 								'ally',
 								idx,
 								false,
-								battleCtx.battleType === BattleType.DOUBLE
+								battleCtx.battleType === BattleType.DOUBLE,
+								false
 							);
 							allyEntryPromises.push(entryPromise);
 
@@ -595,7 +597,7 @@
 								transform: ''
 							});
 							// Animate entry after sprite loads
-							animateEntry(ally[change.idx], 'ally', change.idx);
+							animateEntry(ally[change.idx], 'ally', change.idx, false, false, false);
 							// Update shadow position for new sprite
 							const allyFeetRatio = findFeetOffset(ally[change.idx]);
 							updateShadowPosition('ally', change.idx, allyFeetRatio);
@@ -624,7 +626,7 @@
 								transform: ''
 							});
 							// Animate entry after sprite loads
-							animateEntry(opponent[change.idx], 'opponent', change.idx);
+							animateEntry(opponent[change.idx], 'opponent', change.idx, false, false, false);
 							// Update shadow position for new sprite
 							const oppFeetRatio = findFeetOffset(opponent[change.idx]);
 							updateShadowPosition('opponent', change.idx, oppFeetRatio);

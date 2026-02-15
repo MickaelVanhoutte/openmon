@@ -33,9 +33,43 @@ export function animateEntry(
 	source: 'ally' | 'opponent',
 	idx: number = 0,
 	partner: boolean = false,
-	_double: boolean = false
+	_double: boolean = false,
+	isWild: boolean = false
 ): Promise<gsap.core.Timeline> {
 	const timeline = gsap.timeline();
+
+	if (isWild) {
+		gsap.set(target, {
+			scale: 1,
+			filter: 'brightness(0)',
+			opacity: 1
+		});
+
+		const staggerDelay = partner ? 0 : idx * 0.3;
+
+		timeline.to(
+			target,
+			{
+				duration: 1.5,
+				delay: staggerDelay,
+				filter: 'brightness(1)',
+				ease: 'power2.inOut'
+			},
+			0
+		);
+
+		return new Promise((resolve) => {
+			timeline.eventCallback('onComplete', () => {
+				gsap.set(target, {
+					scale: 1,
+					filter: 'brightness(1)',
+					opacity: 1,
+					clearProps: 'filter'
+				});
+				resolve(timeline);
+			});
+		});
+	}
 
 	const targetRect = target.getBoundingClientRect();
 	const targetCenterX = targetRect.left + targetRect.width / 2;
