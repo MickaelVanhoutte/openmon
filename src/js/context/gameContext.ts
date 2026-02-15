@@ -38,6 +38,12 @@ import {
 } from '../mapping/threlte-maps/threlte-map-registry';
 import { TileType3D } from '../mapping/threlte-maps/types';
 import { getPositionsInFront } from './helpers/movement-helpers';
+import {
+	registerPrologueMap,
+	PROLOGUE_MAP_ID,
+	PROLOGUE_WAKE_UP_POS
+} from '../mapping/prologue-map';
+import { DEBUG } from '../env';
 
 /**
  * The current game context
@@ -101,6 +107,9 @@ export class GameContext {
 					box.values.map((pkmn) => (pkmn ? (pkmn as PokemonInstance) : undefined))
 				)
 		);
+
+		registerPrologueMap(this.MAPS);
+
 		const mapTemplate = this.MAPS[save.currentMap.mapId] ?? OpenMap.empty();
 		this.map = OpenMap.fromInstance(
 			mapTemplate,
@@ -403,6 +412,24 @@ export class GameContext {
 
 	checkForGameStart(): boolean {
 		if (this.isNewGame && !this.overWorldContext.scenes.wakeUp) {
+			const dc = get(dungeonContext);
+
+			if (dc && !dc.prologueCompleted) {
+				const prologueTemplate = this.MAPS[PROLOGUE_MAP_ID];
+				if (prologueTemplate) {
+					this.map = OpenMap.fromInstance(prologueTemplate, PROLOGUE_WAKE_UP_POS);
+					this.player.position = new CharacterPosition(PROLOGUE_WAKE_UP_POS);
+				}
+				this.overWorldContext.startScene(SceneType.PROLOGUE);
+
+				setTimeout(() => {
+					this.overWorldContext.endScene(SceneType.PROLOGUE);
+					this.isNewGame = false;
+				}, 5000);
+
+				return true;
+			}
+
 			const script = this.scriptRunner.getByTrigger('onGameStart');
 			this.overWorldContext.startScene(SceneType.WAKE_UP);
 
@@ -418,7 +445,6 @@ export class GameContext {
 
 			return true;
 		} else {
-			//this.tg.start();
 			this.questManager.notifyCurrentQuest();
 		}
 		return false;
@@ -581,6 +607,34 @@ export class GameContext {
 	}
 
 	changeDungeonFloor(dungeonCtx: DungeonContext, savesHolder?: SavesHolder) {
+		if (!dungeonCtx.prologueCompleted && this.map?.mapId === PROLOGUE_MAP_ID) {
+			dungeonCtx.advanceFloor();
+
+			const biome = getBiomeForFloor(dungeonCtx.currentFloor);
+			const floorData = generateFloor(dungeonCtx.runSeed, dungeonCtx.currentFloor, biome);
+
+			const populateRng = new SeededRNG(
+				dungeonCtx.runSeed + '-populate-' + dungeonCtx.currentFloor
+			);
+			const npcs = populateFloor(floorData, dungeonCtx.currentFloor, biome, populateRng);
+			floorData.openMap.npcs.push(...npcs);
+			const items = placeDungeonItems(
+				floorData.itemPositions,
+				dungeonCtx.currentFloor,
+				populateRng
+			);
+			floorData.openMap.items.push(...items);
+
+			registerThrelteMap(floorData.threlteMap.mapId, floorData.threlteMap);
+			this.MAPS[floorData.openMap.mapId] = floorData.openMap;
+
+			dungeonContext.set(dungeonCtx);
+			if (savesHolder) {
+				persistDungeonState(dungeonCtx, savesHolder);
+			}
+			return;
+		}
+
 		this.overWorldContext.setPaused(true, 'dungeon-floor-transition');
 		this.audioManager.fadeOutMapSound();
 
@@ -598,7 +652,11 @@ export class GameContext {
 			const biome = getBiomeForFloor(dungeonCtx.currentFloor);
 			const floorData = generateFloor(dungeonCtx.runSeed, dungeonCtx.currentFloor, biome);
 
-			if (dungeonCtx.currentFloor === 1 && !dungeonCtx.starterPicked) {
+			if (
+				dungeonCtx.currentFloor === 1 &&
+				!dungeonCtx.starterPicked &&
+				!dungeonCtx.prologueCompleted
+			) {
 				const STARTERS = [1, 4, 7];
 				const rng = new SeededRNG(dungeonCtx.runSeed + '-starter');
 				const starterId = rng.pick(STARTERS);
@@ -684,7 +742,11 @@ export class GameContext {
 		const biome = getBiomeForFloor(dungeonCtx.currentFloor);
 		const floorData = generateFloor(dungeonCtx.runSeed, dungeonCtx.currentFloor, biome);
 
-		if (dungeonCtx.currentFloor === 1 && !dungeonCtx.starterPicked) {
+		if (
+			dungeonCtx.currentFloor === 1 &&
+			!dungeonCtx.starterPicked &&
+			!dungeonCtx.prologueCompleted
+		) {
 			const STARTERS = [1, 4, 7];
 			const rng = new SeededRNG(dungeonCtx.runSeed + '-starter');
 			const starterId = rng.pick(STARTERS);
@@ -948,7 +1010,7 @@ export class GameContext {
 	}
 
 	toSaveContext(): SaveContext {
-		return new SaveContext(
+		const save = new SaveContext(
 			this.id,
 			Date.now(),
 			new MapSave(
@@ -965,5 +1027,19 @@ export class GameContext {
 			this.flags,
 			this.savedPlayTime + (Date.now() - this.playTimeStart)
 		);
+
+		const dc = get(dungeonContext);
+		if (dc?.isDungeonMode) {
+			save.dungeonSeed = dc.runSeed;
+			save.dungeonFloor = dc.currentFloor;
+			save.dungeonDefeated = Array.from(dc.defeatedTrainers);
+			save.dungeonItems = Array.from(dc.pickedItems);
+			save.dungeonCurrency = dc.runCurrency;
+			save.dungeonActive = dc.isRunActive;
+			save.dungeonStarterPicked = dc.starterPicked;
+			save.dungeonPrologueCompleted = dc.prologueCompleted;
+		}
+
+		return save;
 	}
 }

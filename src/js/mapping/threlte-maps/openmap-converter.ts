@@ -150,6 +150,10 @@ export function getOrConvertMap(openMap: OpenMap): ThrelteMapData {
 	return converted;
 }
 
+export function preRegisterThrelteMap(mapId: number, threlteMap: ThrelteMapData): void {
+	cache.set(mapId, threlteMap);
+}
+
 export function clearConverterCache(mapId: number): void {
 	cache.delete(mapId);
 }

@@ -8,6 +8,7 @@ import { NPC } from '../characters/npc';
 import { Script, Dialog, Message, HealAll, OpenShop } from '../scripting/scripts';
 import { createBossTrainer } from './trainer-factory';
 import { getBiomeForFloor } from './biomes';
+import { OverworldItem } from '../items/overworldItem';
 
 const REST_FLOOR_WIDTH = 10;
 const REST_FLOOR_HEIGHT = 10;
@@ -17,6 +18,17 @@ const REST_SHOP_ITEMS: Record<string, number> = {
 	'17': 200,
 	'33': 600,
 	'28': 1500
+};
+
+const NARRATIVE_NOTES: Record<number, string> = {
+	4: 'The Champion fell silently. No one witnessed it. That was the point.',
+	9: "Sealed orders from the League: 'Dungeon access restricted until further notice. By order of V.'",
+	14: 'Research log: The artifact resonates with Pokemon energy. It could amplify — or sever — the bond.',
+	19: "V's journal: 'The Champion trusted me. That made it easy. I almost felt guilty. Almost.'",
+	24: "League memo: 'The restructuring is proceeding as planned. The old Champion is no longer a concern.'",
+	29: 'The artifact was never meant to be wielded by a single trainer. The ancients sealed it for a reason.',
+	34: "V's journal: 'I can feel it calling from below. Once I have it, no trainer will ever control a Pokemon by force again.'",
+	39: "Final entry: 'If anyone reads this, I failed to stop V. The Champion — if you survived — please.'"
 };
 
 export function generateRestFloor(floor: number, runSeed: string): FloorData {
@@ -91,10 +103,25 @@ export function generateRestFloor(floor: number, runSeed: string): FloorData {
 		npcs
 	);
 
+	if (NARRATIVE_NOTES[floor]) {
+		const notePosition = new Position(7, 5);
+		const noteItem = new OverworldItem(
+			'Note',
+			true,
+			notePosition,
+			'src/assets/menus/pokeball.png',
+			undefined,
+			[new Script('onInteract', [new Dialog([new Message(NARRATIVE_NOTES[floor], 'System')])])]
+		);
+		openMap.items.push(noteItem);
+		threlteMap.items.push(noteItem);
+	}
+
 	return {
 		threlteMap,
 		openMap,
 		playerStart,
+		starterItemPosition: new Position(0, 0),
 		stairsPosition,
 		trainerPositions: [],
 		itemPositions: [],
@@ -182,6 +209,7 @@ export function generateBossFloor(floor: number, runSeed: string): FloorData {
 		threlteMap,
 		openMap,
 		playerStart,
+		starterItemPosition: new Position(0, 0),
 		stairsPosition,
 		trainerPositions: [bossPosition],
 		itemPositions: [],

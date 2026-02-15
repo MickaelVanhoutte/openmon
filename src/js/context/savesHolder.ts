@@ -36,6 +36,7 @@ export class SaveContext {
 	dungeonCurrency?: number; // runCurrency
 	dungeonActive?: boolean; // whether a dungeon run is in progress
 	dungeonStarterPicked?: boolean; // whether starter ball was already picked up
+	dungeonPrologueCompleted?: boolean; // whether prologue narrative was completed
 
 	constructor(
 		id: number,

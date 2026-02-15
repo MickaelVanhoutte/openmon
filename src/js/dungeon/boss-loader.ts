@@ -12,8 +12,8 @@ export interface BossDefinition {
 	biome: string;
 	floor: number;
 	spriteId: number;
-	dialogBefore: string;
-	dialogAfter: string;
+	dialogBefore: string | string[];
+	dialogAfter: string | string[];
 	team: BossTeamMember[];
 }
 

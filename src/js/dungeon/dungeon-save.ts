@@ -14,5 +14,6 @@ export function persistDungeonState(ctx: DungeonContext, savesHolder: SavesHolde
 	save.dungeonCurrency = ctx.runCurrency;
 	save.dungeonActive = ctx.isRunActive;
 	save.dungeonStarterPicked = ctx.starterPicked;
+	save.dungeonPrologueCompleted = ctx.prologueCompleted;
 	savesHolder.persist(save);
 }

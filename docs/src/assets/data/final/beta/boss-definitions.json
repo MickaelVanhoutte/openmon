@@ -6,8 +6,11 @@
 			"biome": "GRASS_FOREST",
 			"floor": 5,
 			"spriteId": 3,
-			"dialogBefore": "The forest grows thick here. Can you handle its guardians?",
-			"dialogAfter": "Impressive... The forest bows to you.",
+			"dialogBefore": [
+				"Wait... I know you. You're the Champion who fell.",
+				"I heard rumors someone was down here. Didn't think they were true."
+			],
+			"dialogAfter": ["You still fight like a Champion. Something is wrong above, isn't it?"],
 			"team": [
 				{ "speciesId": 20, "levelOffset": 3, "heldItemId": null },
 				{ "speciesId": 13, "levelOffset": 3, "heldItemId": 4013 },
@@ -20,8 +23,14 @@
 			"biome": "GRASS_FOREST",
 			"floor": 10,
 			"spriteId": 5,
-			"dialogBefore": "None pass without proving their worth to the Warden.",
-			"dialogAfter": "You have earned the forest's respect. Press onward.",
+			"dialogBefore": [
+				"Former Champion. I have sealed orders from the League.",
+				"No one passes this floor. Those are my instructions."
+			],
+			"dialogAfter": [
+				"The orders felt strange. Someone high up wants this dungeon sealed.",
+				"I don't know why."
+			],
 			"team": [
 				{ "speciesId": 21, "levelOffset": 4, "heldItemId": 4005 },
 				{ "speciesId": 24, "levelOffset": 4, "heldItemId": null },
@@ -35,8 +44,11 @@
 			"biome": "CAVE_ROCK",
 			"floor": 15,
 			"spriteId": 7,
-			"dialogBefore": "These tunnels are mine. You want through? Fight for it.",
-			"dialogAfter": "Tough as bedrock... Go on, the deeper veins await.",
+			"dialogBefore": [
+				"I'm under contract. Someone called V paid good money to watch these tunnels.",
+				"You keep going deeper, you'll find more of us."
+			],
+			"dialogAfter": ["V said you'd come eventually. Seemed scared of you, honestly."],
 			"team": [
 				{ "speciesId": 66, "levelOffset": 3, "heldItemId": 4007 },
 				{ "speciesId": 80, "levelOffset": 3, "heldItemId": null },
@@ -49,8 +61,11 @@
 			"biome": "CAVE_ROCK",
 			"floor": 20,
 			"spriteId": 9,
-			"dialogBefore": "I forged my team in the heart of this mountain. Show me what you've got.",
-			"dialogAfter": "Shattered like granite... You've earned your passage.",
+			"dialogBefore": [
+				"This dungeon wasn't always guarded. V reorganized everything after your defeat.",
+				"The whole structure changed. Guards on every floor, watchers in every tunnel."
+			],
+			"dialogAfter": ["V needed the Champion gone to access what's below. That's all I know."],
 			"team": [
 				{ "speciesId": 81, "levelOffset": 4, "heldItemId": 4001 },
 				{ "speciesId": 70, "levelOffset": 4, "heldItemId": null },
@@ -64,8 +79,14 @@
 			"biome": "WATER_SWAMP",
 			"floor": 25,
 			"spriteId": 2,
-			"dialogBefore": "The swamp swallows the unprepared. Are you ready?",
-			"dialogAfter": "You navigate these waters well. The depths beckon.",
+			"dialogBefore": [
+				"I was a League official once. Then I was reassigned down here.",
+				"The League didn't just look away from what happened to you. They helped V."
+			],
+			"dialogAfter": [
+				"Your replacement as Champion? Handpicked by V.",
+				"The League is complicit in all of this."
+			],
 			"team": [
 				{ "speciesId": 122, "levelOffset": 4, "heldItemId": 4010 },
 				{ "speciesId": 114, "levelOffset": 4, "heldItemId": null },
@@ -78,8 +99,12 @@
 			"biome": "WATER_SWAMP",
 			"floor": 30,
 			"spriteId": 4,
-			"dialogBefore": "From the darkest depths, I command the tides. Brace yourself.",
-			"dialogAfter": "The current has shifted... You are stronger than I expected.",
+			"dialogBefore": [
+				"There's an artifact at the bottom of this dungeon. Ancient. Powerful.",
+				"V wants it to rewrite the bond between trainers and Pokemon.",
+				"Every Pokemon in the region would answer to them."
+			],
+			"dialogAfter": ["If V gets that artifact, the world you knew is over."],
 			"team": [
 				{ "speciesId": 120, "levelOffset": 5, "heldItemId": 4007 },
 				{ "speciesId": 124, "levelOffset": 5, "heldItemId": null },
@@ -93,8 +118,14 @@
 			"biome": "FIRE_VOLCANIC",
 			"floor": 35,
 			"spriteId": 6,
-			"dialogBefore": "The heat alone should have turned you back. Let's see if you can take more.",
-			"dialogAfter": "You walked through fire and came out tempered. Respect.",
+			"dialogBefore": [
+				"You don't recognize me, do you? We trained together once.",
+				"V was your ally. Your friend. The betrayal was personal, Champion."
+			],
+			"dialogAfter": [
+				"You still fight like a Champion. That's why V didn't challenge you openly.",
+				"They knew they couldn't beat you fairly."
+			],
 			"team": [
 				{ "speciesId": 194, "levelOffset": 5, "heldItemId": 4011 },
 				{ "speciesId": 191, "levelOffset": 5, "heldItemId": null },
@@ -107,8 +138,14 @@
 			"biome": "FIRE_VOLCANIC",
 			"floor": 40,
 			"spriteId": 8,
-			"dialogBefore": "I am the eruption itself. Nothing survives my flames.",
-			"dialogAfter": "Impossible... Even magma could not consume you.",
+			"dialogBefore": [
+				"V is waiting at Floor 50. The artifact chamber is real.",
+				"I'm V's final lieutenant. You won't get past me."
+			],
+			"dialogAfter": [
+				"V changed after finding that inscription. Said the old ways of training were broken.",
+				"You were just in the way."
+			],
 			"team": [
 				{ "speciesId": 9, "levelOffset": 5, "heldItemId": 4003 },
 				{ "speciesId": 192, "levelOffset": 6, "heldItemId": 4008 },
@@ -122,8 +159,14 @@
 			"biome": "DARK_HAUNTED",
 			"floor": 45,
 			"spriteId": 1,
-			"dialogBefore": "You see shadows. I see allies. Let's find out who's afraid of the dark.",
-			"dialogAfter": "The darkness whispers your name now... You have its favor.",
+			"dialogBefore": [
+				"I understand why V wants the artifact. Power no trainer should have.",
+				"But I stand here out of duty, not belief. The darkness demands balance."
+			],
+			"dialogAfter": [
+				"V isn't evil. Just consumed by what they found below.",
+				"Five more floors. Then you'll understand everything."
+			],
 			"team": [
 				{ "speciesId": 47, "levelOffset": 6, "heldItemId": 4002 },
 				{ "speciesId": 96, "levelOffset": 6, "heldItemId": 4007 },
@@ -133,18 +176,26 @@
 		},
 		{
 			"id": "boss_floor_50",
-			"name": "Overlord Shade",
+			"name": "V",
 			"biome": "DARK_HAUNTED",
 			"floor": 50,
 			"spriteId": 10,
-			"dialogBefore": "You've reached the end. I am the final shadow between you and the abyss.",
-			"dialogAfter": "The abyss stares back... and blinks. You are truly worthy.",
+			"dialogBefore": [
+				"So you crawled all the way down here. I left you on that cliff hoping you'd stay broken. You always were stubborn.",
+				"You want to know why? The bond between trainer and Pokemon is a cage. The artifact below us can shatter it. Every Pokemon, free. No more masters.",
+				"But you... you'd never understand. You were the perfect Champion -- loved, admired, blind. This ends now. One final battle."
+			],
+			"dialogAfter": [
+				"...You're still the Champion. You always were. I thought if I took everything from you, you'd become like me. But you came back stronger.",
+				"The artifact is yours. Destroy it, keep it -- I don't care anymore. Maybe the old way wasn't so broken after all."
+			],
 			"team": [
-				{ "speciesId": 47, "levelOffset": 7, "heldItemId": 4004 },
 				{ "speciesId": 150, "levelOffset": 7, "heldItemId": 4003 },
-				{ "speciesId": 44, "levelOffset": 7, "heldItemId": 4006 },
+				{ "speciesId": 160, "levelOffset": 7, "heldItemId": 4004 },
+				{ "speciesId": 94, "levelOffset": 7, "heldItemId": 4006 },
 				{ "speciesId": 75, "levelOffset": 7, "heldItemId": 4007 },
-				{ "speciesId": 160, "levelOffset": 7, "heldItemId": null }
+				{ "speciesId": 47, "levelOffset": 7, "heldItemId": null },
+				{ "speciesId": 130, "levelOffset": 8, "heldItemId": 4002 }
 			]
 		}
 	]
