@@ -12,12 +12,18 @@
 
 	const MAIN_PARTICLE_COUNT = 250;
 	const mainPositions = new Float32Array(MAIN_PARTICLE_COUNT * 3);
-	const mainVelocities = new Float32Array(MAIN_PARTICLE_COUNT * 3);
+	const mainAngles = new Float32Array(MAIN_PARTICLE_COUNT);
+	const mainAngularSpeeds = new Float32Array(MAIN_PARTICLE_COUNT);
+	const mainRadii = new Float32Array(MAIN_PARTICLE_COUNT);
+	const mainRadialSpeeds = new Float32Array(MAIN_PARTICLE_COUNT);
 	const mainColors = new Float32Array(MAIN_PARTICLE_COUNT * 3);
 
 	const CHUNK_PARTICLE_COUNT = 30;
 	const chunkPositions = new Float32Array(CHUNK_PARTICLE_COUNT * 3);
-	const chunkVelocities = new Float32Array(CHUNK_PARTICLE_COUNT * 3);
+	const chunkAngles = new Float32Array(CHUNK_PARTICLE_COUNT);
+	const chunkAngularSpeeds = new Float32Array(CHUNK_PARTICLE_COUNT);
+	const chunkRadii = new Float32Array(CHUNK_PARTICLE_COUNT);
+	const chunkRadialSpeeds = new Float32Array(CHUNK_PARTICLE_COUNT);
 	const chunkColors = new Float32Array(CHUNK_PARTICLE_COUNT * 3);
 
 	const mainPalette = [0xffffff, 0xe0e0e0, 0xd4a574];
@@ -44,27 +50,25 @@
 
 	function initializeParticles() {
 		for (let i = 0; i < MAIN_PARTICLE_COUNT; i++) {
-			mainPositions[i * 3] = playerPosition.x;
-			mainPositions[i * 3 + 1] = 0.8 + Math.random() * 0.4;
-			mainPositions[i * 3 + 2] = playerPosition.z;
+			mainAngles[i] = Math.random() * Math.PI * 2;
+			mainAngularSpeeds[i] = 3 + Math.random() * 4;
+			mainRadii[i] = 0.5 + Math.random() * 1;
+			mainRadialSpeeds[i] = 2 + Math.random() * 3;
 
-			const angle = Math.random() * Math.PI * 2;
-			const speed = 2.0 + Math.random() * 3.0;
-			mainVelocities[i * 3] = Math.cos(angle) * speed;
-			mainVelocities[i * 3 + 1] = 1.0 + Math.random() * 2.0;
-			mainVelocities[i * 3 + 2] = Math.sin(angle) * speed;
+			mainPositions[i * 3] = playerPosition.x + mainRadii[i] * Math.cos(mainAngles[i]);
+			mainPositions[i * 3 + 1] = 0.8 + Math.random() * 0.4;
+			mainPositions[i * 3 + 2] = playerPosition.z + mainRadii[i] * Math.sin(mainAngles[i]);
 		}
 
 		for (let i = 0; i < CHUNK_PARTICLE_COUNT; i++) {
-			chunkPositions[i * 3] = playerPosition.x;
-			chunkPositions[i * 3 + 1] = 0.5 + Math.random() * 0.3;
-			chunkPositions[i * 3 + 2] = playerPosition.z;
+			chunkAngles[i] = Math.random() * Math.PI * 2;
+			chunkAngularSpeeds[i] = 2 + Math.random() * 3;
+			chunkRadii[i] = 0.3 + Math.random() * 0.5;
+			chunkRadialSpeeds[i] = 1.5 + Math.random() * 2;
 
-			const angle = Math.random() * Math.PI * 2;
-			const speed = 1.0 + Math.random() * 1.5;
-			chunkVelocities[i * 3] = Math.cos(angle) * speed;
-			chunkVelocities[i * 3 + 1] = 2.0 + Math.random() * 3.0;
-			chunkVelocities[i * 3 + 2] = Math.sin(angle) * speed;
+			chunkPositions[i * 3] = playerPosition.x + chunkRadii[i] * Math.cos(chunkAngles[i]);
+			chunkPositions[i * 3 + 1] = 0.5 + Math.random() * 0.3;
+			chunkPositions[i * 3 + 2] = playerPosition.z + chunkRadii[i] * Math.sin(chunkAngles[i]);
 		}
 
 		if (mainGeometry) {
@@ -92,9 +96,12 @@
 		const mainPosArray = mainPosAttribute.array as Float32Array;
 
 		for (let i = 0; i < MAIN_PARTICLE_COUNT; i++) {
-			mainPosArray[i * 3] += mainVelocities[i * 3] * delta;
-			mainPosArray[i * 3 + 1] += mainVelocities[i * 3 + 1] * delta;
-			mainPosArray[i * 3 + 2] += mainVelocities[i * 3 + 2] * delta;
+			mainAngles[i] += mainAngularSpeeds[i] * delta;
+			mainRadii[i] += mainRadialSpeeds[i] * delta;
+
+			mainPosArray[i * 3] = playerPosition.x + mainRadii[i] * Math.cos(mainAngles[i]);
+			mainPosArray[i * 3 + 1] += 0.5 * delta;
+			mainPosArray[i * 3 + 2] = playerPosition.z + mainRadii[i] * Math.sin(mainAngles[i]);
 		}
 
 		mainPosAttribute.needsUpdate = true;
@@ -103,10 +110,12 @@
 		const chunkPosArray = chunkPosAttribute.array as Float32Array;
 
 		for (let i = 0; i < CHUNK_PARTICLE_COUNT; i++) {
-			chunkVelocities[i * 3 + 1] -= 4.0 * delta;
-			chunkPosArray[i * 3] += chunkVelocities[i * 3] * delta;
-			chunkPosArray[i * 3 + 1] += chunkVelocities[i * 3 + 1] * delta;
-			chunkPosArray[i * 3 + 2] += chunkVelocities[i * 3 + 2] * delta;
+			chunkAngles[i] += chunkAngularSpeeds[i] * delta;
+			chunkRadii[i] += chunkRadialSpeeds[i] * delta;
+
+			chunkPosArray[i * 3] = playerPosition.x + chunkRadii[i] * Math.cos(chunkAngles[i]);
+			chunkPosArray[i * 3 + 1] += 0.5 * delta;
+			chunkPosArray[i * 3 + 2] = playerPosition.z + chunkRadii[i] * Math.sin(chunkAngles[i]);
 		}
 
 		chunkPosAttribute.needsUpdate = true;
