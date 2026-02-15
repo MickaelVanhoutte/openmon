@@ -26,6 +26,7 @@
 	import Lighting3D from './Lighting3D.svelte';
 	import WeatherParticles3D from './WeatherParticles3D.svelte';
 	import BattleDustParticles3D from './BattleDustParticles3D.svelte';
+	import BattleWindStreaks3D from './BattleWindStreaks3D.svelte';
 	import Decorations3D from './Decorations3D.svelte';
 	import { getThrelteMap } from '$js/mapping/threlte-maps/threlte-map-registry';
 	import { getOrConvertMap } from '$js/mapping/threlte-maps/openmap-converter';
@@ -260,6 +261,7 @@
 				running={context.weather?.running ?? false}
 			/>
 			<BattleDustParticles3D active={!!battleCtx} playerPosition={playerVisualPosition} />
+			<BattleWindStreaks3D active={!!battleCtx} playerPosition={playerVisualPosition} />
 			<GameCamera3D targetPosition={playerVisualPosition} {mapData} battleActive={!!battleCtx} />
 			<InstancedTerrain
 				{mapData}
