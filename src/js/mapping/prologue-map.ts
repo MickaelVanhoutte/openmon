@@ -92,14 +92,14 @@ function createPokeballItem(): OverworldItem {
 					if (!dc) {
 						return;
 					}
-					const STARTERS = [1, 4, 7];
-					const rng = new SeededRNG(dc.runSeed + '-starter');
-					const starterId = rng.pick(STARTERS);
-					const pokemon = ctx.POKEDEX.findById(starterId).result?.instanciate(5);
+					//const STARTERS = [1, 4, 7];
+					//const rng = new SeededRNG(dc.runSeed + '-starter');
+					//const starterId = rng.pick(STARTERS);
+					const pokemon = ctx.POKEDEX.findById(50).result?.instanciate(5, 25, true);
 					if (pokemon) {
 						ctx.player.monsters.push(pokemon);
 						ctx.player.setFollower(pokemon);
-						ctx.POKEDEX.setCaught(starterId);
+						ctx.POKEDEX.setCaught(50);
 						dc.starterPicked = true;
 						dc.prologueCompleted = true;
 						ctx.updateMenuAvailability();
@@ -120,10 +120,11 @@ function createPokeballItem(): OverworldItem {
 				}),
 				new Dialog([
 					new Message(
-						"I have a partner again.",
-						'thought'
+						"Eevee !",
+						'self'
 					),
-					new Message(' Maybe there\'s a way out of here...', 'thought')
+					new Message('Vee !', 'follower'),
+					new Message('Maybe there\'s a way out of here...', 'thought')
 				])
 			])
 		]

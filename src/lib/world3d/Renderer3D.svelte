@@ -22,7 +22,7 @@
 		blendFunction: BlendFunction.NORMAL,
 		offset: 0,
 		rotation: 0,
-		focusArea: 0.4,
+		focusArea: 0.7,
 		feather: 0.3,
 		bias: 0.06,
 		kernelSize: KernelSize.SMALL
