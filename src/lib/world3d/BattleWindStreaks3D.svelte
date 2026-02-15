@@ -59,7 +59,7 @@
 		for (let i = 0; i < PARTICLE_COUNT; i++) {
 			if (radii[i] >= 0.5) {
 				allExpired = false;
-				angles[i] += angularSpeeds[i] * delta;
+				//angles[i] += angularSpeeds[i] * delta;
 				radii[i] += radialSpeeds[i] * delta;
 
 				posArray[i * 3] = playerPosition.x + radii[i] * Math.cos(angles[i]);
