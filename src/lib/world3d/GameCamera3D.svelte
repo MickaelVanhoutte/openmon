@@ -18,8 +18,9 @@
 
 	// Mutable offset object for GSAP to animate
 	const currentOffset = { ...OVERWORLD_OFFSET };
-	const lookAtOffset = { y: 0 };
+	const lookAtOffset = { x: 0, y: 0, z: 0 };
 	const swayOffset = { x: 0, y: 0 };
+	const shakeOffset = { x: 0, y: 0 };
 	let elapsedTime = 0;
 
 	const LERP_FACTOR = 0.08;
@@ -28,29 +29,84 @@
 
 	$effect(() => {
 		if (battleActive) {
-			gsap.to(currentOffset, {
-				y: BATTLE_OFFSET.y,
-				z: BATTLE_OFFSET.z,
-				duration: 1.5,
-				ease: 'power2.inOut'
-			});
-			gsap.to(lookAtOffset, {
-				y: BATTLE_LOOKAT_Y_OFFSET,
-				duration: 1.5,
-				ease: 'power2.inOut'
-			});
+			const tl = gsap.timeline();
+
+			// 1. Zoom IN (0-0.2s): Camera pulls closer
+			tl.to(
+				currentOffset,
+				{
+					y: currentOffset.y * 0.7,
+					z: currentOffset.z * 0.7,
+					duration: 0.2,
+					ease: 'power3.in'
+				},
+				0
+			);
+
+			// 2. SHAKE (0.1-0.6s): Horizontal displacement
+			tl.to(
+				shakeOffset,
+				{
+					x: 0.25,
+					duration: 0.05,
+					repeat: 6,
+					yoyo: true,
+					ease: 'none'
+				},
+				0.1
+			);
+
+			// 3. Settle shake (0.6-1.0s): Ease shake back to 0
+			tl.to(
+				shakeOffset,
+				{
+					x: 0,
+					y: 0,
+					duration: 0.4,
+					ease: 'power2.out'
+				},
+				0.6
+			);
+
+			// 4. Whip pan to BATTLE_OFFSET (0.3-1.6s)
+			tl.to(
+				currentOffset,
+				{
+					...BATTLE_OFFSET,
+					duration: 1.3,
+					ease: 'back.out(1.5)'
+				},
+				0.3
+			);
+
+			// 5. LookAt transition (same timing as whip pan)
+			tl.to(
+				lookAtOffset,
+				{
+					x: BATTLE_OFFSET.x * 0.5,
+					y: BATTLE_LOOKAT_Y_OFFSET,
+					z: 0,
+					duration: 1.3,
+					ease: 'power2.inOut'
+				},
+				0.3
+			);
 		} else {
 			gsap.to(currentOffset, {
+				x: OVERWORLD_OFFSET.x,
 				y: OVERWORLD_OFFSET.y,
 				z: OVERWORLD_OFFSET.z,
 				duration: 2,
 				ease: 'back.out(1.2)'
 			});
 			gsap.to(lookAtOffset, {
+				x: 0,
 				y: 0,
+				z: 0,
 				duration: 2,
 				ease: 'back.out(1.2)'
 			});
+			gsap.to(shakeOffset, { x: 0, y: 0, duration: 0.3 });
 		}
 	});
 
@@ -82,15 +138,19 @@
 			const clampedX = Math.max(minX, Math.min(maxX, targetPosition.x));
 			const clampedZ = Math.max(minZ, Math.min(maxZ, targetPosition.z));
 
-			const desiredX = clampedX + currentOffset.x + swayOffset.x;
-			const desiredY = targetPosition.y + currentOffset.y + swayOffset.y;
+			const desiredX = clampedX + currentOffset.x + swayOffset.x + shakeOffset.x;
+			const desiredY = targetPosition.y + currentOffset.y + swayOffset.y + shakeOffset.y;
 			const desiredZ = clampedZ + currentOffset.z;
 
 			camera.position.x += (desiredX - camera.position.x) * LERP_FACTOR;
 			camera.position.y += (desiredY - camera.position.y) * LERP_FACTOR;
 			camera.position.z += (desiredZ - camera.position.z) * LERP_FACTOR;
 
-			camera.lookAt(clampedX, targetPosition.y + lookAtOffset.y, clampedZ);
+			camera.lookAt(
+				clampedX + lookAtOffset.x,
+				targetPosition.y + lookAtOffset.y,
+				clampedZ + lookAtOffset.z
+			);
 		},
 		{ after: 'player-movement' }
 	);
@@ -118,6 +178,10 @@
 			targetPosition.y + currentOffset.y,
 			clampedZ + currentOffset.z
 		);
-		camera.lookAt(clampedX, targetPosition.y + lookAtOffset.y, clampedZ);
+		camera.lookAt(
+			clampedX + lookAtOffset.x,
+			targetPosition.y + lookAtOffset.y,
+			clampedZ + lookAtOffset.z
+		);
 	}}
 />
