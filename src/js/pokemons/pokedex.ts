@@ -974,8 +974,8 @@ export class PokemonInstance extends PokedexEntry {
 	}
 
 	public removeHp(hp: number) {
-		this.currentHp -= hp;
-		if (this.currentHp <= 0) {
+		this.currentHp = Math.max(0, this.currentHp - hp);
+		if (isNaN(this.currentHp) || this.currentHp <= 0) {
 			this.currentHp = 0;
 			this.fainted = true;
 		}

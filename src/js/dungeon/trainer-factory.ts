@@ -1,4 +1,5 @@
 import { NPC } from '../characters/npc';
+import type { DungeonMonsterConfig } from '../characters/characters-model';
 import { Position } from '../mapping/positions';
 import {
 	Script,
@@ -11,6 +12,29 @@ import {
 import { SeededRNG } from './prng';
 import { type BiomeConfig } from './biomes';
 import type { FloorData } from './floor-generator';
+import { getBossForFloor } from './boss-loader';
+
+export interface TrainerScaling {
+	minFloor: number;
+	maxFloor: number;
+	trainerCount: [number, number];
+	pokemonPerTrainer: [number, number];
+}
+
+export const TRAINER_SCALING: TrainerScaling[] = [
+	{ minFloor: 1, maxFloor: 5, trainerCount: [1, 1], pokemonPerTrainer: [1, 2] },
+	{ minFloor: 6, maxFloor: 10, trainerCount: [2, 2], pokemonPerTrainer: [1, 2] },
+	{ minFloor: 11, maxFloor: 20, trainerCount: [2, 3], pokemonPerTrainer: [2, 3] },
+	{ minFloor: 21, maxFloor: 30, trainerCount: [3, 4], pokemonPerTrainer: [2, 4] },
+	{ minFloor: 31, maxFloor: Infinity, trainerCount: [3, 5], pokemonPerTrainer: [3, 5] }
+];
+
+export function getTrainerScaling(floor: number): TrainerScaling {
+	return (
+		TRAINER_SCALING.find((s) => floor >= s.minFloor && floor <= s.maxFloor) ??
+		TRAINER_SCALING[TRAINER_SCALING.length - 1]
+	);
+}
 
 export function createTrainer(
 	position: Position,
@@ -26,18 +50,18 @@ export function createTrainer(
 	const spriteId = rng.pick([3, 4]);
 	const gender = spriteId === 4 ? 'FEMALE' : 'MALE';
 
-	const pokemonCount = rng.nextInt(1, 3);
-	const monsterIds: number[] = [];
+	const scaling = getTrainerScaling(floorNumber);
+	const pokemonCount = rng.nextInt(scaling.pokemonPerTrainer[0], scaling.pokemonPerTrainer[1]);
+	const baseLevel = floorNumber + 2;
+	const dungeonTeam: DungeonMonsterConfig[] = [];
 	for (let i = 0; i < pokemonCount; i++) {
-		monsterIds.push(rng.pick(biomeConfig.monsterTable).id);
+		const speciesId = rng.pick(biomeConfig.monsterTable).id;
+		const level = Math.max(1, Math.min(baseLevel + rng.nextInt(0, 2), 100));
+		dungeonTeam.push({ speciesId, level });
 	}
+	const monsterIds = dungeonTeam.map((m) => m.speciesId);
 
-	const [minLevel, maxLevel] = biomeConfig.levelRange;
-	const biomeFloorRange = biomeConfig.floorRange;
-	const floorProgress =
-		(floorNumber - biomeFloorRange[0]) / (biomeFloorRange[1] - biomeFloorRange[0] || 1);
-	const baseLevel = Math.floor(minLevel + (maxLevel - minLevel) * floorProgress);
-	const level = Math.max(1, baseLevel + rng.nextInt(-1, 1));
+	const rewardLevel = Math.max(...dungeonTeam.map((m) => m.level));
 
 	const mainScript = new Script('onSight', [
 		new MoveToPlayer(id),
@@ -53,7 +77,7 @@ export function createTrainer(
 			)
 		]),
 		new StartBattle(id),
-		new GiveMoney(100 + floorNumber * 10 + level),
+		new GiveMoney(100 + floorNumber * 10 + rewardLevel),
 		new Dialog([
 			new Message(
 				rng.pick([
@@ -67,7 +91,7 @@ export function createTrainer(
 		])
 	]);
 
-	return new NPC(
+	const npc = new NPC(
 		id,
 		name,
 		spriteId,
@@ -78,6 +102,8 @@ export function createTrainer(
 		undefined,
 		mainScript
 	);
+	npc.dungeonTeam = dungeonTeam;
+	return npc;
 }
 
 export function createBossTrainer(
@@ -87,18 +113,55 @@ export function createBossTrainer(
 	rng: SeededRNG,
 	id: number = rng.nextInt(10000, 19999)
 ): NPC {
-	const name = 'Floor Boss';
-	const spriteId = 3;
-	const gender = 'MALE';
+	const bossDef = getBossForFloor(floorNumber);
 
-	const pokemonCount = rng.nextInt(3, 6);
-	const monsterIds: number[] = [];
-	for (let i = 0; i < pokemonCount; i++) {
-		monsterIds.push(rng.pick(biomeConfig.monsterTable).id);
+	if (bossDef) {
+		// Use JSON-defined boss: curated name, sprite, team, and dialogue
+		const baseLevel = floorNumber + 2;
+		const dungeonTeam: DungeonMonsterConfig[] = bossDef.team.map((member) => ({
+			speciesId: member.speciesId,
+			level: Math.min(baseLevel + member.levelOffset, 120),
+			heldItemId: member.heldItemId ?? undefined
+		}));
+
+		const name = bossDef.name;
+		const monsterIds = dungeonTeam.map((m) => m.speciesId);
+		const rewardLevel = Math.max(...dungeonTeam.map((m) => m.level));
+
+		const mainScript = new Script('onSight', [
+			new MoveToPlayer(id),
+			new Dialog([new Message(bossDef.dialogBefore, name)]),
+			new StartBattle(id),
+			new GiveMoney(500 + floorNumber * 50 + rewardLevel * 5),
+			new Dialog([new Message(bossDef.dialogAfter, name)])
+		]);
+
+		const npc = new NPC(
+			id,
+			name,
+			bossDef.spriteId,
+			position,
+			'down',
+			'MALE',
+			monsterIds,
+			undefined,
+			mainScript
+		);
+		npc.dungeonTeam = dungeonTeam;
+		return npc;
 	}
 
-	const [_, maxLevel] = biomeConfig.levelRange;
-	const level = maxLevel + 5;
+	// Fallback: procedural boss (should not happen with 10 defined bosses covering all cycles)
+	const name = 'Floor Boss';
+	const baseLevel = floorNumber + 2;
+	const pokemonCount = rng.nextInt(3, 6);
+	const bossLevel = Math.max(1, Math.min(baseLevel + 5, 120));
+	const dungeonTeam: DungeonMonsterConfig[] = [];
+	for (let i = 0; i < pokemonCount; i++) {
+		const speciesId = rng.pick(biomeConfig.monsterTable).id;
+		dungeonTeam.push({ speciesId, level: bossLevel });
+	}
+	const monsterIds = dungeonTeam.map((m) => m.speciesId);
 
 	const mainScript = new Script('onSight', [
 		new MoveToPlayer(id),
@@ -107,11 +170,13 @@ export function createBossTrainer(
 			new Message('Prove your worth in battle!', name)
 		]),
 		new StartBattle(id),
-		new GiveMoney(500 + floorNumber * 50 + level * 5),
+		new GiveMoney(500 + floorNumber * 50 + bossLevel * 5),
 		new Dialog([new Message('Impressive. You may proceed to the next floor.', name)])
 	]);
 
-	return new NPC(id, name, spriteId, position, 'down', gender, monsterIds, undefined, mainScript);
+	const npc = new NPC(id, name, 3, position, 'down', 'MALE', monsterIds, undefined, mainScript);
+	npc.dungeonTeam = dungeonTeam;
+	return npc;
 }
 
 export function populateFloor(
@@ -124,14 +189,33 @@ export function populateFloor(
 	const isBossFloor = floorNumber % 5 === 0;
 	const trainerPositions = generatorOutput.trainerPositions;
 
-	for (let i = 0; i < trainerPositions.length; i++) {
-		const pos = trainerPositions[i];
-		const direction = rng.pick(['up', 'down', 'left', 'right'] as const);
-		const id = 100 + i;
+	// Use actual floor number for scaling (not effective biome floor) so difficulty
+	// keeps increasing on cycling floors (51+)
+	const scaling = getTrainerScaling(floorNumber);
+	const maxRegularTrainers = rng.nextInt(scaling.trainerCount[0], scaling.trainerCount[1]);
 
-		if (isBossFloor && i === trainerPositions.length - 1) {
-			npcs.push(createBossTrainer(pos, floorNumber, biomeConfig, rng, id));
-		} else {
+	if (isBossFloor && trainerPositions.length > 0) {
+		// Boss gets the last position; regular trainers fill earlier positions up to scaling limit
+		const bossPos = trainerPositions[trainerPositions.length - 1];
+		const regularPositions = trainerPositions.slice(0, -1);
+		const regularCount = Math.min(regularPositions.length, maxRegularTrainers);
+
+		for (let i = 0; i < regularCount; i++) {
+			const pos = regularPositions[i];
+			const direction = rng.pick(['up', 'down', 'left', 'right'] as const);
+			const id = 100 + i;
+			npcs.push(createTrainer(pos, direction, floorNumber, biomeConfig, rng, id));
+		}
+
+		const bossId = 100 + regularCount;
+		npcs.push(createBossTrainer(bossPos, floorNumber, biomeConfig, rng, bossId));
+	} else {
+		const regularCount = Math.min(trainerPositions.length, maxRegularTrainers);
+
+		for (let i = 0; i < regularCount; i++) {
+			const pos = trainerPositions[i];
+			const direction = rng.pick(['up', 'down', 'left', 'right'] as const);
+			const id = 100 + i;
 			npcs.push(createTrainer(pos, direction, floorNumber, biomeConfig, rng, id));
 		}
 	}

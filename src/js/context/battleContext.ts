@@ -564,7 +564,7 @@ export class BattleContext {
 	// TODO : could be in the remove HP action
 	public checkFainted(target: PokemonInstance, initiator: PokemonInstance): ActionV2Interface[] {
 		const actions: ActionV2Interface[] = [];
-		if (target.currentHp <= 0) {
+		if (isNaN(target.currentHp) || target.currentHp <= 0) {
 			target.currentHp = 0;
 
 			target.fainted = true;

@@ -362,7 +362,10 @@ export class RemoveHP implements ActionV2Interface {
 	}
 
 	execute(ctx: BattleContext): void {
-		this.target.currentHp = this.target.currentHp - this.damages;
+		this.target.currentHp = Math.max(0, this.target.currentHp - this.damages);
+		if (isNaN(this.target.currentHp)) {
+			this.target.currentHp = 0;
+		}
 		ctx.runItemEvent(HeldItemTrigger.ON_HP_CHANGED, this.target);
 
 		if (this.target.currentHp <= 0) {

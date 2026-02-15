@@ -19,9 +19,9 @@ describe('Floor Transition System', () => {
 		});
 
 		it('should increment floor number when advancing', () => {
-			expect(dc.currentFloor).toBe(1);
+			expect(dc.currentFloor).toBe(0);
 			dc.advanceFloor();
-			expect(dc.currentFloor).toBe(2);
+			expect(dc.currentFloor).toBe(1);
 		});
 
 		it('should generate and register a new floor map', () => {
@@ -40,8 +40,9 @@ describe('Floor Transition System', () => {
 		});
 
 		it('should clear old floor and register new floor on transition', () => {
-			const biome1 = getBiomeForFloor(1);
-			const floor1 = generateFloor(dc.runSeed, 1, biome1);
+			dc.advanceFloor();
+			const biome1 = getBiomeForFloor(dc.currentFloor);
+			const floor1 = generateFloor(dc.runSeed, dc.currentFloor, biome1);
 			registerThrelteMap(floor1.threlteMap.mapId, floor1.threlteMap);
 			expect(getThrelteMap(1001)).toBeDefined();
 

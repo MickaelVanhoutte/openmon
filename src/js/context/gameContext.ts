@@ -513,21 +513,33 @@ export class GameContext {
     Battle start
      */
 	checkForBattle() {
+		const dc = get(dungeonContext);
+		const encounterRate =
+			dc?.isDungeonMode && dc?.isRunActive ? getBiomeForFloor(dc.currentFloor).encounterRate : 0.07;
+
 		if (
 			this.map &&
 			this.map.hasBattleZoneAt(this.player.position.positionOnMap) &&
-			Math.random() < 0.07
+			Math.random() < encounterRate
 		) {
 			const monster = this.map.randomMonster();
-			// level can be base on player medium level of his team
-			const level = Math.floor(
-				this.player.monsters.reduce((acc, pkmn) => acc + pkmn.level, 0) /
-					this.player.monsters.length
-			);
+
+			let level: number;
+			if (dc?.isDungeonMode && dc?.isRunActive) {
+				const variance = Math.floor(Math.random() * 3) - 1;
+				level = Math.max(1, Math.min(dc.currentFloor + 2 + variance, 100));
+			} else {
+				level =
+					Math.floor(
+						this.player.monsters.reduce((acc, pkmn) => acc + pkmn.level, 0) /
+							this.player.monsters.length
+					) - 1;
+			}
+
 			this.startBattle(
-				this.POKEDEX.findById(monster.id).result.instanciate(level - 1),
+				this.POKEDEX.findById(monster.id).result.instanciate(level),
 				BattleType.SINGLE
-			); //monster.level
+			);
 		}
 	}
 
@@ -657,6 +669,82 @@ export class GameContext {
 		}, 500);
 	}
 
+	restartDungeonFloor(dungeonCtx: DungeonContext) {
+		this.overWorldContext.changingMap = true;
+
+		this.scriptRunner.interruptCurrent();
+		this.map?.npcs.forEach((npc) => npc.movingScript?.interrupt());
+		this.scriptRunner.clear();
+
+		const currentMapId = 1000 + dungeonCtx.currentFloor;
+
+		dungeonCtx.defeatedTrainers.clear();
+		dungeonCtx.pickedItems.clear();
+
+		const biome = getBiomeForFloor(dungeonCtx.currentFloor);
+		const floorData = generateFloor(dungeonCtx.runSeed, dungeonCtx.currentFloor, biome);
+
+		if (dungeonCtx.currentFloor === 1 && !dungeonCtx.starterPicked) {
+			const STARTERS = [1, 4, 7];
+			const rng = new SeededRNG(dungeonCtx.runSeed + '-starter');
+			const starterId = rng.pick(STARTERS);
+			const starterBall = new OverworldItem(
+				'Pokeball',
+				true,
+				floorData.starterItemPosition,
+				'src/assets/menus/pokeball.png',
+				undefined,
+				[
+					new Script('onInteract', [
+						new Dialog([new Message('You found a starter Pokemon!', 'System')]),
+						new CustomScriptable((ctx: GameContext) => {
+							const pokemon = ctx.POKEDEX.findById(starterId).result?.instanciate(5);
+							if (pokemon) {
+								ctx.player.monsters.push(pokemon);
+								ctx.player.setFollower(pokemon);
+								ctx.POKEDEX.setCaught(starterId);
+								dungeonCtx.starterPicked = true;
+								ctx.updateMenuAvailability();
+							}
+						})
+					])
+				]
+			);
+			floorData.openMap.items.push(starterBall);
+		}
+
+		const populateRng = new SeededRNG(dungeonCtx.runSeed + '-populate-' + dungeonCtx.currentFloor);
+		const npcs = populateFloor(floorData, dungeonCtx.currentFloor, biome, populateRng);
+		floorData.openMap.npcs.push(...npcs);
+		const dungeonItems = placeDungeonItems(
+			floorData.itemPositions,
+			dungeonCtx.currentFloor,
+			populateRng
+		);
+		floorData.openMap.items.push(...dungeonItems);
+
+		clearThrelteMapCache(currentMapId);
+
+		registerThrelteMap(floorData.threlteMap.mapId, floorData.threlteMap);
+		this.MAPS[floorData.openMap.mapId] = floorData.openMap;
+
+		this.map = floorData.openMap;
+		this.overWorldContext.map = floorData.openMap;
+		this.player.position.setPosition(floorData.playerStart);
+
+		const allScripts = this.scriptRunner.collectAllScripts(
+			floorData.openMap.scripts,
+			floorData.openMap.npcs
+		);
+		this.scriptRunner.indexScripts(allScripts);
+
+		dungeonContext.set(dungeonCtx);
+
+		setTimeout(() => {
+			this.overWorldContext.changingMap = false;
+		}, 500);
+	}
+
 	checkForInSightNpc(npcId: number): boolean {
 		const npc = this.map?.npcs.find((npc) => npc.id === npcId);
 		const haveInSightScript =
@@ -731,15 +819,28 @@ export class GameContext {
 		}
 
 		if (opponent instanceof NPC && opponent?.monsterIds?.length > 0) {
-			opponent.monsters = opponent.monsterIds.map((id) => {
-				let level = Math.floor(
-					this.player.monsters.reduce((acc, pkmn) => acc + pkmn.level, 0) /
-						this.player.monsters.length
-				);
-				// randomly add -1 to 2 levels
-				level += Math.floor(Math.random() * 4) - 1;
-				return this.POKEDEX.findById(id).result.instanciate(level);
-			});
+			if (opponent.dungeonTeam && opponent.dungeonTeam.length > 0) {
+				opponent.monsters = opponent.dungeonTeam.map((config) => {
+					const pokemon = this.POKEDEX.findById(config.speciesId).result.instanciate(config.level);
+					if (config.heldItemId) {
+						const heldItem = this.ITEMS.getHeldItemById(config.heldItemId);
+						if (heldItem) {
+							pokemon.heldItem = heldItem;
+						}
+					}
+					return pokemon;
+				});
+			} else {
+				opponent.monsters = opponent.monsterIds.map((id) => {
+					let level = Math.floor(
+						this.player.monsters.reduce((acc, pkmn) => acc + pkmn.level, 0) /
+							this.player.monsters.length
+					);
+					// randomly add -1 to 2 levels
+					level += Math.floor(Math.random() * 4) - 1;
+					return this.POKEDEX.findById(id).result.instanciate(level);
+				});
+			}
 		}
 
 		const battleContext = new BattleContext(this.player, opponent, this.settings, battleType);
@@ -757,11 +858,19 @@ export class GameContext {
 
 				unsubscribe();
 				if (!result.win) {
-					// tp back to the start // TODO pokecenter position
-					this.player.position.positionOnMap = this.map.playerInitialPosition;
-					this.player.monsters.forEach((pkmn) => {
-						pkmn.fullHeal();
-					});
+					const dc = get(dungeonContext);
+					if (dc?.isDungeonMode && dc?.isRunActive) {
+						this.player.monsters.forEach((pkmn) => {
+							pkmn.fullHeal();
+						});
+						this.restartDungeonFloor(dc);
+					} else {
+						// tp back to the start // TODO pokecenter position
+						this.player.position.positionOnMap = this.map.playerInitialPosition;
+						this.player.monsters.forEach((pkmn) => {
+							pkmn.fullHeal();
+						});
+					}
 				} else if (result.caught) {
 					this.POKEDEX.setCaught(result.caught.id);
 					// add caught pokemon to team if space or in the box

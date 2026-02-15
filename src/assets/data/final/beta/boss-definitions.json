@@ -1,0 +1,151 @@
+{
+	"bosses": [
+		{
+			"id": "boss_floor_5",
+			"name": "Ranger Oakley",
+			"biome": "GRASS_FOREST",
+			"floor": 5,
+			"spriteId": 3,
+			"dialogBefore": "The forest grows thick here. Can you handle its guardians?",
+			"dialogAfter": "Impressive... The forest bows to you.",
+			"team": [
+				{ "speciesId": 20, "levelOffset": 3, "heldItemId": null },
+				{ "speciesId": 13, "levelOffset": 3, "heldItemId": 4013 },
+				{ "speciesId": 34, "levelOffset": 4, "heldItemId": null }
+			]
+		},
+		{
+			"id": "boss_floor_10",
+			"name": "Warden Thorn",
+			"biome": "GRASS_FOREST",
+			"floor": 10,
+			"spriteId": 5,
+			"dialogBefore": "None pass without proving their worth to the Warden.",
+			"dialogAfter": "You have earned the forest's respect. Press onward.",
+			"team": [
+				{ "speciesId": 21, "levelOffset": 4, "heldItemId": 4005 },
+				{ "speciesId": 24, "levelOffset": 4, "heldItemId": null },
+				{ "speciesId": 41, "levelOffset": 4, "heldItemId": 4006 },
+				{ "speciesId": 14, "levelOffset": 5, "heldItemId": null }
+			]
+		},
+		{
+			"id": "boss_floor_15",
+			"name": "Miner Slate",
+			"biome": "CAVE_ROCK",
+			"floor": 15,
+			"spriteId": 7,
+			"dialogBefore": "These tunnels are mine. You want through? Fight for it.",
+			"dialogAfter": "Tough as bedrock... Go on, the deeper veins await.",
+			"team": [
+				{ "speciesId": 66, "levelOffset": 3, "heldItemId": 4007 },
+				{ "speciesId": 80, "levelOffset": 3, "heldItemId": null },
+				{ "speciesId": 134, "levelOffset": 4, "heldItemId": 4013 }
+			]
+		},
+		{
+			"id": "boss_floor_20",
+			"name": "Foreman Basalt",
+			"biome": "CAVE_ROCK",
+			"floor": 20,
+			"spriteId": 9,
+			"dialogBefore": "I forged my team in the heart of this mountain. Show me what you've got.",
+			"dialogAfter": "Shattered like granite... You've earned your passage.",
+			"team": [
+				{ "speciesId": 81, "levelOffset": 4, "heldItemId": 4001 },
+				{ "speciesId": 70, "levelOffset": 4, "heldItemId": null },
+				{ "speciesId": 83, "levelOffset": 5, "heldItemId": 4008 },
+				{ "speciesId": 142, "levelOffset": 5, "heldItemId": null }
+			]
+		},
+		{
+			"id": "boss_floor_25",
+			"name": "Captain Coral",
+			"biome": "WATER_SWAMP",
+			"floor": 25,
+			"spriteId": 2,
+			"dialogBefore": "The swamp swallows the unprepared. Are you ready?",
+			"dialogAfter": "You navigate these waters well. The depths beckon.",
+			"team": [
+				{ "speciesId": 122, "levelOffset": 4, "heldItemId": 4010 },
+				{ "speciesId": 114, "levelOffset": 4, "heldItemId": null },
+				{ "speciesId": 111, "levelOffset": 5, "heldItemId": 4004 }
+			]
+		},
+		{
+			"id": "boss_floor_30",
+			"name": "Admiral Murk",
+			"biome": "WATER_SWAMP",
+			"floor": 30,
+			"spriteId": 4,
+			"dialogBefore": "From the darkest depths, I command the tides. Brace yourself.",
+			"dialogAfter": "The current has shifted... You are stronger than I expected.",
+			"team": [
+				{ "speciesId": 120, "levelOffset": 5, "heldItemId": 4007 },
+				{ "speciesId": 124, "levelOffset": 5, "heldItemId": null },
+				{ "speciesId": 109, "levelOffset": 5, "heldItemId": null },
+				{ "speciesId": 126, "levelOffset": 5, "heldItemId": 4002 }
+			]
+		},
+		{
+			"id": "boss_floor_35",
+			"name": "Pyro Ember",
+			"biome": "FIRE_VOLCANIC",
+			"floor": 35,
+			"spriteId": 6,
+			"dialogBefore": "The heat alone should have turned you back. Let's see if you can take more.",
+			"dialogAfter": "You walked through fire and came out tempered. Respect.",
+			"team": [
+				{ "speciesId": 194, "levelOffset": 5, "heldItemId": 4011 },
+				{ "speciesId": 191, "levelOffset": 5, "heldItemId": null },
+				{ "speciesId": 201, "levelOffset": 5, "heldItemId": 4004 }
+			]
+		},
+		{
+			"id": "boss_floor_40",
+			"name": "Inferno Rex",
+			"biome": "FIRE_VOLCANIC",
+			"floor": 40,
+			"spriteId": 8,
+			"dialogBefore": "I am the eruption itself. Nothing survives my flames.",
+			"dialogAfter": "Impossible... Even magma could not consume you.",
+			"team": [
+				{ "speciesId": 9, "levelOffset": 5, "heldItemId": 4003 },
+				{ "speciesId": 192, "levelOffset": 6, "heldItemId": 4008 },
+				{ "speciesId": 197, "levelOffset": 6, "heldItemId": 4005 },
+				{ "speciesId": 203, "levelOffset": 6, "heldItemId": null }
+			]
+		},
+		{
+			"id": "boss_floor_45",
+			"name": "Phantom Nyx",
+			"biome": "DARK_HAUNTED",
+			"floor": 45,
+			"spriteId": 1,
+			"dialogBefore": "You see shadows. I see allies. Let's find out who's afraid of the dark.",
+			"dialogAfter": "The darkness whispers your name now... You have its favor.",
+			"team": [
+				{ "speciesId": 47, "levelOffset": 6, "heldItemId": 4002 },
+				{ "speciesId": 96, "levelOffset": 6, "heldItemId": 4007 },
+				{ "speciesId": 49, "levelOffset": 6, "heldItemId": null },
+				{ "speciesId": 87, "levelOffset": 6, "heldItemId": 4014 }
+			]
+		},
+		{
+			"id": "boss_floor_50",
+			"name": "Overlord Shade",
+			"biome": "DARK_HAUNTED",
+			"floor": 50,
+			"spriteId": 10,
+			"dialogBefore": "You've reached the end. I am the final shadow between you and the abyss.",
+			"dialogAfter": "The abyss stares back... and blinks. You are truly worthy.",
+			"team": [
+				{ "speciesId": 47, "levelOffset": 7, "heldItemId": 4004 },
+				{ "speciesId": 150, "levelOffset": 7, "heldItemId": 4003 },
+				{ "speciesId": 44, "levelOffset": 7, "heldItemId": 4006 },
+				{ "speciesId": 75, "levelOffset": 7, "heldItemId": 4007 },
+				{ "speciesId": 160, "levelOffset": 7, "heldItemId": null }
+			]
+		}
+	]
+}
