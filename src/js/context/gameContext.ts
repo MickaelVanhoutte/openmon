@@ -908,7 +908,6 @@ export class GameContext {
 
 		const unsubscribe2 = setInterval(() => {
 			if (!this.player.moving) {
-				this.player.followerCharge(this.overWorldContext);
 				this.battleContext.set(battleContext);
 				battleContext.events.starting.set(true);
 				clearInterval(unsubscribe2);
