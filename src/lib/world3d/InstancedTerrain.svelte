@@ -1,21 +1,43 @@
 <script lang="ts">
-	import { T } from '@threlte/core';
+	import { T, useTask } from '@threlte/core';
+	import { untrack } from 'svelte';
 	import * as THREE from 'three';
 	import {
 		TileType3D,
 		TILE_HEIGHTS,
+		TILE_WALKABLE,
 		TILE_COLORS,
 		type ThrelteMapData
 	} from '$js/mapping/threlte-maps/types';
 	import { TILE_TEXTURES, WALL_SIDE_TEXTURE } from '$js/mapping/threlte-maps/tile-textures';
+	import gsap from 'gsap';
 
 	interface Props {
 		mapData: ThrelteMapData;
+		battleActive?: boolean;
+		playerPosition?: { x: number; y: number; z: number };
 	}
 
-	let { mapData }: Props = $props();
+	let { mapData, battleActive = false, playerPosition }: Props = $props();
 
 	const BASE_HEIGHT = 1;
+
+	// Battle push animation constants
+	const CLEARING_RADIUS = 6;
+	const GROUND_Y = 0.2;
+
+	// Push animation state
+	let pushProgress = $state(0);
+	let playerSnapshot = { x: 0, z: 0 };
+	let pushTween: gsap.core.Tween | undefined;
+	const pushTmpMatrix = new THREE.Matrix4();
+	const pushTmpPos = new THREE.Vector3();
+
+	// Storage for wall mesh refs and base matrices
+	const wallMeshData: Map<
+		TileType3D,
+		{ mesh: THREE.InstancedMesh; baseMatrices: THREE.Matrix4[] }
+	> = new Map();
 
 	const textureLoader = new THREE.TextureLoader();
 	const loadedTextures = new Map<TileType3D, THREE.Texture>();
@@ -110,6 +132,80 @@
 		}
 		return groups;
 	});
+
+	function restoreAllToBase() {
+		wallMeshData.forEach(({ mesh, baseMatrices }) => {
+			for (let i = 0; i < baseMatrices.length; i++) {
+				mesh.setMatrixAt(i, baseMatrices[i]);
+			}
+			mesh.instanceMatrix.needsUpdate = true;
+		});
+	}
+
+	function applyPushToMesh(mesh: THREE.InstancedMesh, baseMatrices: THREE.Matrix4[]) {
+		for (let i = 0; i < baseMatrices.length; i++) {
+			pushTmpPos.setFromMatrixPosition(baseMatrices[i]);
+			const dx = pushTmpPos.x - playerSnapshot.x;
+			const dz = pushTmpPos.z - playerSnapshot.z;
+			const dist = Math.sqrt(dx * dx + dz * dz);
+
+			if (dist < CLEARING_RADIUS) {
+				pushTmpMatrix.copy(baseMatrices[i]);
+				pushTmpPos.setFromMatrixPosition(pushTmpMatrix);
+				const baseY = pushTmpPos.y;
+				pushTmpPos.y = baseY + (GROUND_Y - baseY) * pushProgress;
+				pushTmpMatrix.setPosition(pushTmpPos);
+				mesh.setMatrixAt(i, pushTmpMatrix);
+			} else {
+				mesh.setMatrixAt(i, baseMatrices[i]);
+			}
+		}
+		mesh.instanceMatrix.needsUpdate = true;
+	}
+
+	$effect(() => {
+		if (battleActive) {
+			const pos = untrack(() => playerPosition);
+			if (pos) {
+				playerSnapshot = { x: pos.x, z: pos.z };
+			}
+			pushTween?.kill();
+			const currentProgress = untrack(() => pushProgress);
+			pushTween = gsap.to(
+				{ value: currentProgress },
+				{
+					value: 1,
+					duration: 0.8,
+					ease: 'power3.out',
+					onUpdate: function () {
+						pushProgress = this.targets()[0].value;
+					}
+				}
+			);
+		} else {
+			pushTween?.kill();
+			const currentProgress = untrack(() => pushProgress);
+			pushTween = gsap.to(
+				{ value: currentProgress },
+				{
+					value: 0,
+					duration: 1.2,
+					ease: 'power2.inOut',
+					onUpdate: function () {
+						pushProgress = this.targets()[0].value;
+					},
+					onComplete: () => restoreAllToBase()
+				}
+			);
+		}
+	});
+
+	useTask('wall-battle-push', () => {
+		if (pushProgress <= 0) return;
+		wallMeshData.forEach(({ mesh, baseMatrices }) => {
+			applyPushToMesh(mesh, baseMatrices);
+		});
+	});
 </script>
 
 {#key mapData}
@@ -127,6 +223,13 @@
 					ref.setMatrixAt(i, matrices[i]);
 				}
 				ref.instanceMatrix.needsUpdate = true;
+				// Store non-walkable mesh data for battle push animation
+				if (!(TILE_WALKABLE.get(type) ?? true)) {
+					wallMeshData.set(type, {
+						mesh: ref,
+						baseMatrices: matrices.map((m) => m.clone())
+					});
+				}
 			}}
 		>
 			<T.BoxGeometry args={[1, geometryHeight, 1]} />

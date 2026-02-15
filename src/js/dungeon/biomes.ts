@@ -1,5 +1,7 @@
 import { TileType3D } from '../mapping/threlte-maps/types';
 
+export type GenerationType = 'cave' | 'maze';
+
 export interface BiomeConfig {
 	name: string;
 	floorRange: [number, number];
@@ -11,6 +13,7 @@ export interface BiomeConfig {
 	itemCount: [number, number];
 	floorSizeRange: [number, number];
 	ambientTrack?: string;
+	generationType?: GenerationType;
 }
 
 export const GRASS_FOREST: BiomeConfig = {

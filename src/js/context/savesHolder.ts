@@ -4,7 +4,7 @@ import { PokemonBox } from '../pokemons/boxes';
 import { Pokedex, PokemonInstance, SavedEntry, UnknownMonster } from '../pokemons/pokedex';
 import { Settings } from '../characters/settings';
 import { GameContext } from './gameContext';
-import { writable, type Writable } from 'svelte/store';
+import { get, writable, type Writable } from 'svelte/store';
 import { Flags, ObjectiveState, QuestState } from '../scripting/quests';
 import { QUESTS } from '../scripting/quests';
 
@@ -27,6 +27,15 @@ export class SaveContext {
 	questStates: QuestState[] = [];
 	flags: Flags;
 	// TODO store script played
+
+	// Dungeon run state (optional for backward compat with old saves)
+	dungeonSeed?: string; // runSeed from DungeonContext (it's a string, not number)
+	dungeonFloor?: number; // currentFloor
+	dungeonDefeated?: string[]; // Array from defeatedTrainers Set (Set<string>)
+	dungeonItems?: string[]; // Array from pickedItems Set (Set<string>)
+	dungeonCurrency?: number; // runCurrency
+	dungeonActive?: boolean; // whether a dungeon run is in progress
+	dungeonStarterPicked?: boolean; // whether starter ball was already picked up
 
 	constructor(
 		id: number,
@@ -135,6 +144,10 @@ export class SavesHolder {
 	selectSave(index: number) {
 		this._selectedSave = this.saves[index];
 		this.selectedSave$.set(this.saves[index]);
+	}
+
+	getActiveSave(): SaveContext | undefined {
+		return get(this.selectedSave$);
 	}
 
 	newGame(spriteId: number, name: string, gender: 'MALE' | 'FEMALE'): SaveContext {

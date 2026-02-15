@@ -13,7 +13,7 @@
 	import Shop from '../common/Shop.svelte';
 	import { backInOut } from 'svelte/easing';
 	import { fade, slide } from 'svelte/transition';
-	import { TimeOfDay } from '../../js/time/time-of-day';
+
 	import InstancedTerrain from './InstancedTerrain.svelte';
 	import PlayerSprite3D from './PlayerSprite3D.svelte';
 	import NPCSprite3D from './NPCSprite3D.svelte';
@@ -29,6 +29,12 @@
 	import Decorations3D from './Decorations3D.svelte';
 	import { getThrelteMap } from '$js/mapping/threlte-maps/threlte-map-registry';
 	import { getOrConvertMap } from '$js/mapping/threlte-maps/openmap-converter';
+	import DungeonMinimap from '../world/DungeonMinimap.svelte';
+	import { ExplorationTracker } from '$js/dungeon/exploration-tracker';
+	import { dungeonContext } from '$js/dungeon/dungeon-context';
+	import type { BiomeConfig } from '$js/dungeon/biomes';
+	import { TileType3D } from '$js/mapping/threlte-maps/types';
+	import { getLightingMood } from '$js/lighting/biome-lighting';
 
 	/**
 	 * 3D Overworld component.
@@ -56,10 +62,19 @@
 	let playerVisualPosition = $state({ x: 0, y: 0, z: 0 });
 
 	let wrapper: HTMLDivElement;
-	let minimap: HTMLCanvasElement;
 	const canvasWidth: number = 1024;
 	let currentMessages: string[] = $state([]);
-	let mapEnlarged = $state(false);
+
+	// Dungeon minimap state - extract primitives to avoid same-reference $state reactivity issues
+	let isDungeonMode = $state(false);
+	let currentDungeonFloor = $state(0);
+	let currentDungeonBiome = $state<BiomeConfig | undefined>(undefined);
+	let dungeonFloorType = $state<'normal' | 'rest' | 'boss'>('normal');
+	let playerGridX = $state(0);
+	let playerGridY = $state(0);
+	let explorationTracker = $state<ExplorationTracker | undefined>(undefined);
+	let lastTrackedFloor = 0;
+	let isGamePaused = $state(false);
 
 	/*
 	Scripts - subscribe to reactive store
@@ -100,39 +115,9 @@
 	);
 	const isHealing = $derived(currentAction?.type === 'HealAll');
 
-	function getTimeFilter(tod: TimeOfDay): string {
-		switch (tod) {
-			case TimeOfDay.DAWN:
-				return 'brightness(0.9) saturate(1.1) sepia(0.15) hue-rotate(-5deg)';
-			case TimeOfDay.DAY:
-				return 'none';
-			case TimeOfDay.DUSK:
-				return 'sepia(0.3) brightness(0.85) hue-rotate(-10deg)';
-			case TimeOfDay.NIGHT:
-				return 'brightness(0.55) saturate(0.6) sepia(0.3) hue-rotate(180deg)';
-		}
-	}
-
 	// spawned used for future Task 10 (items and spawns in 3D)
 	const spawned = $derived(context.spawned);
 	void spawned;
-
-	const timeOfDay = context.timeOfDay.timeOfDay;
-	const progress = context.timeOfDay.progress;
-
-	const TIME_ICONS: Record<TimeOfDay, string> = {
-		[TimeOfDay.DAWN]: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2v2m0 16v2M4 12H2m20 0h-2m-2.05-6.36 1.41-1.41m-12.72 0 1.41 1.41M5.64 18.36l1.41-1.41m12.72 0-1.41-1.41"/><circle cx="12" cy="12" r="4"/><path d="M12 8v-2"/></svg>`,
-		[TimeOfDay.DAY]: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>`,
-		[TimeOfDay.DUSK]: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 10V2m-6 8a6 6 0 1 0 12 0"/><path d="M4 22h16"/><path d="M6 18h12"/></svg>`,
-		[TimeOfDay.NIGHT]: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`
-	};
-
-	function formatGameTime(prog: number): string {
-		const totalMinutes = Math.floor(prog * 24 * 60);
-		const hours = Math.floor(totalMinutes / 60);
-		const minutes = totalMinutes % 60;
-		return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-	}
 
 	// TEST -> TODO : smash rock, cut trees... using pkmn charge
 	function handleChargeKeydown(e: KeyboardEvent) {
@@ -156,10 +141,77 @@
 	// battleCtx used for future battle integration
 	// void battleCtx;
 
-	function enlargeMap() {
-		mapEnlarged = !mapEnlarged;
-		overWorldCtx.setPaused(mapEnlarged, 'map-enlarge');
+	// Subscribe to dungeon context store - extract primitives directly to avoid
+	// same-reference reactivity issues (DungeonContext is mutated in-place and re-set)
+	$effect(() => {
+		const unsub = dungeonContext.subscribe((value) => {
+			isDungeonMode = value?.isDungeonMode ?? false;
+			currentDungeonFloor = value?.currentFloor ?? 0;
+			currentDungeonBiome = value?.currentBiome;
+			dungeonFloorType = value?.getCurrentFloorType() ?? 'normal';
+		});
+		return unsub;
+	});
+
+	let dungeonMapData = $derived(
+		isDungeonMode && currentDungeonFloor > 0 ? getThrelteMap(1000 + currentDungeonFloor) : undefined
+	);
+
+	function findStairsPosition(
+		tiles: TileType3D[][],
+		width: number,
+		height: number
+	): { x: number; y: number } | undefined {
+		for (let y = 0; y < height; y++) {
+			for (let x = 0; x < width; x++) {
+				if (tiles[y][x] === TileType3D.STAIRS_DOWN) {
+					return { x, y };
+				}
+			}
+		}
+		return undefined;
 	}
+
+	let stairsPos = $derived(
+		dungeonMapData
+			? findStairsPosition(dungeonMapData.tiles, dungeonMapData.width, dungeonMapData.height)
+			: undefined
+	);
+
+	// ExplorationTracker lifecycle: create on dungeon entry, reset on floor change
+	// Split into separate effects to avoid race conditions where isDungeonMode
+	// toggling in a single reactive batch could destroy a just-created tracker.
+	$effect(() => {
+		if (
+			isDungeonMode &&
+			dungeonMapData &&
+			currentDungeonFloor > 0 &&
+			currentDungeonFloor !== lastTrackedFloor
+		) {
+			explorationTracker = new ExplorationTracker(dungeonMapData.width, dungeonMapData.height, 5);
+			lastTrackedFloor = currentDungeonFloor;
+			explorationTracker.updatePlayerPosition(playerGridX, playerGridY);
+		}
+	});
+
+	// Clean up tracker when leaving dungeon mode
+	$effect(() => {
+		if (!isDungeonMode) {
+			explorationTracker = undefined;
+			lastTrackedFloor = 0;
+		}
+	});
+
+	let currentLightingMood = $derived(
+		isDungeonMode && currentDungeonBiome ? getLightingMood(currentDungeonBiome.name) : 'day'
+	);
+
+	// isChangingMap removed: the black overlay (.changing-map, z-index:100) already covers
+	// the minimap (z-index:5) during map transitions, so the minimap can stay "visible"
+	// underneath. Previously isChangingMap stayed true due to overlapping timers from
+	// loadMap (GameContext constructor) and changeDungeonFloor, causing the minimap to
+	// disappear permanently after briefly showing.
+	let showDungeonMinimap = $derived(isDungeonMode && !battleCtx && !isGamePaused);
 
 	onMount(() => {
 		context.notifications.subscribe((value) => {
@@ -172,6 +224,18 @@
 			playerIsRunning = context.player.running;
 			currentMap = context.map;
 			isChangingMap = overWorldCtx.changingMap;
+			isGamePaused = overWorldCtx.isPaused;
+
+			// Poll player grid position for dungeon minimap
+			const newGridX = context.player.position.positionOnMap.x;
+			const newGridY = context.player.position.positionOnMap.y;
+			if (newGridX !== playerGridX || newGridY !== playerGridY) {
+				playerGridX = newGridX;
+				playerGridY = newGridY;
+				if (explorationTracker) {
+					explorationTracker.updatePlayerPosition(newGridX, newGridY);
+				}
+			}
 		}, 100);
 
 		return () => {
@@ -186,19 +250,22 @@
 	data-testid="world-screen"
 	bind:this={wrapper}
 	class:blur={overWorldCtx.scenes.wakeUp}
-	style="--time-filter: {getTimeFilter($timeOfDay)}"
 >
 	<div class="canvas-wrapper">
 		<Canvas autoRender={false}>
 			<Renderer3D />
-			<Lighting3D timeOfDay={$timeOfDay} playerPosition={playerVisualPosition} />
+			<Lighting3D mood={currentLightingMood} playerPosition={playerVisualPosition} />
 			<WeatherParticles3D
 				weatherType={context.weather?.type}
 				running={context.weather?.running ?? false}
 			/>
 			<BattleDustParticles3D active={!!battleCtx} playerPosition={playerVisualPosition} />
 			<GameCamera3D targetPosition={playerVisualPosition} {mapData} battleActive={!!battleCtx} />
-			<InstancedTerrain {mapData} />
+			<InstancedTerrain
+				{mapData}
+				battleActive={!!battleCtx}
+				playerPosition={playerVisualPosition}
+			/>
 			<Decorations3D {mapData} playerPosition={playerVisualPosition} battleActive={!!battleCtx} />
 			{#if !battleCtx}
 				<PlayerSprite3D
@@ -223,32 +290,23 @@
 	</div>
 
 	{#if !battleCtx}
-		<div class="minimap-wrapper" class:enlarged={overWorldCtx.menus.mapOpened && mapEnlarged}>
-			<canvas
-				bind:this={minimap}
-				id="minimap"
-				width="1024"
-				height={1024 * (window.innerHeight / window.innerWidth)}
-				style="z-index: 5"
-				class:opened={overWorldCtx.menus.mapOpened}
-			></canvas>
-			<button
-				class="enlarge"
-				class:opened={overWorldCtx.menus.mapOpened}
-				onclick={() => enlargeMap()}
-			>
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-					><path
-						d="M17.5858 5H14V3H21V10H19V6.41421L14.7071 10.7071L13.2929 9.29289L17.5858 5ZM3 14H5V17.5858L9.29289 13.2929L10.7071 14.7071L6.41421 19H10V21H3V14Z"
-					></path></svg
-				>
-			</button>
-		</div>
-
-		<div class="time-clock">
-			<span class="time-icon">{@html TIME_ICONS[$timeOfDay]}</span>
-			<span class="time-text">{formatGameTime($progress)}</span>
-		</div>
+		{#if dungeonMapData && explorationTracker}
+			<DungeonMinimap
+				tiles={dungeonMapData.tiles}
+				width={dungeonMapData.width}
+				height={dungeonMapData.height}
+				playerX={playerGridX}
+				playerY={playerGridY}
+				{explorationTracker}
+				floorNumber={currentDungeonFloor}
+				biomeName={currentDungeonBiome?.name ?? ''}
+				floorType={dungeonFloorType}
+				tileColorOverrides={currentDungeonBiome?.tileColorOverrides}
+				stairsX={stairsPos?.x}
+				stairsY={stairsPos?.y}
+				visible={showDungeonMinimap}
+			/>
+		{/if}
 
 		<!-- <OverworldTeamPanel {context} /> -->
 
@@ -298,12 +356,10 @@
 		.canvas-wrapper {
 			position: absolute;
 			inset: 0;
-			filter: var(--time-filter, none);
-			transition: filter 2s ease-in-out;
 		}
 
 		&.blur {
-			animation: blurry 5s linear infinite;
+			animation: blurry 5s linear forwards;
 		}
 
 		.notifications {
@@ -361,97 +417,6 @@
 			&.show {
 				opacity: 1;
 			}
-		}
-	}
-
-	canvas {
-		&#minimap {
-			position: relative;
-			top: 0;
-			left: 0;
-			width: 100%;
-			height: 100%;
-			border: 1px solid black;
-			border-radius: 4px;
-			box-shadow: 0 0 4px black;
-			transform: none;
-			visibility: hidden;
-
-			&.opened {
-				visibility: visible;
-			}
-		}
-	}
-
-	.minimap-wrapper {
-		position: absolute;
-		top: calc(4% + 56px);
-		left: 1%;
-		z-index: 7;
-
-		width: 33dvw;
-		max-height: 33dvh;
-		overflow: hidden;
-
-		&.enlarged {
-			top: 5dvh;
-			left: 5dvw;
-			width: 90dvw;
-			max-height: 90dvh;
-			z-index: 10;
-
-			box-shadow: 0 0 8px black;
-
-			.enlarge {
-				height: 32px;
-				width: 32px;
-			}
-		}
-
-		.enlarge {
-			position: absolute;
-			top: 0;
-			right: 0;
-			background-color: rgba(0, 0, 0, 0.75);
-			color: white;
-			border: 1px solid black;
-			height: 24px;
-			width: 24px;
-			border-radius: 4px;
-			padding: 4px;
-			z-index: 6;
-			cursor: pointer;
-			visibility: hidden;
-
-			&.opened {
-				visibility: visible;
-			}
-		}
-	}
-
-	.time-clock {
-		position: absolute;
-		top: max(20px, env(safe-area-inset-top, 20px));
-		left: max(20px, env(safe-area-inset-left, 20px));
-		z-index: 7;
-		display: flex;
-		align-items: center;
-		gap: 6px;
-		background-color: rgba(0, 0, 0, 0.6);
-		padding: 6px 12px;
-		border-radius: 8px;
-		box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
-
-		.time-icon {
-			font-size: 20px;
-		}
-
-		.time-text {
-			font-size: 16px;
-			font-weight: 600;
-			color: white;
-			font-family: monospace;
-			text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 		}
 	}
 </style>

@@ -17,25 +17,27 @@ import { SeededRNG } from '../dungeon/prng';
 import { NPC } from '../characters/npc';
 import { ItemsReferences } from '../items/items';
 import { get, writable, type Writable } from 'svelte/store';
-import { SaveContext } from './savesHolder';
+import { SaveContext, SavesHolder } from './savesHolder';
 import type { Jonction } from '../mapping/collisions';
 import { OverworldSpawn } from '../characters/overworld-spawn';
 import { Flags, ObjectiveState, Quest, QuestState } from '../scripting/quests';
 import { Notifications } from '../scripting/notifications';
 import { BattleType } from '../battle/battle-model';
 import { AudioManager, QuestManager, ScriptRunner } from './managers';
-import { TimeOfDayService } from '../time/time-of-day';
+
 import { DungeonContext, dungeonContext } from '../dungeon/dungeon-context';
 import { generateFloor } from '../dungeon/floor-generator';
 import { getBiomeForFloor } from '../dungeon/biomes';
 import { populateFloor } from '../dungeon/trainer-factory';
 import { placeItems as placeDungeonItems } from '../dungeon/item-placer';
+import { persistDungeonState } from '../dungeon/dungeon-save';
 import {
 	registerThrelteMap,
 	clearThrelteMapCache,
 	getThrelteMap
 } from '../mapping/threlte-maps/threlte-map-registry';
 import { TileType3D } from '../mapping/threlte-maps/types';
+import { getPositionsInFront } from './helpers/movement-helpers';
 
 /**
  * The current game context
@@ -64,7 +66,8 @@ export class GameContext {
 	menuAvailability$: Writable<Record<MenuType, boolean>> = writable(
 		{} as Record<MenuType, boolean>
 	);
-	timeOfDay: TimeOfDayService;
+	private playTimeStart = Date.now();
+	private savedPlayTime = 0;
 
 	// Manager classes
 	audioManager: AudioManager;
@@ -118,7 +121,8 @@ export class GameContext {
 		this.questManager = new QuestManager(save.questStates, save.flags, this.notifications);
 		this.questManager.onObjectiveComplete = () => this.updateMenuAvailability();
 		this.scriptRunner = new ScriptRunner();
-		this.timeOfDay = new TimeOfDayService({ initialElapsedMs: save.playTime || 0 });
+		this.savedPlayTime = save.playTime || 0;
+		this.playTimeStart = Date.now();
 
 		// Sync quest data from manager to GameContext (for backwards compatibility)
 		this.questStates = this.questManager.questStates;
@@ -192,16 +196,14 @@ export class GameContext {
 	}
 
 	isMenuAvailable(menuKey: MenuType): boolean {
+		const hasMonsters = this.player.monsters.length > 0;
 		switch (menuKey) {
 			case MenuType.POKEMON_LIST:
 			case MenuType.BOX:
-				return this.questStates.find((q) => q.id === 0)?.objectives[0].completed || false;
 			case MenuType.POKEDEX:
-				return this.questStates.find((q) => q.id === 0)?.objectives[1].completed || false;
 			case MenuType.TRAINER:
-				return this.questStates.find((q) => q.id === 0)?.objectives[2].completed || false;
 			case MenuType.BAG:
-				return this.questStates.find((q) => q.id === 0)?.objectives[3].completed || false;
+				return hasMonsters;
 			default:
 				return false;
 		}
@@ -566,7 +568,7 @@ export class GameContext {
 		}
 	}
 
-	changeDungeonFloor(dungeonCtx: DungeonContext) {
+	changeDungeonFloor(dungeonCtx: DungeonContext, savesHolder?: SavesHolder) {
 		this.overWorldContext.setPaused(true, 'dungeon-floor-transition');
 		this.audioManager.fadeOutMapSound();
 
@@ -584,7 +586,7 @@ export class GameContext {
 			const biome = getBiomeForFloor(dungeonCtx.currentFloor);
 			const floorData = generateFloor(dungeonCtx.runSeed, dungeonCtx.currentFloor, biome);
 
-			if (dungeonCtx.currentFloor === 2) {
+			if (dungeonCtx.currentFloor === 1 && !dungeonCtx.starterPicked) {
 				const STARTERS = [1, 4, 7];
 				const rng = new SeededRNG(dungeonCtx.runSeed + '-starter');
 				const starterId = rng.pick(STARTERS);
@@ -603,10 +605,8 @@ export class GameContext {
 									ctx.player.monsters.push(pokemon);
 									ctx.player.setFollower(pokemon);
 									ctx.POKEDEX.setCaught(starterId);
-								}
-								// Complete all 'A fresh start' quest objectives to unlock menus and movement
-								for (let i = 0; i <= 4; i++) {
-									ctx.validateQuestObjective(0, i);
+									dungeonCtx.starterPicked = true;
+									ctx.updateMenuAvailability();
 								}
 							})
 						])
@@ -644,6 +644,10 @@ export class GameContext {
 			this.scriptRunner.indexScripts(allScripts);
 
 			dungeonContext.set(dungeonCtx);
+
+			if (savesHolder) {
+				persistDungeonState(dungeonCtx, savesHolder);
+			}
 
 			setTimeout(() => {
 				this.overWorldContext.changingMap = false;
@@ -699,38 +703,17 @@ export class GameContext {
 
 	private haveInSight(npc: NPC): boolean {
 		// player is in sight if the npc looks in his direction and is within 3 tiles
-		// get 3 tiles in front of the npc
-		let positionsInFront: Position[];
-		if (npc.direction === 'down') {
-			positionsInFront = [
-				new Position(npc.position.positionOnMap.x, npc.position.positionOnMap.y + 1),
-				new Position(npc.position.positionOnMap.x, npc.position.positionOnMap.y + 2),
-				new Position(npc.position.positionOnMap.x, npc.position.positionOnMap.y + 3)
-			];
-		} else if (npc.direction === 'up') {
-			positionsInFront = [
-				new Position(npc.position.positionOnMap.x, npc.position.positionOnMap.y - 1),
-				new Position(npc.position.positionOnMap.x, npc.position.positionOnMap.y - 2),
-				new Position(npc.position.positionOnMap.x, npc.position.positionOnMap.y - 3)
-			];
-		} else if (npc.direction === 'left') {
-			positionsInFront = [
-				new Position(npc.position.positionOnMap.x - 1, npc.position.positionOnMap.y),
-				new Position(npc.position.positionOnMap.x - 2, npc.position.positionOnMap.y),
-				new Position(npc.position.positionOnMap.x - 3, npc.position.positionOnMap.y)
-			];
-		} else {
-			positionsInFront = [
-				new Position(npc.position.positionOnMap.x + 1, npc.position.positionOnMap.y),
-				new Position(npc.position.positionOnMap.x + 2, npc.position.positionOnMap.y),
-				new Position(npc.position.positionOnMap.x + 3, npc.position.positionOnMap.y)
-			];
+		const positionsInFront = getPositionsInFront(npc.position.positionOnMap, npc.direction, 3);
+		const playerPos = this.player.position.positionOnMap;
+		for (const pos of positionsInFront) {
+			if (this.map.hasCollisionAt(pos)) {
+				return false;
+			}
+			if (pos.x === playerPos.x && pos.y === playerPos.y) {
+				return true;
+			}
 		}
-		const inSight = positionsInFront.some(
-			(p) =>
-				p.x === this.player.position.positionOnMap.x && p.y === this.player.position.positionOnMap.y
-		);
-		return inSight;
+		return false;
 	}
 
 	startBattle(opponent: PokemonInstance | Character, battleType: BattleType, onEnd?: () => void) {
@@ -872,7 +855,7 @@ export class GameContext {
 			this.POKEDEX.exportForSave(),
 			this.questStates,
 			this.flags,
-			this.timeOfDay.getElapsedMs()
+			this.savedPlayTime + (Date.now() - this.playTimeStart)
 		);
 	}
 }
