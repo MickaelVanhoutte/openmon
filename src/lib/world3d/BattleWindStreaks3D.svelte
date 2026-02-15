@@ -11,9 +11,11 @@
 
 	const PARTICLE_COUNT = 40;
 	const positions = new Float32Array(PARTICLE_COUNT * 3);
-	const velocities = new Float32Array(PARTICLE_COUNT * 3);
-	const lifetimes = new Float32Array(PARTICLE_COUNT);
-	const maxLifetimes = new Float32Array(PARTICLE_COUNT);
+	const angles = new Float32Array(PARTICLE_COUNT);
+	const angularSpeeds = new Float32Array(PARTICLE_COUNT);
+	const radii = new Float32Array(PARTICLE_COUNT);
+	const radialSpeeds = new Float32Array(PARTICLE_COUNT);
+	const yPositions = new Float32Array(PARTICLE_COUNT);
 
 	let animationActive = $state(false);
 	let geometry = $state<BufferGeometry | undefined>(undefined);
@@ -21,27 +23,15 @@
 
 	function initializeParticles() {
 		for (let i = 0; i < PARTICLE_COUNT; i++) {
-			const spawnRadius = 8 + Math.random() * 4;
-			const angle = Math.random() * Math.PI * 2;
-			const spawnX = playerPosition.x + Math.cos(angle) * spawnRadius;
-			const spawnZ = playerPosition.z + Math.sin(angle) * spawnRadius;
-			const spawnY = 0.5 + Math.random() * 2.0;
+			angles[i] = Math.random() * Math.PI * 2;
+			angularSpeeds[i] = 5 + Math.random() * 5;
+			radii[i] = 8 + Math.random() * 4;
+			radialSpeeds[i] = -(10 + Math.random() * 5);
+			yPositions[i] = 0.5 + Math.random() * 2.0;
 
-			positions[i * 3] = spawnX;
-			positions[i * 3 + 1] = spawnY;
-			positions[i * 3 + 2] = spawnZ;
-
-			const dx = playerPosition.x - spawnX;
-			const dz = playerPosition.z - spawnZ;
-			const dist = Math.sqrt(dx * dx + dz * dz);
-			const speed = 15 + Math.random() * 10;
-
-			velocities[i * 3] = (dx / dist) * speed;
-			velocities[i * 3 + 1] = 0;
-			velocities[i * 3 + 2] = (dz / dist) * speed;
-
-			lifetimes[i] = 0;
-			maxLifetimes[i] = 0.3 + Math.random() * 0.5;
+			positions[i * 3] = playerPosition.x + radii[i] * Math.cos(angles[i]);
+			positions[i * 3 + 1] = yPositions[i];
+			positions[i * 3 + 2] = playerPosition.z + radii[i] * Math.sin(angles[i]);
 		}
 
 		if (geometry) {
@@ -57,38 +47,36 @@
 		}
 	});
 
-	useTask(
-		(delta) => {
-			if (!animationActive || !geometry) {
-				return;
+	useTask('battle-wind-streaks', (delta) => {
+		if (!animationActive || !geometry) {
+			return;
+		}
+
+		const posAttribute = geometry.attributes.position;
+		const posArray = posAttribute.array as Float32Array;
+		let allExpired = true;
+
+		for (let i = 0; i < PARTICLE_COUNT; i++) {
+			if (radii[i] >= 0.5) {
+				allExpired = false;
+				angles[i] += angularSpeeds[i] * delta;
+				radii[i] += radialSpeeds[i] * delta;
+
+				posArray[i * 3] = playerPosition.x + radii[i] * Math.cos(angles[i]);
+				posArray[i * 3 + 1] = yPositions[i];
+				posArray[i * 3 + 2] = playerPosition.z + radii[i] * Math.sin(angles[i]);
+			} else {
+				posArray[i * 3 + 1] = -100;
 			}
+		}
 
-			const posAttribute = geometry.attributes.position;
-			const posArray = posAttribute.array as Float32Array;
-			let allExpired = true;
+		globalOpacity = Math.max(0, globalOpacity - delta * 1.5);
+		posAttribute.needsUpdate = true;
 
-			for (let i = 0; i < PARTICLE_COUNT; i++) {
-				if (lifetimes[i] < maxLifetimes[i]) {
-					allExpired = false;
-					lifetimes[i] += delta;
-
-					posArray[i * 3] += velocities[i * 3] * delta;
-					posArray[i * 3 + 1] += velocities[i * 3 + 1] * delta;
-					posArray[i * 3 + 2] += velocities[i * 3 + 2] * delta;
-				} else {
-					posArray[i * 3 + 1] = -100;
-				}
-			}
-
-			globalOpacity = Math.max(0, globalOpacity - delta * 1.5);
-			posAttribute.needsUpdate = true;
-
-			if (allExpired || globalOpacity <= 0) {
-				animationActive = false;
-			}
-		},
-		{ name: 'battle-wind-streaks' }
-	);
+		if (allExpired || globalOpacity <= 0) {
+			animationActive = false;
+		}
+	});
 </script>
 
 {#if animationActive}
@@ -96,7 +84,7 @@
 		<T.BufferGeometry
 			oncreate={(ref) => {
 				ref.setAttribute('position', new Float32BufferAttribute(positions, 3));
-				geometry = ref;
+				geometry = ref as BufferGeometry;
 			}}
 		/>
 		<T.PointsMaterial
