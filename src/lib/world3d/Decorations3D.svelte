@@ -85,7 +85,9 @@
 
 	// Bush layer offsets: [zOffset, yVariation, xVariation] for multi-layer fill
 	const BUSH_LAYERS = [
-		{ z: 0.3, y: 0.0, x: 0.0 }, // front layer
+		{ z: 0.45, y: 0.0, x: 0.0 }, // front layer
+		{ z: -0.15, y: -0.02, x: 0.008 },
+		{ z: 0.2, y: 0.0, x: 0.0 },
 		{ z: -0.3, y: 0.02, x: -0.08 } // back layer, slightly higher, offset left
 	];
 
