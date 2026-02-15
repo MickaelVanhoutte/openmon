@@ -25,7 +25,7 @@
 		focusArea: 0.4,
 		feather: 0.3,
 		bias: 0.06,
-		kernelSize: KernelSize.MEDIUM
+		kernelSize: KernelSize.SMALL
 	});
 	const effectPass = new EffectPass($camera, tiltShiftEffect);
 
