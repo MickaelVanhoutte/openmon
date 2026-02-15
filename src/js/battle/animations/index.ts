@@ -206,22 +206,109 @@ export function animateFaint(target: HTMLImageElement): gsap.core.Timeline {
 
 export function animateRun(
 	target: HTMLImageElement,
-	source: 'ally' | 'opponent'
+	source: 'ally' | 'opponent',
+	idx: number = 0,
+	container?: HTMLElement
 ): gsap.core.Timeline {
-	return gsap
-		.timeline()
+	const timeline = gsap.timeline();
+
+	timeline
 		.to(target, {
 			filter: 'brightness(5)',
-			transform: 'scale(.1)',
+			scale: 0.1,
+			transformOrigin: 'center center',
 			duration: 0.8,
 			delay: 0.3
 		})
-		.to(target, {
-			x: source === 'ally' ? -window.innerWidth / 2 : window.innerWidth / 2,
-			duration: 1,
-			delay: 0
-		})
-		.play();
+		.to(
+			target,
+			{
+				x: source === 'ally' ? -window.innerWidth / 2 : window.innerWidth / 2,
+				duration: 1,
+				delay: 0
+			},
+			'>'
+		);
+
+	if (container) {
+		const shadow = container.querySelector(`.${source}-shadow[data-idx="${idx}"]`) as HTMLElement;
+		if (shadow) {
+			timeline.to(
+				shadow,
+				{
+					opacity: 0,
+					duration: 0.8
+				},
+				0.3
+			);
+		}
+
+		const parentContainer = container.parentElement || container;
+		const hpBars = parentContainer.querySelectorAll(`[data-testid="${source}-pokemon-info"]`);
+		if (hpBars[idx]) {
+			timeline.to(
+				hpBars[idx],
+				{
+					opacity: 0,
+					duration: 0.8
+				},
+				0.3
+			);
+		}
+	}
+
+	return timeline.play();
+}
+
+export function animateSwitchOut(
+	target: HTMLImageElement,
+	source: 'ally' | 'opponent',
+	idx: number = 0,
+	container?: HTMLElement
+): Promise<void> {
+	const timeline = gsap.timeline();
+
+	timeline.to(target, {
+		filter: 'brightness(5)',
+		scale: 0.1,
+		transformOrigin: 'center center',
+		duration: 0.6,
+		ease: 'power2.in'
+	});
+
+	if (container) {
+		const shadow = container.querySelector(`.${source}-shadow[data-idx="${idx}"]`) as HTMLElement;
+		if (shadow) {
+			timeline.to(
+				shadow,
+				{
+					opacity: 0,
+					duration: 0.6
+				},
+				0
+			);
+		}
+
+		const parentContainer = container.parentElement || container;
+		const hpBars = parentContainer.querySelectorAll(`[data-testid="${source}-pokemon-info"]`);
+		if (hpBars[idx]) {
+			timeline.to(
+				hpBars[idx],
+				{
+					opacity: 0,
+					duration: 0.6
+				},
+				0
+			);
+		}
+	}
+
+	return new Promise((resolve) => {
+		timeline.eventCallback('onComplete', () => {
+			resolve();
+		});
+		timeline.play();
+	});
 }
 
 export interface LegacyAnimateAttackParams {

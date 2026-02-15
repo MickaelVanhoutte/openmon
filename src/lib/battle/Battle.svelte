@@ -15,6 +15,7 @@
 		animateEntry,
 		animateFaint,
 		animateRun,
+		animateSwitchOut,
 		initializeAnimationEngine,
 		destroyAnimationEngine,
 		animateAttackWithNewEngine,
@@ -286,8 +287,8 @@
 
 	battleCtx.events.runnaway.subscribe((value) => {
 		if (value) {
-			animateRun(ally[0], 'ally').then(() => {
-				animateRun(ally[1], 'ally');
+			animateRun(ally[0], 'ally', 0, gifsWrapper).then(() => {
+				animateRun(ally[1], 'ally', 1, gifsWrapper);
 			});
 		}
 	});
@@ -365,7 +366,9 @@
 						).then(() => {
 							animateRun(
 								partner,
-								battleCtx.getPokemonSide(value.target) === 'opponent' ? 'ally' : 'opponent'
+								battleCtx.getPokemonSide(value.target) === 'opponent' ? 'ally' : 'opponent',
+								battleCtx.playerSide.length,
+								gifsWrapper
 							).then(() => {
 								partner.remove();
 							});
@@ -577,17 +580,21 @@
 		initializeAnimationEngine(gifsWrapper);
 
 		// set events
-		battleCtx.events.pokemonChange.subscribe((change) => {
+		battleCtx.events.pokemonChange.subscribe(async (change) => {
 			if (change) {
 				if (change?.side === 'ally') {
 					const pokemon = battleCtx.playerSide[change?.idx];
 					if (pokemon && ally[change.idx]) {
-						// Reset fainted state to show HP bar
-						allyFainted[change.idx] = false;
+						// Switch-out animation BEFORE sprite swap
+						await animateSwitchOut(ally[change.idx], 'ally', change.idx, gifsWrapper);
+						// Set fainted to remove HP bar from DOM
+						allyFainted[change.idx] = true;
 						// Update sprite src
 						const newSrc = pokemon.getSprite(true);
 						ally[change.idx].onload = () => {
-							// Reset GSAP transforms from faint animation
+							// Reset fainted state to show NEW HP bar
+							allyFainted[change.idx] = false;
+							// Reset GSAP transforms from switch-out animation
 							gsap.set(ally[change.idx], {
 								x: 0,
 								y: 0,
@@ -611,12 +618,16 @@
 				} else {
 					const pokemon = battleCtx.oppSide[change?.idx];
 					if (pokemon && opponent[change.idx]) {
-						// Reset fainted state to show HP bar
-						opponentFainted[change.idx] = false;
+						// Switch-out animation BEFORE sprite swap
+						await animateSwitchOut(opponent[change.idx], 'opponent', change.idx, gifsWrapper);
+						// Set fainted to remove HP bar from DOM
+						opponentFainted[change.idx] = true;
 						// Update sprite src
 						const newSrc = pokemon.getSprite();
 						opponent[change.idx].onload = () => {
-							// Reset GSAP transforms from faint animation
+							// Reset fainted state to show NEW HP bar
+							opponentFainted[change.idx] = false;
+							// Reset GSAP transforms from switch-out animation
 							gsap.set(opponent[change.idx], {
 								x: 0,
 								y: 0,
