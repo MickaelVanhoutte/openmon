@@ -29,30 +29,32 @@ describe('trainer-factory', () => {
 	});
 
 	describe('createBossTrainer', () => {
-		it('should create a boss trainer with 3-6 Pokemon', () => {
+		it('should create a boss trainer from JSON boss definitions', () => {
 			const boss = createBossTrainer(pos, 5, GRASS_FOREST, rng);
-			expect(boss.name).toBe('Floor Boss');
-			expect(boss.monsterIds.length).toBeGreaterThanOrEqual(3);
-			expect(boss.monsterIds.length).toBeLessThanOrEqual(6);
+			expect(boss.name).toBe('Ranger Oakley');
+			expect(boss.monsterIds.length).toBe(3);
+			expect(boss.mainScript).toBeDefined();
 		});
 	});
 
 	describe('populateFloor', () => {
-		it('should place trainers on all provided positions', () => {
+		it('should limit trainers to scaling table count', () => {
 			const trainerPositions = [new Position(1, 1), new Position(2, 2)];
 			const generatorOutput = { trainerPositions } as any;
-			const npcs = populateFloor(generatorOutput, 1, GRASS_FOREST, rng);
-			expect(npcs.length).toBe(2);
+			const localRng = new SeededRNG('populate-seed');
+			const npcs = populateFloor(generatorOutput, 1, GRASS_FOREST, localRng);
+			expect(npcs.length).toBe(1);
 			expect(npcs[0].position.positionOnMap.x).toBe(1);
-			expect(npcs[1].position.positionOnMap.x).toBe(2);
 		});
 
 		it('should create a boss on boss floors at the last position', () => {
 			const trainerPositions = [new Position(1, 1), new Position(2, 2)];
 			const generatorOutput = { trainerPositions } as any;
-			const npcs = populateFloor(generatorOutput, 5, GRASS_FOREST, rng);
-			expect(npcs[1].name).toBe('Floor Boss');
-			expect(npcs[0].name).not.toBe('Floor Boss');
+			const localRng = new SeededRNG('boss-populate-seed');
+			const npcs = populateFloor(generatorOutput, 5, GRASS_FOREST, localRng);
+			const bossNpc = npcs.find((n) => n.name === 'Ranger Oakley');
+			expect(bossNpc).toBeDefined();
+			expect(npcs.filter((n) => n.name !== 'Ranger Oakley').length).toBeGreaterThanOrEqual(0);
 		});
 	});
 

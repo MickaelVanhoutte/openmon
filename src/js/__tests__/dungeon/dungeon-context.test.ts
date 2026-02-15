@@ -27,7 +27,7 @@ describe('DungeonContext', () => {
 
 		expect(context.isDungeonMode).toBe(true);
 		expect(context.isRunActive).toBe(true);
-		expect(context.currentFloor).toBe(1);
+		expect(context.currentFloor).toBe(0);
 		expect(context.runSeed).toBe(seed);
 		expect(context.currentBiome).toBeDefined();
 		expect(context.runCurrency).toBe(0);
@@ -47,7 +47,7 @@ describe('DungeonContext', () => {
 		context.startRun('seed');
 
 		context.advanceFloor();
-		expect(context.currentFloor).toBe(2);
+		expect(context.currentFloor).toBe(1);
 		expect(context.currentBiome).toBeDefined();
 	});
 
@@ -58,7 +58,7 @@ describe('DungeonContext', () => {
 
 		expect(context.isRunActive).toBe(false);
 		expect(context.isDungeonMode).toBe(true);
-		expect(context.bestFloor).toBe(2);
+		expect(context.bestFloor).toBe(1);
 	});
 
 	it('should end run correctly when lost', () => {
@@ -68,7 +68,7 @@ describe('DungeonContext', () => {
 
 		expect(context.isRunActive).toBe(false);
 		expect(context.isDungeonMode).toBe(false);
-		expect(context.bestFloor).toBe(2);
+		expect(context.bestFloor).toBe(1);
 	});
 
 	it('should only update bestFloor if currentFloor is higher', () => {

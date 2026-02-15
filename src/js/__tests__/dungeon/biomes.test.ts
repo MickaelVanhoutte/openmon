@@ -47,11 +47,11 @@ describe('Dungeon Biomes', () => {
 			expect(mix[0]).toBe(GRASS_FOREST);
 		});
 
-		it('should return current and next biome for floor 9 (boundary)', () => {
+		it('should return only current biome for floor 9 (mid-biome, no transition)', () => {
+			// With cycling, floor 9 and floor 10 are both GRASS_FOREST, so no mix
 			const mix = getBiomeMix(9);
-			expect(mix).toHaveLength(2);
+			expect(mix).toHaveLength(1);
 			expect(mix[0]).toBe(GRASS_FOREST);
-			expect(mix[1]).toBe(CAVE_ROCK);
 		});
 
 		it('should return current and next biome for floor 10 (boundary)', () => {
@@ -61,10 +61,13 @@ describe('Dungeon Biomes', () => {
 			expect(mix[1]).toBe(CAVE_ROCK);
 		});
 
-		it('should return only current biome for floor 50 (last floor, no next biome)', () => {
+		it('should return transition mix for floor 50 (cycles to GRASS_FOREST at 51)', () => {
+			// With infinite cycling, floor 50 is the last DARK_HAUNTED floor
+			// and floor 51 cycles back to GRASS_FOREST
 			const mix = getBiomeMix(50);
-			expect(mix).toHaveLength(1);
+			expect(mix).toHaveLength(2);
 			expect(mix[0]).toBe(DARK_HAUNTED);
+			expect(mix[1]).toBe(GRASS_FOREST);
 		});
 	});
 

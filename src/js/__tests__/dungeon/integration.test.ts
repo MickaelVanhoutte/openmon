@@ -28,6 +28,7 @@ describe('Dungeon Integration Tests', () => {
 		it('should handle a full run from start to boss', () => {
 			const seed = 'test-seed-42';
 			ctx.startRun(seed);
+			ctx.advanceFloor();
 			expect(ctx.currentFloor).toBe(1);
 
 			const biome1 = getBiomeForFloor(1);

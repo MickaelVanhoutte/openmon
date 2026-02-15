@@ -6,6 +6,12 @@ import type { Script } from '../scripting/scripts';
 import type { MasteryType } from './mastery-model';
 import type { ComboJauge } from './player';
 
+export interface DungeonMonsterConfig {
+	speciesId: number;
+	level: number;
+	heldItemId?: number;
+}
+
 export const WALKING_SPEED: number = 0.33;
 export const RUNNING_SPEED: number = 0.66;
 

@@ -67,16 +67,26 @@
 			})
 	);
 
+	// Tree stump/shadow markers (visible when tree sinks underground)
+	const stumpGeometry = new THREE.CircleGeometry(0.4, 8);
+	stumpGeometry.rotateX(-Math.PI / 2); // lay flat on ground
+	const stumpMaterial = new THREE.MeshBasicMaterial({
+		color: 0x3e2723, // dark brown
+		transparent: true,
+		opacity: 0.6,
+		depthWrite: false
+	});
+
 	// Reusable quaternions and scale for matrix composition
 	const yRotation = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, Math.PI / 2, 0));
 	const identityQuat = new THREE.Quaternion();
 	const oneScale = new THREE.Vector3(1, 1, 1);
+	const zeroScale = new THREE.Vector3(0, 0, 0); // for invisible stumps
 
 	// Bush layer offsets: [zOffset, yVariation, xVariation] for multi-layer fill
 	const BUSH_LAYERS = [
-		{ z: 0.4, y: 0.0, x: 0.0 }, // front layer
-		{ z: 0.0, y: -0.04, x: 0.15 }, // middle layer, slightly lower, offset right
-		{ z: -0.35, y: 0.03, x: -0.1 } // back layer, slightly higher, offset left
+		{ z: 0.3, y: 0.0, x: 0.0 }, // front layer
+		{ z: -0.3, y: 0.02, x: -0.08 } // back layer, slightly higher, offset left
 	];
 
 	interface InstanceGroupData {
@@ -87,6 +97,7 @@
 	const instances = $derived.by(() => {
 		const treePlane1Map = new Map<number, THREE.Matrix4[]>();
 		const treePlane2Map = new Map<number, THREE.Matrix4[]>();
+		const treeStumpMap = new Map<number, THREE.Matrix4[]>();
 		const bushSpriteMap = new Map<number, THREE.Matrix4[]>();
 		const rockSpriteMap = new Map<number, THREE.Matrix4[]>();
 
@@ -100,6 +111,7 @@
 					const tileHeight = TILE_HEIGHTS.get(tile) ?? 0.1;
 					const textureIndex = (row * 3 + col * 7) % treeTextures.length;
 					const treeY = BASE_HEIGHT + tileHeight + 1;
+					const stumpY = BASE_HEIGHT + tileHeight + 0.01; // just above ground
 
 					// Tree plane 1 (facing Z)
 					const mat1 = new THREE.Matrix4();
@@ -116,6 +128,14 @@
 						treePlane2Map.set(textureIndex, []);
 					}
 					treePlane2Map.get(textureIndex)!.push(mat2);
+
+					// Tree stump (ground marker, invisible by default)
+					const stumpMat = new THREE.Matrix4();
+					stumpMat.compose(new THREE.Vector3(x, stumpY, z), identityQuat, zeroScale);
+					if (!treeStumpMap.has(textureIndex)) {
+						treeStumpMap.set(textureIndex, []);
+					}
+					treeStumpMap.get(textureIndex)!.push(stumpMat);
 
 					// Add 1-2 bushes near each tree
 					const bushCount = 1 + ((row * 5 + col * 11) % 2);
@@ -209,6 +229,9 @@
 		const treePlane2Groups: InstanceGroupData[] = [...treePlane2Map.entries()].map(
 			([texIdx, matrices]) => ({ texIdx, matrices })
 		);
+		const treeStumpGroups: InstanceGroupData[] = [...treeStumpMap.entries()].map(
+			([texIdx, matrices]) => ({ texIdx, matrices })
+		);
 		const bushSpriteGroups: InstanceGroupData[] = [...bushSpriteMap.entries()].map(
 			([texIdx, matrices]) => ({ texIdx, matrices })
 		);
@@ -219,6 +242,7 @@
 		return {
 			treePlane1Groups,
 			treePlane2Groups,
+			treeStumpGroups,
 			bushSpriteGroups,
 			rockSpriteGroups
 		};
@@ -256,6 +280,16 @@
 		applyMatrices(ref, matrices);
 		treeMeshRefs[index] = ref;
 		treeBaseMatrices[index] = matrices.map((m) => m.clone());
+	}
+
+	// Tree stump ref storage (ground markers for sunken trees)
+	const stumpMeshRefs: THREE.InstancedMesh[] = [];
+	const stumpBaseMatrices: THREE.Matrix4[][] = [];
+
+	function initStumpMesh(ref: THREE.InstancedMesh, matrices: THREE.Matrix4[], index: number) {
+		applyMatrices(ref, matrices);
+		stumpMeshRefs[index] = ref;
+		stumpBaseMatrices[index] = matrices.map((m) => m.clone());
 	}
 
 	// Rock ref storage
@@ -495,6 +529,127 @@
 			}
 		});
 	});
+
+	// Camera-occlusion fade: sink trees into ground between camera and player
+	useTask('camera-occlusion-fade', () => {
+		// Only run when NOT in battle (battle push already handles trees)
+		if (battleActive || pushProgress > 0) return;
+
+		const FADE_ZONE_RADIUS = 5.0; // fade trees within 5 world units of player
+		const FADE_START_Z = 0.3; // start fading trees 0.3 units behind player (positive Z)
+		const FADE_FULL_Z = 1.5; // fully sunk at 1.5 units behind player (quick transition)
+		const MAX_SINK_DEPTH = 5; // maximum Y offset to push trees down (fully underground)
+
+		const fadeTmpMatrix = new THREE.Matrix4();
+		const stumpTmpMatrix = new THREE.Matrix4();
+
+		// Helper: apply sink to trees and show stumps
+		const applySinkFade = (
+			treeMesh: THREE.InstancedMesh,
+			treeBaseMatrices: THREE.Matrix4[],
+			stumpMesh: THREE.InstancedMesh,
+			stumpBaseMatrices: THREE.Matrix4[]
+		) => {
+			for (let i = 0; i < treeBaseMatrices.length; i++) {
+				const treeBase = treeBaseMatrices[i];
+				const stumpBase = stumpBaseMatrices[i];
+				if (!treeBase || !stumpBase) continue;
+
+				// Get base position
+				const baseX = treeBase.elements[12];
+				const baseY = treeBase.elements[13];
+				const baseZ = treeBase.elements[14];
+
+				// Calculate distance from player
+				const dx = baseX - playerPosition.x;
+				const dz = baseZ - playerPosition.z;
+				const distXZ = Math.sqrt(dx * dx + dz * dz);
+
+				// Outside fade radius — restore tree to base, hide stump
+				if (distXZ >= FADE_ZONE_RADIUS) {
+					treeMesh.setMatrixAt(i, treeBase);
+					// Hide stump (set scale to zero)
+					stumpTmpMatrix.copy(stumpBase);
+					stumpTmpMatrix.elements[0] = 0; // scale X
+					stumpTmpMatrix.elements[5] = 0; // scale Y
+					stumpTmpMatrix.elements[10] = 0; // scale Z
+					stumpMesh.setMatrixAt(i, stumpTmpMatrix);
+					continue;
+				}
+
+				// Z relative to player (positive = behind player, toward camera)
+				const deltaZ = baseZ - playerPosition.z;
+
+				if (deltaZ <= FADE_START_Z) {
+					// In front of player — restore tree to base, hide stump
+					treeMesh.setMatrixAt(i, treeBase);
+					stumpTmpMatrix.copy(stumpBase);
+					stumpTmpMatrix.elements[0] = 0;
+					stumpTmpMatrix.elements[5] = 0;
+					stumpTmpMatrix.elements[10] = 0;
+					stumpMesh.setMatrixAt(i, stumpTmpMatrix);
+				} else {
+					// Behind player — sink tree, show stump
+					const fadeProgress = (deltaZ - FADE_START_Z) / (FADE_FULL_Z - FADE_START_Z);
+					const clamped = Math.min(Math.max(fadeProgress, 0), 1);
+					const sinkAmount = clamped * MAX_SINK_DEPTH;
+
+					// Sink tree
+					fadeTmpMatrix.copy(treeBase);
+					fadeTmpMatrix.elements[13] = baseY - sinkAmount;
+					treeMesh.setMatrixAt(i, fadeTmpMatrix);
+
+					// Show stump (scale = clamped for smooth fade-in)
+					stumpTmpMatrix.copy(stumpBase);
+					stumpTmpMatrix.elements[0] = clamped; // scale X
+					stumpTmpMatrix.elements[5] = clamped; // scale Y
+					stumpTmpMatrix.elements[10] = clamped; // scale Z
+					stumpMesh.setMatrixAt(i, stumpTmpMatrix);
+				}
+			}
+			treeMesh.instanceMatrix.needsUpdate = true;
+			stumpMesh.instanceMatrix.needsUpdate = true;
+		};
+
+		// Apply sink to trees (plane1 and plane2 are paired, so we process every 2 indices)
+		// Stumps match plane1 indices (groupIndex = meshIdx / 2)
+		for (let meshIdx = 0; meshIdx < treeMeshRefs.length; meshIdx += 2) {
+			const plane1Mesh = treeMeshRefs[meshIdx];
+			const plane2Mesh = treeMeshRefs[meshIdx + 1];
+			const treeBase = treeBaseMatrices[meshIdx];
+			const stumpIdx = meshIdx / 2;
+			const stumpMesh = stumpMeshRefs[stumpIdx];
+			const stumpBase = stumpBaseMatrices[stumpIdx];
+
+			if (plane1Mesh && plane2Mesh && treeBase && stumpMesh && stumpBase) {
+				applySinkFade(plane1Mesh, treeBase, stumpMesh, stumpBase);
+				// Apply same sink to plane2 (but don't update stump twice)
+				for (let i = 0; i < treeBase.length; i++) {
+					const treeBase2 = treeBaseMatrices[meshIdx + 1][i];
+					if (!treeBase2) continue;
+					const baseY = treeBase2.elements[13];
+					const baseZ = treeBase2.elements[14];
+					const baseX = treeBase2.elements[12];
+					const dx = baseX - playerPosition.x;
+					const dz = baseZ - playerPosition.z;
+					const distXZ = Math.sqrt(dx * dx + dz * dz);
+					const deltaZ = baseZ - playerPosition.z;
+
+					if (distXZ >= FADE_ZONE_RADIUS || deltaZ <= FADE_START_Z) {
+						plane2Mesh.setMatrixAt(i, treeBase2);
+					} else {
+						const fadeProgress = (deltaZ - FADE_START_Z) / (FADE_FULL_Z - FADE_START_Z);
+						const clamped = Math.min(Math.max(fadeProgress, 0), 1);
+						const sinkAmount = clamped * MAX_SINK_DEPTH;
+						fadeTmpMatrix.copy(treeBase2);
+						fadeTmpMatrix.elements[13] = baseY - sinkAmount;
+						plane2Mesh.setMatrixAt(i, fadeTmpMatrix);
+					}
+				}
+				plane2Mesh.instanceMatrix.needsUpdate = true;
+			}
+		}
+	});
 </script>
 
 {#key mapData}
@@ -506,7 +661,7 @@
 			castShadow
 			oncreate={(ref) => initTreeMesh(ref, group.matrices, groupIndex * 2)}
 		>
-			<T.PlaneGeometry args={[2, 2]} />
+			<T.PlaneGeometry args={[1.5, 1.5]} />
 		</T.InstancedMesh>
 	{/each}
 
@@ -518,8 +673,16 @@
 			castShadow
 			oncreate={(ref) => initTreeMesh(ref, group.matrices, groupIndex * 2 + 1)}
 		>
-			<T.PlaneGeometry args={[2, 2]} />
+			<T.PlaneGeometry args={[1.5, 1.5]} />
 		</T.InstancedMesh>
+	{/each}
+
+	<!-- Tree stumps (ground markers visible when trees sink) -->
+	{#each instances.treeStumpGroups as group, groupIndex (group.texIdx)}
+		<T.InstancedMesh
+			args={[stumpGeometry, stumpMaterial, group.matrices.length]}
+			oncreate={(ref) => initStumpMesh(ref, group.matrices, groupIndex)}
+		/>
 	{/each}
 
 	<!-- Bush sprites (one instanced mesh per texture variant) -->

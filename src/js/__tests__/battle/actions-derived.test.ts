@@ -114,7 +114,7 @@ describe('Derived Actions', () => {
 			const removeHp = new RemoveHP(60, target, pokemon);
 
 			removeHp.execute(ctx as any);
-			expect(target.currentHp).toBe(-10);
+			expect(target.currentHp).toBe(0);
 			// Sleep(400) should be added to stack
 			expect(ctx.addToStack).toHaveBeenCalled();
 			const sleepCall = (ctx.addToStack as ReturnType<typeof vi.fn>).mock.calls.find(

@@ -313,13 +313,13 @@ describe('generateBossFloor', () => {
 		it('should have boss NPC in threlteMap npcs', () => {
 			const result = generateBossFloor(FLOOR_5, SEED);
 			expect(result.threlteMap.npcs.length).toBe(1);
-			expect(result.threlteMap.npcs[0].name).toBe('Floor Boss');
+			expect(result.threlteMap.npcs[0].name).toBe('Ranger Oakley');
 		});
 
 		it('should have boss NPC in openMap npcs', () => {
 			const result = generateBossFloor(FLOOR_5, SEED);
 			expect(result.openMap.npcs.length).toBe(1);
-			expect(result.openMap.npcs[0].name).toBe('Floor Boss');
+			expect(result.openMap.npcs[0].name).toBe('Ranger Oakley');
 		});
 
 		it('should have a battle script on the boss', () => {

@@ -1,5 +1,10 @@
 import { Script } from '../scripting/scripts';
-import { CharacterPosition, type Character, type Interactive } from './characters-model';
+import {
+	CharacterPosition,
+	type Character,
+	type DungeonMonsterConfig,
+	type Interactive
+} from './characters-model';
 import { Bag } from '../items/bag';
 import type { PokemonInstance } from '../pokemons/pokedex';
 import { Position } from '../mapping/positions';
@@ -15,6 +20,7 @@ export class NPC implements Character, Interactive {
 	name: string;
 	gender: 'MALE' | 'FEMALE';
 	monsterIds: number[];
+	dungeonTeam?: DungeonMonsterConfig[];
 	monsters: PokemonInstance[];
 	comboJauge: ComboJauge = new ComboJauge();
 	bag: Bag;

@@ -12,7 +12,7 @@
 
 	let { targetPosition, mapData, battleActive = false }: Props = $props();
 
-	const OVERWORLD_OFFSET = { x: 0, y: 8, z: 10 };
+	const OVERWORLD_OFFSET = { x: 0, y: 5, z: 4.25 };
 	const BATTLE_OFFSET = { x: 0, y: 1, z: 3 };
 	const BATTLE_LOOKAT_Y_OFFSET = 0.5;
 
@@ -73,11 +73,11 @@
 
 			// Calculate clamped target position
 			// The map is centered at (0,0) in 3D space for the camera clamping logic
-			// based on the instruction: [-mapWidth/2+2, mapWidth/2-2]
-			const minX = -mapData.width / 2 + 2;
-			const maxX = mapData.width / 2 - 2;
-			const minZ = -mapData.height / 2 + 2;
-			const maxZ = mapData.height / 2 - 2;
+			// Reduced padding from 2 to 1 tile since camera is now closer and shows less map
+			const minX = -mapData.width / 2 + 1;
+			const maxX = mapData.width / 2 - 1;
+			const minZ = -mapData.height / 2 + 1;
+			const maxZ = mapData.height / 2 - 1;
 
 			const clampedX = Math.max(minX, Math.min(maxX, targetPosition.x));
 			const clampedZ = Math.max(minZ, Math.min(maxZ, targetPosition.z));
@@ -104,10 +104,11 @@
 	oncreate={(ref: PerspectiveCamera) => {
 		camera = ref;
 		// Set initial position immediately to avoid jumping
-		const minX = -mapData.width / 2 + 2;
-		const maxX = mapData.width / 2 - 2;
-		const minZ = -mapData.height / 2 + 2;
-		const maxZ = mapData.height / 2 - 2;
+		// Reduced padding from 2 to 1 tile since camera is now closer and shows less map
+		const minX = -mapData.width / 2 + 1;
+		const maxX = mapData.width / 2 - 1;
+		const minZ = -mapData.height / 2 + 1;
+		const maxZ = mapData.height / 2 - 1;
 
 		const clampedX = Math.max(minX, Math.min(maxX, targetPosition.x));
 		const clampedZ = Math.max(minZ, Math.min(maxZ, targetPosition.z));

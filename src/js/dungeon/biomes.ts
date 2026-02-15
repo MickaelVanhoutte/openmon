@@ -1,4 +1,5 @@
 import { TileType3D } from '../mapping/threlte-maps/types';
+import { getBiomePool } from './biome-pool-loader';
 
 export type GenerationType = 'cave' | 'maze';
 
@@ -23,13 +24,7 @@ export const GRASS_FOREST: BiomeConfig = {
 		[TileType3D.DUNGEON_FLOOR]: 0x4caf50,
 		[TileType3D.WALL]: 0x2e7d32
 	},
-	monsterTable: [
-		{ id: 10, weight: 30 },
-		{ id: 13, weight: 30 },
-		{ id: 43, weight: 20 },
-		{ id: 69, weight: 15 },
-		{ id: 46, weight: 5 }
-	],
+	monsterTable: getBiomePool('GRASS_FOREST').map((e) => ({ id: e.id, weight: e.weight })),
 	levelRange: [5, 12],
 	encounterRate: 0.1,
 	trainerCount: [2, 4],
@@ -44,13 +39,7 @@ export const CAVE_ROCK: BiomeConfig = {
 		[TileType3D.DUNGEON_FLOOR]: 0x9e9e9e,
 		[TileType3D.WALL]: 0x616161
 	},
-	monsterTable: [
-		{ id: 74, weight: 35 },
-		{ id: 41, weight: 30 },
-		{ id: 50, weight: 20 },
-		{ id: 66, weight: 10 },
-		{ id: 95, weight: 5 }
-	],
+	monsterTable: getBiomePool('CAVE_ROCK').map((e) => ({ id: e.id, weight: e.weight })),
 	levelRange: [12, 22],
 	encounterRate: 0.12,
 	trainerCount: [3, 5],
@@ -66,13 +55,7 @@ export const WATER_SWAMP: BiomeConfig = {
 		[TileType3D.WALL]: 0x33691e,
 		[TileType3D.SWAMP]: 0x2e7d32
 	},
-	monsterTable: [
-		{ id: 72, weight: 30 },
-		{ id: 60, weight: 25 },
-		{ id: 88, weight: 20 },
-		{ id: 109, weight: 15 },
-		{ id: 90, weight: 10 }
-	],
+	monsterTable: getBiomePool('WATER_SWAMP').map((e) => ({ id: e.id, weight: e.weight })),
 	levelRange: [22, 32],
 	encounterRate: 0.15,
 	trainerCount: [4, 6],
@@ -88,13 +71,7 @@ export const FIRE_VOLCANIC: BiomeConfig = {
 		[TileType3D.WALL]: 0x3e2723,
 		[TileType3D.LAVA]: 0xff5722
 	},
-	monsterTable: [
-		{ id: 37, weight: 30 },
-		{ id: 58, weight: 25 },
-		{ id: 77, weight: 20 },
-		{ id: 126, weight: 15 },
-		{ id: 218, weight: 10 }
-	],
+	monsterTable: getBiomePool('FIRE_VOLCANIC').map((e) => ({ id: e.id, weight: e.weight })),
 	levelRange: [32, 42],
 	encounterRate: 0.18,
 	trainerCount: [4, 7],
@@ -110,13 +87,7 @@ export const DARK_HAUNTED: BiomeConfig = {
 		[TileType3D.WALL]: 0x212121,
 		[TileType3D.DARK_FLOOR]: 0x000000
 	},
-	monsterTable: [
-		{ id: 92, weight: 35 },
-		{ id: 93, weight: 25 },
-		{ id: 200, weight: 20 },
-		{ id: 198, weight: 15 },
-		{ id: 94, weight: 5 }
-	],
+	monsterTable: getBiomePool('DARK_HAUNTED').map((e) => ({ id: e.id, weight: e.weight })),
 	levelRange: [42, 55],
 	encounterRate: 0.2,
 	trainerCount: [5, 8],
@@ -133,16 +104,20 @@ export const BIOMES: BiomeConfig[] = [
 ];
 
 export function getBiomeForFloor(floor: number): BiomeConfig {
-	const biome = BIOMES.find((b) => floor >= b.floorRange[0] && floor <= b.floorRange[1]);
-	return biome ?? DARK_HAUNTED;
+	// Cycle every 50 floors so dungeons can extend infinitely
+	const effectiveFloor = ((floor - 1) % 50) + 1;
+	const biome = BIOMES.find(
+		(b) => effectiveFloor >= b.floorRange[0] && effectiveFloor <= b.floorRange[1]
+	);
+	return biome ?? BIOMES[BIOMES.length - 1];
 }
 
 export function getBiomeMix(floor: number): BiomeConfig[] {
+	const effectiveFloor = ((floor - 1) % 50) + 1;
 	const currentBiome = getBiomeForFloor(floor);
-	const nextFloor = currentBiome.floorRange[1] + 1;
-	const nextBiome = getBiomeForFloor(nextFloor);
+	const nextBiome = getBiomeForFloor(floor + 1);
 
-	if (currentBiome !== nextBiome && floor >= currentBiome.floorRange[1] - 1) {
+	if (currentBiome !== nextBiome && effectiveFloor >= currentBiome.floorRange[1] - 1) {
 		return [currentBiome, nextBiome];
 	}
 
@@ -150,11 +125,12 @@ export function getBiomeMix(floor: number): BiomeConfig[] {
 }
 
 export function getFloorSize(floor: number, biome: BiomeConfig): { width: number; height: number } {
+	const effectiveFloor = ((floor - 1) % 50) + 1;
 	const [minSize, maxSize] = biome.floorSizeRange;
 	const [minFloor, maxFloor] = biome.floorRange;
 
 	const range = maxFloor - minFloor;
-	const progress = range === 0 ? 0 : (floor - minFloor) / range;
+	const progress = range === 0 ? 0 : (effectiveFloor - minFloor) / range;
 	const size = Math.floor(minSize + (maxSize - minSize) * Math.min(1, Math.max(0, progress)));
 
 	return { width: size, height: size };

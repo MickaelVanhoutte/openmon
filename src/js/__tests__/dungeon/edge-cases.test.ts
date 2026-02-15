@@ -109,13 +109,13 @@ describe('High Floor Edge Cases', () => {
 		});
 	});
 
-	describe('biome fallback for extreme floors', () => {
-		it('should return DARK_HAUNTED for floors above 50', () => {
+	describe('biome cycling for extreme floors', () => {
+		it('should cycle biomes for floors above 50', () => {
 			const biome75 = getBiomeForFloor(75);
 			const biome100 = getBiomeForFloor(100);
 			const biome200 = getBiomeForFloor(200);
 
-			expect(biome75.name).toBe('Dark Haunted');
+			expect(biome75.name).toBe('Water Swamp');
 			expect(biome100.name).toBe('Dark Haunted');
 			expect(biome200.name).toBe('Dark Haunted');
 		});
