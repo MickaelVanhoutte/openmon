@@ -13,7 +13,8 @@
 		[Weather.RAIN]: 'Rain',
 		[Weather.SUN]: 'Sun',
 		[Weather.SAND]: 'Sandstorm',
-		[Weather.HAIL]: 'Hail'
+		[Weather.HAIL]: 'Hail',
+		[Weather.STRONG_WINDS]: 'Strong Winds'
 	};
 
 	const weatherColors: Record<Weather, string> = {
@@ -21,7 +22,8 @@
 		[Weather.RAIN]: '#5090D0',
 		[Weather.SUN]: '#F5AC3C',
 		[Weather.SAND]: '#D2B070',
-		[Weather.HAIL]: '#A0D0E0'
+		[Weather.HAIL]: '#A0D0E0',
+		[Weather.STRONG_WINDS]: '#A8C8A8'
 	};
 
 	const terrainColors: Record<Terrain, string> = {

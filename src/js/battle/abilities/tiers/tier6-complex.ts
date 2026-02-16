@@ -53,10 +53,11 @@ export const regenerator: Ability = {
 	id: 144,
 	name: 'Regenerator',
 	description: 'Restores 1/3 of max HP upon switching out.',
-	onSwitchOut: (ctx: AbilityContext): void => {
+	onSwitchOut: (ctx: AbilityContext): boolean | void => {
 		const maxHp = ctx.pokemon.currentStats.hp;
 		const healAmount = Math.floor(maxHp / 3);
 		ctx.pokemon.currentHp = Math.min(ctx.pokemon.currentHp + healAmount, maxHp);
+		return true;
 	}
 };
 
@@ -64,8 +65,9 @@ export const naturalCure: Ability = {
 	id: 30,
 	name: 'Natural Cure',
 	description: 'All status conditions are healed upon switching out.',
-	onSwitchOut: (ctx: AbilityContext): void => {
+	onSwitchOut: (ctx: AbilityContext): boolean | void => {
 		ctx.pokemon.status = undefined;
+		return true;
 	}
 };
 
@@ -73,10 +75,33 @@ export const naturalCure: Ability = {
 // MULTI-HIT ABILITIES
 // =============================================================================
 
+const MULTI_HIT_EFFECT_ID = 30;
+
+const SPREAD_TARGETS = new Set([
+	'all-opponents',
+	'all-other-pokemon',
+	'all-pokemon',
+	'user-and-allies'
+]);
+
 export const parentalBond: Ability = {
 	id: 185,
 	name: 'Parental Bond',
-	description: 'Attacks twice. The second hit deals 25% damage.'
+	description: 'Attacks twice. The second hit deals 25% damage.',
+	// Simplified: 1.25x total damage (100% first hit + 25% second hit) instead of a true second hit
+	onModifyDamage: (ctx: AbilityContext, damage: number): number => {
+		const move = ctx.move;
+		if (!move) {
+			return damage;
+		}
+		if (move.effect?.move_effect_id === MULTI_HIT_EFFECT_ID) {
+			return damage;
+		}
+		if (SPREAD_TARGETS.has(move.target)) {
+			return damage;
+		}
+		return Math.floor(damage * 1.25);
+	}
 };
 
 export const skillLink: Ability = {
@@ -93,9 +118,10 @@ export const disguise: Ability = {
 	id: 209,
 	name: 'Disguise',
 	description: 'The shroud that covers the Pokemon can protect it from an attack once.',
-	onDamagingHit: (ctx: AbilityContext, _damage: number): void => {
+	onDamagingHit: (ctx: AbilityContext, _damage: number): boolean | void => {
 		if (!(ctx.pokemon as any).disguiseBroken) {
 			(ctx.pokemon as any).disguiseBroken = true;
+			return true;
 		}
 	},
 	suppressedBy: MOLD_BREAKER_FAMILY

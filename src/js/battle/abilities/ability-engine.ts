@@ -27,6 +27,19 @@ type HookName =
 	| 'onStatus'
 	| 'onStatChange';
 
+const BLOCKER_HOOKS = new Set<HookName>(['onTryHit', 'onBeforeMove', 'onStatus']);
+
+const MODIFIER_HOOKS = new Set<HookName>([
+	'onModifyAtk',
+	'onModifyDef',
+	'onModifySpA',
+	'onModifySpD',
+	'onModifySpe',
+	'onModifyDamage',
+	'onSourceModifyDamage',
+	'onStatChange'
+]);
+
 const TRIGGER_TO_HOOK: Record<AbilityTrigger, HookName> = {
 	[AbilityTrigger.ON_SWITCH_IN]: 'onSwitchIn',
 	[AbilityTrigger.ON_SWITCH_OUT]: 'onSwitchOut',
@@ -81,6 +94,10 @@ export class AbilityEngine {
 			return undefined;
 		}
 
+		if (ctx.battleField.neutralizingGasActive && toKebabCase(ability.name) !== 'neutralizing-gas') {
+			return undefined;
+		}
+
 		const hookName = this.triggerToHook(eventName);
 		const hook = ability[hookName];
 		if (typeof hook !== 'function') {
@@ -94,15 +111,15 @@ export class AbilityEngine {
 			move: args.find((arg) => arg instanceof Move) as Move
 		};
 
-		const side = ctx.getPokemonSide(pokemon);
-		const sideArray = side === 'ally' ? ctx.playerSide : ctx.oppSide;
-		const index = sideArray.indexOf(pokemon);
-		abilityPopupStore.showPopup(pokemon.name, ability.name, side, index >= 0 ? index : 0);
-
-		// Run the hook first (pushes effect messages like "attack fell")
 		const result = (hook as (ctx: AbilityContext, ...args: unknown[]) => T)(abilityCtx, ...args);
-		// Then push ability name message (LIFO: this executes first)
-		ctx.addToStack(new Message(`${pokemon.name}'s ${ability.name}!`, pokemon));
+
+		if (this.shouldShowPopup(hookName, result)) {
+			const side = ctx.getPokemonSide(pokemon);
+			const sideArray = side === 'ally' ? ctx.playerSide : ctx.oppSide;
+			const index = sideArray.indexOf(pokemon);
+			abilityPopupStore.showPopup(pokemon.name, ability.name, side, index >= 0 ? index : 0);
+			ctx.addToStack(new Message(`${pokemon.name}'s ${ability.name}!`, pokemon));
+		}
 
 		return result;
 	}
@@ -127,6 +144,16 @@ export class AbilityEngine {
 
 	sortBySpeed(pokemons: PokemonInstance[]): PokemonInstance[] {
 		return [...pokemons].sort((a, b) => b.battleStats.speed - a.battleStats.speed);
+	}
+
+	private shouldShowPopup(hookName: HookName, result: unknown): boolean {
+		if (MODIFIER_HOOKS.has(hookName)) {
+			return false;
+		}
+		if (BLOCKER_HOOKS.has(hookName)) {
+			return result === false;
+		}
+		return !!result;
 	}
 
 	private triggerToHook(trigger: AbilityTrigger): HookName {

@@ -255,7 +255,9 @@ const MULTI_HIT_MOVES = [
 	'triple-axel',
 	'scale-shot',
 	'dual-wingbeat',
-	'surging-strikes'
+	'surging-strikes',
+	'twineedle',
+	'gear-grind'
 ];
 
 const OHKO_MOVES = ['guillotine', 'horn-drill', 'fissure', 'sheer-cold'];
@@ -265,7 +267,6 @@ const FIELD_MOVES = [
 	'toxic-spikes',
 	'stealth-rock',
 	'sticky-web',
-	'rapid-spin',
 	'defog',
 	'court-change'
 ];

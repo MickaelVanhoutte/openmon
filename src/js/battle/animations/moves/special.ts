@@ -207,6 +207,183 @@ async function drainAnimation(engine: AnimationEngine, context: MoveContext): Pr
 	await engine.flashSprite(attacker, '#66ff66', 150);
 }
 
+export async function soundAnimation(engine: AnimationEngine, context: MoveContext): Promise<void> {
+	const { attacker, defender, moveType } = context;
+	const target = Array.isArray(defender) ? defender[0] : defender;
+	const hue = TYPE_HUE_ANGLES[moveType] ?? 0;
+	const color = engine.getTypeColor(moveType);
+
+	for (let i = 0; i < 3; i++) {
+		engine.showSpriteEffect('wind', attacker, {
+			hueRotate: hue,
+			scale: 1.0 + i * 0.5,
+			opacity: 1 - i * 0.25,
+			duration: 200,
+			tint: color,
+			zIndex: engine.getEffectZIndex(attacker.slot)
+		});
+		await engine.wait(100);
+	}
+
+	await engine.wait(50);
+
+	await Promise.all([
+		engine.showSpriteEffect('wind', target, {
+			hueRotate: hue,
+			scale: 1.5,
+			tint: color,
+			zIndex: engine.getEffectZIndex(attacker.slot)
+		}),
+		engine.shake(target.element, 10, 250),
+		engine.flashSprite(target, color, 100)
+	]);
+}
+
+export async function breathAnimation(
+	engine: AnimationEngine,
+	context: MoveContext
+): Promise<void> {
+	const { attacker, defender, moveType } = context;
+	const target = Array.isArray(defender) ? defender[0] : defender;
+	const hue = TYPE_HUE_ANGLES[moveType] ?? 0;
+	const effect = TYPE_TO_EFFECT[moveType.toLowerCase()] ?? 'fire';
+	const color = engine.getTypeColor(moveType);
+
+	await engine.showSpriteEffect(effect, attacker, {
+		hueRotate: hue,
+		scale: 0.8,
+		duration: 150,
+		tint: color,
+		zIndex: engine.getEffectZIndex(attacker.slot)
+	});
+
+	await engine.backgroundFlash(color, 80);
+
+	for (let i = 0; i < 4; i++) {
+		engine.showSpriteEffect(effect, target, {
+			hueRotate: hue,
+			scale: 1.2 + i * 0.25,
+			duration: 180,
+			tint: color,
+			zIndex: engine.getEffectZIndex(attacker.slot)
+		});
+		await engine.wait(40);
+	}
+
+	await Promise.all([
+		engine.shake(target.element, 12, 300),
+		engine.flashSprite(target, color, 150)
+	]);
+}
+
+export async function powderAnimation(
+	engine: AnimationEngine,
+	context: MoveContext
+): Promise<void> {
+	const { attacker, defender, moveType } = context;
+	const target = Array.isArray(defender) ? defender[0] : defender;
+	const hue = TYPE_HUE_ANGLES[moveType] ?? 0;
+	const effect = TYPE_TO_EFFECT[moveType.toLowerCase()] ?? 'leaf';
+	const color = engine.getTypeColor(moveType);
+
+	engine.showSpriteEffect(effect, attacker, {
+		hueRotate: hue,
+		scale: 0.7,
+		opacity: 0.8,
+		duration: 200,
+		tint: color,
+		zIndex: engine.getEffectZIndex(attacker.slot)
+	});
+	await engine.wait(150);
+
+	for (let i = 0; i < 3; i++) {
+		engine.showSpriteEffect(effect, target, {
+			hueRotate: hue,
+			scale: 0.6 + i * 0.2,
+			opacity: 0.9 - i * 0.2,
+			duration: 250,
+			tint: color,
+			zIndex: engine.getEffectZIndex(attacker.slot)
+		});
+		await engine.wait(120);
+	}
+
+	await engine.flashSprite(target, color, 100);
+}
+
+export async function throwAnimation(engine: AnimationEngine, context: MoveContext): Promise<void> {
+	const { attacker, defender, moveType } = context;
+	const target = Array.isArray(defender) ? defender[0] : defender;
+	const hue = TYPE_HUE_ANGLES[moveType] ?? 0;
+	const effect = TYPE_TO_EFFECT[moveType.toLowerCase()] ?? 'rock';
+	const color = engine.getTypeColor(moveType);
+
+	await engine.showSpriteEffect(effect, attacker, {
+		hueRotate: hue,
+		scale: 0.6,
+		duration: 100,
+		tint: color,
+		zIndex: engine.getEffectZIndex(attacker.slot)
+	});
+
+	const projectile = document.createElement('div');
+	projectile.style.cssText = `
+		position: absolute;
+		width: 35px;
+		height: 35px;
+		border-radius: 50%;
+		background: radial-gradient(circle, ${color} 0%, transparent 70%);
+		filter: hue-rotate(${hue}deg) blur(1px);
+		z-index: 100;
+	`;
+
+	const attackerRect = attacker.element.getBoundingClientRect();
+	const targetRect = target.element.getBoundingClientRect();
+	const container = attacker.element.closest('.battle-scene') as HTMLElement;
+	const containerRect = container?.getBoundingClientRect() ?? { left: 0, top: 0 };
+
+	const startX = attackerRect.left - containerRect.left + attackerRect.width / 2;
+	const startY = attackerRect.top - containerRect.top + attackerRect.height / 2;
+	const endX = targetRect.left - containerRect.left + targetRect.width / 2;
+	const endY = targetRect.top - containerRect.top + targetRect.height / 2;
+
+	projectile.style.left = `${startX}px`;
+	projectile.style.top = `${startY}px`;
+	container?.appendChild(projectile);
+
+	const midY = Math.min(startY, endY) - 60;
+
+	await new Promise<void>((resolve) => {
+		const tl = gsap.timeline({
+			onComplete: () => {
+				projectile.remove();
+				resolve();
+			}
+		});
+		tl.to(projectile, {
+			left: (startX + endX) / 2,
+			top: midY,
+			duration: 0.2,
+			ease: 'power2.out'
+		}).to(projectile, {
+			left: endX,
+			top: endY,
+			duration: 0.15,
+			ease: 'power2.in'
+		});
+	});
+
+	await Promise.all([
+		engine.showSpriteEffect(effect, target, {
+			hueRotate: hue,
+			scale: 1.3,
+			tint: color,
+			zIndex: engine.getEffectZIndex(attacker.slot)
+		}),
+		engine.showImpact(target, { intensity: 10, color })
+	]);
+}
+
 const BEAM_MOVES = [
 	'hyper-beam',
 	'solar-beam',
@@ -236,7 +413,12 @@ const BEAM_MOVES = [
 	'prismatic-laser',
 	'photon-geyser',
 	'meteor-beam',
-	'eternabeam'
+	'eternabeam',
+	'dragon-rage',
+	'fleur-cannon',
+	'earth-power',
+	'acid-spray',
+	'freezing-glare'
 ];
 
 const PROJECTILE_MOVES = [
@@ -248,8 +430,6 @@ const PROJECTILE_MOVES = [
 	'thunderbolt',
 	'thunder',
 	'ice-shard',
-	'icicle-spear',
-	'bullet-seed',
 	'seed-bomb',
 	'sludge',
 	'acid',
@@ -258,7 +438,6 @@ const PROJECTILE_MOVES = [
 	'rock-slide',
 	'stone-edge',
 	'ancient-power',
-	'power-gem',
 	'muddy-water',
 	'surf',
 	'scald',
@@ -269,8 +448,18 @@ const PROJECTILE_MOVES = [
 	'eruption',
 	'water-spout',
 	'draco-meteor',
-	'meteor-mash',
-	'iron-head'
+	'infestation',
+	'fairy-wind',
+	'mud-slap',
+	'mud-shot',
+	'icy-wind',
+	'wring-out',
+	'spit-up',
+	'trump-card',
+	'hidden-power',
+	'shell-side-arm',
+	'mirror-shot',
+	'powder-snow'
 ];
 
 const BURST_MOVES = [
@@ -282,7 +471,6 @@ const BURST_MOVES = [
 	'magnitude',
 	'bulldoze',
 	'discharge',
-	'parabolic-charge',
 	'heat-wave',
 	'blizzard',
 	'hurricane',
@@ -291,7 +479,8 @@ const BURST_MOVES = [
 	'silver-wind',
 	'petal-blizzard',
 	'petal-dance',
-	'fiery-dance'
+	'fiery-dance',
+	'shell-trap'
 ];
 
 const WAVE_MOVES = [
@@ -300,7 +489,6 @@ const WAVE_MOVES = [
 	'stored-power',
 	'extrasensory',
 	'confusion',
-	'dream-eater',
 	'night-shade',
 	'hex',
 	'shadow-sneak',
@@ -308,7 +496,10 @@ const WAVE_MOVES = [
 	'phantom-force',
 	'poltergeist',
 	'spirit-shackle',
-	'spectral-thief'
+	'spectral-thief',
+	'mirror-coat',
+	'future-sight',
+	'psywave'
 ];
 
 const DRAIN_MOVES = [
@@ -316,14 +507,29 @@ const DRAIN_MOVES = [
 	'mega-drain',
 	'giga-drain',
 	'leech-life',
-	'drain-punch',
 	'draining-kiss',
 	'horn-leech',
 	'parabolic-charge',
 	'oblivion-wing',
-	'dream-eater',
-	'leech-seed'
+	'dream-eater'
 ];
+
+const SOUND_MOVES = [
+	'snarl',
+	'disarming-voice',
+	'uproar',
+	'snore',
+	'echoed-voice',
+	'boomburst',
+	'eerie-spell',
+	'sparkling-aria'
+];
+
+const BREATH_MOVES = ['fiery-wrath'];
+
+const POWDER_MOVES = ['electroweb'];
+
+const THROW_MOVES = ['fling', 'mud-bomb', 'present', 'egg-bomb', 'rock-wrecker', 'diamond-storm'];
 
 BEAM_MOVES.forEach((move) => {
 	specialMoves[move] = beamAnimation;
@@ -343,6 +549,22 @@ WAVE_MOVES.forEach((move) => {
 
 DRAIN_MOVES.forEach((move) => {
 	specialMoves[move] = drainAnimation;
+});
+
+SOUND_MOVES.forEach((move) => {
+	specialMoves[move] = soundAnimation;
+});
+
+BREATH_MOVES.forEach((move) => {
+	specialMoves[move] = breathAnimation;
+});
+
+POWDER_MOVES.forEach((move) => {
+	specialMoves[move] = powderAnimation;
+});
+
+THROW_MOVES.forEach((move) => {
+	specialMoves[move] = throwAnimation;
 });
 
 export function registerSpecialMoves(engine: AnimationEngine): void {

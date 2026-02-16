@@ -3,7 +3,8 @@ export enum Weather {
 	RAIN = 'rain',
 	SUN = 'sun',
 	SAND = 'sand',
-	HAIL = 'hail'
+	HAIL = 'hail',
+	STRONG_WINDS = 'strong_winds'
 }
 
 export enum Screen {
@@ -51,6 +52,8 @@ export class BattleField {
 	trickRoom: boolean = false;
 	trickRoomTurns: number = 0;
 
+	neutralizingGasActive: boolean = false;
+
 	version: number = 0;
 
 	allySide: SideState = {
@@ -68,6 +71,16 @@ export class BattleField {
 	}
 
 	setWeather(weather: Weather, turns: number = 5): void {
+		// Strong Winds cannot be overwritten by normal weather
+		// TODO: Allow Desolate Land and Primordial Sea to override when they get
+		// their own Weather enum values (currently they reuse SUN/RAIN)
+		if (
+			this.weather === Weather.STRONG_WINDS &&
+			weather !== Weather.STRONG_WINDS &&
+			weather !== Weather.NONE
+		) {
+			return;
+		}
 		if (weather === Weather.NONE) {
 			this.weather = Weather.NONE;
 			this.weatherTurns = 0;

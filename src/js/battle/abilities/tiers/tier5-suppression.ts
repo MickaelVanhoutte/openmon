@@ -74,8 +74,13 @@ export const neutralizingGas: Ability = {
 	id: 256,
 	name: 'Neutralizing Gas',
 	description: 'All other Abilities are suppressed while this Pokemon is on the field.',
-	onSwitchIn: (ctx: AbilityContext): void => {
-		(ctx.battleContext.battleField as any).neutralizingGasActive = true;
+	onSwitchIn: (ctx: AbilityContext): boolean | void => {
+		ctx.battleContext.battleField.neutralizingGasActive = true;
+		return true;
+	},
+	onSwitchOut: (ctx: AbilityContext): boolean | void => {
+		ctx.battleContext.battleField.neutralizingGasActive = false;
+		return true;
 	}
 };
 
@@ -83,9 +88,10 @@ export const mummy: Ability = {
 	id: 152,
 	name: 'Mummy',
 	description: "Contact changes the attacker's Ability to Mummy.",
-	onDamagingHit: (ctx: AbilityContext, _damage: number): void => {
+	onDamagingHit: (ctx: AbilityContext, _damage: number): boolean | void => {
 		if (ctx.move?.category === 'physical' && ctx.target) {
 			ctx.target.currentAbility = 'Mummy';
+			return true;
 		}
 	},
 	suppressedBy: MOLD_BREAKER_FAMILY
@@ -95,9 +101,10 @@ export const lingeringAroma: Ability = {
 	id: 298,
 	name: 'Lingering Aroma',
 	description: "Contact changes the attacker's Ability to Lingering Aroma.",
-	onDamagingHit: (ctx: AbilityContext, _damage: number): void => {
+	onDamagingHit: (ctx: AbilityContext, _damage: number): boolean | void => {
 		if (ctx.move?.category === 'physical' && ctx.target) {
 			ctx.target.currentAbility = 'Lingering Aroma';
+			return true;
 		}
 	},
 	suppressedBy: MOLD_BREAKER_FAMILY
@@ -107,13 +114,14 @@ export const wanderingSpirit: Ability = {
 	id: 254,
 	name: 'Wandering Spirit',
 	description: 'Swaps Ability with the attacker on contact.',
-	onDamagingHit: (ctx: AbilityContext, _damage: number): void => {
+	onDamagingHit: (ctx: AbilityContext, _damage: number): boolean | void => {
 		if (ctx.move?.category === 'physical' && ctx.target) {
 			const attackerAbility = ctx.target.currentAbility;
 			const defenderAbility = ctx.pokemon.currentAbility;
 			if (attackerAbility && defenderAbility && !isUncopyable(attackerAbility)) {
 				ctx.target.currentAbility = defenderAbility;
 				ctx.pokemon.currentAbility = attackerAbility;
+				return true;
 			}
 		}
 	},
@@ -124,7 +132,7 @@ export const trace: Ability = {
 	id: 36,
 	name: 'Trace',
 	description: "Copies a random opposing Pokemon's Ability on switch-in.",
-	onSwitchIn: (ctx: AbilityContext): void => {
+	onSwitchIn: (ctx: AbilityContext): boolean | void => {
 		const opponents = ctx.battleContext.oppSide.filter(
 			(p): p is NonNullable<typeof p> => !!p && !p.fainted
 		);
@@ -138,6 +146,7 @@ export const trace: Ability = {
 		if (validOpponents.length > 0) {
 			const randomOpponent = validOpponents[Math.floor(Math.random() * validOpponents.length)];
 			ctx.pokemon.currentAbility = randomOpponent.currentAbility;
+			return true;
 		}
 	}
 };
@@ -146,10 +155,11 @@ export const receiver: Ability = {
 	id: 222,
 	name: 'Receiver',
 	description: "Copies a fainted ally's Ability.",
-	onFaint: (ctx: AbilityContext): void => {
+	onFaint: (ctx: AbilityContext): boolean | void => {
 		const faintedAlly = (ctx.battleContext as any).faintedAlly;
 		if (faintedAlly && faintedAlly.currentAbility && !isUncopyable(faintedAlly.currentAbility)) {
 			ctx.pokemon.currentAbility = faintedAlly.currentAbility;
+			return true;
 		}
 	}
 };
@@ -158,10 +168,11 @@ export const powerOfAlchemy: Ability = {
 	id: 223,
 	name: 'Power of Alchemy',
 	description: "Copies a fainted ally's Ability.",
-	onFaint: (ctx: AbilityContext): void => {
+	onFaint: (ctx: AbilityContext): boolean | void => {
 		const faintedAlly = (ctx.battleContext as any).faintedAlly;
 		if (faintedAlly && faintedAlly.currentAbility && !isUncopyable(faintedAlly.currentAbility)) {
 			ctx.pokemon.currentAbility = faintedAlly.currentAbility;
+			return true;
 		}
 	}
 };

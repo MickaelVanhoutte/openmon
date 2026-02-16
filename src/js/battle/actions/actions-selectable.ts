@@ -23,7 +23,7 @@ import {
 	getWeatherBallType,
 	getWeatherBallPower
 } from '../../pokemons/effects/weather-effects';
-import { Screen } from '../battle-field';
+import { Screen, Weather } from '../battle-field';
 import {
 	getTerrainDamageMultiplier,
 	blocksPriorityOnTerrain,
@@ -598,7 +598,14 @@ export class Attack implements ActionV2Interface {
 	private calculateTypeEffectiveness(type: string, types: string[], ctx: BattleContext) {
 		return (
 			types?.reduce((acc, type2) => {
-				const effectiveness = ctx.fromTypeChart(type, type2);
+				let effectiveness = ctx.fromTypeChart(type, type2);
+				if (
+					ctx.battleField.weather === Weather.STRONG_WINDS &&
+					type2.toLowerCase() === 'flying' &&
+					effectiveness > 1
+				) {
+					effectiveness = 1;
+				}
 				return acc * effectiveness;
 			}, 1) || 1
 		);
