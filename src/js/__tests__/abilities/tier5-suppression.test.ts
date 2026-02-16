@@ -128,15 +128,33 @@ describe('Tier 5 Suppression Mechanics Abilities', () => {
 
 		it('should set neutralizingGasActive flag on switch-in', () => {
 			const ctx = createMockContextWithSides();
-			(ctx.battleContext.battleField as any).neutralizingGasActive = false;
+			ctx.battleContext.battleField.neutralizingGasActive = false;
 
 			neutralizingGas.onSwitchIn!(ctx);
 
-			expect((ctx.battleContext.battleField as any).neutralizingGasActive).toBe(true);
+			expect(ctx.battleContext.battleField.neutralizingGasActive).toBe(true);
 		});
 
 		it('should not be suppressed by other abilities', () => {
 			expect(neutralizingGas.suppressedBy).toBeUndefined();
+		});
+
+		it('should clear neutralizingGasActive flag on switch-out', () => {
+			const ctx = createMockContextWithSides();
+			ctx.battleContext.battleField.neutralizingGasActive = true;
+
+			neutralizingGas.onSwitchOut!(ctx);
+
+			expect(ctx.battleContext.battleField.neutralizingGasActive).toBe(false);
+		});
+
+		it('should return true from onSwitchOut to show popup', () => {
+			const ctx = createMockContextWithSides();
+			ctx.battleContext.battleField.neutralizingGasActive = true;
+
+			const result = neutralizingGas.onSwitchOut!(ctx);
+
+			expect(result).toBe(true);
 		});
 	});
 

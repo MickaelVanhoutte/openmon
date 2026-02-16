@@ -7,6 +7,7 @@ import {
 } from '../../battle/abilities/ability-types';
 import type { PokemonInstance } from '../../pokemons/pokedex';
 import type { BattleContext } from '../../context/battleContext';
+import { BattleField } from '../../battle/battle-field';
 import * as registry from '../../battle/abilities/ability-registry';
 
 describe('AbilityEngine', () => {
@@ -31,6 +32,7 @@ describe('AbilityEngine', () => {
 		} as unknown as PokemonInstance;
 
 		mockBattleContext = {
+			battleField: new BattleField(),
 			addToStack: vi.fn(),
 			getPokemonSide: vi.fn().mockReturnValue('ally'),
 			playerSide: [mockPokemon],
@@ -124,12 +126,12 @@ describe('AbilityEngine', () => {
 			expect(result).toBe(200);
 		});
 
-		it('should push ability message to action stack', () => {
+		it('should push ability message to action stack when hook signals activation', () => {
 			const mockAbility: Ability = {
 				id: 22,
 				name: 'Intimidate',
 				description: 'Lowers opponent Attack',
-				onSwitchIn: vi.fn()
+				onSwitchIn: vi.fn(() => true)
 			};
 
 			vi.spyOn(registry, 'getAbility').mockReturnValue(mockAbility);
@@ -137,6 +139,21 @@ describe('AbilityEngine', () => {
 			engine.runEvent(AbilityTrigger.ON_SWITCH_IN, mockPokemon, mockBattleContext);
 
 			expect(mockBattleContext.addToStack).toHaveBeenCalled();
+		});
+
+		it('should NOT push ability message when hook returns undefined (stub)', () => {
+			const mockAbility: Ability = {
+				id: 1,
+				name: 'Stub Ability',
+				description: 'Empty stub',
+				onSwitchIn: vi.fn()
+			};
+
+			vi.spyOn(registry, 'getAbility').mockReturnValue(mockAbility);
+
+			engine.runEvent(AbilityTrigger.ON_SWITCH_IN, mockPokemon, mockBattleContext);
+
+			expect(mockBattleContext.addToStack).not.toHaveBeenCalled();
 		});
 	});
 
@@ -291,6 +308,124 @@ describe('AbilityEngine', () => {
 			expect(sorted).toHaveLength(2);
 			expect(sorted[0]).toBe(pokemon1);
 			expect(sorted[1]).toBe(pokemon2);
+		});
+	});
+
+	describe('conditional popup behavior', () => {
+		it('Damp should NOT show popup on Tackle (non-explosion move)', () => {
+			const mockAbility: Ability = {
+				id: 6,
+				name: 'Damp',
+				description: 'Prevents Explosion',
+				onTryHit: vi.fn(() => true)
+			};
+
+			vi.spyOn(registry, 'getAbility').mockReturnValue(mockAbility);
+
+			engine.runEvent(AbilityTrigger.ON_TRY_HIT, mockPokemon, mockBattleContext);
+
+			// onTryHit returning true means move is allowed (not blocked) → no popup
+			expect(mockBattleContext.addToStack).not.toHaveBeenCalled();
+		});
+
+		it('Damp SHOULD show popup on Explosion (blocks the move)', () => {
+			const mockAbility: Ability = {
+				id: 6,
+				name: 'Damp',
+				description: 'Prevents Explosion',
+				onTryHit: vi.fn(() => false)
+			};
+
+			vi.spyOn(registry, 'getAbility').mockReturnValue(mockAbility);
+
+			engine.runEvent(AbilityTrigger.ON_TRY_HIT, mockPokemon, mockBattleContext);
+
+			// onTryHit returning false means move is blocked → popup
+			expect(mockBattleContext.addToStack).toHaveBeenCalled();
+		});
+
+		it('Intimidate should always show popup on switch-in (returns true)', () => {
+			const mockAbility: Ability = {
+				id: 22,
+				name: 'Intimidate',
+				description: 'Lowers opponent Attack',
+				onSwitchIn: vi.fn(() => true)
+			};
+
+			vi.spyOn(registry, 'getAbility').mockReturnValue(mockAbility);
+
+			engine.runEvent(AbilityTrigger.ON_SWITCH_IN, mockPokemon, mockBattleContext);
+
+			expect(mockBattleContext.addToStack).toHaveBeenCalled();
+		});
+
+		it('Static should NOT show popup when effect does not trigger (returns undefined)', () => {
+			const mockAbility: Ability = {
+				id: 9,
+				name: 'Static',
+				description: 'May paralyze on contact',
+				onDamagingHit: vi.fn(() => undefined) as unknown as (
+					ctx: AbilityContext,
+					damage: number
+				) => boolean | void
+			};
+
+			vi.spyOn(registry, 'getAbility').mockReturnValue(mockAbility);
+
+			engine.runEvent(AbilityTrigger.ON_CONTACT, mockPokemon, mockBattleContext, mockTarget, 50);
+
+			expect(mockBattleContext.addToStack).not.toHaveBeenCalled();
+		});
+
+		it('Static SHOULD show popup when effect triggers (returns true)', () => {
+			const mockAbility: Ability = {
+				id: 9,
+				name: 'Static',
+				description: 'May paralyze on contact',
+				onDamagingHit: vi.fn(() => true)
+			};
+
+			vi.spyOn(registry, 'getAbility').mockReturnValue(mockAbility);
+
+			engine.runEvent(AbilityTrigger.ON_CONTACT, mockPokemon, mockBattleContext, mockTarget, 50);
+
+			expect(mockBattleContext.addToStack).toHaveBeenCalled();
+		});
+
+		it('Modifier hooks (onModifyAtk) should NEVER show popup', () => {
+			const mockAbility: Ability = {
+				id: 37,
+				name: 'Huge Power',
+				description: 'Doubles Attack',
+				onModifyAtk: vi.fn((_ctx: AbilityContext, attack: number) => attack * 2)
+			};
+
+			vi.spyOn(registry, 'getAbility').mockReturnValue(mockAbility);
+
+			engine.runEvent<number>(
+				AbilityTrigger.ON_MODIFY_ATK,
+				mockPokemon,
+				mockBattleContext,
+				mockTarget,
+				100
+			);
+
+			expect(mockBattleContext.addToStack).not.toHaveBeenCalled();
+		});
+
+		it('Empty stub onTurnEnd should NOT show popup', () => {
+			const mockAbility: Ability = {
+				id: 131,
+				name: 'Healer',
+				description: 'Empty stub',
+				onTurnEnd: vi.fn()
+			};
+
+			vi.spyOn(registry, 'getAbility').mockReturnValue(mockAbility);
+
+			engine.runEvent(AbilityTrigger.ON_TURN_END, mockPokemon, mockBattleContext);
+
+			expect(mockBattleContext.addToStack).not.toHaveBeenCalled();
 		});
 	});
 

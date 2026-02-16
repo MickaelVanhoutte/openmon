@@ -139,6 +139,71 @@ async function protectAnimation(engine: AnimationEngine, context: MoveContext): 
 	});
 }
 
+export async function spinAnimation(engine: AnimationEngine, context: MoveContext): Promise<void> {
+	const { attacker, defender, moveType } = context;
+	const target = Array.isArray(defender) ? defender[0] : defender;
+	const hue = TYPE_HUE_ANGLES[moveType] ?? 0;
+	const typeColor = engine.getTypeColor(moveType);
+
+	await new Promise<void>((resolve) => {
+		gsap.to(attacker.element, {
+			rotation: 720,
+			duration: 0.4,
+			ease: 'power2.inOut',
+			onComplete: () => {
+				gsap.set(attacker.element, { rotation: 0 });
+				resolve();
+			}
+		});
+	});
+
+	await engine.moveSpriteTo(attacker, target, {
+		duration: 0.12,
+		overshoot: 20,
+		returnDuration: 0.25
+	});
+
+	await Promise.all([
+		engine.showSpriteEffect('wind', target, {
+			hueRotate: hue,
+			scale: 1.3,
+			tint: typeColor,
+			zIndex: engine.getEffectZIndex(attacker.slot)
+		}),
+		engine.showImpact(target, { intensity: 8, color: typeColor })
+	]);
+}
+
+export async function whipAnimation(engine: AnimationEngine, context: MoveContext): Promise<void> {
+	const { attacker, defender, moveType } = context;
+	const target = Array.isArray(defender) ? defender[0] : defender;
+	const hue = TYPE_HUE_ANGLES[moveType] ?? 0;
+	const typeColor = engine.getTypeColor(moveType);
+
+	await engine.showSpriteEffect('leaf', attacker, {
+		hueRotate: hue,
+		scale: 0.8,
+		duration: 150,
+		tint: typeColor,
+		zIndex: engine.getEffectZIndex(attacker.slot)
+	});
+
+	for (let i = 0; i < 2; i++) {
+		await engine.showSpriteEffect('slash', target, {
+			hueRotate: hue,
+			scale: 1.2 + i * 0.2,
+			tint: typeColor,
+			zIndex: engine.getEffectZIndex(attacker.slot)
+		});
+		await engine.wait(60);
+	}
+
+	await Promise.all([
+		engine.shake(target.element, 8, 200),
+		engine.flashSprite(target, typeColor, 100)
+	]);
+}
+
 const BUFF_MOVES = [
 	'swords-dance',
 	'dragon-dance',
@@ -152,9 +217,7 @@ const BUFF_MOVES = [
 	'coil',
 	'hone-claws',
 	'work-up',
-	'growth',
 	'curse',
-	'belly-drum',
 	'shift-gear',
 	'cotton-guard',
 	'iron-defense',
@@ -164,7 +227,6 @@ const BUFF_MOVES = [
 	'cosmic-power',
 	'defend-order',
 	'stockpile',
-	'minimize',
 	'double-team',
 	'autotomize',
 	'charge',
@@ -172,9 +234,39 @@ const BUFF_MOVES = [
 	'meditate',
 	'sharpen',
 	'acupressure',
-	'ancient-power',
 	'geomancy',
-	'extreme-evoboost'
+	'extreme-evoboost',
+	'switcheroo',
+	'tailwind',
+	'mirror-move',
+	'mud-sport',
+	'rototiller',
+	'copycat',
+	'camouflage',
+	'helping-hand',
+	'splash',
+	'psych-up',
+	'sleep-talk',
+	'bestow',
+	'pain-split',
+	'assist',
+	'metronome',
+	'recycle',
+	'follow-me',
+	'mimic',
+	'magic-room',
+	'role-play',
+	'ally-switch',
+	'power-trick',
+	'trick',
+	'speed-swap',
+	'teleport',
+	'gravity',
+	'trick-room',
+	'psycho-shift',
+	'heart-swap',
+	'aromatic-mist',
+	'haze'
 ];
 
 const DEBUFF_MOVES = [
@@ -202,7 +294,9 @@ const DEBUFF_MOVES = [
 	'baby-doll-eyes',
 	'tearful-look',
 	'tickle',
-	'venom-drench'
+	'venom-drench',
+	'quash',
+	'roar'
 ];
 
 const HEAL_MOVES = [
@@ -221,19 +315,16 @@ const HEAL_MOVES = [
 	'aqua-ring',
 	'ingrain',
 	'leech-seed',
-	'giga-drain',
-	'mega-drain',
-	'absorb',
-	'drain-punch',
-	'horn-leech',
-	'oblivion-wing',
-	'parabolic-charge',
 	'strength-sap',
 	'life-dew',
 	'floral-healing',
 	'heal-pulse',
 	'pollen-puff',
-	'jungle-healing'
+	'jungle-healing',
+	'aromatherapy',
+	'refresh',
+	'swallow',
+	'healing-wish'
 ];
 
 const STATUS_CONDITION_MOVES = [
@@ -246,7 +337,6 @@ const STATUS_CONDITION_MOVES = [
 	'toxic',
 	'poison-powder',
 	'poison-gas',
-	'toxic-spikes',
 	'sleep-powder',
 	'hypnosis',
 	'sing',
@@ -268,7 +358,12 @@ const STATUS_CONDITION_MOVES = [
 	'spite',
 	'grudge',
 	'destiny-bond',
-	'perish-song'
+	'perish-song',
+	'sweet-kiss',
+	'nightmare',
+	'spider-web',
+	'block',
+	'mean-look'
 ];
 
 const PROTECT_MOVES = [
@@ -293,6 +388,8 @@ const PROTECT_MOVES = [
 	'magic-coat'
 ];
 
+const WHIP_MOVES = ['branch-poke', 'bind', 'constrict', 'wrap'];
+
 BUFF_MOVES.forEach((move) => {
 	statusMoves[move] = buffAnimation;
 });
@@ -311,6 +408,10 @@ STATUS_CONDITION_MOVES.forEach((move) => {
 
 PROTECT_MOVES.forEach((move) => {
 	statusMoves[move] = protectAnimation;
+});
+
+WHIP_MOVES.forEach((move) => {
+	statusMoves[move] = whipAnimation;
 });
 
 export function registerStatusMoves(engine: AnimationEngine): void {

@@ -4,15 +4,18 @@ import {
 	type MoveAnimation,
 	TYPE_HUE_ANGLES
 } from '../animation-engine';
+import { gsap } from 'gsap';
 
 export const physicalMoves: Record<string, MoveAnimation> = {};
 
 const TYPE_TO_EFFECT: Record<string, string> = {
+	normal: 'impact',
 	fire: 'fire',
 	water: 'water',
 	electric: 'thunder',
 	grass: 'leaf',
 	ice: 'ice',
+	fighting: 'impact',
 	poison: 'poison',
 	rock: 'rock',
 	ground: 'rock',
@@ -355,12 +358,106 @@ async function waterBurstAnimation(engine: AnimationEngine, context: MoveContext
 	]);
 }
 
+export async function quakeAnimation(engine: AnimationEngine, context: MoveContext): Promise<void> {
+	const { attacker, defender, moveType } = context;
+	const target = Array.isArray(defender) ? defender[0] : defender;
+	const hue = TYPE_HUE_ANGLES[moveType] ?? 0;
+	const typeColor = engine.getTypeColor(moveType);
+
+	await engine.screenShake(15, 300);
+
+	await Promise.all([
+		engine.showSpriteEffect('rock', target, {
+			hueRotate: hue,
+			scale: 1.8,
+			tint: typeColor,
+			zIndex: engine.getEffectZIndex(attacker.slot)
+		}),
+		engine.showSpriteEffect('impact', target, {
+			hueRotate: hue,
+			scale: 1.5,
+			tint: typeColor,
+			zIndex: engine.getEffectZIndex(attacker.slot) - 1
+		}),
+		engine.screenShake(18, 400),
+		engine.flashSprite(target, typeColor, 150)
+	]);
+}
+
+export async function aerialAnimation(
+	engine: AnimationEngine,
+	context: MoveContext
+): Promise<void> {
+	const { attacker, defender, moveType } = context;
+	const target = Array.isArray(defender) ? defender[0] : defender;
+	const hue = TYPE_HUE_ANGLES[moveType] ?? 0;
+	const typeColor = engine.getTypeColor(moveType);
+	const homeScale = attacker.homePosition?.scale ?? 1;
+
+	const attackerRect = attacker.element.getBoundingClientRect();
+	const targetRect = target.element.getBoundingClientRect();
+	const deltaX = targetRect.left - attackerRect.left;
+	const deltaY = targetRect.top - attackerRect.top;
+	const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+	const stopDistance = Math.max(0, distance - 15);
+	const ratio = distance > 0 ? stopDistance / distance : 0;
+	const moveX = deltaX * ratio;
+	const moveY = deltaY * ratio;
+
+	await new Promise<void>((resolve) => {
+		gsap.to(attacker.element, {
+			y: -80,
+			scale: homeScale * 0.9,
+			duration: 0.25,
+			ease: 'power2.out',
+			onComplete: resolve
+		});
+	});
+
+	await engine.wait(80);
+
+	await new Promise<void>((resolve) => {
+		gsap.to(attacker.element, {
+			x: moveX,
+			y: moveY,
+			scale: homeScale,
+			duration: 0.12,
+			ease: 'power4.in',
+			onComplete: resolve
+		});
+	});
+
+	const effects = Promise.all([
+		engine.showSpriteEffect('wind', target, {
+			hueRotate: hue,
+			scale: 1.4,
+			tint: typeColor,
+			zIndex: engine.getEffectZIndex(attacker.slot)
+		}),
+		engine.showImpact(target, { intensity: 12, color: typeColor }),
+		engine.screenShake(8, 200)
+	]);
+
+	const returnHome = new Promise<void>((resolve) => {
+		gsap.to(attacker.element, {
+			x: 0,
+			y: 0,
+			scale: homeScale,
+			duration: 0.3,
+			ease: 'power2.out',
+			onComplete: resolve
+		});
+	});
+
+	await Promise.all([effects, returnHome]);
+	engine.resetSpriteToHome(attacker);
+}
+
 const PUNCH_MOVES = [
 	'mega-punch',
 	'fire-punch',
 	'ice-punch',
 	'thunder-punch',
-	'comet-punch',
 	'mach-punch',
 	'focus-punch',
 	'dynamic-punch',
@@ -372,8 +469,7 @@ const PUNCH_MOVES = [
 	'meteor-mash',
 	'hammer-arm',
 	'sucker-punch',
-	'plasma-fists',
-	'surging-strikes'
+	'plasma-fists'
 ];
 
 const KICK_MOVES = [
@@ -382,7 +478,6 @@ const KICK_MOVES = [
 	'rolling-kick',
 	'hi-jump-kick',
 	'low-kick',
-	'triple-kick',
 	'blaze-kick',
 	'stomp',
 	'double-kick',
@@ -430,7 +525,8 @@ const BITE_MOVES = [
 	'super-fang',
 	'psychic-fangs',
 	'fishious-rend',
-	'jaw-lock'
+	'jaw-lock',
+	'clamp'
 ];
 
 const TACKLE_MOVES = [
@@ -448,7 +544,6 @@ const TACKLE_MOVES = [
 	'return',
 	'frustration',
 	'horn-attack',
-	'fury-attack',
 	'peck',
 	'drill-peck',
 	'wing-attack',
@@ -465,7 +560,38 @@ const TACKLE_MOVES = [
 	'retaliate',
 	'head-charge',
 	'raging-bull',
-	'collision-course'
+	'collision-course',
+	'lunge',
+	'steamroller',
+	'first-impression',
+	'pursuit',
+	'payback',
+	'feint-attack',
+	'thief',
+	'punishment',
+	'reversal',
+	'seismic-toss',
+	'wake-up-slap',
+	'flying-press',
+	'submission',
+	'circle-throw',
+	'vital-throw',
+	'storm-throw',
+	'astonish',
+	'lick',
+	'shadow-bone',
+	'ice-ball',
+	'avalanche',
+	'flail',
+	'endeavor',
+	'rock-climb',
+	'feint',
+	'chip-away',
+	'thrash',
+	'fake-out',
+	'smelling-salts',
+	'secret-power',
+	'heart-stamp'
 ];
 
 const CHOP_MOVES = ['karate-chop', 'brick-break', 'cross-chop', 'dual-chop', 'throat-chop'];
@@ -479,6 +605,10 @@ const WATER_TAIL_MOVES = ['aqua-tail'];
 const WATER_DASH_MOVES = ['aqua-jet', 'aqua-step'];
 
 const WATER_BURST_MOVES = ['wave-crash', 'dive'];
+
+const QUAKE_MOVES = ['sand-tomb', 'dig', 'stomping-tantrum', 'bone-club', 'bonemerang'];
+
+const AERIAL_MOVES = ['fly', 'sky-attack'];
 
 PUNCH_MOVES.forEach((move) => {
 	physicalMoves[move] = punchAnimation;
@@ -526,6 +656,14 @@ WATER_DASH_MOVES.forEach((move) => {
 
 WATER_BURST_MOVES.forEach((move) => {
 	physicalMoves[move] = waterBurstAnimation;
+});
+
+QUAKE_MOVES.forEach((move) => {
+	physicalMoves[move] = quakeAnimation;
+});
+
+AERIAL_MOVES.forEach((move) => {
+	physicalMoves[move] = aerialAnimation;
 });
 
 export function registerPhysicalMoves(engine: AnimationEngine): void {

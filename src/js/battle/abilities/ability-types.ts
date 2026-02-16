@@ -53,11 +53,11 @@ export interface Ability {
 	/** Description of what the ability does */
 	description: string;
 
-	/** Triggered when the pokemon switches into battle */
-	onSwitchIn?: (ctx: AbilityContext) => void;
+	/** Triggered when the pokemon switches into battle. Return true to signal activation. */
+	onSwitchIn?: (ctx: AbilityContext) => boolean | void;
 
-	/** Triggered when the pokemon switches out of battle */
-	onSwitchOut?: (ctx: AbilityContext) => void;
+	/** Triggered when the pokemon switches out of battle. Return true to signal activation. */
+	onSwitchOut?: (ctx: AbilityContext) => boolean | void;
 
 	/** Triggered before the pokemon uses a move. Return false to prevent the move. */
 	onBeforeMove?: (ctx: AbilityContext) => boolean;
@@ -86,20 +86,20 @@ export interface Ability {
 	/** Triggered when the pokemon is about to be hit by a move. Return false for immunity. */
 	onTryHit?: (ctx: AbilityContext) => boolean;
 
-	/** Triggered after the pokemon is hit by a damaging move */
-	onDamagingHit?: (ctx: AbilityContext, damage: number) => void;
+	/** Triggered after the pokemon is hit by a damaging move. Return true to signal activation. */
+	onDamagingHit?: (ctx: AbilityContext, damage: number) => boolean | void;
 
-	/** Triggered after the pokemon successfully uses a move */
-	onAfterMove?: (ctx: AbilityContext) => void;
+	/** Triggered after the pokemon successfully uses a move. Return true to signal activation. */
+	onAfterMove?: (ctx: AbilityContext) => boolean | void;
 
-	/** Triggered at the end of each turn */
-	onTurnEnd?: (ctx: AbilityContext) => void;
+	/** Triggered at the end of each turn. Return true to signal activation. */
+	onTurnEnd?: (ctx: AbilityContext) => boolean | void;
 
-	/** Triggered at the start of each turn */
-	onTurnStart?: (ctx: AbilityContext) => void;
+	/** Triggered at the start of each turn. Return true to signal activation. */
+	onTurnStart?: (ctx: AbilityContext) => boolean | void;
 
-	/** Triggered when the pokemon faints */
-	onFaint?: (ctx: AbilityContext) => void;
+	/** Triggered when the pokemon faints. Return true to signal activation. */
+	onFaint?: (ctx: AbilityContext) => boolean | void;
 
 	/** Triggered when a status condition is about to be applied. Return false to prevent. */
 	onStatus?: (ctx: AbilityContext, status: string) => boolean;

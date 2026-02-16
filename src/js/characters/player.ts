@@ -166,17 +166,23 @@ export class Player implements Character {
 															if (this.follower) {
 																this.follower.position.direction = this.followerOpositeDirection();
 																//this.running = savedSpeed;
-																context.setPaused(false, 'followerCharge');
 															}
+															context.setPaused(false, 'followerCharge');
 														}
 													);
+												} else {
+													context.setPaused(false, 'followerCharge');
 												}
 											});
+										} else {
+											context.setPaused(false, 'followerCharge');
 										}
 									},
 									battle ? 2000 : 800
 								);
 							});
+						} else {
+							context.setPaused(false, 'followerCharge');
 						}
 					});
 					clearInterval(unsubscribe);

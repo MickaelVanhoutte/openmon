@@ -23,10 +23,11 @@ export const roughSkin: Ability = {
 	id: 24,
 	name: 'Rough Skin',
 	description: 'Inflicts damage to the attacker on contact.',
-	onDamagingHit: (ctx: AbilityContext, _damage: number): void => {
+	onDamagingHit: (ctx: AbilityContext, _damage: number): boolean | void => {
 		if (ctx.move?.category === 'physical' && ctx.target) {
 			const recoil = Math.max(1, Math.floor(ctx.target.currentStats.hp / 8));
 			ctx.target.currentHp = Math.max(0, ctx.target.currentHp - recoil);
+			return true;
 		}
 	}
 };
@@ -35,10 +36,11 @@ export const ironBarbs: Ability = {
 	id: 160,
 	name: 'Iron Barbs',
 	description: 'Inflicts damage to the attacker on contact.',
-	onDamagingHit: (ctx: AbilityContext, _damage: number): void => {
+	onDamagingHit: (ctx: AbilityContext, _damage: number): boolean | void => {
 		if (ctx.move?.category === 'physical' && ctx.target) {
 			const recoil = Math.max(1, Math.floor(ctx.target.currentStats.hp / 8));
 			ctx.target.currentHp = Math.max(0, ctx.target.currentHp - recoil);
+			return true;
 		}
 	}
 };
@@ -47,10 +49,11 @@ export const staticAbility: Ability = {
 	id: 9,
 	name: 'Static',
 	description: 'May paralyze the attacker on contact (30% chance).',
-	onDamagingHit: (ctx: AbilityContext, _damage: number): void => {
+	onDamagingHit: (ctx: AbilityContext, _damage: number): boolean | void => {
 		if (ctx.move?.category === 'physical' && ctx.target && !ctx.target.status) {
 			if (Math.random() < 0.3) {
 				ctx.target.status = createParalyze() as any;
+				return true;
 			}
 		}
 	}
@@ -60,10 +63,11 @@ export const flameBody: Ability = {
 	id: 49,
 	name: 'Flame Body',
 	description: 'May burn the attacker on contact (30% chance).',
-	onDamagingHit: (ctx: AbilityContext, _damage: number): void => {
+	onDamagingHit: (ctx: AbilityContext, _damage: number): boolean | void => {
 		if (ctx.move?.category === 'physical' && ctx.target && !ctx.target.status) {
 			if (Math.random() < 0.3) {
 				ctx.target.status = createBurn() as any;
+				return true;
 			}
 		}
 	}
@@ -73,10 +77,11 @@ export const poisonPoint: Ability = {
 	id: 38,
 	name: 'Poison Point',
 	description: 'May poison the attacker on contact (30% chance).',
-	onDamagingHit: (ctx: AbilityContext, _damage: number): void => {
+	onDamagingHit: (ctx: AbilityContext, _damage: number): boolean | void => {
 		if (ctx.move?.category === 'physical' && ctx.target && !ctx.target.status) {
 			if (Math.random() < 0.3) {
 				ctx.target.status = createPoison() as any;
+				return true;
 			}
 		}
 	}
@@ -86,10 +91,11 @@ export const cuteCharm: Ability = {
 	id: 56,
 	name: 'Cute Charm',
 	description: 'May cause infatuation on contact (30% chance).',
-	onDamagingHit: (ctx: AbilityContext, _damage: number): void => {
+	onDamagingHit: (ctx: AbilityContext, _damage: number): boolean | void => {
 		if (ctx.move?.category === 'physical' && ctx.target) {
 			if (Math.random() < 0.3) {
 				ctx.target.volatiles.add(VolatileStatus.INFATUATION, 0);
+				return true;
 			}
 		}
 	}
@@ -99,15 +105,18 @@ export const effectSpore: Ability = {
 	id: 27,
 	name: 'Effect Spore',
 	description: 'May inflict poison, paralysis, or sleep on contact (10% each).',
-	onDamagingHit: (ctx: AbilityContext, _damage: number): void => {
+	onDamagingHit: (ctx: AbilityContext, _damage: number): boolean | void => {
 		if (ctx.move?.category === 'physical' && ctx.target && !ctx.target.status) {
 			const roll = Math.random();
 			if (roll < 0.1) {
 				ctx.target.status = createPoison() as any;
+				return true;
 			} else if (roll < 0.2) {
 				ctx.target.status = createParalyze() as any;
+				return true;
 			} else if (roll < 0.3) {
 				ctx.target.status = { abr: 'SLP', move_effect_id: 2, duration: -1 } as any;
+				return true;
 			}
 		}
 	}

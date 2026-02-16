@@ -53,6 +53,27 @@ export const TYPE_HUE_ANGLES: Record<string, number> = {
 	fairy: 330
 };
 
+export const FALLBACK_TYPE_TO_EFFECT: Record<string, string> = {
+	normal: 'impact',
+	fire: 'fire',
+	water: 'water',
+	electric: 'thunder',
+	grass: 'leaf',
+	ice: 'ice',
+	fighting: 'impact',
+	poison: 'poison',
+	ground: 'rock',
+	flying: 'wind',
+	psychic: 'lightball',
+	bug: 'leaf',
+	rock: 'rock',
+	ghost: 'shadowball',
+	dragon: 'fire',
+	dark: 'shadowball',
+	steel: 'impact',
+	fairy: 'lightball'
+};
+
 export interface SpriteEffectOptions {
 	scale?: number;
 	opacity?: number;
@@ -150,23 +171,32 @@ export class AnimationEngine {
 	}
 
 	private async playFallbackAnimation(context: MoveContext): Promise<void> {
-		const { attacker, defender, moveCategory } = context;
+		const { attacker, defender, moveCategory, moveType } = context;
 		const target = Array.isArray(defender) ? defender[0] : defender;
+		const typeColor = this.getTypeColor(moveType);
+		const hueAngle = this.getTypeHueAngle(moveType);
+		const effectName = FALLBACK_TYPE_TO_EFFECT[moveType.toLowerCase()] ?? 'impact';
 
 		switch (moveCategory) {
 			case 'physical':
-				await this.dashAttack(attacker, target);
+				await this.dashAttack(attacker, target, typeColor, hueAngle, effectName);
 				break;
 			case 'special':
-				await this.projectileAttack(attacker, target, 'fire');
+				await this.projectileAttack(attacker, target, typeColor, hueAngle, effectName);
 				break;
 			case 'status':
-				await this.statusEffect(attacker);
+				await this.statusEffect(attacker, typeColor, hueAngle);
 				break;
 		}
 	}
 
-	private async dashAttack(attacker: PokemonSprite, defender: PokemonSprite): Promise<void> {
+	private async dashAttack(
+		attacker: PokemonSprite,
+		defender: PokemonSprite,
+		typeColor: string,
+		hueAngle: number,
+		effectName: string
+	): Promise<void> {
 		const attackerRect = attacker.element.getBoundingClientRect();
 		const defenderRect = defender.element.getBoundingClientRect();
 
@@ -190,7 +220,15 @@ export class AnimationEngine {
 				duration: 0.2,
 				ease: 'power2.in'
 			})
-			.add(() => this.shake(defender.element, 8, 150))
+			.add(() => {
+				this.showSpriteEffect(effectName, defender, {
+					hueRotate: hueAngle,
+					scale: 1.0,
+					tint: typeColor,
+					zIndex: this.getEffectZIndex(attacker.slot)
+				});
+				this.shake(defender.element, 8, 150);
+			})
 			.to(attacker.element, {
 				x: 0,
 				y: 0,
@@ -204,16 +242,37 @@ export class AnimationEngine {
 	}
 
 	private async projectileAttack(
-		attacker: PokemonSprite,
+		_attacker: PokemonSprite,
 		defender: PokemonSprite,
-		_effectName: string
+		typeColor: string,
+		hueAngle: number,
+		effectName: string
 	): Promise<void> {
-		await this.flashElement(defender.element, '#ff6600', 150);
-		await this.shake(defender.element, 6, 150);
+		await this.flashElement(defender.element, typeColor, 150);
+		await Promise.all([
+			this.showSpriteEffect(effectName, defender, {
+				hueRotate: hueAngle,
+				scale: 1.2,
+				tint: typeColor,
+				zIndex: 100
+			}),
+			this.shake(defender.element, 6, 150)
+		]);
 	}
 
-	private async statusEffect(pokemon: PokemonSprite): Promise<void> {
-		await this.flashElement(pokemon.element, '#00ff88', 300);
+	private async statusEffect(
+		pokemon: PokemonSprite,
+		typeColor: string,
+		hueAngle: number
+	): Promise<void> {
+		await this.flashElement(pokemon.element, typeColor, 300);
+		await this.showSpriteEffect('buff', pokemon, {
+			hueRotate: hueAngle,
+			scale: 0.8,
+			opacity: 0.7,
+			tint: typeColor,
+			zIndex: 100
+		});
 		await this.shake(pokemon.element, 3, 200);
 	}
 

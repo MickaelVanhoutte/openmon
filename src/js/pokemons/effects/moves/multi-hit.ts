@@ -16,8 +16,13 @@ export class MultiHit implements Effect {
 	healed = false;
 
 	apply(target: PokemonInstance[], user?: PokemonInstance): EffectResult {
-		const rand = Math.random();
-		const hits = rand < 0.375 ? 2 : rand < 0.75 ? 3 : rand < 0.875 ? 4 : 5;
+		const hasSkillLink = user?.currentAbility?.toLowerCase().replace(/\s+/g, '-') === 'skill-link';
+		const hits = hasSkillLink
+			? 5
+			: (() => {
+					const rand = Math.random();
+					return rand < 0.375 ? 2 : rand < 0.75 ? 3 : rand < 0.875 ? 4 : 5;
+				})();
 		return new EffectResult(undefined, `Hit ${hits} times!`, hits);
 	}
 

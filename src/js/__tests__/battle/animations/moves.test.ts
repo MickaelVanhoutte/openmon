@@ -128,4 +128,66 @@ describe('Move Animation Registry', () => {
 			expect(otherMoves['grassy-terrain']).toBeDefined();
 		});
 	});
+
+	describe('cross-category uniqueness', () => {
+		it('should have no move registered in more than one category', () => {
+			const categories: Record<string, string[]> = {
+				physical: Object.keys(physicalMoves),
+				special: Object.keys(specialMoves),
+				status: Object.keys(statusMoves),
+				other: Object.keys(otherMoves)
+			};
+
+			const seen = new Map<string, string>();
+			const duplicates: string[] = [];
+
+			for (const [category, moves] of Object.entries(categories)) {
+				for (const move of moves) {
+					const existing = seen.get(move);
+					if (existing) {
+						duplicates.push(`"${move}" in both ${existing} and ${category}`);
+					} else {
+						seen.set(move, category);
+					}
+				}
+			}
+
+			expect(duplicates).toEqual([]);
+		});
+
+		it('should assign known moves to their correct category', () => {
+			expect(physicalMoves['drain-punch']).toBeDefined();
+			expect(physicalMoves['meteor-mash']).toBeDefined();
+			expect(physicalMoves['iron-head']).toBeDefined();
+
+			expect(specialMoves['giga-drain']).toBeDefined();
+			expect(specialMoves['mega-drain']).toBeDefined();
+			expect(specialMoves['absorb']).toBeDefined();
+			expect(specialMoves['dream-eater']).toBeDefined();
+			expect(specialMoves['parabolic-charge']).toBeDefined();
+			expect(specialMoves['ancient-power']).toBeDefined();
+
+			expect(statusMoves['leech-seed']).toBeDefined();
+
+			expect(otherMoves['bullet-seed']).toBeDefined();
+			expect(otherMoves['surging-strikes']).toBeDefined();
+			expect(otherMoves['comet-punch']).toBeDefined();
+			expect(otherMoves['triple-kick']).toBeDefined();
+			expect(otherMoves['toxic-spikes']).toBeDefined();
+		});
+
+		it('should not have drain-punch in special or status', () => {
+			expect(specialMoves['drain-punch']).toBeUndefined();
+			expect(statusMoves['drain-punch']).toBeUndefined();
+		});
+
+		it('should not have meteor-mash or iron-head in special', () => {
+			expect(specialMoves['meteor-mash']).toBeUndefined();
+			expect(specialMoves['iron-head']).toBeUndefined();
+		});
+
+		it('should not have ancient-power in status', () => {
+			expect(statusMoves['ancient-power']).toBeUndefined();
+		});
+	});
 });

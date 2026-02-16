@@ -1,6 +1,7 @@
 import type { Ability, AbilityContext } from '../ability-types';
 import { Weather } from '../../battle-field';
 import { VolatileStatus } from '../../../pokemons/volatile-status';
+import { Message } from '../../actions/actions-derived';
 
 // =============================================================================
 // TURN END ABILITIES
@@ -13,8 +14,9 @@ export const speedBoost: Ability = {
 	id: 3,
 	name: 'Speed Boost',
 	description: 'Raises Speed at the end of each turn.',
-	onTurnEnd: (ctx: AbilityContext): void => {
+	onTurnEnd: (ctx: AbilityContext): boolean | void => {
 		ctx.pokemon.changeBattleStats('speed', 1);
+		return true;
 	}
 };
 
@@ -27,13 +29,14 @@ export const moody: Ability = {
 	id: 141,
 	name: 'Moody',
 	description: 'Raises one stat by 2 and lowers another by 1 at the end of each turn.',
-	onTurnEnd: (ctx: AbilityContext): void => {
+	onTurnEnd: (ctx: AbilityContext): boolean | void => {
 		const stats: StatName[] = ['attack', 'defense', 'specialAttack', 'specialDefense', 'speed'];
 		const boostStat = stats[Math.floor(Math.random() * stats.length)];
 		const lowerStats = stats.filter((s) => s !== boostStat);
 		const lowerStat = lowerStats[Math.floor(Math.random() * lowerStats.length)];
 		ctx.pokemon.changeBattleStats(boostStat, 2);
 		ctx.pokemon.changeBattleStats(lowerStat, -1);
+		return true;
 	}
 };
 
@@ -44,11 +47,12 @@ export const poisonHeal: Ability = {
 	id: 90,
 	name: 'Poison Heal',
 	description: 'Heals 1/8 max HP when poisoned instead of taking damage.',
-	onTurnEnd: (ctx: AbilityContext): void => {
+	onTurnEnd: (ctx: AbilityContext): boolean | void => {
 		const status = ctx.pokemon.status;
 		if (status && (status.abr === 'PSN' || status.abr === 'TOX')) {
 			const heal = Math.floor(ctx.pokemon.currentStats.hp / 8);
 			ctx.pokemon.currentHp = Math.min(ctx.pokemon.currentHp + heal, ctx.pokemon.currentStats.hp);
+			return true;
 		}
 	}
 };
@@ -60,10 +64,11 @@ export const rainDish: Ability = {
 	id: 44,
 	name: 'Rain Dish',
 	description: 'Heals 1/16 max HP in rain.',
-	onTurnEnd: (ctx: AbilityContext): void => {
+	onTurnEnd: (ctx: AbilityContext): boolean | void => {
 		if (ctx.battleContext.battleField.weather === Weather.RAIN) {
 			const heal = Math.floor(ctx.pokemon.currentStats.hp / 16);
 			ctx.pokemon.currentHp = Math.min(ctx.pokemon.currentHp + heal, ctx.pokemon.currentStats.hp);
+			return true;
 		}
 	}
 };
@@ -75,10 +80,11 @@ export const iceBody: Ability = {
 	id: 115,
 	name: 'Ice Body',
 	description: 'Heals 1/16 max HP in hail or snow.',
-	onTurnEnd: (ctx: AbilityContext): void => {
+	onTurnEnd: (ctx: AbilityContext): boolean | void => {
 		if (ctx.battleContext.battleField.weather === Weather.HAIL) {
 			const heal = Math.floor(ctx.pokemon.currentStats.hp / 16);
 			ctx.pokemon.currentHp = Math.min(ctx.pokemon.currentHp + heal, ctx.pokemon.currentStats.hp);
+			return true;
 		}
 	}
 };
@@ -108,14 +114,16 @@ export const drySkin: Ability = {
 		}
 		return damage;
 	},
-	onTurnEnd: (ctx: AbilityContext): void => {
+	onTurnEnd: (ctx: AbilityContext): boolean | void => {
 		const weather = ctx.battleContext.battleField.weather;
 		if (weather === Weather.RAIN) {
 			const heal = Math.floor(ctx.pokemon.currentStats.hp / 8);
 			ctx.pokemon.currentHp = Math.min(ctx.pokemon.currentHp + heal, ctx.pokemon.currentStats.hp);
+			return true;
 		} else if (weather === Weather.SUN) {
 			const damage = Math.floor(ctx.pokemon.currentStats.hp / 8);
 			ctx.pokemon.currentHp = Math.max(ctx.pokemon.currentHp - damage, 0);
+			return true;
 		}
 	}
 };
@@ -127,9 +135,10 @@ export const shedSkin: Ability = {
 	id: 61,
 	name: 'Shed Skin',
 	description: '30% chance to cure status condition at the end of each turn.',
-	onTurnEnd: (ctx: AbilityContext): void => {
+	onTurnEnd: (ctx: AbilityContext): boolean | void => {
 		if (ctx.pokemon.status && Math.random() < 0.3) {
 			ctx.pokemon.status = undefined;
+			return true;
 		}
 	}
 };
@@ -141,9 +150,10 @@ export const hydration: Ability = {
 	id: 93,
 	name: 'Hydration',
 	description: 'Cures status conditions in rain.',
-	onTurnEnd: (ctx: AbilityContext): void => {
+	onTurnEnd: (ctx: AbilityContext): boolean | void => {
 		if (ctx.battleContext.battleField.weather === Weather.RAIN && ctx.pokemon.status) {
 			ctx.pokemon.status = undefined;
+			return true;
 		}
 	}
 };
@@ -155,7 +165,20 @@ export const healer: Ability = {
 	id: 131,
 	name: 'Healer',
 	description: '30% chance to cure adjacent ally status at turn end.',
-	onTurnEnd: (_ctx: AbilityContext): void => {}
+	onTurnEnd: (ctx: AbilityContext): boolean | void => {
+		const allies = ctx.battleContext.playerSide.filter(
+			(p): p is NonNullable<typeof p> => !!p && !p.fainted && p !== ctx.pokemon
+		);
+		const statusedAllies = allies.filter((ally) => !!ally.status);
+		if (statusedAllies.length > 0 && Math.random() < 0.3) {
+			const ally = statusedAllies[Math.floor(Math.random() * statusedAllies.length)];
+			ally.status = undefined;
+			ctx.battleContext.addToStack(
+				new Message(`${ctx.pokemon.name}'s Healer cured ${ally.name}'s status!`, ctx.pokemon)
+			);
+			return true;
+		}
+	}
 };
 
 /**
@@ -165,16 +188,21 @@ export const badDreams: Ability = {
 	id: 123,
 	name: 'Bad Dreams',
 	description: 'Damages sleeping foes 1/8 max HP at turn end.',
-	onTurnEnd: (ctx: AbilityContext): void => {
+	onTurnEnd: (ctx: AbilityContext): boolean | void => {
 		const opponents = [...ctx.battleContext.oppSide].filter(
 			(p): p is NonNullable<typeof p> => !!p && !p.fainted
 		);
+		let activated = false;
 		opponents.forEach((opp) => {
 			if (opp.status?.abr === 'SLP') {
 				const damage = Math.floor(opp.currentStats.hp / 8);
 				opp.currentHp = Math.max(opp.currentHp - damage, 0);
+				activated = true;
 			}
 		});
+		if (activated) {
+			return true;
+		}
 	}
 };
 
@@ -190,16 +218,18 @@ export const slowStart: Ability = {
 	id: 112,
 	name: 'Slow Start',
 	description: 'Halves Attack and Speed for 5 turns after entering battle.',
-	onSwitchIn: (ctx: AbilityContext): void => {
+	onSwitchIn: (ctx: AbilityContext): boolean | void => {
 		ctx.pokemon.volatiles.add(VolatileStatus.SLOW_START, 5);
+		return true;
 	},
-	onTurnEnd: (ctx: AbilityContext): void => {
+	onTurnEnd: (ctx: AbilityContext): boolean | void => {
 		if (ctx.pokemon.volatiles.has(VolatileStatus.SLOW_START)) {
 			const turns = ctx.pokemon.volatiles.getTurns(VolatileStatus.SLOW_START);
 			if (turns > 0) {
 				ctx.pokemon.volatiles.setTurns(VolatileStatus.SLOW_START, turns - 1);
 			} else {
 				ctx.pokemon.volatiles.remove(VolatileStatus.SLOW_START);
+				return true;
 			}
 		}
 	},
@@ -224,8 +254,9 @@ export const truant: Ability = {
 	id: 54,
 	name: 'Truant',
 	description: 'Can only use a move every other turn; loafs around otherwise.',
-	onSwitchIn: (ctx: AbilityContext): void => {
+	onSwitchIn: (ctx: AbilityContext): boolean | void => {
 		ctx.pokemon.volatiles.remove(VolatileStatus.TRUANT);
+		return true;
 	},
 	onBeforeMove: (ctx: AbilityContext): boolean => {
 		if (ctx.pokemon.volatiles.has(VolatileStatus.TRUANT)) {
@@ -487,7 +518,12 @@ export const harvest: Ability = {
 	id: 139,
 	name: 'Harvest',
 	description: '50% chance to restore used Berry at turn end (100% in sun).',
-	onTurnEnd: (_ctx: AbilityContext): void => {}
+	onTurnEnd: (ctx: AbilityContext): boolean | void => {
+		const isSunny = ctx.battleContext.battleField.weather === Weather.SUN;
+		const chance = isSunny ? 1.0 : 0.5;
+		if (Math.random() < chance) {
+		}
+	}
 };
 
 /**
@@ -506,10 +542,11 @@ export const aftermath: Ability = {
 	id: 106,
 	name: 'Aftermath',
 	description: 'Deals 1/4 max HP damage to attacker if KOed by contact move.',
-	onFaint: (ctx: AbilityContext): void => {
+	onFaint: (ctx: AbilityContext): boolean | void => {
 		if (ctx.target && ctx.move?.category === 'physical') {
 			const damage = Math.floor(ctx.pokemon.currentStats.hp / 4);
 			ctx.target.currentHp = Math.max(ctx.target.currentHp - damage, 0);
+			return true;
 		}
 	}
 };
@@ -521,10 +558,11 @@ export const innardsOut: Ability = {
 	id: 215,
 	name: 'Innards Out',
 	description: 'Deals damage equal to HP before fainting to attacker.',
-	onFaint: (ctx: AbilityContext): void => {
+	onFaint: (ctx: AbilityContext): boolean | void => {
 		if (ctx.target) {
 			const damage = Math.floor(ctx.pokemon.currentStats.hp / 4);
 			ctx.target.currentHp = Math.max(ctx.target.currentHp - damage, 0);
+			return true;
 		}
 	}
 };

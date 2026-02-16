@@ -383,6 +383,7 @@ export class Script {
 	played: boolean = false;
 
 	playing: boolean = false;
+	private pauseOnPlay: boolean = true;
 
 	constructor(
 		triggerType: 'onEnter' | 'onStep' | 'onInteract' | 'onInteract2' | 'onSight' | 'onGameStart',
@@ -426,6 +427,7 @@ export class Script {
 
 	start(context: GameContext, pause: boolean = true) {
 		this.playing = true;
+		this.pauseOnPlay = pause;
 		this.play(context, 0, pause);
 	}
 
@@ -489,10 +491,14 @@ export class Script {
 	resume(context: GameContext) {
 		if (!this.currentAction?.finished) {
 			this.playing = true;
-			this.play(context, this.actions.indexOf(this.currentAction as Scriptable));
+			this.play(context, this.actions.indexOf(this.currentAction as Scriptable), this.pauseOnPlay);
 		} else {
 			this.playing = true;
-			this.play(context, this.actions.indexOf(this.currentAction as Scriptable) + 1);
+			this.play(
+				context,
+				this.actions.indexOf(this.currentAction as Scriptable) + 1,
+				this.pauseOnPlay
+			);
 		}
 	}
 }

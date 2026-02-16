@@ -15,7 +15,8 @@
 		[Weather.RAIN]: 'Rain',
 		[Weather.SUN]: 'Harsh Sunlight',
 		[Weather.SAND]: 'Sandstorm',
-		[Weather.HAIL]: 'Hail'
+		[Weather.HAIL]: 'Hail',
+		[Weather.STRONG_WINDS]: 'Strong Winds'
 	};
 
 	// Generate unique keys to force animation restart when intensify triggers

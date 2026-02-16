@@ -227,6 +227,7 @@ export class ApplyEffect implements ActionV2Interface {
 					[Weather.RAIN]: 'It started to rain!',
 					[Weather.SUN]: 'The sunlight turned harsh!',
 					[Weather.HAIL]: 'It started to hail!',
+					[Weather.STRONG_WINDS]: 'A mysterious air current is protecting Flying-type Pokemon!',
 					[Weather.NONE]: ''
 				};
 				ctx.addToStack(new Message(weatherMessages[weatherType], this.initiator));
@@ -494,7 +495,8 @@ const WEATHER_NAMES: Record<Weather, string> = {
 	[Weather.RAIN]: 'Rain',
 	[Weather.SUN]: 'Harsh Sunlight',
 	[Weather.SAND]: 'Sandstorm',
-	[Weather.HAIL]: 'Hail'
+	[Weather.HAIL]: 'Hail',
+	[Weather.STRONG_WINDS]: 'Strong Winds'
 };
 
 export class WeatherDamage implements ActionV2Interface {
