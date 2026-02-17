@@ -919,52 +919,56 @@ export class GameContext {
 				}
 
 				unsubscribe();
-				if (!result.win) {
-					const dc = get(dungeonContext);
-					if (dc?.isDungeonMode && dc?.isRunActive) {
-						this.player.monsters.forEach((pkmn) => {
-							pkmn.fullHeal();
-						});
-						this.restartDungeonFloor(dc);
-					} else {
-						// tp back to the start // TODO pokecenter position
-						this.player.position.positionOnMap = this.map.playerInitialPosition;
-						this.player.monsters.forEach((pkmn) => {
-							pkmn.fullHeal();
-						});
-					}
-				} else if (result.caught) {
-					this.POKEDEX.setCaught(result.caught.id);
-					// add caught pokemon to team if space or in the box
-					if (this.player.monsters.length < 6) {
-						this.player.monsters.push(result.caught);
-					} else {
-						const availableBox = this.boxes.find((box) => !box.isFull());
-						if (availableBox) {
-							availableBox.add(result.caught);
+				try {
+					if (!result.win) {
+						const dc = get(dungeonContext);
+						if (dc?.isDungeonMode && dc?.isRunActive) {
+							this.player.monsters.forEach((pkmn) => {
+								pkmn.fullHeal();
+							});
+							this.restartDungeonFloor(dc);
+						} else {
+							// tp back to the start // TODO pokecenter position
+							this.player.position.positionOnMap = this.map.playerInitialPosition;
+							this.player.monsters.forEach((pkmn) => {
+								pkmn.fullHeal();
+							});
+						}
+					} else if (result.caught) {
+						this.POKEDEX.setCaught(result.caught.id);
+						// add caught pokemon to team if space or in the box
+						if (this.player.monsters.length < 6) {
+							this.player.monsters.push(result.caught);
+						} else {
+							const availableBox = this.boxes.find((box) => !box.isFull());
+							if (availableBox) {
+								availableBox.add(result.caught);
+							}
+						}
+						if (!this.player.follower) {
+							this.player.setFollower(result.caught);
 						}
 					}
-					if (!this.player.follower) {
-						this.player.setFollower(result.caught);
-					}
+				} catch (e) {
+					console.error('Error during battle end handling:', e);
+				} finally {
+					setTimeout(() => {
+						this.playMapSound();
+					}, 1000);
+
+					setTimeout(() => {
+						// End of battle, 2 sec later for fade out
+						this.overWorldContext.setPaused(false, 'battle-end gameContext');
+						this.battleContext.set(undefined);
+						this.audioManager.stopBattleMusic();
+						this.hasEvolutions = this.player.monsters.some(
+							(pkmn) => battleContext.leveledUpMonsterIds.has(pkmn.id) && pkmn.canEvolve()
+						);
+						if (onEnd) {
+							onEnd();
+						}
+					}, 2000);
 				}
-
-				setTimeout(() => {
-					this.playMapSound();
-				}, 1000);
-
-				setTimeout(() => {
-					// End of battle, 2 sec later for fade out
-					this.overWorldContext.setPaused(false, 'battle-end gameContext');
-					this.battleContext.set(undefined);
-					this.audioManager.stopBattleMusic();
-					this.hasEvolutions = this.player.monsters.some(
-						(pkmn) => battleContext.leveledUpMonsterIds.has(pkmn.id) && pkmn.canEvolve()
-					);
-					if (onEnd) {
-						onEnd();
-					}
-				}, 2000);
 			}
 		});
 
