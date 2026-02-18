@@ -59,17 +59,71 @@ export function convertOpenMapToThrelte(openMap: OpenMap): ThrelteMapData {
 
 export const MAP_PAD_SIZE = 8;
 
-const DECOR_TILES: TileType3D[] = [
-	...Array<TileType3D>(35).fill(TileType3D.TREE_GROUND),
-	...Array<TileType3D>(20).fill(TileType3D.TALL_GRASS),
-	...Array<TileType3D>(15).fill(TileType3D.WATER),
-	...Array<TileType3D>(10).fill(TileType3D.FLOWER_GROUND),
-	...Array<TileType3D>(20).fill(TileType3D.WALL)
-];
+/** Biome-specific tile palettes for padding decoration. */
+const PAD_PALETTES = {
+	forest: [
+		...Array<TileType3D>(40).fill(TileType3D.TREE_GROUND),
+		...Array<TileType3D>(25).fill(TileType3D.TALL_GRASS),
+		...Array<TileType3D>(15).fill(TileType3D.WATER),
+		...Array<TileType3D>(10).fill(TileType3D.FLOWER_GROUND),
+		...Array<TileType3D>(10).fill(TileType3D.WALL)
+	],
+	cave: [
+		...Array<TileType3D>(50).fill(TileType3D.WALL),
+		...Array<TileType3D>(30).fill(TileType3D.CLIFF_ROCK),
+		...Array<TileType3D>(20).fill(TileType3D.DUNGEON_FLOOR)
+	],
+	swamp: [
+		...Array<TileType3D>(35).fill(TileType3D.SWAMP),
+		...Array<TileType3D>(25).fill(TileType3D.WATER),
+		...Array<TileType3D>(20).fill(TileType3D.TREE_GROUND),
+		...Array<TileType3D>(10).fill(TileType3D.TALL_GRASS),
+		...Array<TileType3D>(10).fill(TileType3D.WALL)
+	],
+	volcanic: [
+		...Array<TileType3D>(40).fill(TileType3D.LAVA),
+		...Array<TileType3D>(35).fill(TileType3D.WALL),
+		...Array<TileType3D>(15).fill(TileType3D.CLIFF_ROCK),
+		...Array<TileType3D>(10).fill(TileType3D.DUNGEON_FLOOR)
+	],
+	dark: [
+		...Array<TileType3D>(50).fill(TileType3D.DARK_FLOOR),
+		...Array<TileType3D>(30).fill(TileType3D.WALL),
+		...Array<TileType3D>(20).fill(TileType3D.CLIFF_ROCK)
+	]
+} satisfies Record<string, TileType3D[]>;
+
+type PaletteKey = keyof typeof PAD_PALETTES;
 
 /**
- * Fills the padding area (outside the inner map) with natural terrain features
- * instead of uniform WALL tiles. The outermost ring always stays WALL.
+ * Infers a padding palette from the inner map's tile composition.
+ * Counts landmark tile types and picks the best-matching biome palette.
+ */
+function inferPalette(innerTiles: TileType3D[][]): PaletteKey {
+	const counts: Partial<Record<TileType3D, number>> = {};
+	for (const row of innerTiles) {
+		for (const t of row) {
+			counts[t] = (counts[t] ?? 0) + 1;
+		}
+	}
+	const c = (t: TileType3D) => counts[t] ?? 0;
+	const total = innerTiles.length * (innerTiles[0]?.length ?? 1) || 1;
+
+	const lavaRatio = c(TileType3D.LAVA) / total;
+	const swampRatio = (c(TileType3D.SWAMP) + c(TileType3D.WATER)) / total;
+	const darkRatio = c(TileType3D.DARK_FLOOR) / total;
+	const caveRatio = (c(TileType3D.DUNGEON_FLOOR) + c(TileType3D.WALL)) / total;
+
+	if (lavaRatio > 0.05) return 'volcanic';
+	if (darkRatio > 0.05) return 'dark';
+	if (swampRatio > 0.15) return 'swamp';
+	if (caveRatio > 0.4) return 'cave';
+	return 'forest';
+}
+
+/**
+ * Fills the padding area (outside the inner map) with biome-contextual terrain.
+ * The outermost ring always stays WALL.
  * Two-pass: random fill then neighbor-majority smoothing for natural clusters.
  */
 function decoratePadding(
@@ -79,6 +133,11 @@ function decoratePadding(
 	newWidth: number,
 	newHeight: number
 ): void {
+	// Extract inner map tiles for biome detection
+	const innerTiles = tiles
+		.slice(padSize, newHeight - padSize)
+		.map((row) => row.slice(padSize, newWidth - padSize));
+	const palette = PAD_PALETTES[inferPalette(innerTiles)];
 	const rng = new SeededRNG(`pad-${mapId}`);
 
 	const innerStartX = padSize;
@@ -94,7 +153,7 @@ function decoratePadding(
 	for (let y = edgeMargin; y < newHeight - edgeMargin; y++) {
 		for (let x = edgeMargin; x < newWidth - edgeMargin; x++) {
 			if (isInPadding(x, y)) {
-				tiles[y][x] = rng.pick(DECOR_TILES);
+				tiles[y][x] = rng.pick(palette);
 			}
 		}
 	}
