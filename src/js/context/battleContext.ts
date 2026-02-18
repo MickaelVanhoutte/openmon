@@ -20,6 +20,7 @@ import {
 	type TargetSlot
 } from '../battle/actions/actions-model';
 import { EXPERIENCE_CHART } from '../pokemons/experience';
+import { MasteryType } from '../characters/mastery-model';
 import { Attack, Switch, UseItem } from '../battle/actions/actions-selectable';
 import { EndTurnChecks, Message, WeatherDamage, XPWin } from '../battle/actions/actions-derived';
 import { ItemsReferences } from '../items/items';
@@ -615,12 +616,19 @@ export class BattleContext {
 
 			if (this.oppSide.includes(target)) {
 				this.events.opponentPokemonFaint.set(target);
-				const xp = EXPERIENCE_CHART.howMuchIGet(
+				const baseXp = EXPERIENCE_CHART.howMuchIGet(
 					target,
 					this.participants.size,
 					!this.isWild,
 					this.settings.xpShare
 				);
+				const xpBonus = this.player.getMasteryBonus(MasteryType.XP);
+				const xp = Math.floor(baseXp * (1 + xpBonus / 100));
+
+				// Grant trainer mastery XP
+				this.player.playerMasteries.addExp(xp);
+
+				const evBonus = this.player.getMasteryBonus(MasteryType.EV);
 
 				if (this.settings.xpShare) {
 					const nonParticipants = this.player.monsters.filter(
@@ -635,7 +643,7 @@ export class BattleContext {
 								if (nParticipant.heldItem?.name === 'Lucky Egg') {
 									finalNpXp = Math.floor(npXp * 1.5);
 								}
-								actions.push(new XPWin(nParticipant, finalNpXp));
+								actions.push(new XPWin(nParticipant, finalNpXp, evBonus));
 							}
 						}
 						actions.push(
@@ -650,7 +658,7 @@ export class BattleContext {
 						if (participant.heldItem?.name === 'Lucky Egg') {
 							finalXp = Math.floor(xp * 1.5);
 						}
-						actions.push(new XPWin(participant, finalXp));
+						actions.push(new XPWin(participant, finalXp, evBonus));
 						actions.push(
 							new Message(`${participant.name} gets ${finalXp} experience!`, participant)
 						);
