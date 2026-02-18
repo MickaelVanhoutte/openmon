@@ -59,37 +59,49 @@ export function convertOpenMapToThrelte(openMap: OpenMap): ThrelteMapData {
 
 export const MAP_PAD_SIZE = 8;
 
-/** Biome-specific tile palettes for padding decoration. */
+/**
+ * Biome-specific tile palettes for padding decoration.
+ * WALL (height 0.6) and CLIFF_ROCK (height 0.6) act as "mountains" —
+ * their clustering via the smoothing pass creates ridge/peak shapes.
+ * Cave and volcanic bias heavily toward elevated tiles; other biomes
+ * add a smaller mountain accent for organic variation.
+ */
 const PAD_PALETTES = {
+	// Forest: lush greenery with occasional rocky outcrops (~20% elevated)
 	forest: [
-		...Array<TileType3D>(40).fill(TileType3D.TREE_GROUND),
-		...Array<TileType3D>(25).fill(TileType3D.TALL_GRASS),
-		...Array<TileType3D>(15).fill(TileType3D.WATER),
-		...Array<TileType3D>(10).fill(TileType3D.FLOWER_GROUND),
-		...Array<TileType3D>(10).fill(TileType3D.WALL)
+		...Array<TileType3D>(35).fill(TileType3D.TREE_GROUND),
+		...Array<TileType3D>(20).fill(TileType3D.TALL_GRASS),
+		...Array<TileType3D>(12).fill(TileType3D.WATER),
+		...Array<TileType3D>(8).fill(TileType3D.FLOWER_GROUND),
+		...Array<TileType3D>(15).fill(TileType3D.WALL),
+		...Array<TileType3D>(10).fill(TileType3D.CLIFF_ROCK)
 	],
+	// Cave: dominated by towering rock walls and cliff faces (~85% elevated)
 	cave: [
-		...Array<TileType3D>(50).fill(TileType3D.WALL),
-		...Array<TileType3D>(30).fill(TileType3D.CLIFF_ROCK),
-		...Array<TileType3D>(20).fill(TileType3D.DUNGEON_FLOOR)
+		...Array<TileType3D>(45).fill(TileType3D.WALL),
+		...Array<TileType3D>(40).fill(TileType3D.CLIFF_ROCK),
+		...Array<TileType3D>(15).fill(TileType3D.DUNGEON_FLOOR)
 	],
+	// Swamp: wetlands with tree clumps and a few rocky rises (~25% elevated)
 	swamp: [
-		...Array<TileType3D>(35).fill(TileType3D.SWAMP),
-		...Array<TileType3D>(25).fill(TileType3D.WATER),
-		...Array<TileType3D>(20).fill(TileType3D.TREE_GROUND),
-		...Array<TileType3D>(10).fill(TileType3D.TALL_GRASS),
-		...Array<TileType3D>(10).fill(TileType3D.WALL)
+		...Array<TileType3D>(30).fill(TileType3D.SWAMP),
+		...Array<TileType3D>(22).fill(TileType3D.WATER),
+		...Array<TileType3D>(18).fill(TileType3D.TREE_GROUND),
+		...Array<TileType3D>(8).fill(TileType3D.TALL_GRASS),
+		...Array<TileType3D>(12).fill(TileType3D.WALL),
+		...Array<TileType3D>(10).fill(TileType3D.CLIFF_ROCK)
 	],
+	// Volcanic: lava fields broken by jagged rock mountains (~65% elevated)
 	volcanic: [
-		...Array<TileType3D>(40).fill(TileType3D.LAVA),
-		...Array<TileType3D>(35).fill(TileType3D.WALL),
-		...Array<TileType3D>(15).fill(TileType3D.CLIFF_ROCK),
-		...Array<TileType3D>(10).fill(TileType3D.DUNGEON_FLOOR)
+		...Array<TileType3D>(35).fill(TileType3D.LAVA),
+		...Array<TileType3D>(38).fill(TileType3D.WALL),
+		...Array<TileType3D>(27).fill(TileType3D.CLIFF_ROCK)
 	],
+	// Dark: shadowy stone labyrinth (~70% elevated)
 	dark: [
-		...Array<TileType3D>(50).fill(TileType3D.DARK_FLOOR),
-		...Array<TileType3D>(30).fill(TileType3D.WALL),
-		...Array<TileType3D>(20).fill(TileType3D.CLIFF_ROCK)
+		...Array<TileType3D>(30).fill(TileType3D.DARK_FLOOR),
+		...Array<TileType3D>(40).fill(TileType3D.WALL),
+		...Array<TileType3D>(30).fill(TileType3D.CLIFF_ROCK)
 	]
 } satisfies Record<string, TileType3D[]>;
 
