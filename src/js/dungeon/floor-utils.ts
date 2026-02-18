@@ -364,10 +364,10 @@ export function buildOpenMap(
 	);
 }
 
-export function padFloorData(floorData: FloorData): FloorData {
+export function padFloorData(floorData: FloorData, biomeConfig?: BiomeConfig): FloorData {
 	const pad = MAP_PAD_SIZE;
 
-	const paddedMap = padMapWithCliffs(floorData.threlteMap, pad);
+	const paddedMap = padMapWithCliffs(floorData.threlteMap, pad, biomeConfig?.name);
 
 	const paddedOpenMap = buildOpenMap(
 		paddedMap.tiles,
