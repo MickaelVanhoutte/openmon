@@ -727,6 +727,65 @@ export class GameContext {
 		}, 500);
 	}
 
+	/**
+	 * Debug-only: teleport directly to any floor number without walking stairs.
+	 * Sets currentFloor directly, generates the floor, and transitions the map.
+	 */
+	jumpToFloor(targetFloor: number, dungeonCtx: DungeonContext) {
+		if (!dungeonCtx.isRunActive) return;
+
+		this.overWorldContext.setPaused(true, 'dungeon-floor-transition');
+		this.audioManager.fadeOutMapSound();
+		this.scriptRunner.interruptCurrent();
+		this.map?.npcs.forEach((npc) => npc.movingScript?.interrupt());
+		this.scriptRunner.clear();
+		this.overWorldContext.changingMap = true;
+
+		setTimeout(() => {
+			const previousMapId = 1000 + dungeonCtx.currentFloor;
+
+			dungeonCtx.currentFloor = targetFloor;
+			dungeonCtx.currentBiome = getBiomeForFloor(targetFloor);
+
+			const biome = dungeonCtx.currentBiome;
+			const floorData = generateFloor(dungeonCtx.runSeed, dungeonCtx.currentFloor, biome);
+
+			const populateRng = new SeededRNG(
+				dungeonCtx.runSeed + '-populate-' + dungeonCtx.currentFloor
+			);
+			const npcs = populateFloor(floorData, dungeonCtx.currentFloor, biome, populateRng);
+			floorData.openMap.npcs.push(...npcs);
+			const dungeonItems = placeDungeonItems(
+				floorData.itemPositions,
+				dungeonCtx.currentFloor,
+				populateRng
+			);
+			floorData.openMap.items.push(...dungeonItems);
+
+			clearThrelteMapCache(previousMapId);
+			registerThrelteMap(floorData.threlteMap.mapId, floorData.threlteMap);
+			this.MAPS[floorData.openMap.mapId] = floorData.openMap;
+
+			this.map = floorData.openMap;
+			this.overWorldContext.map = floorData.openMap;
+			this.player.position.setPosition(floorData.playerStart);
+
+			const allScripts = this.scriptRunner.collectAllScripts(
+				floorData.openMap.scripts,
+				floorData.openMap.npcs
+			);
+			this.scriptRunner.indexScripts(allScripts);
+
+			dungeonContext.set(dungeonCtx);
+
+			setTimeout(() => {
+				this.overWorldContext.changingMap = false;
+				this.overWorldContext.setPaused(false, 'dungeon-floor-transition');
+				this.playMapSound();
+			}, 500);
+		}, 500);
+	}
+
 	restartDungeonFloor(dungeonCtx: DungeonContext) {
 		this.overWorldContext.changingMap = true;
 
