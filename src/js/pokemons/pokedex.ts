@@ -186,6 +186,8 @@ export const NATURES: Nature[] = [
 	}
 ];
 
+export const SHINY_RATE = 2048;
+
 export class Pokedex {
 	public entries: PokedexEntry[] = [];
 	private initialized: boolean = false;
@@ -375,7 +377,7 @@ export class PokedexEntry {
 		this.percentageMale = percentageMale;
 		this.evolution = evolution;
 		this.sprites = sprites;
-		this.viewed = true; //viewed;
+		this.viewed = viewed;
 		this.caught = caught;
 	}
 
@@ -418,7 +420,7 @@ export class PokedexEntry {
 	public instanciate(level: number, minIv = 0, forceShiny = false): PokemonInstance {
 		// random nature
 		const nature = NATURES[Math.floor(Math.random() * NATURES.length)];
-		const shiny = forceShiny ? forceShiny : Math.floor(Math.random() * 2) === 0; // TODO set shiny chance
+		const shiny = forceShiny ? forceShiny : Math.floor(Math.random() * SHINY_RATE) === 0;
 		let ivs = undefined;
 		if (minIv > 0) {
 			ivs = new Stats(
@@ -864,9 +866,9 @@ export class PokemonInstance extends PokedexEntry {
 			// shiny chance is 1/2048
 			this.isShiny = shiny; //= Math.floor(Math.random() * 2048) === 0;
 
-			// random gender based on percentageMale attr
+			// random gender based on percentageMale attr (0-100)
 			this.gender = this.percentageMale
-				? Math.random() * this.percentageMale <= this.percentageMale
+				? Math.random() * 100 < this.percentageMale
 					? 'male'
 					: 'female'
 				: 'unknown';
