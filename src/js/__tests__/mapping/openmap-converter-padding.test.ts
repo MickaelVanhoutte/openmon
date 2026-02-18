@@ -71,17 +71,64 @@ describe('padMapWithCliffs', () => {
 	});
 
 	describe('border tiles', () => {
-		it('should fill entire border ring with WALL tiles', () => {
+		it('should fill the outermost ring (edge margin=1) with WALL tiles', () => {
 			const result = padMapWithCliffs(makeMapData());
 			for (let y = 0; y < result.height; y++) {
 				for (let x = 0; x < result.width; x++) {
-					const isInBorder =
-						y < pad || y >= result.height - pad || x < pad || x >= result.width - pad;
-					if (isInBorder) {
+					const isOutermostRing =
+						y === 0 || y === result.height - 1 || x === 0 || x === result.width - 1;
+					if (isOutermostRing) {
 						expect(result.tiles[y][x]).toBe(TileType3D.WALL);
 					}
 				}
 			}
+		});
+
+		it('should decorate inner padding with varied natural terrain (not all WALL)', () => {
+			const result = padMapWithCliffs(makeMapData());
+			const innerPadTiles: TileType3D[] = [];
+			for (let y = 1; y < result.height - 1; y++) {
+				for (let x = 1; x < result.width - 1; x++) {
+					const isInPad =
+						y < pad || y >= result.height - pad || x < pad || x >= result.width - pad;
+					if (isInPad) {
+						innerPadTiles.push(result.tiles[y][x]);
+					}
+				}
+			}
+			const uniqueTypes = new Set(innerPadTiles);
+			expect(uniqueTypes.size).toBeGreaterThan(1);
+		});
+
+		it('should produce the same decoration for the same mapId (deterministic)', () => {
+			const result1 = padMapWithCliffs(makeMapData({ mapId: 42 }));
+			const result2 = padMapWithCliffs(makeMapData({ mapId: 42 }));
+			expect(result1.tiles).toEqual(result2.tiles);
+		});
+
+		it('should produce different decoration for different mapIds', () => {
+			const result1 = padMapWithCliffs(makeMapData({ mapId: 1 }));
+			const result2 = padMapWithCliffs(makeMapData({ mapId: 2 }));
+			// Collect pad tiles to compare
+			const getPadTiles = (r: typeof result1) => {
+				const out: TileType3D[] = [];
+				for (let y = 1; y < r.height - 1; y++) {
+					for (let x = 1; x < r.width - 1; x++) {
+						const isInPad =
+							y < pad || y >= r.height - pad || x < pad || x >= r.width - pad;
+						if (isInPad) out.push(r.tiles[y][x]);
+					}
+				}
+				return out;
+			};
+			expect(getPadTiles(result1)).not.toEqual(getPadTiles(result2));
+		});
+
+		it('should preserve inner map tiles unchanged', () => {
+			const original = makeMapData();
+			original.tiles[2][3] = TileType3D.WATER;
+			const result = padMapWithCliffs(original);
+			expect(result.tiles[2 + pad][3 + pad]).toBe(TileType3D.WATER);
 		});
 	});
 
