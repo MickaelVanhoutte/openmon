@@ -107,4 +107,10 @@ export interface ThrelteMapData {
 	/** Flat indices (y * width + x) of tiles that trigger wild encounters. */
 	battleTileIndices: Set<number>;
 	sound?: string;
+	/**
+	 * Per-tile Y-scale overrides for padding decoration (flat index → scale).
+	 * Values > 1 make elevated tiles appear taller, creating mountain peaks.
+	 * Only set for padding tiles; absent means scale = 1.
+	 */
+	paddingHeightScales?: Map<number, number>;
 }
