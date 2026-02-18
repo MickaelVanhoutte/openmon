@@ -31,39 +31,30 @@
 	const treeTextures = TREE_TEXTURES.map(loadTexture);
 	const bushTextures = BUSH_TEXTURES.map(loadTexture);
 	const rockTextures = ROCK_TEXTURES.map(loadTexture);
-	// Custom tree shader material: supports per-instance opacity via instanceColor.r
-	// instanceColor.r = opacity multiplier (1 = fully visible, 0.1 = ghosted)
-	// Three.js InstancedMesh auto-injects instanceMatrix; instanceColor is declared manually.
+	// Tree materials use onBeforeCompile to inject per-instance opacity support.
+	// Three.js automatically binds instanceColor when vertexColors is enabled;
+	// we repurpose instanceColor.r as an opacity multiplier via shader injection.
 	function makeTreeMaterial(tex: THREE.Texture, polygonOffset = false) {
-		const mat = new THREE.ShaderMaterial({
-			uniforms: {
-				map: { value: tex }
-			},
-			vertexShader: /* glsl */ `
-				attribute vec3 instanceColor;
-				varying vec2 vUv;
-				varying float vOpacity;
-				void main() {
-					vUv = uv;
-					vOpacity = instanceColor.r;
-					vec4 mvPosition = modelViewMatrix * instanceMatrix * vec4(position, 1.0);
-					gl_Position = projectionMatrix * mvPosition;
-				}
-			`,
-			fragmentShader: /* glsl */ `
-				uniform sampler2D map;
-				varying vec2 vUv;
-				varying float vOpacity;
-				void main() {
-					vec4 texColor = texture2D(map, vUv);
-					if (texColor.a < 0.5) discard;
-					gl_FragColor = vec4(texColor.rgb, texColor.a * vOpacity);
-				}
-			`,
+		const mat = new THREE.MeshStandardMaterial({
+			map: tex,
 			transparent: true,
+			alphaTest: 0.05,
 			side: THREE.DoubleSide,
+			vertexColors: true,
 			depthWrite: false
 		});
+
+		// Inject opacity from instanceColor.r into the fragment shader
+		mat.onBeforeCompile = (shader) => {
+			shader.fragmentShader = shader.fragmentShader.replace(
+				'#include <color_fragment>',
+				/* glsl */ `
+				#include <color_fragment>
+				diffuseColor.a *= vColor.r;
+				`
+			);
+		};
+
 		if (polygonOffset) {
 			mat.polygonOffset = true;
 			mat.polygonOffsetFactor = -1;
