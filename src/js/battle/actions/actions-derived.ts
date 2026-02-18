@@ -220,7 +220,29 @@ export class ApplyEffect implements ActionV2Interface {
 
 			const weatherType = WEATHER_MAP[effect.move_effect_id];
 			if (weatherType !== undefined) {
-				applyWeather(ctx.battleField, weatherType, 5, this.initiator);
+				// Weather mastery: adjust duration based on player masteries
+				let weatherDuration = 5;
+				const isPlayerSide = ctx.playerSide.includes(this.initiator);
+				if (isPlayerSide) {
+					weatherDuration += ctx.player.getMasteryBonus(MasteryType.WEATHER_TURN_ALLY);
+					// Per-weather type bonus
+					const WEATHER_TYPE_MASTERY: Record<Weather, MasteryType | null> = {
+						[Weather.SUN]: MasteryType.WEATHER_SUN,
+						[Weather.RAIN]: MasteryType.WEATHER_RAIN,
+						[Weather.SAND]: MasteryType.WEATHER_SAND,
+						[Weather.HAIL]: MasteryType.WEATHER_HAIL,
+						[Weather.STRONG_WINDS]: null,
+						[Weather.NONE]: null
+					};
+					const typeMastery = WEATHER_TYPE_MASTERY[weatherType];
+					if (typeMastery) {
+						weatherDuration += ctx.player.getMasteryBonus(typeMastery);
+					}
+				} else {
+					// Opponent weather: player's WEATHER_TURN_OPPONENT reduces duration
+					weatherDuration += ctx.player.getMasteryBonus(MasteryType.WEATHER_TURN_OPPONENT);
+				}
+				applyWeather(ctx.battleField, weatherType, Math.max(1, weatherDuration), this.initiator);
 				ctx.weatherVersion.update((v) => v + 1);
 				const weatherMessages: Record<Weather, string> = {
 					[Weather.SAND]: 'A sandstorm kicked up!',
@@ -338,7 +360,27 @@ export class PlayWeatherChange implements ActionV2Interface {
 	}
 
 	execute(ctx: BattleContext): void {
-		applyWeather(ctx.battleField, this.weather, 5, this.initiator);
+		// Weather mastery: adjust duration based on player masteries
+		let weatherDuration = 5;
+		const isPlayerSide = ctx.playerSide.includes(this.initiator);
+		if (isPlayerSide) {
+			weatherDuration += ctx.player.getMasteryBonus(MasteryType.WEATHER_TURN_ALLY);
+			const WEATHER_TYPE_MASTERY: Record<Weather, MasteryType | null> = {
+				[Weather.SUN]: MasteryType.WEATHER_SUN,
+				[Weather.RAIN]: MasteryType.WEATHER_RAIN,
+				[Weather.SAND]: MasteryType.WEATHER_SAND,
+				[Weather.HAIL]: MasteryType.WEATHER_HAIL,
+				[Weather.STRONG_WINDS]: null,
+				[Weather.NONE]: null
+			};
+			const typeMastery = WEATHER_TYPE_MASTERY[this.weather];
+			if (typeMastery) {
+				weatherDuration += ctx.player.getMasteryBonus(typeMastery);
+			}
+		} else {
+			weatherDuration += ctx.player.getMasteryBonus(MasteryType.WEATHER_TURN_OPPONENT);
+		}
+		applyWeather(ctx.battleField, this.weather, Math.max(1, weatherDuration), this.initiator);
 		ctx.weatherVersion.update((v) => v + 1);
 		ctx.events.weatherChange.set({
 			weather: this.weather,
@@ -431,16 +473,19 @@ export class XPWin implements ActionV2Interface {
 	description: string;
 	initiator: PokemonInstance;
 	xp: number;
+	evBonus: number;
 
-	constructor(initiator: PokemonInstance, xp: number) {
+	constructor(initiator: PokemonInstance, xp: number, evBonus: number = 0) {
 		this.type = ActionType.XP_WIN;
 		this.description = `${initiator.name} won ${xp} XP!`;
 		this.initiator = initiator;
 		this.xp = xp;
+		this.evBonus = evBonus;
 	}
 
 	execute(ctx: BattleContext): void {
-		const result = this.initiator.addXpResult(this.xp, ctx.opponent instanceof Player ? 3 : 1);
+		const evMultiplier = (ctx.opponent instanceof Player ? 3 : 1) + this.evBonus;
+		const result = this.initiator.addXpResult(this.xp, evMultiplier);
 
 		if (result.newMove?.length > 0) {
 			result.newMove.forEach((move: string) => {
@@ -567,6 +612,19 @@ export class EndTurnChecks implements ActionV2Interface {
 			this.initiator.status.when === 'end-turn'
 		) {
 			const effect = this.initiator.status.playEffect(this.initiator);
+
+			// DOT_DAMAGE mastery: boost poison/burn damage on opponent Pokemon
+			const isDot = this.initiator.status.abr === 'PSN' || this.initiator.status.abr === 'PSN+' || this.initiator.status.abr === 'BRN';
+			if (isDot && ctx.oppSide.includes(this.initiator)) {
+				const dotBonus = ctx.player.getMasteryBonus(MasteryType.DOT_DAMAGE);
+				if (dotBonus > 0 && this.initiator.status.damages > 0) {
+					const bonusDamage = Math.floor(this.initiator.status.damages * dotBonus / 100);
+					if (bonusDamage > 0) {
+						this.initiator.currentHp = Math.max(0, this.initiator.currentHp - bonusDamage);
+					}
+				}
+			}
+
 			actions = ctx.checkFainted(this.initiator, this.initiator);
 
 			if (effect?.message) {
@@ -675,6 +733,20 @@ export class EndBattle implements ActionV2Interface {
 				monster.resetBattleStats();
 			});
 		}
+
+		// AUTO_HEAL mastery: heal non-fainted Pokemon by 10% max HP after battle
+		const autoHealBonus = ctx.player instanceof Player ? ctx.player.getMasteryBonus(MasteryType.AUTO_HEAL) : 0;
+		if (autoHealBonus > 0) {
+			ctx.player.monsters?.forEach((monster: PokemonInstance) => {
+				if (!monster.fainted) {
+					const healAmount = Math.floor(monster.currentStats.hp * 0.1);
+					if (healAmount > 0) {
+						monster.heal(healAmount);
+					}
+				}
+			});
+		}
+
 		ctx.clearStack();
 		ctx.events.end.set(ctx.battleResult);
 		ctx.events.battleEnded = true;

@@ -93,29 +93,29 @@ export class MasteriesBonuses {
 	critical: number = 0;
 	stab: number = 0;
 	nonStab: number = 0;
-	accuracy: number = 0; // TODO
-	effectiveness: number = 0; // TODO
-	resistance: number = 0; // TODO
+	accuracy: number = 0;
+	effectiveness: number = 0;
+	resistance: number = 0;
 	comboJauge: number = 0;
 	comboDamage: number = 0;
-	heal: number = 0; // TODO
-	autoHeal: number = 0; // TODO
-	dotChance: number = 0; // TODO
-	dotDamage: number = 0; // TODO
-	wSun: number = 0; // TODO
-	wRain: number = 0; // TODO
-	wSand: number = 0; // TODO
-	wHail: number = 0; // TODO
-	wTurnAlly: number = 0; // TODO
-	wTurnOpponent: number = 0; // TODO
-	confuse: number = 0; // TODO
-	attract: number = 0; // TODO
+	heal: number = 0;
+	autoHeal: number = 0;
+	dotChance: number = 0;
+	dotDamage: number = 0;
+	wSun: number = 0;
+	wRain: number = 0;
+	wSand: number = 0;
+	wHail: number = 0;
+	wTurnAlly: number = 0;
+	wTurnOpp: number = 0;
+	confuse: number = 0;
+	attract: number = 0;
 
-	cut: number = 0; // TODO
-	fly: number = 0; // TODO
-	surf: number = 0; // TODO
-	strength: number = 0; // TODO
-	rockSmash: number = 0; // TODO
+	cut: number = 0; // TODO overworld
+	fly: number = 0; // TODO overworld
+	surf: number = 0; // TODO overworld
+	strength: number = 0; // TODO overworld
+	rockSmash: number = 0; // TODO overworld
 
 	constructor(
 		catchN: number = 0,
@@ -139,7 +139,7 @@ export class MasteriesBonuses {
 		wSand: number = 0,
 		wHail: number = 0,
 		wTurnAlly: number = 0,
-		wTurnOpponent: number = 0,
+		wTurnOpp: number = 0,
 		confuse: number = 0,
 		attract: number = 0,
 		cut: number = 0,
@@ -169,7 +169,7 @@ export class MasteriesBonuses {
 		this.wSand = wSand;
 		this.wHail = wHail;
 		this.wTurnAlly = wTurnAlly;
-		this.wTurnOpponent = wTurnOpponent;
+		this.wTurnOpp = wTurnOpp;
 		this.confuse = confuse;
 		this.attract = attract;
 		this.cut = cut;
@@ -295,7 +295,7 @@ export class PlayerMasteries {
 				playerMasteries.bonuses.wSand,
 				playerMasteries.bonuses.wHail,
 				playerMasteries.bonuses.wTurnAlly,
-				playerMasteries.bonuses.wTurnOpponent,
+				playerMasteries.bonuses.wTurnOpp,
 				playerMasteries.bonuses.confuse,
 				playerMasteries.bonuses.attract,
 				playerMasteries.bonuses.cut,

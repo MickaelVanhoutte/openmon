@@ -106,7 +106,7 @@
         "set": false,
         "first": false,
         "settable": false,
-        "type": "non-stab",
+        "type": "nonStab",
         "value": 2,
         "group": "expert"
     },
@@ -120,7 +120,7 @@
         "set": false,
         "first": false,
         "settable": false,
-        "type": "non-stab",
+        "type": "nonStab",
         "value": 3,
         "group": "expert"
     },
@@ -134,7 +134,7 @@
         "set": false,
         "first": false,
         "settable": false,
-        "type": "non-stab",
+        "type": "nonStab",
         "value": 5,
         "group": "expert"
     },
@@ -148,7 +148,7 @@
         "set": false,
         "first": false,
         "settable": false,
-        "type": "non-stab",
+        "type": "nonStab",
         "value": 5,
         "group": "expert"
     },
@@ -695,7 +695,7 @@
         "set": false,
         "first": false,
         "settable": false,
-        "type": "attraction",
+        "type": "attract",
         "value": 1,
         "group": "expert"
     },
@@ -709,7 +709,7 @@
         "set": false,
         "first": false,
         "settable": false,
-        "type": "confusion",
+        "type": "confuse",
         "value": 1,
         "group": "expert"
     }
