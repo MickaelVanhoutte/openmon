@@ -133,10 +133,15 @@ function inferPalette(innerTiles: TileType3D[][]): PaletteKey {
 	return 'forest';
 }
 
+/** Tile types that are considered elevated (mountains/ridges). */
+const ELEVATED_TILES = new Set([TileType3D.WALL, TileType3D.CLIFF_ROCK]);
+
 /**
  * Fills the padding area (outside the inner map) with biome-contextual terrain.
  * The outermost ring always stays WALL.
  * Two-pass: random fill then neighbor-majority smoothing for natural clusters.
+ * Returns a Map of flat-index → Y-scale for elevated padding tiles so the
+ * renderer can stack them into mountain peaks.
  */
 function decoratePadding(
 	tiles: TileType3D[][],
@@ -144,7 +149,7 @@ function decoratePadding(
 	padSize: number,
 	newWidth: number,
 	newHeight: number
-): void {
+): Map<number, number> {
 	// Extract inner map tiles for biome detection
 	const innerTiles = tiles
 		.slice(padSize, newHeight - padSize)
@@ -196,6 +201,29 @@ function decoratePadding(
 			}
 		}
 	}
+
+	// Pass 3: assign Y-scale to elevated padding tiles based on distance from
+	// the inner map edge. Tiles at the outer boundary get the tallest scale,
+	// tiles adjacent to the inner map get scale 1 (no change).
+	// Scale range: 1.0 (inner edge) → 3.0 (outer edge).
+	const heightScales = new Map<number, number>();
+	const maxDist = padSize - 1; // distance from inner edge to outermost decorable row
+	for (let y = edgeMargin; y < newHeight - edgeMargin; y++) {
+		for (let x = edgeMargin; x < newWidth - edgeMargin; x++) {
+			if (!isInPadding(x, y) || !ELEVATED_TILES.has(tiles[y][x])) continue;
+			// Distance from inner map edge (0 = adjacent to inner map, maxDist = outermost)
+			const distFromInner = Math.min(
+				y < innerStartY ? innerStartY - y - 1 : y - innerEndY,
+				x < innerStartX ? innerStartX - x - 1 : x - innerEndX
+			);
+			const t = maxDist > 0 ? distFromInner / maxDist : 0;
+			// Add some noise so peaks are jagged rather than uniform ridges
+			const noise = rng.next() * 0.6 - 0.3; // ±0.3
+			const scale = Math.max(1, 1 + t * 2 + noise); // 1.0 → ~3.0
+			heightScales.set(y * newWidth + x, scale);
+		}
+	}
+	return heightScales;
 }
 
 export function padMapWithCliffs(
@@ -216,7 +244,7 @@ export function padMapWithCliffs(
 		}
 	}
 
-	decoratePadding(newTiles, mapData.mapId, padSize, newWidth, newHeight);
+	const paddingHeightScales = decoratePadding(newTiles, mapData.mapId, padSize, newWidth, newHeight);
 
 	const newPlayerStart = new Position(
 		mapData.playerStart.x + padSize,
@@ -274,7 +302,8 @@ export function padMapWithCliffs(
 		jonctions: newJonctions,
 		npcs: newNpcs,
 		items: newItems,
-		battleTileIndices: newBattleTileIndices
+		battleTileIndices: newBattleTileIndices,
+		paddingHeightScales
 	};
 }
 

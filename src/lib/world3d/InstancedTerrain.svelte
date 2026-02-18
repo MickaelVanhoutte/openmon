@@ -107,7 +107,7 @@
 
 	let terrainGroups = $derived.by(() => {
 		const groups = new Map<TileType3D, THREE.Matrix4[]>();
-		const { width, height, tiles } = mapData;
+		const { width, height, tiles, paddingHeightScales } = mapData;
 
 		for (let row = 0; row < height; row++) {
 			for (let col = 0; col < width; col++) {
@@ -123,10 +123,20 @@
 				// y: (BASE_HEIGHT + tileHeight) / 2 (center of the box)
 				const x = col - width / 2 + 0.5;
 				const z = row - height / 2 + 0.5;
-				const y = (BASE_HEIGHT + tileHeight) / 2;
+
+				const scaleY = paddingHeightScales?.get(row * width + col) ?? 1;
+				const y = scaleY * (BASE_HEIGHT + tileHeight) / 2;
 
 				const matrix = new THREE.Matrix4();
-				matrix.setPosition(x, y, z);
+				if (scaleY !== 1) {
+					matrix.compose(
+						new THREE.Vector3(x, y, z),
+						new THREE.Quaternion(),
+						new THREE.Vector3(1, scaleY, 1)
+					);
+				} else {
+					matrix.setPosition(x, y, z);
+				}
 				groups.get(type)!.push(matrix);
 			}
 		}
