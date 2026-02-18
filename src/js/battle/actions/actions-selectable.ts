@@ -13,7 +13,7 @@ import {
 	PlayAnimation,
 	RemoveHP
 } from './actions-derived';
-import { Pokeball } from '../../items/items';
+import { Pokeball, HealingItem, getCaptureRate } from '../../items/items';
 import { NPC } from '../../characters/npc';
 import { MasteryType } from '../../characters/mastery-model';
 import {
@@ -124,7 +124,8 @@ export class Attack implements ActionV2Interface {
 	execute(ctx: BattleContext): void {
 		const attacker = this.initiator;
 		const resolvedTargets = this.resolveTargets(ctx);
-		const controller = this.target[0]?.side === 'player' ? ctx.player : ctx.opponent;
+		// controller is the attacker's owner (for mastery bonuses)
+		const controller = ctx.playerSide.includes(attacker) ? ctx.player : ctx.opponent;
 
 		const actionsToPush: ActionV2Interface[] = [];
 
@@ -195,6 +196,7 @@ export class Attack implements ActionV2Interface {
 			if (!tgt || tgt.fainted) {
 				return;
 			}
+			const defenderController = slot.side === 'player' ? ctx.player : ctx.opponent;
 
 			// Check defender ability for type immunity (ON_TRY_HIT)
 			const canHit = ctx.runAbilityEvent<boolean>(
@@ -208,7 +210,7 @@ export class Attack implements ActionV2Interface {
 				return;
 			}
 
-			const success = this.accuracyApplies(attacker, tgt, this.move, ctx);
+			const success = this.accuracyApplies(attacker, tgt, this.move, ctx, controller);
 			if (!success) {
 				actionsToPush.push(new Message('But it failed!', this.initiator));
 			} else {
@@ -256,7 +258,7 @@ export class Attack implements ActionV2Interface {
 						const effect = MOVE_EFFECT_APPLIER.findEffect(eff);
 						if (
 							effect.when === 'before-move' &&
-							this.effectApplies(move.effectsChances[index], eff)
+							this.effectApplies(move.effectsChances[index], eff, controller, defenderController)
 						) {
 							actionsToPush.push(new ApplyEffect(eff, tgt, this.initiator));
 						}
@@ -312,7 +314,7 @@ export class Attack implements ActionV2Interface {
 					move.effects.forEach((effect, index) => {
 						const eff = MOVE_EFFECT_APPLIER.findEffect(effect);
 						if (
-							this.effectApplies(move.effectsChances[index], effect) &&
+							this.effectApplies(move.effectsChances[index], effect, controller, defenderController) &&
 							eff.when !== 'before-move'
 						) {
 							actionsToPush.push(new ApplyEffect(effect, tgt, this.initiator));
@@ -323,7 +325,7 @@ export class Attack implements ActionV2Interface {
 					let hitCount: number | undefined;
 					if (
 						effect.when === 'before-move' &&
-						this.effectApplies(this.move.effectChance, this.move.effect)
+						this.effectApplies(this.move.effectChance, this.move.effect, controller, defenderController)
 					) {
 						const effectResult = effect.apply([tgt], this.initiator);
 						hitCount = effectResult?.hitCount;
@@ -364,7 +366,7 @@ export class Attack implements ActionV2Interface {
 
 					if (
 						!result.immune &&
-						this.effectApplies(this.move.effectChance, this.move.effect) &&
+						this.effectApplies(this.move.effectChance, this.move.effect, controller, defenderController) &&
 						effect.when !== 'before-move'
 					) {
 						actionsToPush.push(new ApplyEffect(this.move.effect, tgt, this.initiator));
@@ -390,7 +392,7 @@ export class Attack implements ActionV2Interface {
 			}
 
 			actionsToPush.push(new PlayAnimation(this.move, animationTarget, this.initiator));
-			if (this.effectApplies(this.move.effectChance, this.move.effect)) {
+			if (this.effectApplies(this.move.effectChance, this.move.effect, controller)) {
 				actionsToPush.push(new ApplyEffect(this.move.effect, this.initiator, this.initiator));
 			}
 		}
@@ -671,7 +673,8 @@ export class Attack implements ActionV2Interface {
 		attacker: PokemonInstance,
 		defender: PokemonInstance,
 		move: MoveInstance | ComboMove,
-		ctx: BattleContext
+		ctx: BattleContext,
+		controller: Character | PokemonInstance
 	) {
 		if (!move.accuracy || move.accuracy === 0) {
 			return true;
@@ -679,19 +682,56 @@ export class Attack implements ActionV2Interface {
 
 		const weatherAccuracy = getWeatherAccuracyOverride(ctx.battleField, move.name, move.accuracy);
 
+		let accuracyBonus = 0;
+		if (controller instanceof Player) {
+			accuracyBonus = controller.getMasteryBonus(MasteryType.ACCURACY);
+		}
+
 		const accStage = attacker.statsChanges.accuracy - defender.statsChanges.evasion;
 		const stageMod = accStage >= 0 ? (3 + accStage) / 3 : 3 / (3 - accStage);
-		const finalAccuracy = (weatherAccuracy ?? move.accuracy) * stageMod;
+		const finalAccuracy = (weatherAccuracy ?? move.accuracy) * stageMod + accuracyBonus;
 		return Math.random() * 100 < finalAccuracy;
 	}
 
-	private effectApplies(effectChance: number, moveEffect?: MoveEffect) {
-		return (
-			moveEffect &&
-			((Number.isInteger(effectChance) && Math.random() * 100 < effectChance) ||
-				//  100%
-				Number.isNaN(effectChance))
-		);
+	private effectApplies(
+		effectChance: number,
+		moveEffect?: MoveEffect,
+		controller?: Character | PokemonInstance,
+		defenderController?: Character | PokemonInstance
+	) {
+		if (!moveEffect) return false;
+		// 100% effects always apply
+		if (Number.isNaN(effectChance)) return true;
+		if (!Number.isInteger(effectChance)) return false;
+
+		let chance = effectChance;
+
+		// Attacker mastery bonuses (when player attacks)
+		if (controller instanceof Player) {
+			// General move effect chance boost
+			chance += controller.getMasteryBonus(MasteryType.EFFECTIVENESS);
+
+			const effectId = moveEffect.move_effect_id;
+			// DOT_CHANCE: boost poison/burn infliction
+			if (effectId === 3 || effectId === 5 || effectId === 34) {
+				chance += controller.getMasteryBonus(MasteryType.DOT_CHANCE);
+			}
+			// CONFUSE: boost confusion infliction
+			if (effectId === 77 || effectId === 13) {
+				chance += controller.getMasteryBonus(MasteryType.CONFUSE);
+			}
+			// ATTRACT: boost attract infliction
+			if (effectId === 78) {
+				chance += controller.getMasteryBonus(MasteryType.ATTRACT);
+			}
+		}
+
+		// Defender mastery bonuses (when player's Pokemon is the target)
+		if (defenderController instanceof Player) {
+			chance -= defenderController.getMasteryBonus(MasteryType.RESISTANCE);
+		}
+
+		return Math.random() * 100 < chance;
 	}
 }
 
@@ -725,11 +765,30 @@ export class UseItem implements ActionV2Interface {
 			if (!result.success) {
 				ctx.addToStack(new Message('It failed!', this.initiator));
 			}
+
+			// HEAL mastery: boost healing items
+			if (item instanceof HealingItem && this.owner instanceof Player) {
+				const healBonus = this.owner.getMasteryBonus(MasteryType.HEAL);
+				if (healBonus > 0 && item.power > 0) {
+					const bonusHeal = Math.floor(item.power * healBonus / 100);
+					if (bonusHeal > 0) {
+						this.target.heal(bonusHeal);
+					}
+				}
+			}
 		}
 
 		if (item instanceof Pokeball) {
-			const result = item.apply(this.target);
-			if (result.success) {
+			// CATCH mastery: boost capture rate
+			let catchBonus = 0;
+			if (this.owner instanceof Player) {
+				catchBonus = this.owner.getMasteryBonus(MasteryType.CATCH);
+			}
+
+			const captureRate = getCaptureRate(this.target, item.power);
+			const boostedRate = captureRate * (1 + catchBonus / 100);
+			const caught = Math.random() < boostedRate;
+			if (caught) {
 				ctx.battleResult.caught = this.target;
 				ctx.battleResult.win = true;
 				ctx.addToStack(new EndBattle(this.initiator));
