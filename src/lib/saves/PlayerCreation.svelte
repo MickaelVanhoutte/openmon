@@ -58,7 +58,7 @@
 			handleSubmit();
 		}}
 	>
-		<h1>New game</h1>
+		<h1 style="margin: 0!important;">New game</h1>
 		<label for="template">Are you a</label>
 		<select id="template" bind:value={selected}>
 			{#each templates as template}
