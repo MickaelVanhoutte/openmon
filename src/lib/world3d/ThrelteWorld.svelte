@@ -31,6 +31,8 @@
 	import { getThrelteMap } from '$js/mapping/threlte-maps/threlte-map-registry';
 	import { getOrConvertMap } from '$js/mapping/threlte-maps/openmap-converter';
 	import DungeonMinimap from '../world/DungeonMinimap.svelte';
+	import DebugBiomePicker from '../world/DebugBiomePicker.svelte';
+	import { DEBUG } from '$js/env';
 	import { ExplorationTracker } from '$js/dungeon/exploration-tracker';
 	import { dungeonContext } from '$js/dungeon/dungeon-context';
 	import type { BiomeConfig } from '$js/dungeon/biomes';
@@ -324,6 +326,10 @@
 		{/if}
 
 		<!-- <OverworldTeamPanel {context} /> -->
+
+		{#if DEBUG && isDungeonMode}
+			<DebugBiomePicker {context} />
+		{/if}
 
 		<Menu {context} />
 	{/if}
