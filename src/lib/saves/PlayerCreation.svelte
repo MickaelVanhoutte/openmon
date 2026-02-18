@@ -85,6 +85,10 @@
 		width: 100dvw;
 		height: 100dvh;
 		padding: 2%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		overflow: hidden;
 
 		color: #e0e0e0;
 		background: #0f0c29; /* fallback for old browsers */
@@ -130,6 +134,30 @@
 			z-index: 0;
 			height: 60%;
 			filter: blur(1px);
+		}
+	}
+
+	@media (max-width: 968px) {
+		.create {
+			form {
+				max-width: 80%;
+				gap: 10px;
+			}
+
+			h1 {
+				margin: 0.2em 0;
+				font-size: 1.3em;
+			}
+
+			.preview {
+				height: 60%;
+				opacity: 0.3;
+			}
+
+			.preview-poke {
+				height: 40%;
+				opacity: 0.3;
+			}
 		}
 	}
 </style>
