@@ -108,6 +108,18 @@ const PAD_PALETTES = {
 type PaletteKey = keyof typeof PAD_PALETTES;
 
 /**
+ * Maps a BiomeConfig name to a palette key.
+ * Allows callers that already know the biome to skip tile-composition inference.
+ */
+const BIOME_NAME_TO_PALETTE: Record<string, PaletteKey> = {
+	'Grass Forest': 'forest',
+	'Cave Rock': 'cave',
+	'Water Swamp': 'swamp',
+	'Fire Volcanic': 'volcanic',
+	'Dark Haunted': 'dark'
+};
+
+/**
  * Infers a padding palette from the inner map's tile composition.
  * Counts landmark tile types and picks the best-matching biome palette.
  */
@@ -148,13 +160,20 @@ function decoratePadding(
 	mapId: number,
 	padSize: number,
 	newWidth: number,
-	newHeight: number
+	newHeight: number,
+	paletteKey?: PaletteKey
 ): Map<number, number> {
-	// Extract inner map tiles for biome detection
-	const innerTiles = tiles
-		.slice(padSize, newHeight - padSize)
-		.map((row) => row.slice(padSize, newWidth - padSize));
-	const palette = PAD_PALETTES[inferPalette(innerTiles)];
+	// Use provided palette key if known, otherwise infer from inner map tiles
+	let resolvedKey: PaletteKey;
+	if (paletteKey) {
+		resolvedKey = paletteKey;
+	} else {
+		const innerTiles = tiles
+			.slice(padSize, newHeight - padSize)
+			.map((row) => row.slice(padSize, newWidth - padSize));
+		resolvedKey = inferPalette(innerTiles);
+	}
+	const palette = PAD_PALETTES[resolvedKey];
 	const rng = new SeededRNG(`pad-${mapId}`);
 
 	const innerStartX = padSize;
@@ -228,7 +247,8 @@ function decoratePadding(
 
 export function padMapWithCliffs(
 	mapData: ThrelteMapData,
-	padSize: number = MAP_PAD_SIZE
+	padSize: number = MAP_PAD_SIZE,
+	biomeName?: string
 ): ThrelteMapData {
 	const newWidth = mapData.width + padSize * 2;
 	const newHeight = mapData.height + padSize * 2;
@@ -244,7 +264,8 @@ export function padMapWithCliffs(
 		}
 	}
 
-	const paddingHeightScales = decoratePadding(newTiles, mapData.mapId, padSize, newWidth, newHeight);
+	const paletteKey = biomeName ? BIOME_NAME_TO_PALETTE[biomeName] : undefined;
+	const paddingHeightScales = decoratePadding(newTiles, mapData.mapId, padSize, newWidth, newHeight, paletteKey);
 
 	const newPlayerStart = new Position(
 		mapData.playerStart.x + padSize,

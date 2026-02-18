@@ -43,9 +43,9 @@ export function generateFloor(
 
 	if (generationType === 'maze') {
 		try {
-			return padFloorData(generateMaze(seed, floorNumber, biomeConfig));
+			return padFloorData(generateMaze(seed, floorNumber, biomeConfig), biomeConfig);
 		} catch {
-			return padFloorData(generateFallbackFloor(floorNumber, biomeConfig));
+			return padFloorData(generateFallbackFloor(floorNumber, biomeConfig), biomeConfig);
 		}
 	}
 
@@ -53,9 +53,9 @@ export function generateFloor(
 
 	try {
 		const result = generateCaveFloor(seed, floorNumber, biomeConfig, startTime);
-		return padFloorData(result);
+		return padFloorData(result, biomeConfig);
 	} catch {
-		return padFloorData(generateFallbackFloor(floorNumber, biomeConfig));
+		return padFloorData(generateFallbackFloor(floorNumber, biomeConfig), biomeConfig);
 	}
 }
 
