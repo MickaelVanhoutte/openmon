@@ -133,7 +133,6 @@ export class SavesHolder {
 		});
 	}
 
-	// TODO: fix, seems to remove the bad one
 	removeSave(id: number) {
 		const index = this.saves.findIndex((s) => s.id === id);
 		if (index !== -1) {
