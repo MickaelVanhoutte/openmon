@@ -1,12 +1,68 @@
+# OpenMon - Roadmap & Technical Debt
 
+## Technical Debt (from code TODOs)
 
+### Battle System
+- [ ] Action animation pacing: wait for input or respect settings auto/manual (battleContext.ts:275)
+- [ ] Move opponent AI to NPC/Trainer class (battleContext.ts:458)
+- [ ] Improve target calculation for multi-target moves (battleContext.ts:461)
+- [ ] Refactor fainted check into HP removal action (battleContext.ts:564)
+- [ ] Hard AI: include switching, items, setup moves (move-manager.ts:32)
+- [ ] Move ActionBar animation state logic into battle state (ActionBar.svelte:239)
+- [ ] Add missing battle messages in ActionBar (ActionBar.svelte:280, 295)
+- [ ] Pokeball catch: calculate shake count, use Actions for each shake (actions-selectable.ts:736)
+- [ ] Handle opponent-side switch-in effects (actions-selectable.ts:637, 644)
+- [ ] Check all player-side Pokemon for level-up (actions-derived.ts:623)
+- [ ] Display stat changes on level up (actions-derived.ts:487)
+- [ ] Allow Desolate Land / Primordial Sea weather override (battle-field.ts:75)
+- [ ] PP deduction needs battle action loop integration (tier2-on-switch.ts:379)
 
-Font size REM for mobile
+### Abilities (Unimplemented Form Changes)
+- [ ] Stance Change: form change on attacking vs King's Shield (tier6-complex.ts:134)
+- [ ] Schooling: form change when HP < 50% (tier6-complex.ts:141)
+- [ ] Battle Bond: transformation after KO (tier6-complex.ts:148)
+- [ ] Power Construct: form change when HP < 50% (tier6-complex.ts:155)
+- [ ] Shields Down: form change based on level and HP (tier6-complex.ts:162)
+- [ ] Disguise: form change when HP < 50% (tier6-complex.ts:169)
 
+### Held Items
+- [ ] Add evolution check when evolution data is available in ItemContext (held-items-effects.ts:105)
 
-Starters depending selected class
+### Overworld
+- [ ] Step triggers: allow range of positions, not just exact match (gameContext.ts:522)
+- [ ] Player respawn at Pokecenter instead of map start after loss (gameContext.ts:931)
+- [ ] Rework follower position system (gameContext.ts:992)
+- [ ] HM field moves: smash rock, cut trees using Pokemon charge (ThrelteWorld.svelte:127)
+- [ ] Script/NPC states not restored on map re-entry (maps.ts:227)
+- [ ] Animate script camera/transitions (scripts.ts:139)
 
-Trainer classes
+### Save System
+- [ ] Persist script played state between sessions (savesHolder.ts:29)
+
+### Pokemon Features
+- [ ] Pokemon release from boxes (Boxes.svelte:458)
+- [ ] Follower item selection based on level (follower.ts:55)
+
+### Mastery System
+- [ ] Implement mastery stat bonuses: accuracy, effectiveness, resistance, heal, autoHeal, dotChance, dotDamage, weather bonuses, confuse, attract (mastery-model.ts:96-112)
+- [ ] Implement HM mastery unlocks: cut, fly, surf, strength, rockSmash (mastery-model.ts:114-118)
+
+### Dungeon System
+- [ ] Auto-save dungeon state after trainer defeat (dungeon-context.ts:21)
+- [ ] Auto-save dungeon state after item pickup (item-placer.ts:43)
+
+### UI / UX
+- [ ] Font size REM for mobile
+- [ ] Player creation design and class selection (PlayerCreation.svelte:8)
+- [ ] Uncomment App.svelte feature (App.svelte:152)
+
+---
+
+## Design Notes
+
+### Trainer Classes
+
+Starters depending on selected class.
 
 The conqueror (Red)
 - lvl 1: 5% to every stats
@@ -14,11 +70,11 @@ The conqueror (Red)
 - lvl 3: opponents status moves - 10% chance
 
 Bug catcher
-- lvl 1 : bug type pokemon + 5%
-- lvl 2 : wild pokemon base IV +5
-- lvl 3 : shiny rate + 10%
+- lvl 1: bug type pokemon + 5%
+- lvl 2: wild pokemon base IV +5
+- lvl 3: shiny rate + 10%
 
-Sailor:
+Sailor
 - water type pokemon + 5%
 - rain duration + 1 turn
 - 5% chances to freeze
@@ -30,22 +86,16 @@ Hiker
 
 Biker
 - 5% speed stat
--
--
 
 Guitarist
 - electric type pokemon + 5%
--
 - 5% chances to paralyze
 
 Bird keeper
 - flying type pokemon + 5%
--
--
 
 Black belt
 - fighting type pokemon + 5%
--
 - 5% chances to confuse
 
 Ruin maniac
@@ -53,147 +103,35 @@ Ruin maniac
 - sandstorm duration + 1 turn
 - 5% chances to flinch
 
-Psychic
--
--
--
-
 Gentleman
 - 10% more money on win & sell
--
--
 
 Sage
 - grass type pokemon + 5%
--
--
 
 Juggler
 - poison type pokemon + 5%
--
 - 5% chances to poison
 
 Tamer
 - dragon type pokemon + 5%
--
--
-
-Swimmer
--
--
--
-
-School kid
--
--
--
 
 Beauty
 - fairy type pokemon + 5%
-- ??
 - 5% chances to fall in love
 
-Pokefan
--
--
--
+### Zone Encounter Tables
 
-
-
-plage :
-
-wingull 278
-azumaril 298
-roucool 16
-mystherbe 43
-ptitard 60
-piplup 393 *
-
-
-forest :
-
-chenipan 10
-chrysacier 11
-aspicot 13
-coconfort 14
-mystherbe 43
-saqdeneux 114 * 
-granipiot 273
-sawaddle 540
-cottonnee 546
-joltik 595
-treeko 252 *
-insecateur *
-
-ville 1 :
-evoli 133
-fantominus
-
-
-montagne :
-
-onyx 95
-osselait 104
-rhinocorne 111
-ptera 142 *
-scorvol 207
-aaron 304
-machoc 66
-nosferapti 41
-melofee 35
-chuchmur
-
-glacier:
-
-spheal 363
-cubchoo 613
-snover 459
-sneasel 215
-jinx 124
-
-
-plage2:
-
-trapinch 328 *
-shinx 403
-mudkip 258 *
-
-
-water :
-magicarp 129
-kabuto *
-minidraco *
-ccarvanha
-coquillas 
-
-ile plage : 
-
-ronflex 143
-
-plaine :
-pikachu 25
-nidorans
-kangourex *
-metamorph 132
-mareep 
-
-
-ville 2 :
-porygon
-elektek
-
-
-
-volcan: 
-caninos 58
-houndoom 228
-litwik 607
-larvesta *
-
-
-desert :
-gibble
-
-
-ligue: 
-mawhile
+plage: wingull 278, azumaril 298, roucool 16, mystherbe 43, ptitard 60, piplup 393*
+forest: chenipan 10, chrysacier 11, aspicot 13, coconfort 14, mystherbe 43, saqdeneux 114*, granipiot 273, sawaddle 540, cottonnee 546, joltik 595, treeko 252*, insecateur*
+ville 1: evoli 133, fantominus
+montagne: onyx 95, osselait 104, rhinocorne 111, ptera 142*, scorvol 207, aaron 304, machoc 66, nosferapti 41, melofee 35, chuchmur
+glacier: spheal 363, cubchoo 613, snover 459, sneasel 215, jinx 124
+plage2: trapinch 328*, shinx 403, mudkip 258*
+water: magicarp 129, kabuto*, minidraco*, carvanha, coquillas
+ile plage: ronflex 143
+plaine: pikachu 25, nidorans, kangourex*, metamorph 132, mareep
+ville 2: porygon, elektek
+volcan: caninos 58, houndoom 228, litwik 607, larvesta*
+desert: gibble
+ligue: mawhile

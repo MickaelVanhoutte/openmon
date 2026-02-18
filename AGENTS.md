@@ -9,10 +9,10 @@ Guidelines for AI coding agents working in this Pokemon web game codebase.
 | Framework  | Svelte 5.48.0                                          |
 | Language   | TypeScript 5.x (strict mode)                           |
 | Build Tool | Vite 7.x                                               |
-| Styling    | SCSS + Chota CSS ([UI Spec](docs/UI-SPECIFICATION.md)) |
+| Styling    | SCSS + Chota CSS                                       |
 | Audio      | Howler.js                                              |
 | DI         | tsyringe                                               |
-| Animations | GSAP, AnimeJS                                          |
+| Animations | GSAP                                                   |
 | Testing    | Vitest                                                 |
 | Linting    | ESLint 9 (flat config)                                 |
 | Formatting | Prettier                                               |
@@ -194,22 +194,28 @@ src/
 ├── app.scss            # Global styles
 ├── js/                 # Game logic & models
 │   ├── __tests__/      # Unit tests
-│   ├── battle/         # Battle system
+│   ├── battle/         # Battle system (abilities, actions, animations, items)
 │   ├── characters/     # Player, NPC, follower
 │   ├── commands/       # Input controls, joystick
-│   ├── context/        # Game/Battle/Overworld contexts
+│   ├── context/        # Game/Battle/Overworld contexts + managers
+│   ├── dungeon/        # Dungeon system (procedural generation, biomes)
 │   ├── items/          # Item system
-│   ├── mapping/        # Maps and collisions
+│   ├── lighting/       # Biome lighting configuration
+│   ├── mapping/        # Maps, collisions, Threlte map conversion
 │   ├── pokemons/       # Pokedex, moves, effects, experience
 │   │   └── effects/    # Effect type definitions
-│   ├── scripting/      # Scripts, quests
+│   ├── scripting/      # Scripts, quests, notifications
 │   └── sprites/        # Sprite management
 ├── lib/                # Svelte UI components
+│   ├── admin/          # Admin panel (dev tools)
 │   ├── battle/         # Battle screen
 │   ├── common/         # Shared components (Modal, DialogView, etc.)
+│   ├── debug/          # Debug/test pages
 │   ├── menus/          # Game menus (Pokedex, Bag, Pokemon list)
 │   ├── saves/          # Save/Load components
-│   └── world/          # Overworld components
+│   ├── world/          # Overworld controls and UI
+│   ├── world3d/        # 3D world rendering (Threlte/Three.js)
+│   └── Intro.svelte    # Introduction sequence
 └── assets/             # Images, audio, JSON data
 ```
 
