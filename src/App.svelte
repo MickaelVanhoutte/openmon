@@ -72,6 +72,7 @@
 		dCtx.restoreRun(save);
 		dungeonContext.set(dCtx);
 
+		save.isNewGame = false;
 		gameContext = save.toGameContext();
 		started = true;
 
