@@ -31,51 +31,17 @@
 	const treeTextures = TREE_TEXTURES.map(loadTexture);
 	const bushTextures = BUSH_TEXTURES.map(loadTexture);
 	const rockTextures = ROCK_TEXTURES.map(loadTexture);
-	// Custom tree shader material: supports per-instance opacity via instanceColor.r
-	// instanceColor.r = opacity multiplier (1 = fully visible, 0.1 = ghosted)
-	// Three.js InstancedMesh auto-injects instanceMatrix; instanceColor is declared manually.
-	function makeTreeMaterial(tex: THREE.Texture, polygonOffset = false) {
-		const mat = new THREE.ShaderMaterial({
-			uniforms: {
-				map: { value: tex }
-			},
-			vertexShader: /* glsl */ `
-				attribute vec3 instanceColor;
-				varying vec2 vUv;
-				varying float vOpacity;
-				void main() {
-					vUv = uv;
-					vOpacity = instanceColor.r;
-					vec4 mvPosition = modelViewMatrix * instanceMatrix * vec4(position, 1.0);
-					gl_Position = projectionMatrix * mvPosition;
-				}
-			`,
-			fragmentShader: /* glsl */ `
-				uniform sampler2D map;
-				varying vec2 vUv;
-				varying float vOpacity;
-				void main() {
-					vec4 texColor = texture2D(map, vUv);
-					if (texColor.a < 0.5) discard;
-					gl_FragColor = vec4(texColor.rgb, texColor.a * vOpacity);
-				}
-			`,
-			transparent: true,
-			side: THREE.DoubleSide,
-			depthWrite: false
-		});
-		if (polygonOffset) {
-			mat.polygonOffset = true;
-			mat.polygonOffsetFactor = -1;
-			mat.polygonOffsetUnits = -1;
-		}
-		return mat;
-	}
-
 	// Pre-create shared materials (one per texture variant instead of one per mesh)
-	// plane1 has polygon offset to prevent z-fighting with plane2 at cross intersections
-	const treeMaterialsPlane1 = treeTextures.map((tex) => makeTreeMaterial(tex, true));
-	const treeMaterialsPlane2 = treeTextures.map((tex) => makeTreeMaterial(tex, false));
+	const treeMaterials = treeTextures.map(
+		(tex) =>
+			new THREE.MeshStandardMaterial({
+				map: tex,
+				transparent: true,
+				alphaTest: 0.5,
+				side: THREE.DoubleSide,
+				color: 0xffffff
+			})
+	);
 
 	const bushSpriteMaterials = bushTextures.map(
 		(tex) =>
@@ -101,10 +67,21 @@
 			})
 	);
 
+	// Tree stump/shadow markers (visible when tree sinks underground)
+	const stumpGeometry = new THREE.CircleGeometry(0.4, 8);
+	stumpGeometry.rotateX(-Math.PI / 2); // lay flat on ground
+	const stumpMaterial = new THREE.MeshBasicMaterial({
+		color: 0x3e2723, // dark brown
+		transparent: true,
+		opacity: 0.6,
+		depthWrite: false
+	});
+
 	// Reusable quaternions and scale for matrix composition
 	const yRotation = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, Math.PI / 2, 0));
 	const identityQuat = new THREE.Quaternion();
 	const oneScale = new THREE.Vector3(1, 1, 1);
+	const zeroScale = new THREE.Vector3(0, 0, 0); // for invisible stumps
 
 	// Bush layer offsets: [zOffset, yVariation, xVariation] for multi-layer fill
 	const BUSH_LAYERS = [
@@ -122,6 +99,7 @@
 	const instances = $derived.by(() => {
 		const treePlane1Map = new Map<number, THREE.Matrix4[]>();
 		const treePlane2Map = new Map<number, THREE.Matrix4[]>();
+		const treeStumpMap = new Map<number, THREE.Matrix4[]>();
 		const bushSpriteMap = new Map<number, THREE.Matrix4[]>();
 		const rockSpriteMap = new Map<number, THREE.Matrix4[]>();
 
@@ -135,6 +113,7 @@
 					const tileHeight = TILE_HEIGHTS.get(tile) ?? 0.1;
 					const textureIndex = (row * 3 + col * 7) % treeTextures.length;
 					const treeY = BASE_HEIGHT + tileHeight + 1;
+					const stumpY = BASE_HEIGHT + tileHeight + 0.01; // just above ground
 
 					// Tree plane 1 (facing Z)
 					const mat1 = new THREE.Matrix4();
@@ -151,6 +130,14 @@
 						treePlane2Map.set(textureIndex, []);
 					}
 					treePlane2Map.get(textureIndex)!.push(mat2);
+
+					// Tree stump (ground marker, invisible by default)
+					const stumpMat = new THREE.Matrix4();
+					stumpMat.compose(new THREE.Vector3(x, stumpY, z), identityQuat, zeroScale);
+					if (!treeStumpMap.has(textureIndex)) {
+						treeStumpMap.set(textureIndex, []);
+					}
+					treeStumpMap.get(textureIndex)!.push(stumpMat);
 
 					// Add 1-2 bushes near each tree
 					const bushCount = 1 + ((row * 5 + col * 11) % 2);
@@ -244,6 +231,9 @@
 		const treePlane2Groups: InstanceGroupData[] = [...treePlane2Map.entries()].map(
 			([texIdx, matrices]) => ({ texIdx, matrices })
 		);
+		const treeStumpGroups: InstanceGroupData[] = [...treeStumpMap.entries()].map(
+			([texIdx, matrices]) => ({ texIdx, matrices })
+		);
 		const bushSpriteGroups: InstanceGroupData[] = [...bushSpriteMap.entries()].map(
 			([texIdx, matrices]) => ({ texIdx, matrices })
 		);
@@ -254,6 +244,7 @@
 		return {
 			treePlane1Groups,
 			treePlane2Groups,
+			treeStumpGroups,
 			bushSpriteGroups,
 			rockSpriteGroups
 		};
@@ -287,17 +278,20 @@
 	const treeMeshRefs: THREE.InstancedMesh[] = [];
 	const treeBaseMatrices: THREE.Matrix4[][] = [];
 
-	const TREE_FULL_OPACITY_COLOR = new THREE.Color(1, 1, 1);
-
 	function initTreeMesh(ref: THREE.InstancedMesh, matrices: THREE.Matrix4[], index: number) {
 		applyMatrices(ref, matrices);
-		// Initialize all instances to full opacity
-		for (let i = 0; i < matrices.length; i++) {
-			ref.setColorAt(i, TREE_FULL_OPACITY_COLOR);
-		}
-		if (ref.instanceColor) ref.instanceColor.needsUpdate = true;
 		treeMeshRefs[index] = ref;
 		treeBaseMatrices[index] = matrices.map((m) => m.clone());
+	}
+
+	// Tree stump ref storage (ground markers for sunken trees)
+	const stumpMeshRefs: THREE.InstancedMesh[] = [];
+	const stumpBaseMatrices: THREE.Matrix4[][] = [];
+
+	function initStumpMesh(ref: THREE.InstancedMesh, matrices: THREE.Matrix4[], index: number) {
+		applyMatrices(ref, matrices);
+		stumpMeshRefs[index] = ref;
+		stumpBaseMatrices[index] = matrices.map((m) => m.clone());
 	}
 
 	// Rock ref storage
@@ -538,60 +532,123 @@
 		});
 	});
 
-	// Camera-occlusion fade: fade trees behind the player to semi-transparent
-	const FADE_ZONE_RADIUS = 5.0; // fade trees within 5 world units of player
-	const FADE_START_Z = 0.3; // start fading trees 0.3 units behind player (positive Z)
-	const FADE_FULL_Z = 1.5; // fully faded at 1.5 units behind player
-	const MIN_OPACITY = 0.1; // minimum opacity when fully faded (see-through but still visible)
-
-	const fadeColor = new THREE.Color();
-
+	// Camera-occlusion fade: sink trees into ground between camera and player
 	useTask('camera-occlusion-fade', () => {
 		// Only run when NOT in battle (battle push already handles trees)
 		if (battleActive || pushProgress > 0) return;
 
-		// Process tree plane pairs (plane1 and plane2 share same world positions)
-		for (let meshIdx = 0; meshIdx < treeMeshRefs.length; meshIdx += 2) {
-			const plane1Mesh = treeMeshRefs[meshIdx];
-			const plane2Mesh = treeMeshRefs[meshIdx + 1];
-			const bases = treeBaseMatrices[meshIdx];
-			if (!plane1Mesh || !plane2Mesh || !bases) continue;
+		const FADE_ZONE_RADIUS = 5.0; // fade trees within 5 world units of player
+		const FADE_START_Z = 0.3; // start fading trees 0.3 units behind player (positive Z)
+		const FADE_FULL_Z = 1.5; // fully sunk at 1.5 units behind player (quick transition)
+		const MAX_SINK_DEPTH = 5; // maximum Y offset to push trees down (fully underground)
 
-			let colorDirty = false;
+		const fadeTmpMatrix = new THREE.Matrix4();
+		const stumpTmpMatrix = new THREE.Matrix4();
 
-			for (let i = 0; i < bases.length; i++) {
-				const base = bases[i];
-				if (!base) continue;
+		// Helper: apply sink to trees and show stumps
+		const applySinkFade = (
+			treeMesh: THREE.InstancedMesh,
+			treeBaseMatrices: THREE.Matrix4[],
+			stumpMesh: THREE.InstancedMesh,
+			stumpBaseMatrices: THREE.Matrix4[]
+		) => {
+			for (let i = 0; i < treeBaseMatrices.length; i++) {
+				const treeBase = treeBaseMatrices[i];
+				const stumpBase = stumpBaseMatrices[i];
+				if (!treeBase || !stumpBase) continue;
 
-				const baseX = base.elements[12];
-				const baseZ = base.elements[14];
+				// Get base position
+				const baseX = treeBase.elements[12];
+				const baseY = treeBase.elements[13];
+				const baseZ = treeBase.elements[14];
+
+				// Calculate distance from player
 				const dx = baseX - playerPosition.x;
 				const dz = baseZ - playerPosition.z;
 				const distXZ = Math.sqrt(dx * dx + dz * dz);
-				const deltaZ = baseZ - playerPosition.z;
 
-				let opacity: number;
-
-				if (distXZ >= FADE_ZONE_RADIUS || deltaZ <= FADE_START_Z) {
-					// Outside fade zone or in front of player — fully visible
-					opacity = 1.0;
-				} else {
-					// Behind player within fade zone — fade to MIN_OPACITY
-					const fadeProgress = (deltaZ - FADE_START_Z) / (FADE_FULL_Z - FADE_START_Z);
-					const clamped = Math.min(Math.max(fadeProgress, 0), 1);
-					opacity = 1.0 - clamped * (1.0 - MIN_OPACITY);
+				// Outside fade radius — restore tree to base, hide stump
+				if (distXZ >= FADE_ZONE_RADIUS) {
+					treeMesh.setMatrixAt(i, treeBase);
+					// Hide stump (set scale to zero)
+					stumpTmpMatrix.copy(stumpBase);
+					stumpTmpMatrix.elements[0] = 0; // scale X
+					stumpTmpMatrix.elements[5] = 0; // scale Y
+					stumpTmpMatrix.elements[10] = 0; // scale Z
+					stumpMesh.setMatrixAt(i, stumpTmpMatrix);
+					continue;
 				}
 
-				// Encode opacity in instance color R channel (shader reads vOpacity = instanceColor.r)
-				fadeColor.setRGB(opacity, opacity, opacity);
-				plane1Mesh.setColorAt(i, fadeColor);
-				plane2Mesh.setColorAt(i, fadeColor);
-				colorDirty = true;
-			}
+				// Z relative to player (positive = behind player, toward camera)
+				const deltaZ = baseZ - playerPosition.z;
 
-			if (colorDirty) {
-				if (plane1Mesh.instanceColor) plane1Mesh.instanceColor.needsUpdate = true;
-				if (plane2Mesh.instanceColor) plane2Mesh.instanceColor.needsUpdate = true;
+				if (deltaZ <= FADE_START_Z) {
+					// In front of player — restore tree to base, hide stump
+					treeMesh.setMatrixAt(i, treeBase);
+					stumpTmpMatrix.copy(stumpBase);
+					stumpTmpMatrix.elements[0] = 0;
+					stumpTmpMatrix.elements[5] = 0;
+					stumpTmpMatrix.elements[10] = 0;
+					stumpMesh.setMatrixAt(i, stumpTmpMatrix);
+				} else {
+					// Behind player — sink tree, show stump
+					const fadeProgress = (deltaZ - FADE_START_Z) / (FADE_FULL_Z - FADE_START_Z);
+					const clamped = Math.min(Math.max(fadeProgress, 0), 1);
+					const sinkAmount = clamped * MAX_SINK_DEPTH;
+
+					// Sink tree
+					fadeTmpMatrix.copy(treeBase);
+					fadeTmpMatrix.elements[13] = baseY - sinkAmount;
+					treeMesh.setMatrixAt(i, fadeTmpMatrix);
+
+					// Show stump (scale = clamped for smooth fade-in)
+					stumpTmpMatrix.copy(stumpBase);
+					stumpTmpMatrix.elements[0] = clamped; // scale X
+					stumpTmpMatrix.elements[5] = clamped; // scale Y
+					stumpTmpMatrix.elements[10] = clamped; // scale Z
+					stumpMesh.setMatrixAt(i, stumpTmpMatrix);
+				}
+			}
+			treeMesh.instanceMatrix.needsUpdate = true;
+			stumpMesh.instanceMatrix.needsUpdate = true;
+		};
+
+		// Apply sink to trees (plane1 and plane2 are paired, so we process every 2 indices)
+		// Stumps match plane1 indices (groupIndex = meshIdx / 2)
+		for (let meshIdx = 0; meshIdx < treeMeshRefs.length; meshIdx += 2) {
+			const plane1Mesh = treeMeshRefs[meshIdx];
+			const plane2Mesh = treeMeshRefs[meshIdx + 1];
+			const treeBase = treeBaseMatrices[meshIdx];
+			const stumpIdx = meshIdx / 2;
+			const stumpMesh = stumpMeshRefs[stumpIdx];
+			const stumpBase = stumpBaseMatrices[stumpIdx];
+
+			if (plane1Mesh && plane2Mesh && treeBase && stumpMesh && stumpBase) {
+				applySinkFade(plane1Mesh, treeBase, stumpMesh, stumpBase);
+				// Apply same sink to plane2 (but don't update stump twice)
+				for (let i = 0; i < treeBase.length; i++) {
+					const treeBase2 = treeBaseMatrices[meshIdx + 1][i];
+					if (!treeBase2) continue;
+					const baseY = treeBase2.elements[13];
+					const baseZ = treeBase2.elements[14];
+					const baseX = treeBase2.elements[12];
+					const dx = baseX - playerPosition.x;
+					const dz = baseZ - playerPosition.z;
+					const distXZ = Math.sqrt(dx * dx + dz * dz);
+					const deltaZ = baseZ - playerPosition.z;
+
+					if (distXZ >= FADE_ZONE_RADIUS || deltaZ <= FADE_START_Z) {
+						plane2Mesh.setMatrixAt(i, treeBase2);
+					} else {
+						const fadeProgress = (deltaZ - FADE_START_Z) / (FADE_FULL_Z - FADE_START_Z);
+						const clamped = Math.min(Math.max(fadeProgress, 0), 1);
+						const sinkAmount = clamped * MAX_SINK_DEPTH;
+						fadeTmpMatrix.copy(treeBase2);
+						fadeTmpMatrix.elements[13] = baseY - sinkAmount;
+						plane2Mesh.setMatrixAt(i, fadeTmpMatrix);
+					}
+				}
+				plane2Mesh.instanceMatrix.needsUpdate = true;
 			}
 		}
 	});
@@ -602,7 +659,7 @@
 	{#each instances.treePlane1Groups as group, groupIndex (group.texIdx)}
 		<T.InstancedMesh
 			args={[undefined, undefined, group.matrices.length]}
-			material={treeMaterialsPlane1[group.texIdx]}
+			material={treeMaterials[group.texIdx]}
 			castShadow
 			oncreate={(ref) => initTreeMesh(ref, group.matrices, groupIndex * 2)}
 		>
@@ -614,12 +671,20 @@
 	{#each instances.treePlane2Groups as group, groupIndex (group.texIdx)}
 		<T.InstancedMesh
 			args={[undefined, undefined, group.matrices.length]}
-			material={treeMaterialsPlane2[group.texIdx]}
+			material={treeMaterials[group.texIdx]}
 			castShadow
 			oncreate={(ref) => initTreeMesh(ref, group.matrices, groupIndex * 2 + 1)}
 		>
 			<T.PlaneGeometry args={[1.5, 1.5]} />
 		</T.InstancedMesh>
+	{/each}
+
+	<!-- Tree stumps (ground markers visible when trees sink) -->
+	{#each instances.treeStumpGroups as group, groupIndex (group.texIdx)}
+		<T.InstancedMesh
+			args={[stumpGeometry, stumpMaterial, group.matrices.length]}
+			oncreate={(ref) => initStumpMesh(ref, group.matrices, groupIndex)}
+		/>
 	{/each}
 
 	<!-- Bush sprites (one instanced mesh per texture variant) -->
