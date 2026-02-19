@@ -11,13 +11,15 @@ export class AudioManager {
 			src: ['src/assets/audio/battle/battle-start.mp3'],
 			autoplay: false,
 			loop: false,
-			volume: 0.5
+			volume: 0.5,
+			html5: true
 		});
 		this.battleSound = new Howl({
 			src: ['src/assets/audio/battle/battle2.mp3'],
 			autoplay: false,
 			loop: true,
-			volume: 0.5
+			volume: 0.5,
+			html5: true
 		});
 	}
 
@@ -27,7 +29,8 @@ export class AudioManager {
 				src: ['src/assets/audio/' + mapSound + '.mp3'],
 				autoplay: true,
 				loop: true,
-				volume: 0.5
+				volume: 0.5,
+				html5: true
 			});
 		}
 	}
