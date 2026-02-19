@@ -63,6 +63,10 @@
 	const opponentFainted = $state([false, false]);
 
 	let entryAnimationsComplete = $state(false);
+	let resolveOpponentEntry: () => void = () => {};
+	const opponentEntryDone = new Promise<void>((resolve) => {
+		resolveOpponentEntry = resolve;
+	});
 	let isInitialBattleEntrance = $state(true);
 	let weatherFlash = $state(false);
 	let weatherIntensify = $state(false);
@@ -530,9 +534,6 @@
 							const validOpponents = opponent.filter((_, i) => battleCtx?.oppSide[i]);
 							if (entryPromises.length === validOpponents.length) {
 								Promise.all(entryPromises).then(() => {
-									if (battleLoopContext.allydrawn) {
-										entryAnimationsComplete = true;
-									}
 									if (battleCtx.isWild) {
 										battleCtx.oppSide.forEach((pokemon) => {
 											if (pokemon) {
@@ -540,6 +541,7 @@
 											}
 										});
 									}
+									resolveOpponentEntry();
 								});
 							}
 						};
@@ -574,7 +576,7 @@
 							return;
 						}
 						element.src = pokemon.getSprite(true);
-						element.onload = () => {
+						element.onload = async () => {
 							const imgHeight = element.naturalHeight;
 							const screenHeight = window.innerHeight;
 							const scale = Math.min(imgHeight / (screenHeight * 0.15), 0.5);
@@ -583,6 +585,9 @@
 							element.style.setProperty('--scale', scale + '');
 							element.style.setProperty('--width', element.naturalWidth + 'px');
 							element.style.setProperty('--height', element.naturalHeight + 'px');
+
+							await opponentEntryDone;
+
 							gifsWrapper.appendChild(element);
 
 							const feetRatio = findFeetOffset(element);
@@ -600,9 +605,12 @@
 
 							if (allyEntryPromises.length === ally.length) {
 								Promise.all(allyEntryPromises).then(() => {
-									if (battleLoopContext.opponentdrawn) {
-										entryAnimationsComplete = true;
-									}
+									battleCtx.playerSide.forEach((pokemon) => {
+										if (pokemon) {
+											context.soundManager.playCry(pokemon.name);
+										}
+									});
+									entryAnimationsComplete = true;
 								});
 							}
 						};
