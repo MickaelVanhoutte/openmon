@@ -62,6 +62,7 @@
 	const allyFainted = $state([false, false]);
 	const opponentFainted = $state([false, false]);
 
+	let ranAway = false;
 	let entryAnimationsComplete = $state(false);
 	let resolveOpponentEntry: () => void = () => {};
 	const opponentEntryDone = new Promise<void>((resolve) => {
@@ -296,9 +297,22 @@
 
 	battleCtx.events.runnaway.subscribe((value) => {
 		if (value) {
+			ranAway = true;
 			animateRun(ally[0], 'ally', 0, gifsWrapper).then(() => {
 				animateRun(ally[1], 'ally', 1, gifsWrapper);
 			});
+		}
+	});
+
+	battleCtx.events.end.subscribe((result) => {
+		if (result && !ranAway) {
+			// Recall all non-fainted ally pokemon with pokeball animation
+			for (let i = 0; i < ally.length; i++) {
+				if (ally[i] && !allyFainted[i]) {
+					context.soundManager.playBattleSFX('recall');
+					animateSwitchOut(ally[i], 'ally', i, gifsWrapper);
+				}
+			}
 		}
 	});
 
