@@ -301,6 +301,7 @@ export class PlayAnimation implements ActionV2Interface {
 	public target: PokemonInstance;
 	public initiator: PokemonInstance;
 	public hitCount?: number;
+	public needsCompletionSignal = true;
 
 	constructor(move: Move, target: PokemonInstance, initiator: PokemonInstance, hitCount?: number) {
 		this.type = ActionType.PLAY_ANIMATION;
@@ -327,6 +328,7 @@ export class PlayStatChange implements ActionV2Interface {
 	public target: PokemonInstance;
 	public stat: string;
 	public stages: number;
+	public needsCompletionSignal = true;
 
 	constructor(target: PokemonInstance, stat: string, stages: number, initiator: PokemonInstance) {
 		this.type = ActionType.STAT_CHANGE;
@@ -351,6 +353,7 @@ export class PlayWeatherChange implements ActionV2Interface {
 	public description: string;
 	public initiator: PokemonInstance;
 	public weather: Weather;
+	public needsCompletionSignal = true;
 
 	constructor(weather: Weather, initiator: PokemonInstance) {
 		this.type = ActionType.WEATHER_CHANGE;
@@ -614,11 +617,14 @@ export class EndTurnChecks implements ActionV2Interface {
 			const effect = this.initiator.status.playEffect(this.initiator);
 
 			// DOT_DAMAGE mastery: boost poison/burn damage on opponent Pokemon
-			const isDot = this.initiator.status.abr === 'PSN' || this.initiator.status.abr === 'PSN+' || this.initiator.status.abr === 'BRN';
+			const isDot =
+				this.initiator.status.abr === 'PSN' ||
+				this.initiator.status.abr === 'PSN+' ||
+				this.initiator.status.abr === 'BRN';
 			if (isDot && ctx.oppSide.includes(this.initiator)) {
 				const dotBonus = ctx.player.getMasteryBonus(MasteryType.DOT_DAMAGE);
 				if (dotBonus > 0 && this.initiator.status.damages > 0) {
-					const bonusDamage = Math.floor(this.initiator.status.damages * dotBonus / 100);
+					const bonusDamage = Math.floor((this.initiator.status.damages * dotBonus) / 100);
 					if (bonusDamage > 0) {
 						this.initiator.currentHp = Math.max(0, this.initiator.currentHp - bonusDamage);
 					}
@@ -735,7 +741,8 @@ export class EndBattle implements ActionV2Interface {
 		}
 
 		// AUTO_HEAL mastery: heal non-fainted Pokemon by 10% max HP after battle
-		const autoHealBonus = ctx.player instanceof Player ? ctx.player.getMasteryBonus(MasteryType.AUTO_HEAL) : 0;
+		const autoHealBonus =
+			ctx.player instanceof Player ? ctx.player.getMasteryBonus(MasteryType.AUTO_HEAL) : 0;
 		if (autoHealBonus > 0) {
 			ctx.player.monsters?.forEach((monster: PokemonInstance) => {
 				if (!monster.fainted) {
