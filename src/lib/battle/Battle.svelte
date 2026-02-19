@@ -132,7 +132,7 @@
 		initiatorPokemon: PokemonInstance,
 		targetPokemon: PokemonInstance,
 		hitCount?: number
-	): void {
+	): Promise<void> {
 		const initiatorSide = battleCtx.getPokemonSide(initiatorPokemon);
 		const targetSide = battleCtx.getPokemonSide(targetPokemon);
 
@@ -145,7 +145,7 @@
 				? battleCtx.oppSide.indexOf(targetPokemon)
 				: battleCtx.playerSide.indexOf(targetPokemon);
 
-		animateAttackWithNewEngine({
+		return animateAttackWithNewEngine({
 			initiator: initiatorElement,
 			target: targetElement,
 			initiatorSlot: {
@@ -193,6 +193,7 @@
 	battleCtx.events.playerPokemonFaint.subscribe((value) => {
 		if (value && ally) {
 			const idx = battleCtx.playerSide.indexOf(value);
+			context.soundManager.playBattleSFX('faint');
 			animateFaint(ally[idx]).then(() => {
 				allyFainted[idx] = true;
 			});
@@ -231,6 +232,7 @@
 
 	battleCtx.events.statChangeAnimation.subscribe(async (data) => {
 		if (data) {
+			context.soundManager.playBattleSFX(data.stages > 0 ? 'stat-rise' : 'stat-fall');
 			const animEngine = getAnimationEngine();
 			if (animEngine) {
 				const isOpponent = battleCtx.oppSide.includes(data.target);
@@ -279,6 +281,7 @@
 	battleCtx.events.opponentPokemonFaint.subscribe((value) => {
 		if (value && opponent) {
 			const idx = battleCtx.oppSide.indexOf(value);
+			context.soundManager.playBattleSFX('faint');
 			animateFaint(opponent[idx]).then(() => {
 				opponentFainted[idx] = true;
 			});
@@ -293,8 +296,29 @@
 		}
 	});
 
+	// Helper: play effectiveness SFX based on move type vs target types
+	function playEffectivenessSFX(
+		move: Move,
+		target: PokemonInstance,
+		initiator: PokemonInstance
+	): void {
+		if (move.power > 0 && target !== initiator) {
+			const effectiveness = battleCtx.calculateTypeEffectiveness(move.type, target.types);
+			if (effectiveness > 1) {
+				context.soundManager.playBattleSFX('hit-super-effective');
+			} else if (effectiveness < 1 && effectiveness > 0) {
+				context.soundManager.playBattleSFX('hit-not-very-effective');
+			} else if (effectiveness > 0) {
+				context.soundManager.playBattleSFX('hit-normal');
+			}
+		}
+	}
+
 	battleCtx.events.animateAttack.subscribe((value) => {
 		if (value) {
+			// Moment 1: Play move SFX at animation start
+			context.soundManager.playMoveSFX(value.move.name);
+
 			const animInitiator =
 				battleCtx.getPokemonSide(value.initiator) === 'ally'
 					? ally[battleCtx.playerSide.indexOf(value.initiator)]
@@ -364,6 +388,9 @@
 							targetSide,
 							targetIdx
 						).then(() => {
+							// Moment 2: Play effectiveness SFX after combo animations complete
+							playEffectivenessSFX(value.move, value.target, value.initiator);
+							battleCtx.signalActionComplete();
 							animateRun(
 								partner,
 								battleCtx.getPokemonSide(value.target) === 'opponent' ? 'ally' : 'opponent',
@@ -383,7 +410,11 @@
 					value.initiator,
 					value.target,
 					value.hitCount
-				);
+				).then(() => {
+					// Moment 2: Play effectiveness SFX after animation completes
+					playEffectivenessSFX(value.move, value.target, value.initiator);
+					battleCtx.signalActionComplete();
+				});
 			}
 		}
 	});
@@ -500,6 +531,13 @@
 									if (battleLoopContext.allydrawn) {
 										entryAnimationsComplete = true;
 									}
+									if (battleCtx.isWild) {
+										battleCtx.oppSide.forEach((pokemon) => {
+											if (pokemon) {
+												context.soundManager.playCry(pokemon.name);
+											}
+										});
+									}
 								});
 							}
 						};
@@ -582,6 +620,10 @@
 		// set events
 		battleCtx.events.pokemonChange.subscribe(async (change) => {
 			if (change) {
+				const isFaintSwitch =
+					change.side === 'ally' ? allyFainted[change.idx] : opponentFainted[change.idx];
+				context.soundManager.playBattleSFX(isFaintSwitch ? 'switch-fainted' : 'switch-alive');
+
 				if (change?.side === 'ally') {
 					const pokemon = battleCtx.playerSide[change?.idx];
 					if (pokemon && ally[change.idx]) {
@@ -604,7 +646,9 @@
 								transform: ''
 							});
 							// Animate entry after sprite loads
-							animateEntry(ally[change.idx], 'ally', change.idx, false, false, false);
+							animateEntry(ally[change.idx], 'ally', change.idx, false, false, false).then(() => {
+								context.soundManager.playCry(pokemon.name);
+							});
 							// Update shadow position for new sprite
 							const allyFeetRatio = findFeetOffset(ally[change.idx]);
 							updateShadowPosition('ally', change.idx, allyFeetRatio);
@@ -637,7 +681,11 @@
 								transform: ''
 							});
 							// Animate entry after sprite loads
-							animateEntry(opponent[change.idx], 'opponent', change.idx, false, false, false);
+							animateEntry(opponent[change.idx], 'opponent', change.idx, false, false, false).then(
+								() => {
+									context.soundManager.playCry(pokemon.name);
+								}
+							);
 							// Update shadow position for new sprite
 							const oppFeetRatio = findFeetOffset(opponent[change.idx]);
 							updateShadowPosition('opponent', change.idx, oppFeetRatio);
@@ -663,6 +711,7 @@
 		window.addEventListener('keydown', handleDebugKeydown);
 
 		return () => {
+			context.soundManager.stopAll();
 			destroyAnimationEngine();
 			clearInterval(drawInterval);
 			window.removeEventListener('keydown', handleDebugKeydown);
