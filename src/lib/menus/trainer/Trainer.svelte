@@ -85,7 +85,11 @@
 			{#await import('./TrainerMastery.svelte') then { default: TrainerMastery }}
 				<TrainerMastery {context} />
 			{/await}
-		{:else if tab === 2}{/if}
+		{:else if tab === 2}
+			{#await import('./TrainerSettings.svelte') then { default: TrainerSettings }}
+				<TrainerSettings {context} />
+			{/await}
+		{/if}
 	</div>
 </div>
 

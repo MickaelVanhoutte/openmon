@@ -81,6 +81,7 @@
 	}
 
 	function back() {
+		context.soundManager.playUISFX('cancel');
 		if (isBattle) {
 			battleBagOpened = false;
 		} else {
@@ -90,6 +91,7 @@
 
 	function use(pkmn?: PokemonInstance) {
 		openOptions = false;
+		context.soundManager.playUISFX('item-use');
 
 		const item = pocket[selected][0];
 

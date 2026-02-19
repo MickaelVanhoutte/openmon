@@ -23,7 +23,7 @@ import { OverworldSpawn } from '../characters/overworld-spawn';
 import { Flags, ObjectiveState, Quest, QuestState } from '../scripting/quests';
 import { Notifications } from '../scripting/notifications';
 import { BattleType } from '../battle/battle-model';
-import { AudioManager, QuestManager, ScriptRunner } from './managers';
+import { AudioManager, QuestManager, ScriptRunner, SoundManager } from './managers';
 
 import { DungeonContext, dungeonContext } from '../dungeon/dungeon-context';
 import { generateFloor } from '../dungeon/floor-generator';
@@ -77,6 +77,7 @@ export class GameContext {
 
 	// Manager classes
 	audioManager: AudioManager;
+	soundManager: SoundManager;
 	questManager: QuestManager;
 	scriptRunner: ScriptRunner;
 
@@ -127,6 +128,7 @@ export class GameContext {
 
 		// Initialize managers
 		this.audioManager = new AudioManager();
+		this.soundManager = new SoundManager(this.settings);
 		this.questManager = new QuestManager(save.questStates, save.flags, this.notifications);
 		this.questManager.onObjectiveComplete = () => this.updateMenuAvailability();
 		this.scriptRunner = new ScriptRunner();
