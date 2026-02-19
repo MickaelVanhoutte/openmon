@@ -634,7 +634,7 @@
 			if (change) {
 				const isFaintSwitch =
 					change.side === 'ally' ? allyFainted[change.idx] : opponentFainted[change.idx];
-				context.soundManager.playBattleSFX(isFaintSwitch ? 'switch-fainted' : 'switch-alive');
+				context.soundManager.playBattleSFX('recall');
 
 				if (change?.side === 'ally') {
 					const pokemon = battleCtx.playerSide[change?.idx];
