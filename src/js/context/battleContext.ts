@@ -92,6 +92,33 @@ export class BattleContext {
 		}
 	}
 
+	private getActionDuration(actionType: ActionType): number {
+		switch (actionType) {
+			case ActionType.ATTACK:
+				return 1600;
+			case ActionType.SWITCH:
+				return 2000;
+			case ActionType.MESSAGE:
+				return 1000;
+			case ActionType.XP_WIN:
+				return 500;
+			case ActionType.LEVEL_UP:
+				return 1000;
+			case ActionType.PLAY_ANIMATION:
+				return 2000;
+			case ActionType.STAT_CHANGE:
+				return 1500;
+			case ActionType.WEATHER_CHANGE:
+				return 1000;
+			default:
+				return 800;
+		}
+	}
+
+	private hasCompletionSignal(action: ActionV2Interface): boolean {
+		return 'needsCompletionSignal' in action && (action as any).needsCompletionSignal === true;
+	}
+
 	get isWild() {
 		return this.opponent instanceof PokemonInstance;
 	}
@@ -291,38 +318,12 @@ export class BattleContext {
 			}
 			action.execute(this);
 
-			// TODO wait for input ? (or settings, auto/manual)
-			let sleepTime = 800;
-			switch (action.type) {
-				case ActionType.ATTACK:
-					sleepTime = 1600;
-					break;
-				case ActionType.SWITCH:
-					sleepTime = 2000;
-					break;
-				case ActionType.MESSAGE:
-					sleepTime = 1000;
-					break;
-				case ActionType.XP_WIN:
-					sleepTime = 500;
-					break;
-				case ActionType.LEVEL_UP:
-					sleepTime = 1000;
-					break;
-				case ActionType.PLAY_ANIMATION:
-					sleepTime = 2000;
-					break;
-				case ActionType.STAT_CHANGE:
-					sleepTime = 1500;
-					break;
-				case ActionType.WEATHER_CHANGE:
-					sleepTime = 1000;
-					break;
-				default:
-					break;
-			}
+			const sleepTime = this.getActionDuration(action.type);
+			const waitPromise = this.hasCompletionSignal(action)
+				? this.waitForActionCompletion(sleepTime)
+				: this.sleep(sleepTime);
 
-			this.sleep(sleepTime).then(() => {
+			waitPromise.then(() => {
 				this.executeAction(this.actionStack?.pop());
 			});
 		} else if (!this.events.battleEnded) {
@@ -343,37 +344,12 @@ export class BattleContext {
 		this.currentAction.set(action);
 		action.execute(this);
 
-		let sleepTime = 800;
-		switch (action.type) {
-			case ActionType.ATTACK:
-				sleepTime = 1600;
-				break;
-			case ActionType.SWITCH:
-				sleepTime = 2000;
-				break;
-			case ActionType.MESSAGE:
-				sleepTime = 1000;
-				break;
-			case ActionType.XP_WIN:
-				sleepTime = 500;
-				break;
-			case ActionType.LEVEL_UP:
-				sleepTime = 1000;
-				break;
-			case ActionType.PLAY_ANIMATION:
-				sleepTime = 2000;
-				break;
-			case ActionType.STAT_CHANGE:
-				sleepTime = 1500;
-				break;
-			case ActionType.WEATHER_CHANGE:
-				sleepTime = 1000;
-				break;
-			default:
-				break;
+		const sleepTime = this.getActionDuration(action.type);
+		if (this.hasCompletionSignal(action)) {
+			await this.waitForActionCompletion(sleepTime);
+		} else {
+			await this.sleep(sleepTime);
 		}
-
-		await this.sleep(sleepTime);
 	}
 
 	private prepareNewTurn() {
