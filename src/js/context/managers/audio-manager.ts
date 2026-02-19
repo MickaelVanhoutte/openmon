@@ -62,6 +62,8 @@ export class AudioManager {
 
 	playBattleMusic(): void {
 		this.battleStartSound.stop();
+		this.battleSound.volume(0.5);
+		this.battleSound.seek(0);
 		this.battleSound.play();
 	}
 
