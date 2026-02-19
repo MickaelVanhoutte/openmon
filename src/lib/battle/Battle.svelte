@@ -322,9 +322,6 @@
 
 	battleCtx.events.animateAttack.subscribe((value) => {
 		if (value) {
-			// Moment 1: Play move SFX at animation start
-			context.soundManager.playMoveSFX(value.move.name);
-
 			const animInitiator =
 				battleCtx.getPokemonSide(value.initiator) === 'ally'
 					? ally[battleCtx.playerSide.indexOf(value.initiator)]
@@ -350,6 +347,7 @@
 
 			if (value.move instanceof ComboMove) {
 				const move: ComboMove = value.move;
+				const soundPromise = context.soundManager.playMoveSFXAsync(value.move.name);
 				addPartner(
 					battleCtx.getPokemonSide(value.target) === 'opponent' ? 'ally' : 'opponent',
 					move.pokemon2
@@ -394,30 +392,34 @@
 							targetSide,
 							targetIdx
 						).then(() => {
-							// Moment 2: Play effectiveness SFX after combo animations complete
-							playEffectivenessSFX(value.move, value.target, value.initiator);
-							battleCtx.signalActionComplete();
-							animateRun(
-								partner,
-								battleCtx.getPokemonSide(value.target) === 'opponent' ? 'ally' : 'opponent',
-								battleCtx.playerSide.length,
-								gifsWrapper
-							).then(() => {
-								partner.remove();
+							// Moment 2: Play effectiveness SFX after both combo animation and sound complete
+							Promise.all([soundPromise]).then(() => {
+								playEffectivenessSFX(value.move, value.target, value.initiator);
+								battleCtx.signalActionComplete();
+								animateRun(
+									partner,
+									battleCtx.getPokemonSide(value.target) === 'opponent' ? 'ally' : 'opponent',
+									battleCtx.playerSide.length,
+									gifsWrapper
+								).then(() => {
+									partner.remove();
+								});
 							});
 						});
 					});
 				});
 			} else {
-				playMoveAnimation(
+				const animPromise = playMoveAnimation(
 					value.move,
 					animInitiator,
 					animTarget,
 					value.initiator,
 					value.target,
 					value.hitCount
-				).then(() => {
-					// Moment 2: Play effectiveness SFX after animation completes
+				);
+				const soundPromise = context.soundManager.playMoveSFXAsync(value.move.name);
+				Promise.all([animPromise, soundPromise]).then(() => {
+					// Moment 2: Play effectiveness SFX after both animation and sound complete
 					playEffectivenessSFX(value.move, value.target, value.initiator);
 					battleCtx.signalActionComplete();
 				});
