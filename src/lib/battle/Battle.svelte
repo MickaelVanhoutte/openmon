@@ -193,7 +193,7 @@
 	battleCtx.events.playerPokemonFaint.subscribe((value) => {
 		if (value && ally) {
 			const idx = battleCtx.playerSide.indexOf(value);
-			context.soundManager.playBattleSFX('faint');
+			setTimeout(() => context.soundManager.playBattleSFX('faint'), 2000);
 			animateFaint(ally[idx]).then(() => {
 				allyFainted[idx] = true;
 			});
@@ -281,7 +281,7 @@
 	battleCtx.events.opponentPokemonFaint.subscribe((value) => {
 		if (value && opponent) {
 			const idx = battleCtx.oppSide.indexOf(value);
-			context.soundManager.playBattleSFX('faint');
+			setTimeout(() => context.soundManager.playBattleSFX('faint'), 2000);
 			animateFaint(opponent[idx]).then(() => {
 				opponentFainted[idx] = true;
 			});
