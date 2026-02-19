@@ -268,14 +268,116 @@ export function animateSwitchOut(
 ): Promise<void> {
 	const timeline = gsap.timeline();
 
+	// Get pokemon position before any transforms
+	const targetRect = target.getBoundingClientRect();
+	const pokemonCenterX = targetRect.left + targetRect.width / 2;
+	const pokemonCenterY = targetRect.top + targetRect.height / 2;
+
+	// Trainer edge (same as animateEntry start positions)
+	const isAlly = source === 'ally';
+	const trainerX = isAlly ? -50 : window.innerWidth + 50;
+	const trainerY = window.innerHeight * (isAlly ? 0.7 : 0.3);
+
+	// Step 1: Pokemon shrinks + brightens into recall (0.4s)
 	timeline.to(target, {
 		filter: 'brightness(5)',
 		scale: 0.1,
 		transformOrigin: 'center center',
-		duration: 0.6,
+		duration: 0.4,
 		ease: 'power2.in'
 	});
 
+	// Step 2: Pokemon disappears (0.1s)
+	timeline.to(
+		target,
+		{
+			opacity: 0,
+			duration: 0.1
+		},
+		'>'
+	);
+
+	// Step 3: Create pokeball at pokemon position
+	const pokeball = document.createElement('img');
+	pokeball.src = pokeballImage;
+	pokeball.style.cssText = `
+		position: fixed;
+		width: 40px;
+		height: 40px;
+		z-index: 100;
+		pointer-events: none;
+		image-rendering: pixelated;
+		left: ${pokemonCenterX - 20}px;
+		top: ${pokemonCenterY}px;
+		transform-origin: center center;
+		transform: scale(0);
+		opacity: 0;
+	`;
+
+	// Add pokeball to DOM when Step 2 starts
+	timeline.call(
+		() => {
+			document.body.appendChild(pokeball);
+		},
+		[],
+		'<'
+	);
+
+	// Step 4: Pokeball appears with flash (0.15s)
+	timeline.to(
+		pokeball,
+		{
+			scale: 1,
+			opacity: 1,
+			filter: 'brightness(3)',
+			duration: 0.15,
+			ease: 'power2.out'
+		},
+		'>'
+	);
+
+	timeline.to(
+		pokeball,
+		{
+			filter: 'brightness(1)',
+			duration: 0.1,
+			ease: 'power2.out'
+		},
+		'>'
+	);
+
+	// Step 5: Pokeball arcs back to trainer edge (0.6s) — reverse of entry
+	const startX = pokemonCenterX - 20;
+	const startY = pokemonCenterY;
+	const endX = trainerX;
+	const endY = trainerY;
+	const arcHeight = Math.min(150, Math.abs(endX - startX) * 0.3);
+	const controlY = Math.min(startY, endY) - arcHeight;
+
+	const arcProgress = { t: 0 };
+	timeline.to(
+		arcProgress,
+		{
+			t: 1,
+			duration: 0.6,
+			ease: 'power1.in',
+			onUpdate: () => {
+				const t = arcProgress.t;
+				const x =
+					(1 - t) * (1 - t) * startX + 2 * (1 - t) * t * ((startX + endX) / 2) + t * t * endX;
+				const y = (1 - t) * (1 - t) * startY + 2 * (1 - t) * t * controlY + t * t * endY;
+				pokeball.style.left = `${x}px`;
+				pokeball.style.top = `${y}px`;
+				pokeball.style.transform = `rotate(${t * (isAlly ? -720 : 720)}deg)`;
+			},
+			onComplete: () => {
+				pokeball.remove();
+			}
+		},
+		'>'
+	);
+
+	// Shadow and HP bar fade (in parallel with the whole sequence)
 	if (container) {
 		const shadow = container.querySelector(`.${source}-shadow[data-idx="${idx}"]`) as HTMLElement;
 		if (shadow) {
