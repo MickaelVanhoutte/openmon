@@ -2,6 +2,10 @@ export class Settings {
 	xpShare: boolean = true;
 	difficulty: 'NORMAL' | 'HARD' = 'HARD';
 	gameMode: GameMode = GameMode.CLASSIC;
+	musicVolume: number = 0.5;
+	sfxVolume: number = 0.5;
+	cryVolume: number = 0.5;
+	soundEnabled: boolean = true;
 
 	constructor() {}
 }

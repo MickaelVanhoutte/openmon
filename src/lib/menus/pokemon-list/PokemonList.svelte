@@ -150,6 +150,7 @@
 	};
 
 	function summarize() {
+		context.soundManager.playUISFX('confirm');
 		if (isBattle) {
 			battleSummaryOpened = true;
 		} else {
@@ -159,6 +160,7 @@
 	}
 
 	function closeList() {
+		context.soundManager.playUISFX('cancel');
 		if (isBattle && combo) {
 			combo = false;
 		} else if (isBattle && !itemToUse) {

@@ -1,8 +1,10 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { Howl } from 'howler';
 	import { typeChart } from '../../../js/battle/battle-model';
 	import type { GameContext } from '../../../js/context/gameContext';
 	import { PokedexEntry } from '../../../js/pokemons/pokedex';
+	import { getCryPath } from '../../../js/pokemons/cry-utils';
 	import PokedexMore from './PokedexMore.svelte';
 	import PokedexMoves from './PokedexMoves.svelte';
 	import PokedexStats from './PokedexStats.svelte';
@@ -52,6 +54,15 @@
 		detailOpened = false;
 	}
 
+	function playCry() {
+		const path = getCryPath(pokemon.name);
+		const howl = new Howl({
+			src: [path],
+			volume: 0.5
+		});
+		howl.play();
+	}
+
 	const listener = (e: KeyboardEvent) => {
 		if (e.key === 'ArrowLeft') {
 			const tab: 1 | 2 | 3 = currentTab === 1 ? 3 : ((currentTab - 1) as 1 | 2 | 3);
@@ -82,8 +93,15 @@
 			</button>
 		</div>
 
-		<div>
+		<div class="name-with-cry">
 			<h1>{pokemon.name}</h1>
+			<button class="cry-btn" onclick={() => playCry()} aria-label="Play cry">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+					<path
+						d="M13 7.22L9.603 10H6v4h3.603L13 16.78V7.22zM5.889 16H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1h1.889l4.294-3.435A.5.5 0 0 1 11 5v14a.5.5 0 0 1-.817.385L5.89 16zm14.525-4a6.5 6.5 0 0 1-1.525 4.196l-1.41-1.41A4.5 4.5 0 0 0 18.5 12a4.5 4.5 0 0 0-1.021-2.786l1.41-1.41A6.5 6.5 0 0 1 20.414 12zm-3.535 0a3 3 0 0 1-.707 1.957l-1.415-1.414A1 1 0 0 0 15 12a1 1 0 0 0-.243-.657l1.415-1.414A3 3 0 0 1 16.879 12z"
+					/>
+				</svg>
+			</button>
 		</div>
 		<div class="prev-next">
 			<button onclick={() => previous()} aria-label="Previous Pokemon">
@@ -171,6 +189,37 @@
 				padding: 0;
 				text-align: center;
 				text-shadow: 2px 2px 0 var(--pixel-border-color);
+			}
+
+			.name-with-cry {
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				gap: 8px;
+			}
+
+			.cry-btn {
+				width: 32px;
+				height: 32px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				cursor: pointer;
+				border-radius: 0;
+				color: white;
+				background: rgba(0, 0, 0, 0.2);
+				border: 2px solid #000;
+				padding: 4px;
+				flex-shrink: 0;
+
+				svg {
+					width: 20px;
+					height: 20px;
+				}
+
+				&:hover {
+					background: rgba(255, 255, 255, 0.2);
+				}
 			}
 
 			button {

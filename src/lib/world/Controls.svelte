@@ -132,9 +132,13 @@
 					overWorldCtx.frames.debug = !overWorldCtx.frames.debug;
 					break;
 				case 'Escape':
-					overWorldCtx.menus.menuOpened
-						? overWorldCtx.closeMenu(MenuType.MAIN)
-						: overWorldCtx.openMenu(MenuType.MAIN);
+					if (overWorldCtx.menus.menuOpened) {
+						overWorldCtx.closeMenu(MenuType.MAIN);
+						context.soundManager.playUISFX('menu-close');
+					} else {
+						overWorldCtx.openMenu(MenuType.MAIN);
+						context.soundManager.playUISFX('menu-open');
+					}
 			}
 		} else {
 			switch (e.key) {
@@ -149,11 +153,13 @@
 	}
 
 	function toggleMap() {
+		context.soundManager.playUISFX('confirm');
 		overWorldCtx.toggleMenu(MenuType.MAP);
 	}
 
 	function toggleMenu() {
 		menu = !menu;
+		context.soundManager.playUISFX(menu ? 'menu-open' : 'menu-close');
 	}
 
 	function save() {
@@ -211,6 +217,16 @@
 			context.player.running = !context.player.running;
 			isRunning = context.player.running;
 		}
+	}
+
+	function openMenuWithSound(type: MenuType) {
+		context.soundManager.playUISFX('confirm');
+		overWorldCtx.openMenu(type);
+	}
+
+	function toggleMenuWithSound(type: MenuType) {
+		context.soundManager.playUISFX('confirm');
+		overWorldCtx.toggleMenu(type);
 	}
 </script>
 
@@ -306,7 +322,7 @@
 				<button
 					class="dock-item"
 					style="--item-color: #d4344b"
-					onclick={() => overWorldCtx.toggleMenu(MenuType.POKEMON_LIST)}
+					onclick={() => toggleMenuWithSound(MenuType.POKEMON_LIST)}
 					aria-label="Open team menu"
 				>
 					<svg
@@ -336,7 +352,7 @@
 				<button
 					class="dock-item"
 					style="--item-color: #e57f15"
-					onclick={() => overWorldCtx.openMenu(MenuType.BAG)}
+					onclick={() => openMenuWithSound(MenuType.BAG)}
 					aria-label="Open bag"
 				>
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
@@ -353,7 +369,7 @@
 				<button
 					class="dock-item"
 					style="--item-color: #594ae5"
-					onclick={() => overWorldCtx.openMenu(MenuType.BOX)}
+					onclick={() => openMenuWithSound(MenuType.BOX)}
 					aria-label="Open Pokemon boxes"
 				>
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
@@ -370,7 +386,7 @@
 				<button
 					class="dock-item"
 					style="--item-color: #f6411b"
-					onclick={() => overWorldCtx.openMenu(MenuType.POKEDEX)}
+					onclick={() => openMenuWithSound(MenuType.POKEDEX)}
 					aria-label="Open Pokedex"
 				>
 					<svg
@@ -394,7 +410,7 @@
 				<button
 					class="dock-item"
 					style="--item-color: #10ad6f"
-					onclick={() => overWorldCtx.openMenu(MenuType.TRAINER)}
+					onclick={() => openMenuWithSound(MenuType.TRAINER)}
 					aria-label="Open trainer card"
 				>
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
