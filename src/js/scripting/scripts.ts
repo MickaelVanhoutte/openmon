@@ -254,6 +254,7 @@ export class GiveItem extends Scriptable {
 	}
 
 	play(context: GameContext, onEnd: () => void): any {
+		context.soundManager.playUISFX('menu-open');
 		context.player.bag.addItems(this.itemId, this.qty, context.ITEMS);
 		setTimeout(() => {
 			this.finished = true;
