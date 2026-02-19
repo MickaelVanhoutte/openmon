@@ -74,6 +74,24 @@ export class BattleContext {
 	public battleResult: BattleResult = new BattleResult(false);
 	sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+	private _actionCompleteResolve: (() => void) | undefined;
+
+	waitForActionCompletion(fallbackMs: number): Promise<void> {
+		return Promise.race([
+			new Promise<void>((resolve) => {
+				this._actionCompleteResolve = resolve;
+			}),
+			this.sleep(fallbackMs) as Promise<void>
+		]);
+	}
+
+	signalActionComplete(): void {
+		if (this._actionCompleteResolve) {
+			this._actionCompleteResolve();
+			this._actionCompleteResolve = undefined;
+		}
+	}
+
 	get isWild() {
 		return this.opponent instanceof PokemonInstance;
 	}
