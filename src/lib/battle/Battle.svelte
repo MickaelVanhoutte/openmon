@@ -262,6 +262,7 @@
 					);
 				}
 			}
+			battleCtx.signalActionComplete();
 			battleCtx.events.statChangeAnimation.set(null);
 		}
 	});
@@ -274,6 +275,7 @@
 			window.setTimeout(() => {
 				weatherFlash = false;
 			}, 600);
+			battleCtx.signalActionComplete();
 			battleCtx.events.weatherChange.set(null);
 		}
 	});
