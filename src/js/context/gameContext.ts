@@ -935,6 +935,17 @@ export class GameContext {
 						// Wild battle win (KO, not catch): grant money based on opponent level
 						const reward = Math.floor(opponent.level * 10 + 20);
 						this.player.bag.money += reward;
+					} else if (result.win && opponent instanceof NPC) {
+						// Trainer battle win in dungeon: record defeat for gate logic
+						const dc = get(dungeonContext);
+						if (dc?.isDungeonMode && dc?.isRunActive) {
+							if (dc.isFloorBoss(dc.currentFloor)) {
+								dc.defeatedTrainers.add(`boss_floor_${dc.currentFloor}`);
+							} else {
+								dc.defeatedTrainers.add(`trainer_${dc.currentFloor}_${opponent.id}`);
+							}
+							dungeonContext.set(dc);
+						}
 					}
 
 					if (result.caught) {
