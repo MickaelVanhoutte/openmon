@@ -104,8 +104,6 @@
 				visualPosition = { ...target };
 				player.position.arriveAtTarget();
 				player.moving = false;
-				animFrame = 0;
-				animElapsed = 0;
 			} else {
 				const step = speed * delta;
 				const ratio = Math.min(step / dist, 1);
@@ -125,14 +123,13 @@
 			}
 			tex.offset.x = animFrame * 0.25;
 		} else {
-			// Idle
+			// Idle — show neutral frame without resetting the cycle
 			const current = gridTo3D(
 				player.position.currentGridPosition.x,
 				player.position.currentGridPosition.y
 			);
 			visualPosition = { ...current };
 			tex.offset.x = 0;
-			animFrame = 0;
 			animElapsed = 0;
 		}
 	});

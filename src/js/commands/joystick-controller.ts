@@ -603,6 +603,12 @@ export class JoystickController {
 		this.style.remove();
 		this.container.remove();
 
+		// Clear any lingering touch/mouse identifiers so the next joystick instance
+		// isn't blocked by stale identifiers left over from an interrupted gesture
+		if (window[JOYSTICK_WINDOW_IDENTIFIER]) {
+			window[JOYSTICK_WINDOW_IDENTIFIER].clear();
+		}
+
 		// removing from active joysticks
 		if (Array.isArray(window[JOYSTICK_WINDOW_ACTIVE])) {
 			window[JOYSTICK_WINDOW_ACTIVE] = window[JOYSTICK_WINDOW_ACTIVE].filter(
