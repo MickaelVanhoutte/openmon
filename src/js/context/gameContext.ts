@@ -27,6 +27,7 @@ import { AudioManager, QuestManager, ScriptRunner, SoundManager } from './manage
 
 import { DungeonContext, dungeonContext } from '../dungeon/dungeon-context';
 import { generateFloor } from '../dungeon/floor-generator';
+import { generateRestFloor, generateBossFloor } from '../dungeon/special-floors';
 import { getBiomeForFloor } from '../dungeon/biomes';
 import { populateFloor } from '../dungeon/trainer-factory';
 import { placeItems as placeDungeonItems } from '../dungeon/item-placer';
@@ -608,24 +609,63 @@ export class GameContext {
 		}
 	}
 
+	private generateDungeonFloorData(dungeonCtx: DungeonContext) {
+		const floor = dungeonCtx.currentFloor;
+
+		if (dungeonCtx.isFloorRest(floor)) {
+			return generateRestFloor(floor, dungeonCtx.runSeed);
+		}
+
+		if (dungeonCtx.isFloorBoss(floor)) {
+			return generateBossFloor(floor, dungeonCtx.runSeed);
+		}
+
+		const biome = getBiomeForFloor(floor);
+		const floorData = generateFloor(dungeonCtx.runSeed, floor, biome);
+
+		if (floor === 1 && !dungeonCtx.starterPicked && !dungeonCtx.prologueCompleted) {
+			const STARTERS = [1, 4, 7];
+			const rng = new SeededRNG(dungeonCtx.runSeed + '-starter');
+			const starterId = rng.pick(STARTERS);
+			const starterBall = new OverworldItem(
+				'Pokeball',
+				true,
+				floorData.starterItemPosition,
+				'src/assets/menus/pokeball.png',
+				undefined,
+				[
+					new Script('onInteract', [
+						new Dialog([new Message('You found a starter Pokemon!', 'System')]),
+						new CustomScriptable((ctx: GameContext) => {
+							const pokemon = ctx.POKEDEX.findById(starterId).result?.instanciate(5);
+							if (pokemon) {
+								ctx.player.monsters.push(pokemon);
+								ctx.player.setFollower(pokemon);
+								ctx.POKEDEX.setCaught(starterId);
+								dungeonCtx.starterPicked = true;
+								ctx.updateMenuAvailability();
+							}
+						})
+					])
+				]
+			);
+			floorData.openMap.items.push(starterBall);
+		}
+
+		const populateRng = new SeededRNG(dungeonCtx.runSeed + '-populate-' + floor);
+		const npcs = populateFloor(floorData, floor, biome, populateRng);
+		floorData.openMap.npcs.push(...npcs);
+		const dungeonItems = placeDungeonItems(floorData.itemPositions, floor, populateRng);
+		floorData.openMap.items.push(...dungeonItems);
+
+		return floorData;
+	}
+
 	changeDungeonFloor(dungeonCtx: DungeonContext, savesHolder?: SavesHolder) {
 		if (!dungeonCtx.prologueCompleted && this.map?.mapId === PROLOGUE_MAP_ID) {
 			dungeonCtx.advanceFloor();
 
-			const biome = getBiomeForFloor(dungeonCtx.currentFloor);
-			const floorData = generateFloor(dungeonCtx.runSeed, dungeonCtx.currentFloor, biome);
-
-			const populateRng = new SeededRNG(
-				dungeonCtx.runSeed + '-populate-' + dungeonCtx.currentFloor
-			);
-			const npcs = populateFloor(floorData, dungeonCtx.currentFloor, biome, populateRng);
-			floorData.openMap.npcs.push(...npcs);
-			const items = placeDungeonItems(
-				floorData.itemPositions,
-				dungeonCtx.currentFloor,
-				populateRng
-			);
-			floorData.openMap.items.push(...items);
+			const floorData = this.generateDungeonFloorData(dungeonCtx);
 
 			registerThrelteMap(floorData.threlteMap.mapId, floorData.threlteMap);
 			this.MAPS[floorData.openMap.mapId] = floorData.openMap;
@@ -651,54 +691,7 @@ export class GameContext {
 
 			dungeonCtx.advanceFloor();
 
-			const biome = getBiomeForFloor(dungeonCtx.currentFloor);
-			const floorData = generateFloor(dungeonCtx.runSeed, dungeonCtx.currentFloor, biome);
-
-			if (
-				dungeonCtx.currentFloor === 1 &&
-				!dungeonCtx.starterPicked &&
-				!dungeonCtx.prologueCompleted
-			) {
-				const STARTERS = [1, 4, 7];
-				const rng = new SeededRNG(dungeonCtx.runSeed + '-starter');
-				const starterId = rng.pick(STARTERS);
-				const starterBall = new OverworldItem(
-					'Pokeball',
-					true,
-					floorData.starterItemPosition,
-					'src/assets/menus/pokeball.png',
-					undefined,
-					[
-						new Script('onInteract', [
-							new Dialog([new Message('You found a starter Pokemon!', 'System')]),
-							new CustomScriptable((ctx: GameContext) => {
-								const pokemon = ctx.POKEDEX.findById(starterId).result?.instanciate(5);
-								if (pokemon) {
-									ctx.player.monsters.push(pokemon);
-									ctx.player.setFollower(pokemon);
-									ctx.POKEDEX.setCaught(starterId);
-									dungeonCtx.starterPicked = true;
-									ctx.updateMenuAvailability();
-								}
-							})
-						])
-					]
-				);
-				floorData.openMap.items.push(starterBall);
-			}
-
-			// Materialize trainers and items from generated positions
-			const populateRng = new SeededRNG(
-				dungeonCtx.runSeed + '-populate-' + dungeonCtx.currentFloor
-			);
-			const npcs = populateFloor(floorData, dungeonCtx.currentFloor, biome, populateRng);
-			floorData.openMap.npcs.push(...npcs);
-			const dungeonItems = placeDungeonItems(
-				floorData.itemPositions,
-				dungeonCtx.currentFloor,
-				populateRng
-			);
-			floorData.openMap.items.push(...dungeonItems);
+			const floorData = this.generateDungeonFloorData(dungeonCtx);
 
 			clearThrelteMapCache(previousMapId);
 
@@ -749,20 +742,7 @@ export class GameContext {
 			dungeonCtx.currentFloor = targetFloor;
 			dungeonCtx.currentBiome = getBiomeForFloor(targetFloor);
 
-			const biome = dungeonCtx.currentBiome;
-			const floorData = generateFloor(dungeonCtx.runSeed, dungeonCtx.currentFloor, biome);
-
-			const populateRng = new SeededRNG(
-				dungeonCtx.runSeed + '-populate-' + dungeonCtx.currentFloor
-			);
-			const npcs = populateFloor(floorData, dungeonCtx.currentFloor, biome, populateRng);
-			floorData.openMap.npcs.push(...npcs);
-			const dungeonItems = placeDungeonItems(
-				floorData.itemPositions,
-				dungeonCtx.currentFloor,
-				populateRng
-			);
-			floorData.openMap.items.push(...dungeonItems);
+			const floorData = this.generateDungeonFloorData(dungeonCtx);
 
 			clearThrelteMapCache(previousMapId);
 			registerThrelteMap(floorData.threlteMap.mapId, floorData.threlteMap);
@@ -800,51 +780,7 @@ export class GameContext {
 		dungeonCtx.defeatedTrainers.clear();
 		dungeonCtx.pickedItems.clear();
 
-		const biome = getBiomeForFloor(dungeonCtx.currentFloor);
-		const floorData = generateFloor(dungeonCtx.runSeed, dungeonCtx.currentFloor, biome);
-
-		if (
-			dungeonCtx.currentFloor === 1 &&
-			!dungeonCtx.starterPicked &&
-			!dungeonCtx.prologueCompleted
-		) {
-			const STARTERS = [1, 4, 7];
-			const rng = new SeededRNG(dungeonCtx.runSeed + '-starter');
-			const starterId = rng.pick(STARTERS);
-			const starterBall = new OverworldItem(
-				'Pokeball',
-				true,
-				floorData.starterItemPosition,
-				'src/assets/menus/pokeball.png',
-				undefined,
-				[
-					new Script('onInteract', [
-						new Dialog([new Message('You found a starter Pokemon!', 'System')]),
-						new CustomScriptable((ctx: GameContext) => {
-							const pokemon = ctx.POKEDEX.findById(starterId).result?.instanciate(5);
-							if (pokemon) {
-								ctx.player.monsters.push(pokemon);
-								ctx.player.setFollower(pokemon);
-								ctx.POKEDEX.setCaught(starterId);
-								dungeonCtx.starterPicked = true;
-								ctx.updateMenuAvailability();
-							}
-						})
-					])
-				]
-			);
-			floorData.openMap.items.push(starterBall);
-		}
-
-		const populateRng = new SeededRNG(dungeonCtx.runSeed + '-populate-' + dungeonCtx.currentFloor);
-		const npcs = populateFloor(floorData, dungeonCtx.currentFloor, biome, populateRng);
-		floorData.openMap.npcs.push(...npcs);
-		const dungeonItems = placeDungeonItems(
-			floorData.itemPositions,
-			dungeonCtx.currentFloor,
-			populateRng
-		);
-		floorData.openMap.items.push(...dungeonItems);
+		const floorData = this.generateDungeonFloorData(dungeonCtx);
 
 		clearThrelteMapCache(currentMapId);
 
@@ -995,7 +931,13 @@ export class GameContext {
 								pkmn.fullHeal();
 							});
 						}
-					} else if (result.caught) {
+					} else if (result.win && opponent instanceof PokemonInstance && !result.caught) {
+						// Wild battle win (KO, not catch): grant money based on opponent level
+						const reward = Math.floor(opponent.level * 10 + 20);
+						this.player.bag.money += reward;
+					}
+
+					if (result.caught) {
 						this.POKEDEX.setCaught(result.caught.id);
 						// add caught pokemon to team if space or in the box
 						if (this.player.monsters.length < 6) {

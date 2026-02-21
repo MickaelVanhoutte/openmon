@@ -82,6 +82,7 @@
 	let explorationTracker = $state<ExplorationTracker | undefined>(undefined);
 	let lastTrackedFloor = 0;
 	let isGamePaused = $state(false);
+	let playerMoney = $state(context.player.bag.money);
 
 	/*
 	Scripts - subscribe to reactive store
@@ -252,6 +253,9 @@
 					explorationTracker.updatePlayerPosition(newGridX, newGridY);
 				}
 			}
+
+			const newMoney = context.player.bag.money;
+			if (newMoney !== playerMoney) playerMoney = newMoney;
 		}, 100);
 
 		return () => {
@@ -322,6 +326,7 @@
 				stairsX={stairsPos?.x}
 				stairsY={stairsPos?.y}
 				visible={showDungeonMinimap}
+				money={playerMoney}
 			/>
 		{/if}
 
