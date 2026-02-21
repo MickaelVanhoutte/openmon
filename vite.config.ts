@@ -51,12 +51,12 @@ export default defineConfig({
 				runtimeCaching: [
 					{
 						urlPattern: /\.(?:js|css)$/,
-						handler: 'StaleWhileRevalidate',
+						handler: 'NetworkFirst',
 						options: {
 							cacheName: 'static-resources',
 							expiration: {
 								maxEntries: 100,
-								maxAgeSeconds: 60 * 60 * 24 // 24 hours
+								maxAgeSeconds: 60 * 60 * 24 // 24 hours fallback only
 							}
 						}
 					},
@@ -73,12 +73,12 @@ export default defineConfig({
 					},
 					{
 						urlPattern: /\.(?:json)$/,
-						handler: 'StaleWhileRevalidate',
+						handler: 'NetworkFirst',
 						options: {
 							cacheName: 'data',
 							expiration: {
 								maxEntries: 50,
-								maxAgeSeconds: 60 * 60 * 24 // 24 hours
+								maxAgeSeconds: 60 * 60 * 24 // 24 hours fallback only
 							}
 						}
 					}
