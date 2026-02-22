@@ -24,12 +24,14 @@ export class SpritesHolder {
 			this.spritesByCharacter[value.id] = new PlayerSprite(
 				value.id,
 				value.name,
-				new SpriteFromSheet(
-					value.full.source,
-					value.full.height,
-					value.full.width,
-					value.full.frameNumber
-				),
+				value.full
+					? new SpriteFromSheet(
+							value.full.source,
+							value.full.height,
+							value.full.width,
+							value.full.frameNumber
+						)
+					: undefined,
 				{
 					walking: new SpriteFromSheet(
 						value.overworld.walking.source,
@@ -138,7 +140,7 @@ export function centerObject(
 export class PlayerSprite {
 	public id: number;
 	public name: string;
-	public full: SpriteFromSheet;
+	public full?: SpriteFromSheet;
 	public face?: SpriteFromSheet;
 	public throwing?: SpriteFromSheet;
 	public overworld: {
@@ -166,7 +168,7 @@ export class PlayerSprite {
 	constructor(
 		id: number,
 		name: string,
-		full: SpriteFromSheet,
+		full: SpriteFromSheet | undefined,
 		overworld: {
 			walking: SpriteFromSheet;
 			running?: SpriteFromSheet;
@@ -183,7 +185,7 @@ export class PlayerSprite {
 		this.overworld = overworld;
 
 		this.fullImg = new Image();
-		this.fullImg.src = full.source;
+		if (full) this.fullImg.src = full.source;
 
 		if (face) {
 			this.faceImg = new Image();
