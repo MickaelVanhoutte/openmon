@@ -1,7 +1,7 @@
 import type { OpenMap } from '../maps';
 import { Jonction } from '../collisions';
 import { Position } from '../positions';
-import { TileType3D, type ThrelteMapData } from './types';
+import { TileType3D, type ThrelteMapData, type BiomeName } from './types';
 import { SeededRNG } from '../../dungeon/prng';
 
 const cache = new Map<number, ThrelteMapData>();
@@ -53,7 +53,8 @@ export function convertOpenMapToThrelte(openMap: OpenMap): ThrelteMapData {
 		monsters: openMap.monsters,
 		levelRange: openMap.levelRange as [number, number],
 		battleTileIndices,
-		sound: openMap.sound
+		sound: openMap.sound,
+		biome: 'Overworld' as BiomeName
 	};
 }
 

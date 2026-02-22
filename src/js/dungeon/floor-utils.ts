@@ -1,6 +1,6 @@
 import { type BiomeConfig } from './biomes';
 import type { SeededRNG } from './prng';
-import { TileType3D, type ThrelteMapData } from '../mapping/threlte-maps/types';
+import { TileType3D, type ThrelteMapData, type BiomeName } from '../mapping/threlte-maps/types';
 import { OpenMap } from '../mapping/maps';
 import { Position } from '../mapping/positions';
 import type { SparseMapData } from '../mapping/sparse-collision';
@@ -280,7 +280,8 @@ export function buildThrelteMap(
 	playerStart: Position,
 	monsters: number[],
 	levelRange: [number, number],
-	sound?: string
+	sound?: string,
+	biome?: BiomeName
 ): ThrelteMapData {
 	const tiles: TileType3D[][] = grid.map((row) => [...row]);
 	const battleTileIndices = new Set<number>();
@@ -306,7 +307,8 @@ export function buildThrelteMap(
 		monsters,
 		levelRange,
 		battleTileIndices,
-		sound
+		sound,
+		biome
 	};
 }
 

@@ -91,6 +91,14 @@ export const TILE_COLORS: Map<TileType3D, number> = new Map([
 	[TileType3D.CAVE_ENTRANCE, 0x1a1a1a]
 ]);
 
+export type BiomeName =
+	| 'Grass Forest'
+	| 'Cave Rock'
+	| 'Water Swamp'
+	| 'Fire Volcanic'
+	| 'Dark Haunted'
+	| 'Overworld';
+
 export interface ThrelteMapData {
 	mapId: number;
 	name: string;
@@ -107,6 +115,8 @@ export interface ThrelteMapData {
 	/** Flat indices (y * width + x) of tiles that trigger wild encounters. */
 	battleTileIndices: Set<number>;
 	sound?: string;
+	/** Biome context used for biome-aware tile texture selection. */
+	biome?: BiomeName;
 	/**
 	 * Per-tile Y-scale overrides for padding decoration (flat index → scale).
 	 * Values > 1 make elevated tiles appear taller, creating mountain peaks.

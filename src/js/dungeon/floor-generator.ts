@@ -1,6 +1,6 @@
 import { SeededRNG, deriveSeed } from './prng';
 import { type BiomeConfig, getFloorSize } from './biomes';
-import { TileType3D, type ThrelteMapData } from '../mapping/threlte-maps/types';
+import { TileType3D, type ThrelteMapData, type BiomeName } from '../mapping/threlte-maps/types';
 import type { OpenMap } from '../mapping/maps';
 import { Position } from '../mapping/positions';
 import { generateMaze } from './maze-generator';
@@ -93,7 +93,8 @@ function generateFallbackFloor(floorNumber: number, biomeConfig: BiomeConfig): F
 		playerStart,
 		monsters,
 		biomeConfig.levelRange,
-		biomeConfig.ambientTrack
+		biomeConfig.ambientTrack,
+		biomeConfig.name as BiomeName
 	);
 
 	const openMap = buildOpenMap(
@@ -170,7 +171,8 @@ function generateCaveFloor(
 		playerStart,
 		monsters,
 		biomeConfig.levelRange,
-		biomeConfig.ambientTrack
+		biomeConfig.ambientTrack,
+		biomeConfig.name as BiomeName
 	);
 
 	const openMap = buildOpenMap(
