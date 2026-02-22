@@ -23,24 +23,24 @@ import smallRocksUrl from '../../../assets/tiles/small-rocks.png';
 
 export const TILE_TEXTURES: Record<TileType3D, string | null> = {
 	[TileType3D.GRASS]: grass1Url,
-	[TileType3D.PATH]: dirtUrl,
+	[TileType3D.PATH]: sandUrl,
 	[TileType3D.WATER]: swampWaterUrl,
 	[TileType3D.SAND]: sandUrl,
 	[TileType3D.TREE_GROUND]: grass1Url,
 	[TileType3D.FLOWER_GROUND]: grassFlowersUrl,
 	[TileType3D.TALL_GRASS]: grass1Url,
 	[TileType3D.BUILDING_FLOOR]: planksUrl,
-	[TileType3D.WALL]: dirtUrl,
-	[TileType3D.DUNGEON_FLOOR]: dirtUrl,
+	[TileType3D.WALL]: grass1Url,
+	[TileType3D.DUNGEON_FLOOR]: rock1Url,
 	[TileType3D.STAIRS_DOWN]: null,
 	[TileType3D.BOSS_GATE]: null,
 	[TileType3D.REST_FLOOR]: planksUrl,
 	[TileType3D.SHOP_FLOOR]: pavmentUrl,
 	[TileType3D.LAVA]: null,
 	[TileType3D.SWAMP]: swampDirtUrl,
-	[TileType3D.DARK_FLOOR]: dirtUrl,
-	[TileType3D.CLIFF_ROCK]: dirtUrl,
-	[TileType3D.CAVE_ENTRANCE]: dirtUrl
+	[TileType3D.DARK_FLOOR]: rock2Url,
+	[TileType3D.CLIFF_ROCK]: grass2Url,
+	[TileType3D.CAVE_ENTRANCE]: rock1Url
 };
 
 export const TREE_TEXTURES: string[] = [tree1Url, tree2Url];
