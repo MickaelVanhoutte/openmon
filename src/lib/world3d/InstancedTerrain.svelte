@@ -105,6 +105,11 @@
 			const biomeFloors = BIOME_FLOOR_TEXTURES[mapData.biome ?? 'Cave Rock'];
 			return biomeFloors[tileHash(row, col) % biomeFloors.length];
 		}
+		if (type === TileType3D.DUNGEON_FLOOR) {
+			const biomeFloors = BIOME_FLOOR_TEXTURES[mapData.biome ?? 'Cave Rock'];
+			const idx = (row * 7 + col * 13) % biomeFloors.length;
+			return biomeFloors[idx];
+		}
 		return TILE_TEXTURES[type];
 	}
 
@@ -128,6 +133,11 @@
 		if (type === TileType3D.DUNGEON_FLOOR) {
 			const biomeFloors = BIOME_FLOOR_TEXTURES[mapData.biome ?? 'Cave Rock'];
 			return `${type}-${tileHash(row, col) % biomeFloors.length}`;
+		}
+		if (type === TileType3D.DUNGEON_FLOOR) {
+			const biomeFloors = BIOME_FLOOR_TEXTURES[mapData.biome ?? 'Cave Rock'];
+			const idx = (row * 7 + col * 13) % biomeFloors.length;
+			return `${type}-${idx}`;
 		}
 		return `${type}`;
 	}
