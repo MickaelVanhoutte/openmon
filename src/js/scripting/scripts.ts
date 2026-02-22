@@ -279,6 +279,24 @@ export class GiveMoney extends Scriptable {
 	}
 }
 
+export class RemoveNpc extends Scriptable {
+	npcId: number;
+
+	constructor(npcId: number) {
+		super();
+		this.type = 'RemoveNpc';
+		this.npcId = npcId;
+	}
+
+	play(context: GameContext, onEnd: () => void): any {
+		if (context.map?.npcs) {
+			context.map.npcs = context.map.npcs.filter((npc) => npc.id !== this.npcId);
+		}
+		this.finished = true;
+		onEnd();
+	}
+}
+
 export class MoveToPlayer extends Scriptable {
 	npcId: number;
 
