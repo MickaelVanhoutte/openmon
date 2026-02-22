@@ -923,6 +923,11 @@ export class GameContext {
 							this.player.monsters.forEach((pkmn) => {
 								pkmn.fullHeal();
 							});
+							dc.defeatedTrainers.clear();
+							dc.pickedItems.clear();
+							dc.currentFloor = 1;
+							dc.currentBiome = getBiomeForFloor(1);
+							dungeonContext.set(dc);
 							this.restartDungeonFloor(dc);
 						} else {
 							// tp back to the start // TODO pokecenter position
