@@ -102,9 +102,10 @@
 				type === TileType3D.TREE_GROUND || type === TileType3D.FLOWER_GROUND
 					? FOREST_GRASS_TEXTURES
 					: GRASS_TEXTURES;
-			const hash = type === TileType3D.TREE_GROUND || type === TileType3D.FLOWER_GROUND
-				? (row * 11 + col * 17)
-				: (row * 7 + col * 13);
+			const hash =
+				type === TileType3D.TREE_GROUND || type === TileType3D.FLOWER_GROUND
+					? row * 11 + col * 17
+					: row * 7 + col * 13;
 			const idx = hash % urls.length;
 			return `${type}-${idx}`;
 		}
