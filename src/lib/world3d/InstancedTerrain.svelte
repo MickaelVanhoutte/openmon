@@ -13,7 +13,8 @@
 		TILE_TEXTURES,
 		WALL_SIDE_TEXTURE,
 		GRASS_TEXTURES,
-		FOREST_GRASS_TEXTURES
+		FOREST_GRASS_TEXTURES,
+		BIOME_FLOOR_TEXTURES
 	} from '$js/mapping/threlte-maps/tile-textures';
 	import gsap from 'gsap';
 
@@ -67,13 +68,18 @@
 	// Load grass variant textures into the shared cache
 	GRASS_TEXTURES.forEach(loadTexture);
 	FOREST_GRASS_TEXTURES.forEach(loadTexture);
+	// Load biome floor textures (may overlap with above; cache deduplicates by URL)
+	for (const urls of Object.values(BIOME_FLOOR_TEXTURES)) {
+		urls.forEach(loadTexture);
+	}
 
 	const wallSideTexture = loadTexture(WALL_SIDE_TEXTURE);
 
 	/**
 	 * Returns the texture URL for a given tile type and tile coordinates.
 	 * For GRASS, TALL_GRASS, TREE_GROUND, and FLOWER_GROUND tiles, picks a
-	 * variant using a coord hash. Other tiles use the base TILE_TEXTURES entry.
+	 * variant using a coord hash. DUNGEON_FLOOR tiles pick from the biome-specific
+	 * floor texture pool. Other tiles use the base TILE_TEXTURES entry.
 	 */
 	function getTileTextureUrl(type: TileType3D, row: number, col: number): string | null {
 		if (type === TileType3D.GRASS || type === TileType3D.TALL_GRASS) {
@@ -83,6 +89,11 @@
 		if (type === TileType3D.TREE_GROUND || type === TileType3D.FLOWER_GROUND) {
 			const idx = (row * 11 + col * 17) % FOREST_GRASS_TEXTURES.length;
 			return FOREST_GRASS_TEXTURES[idx];
+		}
+		if (type === TileType3D.DUNGEON_FLOOR) {
+			const biomeFloors = BIOME_FLOOR_TEXTURES[mapData.biome ?? 'Cave Rock'];
+			const idx = (row * 7 + col * 13) % biomeFloors.length;
+			return biomeFloors[idx];
 		}
 		return TILE_TEXTURES[type];
 	}
@@ -107,6 +118,11 @@
 					? row * 11 + col * 17
 					: row * 7 + col * 13;
 			const idx = hash % urls.length;
+			return `${type}-${idx}`;
+		}
+		if (type === TileType3D.DUNGEON_FLOOR) {
+			const biomeFloors = BIOME_FLOOR_TEXTURES[mapData.biome ?? 'Cave Rock'];
+			const idx = (row * 7 + col * 13) % biomeFloors.length;
 			return `${type}-${idx}`;
 		}
 		return `${type}`;
