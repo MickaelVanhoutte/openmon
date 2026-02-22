@@ -30,17 +30,17 @@ export const TILE_TEXTURES: Record<TileType3D, string | null> = {
 	[TileType3D.FLOWER_GROUND]: grassFlowersUrl,
 	[TileType3D.TALL_GRASS]: grass1Url,
 	[TileType3D.BUILDING_FLOOR]: planksUrl,
-	[TileType3D.WALL]: grass1Url,
-	[TileType3D.DUNGEON_FLOOR]: rock1Url,
+	[TileType3D.WALL]: dirtUrl,
+	[TileType3D.DUNGEON_FLOOR]: dirtUrl,
 	[TileType3D.STAIRS_DOWN]: null,
 	[TileType3D.BOSS_GATE]: null,
 	[TileType3D.REST_FLOOR]: planksUrl,
 	[TileType3D.SHOP_FLOOR]: pavmentUrl,
 	[TileType3D.LAVA]: null,
 	[TileType3D.SWAMP]: swampDirtUrl,
-	[TileType3D.DARK_FLOOR]: rock2Url,
-	[TileType3D.CLIFF_ROCK]: grass2Url,
-	[TileType3D.CAVE_ENTRANCE]: rock1Url
+	[TileType3D.DARK_FLOOR]: dirtUrl,
+	[TileType3D.CLIFF_ROCK]: dirtUrl,
+	[TileType3D.CAVE_ENTRANCE]: dirtUrl
 };
 
 export const TREE_TEXTURES: string[] = [tree1Url, tree2Url];
