@@ -84,6 +84,12 @@
 			const idx = (row * 11 + col * 17) % FOREST_GRASS_TEXTURES.length;
 			return FOREST_GRASS_TEXTURES[idx];
 		}
+		// WALL and CLIFF_ROCK tops are grass-covered in forest/swamp padding —
+		// randomise across all grass variants for visual variety.
+		if (type === TileType3D.WALL || type === TileType3D.CLIFF_ROCK) {
+			const idx = (row * 19 + col * 23) % GRASS_TEXTURES.length;
+			return GRASS_TEXTURES[idx];
+		}
 		return TILE_TEXTURES[type];
 	}
 
@@ -96,15 +102,20 @@
 			type === TileType3D.GRASS ||
 			type === TileType3D.TALL_GRASS ||
 			type === TileType3D.TREE_GROUND ||
-			type === TileType3D.FLOWER_GROUND
+			type === TileType3D.FLOWER_GROUND ||
+			type === TileType3D.WALL ||
+			type === TileType3D.CLIFF_ROCK
 		) {
 			const urls =
 				type === TileType3D.TREE_GROUND || type === TileType3D.FLOWER_GROUND
 					? FOREST_GRASS_TEXTURES
 					: GRASS_TEXTURES;
-			const hash = type === TileType3D.TREE_GROUND || type === TileType3D.FLOWER_GROUND
-				? (row * 11 + col * 17)
-				: (row * 7 + col * 13);
+			const hash =
+				type === TileType3D.TREE_GROUND || type === TileType3D.FLOWER_GROUND
+					? row * 11 + col * 17
+					: type === TileType3D.WALL || type === TileType3D.CLIFF_ROCK
+						? row * 19 + col * 23
+						: row * 7 + col * 13;
 			const idx = hash % urls.length;
 			return `${type}-${idx}`;
 		}
