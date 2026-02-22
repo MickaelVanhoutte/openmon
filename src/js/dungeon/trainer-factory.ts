@@ -15,6 +15,17 @@ import { type BiomeConfig } from './biomes';
 import type { FloorData } from './floor-generator';
 import { getBossForFloor } from './boss-loader';
 
+// Trainer sprite pools (character IDs = sprite index + 10)
+// Excluded: 0=Birch, 1-2=story chars, 25-26=swimmers, 49-50=Blue/Red
+// Elite pool (arena/league trainers, used for bosses): sprites 28-48 → IDs 38-58
+// Generic pool (regular dungeon trainers): sprites 3-24, 27, 51-79 → IDs 13-34, 37, 61-89
+const ELITE_TRAINER_SPRITE_IDS: number[] = Array.from({ length: 21 }, (_, i) => 38 + i); // 38-58
+const GENERIC_TRAINER_SPRITE_IDS: number[] = [
+	...Array.from({ length: 22 }, (_, i) => 13 + i), // 13-34  (sprites 3-24)
+	37, //                                               sprite 27
+	...Array.from({ length: 29 }, (_, i) => 61 + i)  // 61-89  (sprites 51-79)
+];
+
 export interface TrainerScaling {
 	minFloor: number;
 	maxFloor: number;
@@ -48,8 +59,8 @@ export function createTrainer(
 	const trainerNames = ['Trainer', 'Dungeon Trainer', 'Explorer', 'Challenger', 'Hiker', 'Camper'];
 	const name = rng.pick(trainerNames);
 
-	const spriteId = rng.pick([3, 4]);
-	const gender = spriteId === 4 ? 'FEMALE' : 'MALE';
+	const spriteId = rng.pick(GENERIC_TRAINER_SPRITE_IDS);
+	const gender: 'MALE' | 'FEMALE' = rng.nextInt(0, 1) === 0 ? 'MALE' : 'FEMALE';
 
 	const scaling = getTrainerScaling(floorNumber);
 	const pokemonCount = rng.nextInt(scaling.pokemonPerTrainer[0], scaling.pokemonPerTrainer[1]);
@@ -190,7 +201,7 @@ export function createBossTrainer(
 		new RemoveNpc(id)
 	]);
 
-	const npc = new NPC(id, name, 3, position, 'down', 'MALE', monsterIds, undefined, mainScript);
+	const npc = new NPC(id, name, rng.pick(ELITE_TRAINER_SPRITE_IDS), position, 'down', 'MALE', monsterIds, undefined, mainScript);
 	npc.dungeonTeam = dungeonTeam;
 	return npc;
 }
