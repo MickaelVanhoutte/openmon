@@ -23,15 +23,6 @@
 		up: 0.0
 	};
 
-	// Trainer sprites (frameNumber=3) have opposite direction row order:
-	// row 0 (top) = up, row 1 = left, row 2 = right, row 3 (bottom) = down
-	const DIRECTION_UV_Y_3FRAME: Record<string, number> = {
-		down: 0.0,
-		left: 0.25,
-		right: 0.5,
-		up: 0.75
-	};
-
 	let texture = $state<THREE.Texture | null>(null);
 	let animFrame = $state(0);
 	let animElapsed = $state(0);
@@ -81,8 +72,7 @@
 
 		const direction = npc.direction;
 		const frameCount = npc.spriteSheet.overworld.walking.frameNumber ?? 4;
-		const directionMap = frameCount === 3 ? DIRECTION_UV_Y_3FRAME : DIRECTION_UV_Y;
-		const uvY = directionMap[direction] ?? 0.75;
+		const uvY = DIRECTION_UV_Y[direction] ?? 0.75;
 		texture.offset.y = uvY;
 
 		if (npc.position.isMovingToTarget) {
@@ -110,7 +100,6 @@
 			}
 
 			// Animate walk frames
-			const frameCount = npc.spriteSheet.overworld.walking.frameNumber ?? 4;
 			animElapsed += delta;
 			if (animElapsed >= 1 / ANIM_FPS) {
 				animElapsed = 0;
