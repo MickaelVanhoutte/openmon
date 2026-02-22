@@ -317,7 +317,7 @@
 						const ry = BASE_HEIGHT + tileHeight;
 
 						const spriteMat = new THREE.Matrix4();
-						spriteMat.compose(new THREE.Vector3(x, ry + 0.4, z), identityQuat, oneScale);
+						spriteMat.compose(new THREE.Vector3(x, ry - 0.25, z), identityQuat, oneScale);
 						if (!smallRocksSpriteMap.has(texIdx)) smallRocksSpriteMap.set(texIdx, []);
 						smallRocksSpriteMap.get(texIdx)!.push(spriteMat);
 					}
