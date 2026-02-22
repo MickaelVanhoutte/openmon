@@ -97,12 +97,11 @@
 
 	const smallRocksMaterials = smallRocksTextures.map(
 		(tex) =>
-			new THREE.MeshStandardMaterial({
+			new THREE.MeshBasicMaterial({
 				map: tex,
 				transparent: true,
 				alphaTest: 0.5,
 				side: THREE.DoubleSide,
-				roughness: 0.9,
 				color: 0xffffff
 			})
 	);
@@ -308,8 +307,8 @@
 					}
 				}
 
-				// Place small-rocks on DUNGEON_FLOOR tiles (~1/7 chance)
-				if (tile === TileType3D.DUNGEON_FLOOR) {
+				// Place small-rocks on DUNGEON_FLOOR tiles in forest biome only (~1/7 chance)
+				if (tile === TileType3D.DUNGEON_FLOOR && mapData.biome === "Grass Forest") {
 					const tileHeight = TILE_HEIGHTS.get(tile) ?? 0;
 					const rocksRand = (row * 43 + col * 59) % 7;
 					if (rocksRand === 0) {

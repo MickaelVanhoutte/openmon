@@ -89,6 +89,45 @@
 	}
 
 	/**
+	 * For the Fire Volcanic biome, determines whether a tile is within a sand cluster.
+	 * Clusters are seeded on a coarse grid (spacing ~6 tiles) with jitter.
+	 * Returns true if this tile falls within a sand patch.
+	 */
+	function isVolcanicSandCluster(row: number, col: number): boolean {
+		const CLUSTER_SPACING = 6;
+		const CLUSTER_RADIUS_SQ = 4; // radius ~2 tiles → ~4-5 tile patches
+		const CLUSTER_DENSITY = 3; // ~1 in 3 cluster seeds become sand
+		let inSand = false;
+
+		// Check the 9 nearest coarse-grid cells for a cluster center
+		const cellRow = Math.round(row / CLUSTER_SPACING);
+		const cellCol = Math.round(col / CLUSTER_SPACING);
+		for (let dr = -1; dr <= 1; dr++) {
+			for (let dc = -1; dc <= 1; dc++) {
+				const cr = cellRow + dr;
+				const cc = cellCol + dc;
+				// Deterministic hash for this cell
+				const cellSeed = tileHash(cr * 1000, cc * 1000);
+				// Only ~1/CLUSTER_DENSITY cells become sand clusters
+				if (cellSeed % CLUSTER_DENSITY !== 0) continue;
+				// Jitter the cluster center within the cell
+				const jitterR = (cellSeed >> 4) % CLUSTER_SPACING;
+				const jitterC = (cellSeed >> 8) % CLUSTER_SPACING;
+				const centerR = cr * CLUSTER_SPACING + jitterR;
+				const centerC = cc * CLUSTER_SPACING + jitterC;
+				const dRow = row - centerR;
+				const dCol = col - centerC;
+				if (dRow * dRow + dCol * dCol <= CLUSTER_RADIUS_SQ) {
+					inSand = true;
+					break;
+				}
+			}
+			if (inSand) break;
+		}
+		return inSand;
+	}
+
+	/**
 	 * Returns the texture URL for a given tile type and tile coordinates.
 	 * For GRASS, TALL_GRASS, TREE_GROUND, and FLOWER_GROUND tiles, picks a
 	 * variant using a coord hash. DUNGEON_FLOOR tiles pick from the biome-specific
@@ -102,13 +141,16 @@
 			return FOREST_GRASS_TEXTURES[tileHash(row, col) % FOREST_GRASS_TEXTURES.length];
 		}
 		if (type === TileType3D.DUNGEON_FLOOR) {
-			const biomeFloors = BIOME_FLOOR_TEXTURES[mapData.biome ?? 'Cave Rock'];
+			const biome = mapData.biome ?? 'Cave Rock';
+			if (biome === 'Fire Volcanic') {
+				// Use clustered sand placement instead of random per-tile
+				if (isVolcanicSandCluster(row, col)) {
+					return BIOME_FLOOR_TEXTURES['Fire Volcanic'][12]; // sandUrl entry
+				}
+				return BIOME_FLOOR_TEXTURES['Fire Volcanic'][0]; // dirtUrl entry
+			}
+			const biomeFloors = BIOME_FLOOR_TEXTURES[biome] ?? BIOME_FLOOR_TEXTURES['Cave Rock'];
 			return biomeFloors[tileHash(row, col) % biomeFloors.length];
-		}
-		if (type === TileType3D.DUNGEON_FLOOR) {
-			const biomeFloors = BIOME_FLOOR_TEXTURES[mapData.biome ?? 'Cave Rock'];
-			const idx = (row * 7 + col * 13) % biomeFloors.length;
-			return biomeFloors[idx];
 		}
 		return TILE_TEXTURES[type];
 	}
@@ -131,13 +173,12 @@
 			return `${type}-${tileHash(row, col) % urls.length}`;
 		}
 		if (type === TileType3D.DUNGEON_FLOOR) {
-			const biomeFloors = BIOME_FLOOR_TEXTURES[mapData.biome ?? 'Cave Rock'];
+			const biome = mapData.biome ?? 'Cave Rock';
+			if (biome === 'Fire Volcanic') {
+				return `${type}-${isVolcanicSandCluster(row, col) ? 'sand' : 'dirt'}`;
+			}
+			const biomeFloors = BIOME_FLOOR_TEXTURES[biome] ?? BIOME_FLOOR_TEXTURES['Cave Rock'];
 			return `${type}-${tileHash(row, col) % biomeFloors.length}`;
-		}
-		if (type === TileType3D.DUNGEON_FLOOR) {
-			const biomeFloors = BIOME_FLOOR_TEXTURES[mapData.biome ?? 'Cave Rock'];
-			const idx = (row * 7 + col * 13) % biomeFloors.length;
-			return `${type}-${idx}`;
 		}
 		return `${type}`;
 	}
