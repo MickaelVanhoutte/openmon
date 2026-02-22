@@ -20,6 +20,18 @@ const REST_SHOP_ITEMS: Record<string, number> = {
 	'28': 1500
 };
 
+// Competitive held items that rotate across rest floor shops (one per shop, each shop different)
+const COMPETITIVE_HELD_ITEMS: Array<{ id: string; price: number }> = [
+	{ id: '4001', price: 3000 }, // Choice Band
+	{ id: '4002', price: 3000 }, // Choice Specs
+	{ id: '4003', price: 3000 }, // Choice Scarf
+	{ id: '4004', price: 3500 }, // Life Orb
+	{ id: '4005', price: 2000 }, // Expert Belt
+	{ id: '4006', price: 2500 }, // Leftovers
+	{ id: '4007', price: 2000 }, // Focus Sash
+	{ id: '4008', price: 3000 }  // Assault Vest
+];
+
 const NARRATIVE_NOTES: Record<number, string> = {
 	4: 'The Champion fell silently. No one witnessed it. That was the point.',
 	9: "Sealed orders from the League: 'Dungeon access restricted until further notice. By order of V.'",
@@ -249,6 +261,14 @@ function createHealNpc(floor: number): NPC {
 }
 
 function createShopNpc(floor: number): NPC {
+	// Each rest floor gets a different competitive held item, cycling through the list
+	const restFloorIndex = Math.floor(floor / 5); // floor 4 -> 0, floor 9 -> 1, floor 14 -> 2, etc.
+	const heldItem = COMPETITIVE_HELD_ITEMS[restFloorIndex % COMPETITIVE_HELD_ITEMS.length];
+	const shopItems: Record<string, number> = {
+		...REST_SHOP_ITEMS,
+		[heldItem.id]: heldItem.price
+	};
+
 	const shopScript = new Script(
 		'onInteract',
 		[
@@ -258,7 +278,7 @@ function createShopNpc(floor: number): NPC {
 					'No, thanks'
 				])
 			]),
-			new OpenShop(REST_SHOP_ITEMS, 0),
+			new OpenShop(shopItems, 0),
 			new Dialog([new Message('Come back anytime!', 'Merchant')])
 		],
 		undefined,
