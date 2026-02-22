@@ -23,7 +23,7 @@ import smallRocksUrl from '../../../assets/tiles/small-rocks.png';
 
 export const TILE_TEXTURES: Record<TileType3D, string | null> = {
 	[TileType3D.GRASS]: grass1Url,
-	[TileType3D.PATH]: dirtUrl,
+	[TileType3D.PATH]: sandUrl,
 	[TileType3D.WATER]: swampWaterUrl,
 	[TileType3D.SAND]: sandUrl,
 	[TileType3D.TREE_GROUND]: grass1Url,
