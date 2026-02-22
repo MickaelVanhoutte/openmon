@@ -9,7 +9,12 @@
 		TILE_COLORS,
 		type ThrelteMapData
 	} from '$js/mapping/threlte-maps/types';
-	import { TILE_TEXTURES, WALL_SIDE_TEXTURE } from '$js/mapping/threlte-maps/tile-textures';
+	import {
+		TILE_TEXTURES,
+		WALL_SIDE_TEXTURE,
+		GRASS_TEXTURES,
+		FOREST_GRASS_TEXTURES
+	} from '$js/mapping/threlte-maps/tile-textures';
 	import gsap from 'gsap';
 
 	interface Props {
@@ -35,39 +40,83 @@
 
 	// Storage for wall mesh refs and base matrices
 	const wallMeshData: Map<
-		TileType3D,
+		string,
 		{ mesh: THREE.InstancedMesh; baseMatrices: THREE.Matrix4[] }
 	> = new Map();
 
 	const textureLoader = new THREE.TextureLoader();
-	const loadedTextures = new Map<TileType3D, THREE.Texture>();
+	// Textures keyed by URL (shared across tile types that use the same image)
+	const loadedTexturesByUrl = new Map<string, THREE.Texture>();
 
-	for (const [typeKey, url] of Object.entries(TILE_TEXTURES)) {
-		const type = Number(typeKey) as TileType3D;
-		if (url !== null) {
-			const texture = textureLoader.load(url);
-			texture.magFilter = THREE.NearestFilter;
-			texture.minFilter = THREE.NearestFilter;
-			texture.colorSpace = THREE.SRGBColorSpace;
-			texture.wrapS = THREE.RepeatWrapping;
-			texture.wrapT = THREE.RepeatWrapping;
-			loadedTextures.set(type, texture);
-		}
+	function loadTexture(url: string): THREE.Texture {
+		if (loadedTexturesByUrl.has(url)) return loadedTexturesByUrl.get(url)!;
+		const texture = textureLoader.load(url);
+		texture.magFilter = THREE.NearestFilter;
+		texture.minFilter = THREE.NearestFilter;
+		texture.colorSpace = THREE.SRGBColorSpace;
+		texture.wrapS = THREE.RepeatWrapping;
+		texture.wrapT = THREE.RepeatWrapping;
+		loadedTexturesByUrl.set(url, texture);
+		return texture;
 	}
 
-	const wallSideTexture = textureLoader.load(WALL_SIDE_TEXTURE);
-	wallSideTexture.magFilter = THREE.NearestFilter;
-	wallSideTexture.minFilter = THREE.NearestFilter;
-	wallSideTexture.colorSpace = THREE.SRGBColorSpace;
-	wallSideTexture.wrapS = THREE.RepeatWrapping;
-	wallSideTexture.wrapT = THREE.RepeatWrapping;
+	// Load base tile textures
+	for (const url of Object.values(TILE_TEXTURES)) {
+		if (url !== null) loadTexture(url);
+	}
+	// Load grass variant textures into the shared cache
+	GRASS_TEXTURES.forEach(loadTexture);
+	FOREST_GRASS_TEXTURES.forEach(loadTexture);
 
-	function createMaterials(
-		type: TileType3D
+	const wallSideTexture = loadTexture(WALL_SIDE_TEXTURE);
+
+	/**
+	 * Returns the texture URL for a given tile type and tile coordinates.
+	 * For GRASS, TALL_GRASS, TREE_GROUND, and FLOWER_GROUND tiles, picks a
+	 * variant using a coord hash. Other tiles use the base TILE_TEXTURES entry.
+	 */
+	function getTileTextureUrl(type: TileType3D, row: number, col: number): string | null {
+		if (type === TileType3D.GRASS || type === TileType3D.TALL_GRASS) {
+			const idx = (row * 7 + col * 13) % GRASS_TEXTURES.length;
+			return GRASS_TEXTURES[idx];
+		}
+		if (type === TileType3D.TREE_GROUND || type === TileType3D.FLOWER_GROUND) {
+			const idx = (row * 11 + col * 17) % FOREST_GRASS_TEXTURES.length;
+			return FOREST_GRASS_TEXTURES[idx];
+		}
+		return TILE_TEXTURES[type];
+	}
+
+	/**
+	 * Returns a unique group key for a tile — includes the variant index for
+	 * tiles that use per-tile texture variation so they get separate InstancedMeshes.
+	 */
+	function getTileGroupKey(type: TileType3D, row: number, col: number): string {
+		if (
+			type === TileType3D.GRASS ||
+			type === TileType3D.TALL_GRASS ||
+			type === TileType3D.TREE_GROUND ||
+			type === TileType3D.FLOWER_GROUND
+		) {
+			const urls =
+				type === TileType3D.TREE_GROUND || type === TileType3D.FLOWER_GROUND
+					? FOREST_GRASS_TEXTURES
+					: GRASS_TEXTURES;
+			const hash = type === TileType3D.TREE_GROUND || type === TileType3D.FLOWER_GROUND
+				? (row * 11 + col * 17)
+				: (row * 7 + col * 13);
+			const idx = hash % urls.length;
+			return `${type}-${idx}`;
+		}
+		return `${type}`;
+	}
+
+	function createMaterialForUrl(
+		url: string | null,
+		fallbackColor: number,
+		tileHeight: number
 	): THREE.MeshStandardMaterial | THREE.MeshStandardMaterial[] {
-		const tileHeight = TILE_HEIGHTS.get(type) ?? 0;
-		const topTexture = loadedTextures.get(type);
-		const fallbackColor = TILE_COLORS.get(type) ?? 0xffffff;
+		const topTexture = url ? loadedTexturesByUrl.get(url) ?? null : null;
 
 		if (tileHeight >= 0.3) {
 			const sideMat = new THREE.MeshStandardMaterial({
@@ -105,22 +154,27 @@
 		});
 	}
 
+	interface TileGroup {
+		type: TileType3D;
+		textureUrl: string | null;
+		matrices: THREE.Matrix4[];
+	}
+
 	let terrainGroups = $derived.by(() => {
-		const groups = new Map<TileType3D, THREE.Matrix4[]>();
+		const groups = new Map<string, TileGroup>();
 		const { width, height, tiles, paddingHeightScales } = mapData;
 
 		for (let row = 0; row < height; row++) {
 			for (let col = 0; col < width; col++) {
 				const type = tiles[row][col];
-				if (!groups.has(type)) {
-					groups.set(type, []);
+				const key = getTileGroupKey(type, row, col);
+
+				if (!groups.has(key)) {
+					const textureUrl = getTileTextureUrl(type, row, col);
+					groups.set(key, { type, textureUrl, matrices: [] });
 				}
 
 				const tileHeight = TILE_HEIGHTS.get(type) ?? 0;
-				// Position calculation:
-				// x: col - width/2 + 0.5 (center 0,0 at map center)
-				// z: row - height/2 + 0.5
-				// y: (BASE_HEIGHT + tileHeight) / 2 (center of the box)
 				const x = col - width / 2 + 0.5;
 				const z = row - height / 2 + 0.5;
 
@@ -137,7 +191,7 @@
 				} else {
 					matrix.setPosition(x, y, z);
 				}
-				groups.get(type)!.push(matrix);
+				groups.get(key)!.matrices.push(matrix);
 			}
 		}
 		return groups;
@@ -219,25 +273,26 @@
 </script>
 
 {#key mapData}
-	{#each [...terrainGroups.entries()] as [type, matrices] (type)}
-		{@const materials = createMaterials(type)}
-		{@const height = TILE_HEIGHTS.get(type) ?? 0}
-		{@const geometryHeight = BASE_HEIGHT + height}
+	{#each [...terrainGroups.entries()] as [key, group] (key)}
+		{@const tileHeight = TILE_HEIGHTS.get(group.type) ?? 0}
+		{@const fallbackColor = TILE_COLORS.get(group.type) ?? 0xffffff}
+		{@const materials = createMaterialForUrl(group.textureUrl, fallbackColor, tileHeight)}
+		{@const geometryHeight = BASE_HEIGHT + tileHeight}
 
 		<T.InstancedMesh
-			args={[undefined, undefined, matrices.length]}
+			args={[undefined, undefined, group.matrices.length]}
 			material={materials}
 			receiveShadow
 			oncreate={(ref: THREE.InstancedMesh) => {
-				for (let i = 0; i < matrices.length; i++) {
-					ref.setMatrixAt(i, matrices[i]);
+				for (let i = 0; i < group.matrices.length; i++) {
+					ref.setMatrixAt(i, group.matrices[i]);
 				}
 				ref.instanceMatrix.needsUpdate = true;
 				// Store non-walkable mesh data for battle push animation
-				if (!(TILE_WALKABLE.get(type) ?? true)) {
-					wallMeshData.set(type, {
+				if (!(TILE_WALKABLE.get(group.type) ?? true)) {
+					wallMeshData.set(key, {
 						mesh: ref,
-						baseMatrices: matrices.map((m) => m.clone())
+						baseMatrices: group.matrices.map((m) => m.clone())
 					});
 				}
 			}}
