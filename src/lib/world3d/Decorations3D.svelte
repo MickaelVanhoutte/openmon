@@ -6,7 +6,10 @@
 	import {
 		TREE_TEXTURES,
 		BUSH_TEXTURES,
-		ROCK_TEXTURES
+		ROCK_TEXTURES,
+		DEAD_TREE_TEXTURES,
+		DEAD_TREE_DIRT_TEXTURES,
+		SMALL_ROCKS_TEXTURES
 	} from '$js/mapping/threlte-maps/tile-textures';
 	import gsap from 'gsap';
 	interface Props {
@@ -31,6 +34,9 @@
 	const treeTextures = TREE_TEXTURES.map(loadTexture);
 	const bushTextures = BUSH_TEXTURES.map(loadTexture);
 	const rockTextures = ROCK_TEXTURES.map(loadTexture);
+	const deadTreeTextures = DEAD_TREE_TEXTURES.map(loadTexture);
+	const deadTreeDirtTextures = DEAD_TREE_DIRT_TEXTURES.map(loadTexture);
+	const smallRocksTextures = SMALL_ROCKS_TEXTURES.map(loadTexture);
 	// Pre-create shared materials (one per texture variant instead of one per mesh)
 	const treeMaterials = treeTextures.map(
 		(tex) =>
@@ -56,6 +62,40 @@
 	);
 
 	const rockSpriteMaterials = rockTextures.map(
+		(tex) =>
+			new THREE.MeshStandardMaterial({
+				map: tex,
+				transparent: true,
+				alphaTest: 0.5,
+				side: THREE.DoubleSide,
+				roughness: 0.9,
+				color: 0xffffff
+			})
+	);
+
+	const deadTreeMaterials = deadTreeTextures.map(
+		(tex) =>
+			new THREE.MeshStandardMaterial({
+				map: tex,
+				transparent: true,
+				alphaTest: 0.5,
+				side: THREE.DoubleSide,
+				color: 0xffffff
+			})
+	);
+
+	const deadTreeDirtMaterials = deadTreeDirtTextures.map(
+		(tex) =>
+			new THREE.MeshStandardMaterial({
+				map: tex,
+				transparent: true,
+				alphaTest: 0.5,
+				side: THREE.DoubleSide,
+				color: 0xffffff
+			})
+	);
+
+	const smallRocksMaterials = smallRocksTextures.map(
 		(tex) =>
 			new THREE.MeshStandardMaterial({
 				map: tex,
@@ -102,6 +142,11 @@
 		const treeStumpMap = new Map<number, THREE.Matrix4[]>();
 		const bushSpriteMap = new Map<number, THREE.Matrix4[]>();
 		const rockSpriteMap = new Map<number, THREE.Matrix4[]>();
+		const deadTreePlane1Map = new Map<number, THREE.Matrix4[]>();
+		const deadTreePlane2Map = new Map<number, THREE.Matrix4[]>();
+		const deadTreeDirtPlane1Map = new Map<number, THREE.Matrix4[]>();
+		const deadTreeDirtPlane2Map = new Map<number, THREE.Matrix4[]>();
+		const smallRocksSpriteMap = new Map<number, THREE.Matrix4[]>();
 
 		for (let row = 0; row < mapData.height; row++) {
 			for (let col = 0; col < mapData.width; col++) {
@@ -222,6 +267,61 @@
 						bushSpriteMap.get(bushTexIdx)!.push(spriteMat);
 					}
 				}
+
+				// Place dead-tree billboards on SWAMP tiles (~1/4 chance)
+				if (tile === TileType3D.SWAMP) {
+					const tileHeight = TILE_HEIGHTS.get(tile) ?? 0;
+					const deadTreeRand = (row * 23 + col * 31) % 4;
+					if (deadTreeRand === 0) {
+						const texIdx = (row * 3 + col * 7) % deadTreeTextures.length;
+						const dy = BASE_HEIGHT + tileHeight + 1;
+
+						const mat1 = new THREE.Matrix4();
+						mat1.compose(new THREE.Vector3(x, dy, z), identityQuat, oneScale);
+						if (!deadTreePlane1Map.has(texIdx)) deadTreePlane1Map.set(texIdx, []);
+						deadTreePlane1Map.get(texIdx)!.push(mat1);
+
+						const mat2 = new THREE.Matrix4();
+						mat2.compose(new THREE.Vector3(x, dy, z), yRotation, oneScale);
+						if (!deadTreePlane2Map.has(texIdx)) deadTreePlane2Map.set(texIdx, []);
+						deadTreePlane2Map.get(texIdx)!.push(mat2);
+					}
+				}
+
+				// Place dead-tree-dirt billboards on PATH tiles (~1/5 chance, mostly in swamp context)
+				if (tile === TileType3D.PATH) {
+					const tileHeight = TILE_HEIGHTS.get(tile) ?? 0;
+					const deadDirtRand = (row * 37 + col * 41) % 5;
+					if (deadDirtRand === 0) {
+						const texIdx = (row * 5 + col * 11) % deadTreeDirtTextures.length;
+						const dy = BASE_HEIGHT + tileHeight + 1;
+
+						const mat1 = new THREE.Matrix4();
+						mat1.compose(new THREE.Vector3(x, dy, z), identityQuat, oneScale);
+						if (!deadTreeDirtPlane1Map.has(texIdx)) deadTreeDirtPlane1Map.set(texIdx, []);
+						deadTreeDirtPlane1Map.get(texIdx)!.push(mat1);
+
+						const mat2 = new THREE.Matrix4();
+						mat2.compose(new THREE.Vector3(x, dy, z), yRotation, oneScale);
+						if (!deadTreeDirtPlane2Map.has(texIdx)) deadTreeDirtPlane2Map.set(texIdx, []);
+						deadTreeDirtPlane2Map.get(texIdx)!.push(mat2);
+					}
+				}
+
+				// Place small-rocks on DUNGEON_FLOOR tiles (~1/7 chance)
+				if (tile === TileType3D.DUNGEON_FLOOR) {
+					const tileHeight = TILE_HEIGHTS.get(tile) ?? 0;
+					const rocksRand = (row * 43 + col * 59) % 7;
+					if (rocksRand === 0) {
+						const texIdx = (row * 17 + col * 23) % smallRocksTextures.length;
+						const ry = BASE_HEIGHT + tileHeight;
+
+						const spriteMat = new THREE.Matrix4();
+						spriteMat.compose(new THREE.Vector3(x, ry + 0.4, z), identityQuat, oneScale);
+						if (!smallRocksSpriteMap.has(texIdx)) smallRocksSpriteMap.set(texIdx, []);
+						smallRocksSpriteMap.get(texIdx)!.push(spriteMat);
+					}
+				}
 			}
 		}
 
@@ -240,13 +340,33 @@
 		const rockSpriteGroups: InstanceGroupData[] = [...rockSpriteMap.entries()].map(
 			([texIdx, matrices]) => ({ texIdx, matrices })
 		);
+		const deadTreePlane1Groups: InstanceGroupData[] = [...deadTreePlane1Map.entries()].map(
+			([texIdx, matrices]) => ({ texIdx, matrices })
+		);
+		const deadTreePlane2Groups: InstanceGroupData[] = [...deadTreePlane2Map.entries()].map(
+			([texIdx, matrices]) => ({ texIdx, matrices })
+		);
+		const deadTreeDirtPlane1Groups: InstanceGroupData[] = [...deadTreeDirtPlane1Map.entries()].map(
+			([texIdx, matrices]) => ({ texIdx, matrices })
+		);
+		const deadTreeDirtPlane2Groups: InstanceGroupData[] = [...deadTreeDirtPlane2Map.entries()].map(
+			([texIdx, matrices]) => ({ texIdx, matrices })
+		);
+		const smallRocksSpriteGroups: InstanceGroupData[] = [...smallRocksSpriteMap.entries()].map(
+			([texIdx, matrices]) => ({ texIdx, matrices })
+		);
 
 		return {
 			treePlane1Groups,
 			treePlane2Groups,
 			treeStumpGroups,
 			bushSpriteGroups,
-			rockSpriteGroups
+			rockSpriteGroups,
+			deadTreePlane1Groups,
+			deadTreePlane2Groups,
+			deadTreeDirtPlane1Groups,
+			deadTreeDirtPlane2Groups,
+			smallRocksSpriteGroups
 		};
 	});
 
@@ -304,6 +424,36 @@
 		rockBaseMatrices[index] = matrices.map((m) => m.clone());
 	}
 
+	// Dead-tree ref storage (cross-billboard, 2 planes per texture group)
+	const deadTreeMeshRefs: THREE.InstancedMesh[] = [];
+	const deadTreeBaseMatrices: THREE.Matrix4[][] = [];
+
+	function initDeadTreeMesh(ref: THREE.InstancedMesh, matrices: THREE.Matrix4[], index: number) {
+		applyMatrices(ref, matrices);
+		deadTreeMeshRefs[index] = ref;
+		deadTreeBaseMatrices[index] = matrices.map((m) => m.clone());
+	}
+
+	// Dead-tree-dirt ref storage (cross-billboard, 2 planes per texture group)
+	const deadTreeDirtMeshRefs: THREE.InstancedMesh[] = [];
+	const deadTreeDirtBaseMatrices: THREE.Matrix4[][] = [];
+
+	function initDeadTreeDirtMesh(ref: THREE.InstancedMesh, matrices: THREE.Matrix4[], index: number) {
+		applyMatrices(ref, matrices);
+		deadTreeDirtMeshRefs[index] = ref;
+		deadTreeDirtBaseMatrices[index] = matrices.map((m) => m.clone());
+	}
+
+	// Small-rocks ref storage
+	const smallRocksMeshRefs: THREE.InstancedMesh[] = [];
+	const smallRocksBaseMatrices: THREE.Matrix4[][] = [];
+
+	function initSmallRocksMesh(ref: THREE.InstancedMesh, matrices: THREE.Matrix4[], index: number) {
+		applyMatrices(ref, matrices);
+		smallRocksMeshRefs[index] = ref;
+		smallRocksBaseMatrices[index] = matrices.map((m) => m.clone());
+	}
+
 	// Battle push animation
 	const CLEARING_RADIUS = 6; // world units
 	const MAX_PUSH_DISTANCE = 4; // max push offset
@@ -326,6 +476,21 @@
 		rockMeshRefs.forEach((mesh, idx) => {
 			if (mesh && rockBaseMatrices[idx]) {
 				applyMatrices(mesh, rockBaseMatrices[idx]);
+			}
+		});
+		deadTreeMeshRefs.forEach((mesh, idx) => {
+			if (mesh && deadTreeBaseMatrices[idx]) {
+				applyMatrices(mesh, deadTreeBaseMatrices[idx]);
+			}
+		});
+		deadTreeDirtMeshRefs.forEach((mesh, idx) => {
+			if (mesh && deadTreeDirtBaseMatrices[idx]) {
+				applyMatrices(mesh, deadTreeDirtBaseMatrices[idx]);
+			}
+		});
+		smallRocksMeshRefs.forEach((mesh, idx) => {
+			if (mesh && smallRocksBaseMatrices[idx]) {
+				applyMatrices(mesh, smallRocksBaseMatrices[idx]);
 			}
 		});
 	}
@@ -530,6 +695,27 @@
 				applyPushToMesh(mesh, rockBaseMatrices[meshIdx]);
 			}
 		});
+
+		// Dead trees
+		deadTreeMeshRefs.forEach((mesh, meshIdx) => {
+			if (mesh && deadTreeBaseMatrices[meshIdx]) {
+				applyPushToMesh(mesh, deadTreeBaseMatrices[meshIdx]);
+			}
+		});
+
+		// Dead trees on dirt
+		deadTreeDirtMeshRefs.forEach((mesh, meshIdx) => {
+			if (mesh && deadTreeDirtBaseMatrices[meshIdx]) {
+				applyPushToMesh(mesh, deadTreeDirtBaseMatrices[meshIdx]);
+			}
+		});
+
+		// Small rocks
+		smallRocksMeshRefs.forEach((mesh, meshIdx) => {
+			if (mesh && smallRocksBaseMatrices[meshIdx]) {
+				applyPushToMesh(mesh, smallRocksBaseMatrices[meshIdx]);
+			}
+		});
 	});
 
 	// Camera-occlusion fade: sink trees into ground between camera and player
@@ -706,6 +892,65 @@
 			oncreate={(ref) => initRockMesh(ref, group.matrices, groupIndex)}
 		>
 			<T.PlaneGeometry args={[1, 1]} />
+		</T.InstancedMesh>
+	{/each}
+
+	<!-- Dead-tree cross-billboards: plane 1 (facing Z) -->
+	{#each instances.deadTreePlane1Groups as group, groupIndex (group.texIdx)}
+		<T.InstancedMesh
+			args={[undefined, undefined, group.matrices.length]}
+			material={deadTreeMaterials[group.texIdx]}
+			castShadow
+			oncreate={(ref) => initDeadTreeMesh(ref, group.matrices, groupIndex * 2)}
+		>
+			<T.PlaneGeometry args={[1.5, 1.5]} />
+		</T.InstancedMesh>
+	{/each}
+
+	<!-- Dead-tree cross-billboards: plane 2 (facing X, rotated 90deg) -->
+	{#each instances.deadTreePlane2Groups as group, groupIndex (group.texIdx)}
+		<T.InstancedMesh
+			args={[undefined, undefined, group.matrices.length]}
+			material={deadTreeMaterials[group.texIdx]}
+			castShadow
+			oncreate={(ref) => initDeadTreeMesh(ref, group.matrices, groupIndex * 2 + 1)}
+		>
+			<T.PlaneGeometry args={[1.5, 1.5]} />
+		</T.InstancedMesh>
+	{/each}
+
+	<!-- Dead-tree-dirt cross-billboards: plane 1 (facing Z) -->
+	{#each instances.deadTreeDirtPlane1Groups as group, groupIndex (group.texIdx)}
+		<T.InstancedMesh
+			args={[undefined, undefined, group.matrices.length]}
+			material={deadTreeDirtMaterials[group.texIdx]}
+			castShadow
+			oncreate={(ref) => initDeadTreeDirtMesh(ref, group.matrices, groupIndex * 2)}
+		>
+			<T.PlaneGeometry args={[1.5, 1.5]} />
+		</T.InstancedMesh>
+	{/each}
+
+	<!-- Dead-tree-dirt cross-billboards: plane 2 (facing X, rotated 90deg) -->
+	{#each instances.deadTreeDirtPlane2Groups as group, groupIndex (group.texIdx)}
+		<T.InstancedMesh
+			args={[undefined, undefined, group.matrices.length]}
+			material={deadTreeDirtMaterials[group.texIdx]}
+			castShadow
+			oncreate={(ref) => initDeadTreeDirtMesh(ref, group.matrices, groupIndex * 2 + 1)}
+		>
+			<T.PlaneGeometry args={[1.5, 1.5]} />
+		</T.InstancedMesh>
+	{/each}
+
+	<!-- Small rocks sprites (cave decoration) -->
+	{#each instances.smallRocksSpriteGroups as group, groupIndex (group.texIdx)}
+		<T.InstancedMesh
+			args={[undefined, undefined, group.matrices.length]}
+			material={smallRocksMaterials[group.texIdx]}
+			oncreate={(ref) => initSmallRocksMesh(ref, group.matrices, groupIndex)}
+		>
+			<T.PlaneGeometry args={[0.8, 0.5]} />
 		</T.InstancedMesh>
 	{/each}
 {/key}
