@@ -47,13 +47,15 @@
 
 	// Load texture
 	$effect(() => {
-		const source = npc.spriteSheet.overworld.walking.source;
+		const walking = npc.spriteSheet.overworld.walking;
+		const source = walking.source;
+		const frameCount = walking.frameNumber ?? 4;
 		const loader = new THREE.TextureLoader();
 		const tex = loader.load(source);
 		tex.magFilter = THREE.NearestFilter;
 		tex.minFilter = THREE.NearestFilter;
 		tex.colorSpace = THREE.SRGBColorSpace;
-		tex.repeat.set(0.25, 0.25);
+		tex.repeat.set(1 / frameCount, 0.25);
 		texture = tex;
 	});
 
@@ -97,12 +99,13 @@
 			}
 
 			// Animate walk frames
+			const frameCount = npc.spriteSheet.overworld.walking.frameNumber ?? 4;
 			animElapsed += delta;
 			if (animElapsed >= 1 / ANIM_FPS) {
 				animElapsed = 0;
-				animFrame = (animFrame + 1) % 4;
+				animFrame = (animFrame + 1) % frameCount;
 			}
-			texture.offset.x = animFrame * 0.25;
+			texture.offset.x = animFrame * (1 / frameCount);
 		} else {
 			// Idle
 			const current = gridTo3D(
