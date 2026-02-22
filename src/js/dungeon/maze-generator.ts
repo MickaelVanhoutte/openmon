@@ -1,6 +1,6 @@
 import { SeededRNG, deriveSeed } from './prng';
 import { type BiomeConfig, getFloorSize } from './biomes';
-import { TileType3D } from '../mapping/threlte-maps/types';
+import { TileType3D, type BiomeName } from '../mapping/threlte-maps/types';
 import { Position } from '../mapping/positions';
 import type { FloorData } from './floor-generator';
 import {
@@ -50,7 +50,8 @@ export function generateMaze(
 		playerStart,
 		monsters,
 		biomeConfig.levelRange,
-		biomeConfig.ambientTrack
+		biomeConfig.ambientTrack,
+		biomeConfig.name as BiomeName
 	);
 
 	const openMap = buildOpenMap(

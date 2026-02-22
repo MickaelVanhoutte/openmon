@@ -51,11 +51,43 @@ export const WALL_SIDE_TEXTURE: string = wallUrl;
 
 export const ROCK_TEXTURES: string[] = [rock1Url, rock2Url];
 
-/** Grass field variants (grass1/2/3) — used randomly on GRASS tiles. */
-export const GRASS_TEXTURES: string[] = [grass1Url, grass2Url, grass3Url];
+/**
+ * All grass variants including flower types — used randomly on GRASS and TALL_GRASS tiles.
+ * Flower variants appear less frequently to keep them as accents.
+ */
+export const GRASS_TEXTURES: string[] = [
+	grass1Url,
+	grass2Url,
+	grass3Url,
+	grass1Url,
+	grass2Url,
+	grass3Url,
+	grassFlowersUrl,
+	grassFlowers2Url
+];
 
 /** Forest floor grass variants — used on FLOWER_GROUND and TREE_GROUND tiles in forest biomes. */
 export const FOREST_GRASS_TEXTURES: string[] = [grassFlowersUrl, grassFlowers2Url];
+
+/**
+ * Biome-specific floor textures for DUNGEON_FLOOR tiles.
+ * Each biome gets a pool of variants that are randomly dispatched by tile coordinates.
+ * - forest: all grass variants including flowered ones for a natural forest feel
+ * - cave: dirt (unchanged)
+ * - swamp: swamp-dirt (unchanged)
+ * - volcanic: dirt (unchanged)
+ * - dark: dirt (unchanged)
+ * - overworld/grass: plain grass variants
+ */
+export const BIOME_FLOOR_TEXTURES: Record<string, string[]> = {
+	'Grass Forest': [grass1Url, grass2Url, grass3Url, grassFlowersUrl, grassFlowers2Url],
+	'Cave Rock': [dirtUrl],
+	'Water Swamp': [swampDirtUrl],
+	// Volcanic uses ash/sand ground mixed with scorched dirt
+	'Fire Volcanic': [dirtUrl, dirtUrl, sandUrl],
+	'Dark Haunted': [dirtUrl],
+	Overworld: [grass1Url, grass2Url, grass3Url, grassFlowersUrl, grassFlowers2Url]
+};
 
 /** Dead tree billboard sprite — placed as decoration over SWAMP tiles. */
 export const DEAD_TREE_TEXTURES: string[] = [deadTreeUrl];
