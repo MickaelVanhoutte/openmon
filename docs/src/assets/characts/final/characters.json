@@ -145,17 +145,17 @@
             "frameNumber": 1
         },
         "overworld": {
-          "walking": {
-            "source": "src/assets/characts/final/walking/rich-boy.png",
-            "startX": 0,
-            "startY": 0,
-            "height": 64,
-            "width": 64,
-            "frameNumber": 4
-          }
+            "walking": {
+                "source": "src/assets/characts/final/walking/rich-boy.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 64,
+                "width": 64,
+                "frameNumber": 4
+            }
         }
-      },
-      {
+    },
+    {
         "id": 4,
         "name": "Parasol lady",
         "full": {
@@ -176,5 +176,1125 @@
                 "frameNumber": 4
             }
         }
-      }
+    },
+    {
+        "id": 10,
+        "name": "Trainer 0",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-0.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 11,
+        "name": "Trainer 1",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-1.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 12,
+        "name": "Trainer 2",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-2.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 13,
+        "name": "Trainer 3",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-3.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 14,
+        "name": "Trainer 4",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-4.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 15,
+        "name": "Trainer 5",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-5.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 16,
+        "name": "Trainer 6",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-6.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 17,
+        "name": "Trainer 7",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-7.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 18,
+        "name": "Trainer 8",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-8.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 19,
+        "name": "Trainer 9",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-9.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 20,
+        "name": "Trainer 10",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-10.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 21,
+        "name": "Trainer 11",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-11.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 22,
+        "name": "Trainer 12",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-12.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 23,
+        "name": "Trainer 13",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-13.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 24,
+        "name": "Trainer 14",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-14.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 25,
+        "name": "Trainer 15",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-15.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 26,
+        "name": "Trainer 16",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-16.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 27,
+        "name": "Trainer 17",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-17.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 28,
+        "name": "Trainer 18",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-18.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 29,
+        "name": "Trainer 19",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-19.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 30,
+        "name": "Trainer 20",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-20.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 31,
+        "name": "Trainer 21",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-21.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 32,
+        "name": "Trainer 22",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-22.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 33,
+        "name": "Trainer 23",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-23.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 34,
+        "name": "Trainer 24",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-24.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 35,
+        "name": "Trainer 25",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-25.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 36,
+        "name": "Trainer 26",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-26.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 37,
+        "name": "Trainer 27",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-27.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 38,
+        "name": "Trainer 28",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-28.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 39,
+        "name": "Trainer 29",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-29.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 40,
+        "name": "Trainer 30",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-30.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 41,
+        "name": "Trainer 31",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-31.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 42,
+        "name": "Trainer 32",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-32.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 43,
+        "name": "Trainer 33",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-33.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 44,
+        "name": "Trainer 34",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-34.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 45,
+        "name": "Trainer 35",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-35.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 46,
+        "name": "Trainer 36",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-36.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 47,
+        "name": "Trainer 37",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-37.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 48,
+        "name": "Trainer 38",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-38.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 49,
+        "name": "Trainer 39",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-39.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 50,
+        "name": "Trainer 40",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-40.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 51,
+        "name": "Trainer 41",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-41.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 52,
+        "name": "Trainer 42",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-42.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 53,
+        "name": "Trainer 43",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-43.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 54,
+        "name": "Trainer 44",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-44.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 55,
+        "name": "Trainer 45",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-45.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 56,
+        "name": "Trainer 46",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-46.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 57,
+        "name": "Trainer 47",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-47.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 58,
+        "name": "Trainer 48",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-48.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 59,
+        "name": "Trainer 49",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-49.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 60,
+        "name": "Trainer 50",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-50.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 61,
+        "name": "Trainer 51",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-51.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 62,
+        "name": "Trainer 52",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-52.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 63,
+        "name": "Trainer 53",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-53.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 64,
+        "name": "Trainer 54",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-54.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 65,
+        "name": "Trainer 55",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-55.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 66,
+        "name": "Trainer 56",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-56.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 67,
+        "name": "Trainer 57",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-57.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 68,
+        "name": "Trainer 58",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-58.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 69,
+        "name": "Trainer 59",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-59.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 70,
+        "name": "Trainer 60",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-60.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 71,
+        "name": "Trainer 61",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-61.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 72,
+        "name": "Trainer 62",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-62.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 73,
+        "name": "Trainer 63",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-63.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 74,
+        "name": "Trainer 64",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-64.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 75,
+        "name": "Trainer 65",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-65.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 76,
+        "name": "Trainer 66",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-66.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 77,
+        "name": "Trainer 67",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-67.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 78,
+        "name": "Trainer 68",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-68.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 79,
+        "name": "Trainer 69",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-69.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 80,
+        "name": "Trainer 70",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-70.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 81,
+        "name": "Trainer 71",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-71.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 82,
+        "name": "Trainer 72",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-72.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 83,
+        "name": "Trainer 73",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-73.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 84,
+        "name": "Trainer 74",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-74.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 85,
+        "name": "Trainer 75",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-75.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 86,
+        "name": "Trainer 76",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-76.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 87,
+        "name": "Trainer 77",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-77.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 88,
+        "name": "Trainer 78",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-78.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    },
+    {
+        "id": 89,
+        "name": "Trainer 79",
+        "overworld": {
+            "walking": {
+                "source": "src/assets/characts/final/walking/trainer-79.png",
+                "startX": 0,
+                "startY": 0,
+                "height": 60,
+                "width": 50,
+                "frameNumber": 3
+            }
+        }
+    }
 ]
