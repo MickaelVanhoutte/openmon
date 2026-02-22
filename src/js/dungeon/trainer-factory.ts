@@ -7,7 +7,8 @@ import {
 	Dialog,
 	Message,
 	MoveToPlayer,
-	GiveMoney
+	GiveMoney,
+	RemoveNpc
 } from '../scripting/scripts';
 import { SeededRNG } from './prng';
 import { type BiomeConfig } from './biomes';
@@ -88,7 +89,8 @@ export function createTrainer(
 				]),
 				name
 			)
-		])
+		]),
+		new RemoveNpc(id)
 	]);
 
 	const npc = new NPC(
@@ -145,7 +147,8 @@ export function createBossTrainer(
 			new Dialog(beforeMessages),
 			new StartBattle(id),
 			new GiveMoney(500 + floorNumber * 50 + rewardLevel * 5),
-			new Dialog(afterMessages)
+			new Dialog(afterMessages),
+			new RemoveNpc(id)
 		]);
 
 		const npc = new NPC(
@@ -183,7 +186,8 @@ export function createBossTrainer(
 		]),
 		new StartBattle(id),
 		new GiveMoney(500 + floorNumber * 50 + bossLevel * 5),
-		new Dialog([new Message('Impressive. You may proceed to the next floor.', name)])
+		new Dialog([new Message('Impressive. You may proceed to the next floor.', name)]),
+		new RemoveNpc(id)
 	]);
 
 	const npc = new NPC(id, name, 3, position, 'down', 'MALE', monsterIds, undefined, mainScript);
