@@ -52,14 +52,16 @@ export const WALL_SIDE_TEXTURE: string = wallUrl;
 export const ROCK_TEXTURES: string[] = [rock1Url, rock2Url];
 
 /**
- * All grass variants including flower types — used randomly on GRASS and TALL_GRASS tiles.
- * Flower variants appear less frequently to keep them as accents.
+ * Grass variants for GRASS and TALL_GRASS tiles.
+ * 75% base grass1, 25% split across other variants.
+ * Array length is a power-of-two-friendly number to avoid modulo bias.
  */
 export const GRASS_TEXTURES: string[] = [
-	grass1Url,
-	grass2Url,
-	grass3Url,
-	grass1Url,
+	// 75% grass1 (12 out of 16)
+	grass1Url, grass1Url, grass1Url, grass1Url,
+	grass1Url, grass1Url, grass1Url, grass1Url,
+	grass1Url, grass1Url, grass1Url, grass1Url,
+	// 25% variants (4 out of 16)
 	grass2Url,
 	grass3Url,
 	grassFlowersUrl,
@@ -71,22 +73,33 @@ export const FOREST_GRASS_TEXTURES: string[] = [grassFlowersUrl, grassFlowers2Ur
 
 /**
  * Biome-specific floor textures for DUNGEON_FLOOR tiles.
- * Each biome gets a pool of variants that are randomly dispatched by tile coordinates.
- * - forest: all grass variants including flowered ones for a natural forest feel
- * - cave: dirt (unchanged)
- * - swamp: swamp-dirt (unchanged)
- * - volcanic: dirt (unchanged)
- * - dark: dirt (unchanged)
- * - overworld/grass: plain grass variants
+ * 75% base texture, 25% variants. Array length 16 for clean modulo distribution.
  */
 export const BIOME_FLOOR_TEXTURES: Record<string, string[]> = {
-	'Grass Forest': [grass1Url, grass2Url, grass3Url, grassFlowersUrl, grassFlowers2Url],
+	// Grass Forest: 75% grass1, rest spread across other grass variants
+	'Grass Forest': [
+		grass1Url, grass1Url, grass1Url, grass1Url,
+		grass1Url, grass1Url, grass1Url, grass1Url,
+		grass1Url, grass1Url, grass1Url, grass1Url,
+		grass2Url, grass3Url, grassFlowersUrl, grassFlowers2Url
+	],
 	'Cave Rock': [dirtUrl],
 	'Water Swamp': [swampDirtUrl],
-	// Volcanic uses ash/sand ground mixed with scorched dirt
-	'Fire Volcanic': [dirtUrl, dirtUrl, sandUrl],
+	// Volcanic: 75% dirt, 25% sand (volcanic ash)
+	'Fire Volcanic': [
+		dirtUrl, dirtUrl, dirtUrl, dirtUrl,
+		dirtUrl, dirtUrl, dirtUrl, dirtUrl,
+		dirtUrl, dirtUrl, dirtUrl, dirtUrl,
+		sandUrl, sandUrl, sandUrl, sandUrl
+	],
 	'Dark Haunted': [dirtUrl],
-	Overworld: [grass1Url, grass2Url, grass3Url, grassFlowersUrl, grassFlowers2Url]
+	// Overworld: 75% grass1, 25% variants
+	Overworld: [
+		grass1Url, grass1Url, grass1Url, grass1Url,
+		grass1Url, grass1Url, grass1Url, grass1Url,
+		grass1Url, grass1Url, grass1Url, grass1Url,
+		grass2Url, grass3Url, grassFlowersUrl, grassFlowers2Url
+	]
 };
 
 /** Dead tree billboard sprite — placed as decoration over SWAMP tiles. */

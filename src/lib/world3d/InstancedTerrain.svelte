@@ -76,6 +76,19 @@
 	const wallSideTexture = loadTexture(WALL_SIDE_TEXTURE);
 
 	/**
+	 * Non-linear 2D integer hash — breaks diagonal patterns produced by linear
+	 * hashes like (row * A + col * B). Based on a simple xorshift scramble.
+	 * Returns a non-negative integer suitable for modulo indexing.
+	 */
+	function tileHash(row: number, col: number): number {
+		let h = (row * 1619 + col * 31337) | 0;
+		h ^= h >>> 16;
+		h = Math.imul(h, 0x45d9f3b);
+		h ^= h >>> 16;
+		return h >>> 0; // unsigned
+	}
+
+	/**
 	 * Returns the texture URL for a given tile type and tile coordinates.
 	 * For GRASS, TALL_GRASS, TREE_GROUND, and FLOWER_GROUND tiles, picks a
 	 * variant using a coord hash. DUNGEON_FLOOR tiles pick from the biome-specific
@@ -83,17 +96,14 @@
 	 */
 	function getTileTextureUrl(type: TileType3D, row: number, col: number): string | null {
 		if (type === TileType3D.GRASS || type === TileType3D.TALL_GRASS) {
-			const idx = (row * 7 + col * 13) % GRASS_TEXTURES.length;
-			return GRASS_TEXTURES[idx];
+			return GRASS_TEXTURES[tileHash(row, col) % GRASS_TEXTURES.length];
 		}
 		if (type === TileType3D.TREE_GROUND || type === TileType3D.FLOWER_GROUND) {
-			const idx = (row * 11 + col * 17) % FOREST_GRASS_TEXTURES.length;
-			return FOREST_GRASS_TEXTURES[idx];
+			return FOREST_GRASS_TEXTURES[tileHash(row, col) % FOREST_GRASS_TEXTURES.length];
 		}
 		if (type === TileType3D.DUNGEON_FLOOR) {
 			const biomeFloors = BIOME_FLOOR_TEXTURES[mapData.biome ?? 'Cave Rock'];
-			const idx = (row * 7 + col * 13) % biomeFloors.length;
-			return biomeFloors[idx];
+			return biomeFloors[tileHash(row, col) % biomeFloors.length];
 		}
 		return TILE_TEXTURES[type];
 	}
@@ -113,17 +123,11 @@
 				type === TileType3D.TREE_GROUND || type === TileType3D.FLOWER_GROUND
 					? FOREST_GRASS_TEXTURES
 					: GRASS_TEXTURES;
-			const hash =
-				type === TileType3D.TREE_GROUND || type === TileType3D.FLOWER_GROUND
-					? row * 11 + col * 17
-					: row * 7 + col * 13;
-			const idx = hash % urls.length;
-			return `${type}-${idx}`;
+			return `${type}-${tileHash(row, col) % urls.length}`;
 		}
 		if (type === TileType3D.DUNGEON_FLOOR) {
 			const biomeFloors = BIOME_FLOOR_TEXTURES[mapData.biome ?? 'Cave Rock'];
-			const idx = (row * 7 + col * 13) % biomeFloors.length;
-			return `${type}-${idx}`;
+			return `${type}-${tileHash(row, col) % biomeFloors.length}`;
 		}
 		return `${type}`;
 	}
