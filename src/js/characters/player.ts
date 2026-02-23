@@ -7,6 +7,7 @@ import { type Character, CharacterPosition } from './characters-model';
 import { Follower } from './follower';
 import type { OverworldContext } from '../context/overworldContext';
 import { Mastery, MasteryType, PlayerMasteries } from './mastery-model';
+import { preloadFollowerSprite } from '../preload';
 
 export class ComboJauge {
 	public value: number = 0;
@@ -128,6 +129,8 @@ export class Player implements Character {
 			new CharacterPosition(this.behindPlayer(), this.position.direction),
 			monster
 		);
+		// Warm up the follower's sprite + AnimData.xml in the background
+		preloadFollowerSprite(monster.regionalId, monster.isShiny);
 		return this.follower;
 	}
 
