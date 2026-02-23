@@ -81,6 +81,18 @@ export default defineConfig({
 								maxAgeSeconds: 60 * 60 * 24 // 24 hours fallback only
 							}
 						}
+					},
+					{
+						// PMD AnimData XML files — cache-first since sprite metadata never changes
+						urlPattern: /\.xml$/,
+						handler: 'CacheFirst',
+						options: {
+							cacheName: 'anim-data',
+							expiration: {
+								maxEntries: 2000,
+								maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+							}
+						}
 					}
 				]
 			},

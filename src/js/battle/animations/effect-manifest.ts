@@ -1,3 +1,24 @@
+import impactUrl from '../../../assets/battle/fx/impact-sprite.png';
+import fireUrl from '../../../assets/battle/fx/fire-sprite.png';
+import thunderUrl from '../../../assets/battle/fx/thunder-sprite.png';
+import slashUrl from '../../../assets/battle/fx/slash-sprite.png';
+import waterUrl from '../../../assets/battle/fx/water-sprite.png';
+import iceUrl from '../../../assets/battle/fx/ice-sprite.png';
+import fistUrl from '../../../assets/battle/fx/fist-sprite.png';
+import footUrl from '../../../assets/battle/fx/foot-sprite.png';
+import clawsUrl from '../../../assets/battle/fx/claws-sprite.png';
+import crunchUrl from '../../../assets/battle/fx/crunch-sprite.png';
+import healUrl from '../../../assets/battle/fx/heal-sprite.png';
+import buffUrl from '../../../assets/battle/fx/buff-sprite.png';
+import debuffUrl from '../../../assets/battle/fx/debuff-sprite.png';
+import rockUrl from '../../../assets/battle/fx/rock-sprite.png';
+import leafUrl from '../../../assets/battle/fx/leaf-sprite.png';
+import poisonUrl from '../../../assets/battle/fx/poison-sprite.png';
+import windUrl from '../../../assets/battle/fx/wind-sprite.png';
+import shadowballUrl from '../../../assets/battle/fx/shadowball-sprite.png';
+import lightballUrl from '../../../assets/battle/fx/lightball-sprite.png';
+import drainUrl from '../../../assets/battle/fx/drain-sprite.png';
+
 export interface EffectDefinition {
 	path: string;
 	frames: number;
@@ -8,127 +29,127 @@ export interface EffectDefinition {
 
 export const EFFECT_MANIFEST: Record<string, EffectDefinition> = {
 	impact: {
-		path: 'src/assets/battle/fx/impact-sprite.png',
+		path: impactUrl,
 		frames: 4,
 		frameWidth: 192,
 		frameHeight: 192
 	},
 	fire: {
-		path: 'src/assets/battle/fx/fire-sprite.png',
+		path: fireUrl,
 		frames: 8,
 		frameWidth: 192,
 		frameHeight: 192
 	},
 	thunder: {
-		path: 'src/assets/battle/fx/thunder-sprite.png',
+		path: thunderUrl,
 		frames: 6,
 		frameWidth: 192,
 		frameHeight: 192
 	},
 	slash: {
-		path: 'src/assets/battle/fx/slash-sprite.png',
+		path: slashUrl,
 		frames: 5,
 		frameWidth: 192,
 		frameHeight: 192
 	},
 	water: {
-		path: 'src/assets/battle/fx/water-sprite.png',
+		path: waterUrl,
 		frames: 6,
 		frameWidth: 192,
 		frameHeight: 192
 	},
 	ice: {
-		path: 'src/assets/battle/fx/ice-sprite.png',
+		path: iceUrl,
 		frames: 6,
 		frameWidth: 192,
 		frameHeight: 192
 	},
 	fist: {
-		path: 'src/assets/battle/fx/fist-sprite.png',
+		path: fistUrl,
 		frames: 5,
 		frameWidth: 192,
 		frameHeight: 192
 	},
 	foot: {
-		path: 'src/assets/battle/fx/foot-sprite.png',
+		path: footUrl,
 		frames: 5,
 		frameWidth: 192,
 		frameHeight: 192
 	},
 	claws: {
-		path: 'src/assets/battle/fx/claws-sprite.png',
+		path: clawsUrl,
 		frames: 5,
 		frameWidth: 192,
 		frameHeight: 192
 	},
 	crunch: {
-		path: 'src/assets/battle/fx/crunch-sprite.png',
+		path: crunchUrl,
 		frames: 5,
 		frameWidth: 192,
 		frameHeight: 192
 	},
 	heal: {
-		path: 'src/assets/battle/fx/heal-sprite.png',
+		path: healUrl,
 		frames: 6,
 		frameWidth: 192,
 		frameHeight: 192
 	},
 	buff: {
-		path: 'src/assets/battle/fx/buff-sprite.png',
+		path: buffUrl,
 		frames: 6,
 		frameWidth: 192,
 		frameHeight: 192
 	},
 	debuff: {
-		path: 'src/assets/battle/fx/debuff-sprite.png',
+		path: debuffUrl,
 		frames: 6,
 		frameWidth: 192,
 		frameHeight: 192
 	},
 	psychic: {
-		path: 'src/assets/battle/fx/debuff-sprite.png',
+		path: debuffUrl,
 		frames: 6,
 		frameWidth: 192,
 		frameHeight: 192
 	},
 	rock: {
-		path: 'src/assets/battle/fx/rock-sprite.png',
+		path: rockUrl,
 		frames: 5,
 		frameWidth: 192,
 		frameHeight: 192
 	},
 	leaf: {
-		path: 'src/assets/battle/fx/leaf-sprite.png',
+		path: leafUrl,
 		frames: 6,
 		frameWidth: 192,
 		frameHeight: 192
 	},
 	poison: {
-		path: 'src/assets/battle/fx/poison-sprite.png',
+		path: poisonUrl,
 		frames: 6,
 		frameWidth: 192,
 		frameHeight: 192
 	},
 	wind: {
-		path: 'src/assets/battle/fx/wind-sprite.png',
+		path: windUrl,
 		frames: 6,
 		frameWidth: 192,
 		frameHeight: 192
 	},
 	shadowball: {
-		path: 'src/assets/battle/fx/shadowball-sprite.png',
+		path: shadowballUrl,
 		frames: 6,
 		frameWidth: 192,
 		frameHeight: 192
 	},
 	lightball: {
-		path: 'src/assets/battle/fx/lightball-sprite.png',
+		path: lightballUrl,
 		frames: 8,
 		frameWidth: 192,
 		frameHeight: 192
 	},
 	drain: {
-		path: 'src/assets/battle/fx/drain-sprite.png',
+		path: drainUrl,
 		frames: 8,
 		frameWidth: 192,
 		frameHeight: 192
