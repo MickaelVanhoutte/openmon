@@ -8,8 +8,7 @@
 		BUSH_TEXTURES,
 		ROCK_TEXTURES,
 		DEAD_TREE_TEXTURES,
-		DEAD_TREE_DIRT_TEXTURES,
-		SMALL_ROCKS_TEXTURES
+		DEAD_TREE_DIRT_TEXTURES
 	} from '$js/mapping/threlte-maps/tile-textures';
 	import gsap from 'gsap';
 	interface Props {
@@ -36,7 +35,6 @@
 	const rockTextures = ROCK_TEXTURES.map(loadTexture);
 	const deadTreeTextures = DEAD_TREE_TEXTURES.map(loadTexture);
 	const deadTreeDirtTextures = DEAD_TREE_DIRT_TEXTURES.map(loadTexture);
-	const smallRocksTextures = SMALL_ROCKS_TEXTURES.map(loadTexture);
 	// Pre-create shared materials (one per texture variant instead of one per mesh)
 	const treeMaterials = treeTextures.map(
 		(tex) =>
@@ -50,6 +48,21 @@
 	);
 
 	const bushSpriteMaterials = bushTextures.map(
+		(tex) =>
+			new THREE.MeshStandardMaterial({
+				map: tex,
+				transparent: true,
+				alphaTest: 0.5,
+				depthWrite: false,
+				side: THREE.DoubleSide,
+				roughness: 0.9,
+				color: 0xffffff
+			})
+	);
+
+	// Front-layer material for tall grass: same as back layers but higher renderOrder
+	// so it sorts after player/follower sprites within the transparent pass
+	const tallGrassFrontMaterials = bushTextures.map(
 		(tex) =>
 			new THREE.MeshStandardMaterial({
 				map: tex,
@@ -96,17 +109,6 @@
 			})
 	);
 
-	const smallRocksMaterials = smallRocksTextures.map(
-		(tex) =>
-			new THREE.MeshBasicMaterial({
-				map: tex,
-				transparent: true,
-				alphaTest: 0.5,
-				side: THREE.DoubleSide,
-				color: 0xffffff
-			})
-	);
-
 	// Tree stump/shadow markers (visible when tree sinks underground)
 	const stumpGeometry = new THREE.CircleGeometry(0.4, 8);
 	stumpGeometry.rotateX(-Math.PI / 2); // lay flat on ground
@@ -126,9 +128,9 @@
 	// Bush layer offsets: [zOffset, yVariation, xVariation] for multi-layer fill
 	const BUSH_LAYERS = [
 		{ z: 0.45, y: 0.0, x: 0.0 }, // front layer
-		{ z: -0.15, y: -0.02, x: 0.008 },
+		{ z: 0, y: -0.02, x: 0.008 },
 		{ z: 0.2, y: 0.0, x: 0.0 },
-		{ z: -0.3, y: 0.02, x: -0.08 } // back layer, slightly higher, offset left
+		{ z: -0.2, y: 0.02, x: -0.01 },
 	];
 
 	interface InstanceGroupData {
@@ -141,12 +143,13 @@
 		const treePlane2Map = new Map<number, THREE.Matrix4[]>();
 		const treeStumpMap = new Map<number, THREE.Matrix4[]>();
 		const bushSpriteMap = new Map<number, THREE.Matrix4[]>();
+		// Front layer of TALL_GRASS rendered above player sprites (renderOrder 2)
+		const tallGrassFrontMap = new Map<number, THREE.Matrix4[]>();
 		const rockSpriteMap = new Map<number, THREE.Matrix4[]>();
 		const deadTreePlane1Map = new Map<number, THREE.Matrix4[]>();
 		const deadTreePlane2Map = new Map<number, THREE.Matrix4[]>();
 		const deadTreeDirtPlane1Map = new Map<number, THREE.Matrix4[]>();
 		const deadTreeDirtPlane2Map = new Map<number, THREE.Matrix4[]>();
-		const smallRocksSpriteMap = new Map<number, THREE.Matrix4[]>();
 
 		for (let row = 0; row < mapData.height; row++) {
 			for (let col = 0; col < mapData.width; col++) {
@@ -254,17 +257,26 @@
 					const bushTexIdx = (row * 7 + col * 3) % bushTextures.length;
 					const by = BASE_HEIGHT + tileHeight;
 
-					for (const layer of BUSH_LAYERS) {
+					for (let li = 0; li < BUSH_LAYERS.length; li++) {
+						const layer = BUSH_LAYERS[li];
 						const spriteMat = new THREE.Matrix4();
 						spriteMat.compose(
 							new THREE.Vector3(x + layer.x, by + 0.3 + layer.y, z + layer.z),
 							identityQuat,
 							oneScale
 						);
-						if (!bushSpriteMap.has(bushTexIdx)) {
-							bushSpriteMap.set(bushTexIdx, []);
+						if (li === 0) {
+							// Front layer: separate map so it renders above player/follower sprites
+							if (!tallGrassFrontMap.has(bushTexIdx)) {
+								tallGrassFrontMap.set(bushTexIdx, []);
+							}
+							tallGrassFrontMap.get(bushTexIdx)!.push(spriteMat);
+						} else {
+							if (!bushSpriteMap.has(bushTexIdx)) {
+								bushSpriteMap.set(bushTexIdx, []);
+							}
+							bushSpriteMap.get(bushTexIdx)!.push(spriteMat);
 						}
-						bushSpriteMap.get(bushTexIdx)!.push(spriteMat);
 					}
 				}
 
@@ -308,21 +320,7 @@
 					}
 				}
 
-				// Place small-rocks on DUNGEON_FLOOR tiles in forest biome only (~1/7 chance)
-				if (tile === TileType3D.DUNGEON_FLOOR && mapData.biome === "Grass Forest") {
-					const tileHeight = TILE_HEIGHTS.get(tile) ?? 0;
-					const rocksRand = (row * 43 + col * 59) % 7;
-					if (rocksRand === 0) {
-						const texIdx = (row * 17 + col * 23) % smallRocksTextures.length;
-						const ry = BASE_HEIGHT + tileHeight;
-
-						const spriteMat = new THREE.Matrix4();
-						spriteMat.compose(new THREE.Vector3(x, ry + 0.25, z), identityQuat, oneScale);
-						if (!smallRocksSpriteMap.has(texIdx)) smallRocksSpriteMap.set(texIdx, []);
-						smallRocksSpriteMap.get(texIdx)!.push(spriteMat);
-					}
 				}
-			}
 		}
 
 		const treePlane1Groups: InstanceGroupData[] = [...treePlane1Map.entries()].map(
@@ -335,6 +333,9 @@
 			([texIdx, matrices]) => ({ texIdx, matrices })
 		);
 		const bushSpriteGroups: InstanceGroupData[] = [...bushSpriteMap.entries()].map(
+			([texIdx, matrices]) => ({ texIdx, matrices })
+		);
+		const tallGrassFrontGroups: InstanceGroupData[] = [...tallGrassFrontMap.entries()].map(
 			([texIdx, matrices]) => ({ texIdx, matrices })
 		);
 		const rockSpriteGroups: InstanceGroupData[] = [...rockSpriteMap.entries()].map(
@@ -352,21 +353,17 @@
 		const deadTreeDirtPlane2Groups: InstanceGroupData[] = [...deadTreeDirtPlane2Map.entries()].map(
 			([texIdx, matrices]) => ({ texIdx, matrices })
 		);
-		const smallRocksSpriteGroups: InstanceGroupData[] = [...smallRocksSpriteMap.entries()].map(
-			([texIdx, matrices]) => ({ texIdx, matrices })
-		);
-
 		return {
 			treePlane1Groups,
 			treePlane2Groups,
 			treeStumpGroups,
 			bushSpriteGroups,
+			tallGrassFrontGroups,
 			rockSpriteGroups,
 			deadTreePlane1Groups,
 			deadTreePlane2Groups,
 			deadTreeDirtPlane1Groups,
-			deadTreeDirtPlane2Groups,
-			smallRocksSpriteGroups
+			deadTreeDirtPlane2Groups
 		};
 	});
 
@@ -380,6 +377,9 @@
 	// Bush sway animation state
 	const bushMeshRefs: THREE.InstancedMesh[] = [];
 	const bushBaseMatrices: THREE.Matrix4[][] = [];
+	// Tall-grass front layer refs (share the sway logic via the same arrays, offset by a base index)
+	const tallGrassFrontMeshRefs: THREE.InstancedMesh[] = [];
+	const tallGrassFrontBaseMatrices: THREE.Matrix4[][] = [];
 	const swayTriggers = new Map<string, number>(); // key -> trigger time
 	const SWAY_RADIUS = 0.5;
 	const SWAY_STRENGTH = 0.1;
@@ -392,6 +392,12 @@
 		applyMatrices(ref, matrices);
 		bushMeshRefs[groupIndex] = ref;
 		bushBaseMatrices[groupIndex] = matrices.map((m) => m.clone());
+	}
+
+	function initTallGrassFrontMesh(ref: THREE.InstancedMesh, matrices: THREE.Matrix4[], groupIndex: number) {
+		applyMatrices(ref, matrices);
+		tallGrassFrontMeshRefs[groupIndex] = ref;
+		tallGrassFrontBaseMatrices[groupIndex] = matrices.map((m) => m.clone());
 	}
 
 	// Tree ref storage (2 cross-planes per texture group)
@@ -444,16 +450,6 @@
 		deadTreeDirtBaseMatrices[index] = matrices.map((m) => m.clone());
 	}
 
-	// Small-rocks ref storage
-	const smallRocksMeshRefs: THREE.InstancedMesh[] = [];
-	const smallRocksBaseMatrices: THREE.Matrix4[][] = [];
-
-	function initSmallRocksMesh(ref: THREE.InstancedMesh, matrices: THREE.Matrix4[], index: number) {
-		applyMatrices(ref, matrices);
-		smallRocksMeshRefs[index] = ref;
-		smallRocksBaseMatrices[index] = matrices.map((m) => m.clone());
-	}
-
 	// Battle push animation
 	const CLEARING_RADIUS = 6; // world units
 	const MAX_PUSH_DISTANCE = 4; // max push offset
@@ -466,6 +462,11 @@
 		bushMeshRefs.forEach((mesh, idx) => {
 			if (mesh && bushBaseMatrices[idx]) {
 				applyMatrices(mesh, bushBaseMatrices[idx]);
+			}
+		});
+		tallGrassFrontMeshRefs.forEach((mesh, idx) => {
+			if (mesh && tallGrassFrontBaseMatrices[idx]) {
+				applyMatrices(mesh, tallGrassFrontBaseMatrices[idx]);
 			}
 		});
 		treeMeshRefs.forEach((mesh, idx) => {
@@ -488,11 +489,6 @@
 				applyMatrices(mesh, deadTreeDirtBaseMatrices[idx]);
 			}
 		});
-		smallRocksMeshRefs.forEach((mesh, idx) => {
-			if (mesh && smallRocksBaseMatrices[idx]) {
-				applyMatrices(mesh, smallRocksBaseMatrices[idx]);
-			}
-		});
 	}
 
 	$effect(() => {
@@ -508,6 +504,10 @@
 		if (battleActive) {
 			// Snapshot player position at battle start (untracked to avoid re-triggering)
 			playerSnapshot = untrack(() => ({ x: playerPosition.x, z: playerPosition.z }));
+
+			// Reset all decorations to base immediately so sway-offset positions don't persist
+			restoreAllToBase();
+			swayTriggers.clear();
 
 			// Push outward: 0 → 1 over 0.8s
 			pushTween = gsap.to(
@@ -653,8 +653,13 @@
 					continue;
 				}
 
-				// Guard zero distance (decoration exactly on player)
-				if (distance < 0.01) continue;
+				// Guard zero distance (decoration exactly on player) — push straight back
+				if (distance < 0.01) {
+					pushTmpMatrix.copy(base);
+					pushTmpMatrix.elements[14] = baseZ + MAX_PUSH_DISTANCE * pushProgress;
+					mesh.setMatrixAt(i, pushTmpMatrix);
+					continue;
+				}
 
 				// Calculate push amount (stronger near center, weaker at edge)
 				const pushAmount = MAX_PUSH_DISTANCE * (1 - distance / CLEARING_RADIUS) * pushProgress;
@@ -679,6 +684,13 @@
 		bushMeshRefs.forEach((mesh, meshIdx) => {
 			if (mesh && bushBaseMatrices[meshIdx]) {
 				applyPushToMesh(mesh, bushBaseMatrices[meshIdx]);
+			}
+		});
+
+		// Tall-grass front layer
+		tallGrassFrontMeshRefs.forEach((mesh, meshIdx) => {
+			if (mesh && tallGrassFrontBaseMatrices[meshIdx]) {
+				applyPushToMesh(mesh, tallGrassFrontBaseMatrices[meshIdx]);
 			}
 		});
 
@@ -710,12 +722,6 @@
 			}
 		});
 
-		// Small rocks
-		smallRocksMeshRefs.forEach((mesh, meshIdx) => {
-			if (mesh && smallRocksBaseMatrices[meshIdx]) {
-				applyPushToMesh(mesh, smallRocksBaseMatrices[meshIdx]);
-			}
-		});
 	});
 
 	// Camera-occlusion fade: sink trees into ground between camera and player
@@ -884,6 +890,19 @@
 		</T.InstancedMesh>
 	{/each}
 
+	<!-- Tall-grass front layer: renders above player/follower sprites (renderOrder=2) -->
+	<!-- Plane height 0.4 so only legs/feet are covered up to ~knee level -->
+	{#each instances.tallGrassFrontGroups as group, groupIndex (group.texIdx)}
+		<T.InstancedMesh
+			args={[undefined, undefined, group.matrices.length]}
+			material={tallGrassFrontMaterials[group.texIdx]}
+			renderOrder={2}
+			oncreate={(ref) => initTallGrassFrontMesh(ref, group.matrices, groupIndex)}
+		>
+			<T.PlaneGeometry args={[1, 0.4]} />
+		</T.InstancedMesh>
+	{/each}
+
 	<!-- Rock sprites (one instanced mesh per texture variant) -->
 	{#each instances.rockSpriteGroups as group, groupIndex (group.texIdx)}
 		<T.InstancedMesh
@@ -943,14 +962,4 @@
 		</T.InstancedMesh>
 	{/each}
 
-	<!-- Small rocks sprites (cave decoration) -->
-	{#each instances.smallRocksSpriteGroups as group, groupIndex (group.texIdx)}
-		<T.InstancedMesh
-			args={[undefined, undefined, group.matrices.length]}
-			material={smallRocksMaterials[group.texIdx]}
-			oncreate={(ref) => initSmallRocksMesh(ref, group.matrices, groupIndex)}
-		>
-			<T.PlaneGeometry args={[0.8, 0.5]} />
-		</T.InstancedMesh>
-	{/each}
 {/key}
