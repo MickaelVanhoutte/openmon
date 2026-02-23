@@ -19,7 +19,6 @@ import swampDirtUrl from '../../../assets/tiles/swamp-dirt.png';
 import swampWaterUrl from '../../../assets/tiles/swamp-water.png';
 import deadTreeUrl from '../../../assets/tiles/dead-tree.png';
 import deadTreeDirtUrl from '../../../assets/tiles/dead-tree-dirt.png';
-import smallRocksUrl from '../../../assets/tiles/small-rocks.png';
 
 export const TILE_TEXTURES: Record<TileType3D, string | null> = {
 	[TileType3D.GRASS]: grass1Url,
@@ -107,6 +106,3 @@ export const DEAD_TREE_TEXTURES: string[] = [deadTreeUrl];
 
 /** Dead tree on dirt billboard — placed as decoration over swamp TREE_GROUND / PATH-like tiles. */
 export const DEAD_TREE_DIRT_TEXTURES: string[] = [deadTreeDirtUrl];
-
-/** Small rocks sprite — placed as decoration on DUNGEON_FLOOR tiles in cave biomes. */
-export const SMALL_ROCKS_TEXTURES: string[] = [smallRocksUrl];
