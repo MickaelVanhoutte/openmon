@@ -55,6 +55,7 @@
 				map: tex,
 				transparent: true,
 				alphaTest: 0.5,
+				depthWrite: false,
 				side: THREE.DoubleSide,
 				roughness: 0.9,
 				color: 0xffffff
