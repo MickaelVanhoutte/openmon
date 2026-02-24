@@ -786,16 +786,12 @@ export class GameContext {
 
 			// Restore saved player position if resuming this exact floor from a save
 			const activeSave = savesHolder?.getActiveSave?.();
-			console.log('[PosRestore] save.dungeonFloor=', activeSave?.dungeonFloor,
-				'ctx.currentFloor=', dungeonCtx.currentFloor,
-				'savedX=', activeSave?.dungeonPlayerX, 'savedY=', activeSave?.dungeonPlayerY);
 			const savedPos =
 				activeSave?.dungeonFloor === dungeonCtx.currentFloor &&
 				activeSave.dungeonPlayerX !== undefined &&
 				activeSave.dungeonPlayerY !== undefined
 					? new Position(activeSave.dungeonPlayerX, activeSave.dungeonPlayerY)
 					: null;
-			console.log('[PosRestore] using savedPos=', savedPos, 'playerStart=', floorData.playerStart);
 			this.player.position.setPosition(savedPos ?? floorData.playerStart);
 
 			const allScripts = this.scriptRunner.collectAllScripts(
@@ -1177,6 +1173,15 @@ export class GameContext {
 			save.dungeonPrologueCompleted = dc.prologueCompleted;
 			save.dungeonLegendaryFloors = Array.from(dc.legendaryFloors.entries());
 			save.dungeonEncounteredLegendaries = Array.from(dc.encounteredLegendaries);
+
+			// Carry over transient fields managed by persistDungeonState (player pos + explored map)
+			// so that toSaveContext()-based saves (e.g. Controls auto-save) don't erase them.
+			const activeSave = this.savesHolder?.getActiveSave();
+			if (activeSave) {
+				save.dungeonPlayerX = activeSave.dungeonPlayerX;
+				save.dungeonPlayerY = activeSave.dungeonPlayerY;
+				save.dungeonExplored = activeSave.dungeonExplored;
+			}
 		}
 
 		return save;
