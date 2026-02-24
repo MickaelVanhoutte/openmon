@@ -31,6 +31,7 @@
 	import Decorations3D from './Decorations3D.svelte';
 	import { getThrelteMap } from '$js/mapping/threlte-maps/threlte-map-registry';
 	import { getOrConvertMap } from '$js/mapping/threlte-maps/openmap-converter';
+	import { PROLOGUE_MAP_ID } from '$js/mapping/prologue-map';
 	import { DEBUG } from '$js/env';
 	import { TileType3D } from '$js/mapping/threlte-maps/types';
 
@@ -91,7 +92,7 @@
 	let playerGridX = $state(0);
 	let playerGridY = $state(0);
 	let explorationTracker = $state<ExplorationTracker | undefined>(undefined);
-	let lastTrackedFloor = 0;
+	let lastTrackedFloor = -1; // -1 so floor 0 (prologue) triggers tracker creation
 	let isGamePaused = $state(false);
 	let playerMoney = $state(untrack(() => context.player.bag.money));
 
@@ -175,7 +176,11 @@
 	});
 
 	let dungeonMapData = $derived(
-		isDungeonMode && currentDungeonFloor > 0 ? getThrelteMap(1000 + currentDungeonFloor) : undefined
+		isDungeonMode
+			? currentDungeonFloor === 0
+				? getThrelteMap(PROLOGUE_MAP_ID)            // prologue map
+				: getThrelteMap(1000 + currentDungeonFloor) // regular dungeon floor
+			: undefined
 	);
 
 	function findStairsPosition(
@@ -199,14 +204,13 @@
 			: undefined
 	);
 
-	// ExplorationTracker lifecycle: create on dungeon entry, reset on floor change
-	// Split into separate effects to avoid race conditions where isDungeonMode
-	// toggling in a single reactive batch could destroy a just-created tracker.
+	// ExplorationTracker lifecycle: create on dungeon entry, reset on floor change.
+	// Floor 0 = prologue map (mapId 99), floor > 0 = regular dungeon floors.
+	// lastTrackedFloor starts at -1 so floor 0 triggers correctly.
 	$effect(() => {
 		if (
 			isDungeonMode &&
 			dungeonMapData &&
-			currentDungeonFloor > 0 &&
 			currentDungeonFloor !== lastTrackedFloor
 		) {
 			const floor = currentDungeonFloor;
@@ -214,9 +218,9 @@
 			const h = dungeonMapData.height;
 			import('$js/dungeon/exploration-tracker').then(({ ExplorationTracker }) => {
 				const tracker = new ExplorationTracker(w, h, 5);
-				// Restore saved exploration for this floor if available
+				// Restore saved exploration for regular floors (prologue has no saved exploration)
 				const save = savesHolder.getActiveSave();
-				if (save?.dungeonExplored?.length && save.dungeonFloor === floor) {
+				if (floor > 0 && save?.dungeonExplored?.length && save.dungeonFloor === floor) {
 					tracker.importVisited(save.dungeonExplored);
 				}
 				explorationTracker = tracker;
@@ -230,7 +234,7 @@
 	$effect(() => {
 		if (!isDungeonMode) {
 			explorationTracker = undefined;
-			lastTrackedFloor = 0;
+			lastTrackedFloor = -1;
 		}
 	});
 

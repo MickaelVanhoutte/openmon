@@ -41,11 +41,16 @@ export function generateFloor(
 ): FloorData {
 	const generationType = biomeConfig.generationType ?? 'maze';
 
+	// Floor 1 uses rocky cliff padding so the border looks like cave rock,
+	// giving the impression of an enclosed rocky arena from the very start.
+	const paddingConfig =
+		floorNumber === 1 ? { ...biomeConfig, name: 'Cave Rock' } : biomeConfig;
+
 	if (generationType === 'maze') {
 		try {
-			return padFloorData(generateMaze(seed, floorNumber, biomeConfig), biomeConfig);
+			return padFloorData(generateMaze(seed, floorNumber, biomeConfig), paddingConfig);
 		} catch {
-			return padFloorData(generateFallbackFloor(floorNumber, biomeConfig), biomeConfig);
+			return padFloorData(generateFallbackFloor(floorNumber, biomeConfig), paddingConfig);
 		}
 	}
 
@@ -53,9 +58,9 @@ export function generateFloor(
 
 	try {
 		const result = generateCaveFloor(seed, floorNumber, biomeConfig, startTime);
-		return padFloorData(result, biomeConfig);
+		return padFloorData(result, paddingConfig);
 	} catch {
-		return padFloorData(generateFallbackFloor(floorNumber, biomeConfig), biomeConfig);
+		return padFloorData(generateFallbackFloor(floorNumber, biomeConfig), paddingConfig);
 	}
 }
 

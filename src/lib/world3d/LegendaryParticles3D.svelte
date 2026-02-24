@@ -39,7 +39,6 @@
 	let running = $state(false);
 
 	function buildTypeColors(): Color[] {
-		console.log(TYPE_COLORS[types[0].toLowerCase()]);
 		const list = types.length > 0 ? types : ['normal'];
 		return list.map(t => new Color(TYPE_COLORS[t.toLowerCase()] ?? '#ffffff'));
 	}

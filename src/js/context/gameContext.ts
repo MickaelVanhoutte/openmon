@@ -430,8 +430,10 @@ export class GameContext {
 			if (dc && !dc.prologueCompleted) {
 				const prologueTemplate = this.MAPS[PROLOGUE_MAP_ID];
 				if (prologueTemplate) {
-					this.map = OpenMap.fromInstance(prologueTemplate, PROLOGUE_WAKE_UP_POS);
-					this.player.position = new CharacterPosition(PROLOGUE_WAKE_UP_POS);
+					// Use the map's own playerInitialPosition (already in padded coords)
+					const startPos = prologueTemplate.playerInitialPosition;
+					this.map = OpenMap.fromInstance(prologueTemplate, startPos);
+					this.player.position = new CharacterPosition(startPos);
 				}
 				this.overWorldContext.startScene(SceneType.PROLOGUE);
 
@@ -755,16 +757,20 @@ export class GameContext {
 				// Only accept tiles with a wall directly north
 				if (tiles[y - 1]?.[x] !== TileType3D.WALL) continue;
 
-				const edgeDist = Math.min(x, y, width - 1 - x, height - 1 - y);
-				const score = edgeDist <= 2 ? 2 : 1;
+				// Score: prefer tiles near the top of the map (small y) so the portal
+				// is always visible at the far end when the player enters from the bottom.
+				// score 3 = top quarter, score 2 = top half, score 1 = elsewhere.
+				const topQuarter = Math.floor(height / 4);
+				const topHalf    = Math.floor(height / 2);
+				const score = y <= topQuarter ? 3 : y <= topHalf ? 2 : 1;
 				candidates.push({ pos: new Position(x, y), wallPos: new Position(x, y - 1), score });
 			}
 		}
 
 		if (candidates.length === 0) return undefined;
 
-		const edgeCandidates = candidates.filter(c => c.score >= 2);
-		const pool = edgeCandidates.length > 0 ? edgeCandidates : candidates;
+		const bestScore = Math.max(...candidates.map(c => c.score));
+		const pool = candidates.filter(c => c.score === bestScore);
 		return rng.shuffle(pool)[0];
 	}
 
