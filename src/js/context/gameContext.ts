@@ -364,8 +364,9 @@ export class GameContext {
 			if (!this.map.hasBoundaryAt(futurePosition)) {
 				// Intercept legendary portals: animate suck-in from the current tile (player never
 				// steps onto the wall tile), then trigger the map change after the animation ends.
+				// This applies both when entering (destination >= 9500) and when leaving (current map >= 9500).
 				const futureJonction = this.map?.jonctionAt(futurePosition);
-				if (futureJonction && futureJonction.mapIdx >= 9500) {
+				if (futureJonction && (futureJonction.mapIdx >= 9500 || (this.map?.mapId ?? 0) >= 9500)) {
 					this.changeMap(futureJonction);
 					return;
 				}
@@ -476,8 +477,9 @@ export class GameContext {
 	}
 
 	changeMap(jonction: Jonction) {
-		// Legendary side-room portals (mapIdx >= 9500) get a suck-in animation before the transition.
-		const isLegendaryPortal = jonction.mapIdx >= 9500;
+		// Legendary side-room portals get a suck-in animation before the transition.
+		// Applies both when entering (destination mapIdx >= 9500) and when leaving (current map mapId >= 9500).
+		const isLegendaryPortal = jonction.mapIdx >= 9500 || (this.map?.mapId ?? 0) >= 9500;
 
 		this.audioManager.fadeOutMapSound();
 		this.scriptRunner.interruptCurrent();
