@@ -861,7 +861,7 @@
 
 		// Apply sink to trees (plane1 and plane2 are paired, so we process every 2 indices)
 		// Stumps match plane1 indices (groupIndex = meshIdx / 2)
-		for (let meshIdx = 0; meshIdx < treeMeshRefs.length; meshIdx += 2) {
+		/*for (let meshIdx = 0; meshIdx < treeMeshRefs.length; meshIdx += 2) {
 			const plane1Mesh = treeMeshRefs[meshIdx];
 			const plane2Mesh = treeMeshRefs[meshIdx + 1];
 			const treeBase = treeBaseMatrices[meshIdx];
@@ -896,7 +896,7 @@
 				}
 				plane2Mesh.instanceMatrix.needsUpdate = true;
 			}
-		}
+		}*/
 	});
 </script>
 

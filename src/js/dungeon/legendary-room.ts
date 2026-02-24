@@ -78,13 +78,14 @@ export function generateLegendaryRoom(
 		grid.push(row);
 	}
 
-	// Player enters at bottom-center
-	const innerPlayerEntry = new Position(Math.floor(width / 2), height - 2);
-	// Return portal: bottom-center wall tile — stays as WALL, door sprite marks it visually
-	const innerReturnTile = new Position(Math.floor(width / 2), height - 1);
+	// Return portal: top-center wall tile — the exit the player walks back to
+	const innerReturnTile = new Position(Math.floor(width / 2), 0);
+	// Player spawns just inside the portal (y=1), one step south of the wall.
+	// The portal is immediately visible behind/above them — they walk into the room.
+	const innerPlayerEntry = new Position(Math.floor(width / 2), 1);
 
-	// Legendary NPC at center-top area
-	const innerLegendaryPos = new Position(Math.floor(width / 2), 3);
+	// Legendary NPC deeper in the room — player walks toward them from the portal
+	const innerLegendaryPos = new Position(Math.floor(width / 2), Math.floor(height / 2) + 1);
 
 	// Build NPC (only if not already encountered)
 	const npcs: NPC[] = [];
