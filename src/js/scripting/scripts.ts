@@ -256,6 +256,9 @@ export class GiveItem extends Scriptable {
 	play(context: GameContext, onEnd: () => void): any {
 		context.soundManager.playUISFX('menu-open');
 		context.player.bag.addItems(this.itemId, this.qty, context.ITEMS);
+		const itemName = context.ITEMS.getItem(this.itemId)?.name ?? 'item';
+		const label = this.qty > 1 ? `${this.qty}× ${itemName}` : itemName;
+		context.notifications.notify(`Found ${label}!`);
 		setTimeout(() => {
 			this.finished = true;
 			onEnd();
