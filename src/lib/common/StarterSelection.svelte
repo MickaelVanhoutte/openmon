@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import DialogView from './DialogView.svelte';
 	import { Dialog, Message } from '../../js/scripting/scripts';
 	import type { GameContext } from '../../js/context/gameContext';
@@ -17,13 +17,13 @@
 	let aUnsubscribe: Unsubscriber;
 	let bUnsubscribe: Unsubscriber;
 
-	const translateZ = canvasWidth * 0.33;
+	const translateZ = untrack(() => canvasWidth * 0.33);
 
-	const monsters = [
+	const monsters = untrack(() => [
 		context.POKEDEX.findById(1).result,
 		context.POKEDEX.findById(4).result,
 		context.POKEDEX.findById(7).result
-	];
+	]);
 
 	let angle = $state(0);
 	let currentIndex = $state(0);

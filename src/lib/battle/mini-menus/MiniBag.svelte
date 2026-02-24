@@ -5,7 +5,7 @@
 	import { UseItemAction } from '../../../js/items/items-model';
 	import type { PokemonInstance } from '../../../js/pokemons/pokedex';
 	import { gsap } from 'gsap';
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 
 	interface Props {
 		context: GameContext;
@@ -23,7 +23,7 @@
 		2: 'balls'
 	};
 
-	const isWild = battleCtx.isWild;
+	const isWild = untrack(() => battleCtx.isWild);
 	let selectedIdx = $state(0);
 	let itemIdx = $state(0);
 	let containerEl: HTMLDivElement | undefined = $state();
@@ -72,27 +72,30 @@
 </script>
 
 <div class="mini-bag" style="--zIndex: {zIndex}" bind:this={containerEl}>
-	<nav class="nav" role="navigation" aria-label="Battle bag">
+	<nav class="nav" aria-label="Battle bag">
 		<div class="nav-left">
 			<div class="tabs" role="tablist">
-				<a
+				<button
 					class:active={selectedIdx === 0}
 					onclick={() => (selectedIdx = 0)}
 					role="tab"
-					aria-selected={selectedIdx === 0}>Healing</a
+					aria-selected={selectedIdx === 0}
+					type="button">Healing</button
 				>
-				<a
+				<button
 					class:active={selectedIdx === 1}
 					onclick={() => (selectedIdx = 1)}
 					role="tab"
-					aria-selected={selectedIdx === 1}>Revive</a
+					aria-selected={selectedIdx === 1}
+					type="button">Revive</button
 				>
 				{#if isWild}
-					<a
+					<button
 						class:active={selectedIdx === 2}
 						onclick={() => (selectedIdx = 2)}
 						role="tab"
-						aria-selected={selectedIdx === 2}>Pokeballs</a
+						aria-selected={selectedIdx === 2}
+						type="button">Pokeballs</button
 					>
 				{/if}
 			</div>
@@ -106,9 +109,11 @@
 							<div
 								class="item"
 								class:selected={itemIdx === idx}
-								onclick={() => {
-									itemIdx = idx;
-								}}
+								onclick={() => { itemIdx = idx; }}
+								onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') itemIdx = idx; }}
+								role="option"
+								aria-selected={itemIdx === idx}
+								tabindex="0"
 							>
 								<span>{context.ITEMS.getItem(id)?.name}</span>
 								<span>x {qty}</span>
@@ -378,7 +383,7 @@
 			.tabs {
 				display: flex;
 				gap: 10px;
-				a {
+				button {
 					color: white;
 					padding: 8px 16px;
 					text-transform: uppercase;
@@ -386,6 +391,11 @@
 					border-bottom: 2px solid transparent;
 					transition: all 0.2s ease;
 					cursor: pointer;
+					background: transparent;
+					border-top: none;
+					border-left: none;
+					border-right: none;
+					font: inherit;
 
 					&.active,
 					&:hover {

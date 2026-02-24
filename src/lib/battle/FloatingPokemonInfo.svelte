@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import gsap from 'gsap';
 	import type { PokemonInstance } from '../../js/pokemons/pokedex';
 	import { abilityPopupStore, type PopupData } from '../../js/battle/ability-popup-store';
@@ -35,7 +35,7 @@
 		index = 0
 	}: Props = $props();
 
-	let containerElement: HTMLDivElement;
+	let containerElement: HTMLDivElement = $state();
 
 	function animateEntrance() {
 		if (!containerElement) {
@@ -103,7 +103,7 @@
 
 	// Poll for HP/status/stat changes
 	let pollInterval: ReturnType<typeof setInterval>;
-	let lastHp = $state(pokemon.currentHp);
+	let lastHp = $state(untrack(() => pokemon.currentHp));
 
 	onMount(() => {
 		let lastName = pokemon.name;

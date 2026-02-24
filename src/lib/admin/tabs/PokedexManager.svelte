@@ -228,15 +228,15 @@
 				<section class="editor-section">
 					<h3>Basic Info</h3>
 					<div class="form-row">
-						<label>Name</label>
-						<input type="text" bind:value={editingPokemon.name} />
+						<label>Name
+						<input type="text" bind:value={editingPokemon.name} /></label>
 					</div>
 					<div class="form-row">
-						<label>Regional ID</label>
-						<input type="number" bind:value={editingPokemon.regionalId} readonly />
+						<label>Regional ID
+						<input type="number" bind:value={editingPokemon.regionalId} readonly /></label>
 					</div>
 					<div class="form-row">
-						<label>Types</label>
+						<span class="form-label">Types</span>
 						<div class="types-display">
 							{#each editingPokemon.types as type}
 								<span class="type-badge {type}">{type}</span>
@@ -249,52 +249,58 @@
 					<h3>Base Stats</h3>
 					<div class="stats-grid">
 						<div class="stat-row">
-							<label>HP</label>
+							<label>HP
 							<input
 								type="number"
 								value={editingPokemon.stats?.hp ?? 0}
 								onchange={(e) => updateStat('hp', parseInt(e.currentTarget.value))}
 							/>
+</label>
 						</div>
 						<div class="stat-row">
-							<label>Attack</label>
+							<label>Attack
 							<input
 								type="number"
 								value={editingPokemon.stats?.attack ?? 0}
 								onchange={(e) => updateStat('attack', parseInt(e.currentTarget.value))}
 							/>
+</label>
 						</div>
 						<div class="stat-row">
-							<label>Defense</label>
+							<label>Defense
 							<input
 								type="number"
 								value={editingPokemon.stats?.defense ?? 0}
 								onchange={(e) => updateStat('defense', parseInt(e.currentTarget.value))}
 							/>
+</label>
 						</div>
 						<div class="stat-row">
-							<label>Sp.Atk</label>
+							<label>Sp.Atk
 							<input
 								type="number"
 								value={editingPokemon.stats?.spAttack ?? 0}
 								onchange={(e) => updateStat('spAttack', parseInt(e.currentTarget.value))}
 							/>
+</label>
 						</div>
 						<div class="stat-row">
-							<label>Sp.Def</label>
+							<label>Sp.Def
 							<input
 								type="number"
 								value={editingPokemon.stats?.spDefense ?? 0}
 								onchange={(e) => updateStat('spDefense', parseInt(e.currentTarget.value))}
 							/>
+</label>
 						</div>
 						<div class="stat-row">
-							<label>Speed</label>
+							<label>Speed
 							<input
 								type="number"
 								value={editingPokemon.stats?.speed ?? 0}
 								onchange={(e) => updateStat('speed', parseInt(e.currentTarget.value))}
 							/>
+</label>
 						</div>
 					</div>
 				</section>
@@ -330,8 +336,8 @@
 			</footer>
 
 			{#if showAddMoveModal}
-				<div class="modal-overlay" onclick={closeAddMoveModal}>
-					<div class="add-move-modal" onclick={(e) => e.stopPropagation()}>
+				<div class="modal-overlay" onclick={closeAddMoveModal} role="button" tabindex="0" onkeydown={(e) => e.key === 'Escape' ? closeAddMoveModal() : undefined}>
+					<div class="add-move-modal" onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.stopPropagation()} role="dialog" aria-modal="true" tabindex="-1">
 						<header class="modal-header">
 							<h3>Add Move</h3>
 							<button class="close-modal-btn" onclick={closeAddMoveModal}>X</button>
@@ -345,8 +351,9 @@
 								/>
 							</div>
 							<div class="level-input">
-								<label>Level learned:</label>
+								<label>Level learned:
 								<input type="number" bind:value={selectedMoveLevel} min="1" max="100" />
+</label>
 							</div>
 							<div class="moves-search-results">
 								{#each filteredMoves() as move (move.id)}
@@ -406,7 +413,7 @@
 							animate:flip={{ duration: 200 }}
 						>
 							<div class="drag-handle">&#9776;</div>
-							<div class="pokemon-info" onclick={() => openEditor(pokemon)}>
+							<div class="pokemon-info" onclick={() => openEditor(pokemon)} role="button" tabindex="0" onkeydown={(e) => e.key === 'Enter' ? openEditor(pokemon) : undefined}>
 								<span class="regional-id">#{pokemon.regionalId}</span>
 								<span class="pokemon-name">{pokemon.name}</span>
 								<span class="pokemon-types">
@@ -675,7 +682,8 @@
 		margin-bottom: 0.5rem;
 	}
 
-	.form-row label {
+	.form-row label,
+	.form-row .form-label {
 		font-size: 0.625rem;
 		min-width: 80px;
 	}

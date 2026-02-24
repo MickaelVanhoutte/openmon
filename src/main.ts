@@ -1,4 +1,7 @@
 import '@abraham/reflection';
+// Vendor CSS — imported here so Vite handles them directly (avoids Sass @import deprecation)
+import 'chota/src/chota.css';
+import '@sjmc11/tourguidejs/dist/css/tour.min.css';
 import './app.scss';
 import { mount } from 'svelte';
 import App from './App.svelte';

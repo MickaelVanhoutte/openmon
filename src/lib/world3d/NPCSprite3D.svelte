@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { T, useTask } from '@threlte/core';
 	import { Billboard } from '@threlte/extras';
-	import * as THREE from 'three';
+	import { DoubleSide, NearestFilter, SRGBColorSpace, Texture, TextureLoader } from 'three';
+	import { untrack } from 'svelte';
 	import { NPC } from '$js/characters/npc';
 	import { TileType3D, TILE_HEIGHTS, type ThrelteMapData } from '$js/mapping/threlte-maps/types';
 
@@ -23,7 +24,7 @@
 		up: 0.0
 	};
 
-	let texture = $state<THREE.Texture | null>(null);
+	let texture = $state<Texture | null>(null);
 	let animFrame = $state(0);
 	let animElapsed = $state(0);
 
@@ -41,8 +42,10 @@
 		};
 	}
 
-	// Initialize position
-	const startPos = gridTo3D(npc.position.currentGridPosition.x, npc.position.currentGridPosition.y);
+	// Initialize position — untrack to avoid false reactive capture warning
+	const startPos = untrack(() =>
+		gridTo3D(npc.position.currentGridPosition.x, npc.position.currentGridPosition.y)
+	);
 	let visualPosition = $state({ ...startPos });
 
 	// Load texture
@@ -50,17 +53,17 @@
 		const walking = npc.spriteSheet.overworld.walking;
 		const source = walking.source;
 		const frameCount = walking.frameNumber ?? 4;
-		const loader = new THREE.TextureLoader();
+		const loader = new TextureLoader();
 		const tex = loader.load(source);
-		tex.magFilter = THREE.NearestFilter;
-		tex.minFilter = THREE.NearestFilter;
-		tex.colorSpace = THREE.SRGBColorSpace;
+		tex.magFilter = NearestFilter;
+		tex.minFilter = NearestFilter;
+		tex.colorSpace = SRGBColorSpace;
 		tex.repeat.set(1 / frameCount, 0.25);
 		texture = tex;
 	});
 
 	// Movement + animation task
-	useTask('npc-movement-' + npc.id, (delta) => {
+	useTask('npc-movement-' + untrack(() => npc.id), (delta) => {
 		if (!texture) return;
 
 		// Update alert animation
@@ -131,7 +134,7 @@
 	<Billboard position={[visualPosition.x, visualPosition.y, visualPosition.z]}>
 		<T.Mesh>
 			<T.PlaneGeometry args={[1, 1]} />
-			<T.MeshStandardMaterial map={texture} transparent alphaTest={0.5} side={THREE.DoubleSide} />
+			<T.MeshStandardMaterial map={texture} transparent alphaTest={0.5} side={DoubleSide} />
 		</T.Mesh>
 
 		{#if npc.alerted}

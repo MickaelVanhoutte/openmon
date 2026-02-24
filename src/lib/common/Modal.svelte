@@ -39,7 +39,6 @@
 	bind:this={dialog}
 	onclose={handleClose}
 	onclick={(e) => e.target === dialog && handleBackdropClick()}
-	role="dialog"
 	aria-modal="true"
 >
 	<!-- svelte-ignore a11y_no_static_element_interactions -->

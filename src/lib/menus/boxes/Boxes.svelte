@@ -356,12 +356,14 @@
 			{#each teamSlot as pokemon, i}
 				<div
 					class="entry"
-					tabindex="1"
+					role="button"
+					tabindex="0"
 					class:over={selectZone === 'party' && over === i}
 					class:moving={firstSelection?.zone === 'party' &&
 						firstSelection?.index === i &&
 						firstSelection?.moving}
 					onclick={() => openOptions(new BoxSelection('party', i, selectedBox, pokemon))}
+					onkeydown={(e) => e.key === 'Enter' ? openOptions(new BoxSelection('party', i, selectedBox, pokemon)) : undefined}
 				>
 					{#if firstSelection?.moving && selectZone === 'party' && over === i}
 						<img class="moving" src={firstSelection.selected?.getSprite()} alt="moving pokemon" />
@@ -413,6 +415,8 @@
 			{#each box.values as entry, index}
 				<div
 					class="entry"
+					role="button"
+					tabindex="0"
 					class:over={selectZone === 'box' && over === index}
 					class:selected={firstSelection?.box === selectedBox &&
 						firstSelection.zone === 'box' &&
@@ -422,6 +426,7 @@
 						firstSelection?.index === index &&
 						firstSelection?.moving}
 					onclick={() => openOptions(new BoxSelection('box', index, selectedBox, entry))}
+					onkeydown={(e) => e.key === 'Enter' ? openOptions(new BoxSelection('box', index, selectedBox, entry)) : undefined}
 				>
 					{#if firstSelection?.moving && selectZone === 'box' && over === index}
 						<img class="moving" src={firstSelection?.selected?.getSprite()} alt="moving pokemon" />
@@ -448,15 +453,15 @@
 	<div class="options" class:opened={optionsOpened} role="menu" aria-label="Pokemon options">
 		<ul>
 			{#if (context.player.monsters.length > 1 && firstSelection?.zone === 'party') || firstSelection?.zone === 'box'}
-				<li class:selected={selectedOption === 0} onclick={() => setMoving()} role="menuitem">
+				<li class:selected={selectedOption === 0} onclick={() => setMoving()} role="menuitem" tabindex="0" onkeydown={(e) => e.key === 'Enter' ? setMoving() : undefined}>
 					MOVE
 				</li>
 			{/if}
-			<li class:selected={selectedOption === 1} onclick={() => openSum()} role="menuitem">
+			<li class:selected={selectedOption === 1} onclick={() => openSum()} role="menuitem" tabindex="0" onkeydown={(e) => e.key === 'Enter' ? openSum() : undefined}>
 				SUMMARY
 			</li>
 			<!--TODO <li class:selected={selectedOption === 2}>RELEASE</li>-->
-			<li class:selected={selectedOption === 2} onclick={() => cancel()} role="menuitem">CANCEL</li>
+			<li class:selected={selectedOption === 2} onclick={() => cancel()} role="menuitem" tabindex="0" onkeydown={(e) => e.key === 'Enter' ? cancel() : undefined}>CANCEL</li>
 		</ul>
 	</div>
 </div>

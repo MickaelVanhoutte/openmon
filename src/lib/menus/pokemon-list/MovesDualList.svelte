@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { untrack } from 'svelte';
 	import type { Move } from '$js/pokemons/pokedex';
 	import { MoveInstance } from '$js/pokemons/pokedex';
 
@@ -63,7 +64,7 @@
 	const { availableMoves, selectedMoves, onUpdate }: Props = $props();
 
 	// Local state that tracks the selected moves
-	let localSelected: Move[] = $state([...selectedMoves]);
+	let localSelected: Move[] = $state(untrack(() => [...selectedMoves]));
 
 	// Search query for filtering available moves
 	let searchQuery = $state('');

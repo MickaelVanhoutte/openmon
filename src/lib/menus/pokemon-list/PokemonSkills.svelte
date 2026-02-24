@@ -61,7 +61,7 @@
 
 	<div class="moves">
 		<div class="__wrapper">
-			<button class="edit" onclick={() => (moveEdit = !moveEdit)}>
+			<button class="edit" onclick={() => (moveEdit = !moveEdit)} aria-label="Edit moves">
 				<span class="svg">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
 						><path
@@ -76,6 +76,9 @@
 					class="move move-card"
 					class:selected={index === selectedMove}
 					onclick={() => (selectedMove = index)}
+					role="button"
+					tabindex="0"
+					onkeydown={(e) => e.key === 'Enter' || e.key === ' ' ? (selectedMove = index) : undefined}
 				>
 					<span style="--bg:{getTypeColor(move.type)}" class="type type-badge"
 						>{move.type.toUpperCase()}</span
@@ -348,15 +351,5 @@
 		.category {
 			font-size: 16px;
 		}
-
-		.pp {
-			font-size: 18px;
-			text-transform: uppercase;
-		}
-	}
-
-	.tab.active {
-		border-bottom: 3px solid #ffd700;
-		color: #ffd700;
 	}
 </style>

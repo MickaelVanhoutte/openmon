@@ -114,7 +114,7 @@
 		<div class="firefly"></div>
 	{/each}
 
-	<span class="sound" onclick={toggleSound}>
+	<button class="sound" onclick={toggleSound} aria-label={soundPlaying ? 'Mute sound' : 'Enable sound'} type="button">
 		{#if soundPlaying}
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
 				><path
@@ -128,7 +128,7 @@
 				></path></svg
 			>
 		{/if}
-	</span>
+	</button>
 
 	<img class="logo" src="src/assets/menus/pokemon-logo.png" alt="pokemon logo" />
 
@@ -175,14 +175,6 @@
 {/if}
 
 <style lang="scss">
-	.sprite {
-		will-change: transform, opacity;
-	}
-
-	.pokemon {
-		contain: paint;
-	}
-
 	@keyframes blink {
 		0% {
 			opacity: 1;

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { untrack } from 'svelte';
 	import { typeChart } from '../../../js/battle/battle-model';
 	import { Move, PokedexEntry } from '../../../js/pokemons/pokedex';
 	import { backInOut } from 'svelte/easing';
@@ -12,7 +13,7 @@
 
 	const { pokemon }: Props = $props();
 
-	let currentMove: Move = $state(pokemon.moves[0]);
+	let currentMove: Move = $state(untrack(() => pokemon.moves[0]));
 	let showModal = $state(false);
 	let showDetail = $state(false);
 	const mechanicRegex = /\{mechanic:.*?\}/g;
@@ -203,15 +204,6 @@
 		flex-wrap: wrap;
 		justify-content: center;
 
-		&.smaller {
-			gap: 4px;
-
-			.type {
-				height: 22px;
-				width: auto;
-			}
-		}
-
 		.type {
 			font-size: 20px;
 			text-transform: uppercase;
@@ -231,10 +223,6 @@
 			gap: 8px;
 			padding: 2px 6px;
 
-			span {
-				color: white;
-			}
-			img,
 			svg {
 				height: 22px;
 				width: auto;

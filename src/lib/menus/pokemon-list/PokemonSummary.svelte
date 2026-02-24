@@ -118,22 +118,22 @@
 >
 	<nav class="nav">
 		<div class="nav-left">
-			<a class="brand">{selectedMons.name}</a>
-			<div class="tabs">
-				<a class:active={tab === 0} onclick={() => (tab = 0)}>{tabs[0].replace('$POKEMON', '')}</a>
-				<a class:active={tab === 1} onclick={() => (tab = 1)}>{tabs[1].replace('$POKEMON', '')}</a>
-				<a class:active={tab === 2} onclick={() => (tab = 2)}>{tabs[2].replace('$POKEMON', '')}</a>
+			<span class="brand">{selectedMons.name}</span>
+			<div class="tabs" role="tablist">
+				<button class:active={tab === 0} onclick={() => (tab = 0)} role="tab" aria-selected={tab === 0} type="button">{tabs[0].replace('$POKEMON', '')}</button>
+				<button class:active={tab === 1} onclick={() => (tab = 1)} role="tab" aria-selected={tab === 1} type="button">{tabs[1].replace('$POKEMON', '')}</button>
+				<button class:active={tab === 2} onclick={() => (tab = 2)} role="tab" aria-selected={tab === 2} type="button">{tabs[2].replace('$POKEMON', '')}</button>
 			</div>
 		</div>
 		<div class="nav-right">
-			<button class="previous" onclick={() => previous()}>
+			<button class="previous" onclick={() => previous()} aria-label="Previous Pokemon">
 				<span class="arrow"></span>
 			</button>
-			<button class="next" onclick={() => next()}>
+			<button class="next" onclick={() => next()} aria-label="Next Pokemon">
 				<span class="arrow"></span>
 			</button>
 
-			<button class="back" onclick={() => back()}>
+			<button class="back" onclick={() => back()} aria-label="Go back">
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
 					><path
 						d="M10.5859 12L2.79297 4.20706L4.20718 2.79285L12.0001 10.5857L19.793 2.79285L21.2072 4.20706L13.4143 12L21.2072 19.7928L19.793 21.2071L12.0001 13.4142L4.20718 21.2071L2.79297 19.7928L10.5859 12Z"
@@ -208,6 +208,8 @@
 					font-size: 36px;
 					width: 40%;
 					color: white;
+					// Override Chota .nav .brand padding: 1rem 2rem
+					padding: 0;
 				}
 			}
 			.nav-right {
@@ -218,7 +220,12 @@
 				gap: 12%;
 			}
 
-			.tabs a {
+			.tabs button {
+				// Reset properties overridden by the general nav button{} rule below
+				background: transparent;
+				width: auto;
+				height: auto;
+				display: inline-flex;
 				color: white;
 				border: none;
 				padding-bottom: 4px;

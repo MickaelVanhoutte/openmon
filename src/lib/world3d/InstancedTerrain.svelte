@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { T, useTask } from '@threlte/core';
 	import { untrack } from 'svelte';
-	import * as THREE from 'three';
+	import { InstancedMesh, Matrix4, MeshStandardMaterial, NearestFilter, Quaternion, RepeatWrapping, SRGBColorSpace, Texture, TextureLoader, Vector3 } from 'three';
 	import {
 		TileType3D,
 		TILE_HEIGHTS,
@@ -36,27 +36,27 @@
 	let pushProgress = $state(0);
 	let playerSnapshot = { x: 0, z: 0 };
 	let pushTween: gsap.core.Tween | undefined;
-	const pushTmpMatrix = new THREE.Matrix4();
-	const pushTmpPos = new THREE.Vector3();
+	const pushTmpMatrix = new Matrix4();
+	const pushTmpPos = new Vector3();
 
 	// Storage for wall mesh refs and base matrices
 	const wallMeshData: Map<
 		string,
-		{ mesh: THREE.InstancedMesh; baseMatrices: THREE.Matrix4[] }
+		{ mesh: InstancedMesh; baseMatrices: Matrix4[] }
 	> = new Map();
 
-	const textureLoader = new THREE.TextureLoader();
+	const textureLoader = new TextureLoader();
 	// Textures keyed by URL (shared across tile types that use the same image)
-	const loadedTexturesByUrl = new Map<string, THREE.Texture>();
+	const loadedTexturesByUrl = new Map<string, Texture>();
 
-	function loadTexture(url: string): THREE.Texture {
+	function loadTexture(url: string): Texture {
 		if (loadedTexturesByUrl.has(url)) return loadedTexturesByUrl.get(url)!;
 		const texture = textureLoader.load(url);
-		texture.magFilter = THREE.NearestFilter;
-		texture.minFilter = THREE.NearestFilter;
-		texture.colorSpace = THREE.SRGBColorSpace;
-		texture.wrapS = THREE.RepeatWrapping;
-		texture.wrapT = THREE.RepeatWrapping;
+		texture.magFilter = NearestFilter;
+		texture.minFilter = NearestFilter;
+		texture.colorSpace = SRGBColorSpace;
+		texture.wrapS = RepeatWrapping;
+		texture.wrapT = RepeatWrapping;
 		loadedTexturesByUrl.set(url, texture);
 		return texture;
 	}
@@ -187,25 +187,25 @@
 		url: string | null,
 		fallbackColor: number,
 		tileHeight: number
-	): THREE.MeshStandardMaterial | THREE.MeshStandardMaterial[] {
+	): MeshStandardMaterial | MeshStandardMaterial[] {
 		const topTexture = url ? loadedTexturesByUrl.get(url) ?? null : null;
 
 		if (tileHeight >= 0.3) {
-			const sideMat = new THREE.MeshStandardMaterial({
+			const sideMat = new MeshStandardMaterial({
 				map: wallSideTexture,
 				roughness: 0.9
 			});
 			const topMat = topTexture
-				? new THREE.MeshStandardMaterial({
+				? new MeshStandardMaterial({
 						map: topTexture,
 						color: 0xffffff,
 						roughness: 0.9
 					})
-				: new THREE.MeshStandardMaterial({
+				: new MeshStandardMaterial({
 						color: fallbackColor,
 						roughness: 0.9
 					});
-			const bottomMat = new THREE.MeshStandardMaterial({
+			const bottomMat = new MeshStandardMaterial({
 				color: 0x333333,
 				roughness: 0.9
 			});
@@ -214,13 +214,13 @@
 		}
 
 		if (topTexture) {
-			return new THREE.MeshStandardMaterial({
+			return new MeshStandardMaterial({
 				map: topTexture,
 				color: 0xffffff,
 				roughness: 0.9
 			});
 		}
-		return new THREE.MeshStandardMaterial({
+		return new MeshStandardMaterial({
 			color: fallbackColor,
 			roughness: 0.9
 		});
@@ -229,7 +229,7 @@
 	interface TileGroup {
 		type: TileType3D;
 		textureUrl: string | null;
-		matrices: THREE.Matrix4[];
+		matrices: Matrix4[];
 	}
 
 	let terrainGroups = $derived.by(() => {
@@ -253,12 +253,12 @@
 				const scaleY = paddingHeightScales?.get(row * width + col) ?? 1;
 				const y = scaleY * (BASE_HEIGHT + tileHeight) / 2;
 
-				const matrix = new THREE.Matrix4();
+				const matrix = new Matrix4();
 				if (scaleY !== 1) {
 					matrix.compose(
-						new THREE.Vector3(x, y, z),
-						new THREE.Quaternion(),
-						new THREE.Vector3(1, scaleY, 1)
+						new Vector3(x, y, z),
+						new Quaternion(),
+						new Vector3(1, scaleY, 1)
 					);
 				} else {
 					matrix.setPosition(x, y, z);
@@ -278,7 +278,7 @@
 		});
 	}
 
-	function applyPushToMesh(mesh: THREE.InstancedMesh, baseMatrices: THREE.Matrix4[]) {
+	function applyPushToMesh(mesh: InstancedMesh, baseMatrices: Matrix4[]) {
 		for (let i = 0; i < baseMatrices.length; i++) {
 			pushTmpPos.setFromMatrixPosition(baseMatrices[i]);
 			const dx = pushTmpPos.x - playerSnapshot.x;
@@ -355,7 +355,7 @@
 			args={[undefined, undefined, group.matrices.length]}
 			material={materials}
 			receiveShadow
-			oncreate={(ref: THREE.InstancedMesh) => {
+			oncreate={(ref: InstancedMesh) => {
 				for (let i = 0; i < group.matrices.length; i++) {
 					ref.setMatrixAt(i, group.matrices[i]);
 				}

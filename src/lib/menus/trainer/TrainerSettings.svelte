@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { GameContext } from '../../../js/context/gameContext';
+	import { untrack } from 'svelte';
 
 	interface Props {
 		context: GameContext;
@@ -7,12 +8,13 @@
 
 	let { context }: Props = $props();
 
-	let musicVolume = $state(context.settings.musicVolume);
-	let sfxVolume = $state(context.settings.sfxVolume);
-	let cryVolume = $state(context.settings.cryVolume);
-	let soundEnabled = $state(context.settings.soundEnabled);
-	let xpShare = $state(context.settings.xpShare);
-	let difficulty = $state(context.settings.difficulty);
+	// untrack: intentional one-time copy of settings into local $state for two-way binding
+	let musicVolume = $state(untrack(() => context.settings.musicVolume));
+	let sfxVolume = $state(untrack(() => context.settings.sfxVolume));
+	let cryVolume = $state(untrack(() => context.settings.cryVolume));
+	let soundEnabled = $state(untrack(() => context.settings.soundEnabled));
+	let xpShare = $state(untrack(() => context.settings.xpShare));
+	let difficulty = $state(untrack(() => context.settings.difficulty));
 
 	function onMusicVolume(e: Event) {
 		const v = Number((e.target as HTMLInputElement).value) / 100;

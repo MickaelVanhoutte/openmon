@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { MoveInstance, PokemonInstance } from '../../../js/pokemons/pokedex';
 	import PokemonSummary from './PokemonSummary.svelte';
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import { backInOut } from 'svelte/easing';
 	import { fade, slide } from 'svelte/transition';
 	import BagMenu from '../bag/Bag.svelte';
@@ -38,7 +38,7 @@
 	}: Props = $props();
 
 	let battleSummaryOpened = $state(false);
-	let summaryOpened = $state(context.overWorldContext.menus.openSummary);
+	let summaryOpened = $state(untrack(() => context.overWorldContext.menus.openSummary));
 	const selectedPokemon = $derived(context.player.monsters.at(selected));
 	const hasHeldItem = $derived(!!selectedPokemon?.heldItem);
 	const numberOfOptions = $derived(
@@ -55,10 +55,10 @@
 	let switchToIdx: number | undefined = $state(undefined);
 	let openOptions = $state(false);
 	let optionSelected = $state(0);
-	const emptyslots = $state(new Array(6 - context.player.monsters.length).fill(0));
+	const emptyslots = $state(untrack(() => new Array(6 - context.player.monsters.length).fill(0)));
 
-	let first: PokemonInstance | undefined = $state(context.player.monsters?.[0]);
-	let others: PokemonInstance[] = $state(context.player.monsters.slice(1));
+	let first: PokemonInstance | undefined = $state(untrack(() => context.player.monsters?.[0]));
+	let others: PokemonInstance[] = $state(untrack(() => context.player.monsters.slice(1)));
 	let battleContext: BattleContext | undefined = $state(undefined);
 
 	$effect(() => {
@@ -291,6 +291,9 @@
 				class:selected={selected === 0}
 				class:switching={switchToIdx === 0}
 				onclick={() => select(0)}
+				role="button"
+				tabindex="0"
+				onkeydown={(e) => e.key === 'Enter' || e.key === ' ' ? select(0) : undefined}
 			>
 				<div class="header">
 					<div class="img-wrapper">
@@ -326,6 +329,9 @@
 					class:selected={selected === index + 1}
 					class:switching={switchToIdx === index + 1}
 					onclick={() => select(index + 1)}
+					role="button"
+					tabindex="0"
+					onkeydown={(e) => e.key === 'Enter' || e.key === ' ' ? select(index + 1) : undefined}
 				>
 					<div class="header">
 						<div class="img-wrapper">
@@ -372,6 +378,8 @@
 							closeList();
 						}}
 						role="menuitem"
+						tabindex="0"
+						onkeydown={(e) => { if (e.key === 'Enter') { selectCombo(index); closeList(); } }}
 					>
 						{move?.name}
 					</li>
@@ -380,18 +388,20 @@
 		{:else}
 			<ul>
 				{#if !!itemToUse}
-					<li class:selected={optionSelected === 0} onclick={() => useItem()} role="menuitem">
+					<li class:selected={optionSelected === 0} onclick={() => useItem()} role="menuitem" tabindex="0" onkeydown={(e) => e.key === 'Enter' ? useItem() : undefined}>
 						{isHeldItemToGive ? 'GIVE' : 'USE'} ({itemName})
 					</li>
 					<li
 						class:selected={optionSelected === 1}
 						onclick={() => (openOptions = false)}
 						role="menuitem"
+						tabindex="0"
+						onkeydown={(e) => e.key === 'Enter' ? (openOptions = false) : undefined}
 					>
 						CANCEL
 					</li>
 				{:else}
-					<li class:selected={optionSelected === 0} onclick={() => summarize()} role="menuitem">
+					<li class:selected={optionSelected === 0} onclick={() => summarize()} role="menuitem" tabindex="0" onkeydown={(e) => e.key === 'Enter' ? summarize() : undefined}>
 						SUMMARY
 					</li>
 					{#if !isBattle || selected !== 0}
@@ -399,6 +409,8 @@
 							class:selected={optionSelected === 1}
 							onclick={() => (isBattle ? switchNow() : saveSwitch())}
 							role="menuitem"
+							tabindex="0"
+							onkeydown={(e) => e.key === 'Enter' ? (isBattle ? switchNow() : saveSwitch()) : undefined}
 						>
 							SWITCH
 						</li>
@@ -411,11 +423,13 @@
 								openOptions = false;
 							}}
 							role="menuitem"
+							tabindex="0"
+							onkeydown={(e) => { if (e.key === 'Enter') { context.overWorldContext.openMenu(MenuType.BAG); openOptions = false; } }}
 						>
 							ITEM
 						</li>
 						{#if hasHeldItem}
-							<li class:selected={optionSelected === 3} onclick={() => takeItem()} role="menuitem">
+							<li class:selected={optionSelected === 3} onclick={() => takeItem()} role="menuitem" tabindex="0" onkeydown={(e) => e.key === 'Enter' ? takeItem() : undefined}>
 								TAKE ITEM
 							</li>
 						{/if}
@@ -424,6 +438,8 @@
 						class:selected={optionSelected === numberOfOptions}
 						onclick={() => (openOptions = false)}
 						role="menuitem"
+						tabindex="0"
+						onkeydown={(e) => e.key === 'Enter' ? (openOptions = false) : undefined}
 					>
 						CANCEL
 					</li>
@@ -678,10 +694,6 @@
 							border-radius: 0;
 							border: 2px solid #000;
 
-							.hp-value {
-								text-shadow: 2px 1px 1px black;
-							}
-
 							.progressbar {
 								width: var(--width);
 								height: 100%;
@@ -705,30 +717,6 @@
 					}
 				}
 			}
-		}
-
-		.actions {
-			position: absolute;
-			bottom: 4px;
-			left: 4px;
-			width: calc(100% / 5);
-
-			button {
-				width: 100%;
-				font-size: 32px;
-				text-align: center;
-				font-family: pokemon, serif;
-				color: white;
-				text-shadow: 3px 1px 2px #54506c;
-				background-color: #5c438966;
-				border-radius: 0;
-				border: 2px solid rgba(0, 0, 0, 0.7);
-			}
-		}
-
-		.held-item {
-			font-size: 20px;
-			color: var(--pixel-text-gold);
 		}
 	}
 

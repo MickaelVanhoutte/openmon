@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { T, useTask } from '@threlte/core';
 	import { Billboard } from '@threlte/extras';
-	import * as THREE from 'three';
+	import { DoubleSide, NearestFilter, SRGBColorSpace, Texture, TextureLoader } from 'three';
 	import type { OverworldItem } from '$js/items/overworldItem';
 	import { TileType3D, TILE_HEIGHTS, type ThrelteMapData } from '$js/mapping/threlte-maps/types';
 
@@ -14,9 +14,10 @@
 
 	const BASE_HEIGHT = 1;
 
-	let texture = $state<THREE.Texture | null>(null);
+	let texture = $state<Texture | null>(null);
 	let yOffset = $state(0);
-	let isVisible = $state(!item.pickedUp && item.visible);
+	// Initialized to false; the useTask below updates this every frame from item state.
+	let isVisible = $state(false);
 
 	function gridTo3D(gridX: number, gridY: number): { x: number; y: number; z: number } {
 		const tileType = mapData.tiles[gridY]?.[gridX] ?? TileType3D.GRASS;
@@ -34,11 +35,11 @@
 	// Load texture
 	$effect(() => {
 		if (!item.spriteSrc) return;
-		const loader = new THREE.TextureLoader();
+		const loader = new TextureLoader();
 		const tex = loader.load(item.spriteSrc);
-		tex.magFilter = THREE.NearestFilter;
-		tex.minFilter = THREE.NearestFilter;
-		tex.colorSpace = THREE.SRGBColorSpace;
+		tex.magFilter = NearestFilter;
+		tex.minFilter = NearestFilter;
+		tex.colorSpace = SRGBColorSpace;
 		texture = tex;
 	});
 
@@ -57,7 +58,7 @@
 	<Billboard position={[position.x, position.y + yOffset, position.z]}>
 		<T.Mesh>
 			<T.PlaneGeometry args={[0.6, 0.6]} />
-			<T.MeshStandardMaterial map={texture} transparent alphaTest={0.5} side={THREE.DoubleSide} />
+			<T.MeshStandardMaterial map={texture} transparent alphaTest={0.5} side={DoubleSide} />
 		</T.Mesh>
 	</Billboard>
 {/if}

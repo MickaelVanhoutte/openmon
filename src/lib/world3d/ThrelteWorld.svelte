@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import { Canvas } from '@threlte/core';
 	import Menu from '../menus/Menu.svelte';
 	import DialogView from '../common/DialogView.svelte';
@@ -30,13 +30,15 @@
 	import Decorations3D from './Decorations3D.svelte';
 	import { getThrelteMap } from '$js/mapping/threlte-maps/threlte-map-registry';
 	import { getOrConvertMap } from '$js/mapping/threlte-maps/openmap-converter';
-	import DungeonMinimap from '../world/DungeonMinimap.svelte';
-	import DebugBiomePicker from '../world/DebugBiomePicker.svelte';
 	import { DEBUG } from '$js/env';
-	import { ExplorationTracker } from '$js/dungeon/exploration-tracker';
-	import { dungeonContext } from '$js/dungeon/dungeon-context';
-	import type { BiomeConfig } from '$js/dungeon/biomes';
 	import { TileType3D } from '$js/mapping/threlte-maps/types';
+
+	// Dungeon system — lazy-loaded only when entering dungeon mode
+	import type { ExplorationTracker } from '$js/dungeon/exploration-tracker';
+	import type { BiomeConfig } from '$js/dungeon/biomes';
+
+	const DungeonMinimap = import('../world/DungeonMinimap.svelte').then((m) => m.default);
+	const DebugBiomePicker = import('../world/DebugBiomePicker.svelte').then((m) => m.default);
 	import { getLightingMood } from '$js/lighting/biome-lighting';
 
 	/**
@@ -57,8 +59,9 @@
 	const dpr = isMobile ? Math.min(window.devicePixelRatio, 1.5) : window.devicePixelRatio;
 
 	// Polled reactive state for map, follower and running (plain class properties not reactive in Svelte 5)
-	let currentMap = $state(context.map);
-	let currentFollower = $state<Follower | undefined>(context.player.follower);
+	// untrack: these are intentional one-time initial values; updates happen in useTask/onMount polls.
+	let currentMap = $state(untrack(() => context.map));
+	let currentFollower = $state<Follower | undefined>(untrack(() => context.player.follower));
 	let playerIsRunning = $state(false);
 	let isChangingMap = $state(false);
 
@@ -82,7 +85,7 @@
 	let explorationTracker = $state<ExplorationTracker | undefined>(undefined);
 	let lastTrackedFloor = 0;
 	let isGamePaused = $state(false);
-	let playerMoney = $state(context.player.bag.money);
+	let playerMoney = $state(untrack(() => context.player.bag.money));
 
 	/*
 	Scripts - subscribe to reactive store
@@ -123,9 +126,8 @@
 	);
 	const isHealing = $derived(currentAction?.type === 'HealAll');
 
-	// spawned used for future Task 10 (items and spawns in 3D)
-	const spawned = $derived(context.spawned);
-	void spawned;
+	// Polled reactive state for overworld spawn (plain class property, not reactive in Svelte 5)
+	let spawned = $state(untrack(() => context.spawned));
 
 	// TEST -> TODO : smash rock, cut trees... using pkmn charge
 	function handleChargeKeydown(e: KeyboardEvent) {
@@ -149,16 +151,19 @@
 	// battleCtx used for future battle integration
 	// void battleCtx;
 
-	// Subscribe to dungeon context store - extract primitives directly to avoid
-	// same-reference reactivity issues (DungeonContext is mutated in-place and re-set)
+	// Subscribe to dungeon context store — imported lazily to keep dungeon code
+	// out of the main bundle. The dynamic import resolves once and is then stable.
 	$effect(() => {
-		const unsub = dungeonContext.subscribe((value) => {
-			isDungeonMode = value?.isDungeonMode ?? false;
-			currentDungeonFloor = value?.currentFloor ?? 0;
-			currentDungeonBiome = value?.currentBiome;
-			dungeonFloorType = value?.getCurrentFloorType() ?? 'normal';
+		let unsub: (() => void) | undefined;
+		import('$js/dungeon/dungeon-context').then(({ dungeonContext }) => {
+			unsub = dungeonContext.subscribe((value) => {
+				isDungeonMode = value?.isDungeonMode ?? false;
+				currentDungeonFloor = value?.currentFloor ?? 0;
+				currentDungeonBiome = value?.currentBiome;
+				dungeonFloorType = value?.getCurrentFloorType() ?? 'normal';
+			});
 		});
-		return unsub;
+		return () => unsub?.();
 	});
 
 	let dungeonMapData = $derived(
@@ -196,9 +201,14 @@
 			currentDungeonFloor > 0 &&
 			currentDungeonFloor !== lastTrackedFloor
 		) {
-			explorationTracker = new ExplorationTracker(dungeonMapData.width, dungeonMapData.height, 5);
-			lastTrackedFloor = currentDungeonFloor;
-			explorationTracker.updatePlayerPosition(playerGridX, playerGridY);
+			const floor = currentDungeonFloor;
+			const w = dungeonMapData.width;
+			const h = dungeonMapData.height;
+			import('$js/dungeon/exploration-tracker').then(({ ExplorationTracker }) => {
+				explorationTracker = new ExplorationTracker(w, h, 5);
+				lastTrackedFloor = floor;
+				explorationTracker.updatePlayerPosition(playerGridX, playerGridY);
+			});
 		}
 	});
 
@@ -253,6 +263,9 @@
 					explorationTracker.updatePlayerPosition(newGridX, newGridY);
 				}
 			}
+
+			const newSpawned = context.spawned;
+			if (newSpawned !== spawned) spawned = newSpawned;
 
 			const newMoney = context.player.bag.money;
 			if (newMoney !== playerMoney) playerMoney = newMoney;
@@ -312,28 +325,32 @@
 
 	{#if !battleCtx}
 		{#if dungeonMapData && explorationTracker}
-			<DungeonMinimap
-				tiles={dungeonMapData.tiles}
-				width={dungeonMapData.width}
-				height={dungeonMapData.height}
-				playerX={playerGridX}
-				playerY={playerGridY}
-				{explorationTracker}
-				floorNumber={currentDungeonFloor}
-				biomeName={currentDungeonBiome?.name ?? ''}
-				floorType={dungeonFloorType}
-				tileColorOverrides={currentDungeonBiome?.tileColorOverrides}
-				stairsX={stairsPos?.x}
-				stairsY={stairsPos?.y}
-				visible={showDungeonMinimap}
-				money={playerMoney}
-			/>
+			{#await DungeonMinimap then DungeonMinimapCmp}
+				<DungeonMinimapCmp
+					tiles={dungeonMapData.tiles}
+					width={dungeonMapData.width}
+					height={dungeonMapData.height}
+					playerX={playerGridX}
+					playerY={playerGridY}
+					{explorationTracker}
+					floorNumber={currentDungeonFloor}
+					biomeName={currentDungeonBiome?.name ?? ''}
+					floorType={dungeonFloorType}
+					tileColorOverrides={currentDungeonBiome?.tileColorOverrides}
+					stairsX={stairsPos?.x}
+					stairsY={stairsPos?.y}
+					visible={showDungeonMinimap}
+					money={playerMoney}
+				/>
+			{/await}
 		{/if}
 
 		<!-- <OverworldTeamPanel {context} /> -->
 
 		{#if DEBUG && isDungeonMode}
-			<DebugBiomePicker {context} />
+			{#await DebugBiomePicker then DebugBiomePickerCmp}
+				<DebugBiomePickerCmp {context} />
+			{/await}
 		{/if}
 
 		<Menu {context} />

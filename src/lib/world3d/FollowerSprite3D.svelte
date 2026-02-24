@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { T, useTask } from '@threlte/core';
 	import { Billboard } from '@threlte/extras';
-	import * as THREE from 'three';
+	import { DoubleSide, NearestFilter, SRGBColorSpace, Texture, TextureLoader } from 'three';
+	import { untrack } from 'svelte';
 	import type { Follower } from '$js/characters/follower';
 	import { TileType3D, TILE_HEIGHTS, type ThrelteMapData } from '$js/mapping/threlte-maps/types';
 	import {
@@ -30,7 +31,7 @@
 		return 1 - ((row + 1) * frameHeight) / imgHeight;
 	}
 
-	let texture = $state<THREE.Texture | null>(null);
+	let texture = $state<Texture | null>(null);
 	let frameCount = $state(4); // default, updated after image loads
 	let frameWidth = $state(0);
 	let frameHeight = $state(0);
@@ -64,10 +65,10 @@
 		};
 	}
 
-	// Initialize position
-	const startPos = gridTo3D(
-		follower.position.currentGridPosition.x,
-		follower.position.currentGridPosition.y
+	// Initialize position — untrack to avoid false reactive capture warning;
+	// actual position updates happen in the useTask loop below.
+	const startPos = untrack(() =>
+		gridTo3D(follower.position.currentGridPosition.x, follower.position.currentGridPosition.y)
 	);
 	let visualPosition = $state({ ...startPos });
 
@@ -91,11 +92,11 @@
 				imgWidth = img.width;
 				imgHeight = img.height;
 
-				const loader = new THREE.TextureLoader();
+				const loader = new TextureLoader();
 				const tex = loader.load(path);
-				tex.magFilter = THREE.NearestFilter;
-				tex.minFilter = THREE.NearestFilter;
-				tex.colorSpace = THREE.SRGBColorSpace;
+				tex.magFilter = NearestFilter;
+				tex.minFilter = NearestFilter;
+				tex.colorSpace = SRGBColorSpace;
 				// CORRECT UV: use pixel ratios, not assumptions
 				tex.repeat.set(info.frameWidth / img.width, info.frameHeight / img.height);
 				texture = tex;
@@ -121,11 +122,11 @@
 							imgWidth = fallbackImg.width;
 							imgHeight = fallbackImg.height;
 
-							const loader = new THREE.TextureLoader();
+							const loader = new TextureLoader();
 							const tex = loader.load(fallbackPath);
-							tex.magFilter = THREE.NearestFilter;
-							tex.minFilter = THREE.NearestFilter;
-							tex.colorSpace = THREE.SRGBColorSpace;
+							tex.magFilter = NearestFilter;
+							tex.minFilter = NearestFilter;
+							tex.colorSpace = SRGBColorSpace;
 							tex.repeat.set(
 								info.frameWidth / fallbackImg.width,
 								info.frameHeight / fallbackImg.height
@@ -229,7 +230,7 @@
 	>
 		<T.Mesh>
 			<T.PlaneGeometry args={[planeWidth, planeHeight]} />
-			<T.MeshStandardMaterial map={texture} transparent alphaTest={0.5} side={THREE.DoubleSide} />
+			<T.MeshStandardMaterial map={texture} transparent alphaTest={0.5} side={DoubleSide} />
 		</T.Mesh>
 	</Billboard>
 {/if}

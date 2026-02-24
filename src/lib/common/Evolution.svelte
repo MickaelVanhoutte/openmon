@@ -165,6 +165,7 @@
 </div>
 
 <style lang="scss">
+	@use 'sass:math';
 	@keyframes -global-evolve-out {
 		0% {
 			visibility: visible;
@@ -408,13 +409,13 @@
 
 			@for $i from 1 through 20 {
 				.bubble:nth-child(#{$i}) {
-					$size: random(30) + px;
+					$size: math.random(30) + px;
 					height: $size;
 					width: $size;
 					margin: calc(-1 * ($size / 2)) 0 0 calc(-1 * ($size / 2));
-					transform: translate(random(300) - 150px, random(100)-200px);
+					transform: translate(math.random(300) - 150px, math.random(100)-200px);
 					animation-delay: $i * 0.05s;
-					background: hsl(0%, 0%, 100%);
+					background: hsl(0deg, 0%, 100%);
 				}
 			}
 		}

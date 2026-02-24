@@ -3,7 +3,9 @@
 	import { Pokedex, PokedexEntry, Move, Stats, Sprites } from '$js/pokemons/pokedex';
 	import { getMovesByPokemonId } from '$js/pokemons/move-hydration';
 	import { onMount } from 'svelte';
-	import rawPokedexJson from '../../../assets/data/raw/dex/pokedex.json';
+	// Use ?url so Vite emits the JSON as a separate hashed file instead of inlining it.
+	// We fetch it lazily in onMount so the 1.1 MB raw dex is never bundled into JS.
+	import rawPokedexUrl from '../../../assets/data/raw/dex/pokedex.json?url';
 
 	interface Props {
 		onPokemonAdded?: (pokemon: PokedexEntry) => void;
@@ -62,9 +64,12 @@
 
 	onMount(async () => {
 		pokedex = container.resolve(Pokedex);
-		await pokedex.ensureLoaded();
+		const [, json] = await Promise.all([
+			pokedex.ensureLoaded(),
+			fetch(rawPokedexUrl).then((r) => r.json() as Promise<RawPokedexEntry[]>)
+		]);
 		currentPokemonIds = new Set(pokedex.entries.map((p) => p.id));
-		rawPokemon = (rawPokedexJson as unknown as RawPokedexEntry[]).slice(0, 898);
+		rawPokemon = json.slice(0, 898);
 		isLoading = false;
 	});
 
