@@ -27,6 +27,7 @@
 	import WeatherParticles3D from './WeatherParticles3D.svelte';
 	import BattleDustParticles3D from './BattleDustParticles3D.svelte';
 	import BattleWindStreaks3D from './BattleWindStreaks3D.svelte';
+	import LegendaryParticles3D from './LegendaryParticles3D.svelte';
 	import Decorations3D from './Decorations3D.svelte';
 	import { getThrelteMap } from '$js/mapping/threlte-maps/threlte-map-registry';
 	import { getOrConvertMap } from '$js/mapping/threlte-maps/openmap-converter';
@@ -328,6 +329,11 @@
 			/>
 			<BattleDustParticles3D active={!!battleCtx} playerPosition={playerVisualPosition} />
 			<BattleWindStreaks3D active={!!battleCtx} playerPosition={playerVisualPosition} />
+			<LegendaryParticles3D
+				active={(battleCtx?.legendaryTypes?.length ?? 0) > 0}
+				types={battleCtx?.legendaryTypes ?? []}
+				playerPosition={playerVisualPosition}
+			/>
 			<GameCamera3D targetPosition={playerVisualPosition} {mapData} battleActive={!!battleCtx} portalAnimating={isPortalAnimating} />
 			<InstancedTerrain
 				{mapData}
