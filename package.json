@@ -48,7 +48,7 @@
 		"globals": "^17.0.0",
 		"graphviz": "^0.0.9",
 		"image-size": "^2.0.2",
-		"jsdom": "^27.4.0",
+		"jsdom": "^28.0.0",
 		"node-graphviz": "^0.1.1",
 		"pngjs": "^7.0.0",
 		"prettier": "^3.8.1",
