@@ -68,7 +68,6 @@ export class CharacterPosition {
 	}
 
 	public setPosition(position: Position, tileSize: number = 16, scale: number = 2.5) {
-		console.log('[setPosition]', position.x, position.y, new Error().stack?.split('\n')[2]?.trim());
 		this.positionOnMap = position;
 		this.positionInPx = new Position(position.x * tileSize * scale, position.y * tileSize * scale);
 		this.targetPosition = position;

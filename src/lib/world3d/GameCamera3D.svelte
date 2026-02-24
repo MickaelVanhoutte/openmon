@@ -12,7 +12,7 @@
 
 	let { targetPosition, mapData, battleActive = false }: Props = $props();
 
-	const OVERWORLD_OFFSET = { x: 0, y: 4, z: 5 };
+	const OVERWORLD_OFFSET = { x: 0, y: 5, z: 4 };
 	const BATTLE_OFFSET = { x: 2, y: 1, z: 3 };
 	const BATTLE_LOOKAT_Y_OFFSET = 0.5;
 
