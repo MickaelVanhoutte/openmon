@@ -59,6 +59,16 @@ export class ExplorationTracker {
 		this.visited.clear();
 	}
 
+	/** Serialize visited set to a flat number array for saving. */
+	exportVisited(): number[] {
+		return Array.from(this.visited);
+	}
+
+	/** Restore visited set from a saved flat number array. */
+	importVisited(indices: number[]): void {
+		this.visited = new Set(indices);
+	}
+
 	private isInBounds(x: number, y: number): boolean {
 		return x >= 0 && x < this.width && y >= 0 && y < this.height;
 	}

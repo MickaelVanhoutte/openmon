@@ -1,9 +1,11 @@
 import { writable, type Writable } from 'svelte/store';
 import { getBiomeForFloor } from './biomes';
 import type { BiomeConfig } from './biomes';
-import { deriveSeed } from './prng';
+import { deriveSeed, SeededRNG } from './prng';
 import { updateMetaProgress, loadMetaProgress, type MetaProgress } from './meta-progress';
 import { SaveContext } from '../context/savesHolder';
+
+export const LEGENDARY_IDS = [233, 234, 235, 236, 237, 238, 239, 240];
 
 export class DungeonContext {
 	runSeed: string = '';
@@ -17,6 +19,10 @@ export class DungeonContext {
 	runCurrency: number = 0;
 	starterPicked: boolean = false;
 	prologueCompleted: boolean = false;
+	/** Maps floor number → legendary Pokémon ID for this run */
+	legendaryFloors: Map<number, number> = new Map();
+	/** Set of legendary Pokémon IDs already encountered this run */
+	encounteredLegendaries: Set<number> = new Set();
 
 	// TODO: Auto-save dungeon state after trainer defeat
 	// When defeatedTrainers.add() is called in battle victory logic,
@@ -25,6 +31,23 @@ export class DungeonContext {
 	constructor() {
 		const meta = loadMetaProgress();
 		this.bestFloor = meta.bestFloor;
+	}
+
+	private assignLegendaryFloors(seed: string): void {
+		this.legendaryFloors.clear();
+		const rng = new SeededRNG(seed + '-legendaries');
+		// Eligible floors: [20, 49], not rest (floor%5===4), not boss (floor%5===0)
+		const eligibleFloors: number[] = [];
+		for (let f = 20; f <= 49; f++) {
+			if (f % 5 !== 0 && f % 5 !== 4) {
+				eligibleFloors.push(f);
+			}
+		}
+		const shuffled = rng.shuffle(eligibleFloors);
+		for (let i = 0; i < LEGENDARY_IDS.length && i < shuffled.length; i++) {
+			this.legendaryFloors.set(shuffled[i], LEGENDARY_IDS[i]);
+		}
+		console.log('[Legendary] Floor assignments:', Object.fromEntries(this.legendaryFloors));
 	}
 
 	startRun(seed?: string): void {
@@ -38,6 +61,8 @@ export class DungeonContext {
 		this.runCurrency = 0;
 		this.starterPicked = false;
 		this.prologueCompleted = false;
+		this.encounteredLegendaries.clear();
+		this.assignLegendaryFloors(this.runSeed);
 	}
 
 	advanceFloor(): void {
@@ -53,6 +78,8 @@ export class DungeonContext {
 		if (!won) {
 			this.isDungeonMode = false;
 		}
+		this.legendaryFloors.clear();
+		this.encounteredLegendaries.clear();
 		return updateMetaProgress(this);
 	}
 
@@ -67,6 +94,12 @@ export class DungeonContext {
 		this.prologueCompleted = save.dungeonPrologueCompleted ?? false;
 		this.currentFloor = (save.dungeonFloor ?? 1) - 1;
 		this.currentBiome = getBiomeForFloor(this.currentFloor > 0 ? this.currentFloor : 1);
+		this.legendaryFloors = new Map(save.dungeonLegendaryFloors ?? []);
+		// If legendaryFloors is empty (old save), re-derive from seed
+		if (this.legendaryFloors.size === 0 && this.runSeed) {
+			this.assignLegendaryFloors(this.runSeed);
+		}
+		this.encounteredLegendaries = new Set(save.dungeonEncounteredLegendaries ?? []);
 	}
 
 	getCurrentFloorType(): 'normal' | 'rest' | 'boss' {

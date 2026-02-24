@@ -40,6 +40,9 @@
 	const DungeonMinimap = import('../world/DungeonMinimap.svelte').then((m) => m.default);
 	const DebugBiomePicker = import('../world/DebugBiomePicker.svelte').then((m) => m.default);
 	import { getLightingMood } from '$js/lighting/biome-lighting';
+	import { persistDungeonState } from '$js/dungeon/dungeon-save';
+	import { dungeonContext } from '$js/dungeon/dungeon-context';
+	import { get } from 'svelte/store';
 
 	/**
 	 * 3D Overworld component.
@@ -61,6 +64,9 @@
 	// Polled reactive state for map, follower and running (plain class properties not reactive in Svelte 5)
 	// untrack: these are intentional one-time initial values; updates happen in useTask/onMount polls.
 	let currentMap = $state(untrack(() => context.map));
+	// currentNpcs is polled separately: RemoveNpc mutates map.npcs in-place (reassigns the array),
+	// but currentMap still points to the same object so Svelte never re-renders the NPC list.
+	let currentNpcs = $state(untrack(() => context.map.npcs));
 	let currentFollower = $state<Follower | undefined>(untrack(() => context.player.follower));
 	let playerIsRunning = $state(false);
 	let isChangingMap = $state(false);
@@ -205,7 +211,13 @@
 			const w = dungeonMapData.width;
 			const h = dungeonMapData.height;
 			import('$js/dungeon/exploration-tracker').then(({ ExplorationTracker }) => {
-				explorationTracker = new ExplorationTracker(w, h, 5);
+				const tracker = new ExplorationTracker(w, h, 5);
+				// Restore saved exploration for this floor if available
+				const save = savesHolder.getActiveSave();
+				if (save?.dungeonExplored?.length && save.dungeonFloor === floor) {
+					tracker.importVisited(save.dungeonExplored);
+				}
+				explorationTracker = tracker;
 				lastTrackedFloor = floor;
 				explorationTracker.updatePlayerPosition(playerGridX, playerGridY);
 			});
@@ -245,7 +257,13 @@
 			if (newRunning !== playerIsRunning) playerIsRunning = newRunning;
 
 			const newMap = context.map;
-			if (newMap !== currentMap) currentMap = newMap;
+			if (newMap !== currentMap) {
+				currentMap = newMap;
+				currentNpcs = newMap.npcs;
+			} else if (newMap.npcs !== currentNpcs) {
+				// npcs array was replaced in-place (e.g. RemoveNpc) — force reactive update
+				currentNpcs = newMap.npcs;
+			}
 
 			const newChangingMap = overWorldCtx.changingMap;
 			if (newChangingMap !== isChangingMap) isChangingMap = newChangingMap;
@@ -261,6 +279,18 @@
 				playerGridY = newGridY;
 				if (explorationTracker) {
 					explorationTracker.updatePlayerPosition(newGridX, newGridY);
+				}
+				// Auto-save exploration + player position on every tile move in dungeon
+				// Skip while changing map to avoid overwriting the saved position with a transient one
+				if (isDungeonMode && !overWorldCtx.changingMap) {
+					const dc = get(dungeonContext);
+					if (dc?.isRunActive) {
+						persistDungeonState(dc, savesHolder, {
+							explorationTracker: explorationTracker ?? undefined,
+							playerX: newGridX,
+							playerY: newGridY
+						});
+					}
 				}
 			}
 
@@ -307,7 +337,7 @@
 					{mapData}
 					bind:visualPosition={playerVisualPosition}
 				/>
-				{#each currentMap.npcs as npc (npc.id)}
+				{#each currentNpcs as npc (npc.id)}
 					<NPCSprite3D {npc} {mapData} />
 				{/each}
 				{#if currentFollower}
@@ -339,6 +369,7 @@
 					tileColorOverrides={currentDungeonBiome?.tileColorOverrides}
 					stairsX={stairsPos?.x}
 					stairsY={stairsPos?.y}
+					legendaryPortals={dungeonMapData.legendaryPortals}
 					visible={showDungeonMinimap}
 					money={playerMoney}
 				/>

@@ -22,6 +22,7 @@
 		getAnimationEngine
 	} from '../../js/battle/animations';
 	import beachesImage from '../../assets/battle/beaches.png';
+import mountainsImage from '../../assets/battle/mountains.png';
 
 	import { ComboMove, PokemonInstance } from '../../js/pokemons/pokedex';
 	import type { Move } from '../../js/pokemons/pokedex';
@@ -747,7 +748,7 @@
 
 <div class="battle" data-testid="battle-screen">
 	<div bind:this={gifsWrapper} class="wrapper">
-		<div class="battle-bg" style="background-image: url({beachesImage})"></div>
+		<div class="battle-bg" style="background-image: url({battleCtx.battleBg === 'mountains' ? mountainsImage : beachesImage})"></div>
 
 		<WeatherOverlay
 			weather={currentWeather}

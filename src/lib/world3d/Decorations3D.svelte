@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { T, useTask } from '@threlte/core';
 	import { untrack } from 'svelte';
-	import { CircleGeometry, DoubleSide, Euler, InstancedMesh, Matrix4, MeshBasicMaterial, MeshStandardMaterial, NearestFilter, Quaternion, SRGBColorSpace, Texture, TextureLoader, Vector3 } from 'three';
+	import { AdditiveBlending, BufferGeometry, CircleGeometry, DoubleSide, Euler, Float32BufferAttribute, InstancedMesh, Matrix4, MeshBasicMaterial, MeshStandardMaterial, NearestFilter, Points, PointLight, PointsMaterial, Quaternion, SRGBColorSpace, Texture, TextureLoader, Vector3 } from 'three';
 	import { TileType3D, TILE_HEIGHTS, type ThrelteMapData } from '$js/mapping/threlte-maps/types';
 	import {
 		TREE_TEXTURES,
@@ -117,6 +117,60 @@
 		transparent: true,
 		opacity: 0.6,
 		depthWrite: false
+	});
+
+	// ─── Legendary portal visual effect ─────────────────────────────────────────
+	// A dark oval pressed flush against the wall face (+Z side), with a pulsing
+	// purple PointLight and a rotating ring of particles orbiting the hole.
+
+	// Black hole disc — ellipse-ish: CircleGeometry scaled on Y
+	const portalDiscGeometry = new CircleGeometry(0.38, 32);
+	const portalDiscMaterial = new MeshBasicMaterial({
+		color: 0x000000,
+		transparent: true,
+		opacity: 0.92,
+		depthWrite: false
+	});
+
+	// Particle ring geometry — particles pre-positioned in a circle, rotated each frame
+	const PORTAL_PARTICLE_COUNT = 28;
+	const PORTAL_RING_RADIUS = 0.46;
+	const portalParticlePositions = new Float32Array(PORTAL_PARTICLE_COUNT * 3);
+	for (let i = 0; i < PORTAL_PARTICLE_COUNT; i++) {
+		const angle = (i / PORTAL_PARTICLE_COUNT) * Math.PI * 2;
+		portalParticlePositions[i * 3 + 0] = Math.cos(angle) * PORTAL_RING_RADIUS;
+		portalParticlePositions[i * 3 + 1] = Math.sin(angle) * PORTAL_RING_RADIUS * 0.6; // squash Y for oval
+		portalParticlePositions[i * 3 + 2] = 0;
+	}
+	const portalParticleGeometry = new BufferGeometry();
+	portalParticleGeometry.setAttribute('position', new Float32BufferAttribute(portalParticlePositions, 3));
+
+	const portalParticleMaterial = new PointsMaterial({
+		color: 0xcc44ff,
+		size: 0.07,
+		transparent: true,
+		opacity: 0.9,
+		depthWrite: false,
+		blending: AdditiveBlending
+	});
+
+	// Portal animation: plain mutable (NOT $state) to avoid triggering Svelte reactivity every frame.
+	// Particle meshes and point lights are mutated directly via Three.js refs collected below.
+	let _portalAngle = 0;
+	const portalParticleMeshRefs: Points[] = [];
+	const portalLightRefs: PointLight[] = [];
+
+	useTask('legendary-portal-anim', (delta) => {
+		const portals = mapData.legendaryPortals;
+		if (!portals?.length) return;
+		_portalAngle = (_portalAngle + delta * 1.8) % (Math.PI * 2);
+		const pulse = (Math.sin(_portalAngle * 2.5) + 1) / 2; // 0–1
+		for (const mesh of portalParticleMeshRefs) {
+			if (mesh) mesh.rotation.z = _portalAngle;
+		}
+		for (const light of portalLightRefs) {
+			if (light) light.intensity = 0.6 + pulse * 0.9;
+		}
 	});
 
 	// Reusable quaternions and scale for matrix composition
@@ -960,6 +1014,50 @@
 		>
 			<T.PlaneGeometry args={[1.5, 1.5]} />
 		</T.InstancedMesh>
+	{/each}
+
+	<!-- ─── Legendary portal black-hole effect ─────────────────────────────────
+	     For each legendary portal wall tile: a dark disc flush against the wall
+	     face (+Z), a pulsing purple PointLight, and a rotating particle ring.
+	     Wall tile height = 2.0 (BASE_HEIGHT 1 + TILE_HEIGHT 1). Center Y = 1.0.
+	     The disc sits at z = wallCz + 0.501 (just proud of the wall face).
+	-->
+	{#each mapData.legendaryPortals ?? [] as portal, portalIdx (portal.x + '_' + portal.y)}
+		{@const wallCx = portal.x - mapData.width / 2 + 0.5}
+		{@const wallCz = portal.y - mapData.height / 2 + 0.5}
+		{@const portalY = 1.55}
+		{@const discZ = wallCz + 0.502}
+
+		<!-- Black disc pressed against wall face -->
+		<T.Mesh
+			geometry={portalDiscGeometry}
+			material={portalDiscMaterial}
+			position={[wallCx, portalY, discZ]}
+			scale={[1, 0.62, 1]}
+			renderOrder={1}
+		/>
+
+		<!-- Pulsing purple point light — ref collected for direct mutation in useTask -->
+		<T.PointLight
+			position={[wallCx, portalY, discZ + 0.05]}
+			color={0xaa22ff}
+			intensity={0.6}
+			distance={3.5}
+			decay={2}
+			oncreate={(ref) => { portalLightRefs[portalIdx] = ref; }}
+			ondestroy={() => { delete portalLightRefs[portalIdx]; }}
+		/>
+
+		<!-- Rotating particle ring — ref collected for direct rotation mutation in useTask -->
+		<T.Points
+			geometry={portalParticleGeometry}
+			material={portalParticleMaterial}
+			position={[wallCx, portalY, discZ + 0.01]}
+			scale={[1, 0.62, 1]}
+			renderOrder={2}
+			oncreate={(ref) => { portalParticleMeshRefs[portalIdx] = ref; }}
+			ondestroy={() => { delete portalParticleMeshRefs[portalIdx]; }}
+		/>
 	{/each}
 
 {/key}

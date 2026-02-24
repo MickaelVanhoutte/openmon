@@ -34,7 +34,7 @@ export const TILE_HEIGHTS: Map<TileType3D, number> = new Map([
 	[TileType3D.FLOWER_GROUND, 0.1],
 	[TileType3D.TALL_GRASS, 0],
 	[TileType3D.BUILDING_FLOOR, 0],
-	[TileType3D.WALL, 0.6],
+	[TileType3D.WALL, 1.0],
 	[TileType3D.DUNGEON_FLOOR, 0],
 	[TileType3D.STAIRS_DOWN, -0.1],
 	[TileType3D.BOSS_GATE, 0.3],
@@ -43,8 +43,8 @@ export const TILE_HEIGHTS: Map<TileType3D, number> = new Map([
 	[TileType3D.LAVA, -0.2],
 	[TileType3D.SWAMP, -0.05],
 	[TileType3D.DARK_FLOOR, 0],
-	[TileType3D.CLIFF_ROCK, 0.6],
-	[TileType3D.CAVE_ENTRANCE, 0]
+	[TileType3D.CLIFF_ROCK, 1.0],
+	[TileType3D.CAVE_ENTRANCE, 0.15]
 ]);
 
 export const TILE_WALKABLE: Map<TileType3D, boolean> = new Map([
@@ -88,7 +88,7 @@ export const TILE_COLORS: Map<TileType3D, number> = new Map([
 	[TileType3D.SWAMP, 0x558b2f],
 	[TileType3D.DARK_FLOOR, 0x424242],
 	[TileType3D.CLIFF_ROCK, 0x4a4a4a],
-	[TileType3D.CAVE_ENTRANCE, 0x1a1a1a]
+	[TileType3D.CAVE_ENTRANCE, 0xffd700]
 ]);
 
 export type BiomeName =
@@ -123,4 +123,10 @@ export interface ThrelteMapData {
 	 * Only set for padding tiles; absent means scale = 1.
 	 */
 	paddingHeightScales?: Map<number, number>;
+	/**
+	 * Legendary portal wall tiles — standard WALL tiles with a black-hole visual effect
+	 * (cracked wall + pulsing purple light + particle ring). Walking into the tile triggers
+	 * the jonction to the legendary side room.
+	 */
+	legendaryPortals?: { x: number; y: number }[];
 }

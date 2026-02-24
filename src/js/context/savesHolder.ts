@@ -37,6 +37,11 @@ export class SaveContext {
 	dungeonActive?: boolean; // whether a dungeon run is in progress
 	dungeonStarterPicked?: boolean; // whether starter ball was already picked up
 	dungeonPrologueCompleted?: boolean; // whether prologue narrative was completed
+	dungeonLegendaryFloors?: [number, number][]; // [[floor, pokemonId], ...] serialized Map
+	dungeonEncounteredLegendaries?: number[]; // pokemonIds of legendaries already battled
+	dungeonExplored?: number[]; // flat indices of visited minimap tiles on current floor
+	dungeonPlayerX?: number; // player grid X on current floor at last save
+	dungeonPlayerY?: number; // player grid Y on current floor at last save
 
 	constructor(
 		id: number,

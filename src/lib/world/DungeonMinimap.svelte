@@ -15,6 +15,7 @@
 		tileColorOverrides?: Partial<Record<TileType3D, number>>;
 		stairsX?: number;
 		stairsY?: number;
+		legendaryPortals?: { x: number; y: number }[];
 		visible?: boolean;
 		money?: number;
 	}
@@ -32,13 +33,15 @@
 		tileColorOverrides,
 		stairsX,
 		stairsY,
+		legendaryPortals,
 		visible = true,
 		money = 0
 	}: Props = $props();
 
 	const CANVAS_SIZE = 220;
 	const PLAYER_COLOR = '#ffffff';
-	const STAIRS_COLOR = 'rgba(255, 255, 255, 0.5)';
+	const STAIRS_COLOR = '#ffd700'; // yellow
+	const PORTAL_COLOR = '#cc44ff'; // purple
 	const DIMMED_ALPHA = 0.3;
 	const WALL_COLOR = '#3a3a3a';
 	const FLOOR_COLOR = '#c8b89a';
@@ -87,7 +90,7 @@
 			}
 		}
 
-		// Draw stairs when visible or visited
+		// Draw stairs (yellow dot) when visible or visited
 		if (stairsX !== undefined && stairsY !== undefined) {
 			const stairsVisible = explorationTracker.isVisible(stairsX, stairsY, playerX, playerY);
 			const stairsVisited = explorationTracker.isVisited(stairsX, stairsY);
@@ -102,6 +105,25 @@
 				ctx.arc(stairsCenterX, stairsCenterY, stairsRadius, 0, Math.PI * 2);
 				ctx.fill();
 				ctx.globalAlpha = 1.0;
+			}
+		}
+
+		// Draw legendary portal dots (purple) when the wall tile is visible or visited
+		if (legendaryPortals) {
+			for (const portal of legendaryPortals) {
+				const pVisible = explorationTracker.isVisible(portal.x, portal.y, playerX, playerY);
+				const pVisited = explorationTracker.isVisited(portal.x, portal.y);
+				if (pVisible || pVisited) {
+					ctx.globalAlpha = pVisible ? 1.0 : DIMMED_ALPHA;
+					ctx.fillStyle = PORTAL_COLOR;
+					const pcx = offsetX + portal.x * tileSize + tileSize / 2;
+					const pcy = offsetY + portal.y * tileSize + tileSize / 2;
+					const pr = Math.max(tileSize * 0.6, 2);
+					ctx.beginPath();
+					ctx.arc(pcx, pcy, pr, 0, Math.PI * 2);
+					ctx.fill();
+					ctx.globalAlpha = 1.0;
+				}
 			}
 		}
 

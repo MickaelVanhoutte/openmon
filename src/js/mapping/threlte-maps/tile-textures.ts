@@ -19,6 +19,9 @@ import swampDirtUrl from '../../../assets/tiles/swamp-dirt.png';
 import swampWaterUrl from '../../../assets/tiles/swamp-water.png';
 import deadTreeUrl from '../../../assets/tiles/dead-tree.png';
 import deadTreeDirtUrl from '../../../assets/tiles/dead-tree-dirt.png';
+import caveDoorFrontUrl from '../../../assets/tiles/cave-door-front.png';
+import caveDoorLeftUrl from '../../../assets/tiles/cave-door-left.png';
+import caveDoorRightUrl from '../../../assets/tiles/cave-door-right.png';
 
 export const TILE_TEXTURES: Record<TileType3D, string | null> = {
 	[TileType3D.GRASS]: grass1Url,
@@ -39,7 +42,7 @@ export const TILE_TEXTURES: Record<TileType3D, string | null> = {
 	[TileType3D.SWAMP]: swampDirtUrl,
 	[TileType3D.DARK_FLOOR]: dirtUrl,
 	[TileType3D.CLIFF_ROCK]: dirtUrl,
-	[TileType3D.CAVE_ENTRANCE]: dirtUrl
+	[TileType3D.CAVE_ENTRANCE]: sandUrl
 };
 
 export const TREE_TEXTURES: string[] = [tree1Url, tree2Url];
@@ -106,3 +109,10 @@ export const DEAD_TREE_TEXTURES: string[] = [deadTreeUrl];
 
 /** Dead tree on dirt billboard — placed as decoration over swamp TREE_GROUND / PATH-like tiles. */
 export const DEAD_TREE_DIRT_TEXTURES: string[] = [deadTreeDirtUrl];
+
+/** Cave door billboard sprites for legendary room portals. */
+export const CAVE_DOOR_TEXTURES: Record<'front' | 'left' | 'right', string> = {
+	front: caveDoorFrontUrl,
+	left: caveDoorLeftUrl,
+	right: caveDoorRightUrl
+};
