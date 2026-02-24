@@ -8,9 +8,10 @@
 		targetPosition: { x: number; y: number; z: number };
 		mapData: ThrelteMapData;
 		battleActive?: boolean;
+		portalAnimating?: boolean;
 	}
 
-	let { targetPosition, mapData, battleActive = false }: Props = $props();
+	let { targetPosition, mapData, battleActive = false, portalAnimating = false }: Props = $props();
 
 	const OVERWORLD_OFFSET = { x: 0, y: 5, z: 4 };
 	const BATTLE_OFFSET = { x: 2, y: 1, z: 3 };
@@ -26,6 +27,34 @@
 	const LERP_FACTOR = 0.08;
 
 	let camera: PerspectiveCamera | undefined = $state();
+
+	$effect(() => {
+		if (portalAnimating) {
+			// Zoom forward and tilt up toward the portal wall over 0.9s
+			gsap.to(currentOffset, {
+				y: OVERWORLD_OFFSET.y * 0.35,
+				z: OVERWORLD_OFFSET.z * 0.2,
+				duration: 0.9,
+				ease: 'power3.in'
+			});
+			gsap.to(lookAtOffset, {
+				y: 1.2,
+				z: -1.5,
+				duration: 0.9,
+				ease: 'power2.in'
+			});
+		} else if (!battleActive) {
+			// Snap camera back to overworld default when portal animation ends
+			gsap.to(currentOffset, {
+				x: OVERWORLD_OFFSET.x,
+				y: OVERWORLD_OFFSET.y,
+				z: OVERWORLD_OFFSET.z,
+				duration: 0.3,
+				ease: 'power2.out'
+			});
+			gsap.to(lookAtOffset, { x: 0, y: 0, z: 0, duration: 0.3 });
+		}
+	});
 
 	$effect(() => {
 		if (battleActive) {

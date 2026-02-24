@@ -70,6 +70,7 @@
 	let currentFollower = $state<Follower | undefined>(untrack(() => context.player.follower));
 	let playerIsRunning = $state(false);
 	let isChangingMap = $state(false);
+	let isPortalAnimating = $state(false);
 
 	// Resolve ThrelteMapData from the current map
 	let mapData = $derived(getThrelteMap(currentMap.mapId) ?? getOrConvertMap(currentMap));
@@ -268,6 +269,9 @@
 			const newChangingMap = overWorldCtx.changingMap;
 			if (newChangingMap !== isChangingMap) isChangingMap = newChangingMap;
 
+			const newPortalAnimating = overWorldCtx.portalAnimating;
+			if (newPortalAnimating !== isPortalAnimating) isPortalAnimating = newPortalAnimating;
+
 			const newPaused = overWorldCtx.isPaused;
 			if (newPaused !== isGamePaused) isGamePaused = newPaused;
 
@@ -324,7 +328,7 @@
 			/>
 			<BattleDustParticles3D active={!!battleCtx} playerPosition={playerVisualPosition} />
 			<BattleWindStreaks3D active={!!battleCtx} playerPosition={playerVisualPosition} />
-			<GameCamera3D targetPosition={playerVisualPosition} {mapData} battleActive={!!battleCtx} />
+			<GameCamera3D targetPosition={playerVisualPosition} {mapData} battleActive={!!battleCtx} portalAnimating={isPortalAnimating} />
 			<InstancedTerrain
 				{mapData}
 				battleActive={!!battleCtx}
@@ -336,6 +340,7 @@
 					player={context.player}
 					{mapData}
 					bind:visualPosition={playerVisualPosition}
+					portalAnimating={isPortalAnimating}
 				/>
 				{#each currentNpcs as npc (npc.id)}
 					<NPCSprite3D {npc} {mapData} />
@@ -484,12 +489,13 @@
 			left: 0;
 			background-color: black;
 			opacity: 0;
-			transition: opacity 0.5s ease-in-out;
+			transition: opacity 0.3s ease-in;
 			z-index: 100;
 			pointer-events: none;
 
 			&.show {
 				opacity: 1;
+				transition: opacity 0.3s ease-in;
 			}
 		}
 	}
