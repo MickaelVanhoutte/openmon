@@ -74,6 +74,7 @@ export class OverworldContext {
 
 	changingMap: boolean = false;
 	isPaused: boolean = false;
+	portalAnimating: boolean = false;
 
 	map: OpenMap;
 

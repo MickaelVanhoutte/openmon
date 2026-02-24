@@ -362,6 +362,14 @@ export class GameContext {
 			const savedPosition = { ...this.player.position.positionOnMap };
 
 			if (!this.map.hasBoundaryAt(futurePosition)) {
+				// Intercept legendary portals: animate suck-in from the current tile (player never
+				// steps onto the wall tile), then trigger the map change after the animation ends.
+				const futureJonction = this.map?.jonctionAt(futurePosition);
+				if (futureJonction && futureJonction.mapIdx >= 9500) {
+					this.changeMap(futureJonction);
+					return;
+				}
+
 				if (this.currentQuest && this.hasQuestLimit(futurePosition)) {
 					this.playScript(
 						new Script('onStep', [new Dialog([new Message(this.currentQuest.leaveMessage)])])
@@ -466,19 +474,36 @@ export class GameContext {
 	}
 
 	changeMap(jonction: Jonction) {
-		// Fade out map audio
-		this.audioManager.fadeOutMapSound();
+		// Legendary side-room portals (mapIdx >= 9500) get a suck-in animation before the transition.
+		const isLegendaryPortal = jonction.mapIdx >= 9500;
 
-		// Stop all scripts
+		this.audioManager.fadeOutMapSound();
 		this.scriptRunner.interruptCurrent();
 		this.map?.npcs.forEach((npc) => npc.movingScript?.interrupt());
-
-		// Clear script index and re-index for new map
 		this.scriptRunner.clear();
 
-		const map = OpenMap.fromInstance(this.MAPS[jonction.mapIdx], new Position(0, 0));
-		this.player.position.setPosition(jonction.start || new Position(0, 0));
-		this.loadMap(map);
+		const doTransition = () => {
+			const map = OpenMap.fromInstance(this.MAPS[jonction.mapIdx], new Position(0, 0));
+			this.player.position.setPosition(jonction.start || new Position(0, 0));
+			this.loadMap(map);
+		};
+
+		if (isLegendaryPortal) {
+			this.overWorldContext.setPaused(true, 'portal-animation');
+			this.overWorldContext.portalAnimating = true;
+			// At 550ms the sprite is nearly invisible — start black overlay so it's opaque before map swaps
+			setTimeout(() => {
+				this.overWorldContext.changingMap = true;
+			}, 550);
+			// At 900ms swap the map while screen is already black
+			setTimeout(() => {
+				this.overWorldContext.portalAnimating = false;
+				this.overWorldContext.setPaused(false, 'portal-animation');
+				doTransition();
+			}, 900);
+		} else {
+			doTransition();
+		}
 	}
 
 	playMapSound() {
@@ -514,7 +539,7 @@ export class GameContext {
 			if (npcOnEnter?.length > 0) {
 				this.scriptRunner.playMovements(npcOnEnter, this);
 			}
-		}, 1000);
+		}, 1800);
 		setTimeout(() => {
 			//overworldContext.displayChangingMap = false;
 			//checkForGameStart();
