@@ -29,7 +29,7 @@
 	"devDependencies": {
 		"@abraham/reflection": "^0.13.0",
 		"@anatine/esbuild-decorators": "^0.2.19",
-		"@eslint/js": "^9.39.2",
+		"@eslint/js": "^10.0.0",
 		"@playwright/test": "^1.58.1",
 		"@rollup/plugin-typescript": "^12.3.0",
 		"@sjmc11/tourguidejs": "^0.0.27",
@@ -42,7 +42,7 @@
 		"@types/three": "^0.182.0",
 		"@vitest/coverage-v8": "^4.0.17",
 		"dependency-cruiser": "^17.3.6",
-		"eslint": "^9.39.2",
+		"eslint": "^10.0.0",
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-svelte": "^3.14.0",
 		"globals": "^17.0.0",
