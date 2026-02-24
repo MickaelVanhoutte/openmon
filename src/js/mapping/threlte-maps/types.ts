@@ -36,7 +36,7 @@ export const TILE_HEIGHTS: Map<TileType3D, number> = new Map([
 	[TileType3D.BUILDING_FLOOR, 0],
 	[TileType3D.WALL, 1.0],
 	[TileType3D.DUNGEON_FLOOR, 0],
-	[TileType3D.STAIRS_DOWN, -0.1],
+	[TileType3D.STAIRS_DOWN, 0],
 	[TileType3D.BOSS_GATE, 0.3],
 	[TileType3D.REST_FLOOR, 0],
 	[TileType3D.SHOP_FLOOR, 0],
@@ -80,7 +80,7 @@ export const TILE_COLORS: Map<TileType3D, number> = new Map([
 	[TileType3D.BUILDING_FLOOR, 0x78909c],
 	[TileType3D.WALL, 0x795548],
 	[TileType3D.DUNGEON_FLOOR, 0x9e9e9e],
-	[TileType3D.STAIRS_DOWN, 0xffc107],
+	[TileType3D.STAIRS_DOWN, 0x9e9e9e], // same as DUNGEON_FLOOR — door arch on the wall north of it provides the visual
 	[TileType3D.BOSS_GATE, 0xd32f2f],
 	[TileType3D.REST_FLOOR, 0x81c784],
 	[TileType3D.SHOP_FLOOR, 0xce93d8],

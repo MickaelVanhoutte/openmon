@@ -140,7 +140,7 @@
 		if (type === TileType3D.TREE_GROUND || type === TileType3D.FLOWER_GROUND) {
 			return FOREST_GRASS_TEXTURES[tileHash(row, col) % FOREST_GRASS_TEXTURES.length];
 		}
-		if (type === TileType3D.DUNGEON_FLOOR) {
+		if (type === TileType3D.DUNGEON_FLOOR || type === TileType3D.STAIRS_DOWN) {
 			const biome = mapData.biome ?? 'Cave Rock';
 			if (biome === 'Fire Volcanic') {
 				// Use clustered sand placement instead of random per-tile
@@ -172,7 +172,7 @@
 					: GRASS_TEXTURES;
 			return `${type}-${tileHash(row, col) % urls.length}`;
 		}
-		if (type === TileType3D.DUNGEON_FLOOR) {
+		if (type === TileType3D.DUNGEON_FLOOR || type === TileType3D.STAIRS_DOWN) {
 			const biome = mapData.biome ?? 'Cave Rock';
 			if (biome === 'Fire Volcanic') {
 				return `${type}-${isVolcanicSandCluster(row, col) ? 'sand' : 'dirt'}`;

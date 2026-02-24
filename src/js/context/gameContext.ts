@@ -361,6 +361,36 @@ export class GameContext {
 			const futurePosition = new Position(futureX, futureY);
 			const savedPosition = { ...this.player.position.positionOnMap };
 
+			// Intercept floor doors: must be before hasBoundaryAt since WALL tiles are boundaries.
+			// Fires when player moves into a WALL tile that has STAIRS_DOWN directly south (the door tile).
+			{
+				const threlteMap = this.map ? getThrelteMap(this.map.mapId) : undefined;
+				const fx = futurePosition.x;
+				const fy = futurePosition.y;
+				if (
+					threlteMap &&
+					threlteMap.tiles[fy]?.[fx] === TileType3D.WALL &&
+					threlteMap.tiles[fy + 1]?.[fx] === TileType3D.STAIRS_DOWN
+				) {
+					const dc = get(dungeonContext);
+					if (dc?.isDungeonMode) {
+						if (dc.isFloorBoss(dc.currentFloor)) {
+							const bossId = `boss_floor_${dc.currentFloor}`;
+							if (!dc.defeatedTrainers.has(bossId)) {
+								this.playScript(
+									new Script('onStep', [
+										new Dialog([new Message('The way forward is blocked. Defeat the boss first!')])
+									])
+								);
+								return;
+							}
+						}
+						this.changeDungeonFloor(dc);
+						return;
+					}
+				}
+			}
+
 			if (!this.map.hasBoundaryAt(futurePosition)) {
 				// Intercept legendary portals: animate suck-in from the current tile (player never
 				// steps onto the wall tile), then trigger the map change after the animation ends.
@@ -604,40 +634,8 @@ export class GameContext {
 	}
 
 	checkForStairs() {
-		const dc = get(dungeonContext);
-		if (!dc?.isDungeonMode) {
-			return;
-		}
-
-		const threlteMap = getThrelteMap(this.map.mapId);
-		if (!threlteMap) {
-			return;
-		}
-
-		const px = this.player.position.positionOnMap.x;
-		const py = this.player.position.positionOnMap.y;
-
-		if (
-			py >= 0 &&
-			py < threlteMap.tiles.length &&
-			px >= 0 &&
-			px < threlteMap.tiles[py].length &&
-			threlteMap.tiles[py][px] === TileType3D.STAIRS_DOWN
-		) {
-			if (dc.isFloorBoss(dc.currentFloor)) {
-				const bossId = `boss_floor_${dc.currentFloor}`;
-				if (!dc.defeatedTrainers.has(bossId)) {
-					this.playScript(
-						new Script('onStep', [
-							new Dialog([new Message('The way forward is blocked. Defeat the boss first!')])
-						])
-					);
-					return;
-				}
-			}
-
-			this.changeDungeonFloor(dc);
-		}
+		// Floor transition is now handled by the pre-intercept in handleDirectionKey
+		// when the player walks into the door wall tile (WALL with STAIRS_DOWN to the south).
 	}
 
 	private generateDungeonFloorData(dungeonCtx: DungeonContext) {

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { T, useTask } from '@threlte/core';
 	import { untrack } from 'svelte';
-	import { AdditiveBlending, BufferGeometry, CircleGeometry, DoubleSide, Euler, Float32BufferAttribute, InstancedMesh, Matrix4, MeshBasicMaterial, MeshStandardMaterial, NearestFilter, Points, PointLight, PointsMaterial, Quaternion, SRGBColorSpace, Texture, TextureLoader, Vector3 } from 'three';
+	import { AdditiveBlending, BufferGeometry, CircleGeometry, DoubleSide, Euler, Float32BufferAttribute, InstancedMesh, Matrix4, MeshBasicMaterial, MeshStandardMaterial, NearestFilter, Path, Points, PointLight, PointsMaterial, Quaternion, Shape, ShapeGeometry, SRGBColorSpace, Texture, TextureLoader, Vector3 } from 'three';
 	import { TileType3D, TILE_HEIGHTS, type ThrelteMapData } from '$js/mapping/threlte-maps/types';
 	import {
 		TREE_TEXTURES,
@@ -156,6 +156,50 @@
 		depthWrite: false,
 		blending: AdditiveBlending
 	});
+
+	// ─── Floor door (STAIRS_DOWN) arch shape ─────────────────────────────────
+	// A rounded-top arch carved into the wall face.
+	// Width: 0.6 (narrower than the 1.0 tile so side wall is visible).
+	// Height: 1.6 tall with a semicircle cap — reads clearly as a doorway.
+	// Positioned at the wall's south face (cz + 0.502), bottom at ground level.
+	// Door: 0.5 wide, 1.55 straight sides, tiny rounded cap (r=0.12)
+	// Very tall and narrow — unmistakably a door silhouette.
+	const DOOR_W = 0.5;
+	const DOOR_STRAIGHT_H = 1.55;
+	const DOOR_R = 0.12; // small rounded cap, not a big semicircle
+	const DOOR_H = DOOR_STRAIGHT_H + DOOR_R;
+	const doorShape = new Shape();
+	doorShape.moveTo(-DOOR_W / 2, 0);
+	doorShape.lineTo(-DOOR_W / 2, DOOR_STRAIGHT_H);
+	doorShape.absarc(0, DOOR_STRAIGHT_H, DOOR_W / 2, Math.PI, 0, true); // arch cap
+	doorShape.lineTo(DOOR_W / 2, 0);
+	doorShape.closePath();
+	const doorGeometry = new ShapeGeometry(doorShape, 32);
+	const doorMaterial = new MeshBasicMaterial({
+		color: 0x0a0a0a,
+		transparent: true,
+		opacity: 0.97,
+		depthWrite: false,
+		side: DoubleSide
+	});
+
+	// Find the wall tile directly north of each STAIRS_DOWN tile — that's where the door arch renders.
+	// The arch goes on the south face of that wall, exactly like legendary portal discs.
+	function findDoorWallTiles(mapData: ThrelteMapData): { x: number; y: number }[] {
+		const results: { x: number; y: number }[] = [];
+		for (let y = 1; y < mapData.height; y++) {
+			for (let x = 0; x < mapData.width; x++) {
+				if (
+					mapData.tiles[y]?.[x] === TileType3D.STAIRS_DOWN &&
+					mapData.tiles[y - 1]?.[x] === TileType3D.WALL
+				) {
+					results.push({ x, y: y - 1 }); // wall tile position
+				}
+			}
+		}
+		return results;
+	}
+	const stairsTiles = $derived(findDoorWallTiles(mapData));
 
 	// Portal animation: plain mutable (NOT $state) to avoid triggering Svelte reactivity every frame.
 	// Particle meshes and point lights are mutated directly via Three.js refs collected below.
@@ -1062,6 +1106,46 @@
 			renderOrder={2}
 			oncreate={(ref) => { portalParticleMeshRefs[portalIdx] = ref; }}
 			ondestroy={() => { delete portalParticleMeshRefs[portalIdx]; }}
+		/>
+	{/each}
+	{/if}
+
+	<!-- ─── Floor door arches ────────────────────────────────────────────────────
+	     Black arch rendered on the south face of the wall tile directly north of
+	     each STAIRS_DOWN tile. Arch bottom at ground (y=0.02), rounded top near
+	     wall top (DOOR_H = 1.8, wall = 2.0). Hidden during battle.
+	-->
+	{#if !battleActive}
+	{#each stairsTiles as stairs (stairs.x + '_' + stairs.y)}
+		{@const cx = stairs.x - mapData.width / 2 + 0.5}
+		{@const cz = stairs.y - mapData.height / 2 + 0.5}
+		{@const doorZ = cz + 0.502}
+		{@const doorY = 0.02}
+
+		<!-- Black door arch -->
+		<T.Mesh
+			geometry={doorGeometry}
+			material={doorMaterial}
+			position={[cx, doorY, doorZ]}
+			renderOrder={1}
+		/>
+
+		<!-- Light around the door arch on the wall -->
+		<T.PointLight
+			position={[cx, DOOR_H / 2, doorZ + 0.15]}
+			color={0xffcc44}
+			intensity={1.2}
+			distance={2.0}
+			decay={2}
+		/>
+
+		<!-- Light pooling on the floor tile in front of the door -->
+		<T.PointLight
+			position={[cx, 0.3, doorZ + 0.8]}
+			color={0xffcc44}
+			intensity={1.5}
+			distance={2.5}
+			decay={2}
 		/>
 	{/each}
 	{/if}
