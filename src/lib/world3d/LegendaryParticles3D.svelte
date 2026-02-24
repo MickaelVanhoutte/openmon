@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { T, useTask } from '@threlte/core';
 	import { BufferGeometry, Float32BufferAttribute, Color, AdditiveBlending } from 'three';
+	import { TYPE_COLORS } from '$js/battle/animations/animation-engine';
 
 	interface Props {
 		active: boolean;
@@ -10,29 +11,8 @@
 
 	const { active, playerPosition, types }: Props = $props();
 
-	// Type → hex color
-	const TYPE_COLORS: Record<string, number> = {
-		fire:     0xff6020,
-		water:    0x4488ff,
-		ice:      0x88eeff,
-		electric: 0xffee00,
-		grass:    0x66dd22,
-		psychic:  0xff2288,
-		ghost:    0x9944ff,
-		dragon:   0x5522ff,
-		dark:     0xcc88ff,
-		flying:   0xaaaaff,
-		fighting: 0xff2200,
-		steel:    0xaaaacc,
-		rock:     0xddbb00,
-		ground:   0xeecc44,
-		poison:   0xcc22cc,
-		bug:      0x99dd00,
-		normal:   0xccccaa,
-		fairy:    0xff88cc,
-	};
-
 	const PARTICLE_COUNT = 80;
+	const TRAIL_STEPS    = 10; // ghost points per particle
 
 	const angles        = new Float32Array(PARTICLE_COUNT);
 	const angularSpeeds = new Float32Array(PARTICLE_COUNT); // radians/s — spin around center
@@ -43,12 +23,25 @@
 	const positions     = new Float32Array(PARTICLE_COUNT * 3);
 	const colors        = new Float32Array(PARTICLE_COUNT * 3);
 
-	let geometry = $state<BufferGeometry | undefined>(undefined);
+	// Trail: ring-buffer of past (angle, radius, y) per particle
+	const tAngles = new Float32Array(PARTICLE_COUNT * TRAIL_STEPS); // [particle * TRAIL_STEPS + step]
+	const tRadii  = new Float32Array(PARTICLE_COUNT * TRAIL_STEPS);
+	const tY      = new Float32Array(PARTICLE_COUNT * TRAIL_STEPS);
+	let   tHead   = 0; // current write slot in the ring (0..TRAIL_STEPS-1)
+	let   tFrame  = 0; // frame counter to throttle trail snapshots
+
+	// Trail GPU buffers — PARTICLE_COUNT * TRAIL_STEPS points, colors fade to black
+	const trailPositions = new Float32Array(PARTICLE_COUNT * TRAIL_STEPS * 3);
+	const trailColors    = new Float32Array(PARTICLE_COUNT * TRAIL_STEPS * 3);
+
+	let geometry      = $state<BufferGeometry | undefined>(undefined);
+	let trailGeometry = $state<BufferGeometry | undefined>(undefined);
 	let running = $state(false);
 
 	function buildTypeColors(): Color[] {
+		console.log(TYPE_COLORS[types[0].toLowerCase()]);
 		const list = types.length > 0 ? types : ['normal'];
-		return list.map(t => new Color(TYPE_COLORS[t.toLowerCase()] ?? 0xffffff));
+		return list.map(t => new Color(TYPE_COLORS[t.toLowerCase()] ?? '#ffffff'));
 	}
 
 	function initAll() {
@@ -73,10 +66,28 @@
 			positions[i * 3]     = playerPosition.x + radii[i] * Math.cos(angles[i]);
 			positions[i * 3 + 1] = yPos[i];
 			positions[i * 3 + 2] = playerPosition.z + radii[i] * Math.sin(angles[i]);
+
+			// Seed trail ring with current position so there's no pop on start
+			for (let s = 0; s < TRAIL_STEPS; s++) {
+				tAngles[i * TRAIL_STEPS + s] = angles[i];
+				tRadii [i * TRAIL_STEPS + s] = radii[i];
+				tY     [i * TRAIL_STEPS + s] = yPos[i];
+				// Pre-fill trail colors: fade from full color → black
+				const fade = (TRAIL_STEPS - 1 - s) / TRAIL_STEPS;
+				const ti = (i * TRAIL_STEPS + s) * 3;
+				trailColors[ti]     = c.r * fade;
+				trailColors[ti + 1] = c.g * fade;
+				trailColors[ti + 2] = c.b * fade;
+			}
 		}
+		tHead = 0; tFrame = 0;
 		if (geometry) {
 			geometry.attributes.position.needsUpdate = true;
 			geometry.attributes.color.needsUpdate = true;
+		}
+		if (trailGeometry) {
+			trailGeometry.attributes.position.needsUpdate = true;
+			trailGeometry.attributes.color.needsUpdate    = true;
 		}
 		running = true;
 	}
@@ -95,37 +106,87 @@
 		const posAttr = geometry.attributes.position;
 		const posArr  = posAttr.array as Float32Array;
 
-		for (let i = 0; i < PARTICLE_COUNT; i++) {
-			// Spin around center (tornado rotation)
-			angles[i] += angularSpeeds[i] * delta;
+		// Every 2 frames, snapshot current positions into the trail ring-buffer
+		tFrame++;
+		const snapshot = tFrame % 2 === 0;
+		if (snapshot) tHead = (tHead + 1) % TRAIL_STEPS;
 
-			// Spiral inward
-			radii[i] -= speeds[i] * delta;
+		for (let i = 0; i < PARTICLE_COUNT; i++) {
+			angles[i] += angularSpeeds[i] * delta;
+			radii[i]  -= speeds[i] * delta;
 
 			if (radii[i] <= 4.0) {
-				// Reset to outer edge — particle has completed its inward spiral
 				radii[i] = maxRadii[i];
 				yPos[i]  = 0.2 + Math.random() * 1.2;
-				// No angle reset — it just continues spinning from wherever it is
 			}
 
 			posArr[i * 3]     = playerPosition.x + radii[i] * Math.cos(angles[i]);
-			posArr[i * 3 + 1] = yPos[i] + Math.sin((maxRadii[i] - radii[i]) * 0.5) * 0.5; // Add some vertical movement as it spirals in
+			posArr[i * 3 + 1] = yPos[i] + Math.sin((maxRadii[i] - radii[i]) * 0.5) * 0.5;
 			posArr[i * 3 + 2] = playerPosition.z + radii[i] * Math.sin(angles[i]);
+
+			// Write this frame into the ring at tHead
+			if (snapshot) {
+				tAngles[i * TRAIL_STEPS + tHead] = angles[i];
+				tRadii [i * TRAIL_STEPS + tHead] = radii[i];
+				tY     [i * TRAIL_STEPS + tHead] = yPos[i];
+			}
 		}
 
 		posAttr.needsUpdate = true;
+
+		// Update trail geometry
+		if (trailGeometry) {
+			const tPosAttr = trailGeometry.attributes.position;
+			const tPosArr  = tPosAttr.array as Float32Array;
+
+			for (let i = 0; i < PARTICLE_COUNT; i++) {
+				for (let s = 0; s < TRAIL_STEPS; s++) {
+					// Read slots from newest→oldest: tHead, tHead-1, tHead-2 …
+					const slot = (tHead - s + TRAIL_STEPS) % TRAIL_STEPS;
+					const r = tRadii [i * TRAIL_STEPS + slot];
+					const a = tAngles[i * TRAIL_STEPS + slot];
+					const y = tY     [i * TRAIL_STEPS + slot];
+					const ti = (i * TRAIL_STEPS + s) * 3;
+					tPosArr[ti]     = playerPosition.x + r * Math.cos(a);
+					tPosArr[ti + 1] = y + Math.sin((maxRadii[i] - r) * 0.5) * 0.5;
+					tPosArr[ti + 2] = playerPosition.z + r * Math.sin(a);
+				}
+			}
+			tPosAttr.needsUpdate = true;
+		}
 	});
 </script>
 
 {#if running}
+	<!-- Trail points — rendered first (behind head points) -->
+	<T.Points>
+		<T.BufferGeometry
+			oncreate={(ref) => {
+				ref.setAttribute('position', new Float32BufferAttribute(trailPositions, 3));
+				ref.setAttribute('color',    new Float32BufferAttribute(trailColors, 3));
+				trailGeometry = ref as BufferGeometry;
+				trailGeometry.attributes.position.needsUpdate = true;
+				trailGeometry.attributes.color.needsUpdate    = true;
+			}}
+		/>
+		<T.PointsMaterial
+			size={0.16}
+			vertexColors
+			transparent
+			opacity={0.8}
+			depthWrite={false}
+			blending={AdditiveBlending}
+			sizeAttenuation
+		/>
+	</T.Points>
+
+	<!-- Head points — the bright particle itself -->
 	<T.Points>
 		<T.BufferGeometry
 			oncreate={(ref) => {
 				ref.setAttribute('position', new Float32BufferAttribute(positions, 3));
 				ref.setAttribute('color',    new Float32BufferAttribute(colors, 3));
 				geometry = ref as BufferGeometry;
-				// Geometry now exists — trigger a needsUpdate so the pre-filled arrays render
 				geometry.attributes.position.needsUpdate = true;
 				geometry.attributes.color.needsUpdate = true;
 			}}
@@ -134,7 +195,7 @@
 			size={0.2}
 			vertexColors
 			transparent
-			opacity={0.95}
+			opacity={1}
 			depthWrite={false}
 			blending={AdditiveBlending}
 			sizeAttenuation
