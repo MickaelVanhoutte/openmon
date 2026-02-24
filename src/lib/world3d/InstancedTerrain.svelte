@@ -30,7 +30,7 @@
 
 	// Battle push animation constants
 	const CLEARING_RADIUS = 6;
-	const GROUND_Y = 0.2;
+	const GROUND_Y = 0;
 
 	// Push animation state
 	let pushProgress = $state(0);

@@ -124,6 +124,8 @@ export class BattleContext {
 	}
 
 	battleBg: string = 'beaches';
+	/** Types of the legendary opponent — populated only for legendary wild battles. */
+	legendaryTypes: string[] = [];
 
 	constructor(
 		player: Player,
@@ -140,6 +142,9 @@ export class BattleContext {
 		this.events = new BattleEvents();
 		this.battleType = battleType;
 		this.battleBg = battleBg;
+		if (battleBg === 'mountains' && opponent instanceof PokemonInstance) {
+			this.legendaryTypes = opponent.types ?? [];
+		}
 		this.abilityEngine = new AbilityEngine();
 		this.itemEngine = new ItemEngine();
 		//this.playerPokemon = this.player.monsters.find(poke => !poke.fainted) || this.player.monsters[0];
