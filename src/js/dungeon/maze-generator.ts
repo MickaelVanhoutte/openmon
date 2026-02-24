@@ -25,9 +25,13 @@ export function generateMaze(
 	const width = ensureOdd(rawSize.width, biomeConfig.floorSizeRange[1]);
 	const height = ensureOdd(rawSize.height, biomeConfig.floorSizeRange[1]);
 
+	// t=0 → easy early floors (open, roomy), t=1 → hard late floors (tight, mazy)
+	const effectiveFloor = ((floorNumber - 1) % 50) + 1;
+	const t = Math.min(1, Math.max(0, (effectiveFloor - 1) / 49));
+
 	const grid = carveMaze(width, height, rng);
-	carveRooms(grid, width, height, rng);
-	widenCorridors(grid, width, height, rng);
+	carveRooms(grid, width, height, rng, t);
+	widenCorridors(grid, width, height, rng, t);
 
 	const playerStart = findWalkableNearEdge(grid, width, height, 'bottom');
 	const stairsPosition = findMazeStairsPosition(grid, width, height, playerStart);
@@ -139,7 +143,11 @@ function carveMaze(width: number, height: number, rng: SeededRNG): TileType3D[][
 	return grid;
 }
 
-function carveRooms(grid: TileType3D[][], width: number, height: number, rng: SeededRNG): void {
+function lerp(a: number, b: number, t: number): number {
+	return a + (b - a) * t;
+}
+
+function carveRooms(grid: TileType3D[][], width: number, height: number, rng: SeededRNG, t: number): void {
 	const junctions: [number, number][] = [];
 	const deadEnds: [number, number][] = [];
 
@@ -150,18 +158,10 @@ function carveRooms(grid: TileType3D[][], width: number, height: number, rng: Se
 			}
 
 			let openNeighbors = 0;
-			if (isFloorTile(grid[y - 1][x])) {
-				openNeighbors++;
-			}
-			if (isFloorTile(grid[y + 1][x])) {
-				openNeighbors++;
-			}
-			if (isFloorTile(grid[y][x - 1])) {
-				openNeighbors++;
-			}
-			if (isFloorTile(grid[y][x + 1])) {
-				openNeighbors++;
-			}
+			if (isFloorTile(grid[y - 1][x])) openNeighbors++;
+			if (isFloorTile(grid[y + 1][x])) openNeighbors++;
+			if (isFloorTile(grid[y][x - 1])) openNeighbors++;
+			if (isFloorTile(grid[y][x + 1])) openNeighbors++;
 
 			if (openNeighbors >= 3) {
 				junctions.push([x, y]);
@@ -171,10 +171,32 @@ function carveRooms(grid: TileType3D[][], width: number, height: number, rng: Se
 		}
 	}
 
+	// Expand dead-ends into alcoves — larger on early floors, shrink to nothing on late floors.
+	// At t=0: all dead-ends get a 2–3 tile alcove. At t=1: no alcoves (pure dead-end stubs).
+	const alcoveChance = lerp(1.0, 0.0, t);       // probability a dead-end gets an alcove
+	const alcoveMaxSize = Math.round(lerp(3, 1, t)); // max alcove radius (1 = no expansion)
+	for (const [cx, cy] of deadEnds) {
+		if (!rng.nextBool(alcoveChance)) continue;
+		const alcoveSize = rng.nextInt(2, alcoveMaxSize);
+		const half = Math.floor(alcoveSize / 2);
+		const sx = Math.max(1, cx - half);
+		const sy = Math.max(1, cy - half);
+		const ex = Math.min(width - 2, cx + half);
+		const ey = Math.min(height - 2, cy + half);
+		for (let ry = sy; ry <= ey; ry++) {
+			for (let rx = sx; rx <= ex; rx++) {
+				grid[ry][rx] = TileType3D.DUNGEON_FLOOR;
+			}
+		}
+	}
+
+	// Place rooms at junctions and dead-ends.
+	// Early floors: more rooms, larger rooms. Late floors: fewer, smaller.
 	const candidates = rng.shuffle([...junctions, ...deadEnds]);
 	const area = width * height;
-	const minRooms = 3;
-	const maxRooms = Math.min(6, Math.max(minRooms, Math.floor(area / 150)));
+	const areaDivisor = Math.round(lerp(80, 150, t));  // t=0 → area/80 (many), t=1 → area/150 (few)
+	const minRooms = Math.round(lerp(4, 2, t));
+	const maxRooms = Math.max(minRooms, Math.floor(area / areaDivisor));
 	const roomCount = rng.nextInt(minRooms, maxRooms);
 
 	const carved = new Set<string>();
@@ -185,8 +207,9 @@ function carveRooms(grid: TileType3D[][], width: number, height: number, rng: Se
 			break;
 		}
 
-		const roomW = rng.nextInt(3, 5);
-		const roomH = rng.nextInt(3, 5);
+		const roomMaxSize = Math.round(lerp(6, 4, t));  // t=0 → up to 6 wide, t=1 → up to 4
+		const roomW = rng.nextInt(3, roomMaxSize);
+		const roomH = rng.nextInt(3, roomMaxSize);
 		const halfW = Math.floor(roomW / 2);
 		const halfH = Math.floor(roomH / 2);
 
@@ -199,7 +222,6 @@ function carveRooms(grid: TileType3D[][], width: number, height: number, rng: Se
 			continue;
 		}
 
-		const roomKey = `${cx},${cy}`;
 		let tooClose = false;
 		for (const key of carved) {
 			const [px, py] = key.split(',').map(Number);
@@ -218,21 +240,20 @@ function carveRooms(grid: TileType3D[][], width: number, height: number, rng: Se
 			}
 		}
 
-		carved.add(roomKey);
+		carved.add(`${cx},${cy}`);
 		placed++;
 	}
 }
 
-function widenCorridors(grid: TileType3D[][], width: number, height: number, rng: SeededRNG): void {
+function widenCorridors(grid: TileType3D[][], width: number, height: number, rng: SeededRNG, t: number): void {
 	const segments: { y: number; xStart: number; xEnd: number; dir: 'h' | 'v' }[] = [];
 
+	// Collect horizontal segments (runs of 3+ floor tiles)
 	for (let y = 2; y < height - 2; y++) {
 		let runStart = -1;
 		for (let x = 1; x < width - 1; x++) {
 			if (isFloorTile(grid[y][x])) {
-				if (runStart === -1) {
-					runStart = x;
-				}
+				if (runStart === -1) runStart = x;
 			} else {
 				if (runStart !== -1 && x - runStart >= 3) {
 					segments.push({ y, xStart: runStart, xEnd: x - 1, dir: 'h' });
@@ -245,13 +266,12 @@ function widenCorridors(grid: TileType3D[][], width: number, height: number, rng
 		}
 	}
 
+	// Collect vertical segments (runs of 3+ floor tiles)
 	for (let x = 2; x < width - 2; x++) {
 		let runStart = -1;
 		for (let y = 1; y < height - 1; y++) {
 			if (isFloorTile(grid[y][x])) {
-				if (runStart === -1) {
-					runStart = y;
-				}
+				if (runStart === -1) runStart = y;
 			} else {
 				if (runStart !== -1 && y - runStart >= 3) {
 					segments.push({ y: runStart, xStart: x, xEnd: y - 1, dir: 'v' });
@@ -264,29 +284,24 @@ function widenCorridors(grid: TileType3D[][], width: number, height: number, rng
 		}
 	}
 
+	// Widen rate: t=0 → 60% of segments widened, t=1 → 20%
+	const widenRate = lerp(0.6, 0.2, t);
 	const shuffled = rng.shuffle(segments);
-	const widenCount = Math.floor(shuffled.length * 0.25);
+	const widenCount = Math.floor(shuffled.length * widenRate);
 
 	for (let i = 0; i < widenCount; i++) {
 		const seg = shuffled[i];
+		const side = rng.nextBool() ? -1 : 1;
 
 		if (seg.dir === 'h') {
-			const dy = rng.nextBool() ? -1 : 1;
-			const ny = seg.y + dy;
-			if (ny < 1 || ny >= height - 1) {
-				continue;
-			}
-
+			const ny = seg.y + side;
+			if (ny < 1 || ny >= height - 1) continue;
 			for (let x = seg.xStart; x <= seg.xEnd; x++) {
 				grid[ny][x] = TileType3D.DUNGEON_FLOOR;
 			}
 		} else {
-			const dx = rng.nextBool() ? -1 : 1;
-			const nx = seg.xStart + dx;
-			if (nx < 1 || nx >= width - 1) {
-				continue;
-			}
-
+			const nx = seg.xStart + side;
+			if (nx < 1 || nx >= width - 1) continue;
 			for (let y = seg.y; y <= seg.xEnd; y++) {
 				grid[y][nx] = TileType3D.DUNGEON_FLOOR;
 			}
