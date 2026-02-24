@@ -11,6 +11,7 @@
 		getPMDSpriteInfoFromAnimData
 	} from '$js/sprites/pmd-sprite-data';
 	import { loadAnimData } from '$js/sprites/pmd-anim-data';
+	import { LEGENDARY_SPRITE_IDS } from '$js/dungeon/legendary-room';
 
 	interface Props {
 		npc: NPC;
@@ -22,6 +23,11 @@
 	const BASE_HEIGHT = 1;
 	const MOVEMENT_SPEED = 3;
 	const ANIM_FPS = 8;
+
+	// Legendary Pokémon NPCs are rendered 1.6× larger so they feel more imposing
+	const LEGENDARY_SCALE = 1.6;
+	const isLegendary = LEGENDARY_SPRITE_IDS.has(npc.spriteId);
+	const spriteScale = isLegendary ? LEGENDARY_SCALE : 1.0;
 
 	// UV Y offsets for standard 4-row character sprite sheets (down, left, right, up)
 	const DIRECTION_UV_Y: Record<string, number> = {
@@ -246,17 +252,17 @@
 		position={[visualPosition.x, visualPosition.y - 0.49, visualPosition.z]}
 		rotation.x={-Math.PI / 2}
 	>
-		<T.CircleGeometry args={[0.3, 16]} />
+		<T.CircleGeometry args={[0.3 * spriteScale, 16]} />
 		<T.MeshBasicMaterial color="#000000" transparent opacity={0.25} depthWrite={false} />
 	</T.Mesh>
 	<Billboard position={[visualPosition.x, visualPosition.y, visualPosition.z]}>
-		<T.Mesh>
+		<T.Mesh scale={[spriteScale, spriteScale, 1]}>
 			<T.PlaneGeometry args={[1, 1]} />
 			<T.MeshStandardMaterial map={texture} transparent alphaTest={0.5} side={DoubleSide} />
 		</T.Mesh>
 
 		{#if npc.alerted}
-			<T.Mesh position.y={0.8 + alertBounce}>
+			<T.Mesh position.y={0.8 * spriteScale + alertBounce}>
 				<T.SphereGeometry args={[0.15]} />
 				<T.MeshBasicMaterial color="red" />
 			</T.Mesh>

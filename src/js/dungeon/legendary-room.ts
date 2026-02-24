@@ -40,6 +40,9 @@ const LEGENDARY_NATIONAL_DEX_ID: Record<number, number> = {
 	240: 491  // Darkrai
 };
 
+/** Set of PMD national-dex sprite IDs used for legendary NPCs — used by NPCSprite3D to scale them up */
+export const LEGENDARY_SPRITE_IDS = new Set(Object.values(LEGENDARY_NATIONAL_DEX_ID));
+
 /**
  * Generates a legendary side room map for the given floor.
  * The room is a small 10×10 padded room with a legendary Pokémon NPC at the center.

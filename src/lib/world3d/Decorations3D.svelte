@@ -42,6 +42,7 @@
 				map: tex,
 				transparent: true,
 				alphaTest: 0.5,
+				depthWrite: false, // prevents cross-plane depth fighting on the cross-billboard
 				side: DoubleSide,
 				color: 0xffffff
 			})
@@ -93,6 +94,7 @@
 				map: tex,
 				transparent: true,
 				alphaTest: 0.5,
+				depthWrite: false, // prevents cross-plane depth fighting on the cross-billboard
 				side: DoubleSide,
 				color: 0xffffff
 			})
@@ -104,6 +106,7 @@
 				map: tex,
 				transparent: true,
 				alphaTest: 0.5,
+				depthWrite: false, // prevents cross-plane depth fighting on the cross-billboard
 				side: DoubleSide,
 				color: 0xffffff
 			})
@@ -1021,7 +1024,9 @@
 	     face (+Z), a pulsing purple PointLight, and a rotating particle ring.
 	     Wall tile height = 2.0 (BASE_HEIGHT 1 + TILE_HEIGHT 1). Center Y = 1.0.
 	     The disc sits at z = wallCz + 0.501 (just proud of the wall face).
+	     Hidden during battle so it doesn't float in the background of the fight.
 	-->
+	{#if !battleActive}
 	{#each mapData.legendaryPortals ?? [] as portal, portalIdx (portal.x + '_' + portal.y)}
 		{@const wallCx = portal.x - mapData.width / 2 + 0.5}
 		{@const wallCz = portal.y - mapData.height / 2 + 0.5}
@@ -1059,5 +1064,6 @@
 			ondestroy={() => { delete portalParticleMeshRefs[portalIdx]; }}
 		/>
 	{/each}
+	{/if}
 
 {/key}

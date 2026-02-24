@@ -17,7 +17,6 @@
 		stairsY?: number;
 		legendaryPortals?: { x: number; y: number }[];
 		visible?: boolean;
-		money?: number;
 	}
 
 	const {
@@ -35,7 +34,6 @@
 		stairsY,
 		legendaryPortals,
 		visible = true,
-		money = 0
 	}: Props = $props();
 
 	const CANVAS_SIZE = 220;
@@ -188,7 +186,6 @@
 {#if visible}
 	<div class="dungeon-minimap">
 		<canvas bind:this={canvas} style="width: {CANVAS_SIZE}px; height: {CANVAS_SIZE}px;"></canvas>
-		<div class="money-display">{money}$</div>
 	</div>
 {/if}
 
@@ -209,16 +206,6 @@
 			display: block;
 			image-rendering: pixelated;
 			border-radius: 4px;
-		}
-
-		.money-display {
-			margin-top: 4px;
-			color: #ffd700;
-			font-family: monospace;
-			font-size: 11px;
-			text-align: center;
-			text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.9);
-			pointer-events: none;
 		}
 	}
 </style>

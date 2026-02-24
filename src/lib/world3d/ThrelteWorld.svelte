@@ -11,8 +11,7 @@
 	import Controls from '../world/Controls.svelte';
 	import type { BattleContext } from '../../js/context/battleContext';
 	import Shop from '../common/Shop.svelte';
-	import { backInOut } from 'svelte/easing';
-	import { fade, slide } from 'svelte/transition';
+	import { fade } from 'svelte/transition';
 
 	import InstancedTerrain from './InstancedTerrain.svelte';
 	import PlayerSprite3D from './PlayerSprite3D.svelte';
@@ -386,7 +385,6 @@
 					stairsY={stairsPos?.y}
 					legendaryPortals={dungeonMapData.legendaryPortals}
 					visible={showDungeonMinimap}
-					money={playerMoney}
 				/>
 			{/await}
 		{/if}
@@ -418,13 +416,9 @@
 		<ScenesView {context} {canvasWidth} />
 
 		{#if currentMessages.length > 0}
-			<div
-				class="notifications"
-				in:slide={{ duration: 500, delay: 100, axis: 'y', easing: backInOut }}
-				out:fade
-			>
+			<div class="notifications">
 				{#each currentMessages as message}
-					<div class="notification">{message}</div>
+					<div class="notification" in:fade={{ duration: 200 }} out:fade={{ duration: 300 }}>{message}</div>
 				{/each}
 			</div>
 		{/if}
@@ -453,24 +447,20 @@
 
 		.notifications {
 			position: absolute;
-			top: calc(5% + 56px);
-			right: 1%;
+			bottom: 4%;
+			left: 50%;
+			transform: translateX(-50%);
 			display: flex;
 			flex-direction: column;
-			justify-content: center;
-			align-items: flex-end;
+			align-items: center;
+			gap: 4px;
 			z-index: 7;
+			pointer-events: none;
 
 			.notification {
-				background-color: rgba(0, 0, 0, 0.5);
 				color: white;
-				padding: 4px;
-				border-radius: 4px;
-				font-size: 16px;
-
-				&:not(:last-child) {
-					margin-bottom: 4px;
-				}
+				font-size: 26px;
+				text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
 			}
 		}
 
