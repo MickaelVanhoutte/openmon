@@ -636,15 +636,7 @@
 								text-align: left;
 							}
 
-							div.value {
-								display: flex;
-								justify-content: space-between;
-								span {
-									color: var(--color, white);
-								}
-							}
-
-							.inputs {
+									.inputs {
 								display: flex;
 								flex-direction: row;
 								justify-content: center;

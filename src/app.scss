@@ -1,7 +1,6 @@
-@import '../node_modules/chota/src/chota.css';
-@import '../node_modules/@sjmc11/tourguidejs/dist/css/tour.min.css';
-//@import '../node_modules/@xyflow/svelte/dist/style.css';
-@import './styles/pixel-art';
+@use 'sass:math';
+// Vendor CSS is imported via main.ts (Vite JS imports) to avoid Sass @import deprecation warnings.
+@use './styles/pixel-art';
 
 @font-face {
 	font-family: pokemon;
@@ -142,8 +141,8 @@ $quantity: 8;
 
 // Randomize Fireflies Motion
 @for $i from 1 through $quantity {
-	$steps: random(12) + 16;
-	$rotationSpeed: random(10) + 8s;
+	$steps: math.random(12) + 16;
+	$rotationSpeed: math.random(10) + 8s;
 
 	.firefly:nth-child(#{$i}) {
 		animation-name: move#{$i};
@@ -155,19 +154,19 @@ $quantity: 8;
 		&::after {
 			animation-duration:
 				#{$rotationSpeed},
-				random(6000) + 5000ms;
+				math.random(6000) + 5000ms;
 			animation-delay:
 				0ms,
-				random(8000) + 500ms;
+				math.random(8000) + 500ms;
 		}
 	}
 
 	@keyframes move#{$i} {
 		@for $step from 0 through $steps {
-			#{$step * (100 / $steps)}% {
-				transform: translateX(random(100) - 50vw)
-					translateY(random(100) - 50vh)
-					scale(random(75) / 100 + 0.25);
+			#{math.div($step * 100, $steps)}% {
+				transform: translateX(math.random(100) - 50vw)
+					translateY(math.random(100) - 50vh)
+					scale(math.div(math.random(75), 100) + 0.25);
 			}
 		}
 	}

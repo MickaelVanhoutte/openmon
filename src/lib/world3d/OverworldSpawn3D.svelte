@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { T, useTask } from '@threlte/core';
 	import { Billboard } from '@threlte/extras';
-	import * as THREE from 'three';
+	import { DoubleSide, NearestFilter, SRGBColorSpace, Texture, TextureLoader } from 'three';
 	import type { OverworldSpawn } from '$js/characters/overworld-spawn';
 	import { TileType3D, TILE_HEIGHTS, type ThrelteMapData } from '$js/mapping/threlte-maps/types';
 
@@ -23,7 +23,7 @@
 		up: 0.0
 	};
 
-	let texture = $state<THREE.Texture | null>(null);
+	let texture = $state<Texture | null>(null);
 	let animFrame = $state(0);
 	let animElapsed = $state(0);
 	let visualPosition = $state({ x: 0, y: 0, z: 0 });
@@ -57,11 +57,11 @@
 		id = spawn.pokemon.isShiny ? id + 's' : id;
 		const source = `src/assets/monsters/walking/${id}.png`;
 
-		const loader = new THREE.TextureLoader();
+		const loader = new TextureLoader();
 		const tex = loader.load(source);
-		tex.magFilter = THREE.NearestFilter;
-		tex.minFilter = THREE.NearestFilter;
-		tex.colorSpace = THREE.SRGBColorSpace;
+		tex.magFilter = NearestFilter;
+		tex.minFilter = NearestFilter;
+		tex.colorSpace = SRGBColorSpace;
 		tex.repeat.set(0.25, 0.25);
 		texture = tex;
 	});
@@ -140,7 +140,7 @@
 	<Billboard position={[visualPosition.x, visualPosition.y, visualPosition.z]}>
 		<T.Mesh>
 			<T.PlaneGeometry args={[1, 1]} />
-			<T.MeshStandardMaterial map={texture} transparent alphaTest={0.5} side={THREE.DoubleSide} />
+			<T.MeshStandardMaterial map={texture} transparent alphaTest={0.5} side={DoubleSide} />
 		</T.Mesh>
 	</Billboard>
 {/if}

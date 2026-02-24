@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import type { Unsubscriber } from 'svelte/store';
 	import type { GameContext } from '../../js/context/gameContext';
 	import type { OpenShop } from '../../js/scripting/scripts';
@@ -12,7 +12,7 @@
 	const { shop, context }: Props = $props();
 
 	let unsubscribe: Unsubscriber;
-	const items = Object.keys(shop?.items || {}).map((key) => {
+	const items = untrack(() => Object.keys(shop?.items || {}).map((key) => {
 		const item = context.ITEMS.getItem(Number.parseInt(key));
 		return {
 			id: key,
@@ -20,7 +20,7 @@
 			price: shop?.items[key as unknown as number] || 0,
 			desc: item?.description
 		};
-	});
+	}));
 	let selected = $state(0);
 	const selectedItem = $derived(items[selected]);
 	let openQty = $state(false);
@@ -113,15 +113,16 @@
 		</div>
 		<ul class="items">
 			{#each items as item, index}
-				<li
-					class:selected={selected === index}
-					onclick={() => {
-						selected = index;
-						openQty = true;
-					}}
-				>
-					<span>{item.name}</span>
-					<span>{item.price} $</span>
+				<li class:selected={selected === index}>
+					<button
+						onclick={() => {
+							selected = index;
+							openQty = true;
+						}}
+					>
+						<span>{item.name}</span>
+						<span>{item.price} $</span>
+					</button>
 				</li>
 			{/each}
 		</ul>
@@ -248,20 +249,29 @@
 				margin: 0;
 
 				li {
-					padding: 12px;
 					background: var(--pixel-bg-primary);
 					border: 2px solid var(--pixel-border-color);
 					margin-bottom: 8px;
-					display: flex;
-					justify-content: space-between;
-					cursor: pointer;
 
 					&.selected {
 						border: 3px solid var(--pixel-text-gold);
 					}
 
-					span:last-child {
-						color: var(--pixel-text-gold);
+					button {
+						padding: 12px;
+						width: 100%;
+						display: flex;
+						justify-content: space-between;
+						cursor: pointer;
+						background: transparent;
+						border: none;
+						color: inherit;
+						font: inherit;
+						text-align: left;
+
+						span:last-child {
+							color: var(--pixel-text-gold);
+						}
 					}
 				}
 			}

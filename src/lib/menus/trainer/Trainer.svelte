@@ -52,18 +52,18 @@
 	in:slide={{ duration: 500, delay: 100, axis: 'x', easing: backInOut }}
 	out:fade
 >
-	<nav class="nav" role="navigation" aria-label="Trainer menu">
+	<nav class="nav" aria-label="Trainer menu">
 		<div class="nav-left">
-			<a class="brand">{context.player.name}</a>
+			<span class="brand">{context.player.name}</span>
 			<div class="tabs" role="tablist">
-				<a class:active={tab === 0} onclick={() => (tab = 0)} role="tab" aria-selected={tab === 0}
-					>{tabs[0]}</a
+				<button class:active={tab === 0} onclick={() => (tab = 0)} role="tab" aria-selected={tab === 0} type="button"
+					>{tabs[0]}</button
 				>
-				<a class:active={tab === 1} onclick={() => (tab = 1)} role="tab" aria-selected={tab === 1}
-					>{tabs[1]}</a
+				<button class:active={tab === 1} onclick={() => (tab = 1)} role="tab" aria-selected={tab === 1} type="button"
+					>{tabs[1]}</button
 				>
-				<a class:active={tab === 2} onclick={() => (tab = 2)} role="tab" aria-selected={tab === 2}
-					>{tabs[2]}</a
+				<button class:active={tab === 2} onclick={() => (tab = 2)} role="tab" aria-selected={tab === 2} type="button"
+					>{tabs[2]}</button
 				>
 			</div>
 		</div>
@@ -149,6 +149,8 @@
 					overflow: hidden;
 					white-space: nowrap;
 					text-align: left;
+					// Override Chota .nav .brand padding: 1rem 2rem
+					padding: 0;
 				}
 			}
 			.nav-right {
@@ -159,7 +161,12 @@
 				gap: 12%;
 			}
 
-			.tabs a {
+			.tabs button {
+				// Reset properties overridden by the general nav button{} rule below
+				background: transparent;
+				width: auto;
+				height: auto;
+				display: inline-flex;
 				color: white;
 				border: none;
 

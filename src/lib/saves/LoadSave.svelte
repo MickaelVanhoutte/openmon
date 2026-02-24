@@ -106,6 +106,7 @@
 					onclick={() => {
 						selected === save ? handleSubmit(save) : (selected = save);
 					}}
+					onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { selected === save ? handleSubmit(save) : (selected = save); } }}
 					onfocus={() => (selected = save)}
 					role="button"
 					tabindex="0"
@@ -202,14 +203,6 @@
 					justify-content: center;
 					align-items: center;
 					color: #ececec;
-
-					.go {
-						border: none;
-						padding: 8px;
-						cursor: pointer;
-						height: 32px;
-						color: #ececec;
-					}
 
 					.erase {
 						background: #dc5959;

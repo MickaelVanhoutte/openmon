@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { T, useTask } from '@threlte/core';
 	import { untrack } from 'svelte';
-	import * as THREE from 'three';
+	import { CircleGeometry, DoubleSide, Euler, InstancedMesh, Matrix4, MeshBasicMaterial, MeshStandardMaterial, NearestFilter, Quaternion, SRGBColorSpace, Texture, TextureLoader, Vector3 } from 'three';
 	import { TileType3D, TILE_HEIGHTS, type ThrelteMapData } from '$js/mapping/threlte-maps/types';
 	import {
 		TREE_TEXTURES,
@@ -20,13 +20,13 @@
 	const { mapData, playerPosition, battleActive = false }: Props = $props();
 	const BASE_HEIGHT = 1;
 
-	const textureLoader = new THREE.TextureLoader();
+	const textureLoader = new TextureLoader();
 
-	function loadTexture(url: string): THREE.Texture {
+	function loadTexture(url: string): Texture {
 		const tex = textureLoader.load(url);
-		tex.magFilter = THREE.NearestFilter;
-		tex.minFilter = THREE.NearestFilter;
-		tex.colorSpace = THREE.SRGBColorSpace;
+		tex.magFilter = NearestFilter;
+		tex.minFilter = NearestFilter;
+		tex.colorSpace = SRGBColorSpace;
 		return tex;
 	}
 
@@ -38,23 +38,23 @@
 	// Pre-create shared materials (one per texture variant instead of one per mesh)
 	const treeMaterials = treeTextures.map(
 		(tex) =>
-			new THREE.MeshStandardMaterial({
+			new MeshStandardMaterial({
 				map: tex,
 				transparent: true,
 				alphaTest: 0.5,
-				side: THREE.DoubleSide,
+				side: DoubleSide,
 				color: 0xffffff
 			})
 	);
 
 	const bushSpriteMaterials = bushTextures.map(
 		(tex) =>
-			new THREE.MeshStandardMaterial({
+			new MeshStandardMaterial({
 				map: tex,
 				transparent: true,
 				alphaTest: 0.5,
 				depthWrite: false,
-				side: THREE.DoubleSide,
+				side: DoubleSide,
 				roughness: 0.9,
 				color: 0xffffff
 			})
@@ -64,12 +64,12 @@
 	// so it sorts after player/follower sprites within the transparent pass
 	const tallGrassFrontMaterials = bushTextures.map(
 		(tex) =>
-			new THREE.MeshStandardMaterial({
+			new MeshStandardMaterial({
 				map: tex,
 				transparent: true,
 				alphaTest: 0.5,
 				depthWrite: false,
-				side: THREE.DoubleSide,
+				side: DoubleSide,
 				roughness: 0.9,
 				color: 0xffffff
 			})
@@ -77,11 +77,11 @@
 
 	const rockSpriteMaterials = rockTextures.map(
 		(tex) =>
-			new THREE.MeshStandardMaterial({
+			new MeshStandardMaterial({
 				map: tex,
 				transparent: true,
 				alphaTest: 0.5,
-				side: THREE.DoubleSide,
+				side: DoubleSide,
 				roughness: 0.9,
 				color: 0xffffff
 			})
@@ -89,30 +89,30 @@
 
 	const deadTreeMaterials = deadTreeTextures.map(
 		(tex) =>
-			new THREE.MeshStandardMaterial({
+			new MeshStandardMaterial({
 				map: tex,
 				transparent: true,
 				alphaTest: 0.5,
-				side: THREE.DoubleSide,
+				side: DoubleSide,
 				color: 0xffffff
 			})
 	);
 
 	const deadTreeDirtMaterials = deadTreeDirtTextures.map(
 		(tex) =>
-			new THREE.MeshStandardMaterial({
+			new MeshStandardMaterial({
 				map: tex,
 				transparent: true,
 				alphaTest: 0.5,
-				side: THREE.DoubleSide,
+				side: DoubleSide,
 				color: 0xffffff
 			})
 	);
 
 	// Tree stump/shadow markers (visible when tree sinks underground)
-	const stumpGeometry = new THREE.CircleGeometry(0.4, 8);
+	const stumpGeometry = new CircleGeometry(0.4, 8);
 	stumpGeometry.rotateX(-Math.PI / 2); // lay flat on ground
-	const stumpMaterial = new THREE.MeshBasicMaterial({
+	const stumpMaterial = new MeshBasicMaterial({
 		color: 0x3e2723, // dark brown
 		transparent: true,
 		opacity: 0.6,
@@ -120,10 +120,10 @@
 	});
 
 	// Reusable quaternions and scale for matrix composition
-	const yRotation = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, Math.PI / 2, 0));
-	const identityQuat = new THREE.Quaternion();
-	const oneScale = new THREE.Vector3(1, 1, 1);
-	const zeroScale = new THREE.Vector3(0, 0, 0); // for invisible stumps
+	const yRotation = new Quaternion().setFromEuler(new Euler(0, Math.PI / 2, 0));
+	const identityQuat = new Quaternion();
+	const oneScale = new Vector3(1, 1, 1);
+	const zeroScale = new Vector3(0, 0, 0); // for invisible stumps
 
 	// Bush layer offsets: [zOffset, yVariation, xVariation] for multi-layer fill
 	const BUSH_LAYERS = [
@@ -135,21 +135,21 @@
 
 	interface InstanceGroupData {
 		texIdx: number;
-		matrices: THREE.Matrix4[];
+		matrices: Matrix4[];
 	}
 
 	const instances = $derived.by(() => {
-		const treePlane1Map = new Map<number, THREE.Matrix4[]>();
-		const treePlane2Map = new Map<number, THREE.Matrix4[]>();
-		const treeStumpMap = new Map<number, THREE.Matrix4[]>();
-		const bushSpriteMap = new Map<number, THREE.Matrix4[]>();
+		const treePlane1Map = new Map<number, Matrix4[]>();
+		const treePlane2Map = new Map<number, Matrix4[]>();
+		const treeStumpMap = new Map<number, Matrix4[]>();
+		const bushSpriteMap = new Map<number, Matrix4[]>();
 		// Front layer of TALL_GRASS rendered above player sprites (renderOrder 2)
-		const tallGrassFrontMap = new Map<number, THREE.Matrix4[]>();
-		const rockSpriteMap = new Map<number, THREE.Matrix4[]>();
-		const deadTreePlane1Map = new Map<number, THREE.Matrix4[]>();
-		const deadTreePlane2Map = new Map<number, THREE.Matrix4[]>();
-		const deadTreeDirtPlane1Map = new Map<number, THREE.Matrix4[]>();
-		const deadTreeDirtPlane2Map = new Map<number, THREE.Matrix4[]>();
+		const tallGrassFrontMap = new Map<number, Matrix4[]>();
+		const rockSpriteMap = new Map<number, Matrix4[]>();
+		const deadTreePlane1Map = new Map<number, Matrix4[]>();
+		const deadTreePlane2Map = new Map<number, Matrix4[]>();
+		const deadTreeDirtPlane1Map = new Map<number, Matrix4[]>();
+		const deadTreeDirtPlane2Map = new Map<number, Matrix4[]>();
 
 		for (let row = 0; row < mapData.height; row++) {
 			for (let col = 0; col < mapData.width; col++) {
@@ -164,24 +164,24 @@
 					const stumpY = BASE_HEIGHT + tileHeight + 0.01; // just above ground
 
 					// Tree plane 1 (facing Z)
-					const mat1 = new THREE.Matrix4();
-					mat1.compose(new THREE.Vector3(x, treeY, z), identityQuat, oneScale);
+					const mat1 = new Matrix4();
+					mat1.compose(new Vector3(x, treeY, z), identityQuat, oneScale);
 					if (!treePlane1Map.has(textureIndex)) {
 						treePlane1Map.set(textureIndex, []);
 					}
 					treePlane1Map.get(textureIndex)!.push(mat1);
 
 					// Tree plane 2 (facing X, cross billboard)
-					const mat2 = new THREE.Matrix4();
-					mat2.compose(new THREE.Vector3(x, treeY, z), yRotation, oneScale);
+					const mat2 = new Matrix4();
+					mat2.compose(new Vector3(x, treeY, z), yRotation, oneScale);
 					if (!treePlane2Map.has(textureIndex)) {
 						treePlane2Map.set(textureIndex, []);
 					}
 					treePlane2Map.get(textureIndex)!.push(mat2);
 
 					// Tree stump (ground marker, invisible by default)
-					const stumpMat = new THREE.Matrix4();
-					stumpMat.compose(new THREE.Vector3(x, stumpY, z), identityQuat, zeroScale);
+					const stumpMat = new Matrix4();
+					stumpMat.compose(new Vector3(x, stumpY, z), identityQuat, zeroScale);
 					if (!treeStumpMap.has(textureIndex)) {
 						treeStumpMap.set(textureIndex, []);
 					}
@@ -198,9 +198,9 @@
 						const bz = z + offsetZ;
 
 						for (const layer of BUSH_LAYERS) {
-							const spriteMat = new THREE.Matrix4();
+							const spriteMat = new Matrix4();
 							spriteMat.compose(
-								new THREE.Vector3(bx + layer.x, by + 0.3 + layer.y, bz + layer.z),
+								new Vector3(bx + layer.x, by + 0.3 + layer.y, bz + layer.z),
 								identityQuat,
 								oneScale
 							);
@@ -222,8 +222,8 @@
 						const rockTexIdx = (row * 31 + col * 37) % rockTextures.length;
 						const ry = BASE_HEIGHT + tileHeight;
 
-						const spriteMat = new THREE.Matrix4();
-						spriteMat.compose(new THREE.Vector3(x, ry + 0.5, z), identityQuat, oneScale);
+						const spriteMat = new Matrix4();
+						spriteMat.compose(new Vector3(x, ry + 0.5, z), identityQuat, oneScale);
 						if (!rockSpriteMap.has(rockTexIdx)) {
 							rockSpriteMap.set(rockTexIdx, []);
 						}
@@ -237,9 +237,9 @@
 						const by = BASE_HEIGHT + tileHeight;
 
 						for (const layer of BUSH_LAYERS) {
-							const spriteMat = new THREE.Matrix4();
+							const spriteMat = new Matrix4();
 							spriteMat.compose(
-								new THREE.Vector3(x + layer.x, by + 0.3 + layer.y, z + layer.z),
+								new Vector3(x + layer.x, by + 0.3 + layer.y, z + layer.z),
 								identityQuat,
 								oneScale
 							);
@@ -259,9 +259,9 @@
 
 					for (let li = 0; li < BUSH_LAYERS.length; li++) {
 						const layer = BUSH_LAYERS[li];
-						const spriteMat = new THREE.Matrix4();
+						const spriteMat = new Matrix4();
 						spriteMat.compose(
-							new THREE.Vector3(x + layer.x, by + 0.3 + layer.y, z + layer.z),
+							new Vector3(x + layer.x, by + 0.3 + layer.y, z + layer.z),
 							identityQuat,
 							oneScale
 						);
@@ -288,13 +288,13 @@
 						const texIdx = (row * 3 + col * 7) % deadTreeTextures.length;
 						const dy = BASE_HEIGHT + tileHeight + 1;
 
-						const mat1 = new THREE.Matrix4();
-						mat1.compose(new THREE.Vector3(x, dy, z), identityQuat, oneScale);
+						const mat1 = new Matrix4();
+						mat1.compose(new Vector3(x, dy, z), identityQuat, oneScale);
 						if (!deadTreePlane1Map.has(texIdx)) deadTreePlane1Map.set(texIdx, []);
 						deadTreePlane1Map.get(texIdx)!.push(mat1);
 
-						const mat2 = new THREE.Matrix4();
-						mat2.compose(new THREE.Vector3(x, dy, z), yRotation, oneScale);
+						const mat2 = new Matrix4();
+						mat2.compose(new Vector3(x, dy, z), yRotation, oneScale);
 						if (!deadTreePlane2Map.has(texIdx)) deadTreePlane2Map.set(texIdx, []);
 						deadTreePlane2Map.get(texIdx)!.push(mat2);
 					}
@@ -308,13 +308,13 @@
 						const texIdx = (row * 5 + col * 11) % deadTreeDirtTextures.length;
 						const dy = BASE_HEIGHT + tileHeight + 1;
 
-						const mat1 = new THREE.Matrix4();
-						mat1.compose(new THREE.Vector3(x, dy, z), identityQuat, oneScale);
+						const mat1 = new Matrix4();
+						mat1.compose(new Vector3(x, dy, z), identityQuat, oneScale);
 						if (!deadTreeDirtPlane1Map.has(texIdx)) deadTreeDirtPlane1Map.set(texIdx, []);
 						deadTreeDirtPlane1Map.get(texIdx)!.push(mat1);
 
-						const mat2 = new THREE.Matrix4();
-						mat2.compose(new THREE.Vector3(x, dy, z), yRotation, oneScale);
+						const mat2 = new Matrix4();
+						mat2.compose(new Vector3(x, dy, z), yRotation, oneScale);
 						if (!deadTreeDirtPlane2Map.has(texIdx)) deadTreeDirtPlane2Map.set(texIdx, []);
 						deadTreeDirtPlane2Map.get(texIdx)!.push(mat2);
 					}
@@ -367,7 +367,7 @@
 		};
 	});
 
-	function applyMatrices(ref: THREE.InstancedMesh, matrices: THREE.Matrix4[]) {
+	function applyMatrices(ref: InstancedMesh, matrices: Matrix4[]) {
 		for (let i = 0; i < matrices.length; i++) {
 			ref.setMatrixAt(i, matrices[i]);
 		}
@@ -375,76 +375,76 @@
 	}
 
 	// Bush sway animation state
-	const bushMeshRefs: THREE.InstancedMesh[] = [];
-	const bushBaseMatrices: THREE.Matrix4[][] = [];
+	const bushMeshRefs: InstancedMesh[] = [];
+	const bushBaseMatrices: Matrix4[][] = [];
 	// Tall-grass front layer refs (share the sway logic via the same arrays, offset by a base index)
-	const tallGrassFrontMeshRefs: THREE.InstancedMesh[] = [];
-	const tallGrassFrontBaseMatrices: THREE.Matrix4[][] = [];
+	const tallGrassFrontMeshRefs: InstancedMesh[] = [];
+	const tallGrassFrontBaseMatrices: Matrix4[][] = [];
 	const swayTriggers = new Map<string, number>(); // key -> trigger time
 	const SWAY_RADIUS = 0.5;
 	const SWAY_STRENGTH = 0.1;
 	const SWAY_DECAY = 4.0; // exponential decay rate (higher = faster stop)
 	const SWAY_THRESHOLD = 0.002; // amplitude below which we stop
-	const tmpMatrix = new THREE.Matrix4();
+	const tmpMatrix = new Matrix4();
 	let elapsedTime = 0;
 
-	function initBushMesh(ref: THREE.InstancedMesh, matrices: THREE.Matrix4[], groupIndex: number) {
+	function initBushMesh(ref: InstancedMesh, matrices: Matrix4[], groupIndex: number) {
 		applyMatrices(ref, matrices);
 		bushMeshRefs[groupIndex] = ref;
 		bushBaseMatrices[groupIndex] = matrices.map((m) => m.clone());
 	}
 
-	function initTallGrassFrontMesh(ref: THREE.InstancedMesh, matrices: THREE.Matrix4[], groupIndex: number) {
+	function initTallGrassFrontMesh(ref: InstancedMesh, matrices: Matrix4[], groupIndex: number) {
 		applyMatrices(ref, matrices);
 		tallGrassFrontMeshRefs[groupIndex] = ref;
 		tallGrassFrontBaseMatrices[groupIndex] = matrices.map((m) => m.clone());
 	}
 
 	// Tree ref storage (2 cross-planes per texture group)
-	const treeMeshRefs: THREE.InstancedMesh[] = [];
-	const treeBaseMatrices: THREE.Matrix4[][] = [];
+	const treeMeshRefs: InstancedMesh[] = [];
+	const treeBaseMatrices: Matrix4[][] = [];
 
-	function initTreeMesh(ref: THREE.InstancedMesh, matrices: THREE.Matrix4[], index: number) {
+	function initTreeMesh(ref: InstancedMesh, matrices: Matrix4[], index: number) {
 		applyMatrices(ref, matrices);
 		treeMeshRefs[index] = ref;
 		treeBaseMatrices[index] = matrices.map((m) => m.clone());
 	}
 
 	// Tree stump ref storage (ground markers for sunken trees)
-	const stumpMeshRefs: THREE.InstancedMesh[] = [];
-	const stumpBaseMatrices: THREE.Matrix4[][] = [];
+	const stumpMeshRefs: InstancedMesh[] = [];
+	const stumpBaseMatrices: Matrix4[][] = [];
 
-	function initStumpMesh(ref: THREE.InstancedMesh, matrices: THREE.Matrix4[], index: number) {
+	function initStumpMesh(ref: InstancedMesh, matrices: Matrix4[], index: number) {
 		applyMatrices(ref, matrices);
 		stumpMeshRefs[index] = ref;
 		stumpBaseMatrices[index] = matrices.map((m) => m.clone());
 	}
 
 	// Rock ref storage
-	const rockMeshRefs: THREE.InstancedMesh[] = [];
-	const rockBaseMatrices: THREE.Matrix4[][] = [];
+	const rockMeshRefs: InstancedMesh[] = [];
+	const rockBaseMatrices: Matrix4[][] = [];
 
-	function initRockMesh(ref: THREE.InstancedMesh, matrices: THREE.Matrix4[], index: number) {
+	function initRockMesh(ref: InstancedMesh, matrices: Matrix4[], index: number) {
 		applyMatrices(ref, matrices);
 		rockMeshRefs[index] = ref;
 		rockBaseMatrices[index] = matrices.map((m) => m.clone());
 	}
 
 	// Dead-tree ref storage (cross-billboard, 2 planes per texture group)
-	const deadTreeMeshRefs: THREE.InstancedMesh[] = [];
-	const deadTreeBaseMatrices: THREE.Matrix4[][] = [];
+	const deadTreeMeshRefs: InstancedMesh[] = [];
+	const deadTreeBaseMatrices: Matrix4[][] = [];
 
-	function initDeadTreeMesh(ref: THREE.InstancedMesh, matrices: THREE.Matrix4[], index: number) {
+	function initDeadTreeMesh(ref: InstancedMesh, matrices: Matrix4[], index: number) {
 		applyMatrices(ref, matrices);
 		deadTreeMeshRefs[index] = ref;
 		deadTreeBaseMatrices[index] = matrices.map((m) => m.clone());
 	}
 
 	// Dead-tree-dirt ref storage (cross-billboard, 2 planes per texture group)
-	const deadTreeDirtMeshRefs: THREE.InstancedMesh[] = [];
-	const deadTreeDirtBaseMatrices: THREE.Matrix4[][] = [];
+	const deadTreeDirtMeshRefs: InstancedMesh[] = [];
+	const deadTreeDirtBaseMatrices: Matrix4[][] = [];
 
-	function initDeadTreeDirtMesh(ref: THREE.InstancedMesh, matrices: THREE.Matrix4[], index: number) {
+	function initDeadTreeDirtMesh(ref: InstancedMesh, matrices: Matrix4[], index: number) {
 		applyMatrices(ref, matrices);
 		deadTreeDirtMeshRefs[index] = ref;
 		deadTreeDirtBaseMatrices[index] = matrices.map((m) => m.clone());
@@ -456,7 +456,7 @@
 	let pushProgress = $state(0); // 0 = normal, 1 = fully pushed
 	let playerSnapshot = { x: 0, z: 0 }; // captured when battle starts
 	let pushTween: gsap.core.Tween | undefined;
-	const pushTmpMatrix = new THREE.Matrix4();
+	const pushTmpMatrix = new Matrix4();
 
 	function restoreAllToBase() {
 		bushMeshRefs.forEach((mesh, idx) => {
@@ -632,7 +632,7 @@
 		if (pushProgress === 0) return;
 
 		// Helper: apply push to a single decoration mesh
-		const applyPushToMesh = (mesh: THREE.InstancedMesh, baseMatrices: THREE.Matrix4[]) => {
+		const applyPushToMesh = (mesh: InstancedMesh, baseMatrices: Matrix4[]) => {
 			for (let i = 0; i < mesh.count; i++) {
 				const base = baseMatrices[i];
 				if (!base) continue;
@@ -734,15 +734,15 @@
 		const FADE_FULL_Z = 1.5; // fully sunk at 1.5 units behind player (quick transition)
 		const MAX_SINK_DEPTH = 5; // maximum Y offset to push trees down (fully underground)
 
-		const fadeTmpMatrix = new THREE.Matrix4();
-		const stumpTmpMatrix = new THREE.Matrix4();
+		const fadeTmpMatrix = new Matrix4();
+		const stumpTmpMatrix = new Matrix4();
 
 		// Helper: apply sink to trees and show stumps
 		const applySinkFade = (
-			treeMesh: THREE.InstancedMesh,
-			treeBaseMatrices: THREE.Matrix4[],
-			stumpMesh: THREE.InstancedMesh,
-			stumpBaseMatrices: THREE.Matrix4[]
+			treeMesh: InstancedMesh,
+			treeBaseMatrices: Matrix4[],
+			stumpMesh: InstancedMesh,
+			stumpBaseMatrices: Matrix4[]
 		) => {
 			for (let i = 0; i < treeBaseMatrices.length; i++) {
 				const treeBase = treeBaseMatrices[i];

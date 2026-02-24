@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import { gsap } from 'gsap';
 	import { getSpritePosition, type SpritePosition } from '../../../js/battle/sprite-position';
 
@@ -32,7 +32,7 @@
 	}: Props = $props();
 
 	const buttonElements: HTMLButtonElement[] = [];
-	let selectedIdx = $state(selectedOptionIdx);
+	let selectedIdx = $state(untrack(() => selectedOptionIdx));
 	let spriteReady = $state(false);
 
 	// Check if sprite has valid position (not at 0,0)
@@ -61,12 +61,13 @@
 		action: () => void;
 	}
 
-	const actions: ActionButton[] = [
+	// untrack: action callbacks are intentionally captured once at init
+	const actions: ActionButton[] = untrack(() => [
 		{ label: 'FIGHT', color: 'rgba(220,89,89,0.8)', action: onFight },
 		{ label: 'BAG', color: 'rgba(236,168,89,0.8)', action: onBag },
 		{ label: 'POKEMON', color: 'rgba(126,175,83,0.8)', action: onSwitch },
 		{ label: 'RUN', color: 'rgba(89,155,220,0.8)', action: onRun }
-	];
+	]);
 
 	function getButtonPositions(
 		spritePos: SpritePosition | null

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import type { GameContext } from '../../../js/context/gameContext';
 	import { MenuType } from '../../../js/context/overworldContext';
 	import type { PokedexSearchResult } from '../../../js/pokemons/pokedex';
@@ -16,11 +16,11 @@
 
 	const showFullDexImg = false;
 
-	let wrapper: HTMLDivElement;
+	let wrapper: HTMLDivElement = $state();
 	const elements: HTMLElement[] = $state([]);
 	let selectedIdx = $state(0);
 	let searchTerm: string = $state('');
-	let filtered = $state(context.POKEDEX.entries);
+	let filtered = $state(untrack(() => context.POKEDEX.entries));
 	const selectedPokemon = $derived(filtered[selectedIdx]);
 	let detailOpened = $state(false);
 	let selectedType: string | undefined = $state(undefined);
@@ -166,6 +166,9 @@
 						class:selected={selectedPokemon?.id === pokemon.id}
 						bind:this={elements[index]}
 						onclick={() => select(index)}
+						role="button"
+						tabindex="0"
+						onkeydown={(e) => e.key === 'Enter' || e.key === ' ' ? select(index) : undefined}
 					>
 						{#if pokemon.caught}
 							<img src="src/assets/menus/pokeball.png" alt="pokemons" />
@@ -209,6 +212,7 @@
 					<img
 						style="width: 100%; opacity: 1"
 						src={`src/assets/monsters/pokedex/${('00' + pokemon?.id).slice(-3)}.png`}
+						alt={pokemon.name}
 					/>
 
 					<!-- <img
@@ -301,10 +305,6 @@
 						filter: brightness(0);
 					}
 				}
-			}
-
-			h2 {
-				margin: 0;
 			}
 		}
 

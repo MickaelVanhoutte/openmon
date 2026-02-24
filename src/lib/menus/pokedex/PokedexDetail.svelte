@@ -126,16 +126,10 @@
 	{/if}
 
 	<div class="menu row">
-		<div class="wrapper">
-			<input type="radio" name="tab" id="tab1" class="tab tab--1" checked={currentTab === 1} />
-			<label class="tab_label" for="tab1" tabindex="-1" onclick={() => selectTab(1)}>Stats</label>
-
-			<input type="radio" name="tab" id="tab2" class="tab tab--2" checked={currentTab === 2} />
-			<label class="tab_label" for="tab2" tabindex="-1" onclick={() => selectTab(2)}>More</label>
-
-			<input type="radio" name="tab" id="tab3" class="tab tab--3" checked={currentTab === 3} />
-			<label class="tab_label" for="tab3" tabindex="-1" onclick={() => selectTab(3)}>Moves</label>
-
+		<div class="wrapper" data-tab={currentTab}>
+			<button class="tab_label" onclick={() => selectTab(1)} aria-pressed={currentTab === 1}>Stats</button>
+			<button class="tab_label" onclick={() => selectTab(2)} aria-pressed={currentTab === 2}>More</button>
+			<button class="tab_label" onclick={() => selectTab(3)} aria-pressed={currentTab === 3}>Moves</button>
 			<div class="indicator"></div>
 		</div>
 	</div>
@@ -163,13 +157,6 @@
 			justify-content: space-between;
 			align-items: center;
 			width: 100%;
-		}
-
-		.column {
-			display: flex;
-			flex-direction: column;
-			justify-content: space-between;
-			align-items: center;
 		}
 
 		.title {
@@ -298,15 +285,6 @@
 				transition: all 0.2s ease-out;
 			}
 
-			.tab {
-				width: calc(100% / 3);
-				height: 28px;
-				position: absolute;
-				z-index: 99;
-				outline: none;
-				opacity: 0;
-			}
-
 			.tab_label {
 				flex: 1;
 				height: 28px;
@@ -319,6 +297,7 @@
 				justify-content: center;
 
 				border: 0;
+				background: transparent;
 
 				color: #fff;
 				font-size: 26px;
@@ -326,24 +305,23 @@
 				text-transform: uppercase;
 				cursor: pointer;
 				text-shadow: 1px 1px 0 #000;
+
+				&[aria-pressed='true'] {
+					color: #000;
+					text-shadow: none;
+				}
 			}
 
-			.tab--1:checked ~ .indicator {
+			.wrapper[data-tab='1'] .indicator {
 				left: 0;
 			}
 
-			.tab--2:checked ~ .indicator {
+			.wrapper[data-tab='2'] .indicator {
 				left: calc(100% / 3);
 			}
 
-			.tab--3:checked ~ .indicator {
+			.wrapper[data-tab='3'] .indicator {
 				left: calc(100% / 3 * 2);
-			}
-
-			/* Change text color for selected tab */
-			.tab:checked + .tab_label {
-				color: #000;
-				text-shadow: none;
 			}
 		}
 	}

@@ -23,13 +23,30 @@ export default defineConfig({
 		}
 	},
 	build: {
+		// Three.js with WebGLRenderer + InstancedMesh + MeshStandardMaterial is ~700 kB
+		// minified — this is unavoidable for a 3D engine and gzips to ~185 kB on the wire.
+		chunkSizeWarningLimit: 800,
 		modulePreload: false,
 		rollupOptions: {
 			output: {
-				manualChunks: {
-					vendor: ['@abraham/reflection', 'howler', 'tsyringe'],
-					chartjs: ['chart.js'],
-					mastery: ['@svgdotjs/svg.js', 'honeycomb-grid']
+				// Use a function-based manualChunks so Rollup can still tree-shake
+				// individual modules while grouping related packages together.
+				manualChunks(id) {
+					// Three.js — group all internal three/ modules into one chunk.
+					// Using a function (rather than listing 'three' as an entry point)
+					// lets Rollup tree-shake unused exports from three.js itself.
+					if (id.includes('node_modules/three/')) return 'threejs';
+					// postprocessing depends on three; keep it in its own chunk
+					if (id.includes('node_modules/postprocessing/')) return 'postprocessing';
+					if (id.includes('node_modules/@threlte/')) return 'threlte';
+					if (id.includes('node_modules/gsap/')) return 'gsap';
+					if (id.includes('node_modules/chart.js/') || id.includes('node_modules/chartjs')) return 'chartjs';
+					if (id.includes('node_modules/@svgdotjs/') || id.includes('node_modules/honeycomb-grid/')) return 'mastery';
+					if (
+						id.includes('node_modules/@abraham/') ||
+						id.includes('node_modules/howler/') ||
+						id.includes('node_modules/tsyringe/')
+					) return 'vendor';
 				}
 			},
 
@@ -117,10 +134,7 @@ export default defineConfig({
 		}),
 		svelte({
 			emitCss: true,
-			inspector: false,
-			compilerOptions: {
-				accessors: true
-			}
+			inspector: false
 		})
 	]
 });

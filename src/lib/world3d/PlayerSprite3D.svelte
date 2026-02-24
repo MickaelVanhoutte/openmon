@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { T, useTask } from '@threlte/core';
 	import { Billboard } from '@threlte/extras';
-	import * as THREE from 'three';
+	import { DoubleSide, NearestFilter, SRGBColorSpace, Texture, TextureLoader } from 'three';
+	import { untrack } from 'svelte';
 	import type { Player } from '$js/characters/player';
 	import { TileType3D, TILE_HEIGHTS, type ThrelteMapData } from '$js/mapping/threlte-maps/types';
 
@@ -25,9 +26,9 @@
 		up: 0.0
 	};
 
-	let walkingTexture = $state<THREE.Texture | null>(null);
-	let runningTexture = $state<THREE.Texture | null>(null);
-	let currentTexture = $state<THREE.Texture | null>(null);
+	let walkingTexture = $state<Texture | null>(null);
+	let runningTexture = $state<Texture | null>(null);
+	let currentTexture = $state<Texture | null>(null);
 	let animFrame = $state(0);
 	let animElapsed = $state(0);
 
@@ -41,31 +42,31 @@
 		};
 	}
 
-	// Initialize position
-	const startPos = gridTo3D(
-		player.position.currentGridPosition.x,
-		player.position.currentGridPosition.y
+	// Initialize position — untrack to avoid false reactive capture warning;
+	// actual position updates happen in the useTask loop below.
+	const startPos = untrack(() =>
+		gridTo3D(player.position.currentGridPosition.x, player.position.currentGridPosition.y)
 	);
 	visualPosition = { ...startPos };
 
 	// Load walking and running textures
 	$effect(() => {
-		const loader = new THREE.TextureLoader();
+		const loader = new TextureLoader();
 
 		const walkSrc = player.sprite.overworld.walking.source;
 		const walkTex = loader.load(walkSrc);
-		walkTex.magFilter = THREE.NearestFilter;
-		walkTex.minFilter = THREE.NearestFilter;
-		walkTex.colorSpace = THREE.SRGBColorSpace;
+		walkTex.magFilter = NearestFilter;
+		walkTex.minFilter = NearestFilter;
+		walkTex.colorSpace = SRGBColorSpace;
 		walkTex.repeat.set(0.25, 0.25);
 		walkingTexture = walkTex;
 
 		const runSrc = player.sprite.overworld.running?.source;
 		if (runSrc) {
 			const runTex = loader.load(runSrc);
-			runTex.magFilter = THREE.NearestFilter;
-			runTex.minFilter = THREE.NearestFilter;
-			runTex.colorSpace = THREE.SRGBColorSpace;
+			runTex.magFilter = NearestFilter;
+			runTex.minFilter = NearestFilter;
+			runTex.colorSpace = SRGBColorSpace;
 			runTex.repeat.set(0.25, 0.25);
 			runningTexture = runTex;
 		}
@@ -150,7 +151,7 @@
 				map={currentTexture}
 				transparent
 				alphaTest={0.5}
-				side={THREE.DoubleSide}
+				side={DoubleSide}
 			/>
 		</T.Mesh>
 	</Billboard>

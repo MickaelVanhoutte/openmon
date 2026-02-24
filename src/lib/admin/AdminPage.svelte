@@ -1,10 +1,13 @@
 <script lang="ts">
-	import AnimationsTab from './tabs/AnimationsTab.svelte';
-	import EvolutionTab from './tabs/EvolutionTab.svelte';
-	import AddPokemon from './tabs/AddPokemon.svelte';
-	import PokedexManager from './tabs/PokedexManager.svelte';
 	import ExportButton from './components/ExportButton.svelte';
 	import type { PokedexEntry, Move } from '$js/pokemons/pokedex';
+
+	// Lazy-load all heavy tabs so their dependencies (AnimationEngine, Pokedex, etc.)
+	// are split into separate async chunks and not bundled with the AdminPage shell.
+	const PokedexManager = import('./tabs/PokedexManager.svelte').then((m) => m.default);
+	const AddPokemon = import('./tabs/AddPokemon.svelte').then((m) => m.default);
+	const AnimationsTab = import('./tabs/AnimationsTab.svelte').then((m) => m.default);
+	const EvolutionTab = import('./tabs/EvolutionTab.svelte').then((m) => m.default);
 
 	interface Props {
 		onClose?: () => void;
@@ -67,13 +70,21 @@
 
 	<main class="tab-content">
 		{#if activeTab === 'pokedex-manager'}
-			<PokedexManager onPokemonEdited={handlePokemonAdded} />
+			{#await PokedexManager then PokedexManagerCmp}
+				<PokedexManagerCmp onPokemonEdited={handlePokemonAdded} />
+			{/await}
 		{:else if activeTab === 'add-pokemon'}
-			<AddPokemon onPokemonAdded={handlePokemonAdded} onPokemonRemoved={handlePokemonRemoved} />
+			{#await AddPokemon then AddPokemonCmp}
+				<AddPokemonCmp onPokemonAdded={handlePokemonAdded} onPokemonRemoved={handlePokemonRemoved} />
+			{/await}
 		{:else if activeTab === 'animations'}
-			<AnimationsTab />
+			{#await AnimationsTab then AnimationsTabCmp}
+				<AnimationsTabCmp />
+			{/await}
 		{:else if activeTab === 'evolution'}
-			<EvolutionTab />
+			{#await EvolutionTab then EvolutionTabCmp}
+				<EvolutionTabCmp />
+			{/await}
 		{/if}
 	</main>
 </div>
@@ -174,25 +185,6 @@
 		-webkit-overflow-scrolling: touch;
 		padding: 0.5rem;
 		min-height: 0;
-	}
-
-	.placeholder-content {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		height: 100%;
-		text-align: center;
-		opacity: 0.6;
-	}
-
-	.placeholder-content h2 {
-		font-size: 1.25rem;
-		margin-bottom: 1rem;
-	}
-
-	.placeholder-content p {
-		font-size: 0.75rem;
 	}
 
 	@media (max-width: 768px) {

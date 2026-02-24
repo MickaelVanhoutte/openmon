@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import { MenuType, type OverworldContext } from '../../js/context/overworldContext';
 	import { ABButtons, KeyMap, lastKey } from '../../js/commands/controls';
 	import { JoystickController } from '../../js/commands/joystick-controller';
@@ -24,8 +24,9 @@
 	let displayedQuests = $state(false);
 	let menu = $state(false);
 	let menuAvailability = $state<Record<MenuType, boolean>>({} as Record<MenuType, boolean>);
-	let runningShoesUnlocked = $state(context.flags.getFlag(FlagEntry.RUNNING_SHOES_UNLOCKED));
-	let isRunning = $state(context.player?.running ?? false);
+	// untrack: intentional one-time snapshots; these are polled/updated elsewhere
+	let runningShoesUnlocked = $state(untrack(() => context.flags.getFlag(FlagEntry.RUNNING_SHOES_UNLOCKED)));
+	let isRunning = $state(untrack(() => context.player?.running ?? false));
 
 	// Subscribe to menu availability changes
 	$effect(() => {
@@ -152,11 +153,6 @@
 		displayedQuests = !displayedQuests;
 	}
 
-	function toggleMap() {
-		context.soundManager.playUISFX('confirm');
-		overWorldCtx.toggleMenu(MenuType.MAP);
-	}
-
 	function toggleMenu() {
 		menu = !menu;
 		context.soundManager.playUISFX(menu ? 'menu-open' : 'menu-close');
@@ -270,7 +266,7 @@
 	{/if}
 </div>
 
-<nav class="menu-dock" data-testid="controls-menu" role="navigation" aria-label="Game menu">
+<nav class="menu-dock" data-testid="controls-menu" aria-label="Game menu">
 	<!-- Trigger button - always visible -->
 	<button
 		class="dock-trigger"
@@ -419,23 +415,6 @@
 						/>
 					</svg>
 					<span class="dock-label">Trainer</span>
-				</button>
-			{/if}
-
-			<!-- Map -->
-			{#if menuAvailability[MenuType.BAG]}
-				<button
-					class="dock-item"
-					style="--item-color: #5ab142"
-					onclick={toggleMap}
-					aria-label="Open map"
-				>
-					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-						<path
-							d="M2 5L9 2L15 5L21.303 2.2987C21.5569 2.18992 21.8508 2.30749 21.9596 2.56131C21.9862 2.62355 22 2.69056 22 2.75827V19L15 22L9 19L2.69696 21.7013C2.44314 21.8101 2.14921 21.6925 2.04043 21.4387C2.01375 21.3765 2 21.3094 2 21.2417V5ZM6 11V13H8V11H6ZM10 11V13H12V11H10ZM16 10.9393L14.7626 9.7019L13.7019 10.7626L14.9393 12L13.7019 13.2374L14.7626 14.2981L16 13.0607L17.2374 14.2981L18.2981 13.2374L17.0607 12L18.2981 10.7626L17.2374 9.7019L16 10.9393Z"
-						/>
-					</svg>
-					<span class="dock-label">Map</span>
 				</button>
 			{/if}
 
@@ -639,34 +618,6 @@
 				rgb(0, 0, 0) 100%
 			);
 			z-index: 6;
-		}
-
-		.toggle {
-			position: absolute;
-			top: 2%;
-			left: 1%;
-			background-color: rgba(44, 56, 69, 0.95);
-			color: white;
-			padding: 8px;
-			border-radius: 50% 50% 0 0;
-			width: 48px;
-			height: 48px;
-			z-index: 9;
-			border: none;
-
-			&:after {
-				content: attr(data-title);
-				position: absolute;
-				bottom: -10px;
-				left: 50%;
-				transform: translateX(-50%);
-				background: rgba(44, 56, 69, 0.95);
-				color: white;
-				padding: 4px;
-				border-radius: 4px;
-				font-size: 12px;
-				width: 100%;
-			}
 		}
 
 		.quest-list {

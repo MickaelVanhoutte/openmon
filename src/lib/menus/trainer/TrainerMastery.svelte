@@ -18,17 +18,17 @@
 	let currentNode: any | undefined = $state(undefined);
 	let currentTiles: any[];
 	let currentHex: any;
-	let currentGrid: Grid;
+	let currentGrid: Grid = $state();
 
 	const pMasteries = $derived(context.player.playerMasteries);
 	const masteryPoints = $derived(pMasteries.points);
 
 	const initiateTiles = $derived(pMasteries.novice);
 	let initiateSvg: Svg;
-	let initiateGrid: Grid;
+	let initiateGrid: Grid = $state();
 	const expertTiles = $derived(pMasteries.expert);
 	let expertSvg: Svg;
-	let expertGrid: Grid;
+	let expertGrid: Grid = $state();
 
 	let animating: boolean = $state(false);
 

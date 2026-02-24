@@ -9,7 +9,7 @@
 		Filler
 	} from 'chart.js';
 	import { gsap } from 'gsap';
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import { typeChart } from '../../../js/battle/battle-model';
 	import type { GameContext } from '../../../js/context/gameContext';
 	import type { MoveInstance, Nature, PokemonInstance } from '../../../js/pokemons/pokedex';
@@ -27,7 +27,7 @@
 
 	const { context, currentPkmn, zIndex, type, onChange, onCombo }: Props = $props();
 
-	let selectedMons: PokemonInstance = $state(currentPkmn);
+	let selectedMons: PokemonInstance = $state(untrack(() => currentPkmn));
 	let selectedMoveIdx = $state(0);
 	let graphWrapper: HTMLDivElement | undefined = $state(undefined);
 	let graph: HTMLCanvasElement | undefined = $state(undefined);
@@ -211,6 +211,7 @@
 				class="pkmn"
 				class:out={poke.fainted}
 				onclick={() => (selectedMons = poke)}
+				onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') selectedMons = poke; }}
 				class:selected={poke === selectedMons}
 				role="button"
 				tabindex="0"
@@ -256,6 +257,7 @@
 
 						<button
 							class="combo-btn shine"
+							aria-label="Use combo with {selectedMons.name}"
 							disabled={selectedMons === currentPkmn || selectedMons.fainted}
 							onclick={() =>
 								onCombo({ pokemon: selectedMons, move: selectedMons.moves[selectedMoveIdx] })}
@@ -616,13 +618,6 @@
 						background-color: rgba(255, 255, 255, 0.7);
 					}
 
-					.move {
-						background-color: rgba(255, 0, 0, 0.5);
-					}
-
-					.switch {
-						background-color: rgba(0, 255, 0, 0.5);
-					}
 				}
 			}
 
@@ -635,11 +630,6 @@
 				flex-wrap: wrap;
 				font-size: 22px;
 				max-height: 60dvh;
-
-				span {
-					width: 50%;
-					height: 33%;
-				}
 
 				.stats-wrapper {
 					width: 100%;
@@ -666,9 +656,6 @@
 				gap: 8%;
 				padding: 2% 0;
 
-				p {
-					margin: 6px 0;
-				}
 			}
 		}
 	}

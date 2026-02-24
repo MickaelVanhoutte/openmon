@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import { gsap } from 'gsap';
 	import type { MoveInstance } from '../../../js/pokemons/pokedex';
 	import {
@@ -33,7 +33,7 @@
 	}: Props = $props();
 
 	const plateElements: HTMLButtonElement[] = [];
-	let selectedIdx = $state(selectedMoveIdx);
+	let selectedIdx = $state(untrack(() => selectedMoveIdx));
 	let platePositions = $state<AttackPlatePosition[]>([]);
 
 	const typeColors: Record<string, string> = {
@@ -197,8 +197,9 @@
 					e.stopPropagation();
 					onInfoClick(i);
 				}}
+				onkeydown={(e: KeyboardEvent) => { if (e.key === 'Enter') { e.stopPropagation(); onInfoClick(i); } }}
 				role="button"
-				tabindex="-1"
+				tabindex="0"
 				aria-label="Move info"
 			>
 				<span class="info-badge-text">i</span>

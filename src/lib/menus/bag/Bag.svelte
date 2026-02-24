@@ -205,33 +205,37 @@
 	in:slide={{ duration: 500, delay: 100, axis: 'x', easing: backInOut }}
 	out:fade
 >
-	<nav class="nav" role="navigation" aria-label="Bag navigation">
+	<nav class="nav" aria-label="Bag navigation">
 		<div class="nav-left">
-			<a class="brand">BAG</a>
+			<span class="brand">BAG</span>
 			<div class="tabs" role="tablist">
-				<a
+				<button
 					class:active={tab === 0}
 					onclick={() => changeTab(0)}
 					role="tab"
-					aria-selected={tab === 0}>{tabs[0].replace('$POKEMON', '')}</a
+					aria-selected={tab === 0}
+					type="button">{tabs[0].replace('$POKEMON', '')}</button
 				>
-				<a
+				<button
 					class:active={tab === 1}
 					onclick={() => changeTab(1)}
 					role="tab"
-					aria-selected={tab === 1}>{tabs[1].replace('$POKEMON', '')}</a
+					aria-selected={tab === 1}
+					type="button">{tabs[1].replace('$POKEMON', '')}</button
 				>
-				<a
+				<button
 					class:active={tab === 2}
 					onclick={() => changeTab(2)}
 					role="tab"
-					aria-selected={tab === 2}>{tabs[2].replace('$POKEMON', '')}</a
+					aria-selected={tab === 2}
+					type="button">{tabs[2].replace('$POKEMON', '')}</button
 				>
-				<a
+				<button
 					class:active={tab === 3}
 					onclick={() => changeTab(3)}
 					role="tab"
-					aria-selected={tab === 3}>{tabs[3].replace('$POKEMON', '')}</a
+					aria-selected={tab === 3}
+					type="button">{tabs[3].replace('$POKEMON', '')}</button
 				>
 			</div>
 		</div>
@@ -258,7 +262,7 @@
 			<ul bind:this={list}>
 				{#each pocket as [id, qty], idx}
 					<li>
-						<div
+						<button
 							class="item-row"
 							class:selected={selected === idx}
 							onclick={() => {
@@ -268,7 +272,7 @@
 						>
 							<span class="item-name">{getItemName(id)}</span>
 							<span class="item-qty">x{qty}</span>
-						</div>
+						</button>
 					</li>
 				{/each}
 			</ul>
@@ -277,13 +281,15 @@
 
 	<div class="options" class:hidden={!openOptions} role="menu" aria-label="Item options">
 		<ul>
-			<li class:selected={optionSelected === 0} onclick={() => use()} role="menuitem">
+			<li class:selected={optionSelected === 0} onclick={() => use()} role="menuitem" tabindex="0" onkeydown={(e) => e.key === 'Enter' ? use() : undefined}>
 				{isHeldItemTab ? 'GIVE' : 'USE'}
 			</li>
 			<li
 				class:selected={optionSelected === 1}
 				onclick={() => (openOptions = false)}
 				role="menuitem"
+				tabindex="0"
+				onkeydown={(e) => e.key === 'Enter' ? (openOptions = false) : undefined}
 			>
 				CANCEL
 			</li>
@@ -346,7 +352,8 @@
 					font-size: 36px;
 					width: 40%;
 					color: white;
-					padding-left: 16px;
+					// Override Chota .nav .brand which adds padding: 1rem 2rem
+					padding: 0 0 0 16px;
 				}
 			}
 			.nav-right {
@@ -356,7 +363,10 @@
 				gap: 12%;
 			}
 
-			.tabs a {
+			.tabs button {
+				// Reset width/height overridden by the general nav button{} rule below
+				width: auto;
+				height: auto;
 				color: var(--pixel-text-white);
 				padding: 4px 12px;
 				margin-right: 8px;
@@ -369,6 +379,8 @@
 				display: inline-flex;
 				align-items: center;
 				white-space: nowrap;
+				font-size: inherit;
+				font-family: inherit;
 
 				&.active {
 					color: var(--pixel-text-white);
@@ -409,59 +421,6 @@
 					}
 				}
 
-				&.previous,
-				&.next {
-					background: none;
-					font-size: 32px;
-					color: white;
-					text-align: center;
-					z-index: 9;
-
-					span.arrow {
-						border: solid white;
-						border-width: 0 5px 5px 0;
-						display: inline-block;
-						padding: 5px;
-					}
-				}
-
-				&.previous {
-					right: 14%;
-					width: 40px;
-
-					.arrow {
-						transform: rotate(-135deg);
-						-webkit-transform: rotate(-135deg);
-						margin-top: 5px;
-					}
-				}
-
-				&.next {
-					right: 20%;
-					width: 40px;
-
-					.arrow {
-						transform: rotate(45deg);
-						-webkit-transform: rotate(45deg);
-						margin-bottom: 5px;
-					}
-				}
-
-				&:nth-child(4) {
-					border-radius: 0;
-				}
-
-				span:not(.arrow) {
-					height: 26px;
-					width: 18px;
-					background-color: #0078c0;
-					border-radius: 0;
-					position: absolute;
-					z-index: 9;
-					top: 50%;
-					left: 50%;
-					transform: translate(-50%, -50%);
-				}
 			}
 		}
 
@@ -540,6 +499,9 @@
 						width: 100%;
 						box-sizing: border-box;
 						cursor: pointer;
+						font: inherit;
+						color: inherit;
+						text-align: left;
 
 						.item-name {
 							flex-grow: 1;

@@ -60,7 +60,13 @@
 							<div class="abilities">
 								{#if pokemon.viewed}
 									{#each pokemon.abilities as ability}
-										<span class="ability" onclick={() => openModal(ability)}>
+										<span
+											class="ability"
+											onclick={() => openModal(ability)}
+											role="button"
+											tabindex="0"
+											onkeydown={(e) => e.key === 'Enter' || e.key === ' ' ? openModal(ability) : undefined}
+										>
 											{ability}
 										</span>
 									{/each}
@@ -413,15 +419,6 @@
 		flex-direction: row;
 		justify-content: flex-start;
 		flex-wrap: wrap;
-
-		&.smaller {
-			gap: 4px;
-
-			.type {
-				height: 22px;
-				width: auto;
-			}
-		}
 
 		.type {
 			font-size: 20px;

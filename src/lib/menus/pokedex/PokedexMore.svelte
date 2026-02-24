@@ -272,9 +272,6 @@
 			gap: 8px;
 			padding: 2px 6px;
 
-			span {
-				color: white;
-			}
 			svg {
 				height: 22px;
 				width: auto;
