@@ -5,6 +5,7 @@ export class AudioManager {
 	private sound?: Howl;
 	private battleStartSound: Howl;
 	private battleSound: Howl;
+	private legendaryBattleSound: Howl;
 
 	constructor() {
 		this.battleStartSound = new Howl({
@@ -16,6 +17,13 @@ export class AudioManager {
 		});
 		this.battleSound = new Howl({
 			src: ['src/assets/audio/battle/battle2.mp3'],
+			autoplay: false,
+			loop: true,
+			volume: 0.5,
+			html5: true
+		});
+		this.legendaryBattleSound = new Howl({
+			src: ['src/assets/audio/battle/PerituneMaterial_EpicBattle_J(chosic.com)-2.mp3'],
 			autoplay: false,
 			loop: true,
 			volume: 0.5,
@@ -67,12 +75,25 @@ export class AudioManager {
 		this.battleSound.play();
 	}
 
+	playLegendaryBattleMusic(): void {
+		this.battleStartSound.stop();
+		this.legendaryBattleSound.volume(0.5);
+		this.legendaryBattleSound.seek(0);
+		this.legendaryBattleSound.play();
+	}
+
 	fadeOutBattleMusic(duration: number = 1000): void {
-		this.battleSound.fade(0.5, 0, duration);
+		if (this.battleSound.playing()) {
+			this.battleSound.fade(0.5, 0, duration);
+		}
+		if (this.legendaryBattleSound.playing()) {
+			this.legendaryBattleSound.fade(0.5, 0, duration);
+		}
 	}
 
 	stopBattleMusic(): void {
 		this.battleSound.stop();
+		this.legendaryBattleSound.stop();
 	}
 
 	getCurrentSound(): Howl | undefined {

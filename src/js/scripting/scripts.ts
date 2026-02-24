@@ -374,6 +374,39 @@ export class StartBattle extends Scriptable {
 	}
 }
 
+export class StartWildBattle extends Scriptable {
+	pokemonId: number;
+	level: number;
+	minIv: number;
+
+	constructor(pokemonId: number, level: number, minIv: number = 20) {
+		super();
+		this.type = 'StartWildBattle';
+		this.pokemonId = pokemonId;
+		this.level = level;
+		this.minIv = minIv;
+	}
+
+	play(context: GameContext, onEnd: () => void): any {
+		const entry = context.POKEDEX.findById(this.pokemonId).result;
+		if (!entry) {
+			this.finished = true;
+			onEnd();
+			return;
+		}
+		const pokemon = entry.instanciate(this.level, this.minIv);
+		// Guarantee at least one max IV (31)
+		const ivKeys = ['hp', 'atk', 'def', 'spa', 'spd', 'spe'] as const;
+		if (!ivKeys.some((k) => (pokemon.ivs as any)[k] === 31)) {
+			(pokemon.ivs as any).hp = 31;
+		}
+		context.startBattle(pokemon, BattleType.SINGLE, () => {
+			this.finished = true;
+			onEnd();
+		});
+	}
+}
+
 export class CustomScriptable extends Scriptable {
 	action: (ctx: GameContext) => void;
 
@@ -434,6 +467,12 @@ export class Script {
 					return new GiveItem((action as GiveItem).itemId, (action as GiveItem).qty);
 				case 'StartBattle':
 					return new StartBattle((action as StartBattle).npcId, (action as StartBattle).battleType);
+				case 'StartWildBattle':
+					return new StartWildBattle(
+						(action as StartWildBattle).pokemonId,
+						(action as StartWildBattle).level,
+						(action as StartWildBattle).minIv
+					);
 				case 'MoveToPlayer':
 					return new MoveToPlayer((action as MoveToPlayer).npcId);
 				case 'CustomScriptable':

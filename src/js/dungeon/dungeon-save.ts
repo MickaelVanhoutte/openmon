@@ -1,7 +1,18 @@
 import type { DungeonContext } from './dungeon-context';
+import type { ExplorationTracker } from './exploration-tracker';
 import { SavesHolder } from '../context/savesHolder';
 
-export function persistDungeonState(ctx: DungeonContext, savesHolder: SavesHolder): void {
+export interface DungeonPersistExtras {
+	explorationTracker?: ExplorationTracker;
+	playerX?: number;
+	playerY?: number;
+}
+
+export function persistDungeonState(
+	ctx: DungeonContext,
+	savesHolder: SavesHolder,
+	extras?: DungeonPersistExtras
+): void {
 	const save = savesHolder.getActiveSave();
 	if (!save) {
 		return;
@@ -15,5 +26,12 @@ export function persistDungeonState(ctx: DungeonContext, savesHolder: SavesHolde
 	save.dungeonActive = ctx.isRunActive;
 	save.dungeonStarterPicked = ctx.starterPicked;
 	save.dungeonPrologueCompleted = ctx.prologueCompleted;
+
+	if (extras?.explorationTracker) {
+		save.dungeonExplored = extras.explorationTracker.exportVisited();
+	}
+	if (extras?.playerX !== undefined) save.dungeonPlayerX = extras.playerX;
+	if (extras?.playerY !== undefined) save.dungeonPlayerY = extras.playerY;
+
 	savesHolder.persist(save);
 }

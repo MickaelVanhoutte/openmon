@@ -26,8 +26,9 @@ import { BattleType } from '../battle/battle-model';
 import { AudioManager, QuestManager, ScriptRunner, SoundManager } from './managers';
 
 import { DungeonContext, dungeonContext } from '../dungeon/dungeon-context';
-import { generateFloor } from '../dungeon/floor-generator';
+import { generateFloor, type FloorData } from '../dungeon/floor-generator';
 import { generateRestFloor, generateBossFloor } from '../dungeon/special-floors';
+import { generateLegendaryRoom } from '../dungeon/legendary-room';
 import { getBiomeForFloor } from '../dungeon/biomes';
 import { populateFloor } from '../dungeon/trainer-factory';
 import { placeItems as placeDungeonItems } from '../dungeon/item-placer';
@@ -84,6 +85,7 @@ export class GameContext {
 
 	hasEvolutions: boolean = false;
 	spawned?: OverworldSpawn;
+	savesHolder?: SavesHolder; // set on first changeDungeonFloor call
 
 	// Guides
 	//tg: TourGuideClient;
@@ -658,10 +660,91 @@ export class GameContext {
 		const dungeonItems = placeDungeonItems(floorData.itemPositions, floor, populateRng);
 		floorData.openMap.items.push(...dungeonItems);
 
+		// Legendary side room: check if this floor has an assigned legendary
+		const legendaryId = dungeonCtx.legendaryFloors.get(floor);
+		console.log(`[Legendary] floor=${floor} legendaryId=${legendaryId}`);
+		if (legendaryId !== undefined) {
+			const alreadyEncountered = dungeonCtx.encounteredLegendaries.has(legendaryId);
+			// Find a wall-adjacent edge portal position with door variant
+			const portalResult = this.findLegendaryPortalPosition(floorData, populateRng);
+			console.log(`[Legendary] floor=${floor} portalResult=`, portalResult);
+			if (portalResult) {
+				const { pos: portalPos, wallPos } = portalResult;
+				// Jonction trigger on the wall tile itself — player walks INTO the black hole
+				// Return pos = floor tile in front of the wall (portalPos)
+				const { sideRoomFloorData, mainFloorJonction } = generateLegendaryRoom(
+					floor,
+					legendaryId,
+					floorData.openMap.mapId,
+					portalPos, // spawn back in front of the wall when leaving side room
+					wallPos,   // trigger = walking into the wall tile
+					alreadyEncountered
+				);
+				// Register side room maps
+				registerThrelteMap(sideRoomFloorData.threlteMap.mapId, sideRoomFloorData.threlteMap);
+				this.MAPS[sideRoomFloorData.openMap.mapId] = sideRoomFloorData.openMap;
+				// Add jonction to main floor openMap and make wall tile passable
+				floorData.openMap.jonctions.push(mainFloorJonction);
+				floorData.openMap.removeCollisionAt(wallPos.y * floorData.threlteMap.width + wallPos.x);
+				// Mark wall tile as a legendary portal for the visual effect
+				if (!floorData.threlteMap.legendaryPortals) floorData.threlteMap.legendaryPortals = [];
+				floorData.threlteMap.legendaryPortals.push({ x: wallPos.x, y: wallPos.y });
+			}
+		}
+
 		return floorData;
 	}
 
+	private findLegendaryPortalPosition(
+		floorData: FloorData,
+		rng: SeededRNG
+	): {
+		pos: Position;
+		wallPos: Position;
+	} | undefined {
+		const { threlteMap, playerStart, stairsPosition } = floorData;
+		const { width, height, tiles } = threlteMap;
+
+		/**
+		 * Only consider tiles with a WALL to the north (y-1).
+		 * In the isometric view the player sees the south face (+z) of walls,
+		 * so a north wall gives a door that is visible and faces the player.
+		 * Prefer tiles close to the map border (edge score ≥ 2).
+		 */
+		interface Candidate {
+			pos: Position;
+			wallPos: Position;
+			faceDir: '+z';
+			score: number;
+		}
+		const candidates: Candidate[] = [];
+
+		for (let y = 2; y < height - 1; y++) {
+			for (let x = 1; x < width - 1; x++) {
+				const tile = tiles[y][x];
+				if (tile !== TileType3D.DUNGEON_FLOOR && tile !== TileType3D.REST_FLOOR) continue;
+				const distPlayer = Math.abs(x - playerStart.x) + Math.abs(y - playerStart.y);
+				const distStairs = Math.abs(x - stairsPosition.x) + Math.abs(y - stairsPosition.y);
+				if (distPlayer < 5 || distStairs < 3) continue;
+
+				// Only accept tiles with a wall directly north
+				if (tiles[y - 1]?.[x] !== TileType3D.WALL) continue;
+
+				const edgeDist = Math.min(x, y, width - 1 - x, height - 1 - y);
+				const score = edgeDist <= 2 ? 2 : 1;
+				candidates.push({ pos: new Position(x, y), wallPos: new Position(x, y - 1), score });
+			}
+		}
+
+		if (candidates.length === 0) return undefined;
+
+		const edgeCandidates = candidates.filter(c => c.score >= 2);
+		const pool = edgeCandidates.length > 0 ? edgeCandidates : candidates;
+		return rng.shuffle(pool)[0];
+	}
+
 	changeDungeonFloor(dungeonCtx: DungeonContext, savesHolder?: SavesHolder) {
+		if (savesHolder) this.savesHolder = savesHolder;
 		if (!dungeonCtx.prologueCompleted && this.map?.mapId === PROLOGUE_MAP_ID) {
 			dungeonCtx.advanceFloor();
 
@@ -700,7 +783,20 @@ export class GameContext {
 
 			this.map = floorData.openMap;
 			this.overWorldContext.map = floorData.openMap;
-			this.player.position.setPosition(floorData.playerStart);
+
+			// Restore saved player position if resuming this exact floor from a save
+			const activeSave = savesHolder?.getActiveSave?.();
+			console.log('[PosRestore] save.dungeonFloor=', activeSave?.dungeonFloor,
+				'ctx.currentFloor=', dungeonCtx.currentFloor,
+				'savedX=', activeSave?.dungeonPlayerX, 'savedY=', activeSave?.dungeonPlayerY);
+			const savedPos =
+				activeSave?.dungeonFloor === dungeonCtx.currentFloor &&
+				activeSave.dungeonPlayerX !== undefined &&
+				activeSave.dungeonPlayerY !== undefined
+					? new Position(activeSave.dungeonPlayerX, activeSave.dungeonPlayerY)
+					: null;
+			console.log('[PosRestore] using savedPos=', savedPos, 'playerStart=', floorData.playerStart);
+			this.player.position.setPosition(savedPos ?? floorData.playerStart);
 
 			const allScripts = this.scriptRunner.collectAllScripts(
 				floorData.openMap.scripts,
@@ -866,11 +962,20 @@ export class GameContext {
 	startBattle(opponent: PokemonInstance | Character, battleType: BattleType, onEnd?: () => void) {
 		this.overWorldContext.setPaused(true, 'battle-start gameContext');
 
+		// Detect legendary wild battle for different music
+		const isLegendaryWild =
+			opponent instanceof PokemonInstance &&
+			!!this.POKEDEX.findById(opponent.id)?.result?.isLegendary;
+
 		// Handle audio transition to battle
 		this.audioManager.startBattleTransition();
 
 		setTimeout(() => {
-			this.audioManager.playBattleMusic();
+			if (isLegendaryWild) {
+				this.audioManager.playLegendaryBattleMusic();
+			} else {
+				this.audioManager.playBattleMusic();
+			}
 		}, 1500);
 
 		if (battleType === BattleType.DOUBLE && this.player.monsters.length < 2) {
@@ -902,7 +1007,13 @@ export class GameContext {
 			}
 		}
 
-		const battleContext = new BattleContext(this.player, opponent, this.settings, battleType);
+		const battleContext = new BattleContext(
+			this.player,
+			opponent,
+			this.settings,
+			battleType,
+			isLegendaryWild ? 'mountains' : 'beaches'
+		);
 		const unsubscribe = battleContext.events.end.subscribe((result) => {
 			if (result) {
 				this.audioManager.fadeOutBattleMusic();
@@ -950,6 +1061,9 @@ export class GameContext {
 								dc.defeatedTrainers.add(`trainer_${dc.currentFloor}_${opponent.id}`);
 							}
 							dungeonContext.set(dc);
+							if (this.savesHolder) {
+								persistDungeonState(dc, this.savesHolder);
+							}
 						}
 					}
 
@@ -1061,6 +1175,8 @@ export class GameContext {
 			save.dungeonActive = dc.isRunActive;
 			save.dungeonStarterPicked = dc.starterPicked;
 			save.dungeonPrologueCompleted = dc.prologueCompleted;
+			save.dungeonLegendaryFloors = Array.from(dc.legendaryFloors.entries());
+			save.dungeonEncounteredLegendaries = Array.from(dc.encounteredLegendaries);
 		}
 
 		return save;

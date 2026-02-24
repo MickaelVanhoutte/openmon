@@ -123,11 +123,14 @@ export class BattleContext {
 		return this.opponent instanceof PokemonInstance;
 	}
 
+	battleBg: string = 'beaches';
+
 	constructor(
 		player: Player,
 		opponent: PokemonInstance | Character,
 		settings: Settings,
-		battleType: BattleType = BattleType.SINGLE
+		battleType: BattleType = BattleType.SINGLE,
+		battleBg: string = 'beaches'
 	) {
 		container.registerInstance('BattleField', this.battleField);
 		this.player = player;
@@ -136,6 +139,7 @@ export class BattleContext {
 		this.settings = settings;
 		this.events = new BattleEvents();
 		this.battleType = battleType;
+		this.battleBg = battleBg;
 		this.abilityEngine = new AbilityEngine();
 		this.itemEngine = new ItemEngine();
 		//this.playerPokemon = this.player.monsters.find(poke => !poke.fainted) || this.player.monsters[0];

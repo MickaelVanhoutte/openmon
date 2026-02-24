@@ -321,6 +321,13 @@ export class OpenMap {
 		return this.collisionSet.has(index);
 	}
 
+	/** Remove a single flat index from the collision set (e.g. to make a wall tile walkable for a door jonction). */
+	removeCollisionAt(flatIndex: number) {
+		this.collisionSet.delete(flatIndex);
+		const i = this.collisions.indexOf(flatIndex);
+		if (i !== -1) this.collisions.splice(i, 1);
+	}
+
 	hasBoundaryAt(position: Position) {
 		const index = positionToIndex(position.x, position.y, this.width);
 		return (
