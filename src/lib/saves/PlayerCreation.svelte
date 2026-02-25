@@ -2,11 +2,7 @@
 	import { onMount } from 'svelte';
 	import { SavesHolder } from '../../js/context/savesHolder';
 	import { CHARACTER_SPRITES } from '../../js/sprites/sprites';
-
-	/**
-	 * Player creation component
-	 * lots todo here (design, classes, etc)
-	 */
+	import { TRAINER_CLASSES } from '../../js/characters/trainer-class';
 
 	interface Props {
 		savesHolder: SavesHolder;
@@ -18,7 +14,10 @@
 	const templates = [1, 2];
 	const sprite = $derived(CHARACTER_SPRITES.getSprite(selected));
 	let playerName = $state('');
+	let selectedClass = $state('ace-trainer');
 	let sound: Howl;
+
+	const selectedClassData = $derived(TRAINER_CLASSES.find((c) => c.id === selectedClass));
 
 	function loadSound() {
 		sound = new Howl({
@@ -30,7 +29,7 @@
 	}
 
 	function handleSubmit() {
-		savesHolder.newGame(selected, playerName, selected === 0 ? 'MALE' : 'FEMALE');
+		savesHolder.newGame(selected, playerName, selected === 0 ? 'MALE' : 'FEMALE', selectedClass);
 	}
 
 	onMount(() => {
@@ -70,6 +69,18 @@
 
 		<label for="name">What's your name?</label>
 		<input id="name" placeholder={sprite.name} bind:value={playerName} data-testid="name-input" />
+
+		<label for="trainer-class">Trainer Class</label>
+		<div class="class-picker">
+			<select id="trainer-class" bind:value={selectedClass}>
+				{#each TRAINER_CLASSES as tc}
+					<option value={tc.id}>{tc.name}</option>
+				{/each}
+			</select>
+			{#if selectedClassData}
+				<p class="class-desc">{selectedClassData.description}</p>
+			{/if}
+		</div>
 
 		<button type="submit" disabled={playerName?.length === 0} data-testid="confirm-button"
 			>Start</button
@@ -117,6 +128,19 @@
 			gap: 16px;
 			position: relative;
 			z-index: 2;
+		}
+
+		.class-picker {
+			display: flex;
+			flex-direction: column;
+			gap: 4px;
+
+			.class-desc {
+				margin: 0;
+				font-size: 0.85rem;
+				color: #aaa;
+				font-style: italic;
+			}
 		}
 
 		.preview {

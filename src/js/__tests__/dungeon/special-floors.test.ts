@@ -96,9 +96,9 @@ describe('generateRestFloor', () => {
 	});
 
 	describe('NPC placement', () => {
-		it('should have exactly 2 NPCs (healer and merchant)', () => {
+		it('should have exactly 3 NPCs (healer, merchant, and move tutor)', () => {
 			const result = generateRestFloor(FLOOR_4, SEED);
-			expect(result.threlteMap.npcs.length).toBe(2);
+			expect(result.threlteMap.npcs.length).toBe(3);
 		});
 
 		it('should have a healer NPC with heal script', () => {
@@ -128,7 +128,7 @@ describe('generateRestFloor', () => {
 
 		it('should have NPCs in the OpenMap as well', () => {
 			const result = generateRestFloor(FLOOR_4, SEED);
-			expect(result.openMap.npcs.length).toBe(2);
+			expect(result.openMap.npcs.length).toBe(3);
 		});
 	});
 

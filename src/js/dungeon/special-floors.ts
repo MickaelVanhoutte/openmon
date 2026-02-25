@@ -29,7 +29,13 @@ const COMPETITIVE_HELD_ITEMS: Array<{ id: string; price: number }> = [
 	{ id: '4005', price: 2000 }, // Expert Belt
 	{ id: '4006', price: 2500 }, // Leftovers
 	{ id: '4007', price: 2000 }, // Focus Sash
-	{ id: '4008', price: 3000 }  // Assault Vest
+	{ id: '4008', price: 3000 }, // Assault Vest
+	{ id: '4023', price: 2500 }, // Rocky Helmet
+	{ id: '4024', price: 2000 }, // Black Sludge
+	{ id: '4025', price: 4000 }, // Weakness Policy
+	{ id: '4026', price: 2000 }, // Flame Orb
+	{ id: '4027', price: 2000 }, // Toxic Orb
+	{ id: '4028', price: 2500 }  // Heavy-Duty Boots
 ];
 
 const NARRATIVE_NOTES: Record<number, string> = {

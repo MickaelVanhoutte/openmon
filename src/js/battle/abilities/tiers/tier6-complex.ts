@@ -130,43 +130,118 @@ export const disguise: Ability = {
 export const stanceChange: Ability = {
 	id: 176,
 	name: 'Stance Change',
-	description: 'Changes between Blade and Shield Forme based on moves used.'
-	// TODO: Implement form change on attacking vs King's Shield
+	description: 'Changes between Blade and Shield Forme based on moves used.',
+	// Simplified: boost ATK/SpA when using attacking moves, boost DEF/SpD for status moves
+	onModifyAtk: (ctx: AbilityContext, attack: number): number => {
+		if (ctx.move && ctx.move.category !== 'status') {
+			return Math.floor(attack * 1.15);
+		}
+		return attack;
+	},
+	onModifyDef: (ctx: AbilityContext, defense: number): number => {
+		if (!ctx.move || ctx.move.category === 'status') {
+			return Math.floor(defense * 1.15);
+		}
+		return defense;
+	}
 };
 
 export const zenMode: Ability = {
 	id: 161,
 	name: 'Zen Mode',
-	description: 'Changes to Zen Mode when HP drops below half.'
-	// TODO: Implement form change when HP < 50%
+	description: 'Changes to Zen Mode when HP drops below half.',
+	// Simplified: boost SpA and Speed when HP < 50%
+	onModifySpA: (ctx: AbilityContext, spAtk: number): number => {
+		if (ctx.pokemon.currentHp <= Math.floor(ctx.pokemon.currentStats.hp / 2)) {
+			return Math.floor(spAtk * 1.5);
+		}
+		return spAtk;
+	},
+	onModifySpe: (ctx: AbilityContext, speed: number): number => {
+		if (ctx.pokemon.currentHp <= Math.floor(ctx.pokemon.currentStats.hp / 2)) {
+			return Math.floor(speed * 1.3);
+		}
+		return speed;
+	}
 };
 
 export const battleBond: Ability = {
 	id: 210,
 	name: 'Battle Bond',
-	description: 'Transforms into Ash-Greninja after defeating an opposing Pokemon.'
-	// TODO: Implement transformation after KO
+	description: 'Transforms into Ash-Greninja after defeating an opposing Pokemon.',
+	// Simplified: boost all offensive stats after a KO via onAfterMove
+	onAfterMove: (ctx: AbilityContext): boolean | void => {
+		if (ctx.target && ctx.target.fainted && !(ctx.pokemon as any).battleBondActivated) {
+			(ctx.pokemon as any).battleBondActivated = true;
+			ctx.pokemon.changeBattleStats('attack', 1);
+			ctx.pokemon.changeBattleStats('specialAttack', 1);
+			ctx.pokemon.changeBattleStats('speed', 1);
+			return true;
+		}
+	}
 };
 
 export const shieldsDown: Ability = {
 	id: 197,
 	name: 'Shields Down',
-	description: 'Changes form when HP drops below half.'
-	// TODO: Implement form change when HP < 50%
+	description: 'Changes form when HP drops below half.',
+	// Simplified: immune to status at high HP, boosted offenses at low HP
+	onStatus: (ctx: AbilityContext, _status: string): boolean => {
+		if (ctx.pokemon.currentHp > Math.floor(ctx.pokemon.currentStats.hp / 2)) {
+			return false; // Block status when HP > 50%
+		}
+		return true;
+	},
+	onModifyAtk: (ctx: AbilityContext, attack: number): number => {
+		if (ctx.pokemon.currentHp <= Math.floor(ctx.pokemon.currentStats.hp / 2)) {
+			return Math.floor(attack * 1.2);
+		}
+		return attack;
+	},
+	onModifySpA: (ctx: AbilityContext, spAtk: number): number => {
+		if (ctx.pokemon.currentHp <= Math.floor(ctx.pokemon.currentStats.hp / 2)) {
+			return Math.floor(spAtk * 1.2);
+		}
+		return spAtk;
+	}
 };
 
 export const schooling: Ability = {
 	id: 208,
 	name: 'Schooling',
-	description: 'Changes to School Form if level 20+ and HP above 25%.'
-	// TODO: Implement form change based on level and HP
+	description: 'Changes to School Form if level 20+ and HP above 25%.',
+	// Simplified: boosted Def/SpD when HP > 25% and level >= 20
+	onModifyDef: (ctx: AbilityContext, defense: number): number => {
+		if (ctx.pokemon.level >= 20 && ctx.pokemon.currentHp > Math.floor(ctx.pokemon.currentStats.hp / 4)) {
+			return Math.floor(defense * 1.3);
+		}
+		return defense;
+	},
+	onModifySpD: (ctx: AbilityContext, spDef: number): number => {
+		if (ctx.pokemon.level >= 20 && ctx.pokemon.currentHp > Math.floor(ctx.pokemon.currentStats.hp / 4)) {
+			return Math.floor(spDef * 1.3);
+		}
+		return spDef;
+	}
 };
 
 export const powerConstruct: Ability = {
 	id: 211,
 	name: 'Power Construct',
-	description: 'Changes to Complete Forme when HP drops below half.'
-	// TODO: Implement form change when HP < 50%
+	description: 'Changes to Complete Forme when HP drops below half.',
+	// Simplified: heal 25% HP once when HP drops below 50%
+	onDamagingHit: (ctx: AbilityContext, _damage: number): boolean | void => {
+		if (
+			ctx.pokemon.currentHp <= Math.floor(ctx.pokemon.currentStats.hp / 2) &&
+			ctx.pokemon.currentHp > 0 &&
+			!(ctx.pokemon as any).powerConstructActivated
+		) {
+			(ctx.pokemon as any).powerConstructActivated = true;
+			const heal = Math.floor(ctx.pokemon.currentStats.hp / 4);
+			ctx.pokemon.currentHp = Math.min(ctx.pokemon.currentStats.hp, ctx.pokemon.currentHp + heal);
+			return true;
+		}
+	}
 };
 
 // =============================================================================
@@ -177,6 +252,7 @@ export const magicGuard: Ability = {
 	id: 98,
 	name: 'Magic Guard',
 	description: 'Only takes damage from attacks.'
+	// Weather damage blocked in applyWeatherDamage(), status DOT blocked in EndTurnChecks.
 };
 
 export const magicBounce: Ability = {
@@ -224,16 +300,39 @@ export const shadowShield: Ability = {
 	}
 };
 
+// Helper: calculate type effectiveness using the battle context
+function calcEffectiveness(ctx: AbilityContext, defenderTypes: string[]): number {
+	if (!ctx.move || !ctx.battleContext) return 1;
+	return defenderTypes.reduce((acc, t) => {
+		return acc * ctx.battleContext.fromTypeChart(ctx.move!.type, t);
+	}, 1);
+}
+
 export const prismArmor: Ability = {
 	id: 232,
 	name: 'Prism Armor',
-	description: 'Reduces super-effective damage.'
+	description: 'Reduces super-effective damage.',
+	// Cannot be suppressed (no suppressedBy)
+	onSourceModifyDamage: (ctx: AbilityContext, damage: number): number => {
+		const effectiveness = calcEffectiveness(ctx, ctx.pokemon.types || []);
+		if (effectiveness > 1) {
+			return Math.floor(damage * 0.75);
+		}
+		return damage;
+	}
 };
 
 export const solidRock: Ability = {
 	id: 116,
 	name: 'Solid Rock',
 	description: 'Reduces super-effective damage by 25%.',
+	onSourceModifyDamage: (ctx: AbilityContext, damage: number): number => {
+		const effectiveness = calcEffectiveness(ctx, ctx.pokemon.types || []);
+		if (effectiveness > 1) {
+			return Math.floor(damage * 0.75);
+		}
+		return damage;
+	},
 	suppressedBy: MOLD_BREAKER_FAMILY
 };
 
@@ -241,19 +340,42 @@ export const filter: Ability = {
 	id: 111,
 	name: 'Filter',
 	description: 'Reduces super-effective damage by 25%.',
+	onSourceModifyDamage: (ctx: AbilityContext, damage: number): number => {
+		const effectiveness = calcEffectiveness(ctx, ctx.pokemon.types || []);
+		if (effectiveness > 1) {
+			return Math.floor(damage * 0.75);
+		}
+		return damage;
+	},
 	suppressedBy: MOLD_BREAKER_FAMILY
 };
 
 export const tintedLens: Ability = {
 	id: 110,
 	name: 'Tinted Lens',
-	description: 'Not very effective moves deal double damage.'
+	description: 'Not very effective moves deal double damage.',
+	onModifyDamage: (ctx: AbilityContext, damage: number): number => {
+		if (!ctx.target) return damage;
+		const effectiveness = calcEffectiveness(ctx, ctx.target.types || []);
+		if (effectiveness < 1 && effectiveness > 0) {
+			return Math.floor(damage * 2);
+		}
+		return damage;
+	}
 };
 
 export const neuroforce: Ability = {
 	id: 233,
 	name: 'Neuroforce',
-	description: 'Powers up super-effective moves by 25%.'
+	description: 'Powers up super-effective moves by 25%.',
+	onModifyDamage: (ctx: AbilityContext, damage: number): number => {
+		if (!ctx.target) return damage;
+		const effectiveness = calcEffectiveness(ctx, ctx.target.types || []);
+		if (effectiveness > 1) {
+			return Math.floor(damage * 1.25);
+		}
+		return damage;
+	}
 };
 
 // =============================================================================
