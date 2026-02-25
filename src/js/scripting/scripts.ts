@@ -83,6 +83,27 @@ export class OpenShop extends Scriptable {
 	}
 }
 
+export class OpenMoveRelearner extends Scriptable {
+	context?: GameContext;
+	onEnd: () => void = () => {};
+
+	constructor(conditionIndex: number = -1) {
+		super();
+		this.type = 'OpenMoveRelearner';
+		this.conditionIndex = conditionIndex;
+	}
+
+	close() {
+		this.finished = true;
+		this.onEnd();
+	}
+
+	play(context: GameContext, onEnd: () => void) {
+		this.onEnd = onEnd;
+		this.context = context;
+	}
+}
+
 export class Dialog extends Scriptable {
 	messages: Message[] = [];
 	current: Message;

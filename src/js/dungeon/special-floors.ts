@@ -5,7 +5,7 @@ import { Position } from '../mapping/positions';
 import type { FloorData } from './floor-generator';
 import type { SparseMapData } from '../mapping/sparse-collision';
 import { NPC } from '../characters/npc';
-import { Script, Dialog, Message, HealAll, OpenShop } from '../scripting/scripts';
+import { Script, Dialog, Message, HealAll, OpenShop, OpenMoveRelearner } from '../scripting/scripts';
 import { createBossTrainer } from './trainer-factory';
 import { getBiomeForFloor } from './biomes';
 import { OverworldItem } from '../items/overworldItem';
@@ -69,7 +69,8 @@ export function generateRestFloor(floor: number, runSeed: string): FloorData {
 
 	const healNpc = createHealNpc(floor);
 	const shopNpc = createShopNpc(floor);
-	const npcs = [healNpc, shopNpc];
+	const moveTutorNpc = createMoveTutorNpc(floor);
+	const npcs = [healNpc, shopNpc, moveTutorNpc];
 
 	const threlteMap: ThrelteMapData = {
 		mapId,
@@ -295,6 +296,41 @@ function createShopNpc(floor: number): NPC {
 		undefined,
 		undefined,
 		shopScript,
+		undefined,
+		undefined,
+		true
+	);
+}
+
+function createMoveTutorNpc(floor: number): NPC {
+	const tutorScript = new Script(
+		'onInteract',
+		[
+			new Dialog([
+				new Message(
+					'I can help your Pokemon remember forgotten moves or learn new techniques!',
+					'Move Tutor',
+					['Teach a move', 'No, thanks']
+				)
+			]),
+			new OpenMoveRelearner(0),
+			new Dialog([new Message('Use those moves wisely!', 'Move Tutor')]),
+			new Dialog([new Message('Come back anytime you need!', 'Move Tutor')], 1)
+		],
+		undefined,
+		true
+	);
+
+	return new NPC(
+		9002 + floor * 10,
+		'Move Tutor',
+		3,
+		new Position(4, 2),
+		'down',
+		'MALE',
+		undefined,
+		undefined,
+		tutorScript,
 		undefined,
 		undefined,
 		true

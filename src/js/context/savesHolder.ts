@@ -233,4 +233,64 @@ export class SavesHolder {
 		}
 		return value;
 	}
+
+	exportSave(save: SaveContext): void {
+		const data = JSON.stringify([save], this.replacer, 2);
+		const blob = new Blob([data], { type: 'application/json' });
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = `openmon-save-${save.player.name}-${new Date(save.updated).toISOString().slice(0, 10)}.json`;
+		a.click();
+		URL.revokeObjectURL(url);
+	}
+
+	async importSave(file: File): Promise<SaveContext | null> {
+		try {
+			const text = await file.text();
+			const parsed = JSON.parse(text, this.reviver) as SaveContext[];
+			if (!Array.isArray(parsed) || parsed.length === 0) {
+				return null;
+			}
+			const save = parsed[0];
+			if (!save.version || save.version !== this.currentVersion) {
+				return null;
+			}
+			Object.setPrototypeOf(save, SaveContext.prototype);
+			Object.setPrototypeOf(save.player, Player.prototype);
+			save.questStates =
+				save.questStates?.map((questState) => {
+					Object.setPrototypeOf(questState, QuestState.prototype);
+					questState.objectives = questState.objectives.map((objectiveState) => {
+						Object.setPrototypeOf(objectiveState, ObjectiveState.prototype);
+						return objectiveState;
+					});
+					return questState;
+				}) || [];
+			save.flags = save?.flags ? new Flags(save?.flags?.flags) : new Flags();
+
+			// Rehydrate pokemon data
+			await this.POKEDEX.ensureLoaded();
+			save.player.setPrototypes(this.POKEDEX);
+			save.boxes = save.boxes.map((box) => {
+				Object.setPrototypeOf(box, PokemonBox.prototype);
+				box.values = box.values.map((pkmn) => {
+					if (pkmn) {
+						Object.setPrototypeOf(pkmn, PokemonInstance.prototype);
+						pkmn.rehydrate(this.POKEDEX);
+					}
+					return pkmn;
+				});
+				return box;
+			});
+
+			// Assign new ID to avoid collisions
+			save.id = this.saves.length > 0 ? Math.max(...this.saves.map((s) => s.id)) + 1 : 0;
+			this.saves.push(save);
+			this.persist();
+			return save;
+		} catch {
+			return null;
+		}
+	}
 }

@@ -32,6 +32,7 @@ import type { ItemContext } from '../battle/items/item-engine';
 import { HeldItemTrigger } from '../items/held-items-model';
 import '../battle/items/held-items-effects'; // Side-effect: registers all item effects
 import { container } from 'tsyringe';
+import { BattleAI } from '../battle/battle-ai';
 
 export class BattleContext {
 	ITEMS = new ItemsReferences();
@@ -459,85 +460,22 @@ export class BattleContext {
 		);
 	}
 
-	// TODO : Should be in NPC (trainer extends NPC ?) class
 	private selectOpponentAction(poke?: PokemonInstance): ActionV2Interface | undefined {
-		if (poke && !poke.fainted) {
-			// TODO : targets calculation
-			const random = Math.floor(Math.random() * poke.moves.length);
-			const move = poke.moves[random];
-			let action: ActionV2Interface;
+		if (!poke || poke.fainted) return undefined;
 
+		if (this.settings.difficulty === 'NORMAL') {
+			// Random AI: pick a random move with a random valid target
+			const move = poke.moves[Math.floor(Math.random() * poke.moves.length)];
 			const found = this.getPossibleTargets(poke, move);
 			if (found.selectOne) {
-				// random target
-				const randomIdx = Math.floor(Math.random() * found.slots.length);
-				action = new Attack(move, [found.slots[randomIdx]], poke);
-			} else {
-				action = new Attack(move, found.slots, poke);
+				const idx = Math.floor(Math.random() * found.slots.length);
+				return new Attack(move, [found.slots[idx]], poke);
 			}
-
-			if (this.settings.difficulty !== 'NORMAL') {
-				// find a move whose type is super effective against one of allyside
-				let bestTarget = this.playerSide.find((pkmn) => !!pkmn && !pkmn.fainted);
-				const bestMove =
-					poke.moves.find((move: Move) => {
-						return this.playerSide
-							.filter((pkmn): pkmn is PokemonInstance => !!pkmn && !pkmn.fainted)
-							.some((ally: PokemonInstance) => {
-								const effectiveness = this.calculateTypeEffectiveness(move.type, ally.types);
-								if (effectiveness > 1 && move.power > 0) {
-									bestTarget = ally;
-									return true;
-								}
-								return false;
-							});
-					}) || move;
-
-				const found = this.getPossibleTargets(poke, bestMove);
-				if (found.selectOne) {
-					const bestTargetIdx = bestTarget ? this.playerSide.indexOf(bestTarget) : -1;
-					const bestSlot: TargetSlot | undefined =
-						bestTargetIdx !== -1
-							? { side: 'player' as const, index: bestTargetIdx }
-							: found.slots[0];
-					action = new Attack(bestMove, bestSlot ? [bestSlot] : [], poke);
-				} else {
-					action = new Attack(bestMove, found.slots, poke);
-				}
-
-				if (this.opponent instanceof NPC) {
-					// may switch or heal
-					const hasAlreadySwitchedThisTurn = this.opponentTurnActions.find(
-						(action) => action.type === ActionType.SWITCH
-					);
-					const hasAlreadyUsedItemThisTurn = this.opponentTurnActions.find(
-						(action) => action.type === ActionType.ITEM
-					);
-					const havePotions = this.havePotions(this.opponent);
-					const haveLowHp = this.oppSide.some(
-						(pkmn) => !!pkmn && pkmn.currentHp < pkmn.stats.hp / 4
-					);
-					const betterMons: PokemonInstance | undefined = this.opponent.monsters
-						.filter((pkmn) => !!pkmn && !pkmn.fainted && !this.oppSide.includes(pkmn))
-						.find((pkmn) => {
-							return this.playerSide.some(
-								(ally) => !!ally && !ally.fainted && this.isWeakAgainst(ally, pkmn)
-							);
-						});
-
-					if (haveLowHp && havePotions && !hasAlreadyUsedItemThisTurn) {
-						const itemId = this.opponent.bag.getPocketByCategory(27)?.[0];
-						action = new UseItem(itemId, poke, poke, this.opponent);
-					} else if (betterMons && !hasAlreadySwitchedThisTurn) {
-						action = new Switch(poke, betterMons, this.opponent);
-					}
-				}
-			}
-
-			return action;
+			return new Attack(move, found.slots, poke);
 		}
 
-		return undefined;
+		// Smart AI: threat-scoring system
+		return BattleAI.selectAction(poke, this, 'balanced');
 	}
 
 	public findBestPokemon(
@@ -552,17 +490,6 @@ export class BattleContext {
 				poke.types.some((type) => playerPokemon?.weaknesses.includes(type))
 			);
 		});
-	}
-
-	private havePotions(opponent: NPC) {
-		return (
-			Object.keys(opponent.bag?.potions)?.length > 0 &&
-			Object.values(opponent.bag?.potions)?.length > 0
-		);
-	}
-
-	private isWeakAgainst(opponentPokemon: PokemonInstance, playerPokemon?: PokemonInstance) {
-		return opponentPokemon.weaknesses.some((type) => playerPokemon?.types.includes(type));
 	}
 
 	// TODO : could be in the remove HP action

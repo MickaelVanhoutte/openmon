@@ -6,6 +6,7 @@ export class AudioManager {
 	private battleStartSound: Howl;
 	private battleSound: Howl;
 	private legendaryBattleSound: Howl;
+	private mapSoundCache: Map<string, Howl> = new Map();
 
 	constructor() {
 		this.battleStartSound = new Howl({
@@ -33,23 +34,34 @@ export class AudioManager {
 
 	playMapSound(mapSound?: string): void {
 		if (mapSound) {
-			this.sound = new Howl({
-				src: ['src/assets/audio/' + mapSound + '.mp3'],
-				autoplay: true,
-				loop: true,
-				volume: 0.5,
-				html5: true
-			});
+			const cached = this.mapSoundCache.get(mapSound);
+			if (cached) {
+				cached.volume(0.5);
+				cached.seek(0);
+				cached.play();
+				this.sound = cached;
+			} else {
+				const howl = new Howl({
+					src: ['src/assets/audio/' + mapSound + '.mp3'],
+					autoplay: true,
+					loop: true,
+					volume: 0.5,
+					html5: true
+				});
+				this.mapSoundCache.set(mapSound, howl);
+				this.sound = howl;
+			}
 		}
 	}
 
 	fadeOutMapSound(duration: number = 900): void {
 		if (this.sound) {
-			this.sound.fade(0.5, 0, duration);
+			const fadingSound = this.sound;
+			fadingSound.fade(0.5, 0, duration);
 			setTimeout(() => {
-				this.sound?.stop();
-				this.sound = undefined;
+				fadingSound.stop();
 			}, duration);
+			this.sound = undefined;
 		}
 	}
 
@@ -61,10 +73,12 @@ export class AudioManager {
 		if (this.sound && this.sound.playing()) {
 			this.sound.fade(0.5, 0, 500);
 			this.battleStartSound.play();
+			const fadingSound = this.sound;
 			setTimeout(() => {
-				this.sound?.stop();
-				this.battleStartSound.fade(0, 0.5, 500);
+				fadingSound.stop();
 			}, 500);
+			this.sound = undefined;
+			this.battleStartSound.fade(0, 0.5, 500);
 		}
 	}
 

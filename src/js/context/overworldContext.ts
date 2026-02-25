@@ -1,4 +1,4 @@
-import { writable, type Writable } from 'svelte/store';
+import { get, writable, type Writable } from 'svelte/store';
 import { Keys } from '../commands/controls';
 import type { OpenMap } from '../mapping/maps';
 
@@ -13,33 +13,44 @@ export class FrameOptions {
 }
 
 export class Menus {
-	menuOpened: boolean = false;
 	menuOpened$: Writable<boolean> = writable(false);
-
-	pokemonListOpened: boolean = false;
 	pokemonListOpened$: Writable<boolean> = writable(false);
-
-	switchOpened: boolean = false;
 	switchOpened$: Writable<boolean> = writable(false);
-
-	bagOpened: boolean = false;
 	bagOpened$: Writable<boolean> = writable(false);
-
-	openSummary: boolean = false;
 	openSummary$: Writable<boolean> = writable(false);
 	summaryIndex: number = 0;
-
-	boxOpened: boolean = false;
 	boxOpened$: Writable<boolean> = writable(false);
-
-	pokedexOpened: boolean = false;
 	pokedexOpened$: Writable<boolean> = writable(false);
-
-	trainerOpened: boolean = false;
 	trainerOpened$: Writable<boolean> = writable(false);
-
-	mapOpened: boolean = false;
 	mapOpened$: Writable<boolean> = writable(false);
+
+	private storeByType: Map<MenuType, Writable<boolean>>;
+
+	constructor() {
+		this.storeByType = new Map([
+			[MenuType.MAIN, this.menuOpened$],
+			[MenuType.POKEMON_LIST, this.pokemonListOpened$],
+			[MenuType.SWITCH, this.switchOpened$],
+			[MenuType.BAG, this.bagOpened$],
+			[MenuType.SUMMARY, this.openSummary$],
+			[MenuType.BOX, this.boxOpened$],
+			[MenuType.POKEDEX, this.pokedexOpened$],
+			[MenuType.TRAINER, this.trainerOpened$],
+			[MenuType.MAP, this.mapOpened$]
+		]);
+	}
+
+	getStore(type: MenuType): Writable<boolean> {
+		return this.storeByType.get(type)!;
+	}
+
+	isOpen(type: MenuType): boolean {
+		return get(this.storeByType.get(type)!);
+	}
+
+	setOpen(type: MenuType, open: boolean): void {
+		this.storeByType.get(type)!.set(open);
+	}
 }
 
 export enum MenuType {
@@ -109,168 +120,26 @@ export class OverworldContext {
 	}
 
 	toggleMenu(menuType: MenuType) {
-		switch (menuType) {
-			case MenuType.MAIN:
-				this.isPaused = !this.isPaused;
-				this.menus.menuOpened = !this.menus.menuOpened;
-				this.menus.menuOpened$.set(this.menus.menuOpened);
-				break;
-			case MenuType.POKEMON_LIST:
-				this.isPaused = !this.isPaused;
-				this.menus.pokemonListOpened = !this.menus.pokemonListOpened;
-				this.menus.pokemonListOpened$.set(this.menus.pokemonListOpened);
-				break;
-			case MenuType.SWITCH:
-				this.isPaused = !this.isPaused;
-				this.menus.switchOpened = !this.menus.switchOpened;
-				this.menus.switchOpened$.set(this.menus.switchOpened);
-				break;
-			case MenuType.BAG:
-				this.isPaused = !this.isPaused;
-				this.menus.bagOpened = !this.menus.bagOpened;
-				this.menus.bagOpened$.set(this.menus.bagOpened);
-				break;
-			case MenuType.SUMMARY:
-				this.isPaused = !this.isPaused;
-				this.menus.openSummary = !this.menus.openSummary;
-				this.menus.openSummary$.set(this.menus.openSummary);
-				break;
-			case MenuType.BOX:
-				this.isPaused = !this.isPaused;
-				this.menus.boxOpened = !this.menus.boxOpened;
-				this.menus.boxOpened$.set(this.menus.boxOpened);
-				break;
-			case MenuType.POKEDEX:
-				this.isPaused = !this.isPaused;
-				this.menus.pokedexOpened = !this.menus.pokedexOpened;
-				this.menus.pokedexOpened$.set(this.menus.pokedexOpened);
-				break;
-			case MenuType.TRAINER:
-				this.isPaused = !this.isPaused;
-				this.menus.trainerOpened = !this.menus.trainerOpened;
-				this.menus.trainerOpened$.set(this.menus.trainerOpened);
-				break;
-			case MenuType.MAP:
-				this.menus.mapOpened = !this.menus.mapOpened;
-				this.menus.mapOpened$.set(this.menus.mapOpened);
-				break;
+		const isOpen = this.menus.isOpen(menuType);
+		this.menus.setOpen(menuType, !isOpen);
+		// MAP toggle doesn't affect pause state
+		if (menuType !== MenuType.MAP) {
+			this.isPaused = !isOpen;
 		}
 	}
 
 	openMenu(menuType: MenuType) {
-		switch (menuType) {
-			case MenuType.MAIN:
-				this.isPaused = true;
-				this.menus.menuOpened = true;
-				this.menus.menuOpened$.set(true);
-				break;
-			case MenuType.POKEMON_LIST:
-				this.isPaused = true;
-				this.menus.menuOpened = false;
-				this.menus.menuOpened$.set(false);
-				this.menus.pokemonListOpened = true;
-				this.menus.pokemonListOpened$.set(true);
-				break;
-			case MenuType.SWITCH:
-				this.isPaused = true;
-				this.menus.menuOpened = false;
-				this.menus.menuOpened$.set(false);
-				this.menus.switchOpened = true;
-				this.menus.switchOpened$.set(true);
-				break;
-			case MenuType.BAG:
-				this.isPaused = true;
-				this.menus.menuOpened = false;
-				this.menus.menuOpened$.set(false);
-				this.menus.bagOpened = true;
-				this.menus.bagOpened$.set(true);
-				break;
-			case MenuType.SUMMARY:
-				this.isPaused = true;
-				this.menus.menuOpened = false;
-				this.menus.menuOpened$.set(false);
-				this.menus.openSummary = true;
-				this.menus.openSummary$.set(true);
-				break;
-			case MenuType.BOX:
-				this.isPaused = true;
-				this.menus.menuOpened = false;
-				this.menus.menuOpened$.set(false);
-				this.menus.boxOpened = true;
-				this.menus.boxOpened$.set(true);
-				break;
-			case MenuType.POKEDEX:
-				this.isPaused = true;
-				this.menus.menuOpened = false;
-				this.menus.menuOpened$.set(false);
-				this.menus.pokedexOpened = true;
-				this.menus.pokedexOpened$.set(true);
-				break;
-			case MenuType.TRAINER:
-				this.isPaused = true;
-				this.menus.menuOpened = false;
-				this.menus.menuOpened$.set(false);
-				this.menus.trainerOpened = true;
-				this.menus.trainerOpened$.set(true);
-				break;
-			case MenuType.MAP:
-				this.isPaused = true;
-				this.menus.menuOpened = false;
-				this.menus.menuOpened$.set(false);
-				this.menus.mapOpened = true;
-				this.menus.mapOpened$.set(true);
-				break;
+		this.isPaused = true;
+		// Close main menu when opening a sub-menu
+		if (menuType !== MenuType.MAIN) {
+			this.menus.setOpen(MenuType.MAIN, false);
 		}
+		this.menus.setOpen(menuType, true);
 	}
 
 	closeMenu(menuType: MenuType) {
-		switch (menuType) {
-			case MenuType.MAIN:
-				this.isPaused = false;
-				this.menus.menuOpened = false;
-				this.menus.menuOpened$.set(false);
-				break;
-			case MenuType.POKEMON_LIST:
-				this.isPaused = false;
-				this.menus.pokemonListOpened = false;
-				this.menus.pokemonListOpened$.set(false);
-				break;
-			case MenuType.SWITCH:
-				this.isPaused = false;
-				this.menus.switchOpened = false;
-				this.menus.switchOpened$.set(false);
-				break;
-			case MenuType.BAG:
-				this.isPaused = false;
-				this.menus.bagOpened = false;
-				this.menus.bagOpened$.set(false);
-				break;
-			case MenuType.SUMMARY:
-				this.isPaused = false;
-				this.menus.openSummary = false;
-				this.menus.openSummary$.set(false);
-				break;
-			case MenuType.BOX:
-				this.isPaused = false;
-				this.menus.boxOpened = false;
-				this.menus.boxOpened$.set(false);
-				break;
-			case MenuType.POKEDEX:
-				this.isPaused = false;
-				this.menus.pokedexOpened = false;
-				this.menus.pokedexOpened$.set(false);
-				break;
-			case MenuType.TRAINER:
-				this.isPaused = false;
-				this.menus.trainerOpened = false;
-				this.menus.trainerOpened$.set(false);
-				break;
-			case MenuType.MAP:
-				this.isPaused = false;
-				this.menus.mapOpened = false;
-				this.menus.mapOpened$.set(false);
-				break;
-		}
+		this.isPaused = false;
+		this.menus.setOpen(menuType, false);
 	}
 
 	constructor(map: OpenMap) {
