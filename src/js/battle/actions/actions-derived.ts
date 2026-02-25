@@ -112,6 +112,11 @@ export class ChangePokemon implements ActionV2Interface {
 		const isGrounded = isGroundedForHazards(types);
 		const isPoisonType = types.some((t) => t.toLowerCase() === 'poison');
 
+		// Heavy-Duty Boots: immune to all entry hazards
+		if (pokemon.hasItem('Heavy-Duty Boots')) {
+			return;
+		}
+
 		const stealthRockLayers = battleField.getHazardLayers(hazardSide, Hazard.STEALTH_ROCK);
 		if (stealthRockLayers > 0) {
 			const damage = calculateStealthRockDamage(pokemon.stats.hp, types);
@@ -609,10 +614,13 @@ export class EndTurnChecks implements ActionV2Interface {
 		ctx.runItemEvent(HeldItemTrigger.ON_TURN_END, this.initiator);
 
 		let actions: ActionV2Interface[] = [];
+		const hasMagicGuard =
+			this.initiator.currentAbility?.toLowerCase().replace(/\s+/g, '-') === 'magic-guard';
 		if (
 			!this.initiator.fainted &&
 			this.initiator.status &&
-			this.initiator.status.when === 'end-turn'
+			this.initiator.status.when === 'end-turn' &&
+			!hasMagicGuard
 		) {
 			const effect = this.initiator.status.playEffect(this.initiator);
 

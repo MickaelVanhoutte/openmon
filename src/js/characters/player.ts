@@ -8,6 +8,7 @@ import { Follower } from './follower';
 import type { OverworldContext } from '../context/overworldContext';
 import { Mastery, MasteryType, PlayerMasteries } from './mastery-model';
 import { preloadFollowerSprite } from '../preload';
+import { applyClassBonuses } from './trainer-class';
 
 export class ComboJauge {
 	public value: number = 0;
@@ -41,6 +42,7 @@ export class Player implements Character {
 	public spriteId: number;
 	public name: string;
 	public gender: 'MALE' | 'FEMALE';
+	public trainerClass: string = 'ace-trainer';
 	public monsters: PokemonInstance[];
 	public comboJauge: ComboJauge = new ComboJauge();
 	public bag = new Bag();
@@ -81,12 +83,20 @@ export class Player implements Character {
 		this.follower = follower;
 	}
 
-	public static fromScratch(spriteId: number, name: string, gender: 'MALE' | 'FEMALE'): Player {
-		return new Player(spriteId, name, gender, [], new Bag(), 1, false, new ComboJauge());
+	public static fromScratch(
+		spriteId: number,
+		name: string,
+		gender: 'MALE' | 'FEMALE',
+		trainerClass: string = 'ace-trainer'
+	): Player {
+		const player = new Player(spriteId, name, gender, [], new Bag(), 1, false, new ComboJauge());
+		player.trainerClass = trainerClass;
+		applyClassBonuses(player.playerMasteries.bonuses, trainerClass);
+		return player;
 	}
 
 	public static fromInstance(character: Player): Player {
-		return new Player(
+		const player = new Player(
 			character.spriteId,
 			character.name,
 			character.gender,
@@ -100,6 +110,8 @@ export class Player implements Character {
 			character.playerMasteries,
 			character.follower
 		);
+		player.trainerClass = character.trainerClass || 'ace-trainer';
+		return player;
 	}
 
 	public setPrototypes(pokedex?: Pokedex): Player {

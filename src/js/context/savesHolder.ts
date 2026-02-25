@@ -155,7 +155,7 @@ export class SavesHolder {
 		return get(this.selectedSave$);
 	}
 
-	newGame(spriteId: number, name: string, gender: 'MALE' | 'FEMALE'): SaveContext {
+	newGame(spriteId: number, name: string, gender: 'MALE' | 'FEMALE', trainerClass: string = 'ace-trainer'): SaveContext {
 		const boxes: Array<PokemonBox> = new Array<PokemonBox>(32);
 		let index = 1;
 		for (let i = 0; i < 32; i++) {
@@ -177,7 +177,7 @@ export class SavesHolder {
 			newId,
 			Date.now(),
 			new MapSave(0),
-			Player.fromScratch(spriteId, name, gender),
+			Player.fromScratch(spriteId, name, gender, trainerClass),
 			boxes,
 			new Settings(),
 			true,

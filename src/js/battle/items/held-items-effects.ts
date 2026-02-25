@@ -193,6 +193,100 @@ const chestoBerry: HeldItemEffect = {
 	}
 };
 
+// Rocky Helmet (4023) — deal 1/6 max HP damage to physical attacker
+const rockyHelmet: HeldItemEffect = {
+	name: 'Rocky Helmet',
+	onModifyDamage(ctx: ItemContext): number {
+		// Only triggers on the defender when hit by a physical move
+		if (ctx.move?.category === 'physical' && ctx.opponent) {
+			const recoil = Math.max(1, Math.floor(ctx.opponent.currentStats.hp / 6));
+			ctx.opponent.currentHp = Math.max(0, ctx.opponent.currentHp - recoil);
+		}
+		return ctx.damage ?? 0;
+	}
+};
+
+// Black Sludge (4024) — heal 1/16 HP for Poison types, damage 1/8 HP for others
+const blackSludge: HeldItemEffect = {
+	name: 'Black Sludge',
+	onTurnEnd(ctx: ItemContext): void {
+		const isPoisonType = ctx.pokemon.types?.some(
+			(t: string) => t.toLowerCase() === 'poison'
+		);
+		if (isPoisonType) {
+			const heal = Math.max(1, Math.floor(ctx.pokemon.currentStats.hp / 16));
+			ctx.pokemon.currentHp = Math.min(ctx.pokemon.currentStats.hp, ctx.pokemon.currentHp + heal);
+		} else {
+			const damage = Math.max(1, Math.floor(ctx.pokemon.currentStats.hp / 8));
+			ctx.pokemon.currentHp = Math.max(0, ctx.pokemon.currentHp - damage);
+		}
+	}
+};
+
+// Weakness Policy (4025) — +2 Atk / +2 SpA when hit super-effectively (consumable)
+const weaknessPolicy: HeldItemEffect = {
+	name: 'Weakness Policy',
+	onModifyDamage(ctx: ItemContext): number {
+		if (ctx.effectiveness !== undefined && ctx.effectiveness > 1 && ctx.opponent) {
+			// The holder is the defender; boost their stats
+			ctx.pokemon.changeBattleStats('attack', 2);
+			ctx.pokemon.changeBattleStats('specialAttack', 2);
+		}
+		return ctx.damage ?? 0;
+	}
+};
+
+// Flame Orb (4026) — burns holder at end of turn if no status
+const flameOrb: HeldItemEffect = {
+	name: 'Flame Orb',
+	onTurnEnd(ctx: ItemContext): void {
+		if (!ctx.pokemon.status && !ctx.pokemon.fainted) {
+			const burnDamage = Math.floor(ctx.pokemon.currentStats.hp / 16);
+			ctx.pokemon.status = {
+				move_effect_id: 5,
+				abr: 'BRN',
+				duration: -1,
+				when: 'end-turn',
+				damages: burnDamage,
+				turnsPassed: 0,
+				healed: false,
+				apply: () => ({ message: `${ctx.pokemon.name} was burned by its Flame Orb!` }),
+				playEffect: (target: any) => {
+					target.removeHp(burnDamage);
+					return { canPlay: true, message: `${target.name} is hurt by burn` };
+				}
+			};
+		}
+	}
+};
+
+// Toxic Orb (4027) — badly poisons holder at end of turn if no status
+const toxicOrb: HeldItemEffect = {
+	name: 'Toxic Orb',
+	onTurnEnd(ctx: ItemContext): void {
+		if (!ctx.pokemon.status && !ctx.pokemon.fainted) {
+			const baseDamage = Math.floor(ctx.pokemon.currentStats.hp / 16);
+			let turnCount = 0;
+			ctx.pokemon.status = {
+				move_effect_id: 34,
+				abr: 'PSN+',
+				duration: -1,
+				when: 'end-turn',
+				damages: baseDamage,
+				turnsPassed: 0,
+				healed: false,
+				apply: () => ({ message: `${ctx.pokemon.name} was badly poisoned by its Toxic Orb!` }),
+				playEffect: (target: any) => {
+					turnCount++;
+					const damage = baseDamage * turnCount;
+					target.removeHp(damage);
+					return { canPlay: true, message: `${target.name} is hurt by poison` };
+				}
+			};
+		}
+	}
+};
+
 registerItem('Choice Band', choiceBand);
 registerItem('Choice Specs', choiceSpecs);
 registerItem('Choice Scarf', choiceScarf);
@@ -209,3 +303,8 @@ registerItem('Sitrus Berry', sitrusBerry);
 registerItem('Lum Berry', lumBerry);
 registerItem('Rawst Berry', rawstBerry);
 registerItem('Chesto Berry', chestoBerry);
+registerItem('Rocky Helmet', rockyHelmet);
+registerItem('Black Sludge', blackSludge);
+registerItem('Weakness Policy', weaknessPolicy);
+registerItem('Flame Orb', flameOrb);
+registerItem('Toxic Orb', toxicOrb);
