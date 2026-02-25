@@ -190,6 +190,7 @@ export const SHINY_RATE = 2048;
 
 export class Pokedex {
 	public entries: PokedexEntry[] = [];
+	private entriesById: Map<number, PokedexEntry> = new Map();
 	private initialized: boolean = false;
 	private initPromise: Promise<void> | null = null;
 
@@ -215,30 +216,32 @@ export class Pokedex {
 
 	private importFromJson(json: unknown[], savedEntries: SavedEntry[] = []) {
 		if (this.entries?.length === 0) {
+			const savedMap = new Map(savedEntries.map((e) => [e.id, e]));
 			(json as Record<string, unknown>[]).forEach((pokemon) => {
-				this.entries.push(
-					new PokedexEntry(
-						pokemon.id,
-						pokemon.regionalId,
-						pokemon.name,
-						pokemon.types,
-						pokemon.abilities,
-						pokemon.moves,
-						pokemon.stats,
-						pokemon.height,
-						pokemon.weight,
-						pokemon.description,
-						pokemon.isLegendary,
-						pokemon.captureRate,
-						pokemon.growthRateId,
-						pokemon.baseXp,
-						pokemon.percentageMale,
-						pokemon.evolution,
-						pokemon.sprites,
-						savedEntries.find((entry) => entry.id === pokemon.id)?.viewed,
-						savedEntries.find((entry) => entry.id === pokemon.id)?.caught
-					)
+				const saved = savedMap.get(pokemon.id as number);
+				const entry = new PokedexEntry(
+					pokemon.id,
+					pokemon.regionalId,
+					pokemon.name,
+					pokemon.types,
+					pokemon.abilities,
+					pokemon.moves,
+					pokemon.stats,
+					pokemon.height,
+					pokemon.weight,
+					pokemon.description,
+					pokemon.isLegendary,
+					pokemon.captureRate,
+					pokemon.growthRateId,
+					pokemon.baseXp,
+					pokemon.percentageMale,
+					pokemon.evolution,
+					pokemon.sprites,
+					saved?.viewed,
+					saved?.caught
 				);
+				this.entries.push(entry);
+				this.entriesById.set(entry.id, entry);
 			});
 		}
 	}
@@ -247,8 +250,8 @@ export class Pokedex {
 		if (id === undefined || id === null || id < 1) {
 			return new PokedexSearchResult(new UnknownMonster());
 		}
-		const entry = this.entries.find((entry) => entry.id === id);
-		return entry?.id
+		const entry = this.entriesById.get(id);
+		return entry
 			? new PokedexSearchResult(entry)
 			: new PokedexSearchResult(new UnknownMonster());
 	}
@@ -266,14 +269,14 @@ export class Pokedex {
 	}
 
 	setViewed(id: number) {
-		const entry = this.entries.find((entry) => entry.id === id);
+		const entry = this.entriesById.get(id);
 		if (entry) {
 			entry.viewed = true;
 		}
 	}
 
 	setCaught(id: number) {
-		const entry = this.entries.find((entry) => entry.id === id);
+		const entry = this.entriesById.get(id);
 		if (entry) {
 			entry.caught = true;
 			entry.viewed = true;

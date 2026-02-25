@@ -19,8 +19,35 @@
 		selected = savesHolder.saves[0] || null;
 	}
 
+	let fileInput: HTMLInputElement;
+	let importError = $state(false);
+
 	function startNew() {
 		savesHolder.requestNexGame$.set(true);
+	}
+
+	function exportSave() {
+		if (selected) {
+			savesHolder.exportSave(selected);
+		}
+	}
+
+	async function importSave() {
+		fileInput.click();
+	}
+
+	async function handleFileSelect(e: Event) {
+		const input = e.target as HTMLInputElement;
+		const file = input.files?.[0];
+		if (!file) return;
+		importError = false;
+		const result = await savesHolder.importSave(file);
+		if (result) {
+			selected = result;
+		} else {
+			importError = true;
+		}
+		input.value = '';
 	}
 
 	const listener = (e: KeyboardEvent) => {
@@ -90,6 +117,13 @@
 					</button>
 					{#if selected === save}
 						<div class="actions">
+							<button class="export-btn" onclick={() => exportSave()} aria-label="Export save file">
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+									><path
+										d="M13 10H18L12 16L6 10H11V3H13V10ZM4 19H20V12H22V20C22 20.5523 21.5523 21 21 21H3C2.44772 21 2 20.5523 2 20V12H4V19Z"
+									></path></svg
+								>
+							</button>
 							<button class="erase" onclick={() => remove(save)} aria-label="Delete save file">
 								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
 									><path
@@ -120,7 +154,15 @@
 		{/each}
 	</div>
 
+	<input type="file" accept=".json" bind:this={fileInput} onchange={handleFileSelect} style="display:none" />
+
 	<div class="new-game">
+		{#if importError}
+			<span class="import-error">Invalid save file</span>
+		{/if}
+		<button onclick={() => importSave()} aria-label="Import save file">
+			Import
+		</button>
 		<button onclick={() => startNew()} aria-label="Start a new game" data-testid="new-game-button">
 			Start a new game
 		</button>
@@ -163,6 +205,9 @@
 			position: absolute;
 			bottom: 1%;
 			right: 1%;
+			display: flex;
+			gap: 8px;
+			align-items: center;
 
 			button {
 				background: var(--pixel-bg-header);
@@ -173,6 +218,11 @@
 				width: 160px;
 				height: 32px;
 				cursor: pointer;
+			}
+
+			.import-error {
+				color: #dc5959;
+				font-size: 1.2rem;
 			}
 		}
 
@@ -203,6 +253,15 @@
 					justify-content: center;
 					align-items: center;
 					color: #ececec;
+
+					.export-btn {
+						background: #3a7bd5;
+						color: #ececec;
+						border: none;
+						padding: 8px;
+						cursor: pointer;
+						height: 32px;
+					}
 
 					.erase {
 						background: #dc5959;

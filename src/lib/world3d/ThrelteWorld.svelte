@@ -3,7 +3,7 @@
 	import { Canvas } from '@threlte/core';
 	import Menu from '../menus/Menu.svelte';
 	import DialogView from '../common/DialogView.svelte';
-	import type { Dialog, OpenShop, Script, Scriptable } from '../../js/scripting/scripts';
+	import type { Dialog, OpenShop, OpenMoveRelearner, Script, Scriptable } from '../../js/scripting/scripts';
 	import type { GameContext } from '../../js/context/gameContext';
 	import { type OverworldContext } from '../../js/context/overworldContext';
 	import type { SavesHolder } from '../../js/context/savesHolder';
@@ -11,6 +11,7 @@
 	import Controls from '../world/Controls.svelte';
 	import type { BattleContext } from '../../js/context/battleContext';
 	import Shop from '../common/Shop.svelte';
+	import MoveRelearner from '../common/MoveRelearner.svelte';
 	import { fade } from 'svelte/transition';
 
 	import InstancedTerrain from './InstancedTerrain.svelte';
@@ -131,6 +132,10 @@
 	const hasShop = $derived(currentAction?.type === 'OpenShop');
 	const currentShop = $derived(
 		currentAction?.type === 'OpenShop' ? (currentAction as OpenShop) : undefined
+	);
+	const hasMoveRelearner = $derived(currentAction?.type === 'OpenMoveRelearner');
+	const currentRelearner = $derived(
+		currentAction?.type === 'OpenMoveRelearner' ? (currentAction as OpenMoveRelearner) : undefined
 	);
 	const isHealing = $derived(currentAction?.type === 'HealAll');
 
@@ -405,6 +410,9 @@
 	{/if}
 	{#if hasShop}
 		<Shop shop={currentShop} {context} />
+	{/if}
+	{#if hasMoveRelearner}
+		<MoveRelearner relearner={currentRelearner} {context} />
 	{/if}
 
 	<div class="healing" class:show={isHealing}></div>

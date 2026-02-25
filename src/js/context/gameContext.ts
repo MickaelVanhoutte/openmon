@@ -45,8 +45,6 @@ import {
 	PROLOGUE_MAP_ID,
 	PROLOGUE_WAKE_UP_POS
 } from '../mapping/prologue-map';
-import { DEBUG } from '../env';
-
 /**
  * The current game context
  */
