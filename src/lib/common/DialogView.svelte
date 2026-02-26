@@ -46,7 +46,7 @@
 				src = 'src/assets/monsters/pokedex/' + id + '.png';
 			} else if (current.speaker !== 'self' && Number(current.speaker)) {
 				const sprite = CHARACTER_SPRITES.getSprite(Number.parseInt(current.speaker));
-				src = sprite.full.source;
+				src = sprite.portraitSource;
 				npcName = sprite.name;
 			}
 		}
@@ -108,7 +108,7 @@
 {#if current?.speaker && current?.speaker === 'thought'}
 	<!-- Thought speaker - no image or name -->
 {:else if current?.speaker && current?.speaker === 'self'}
-	<img src={context.player.sprite.full.source} alt="speaker" class="speaker-img" />
+	<img src={context.player.sprite.portraitSource} alt="speaker" class="speaker-img" />
 	<div class="speaker-name">
 		{context.player.name}
 	</div>

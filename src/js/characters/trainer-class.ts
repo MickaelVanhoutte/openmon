@@ -1,4 +1,5 @@
 import { MasteryType, type MasteriesBonuses } from './mastery-model';
+import classSpriteMapping from '../../assets/data/class-sprites.json';
 
 export interface TrainerClassData {
 	id: string;
@@ -87,6 +88,13 @@ export const TRAINER_CLASSES: TrainerClassData[] = [
 
 export function getTrainerClass(id: string): TrainerClassData | undefined {
 	return TRAINER_CLASSES.find((c) => c.id === id);
+}
+
+export function getClassSpriteId(classId: string, sex: 'MALE' | 'FEMALE'): number {
+	const mapping = (classSpriteMapping as Record<string, { male: number; female: number }>)[classId];
+	if (!mapping) return sex === 'MALE' ? 1 : 2;
+	console.log(sex === 'MALE' ? mapping.male : mapping.female);
+	return sex === 'MALE' ? mapping.male : mapping.female;
 }
 
 export function applyClassBonuses(bonuses: MasteriesBonuses, classId: string): void {

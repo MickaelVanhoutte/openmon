@@ -22,7 +22,7 @@
 			</ul>
 		</div>
 		<div class="col-4 trainer-img">
-			<img src={context.player.sprite.full.source} alt="trainer" />
+			<img src={context.player.sprite.portraitSource} alt="trainer" />
 		</div>
 	</div>
 </div>

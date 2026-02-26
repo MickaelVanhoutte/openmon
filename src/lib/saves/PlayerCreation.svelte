@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { SavesHolder } from '../../js/context/savesHolder';
 	import { CHARACTER_SPRITES } from '../../js/sprites/sprites';
-	import { TRAINER_CLASSES } from '../../js/characters/trainer-class';
+	import { TRAINER_CLASSES, getClassSpriteId } from '../../js/characters/trainer-class';
 
 	interface Props {
 		savesHolder: SavesHolder;
@@ -12,12 +12,70 @@
 
 	let selected = $state(1);
 	const templates = [1, 2];
-	const sprite = $derived(CHARACTER_SPRITES.getSprite(selected));
 	let playerName = $state('');
 	let selectedClass = $state('ace-trainer');
 	let sound: Howl;
 
 	const selectedClassData = $derived(TRAINER_CLASSES.find((c) => c.id === selectedClass));
+	const gender = $derived<'MALE' | 'FEMALE'>(selected === 1 ? 'MALE' : 'FEMALE');
+	const classSpriteId = $derived(getClassSpriteId(selectedClass, gender));
+	const classSprite = $derived(CHARACTER_SPRITES.getSprite(classSpriteId));
+
+	let previewCanvas: HTMLCanvasElement;
+
+	// Animated sprite preview
+	$effect(() => {
+		const walkingSprite = classSprite?.overworld?.walking;
+		if (!previewCanvas || !walkingSprite) return;
+
+		const ctx = previewCanvas.getContext('2d');
+		if (!ctx) return;
+
+		const img = new Image();
+		img.src = walkingSprite.source;
+
+		const frameCount = walkingSprite.frameNumber;
+		const frameWidth = walkingSprite.width;
+		const frameHeight = walkingSprite.height;
+
+		const scale = 3;
+		previewCanvas.width = frameWidth * scale;
+		previewCanvas.height = frameHeight * scale;
+
+		let currentFrame = 0;
+		let lastTime = 0;
+		const FPS = 4;
+		let animId: number;
+
+		img.onload = () => {
+			function animate(timestamp: number) {
+				if (timestamp - lastTime >= 1000 / FPS) {
+					lastTime = timestamp;
+					ctx!.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+					ctx!.imageSmoothingEnabled = false;
+
+					const sx = currentFrame * frameWidth;
+					const sy = 0; // "down" row
+
+					ctx!.drawImage(
+						img,
+						sx, sy,
+						frameWidth, frameHeight,
+						0, 0,
+						frameWidth * scale, frameHeight * scale
+					);
+
+					currentFrame = (currentFrame + 1) % frameCount;
+				}
+				animId = requestAnimationFrame(animate);
+			}
+			animId = requestAnimationFrame(animate);
+		};
+
+		return () => {
+			if (animId) cancelAnimationFrame(animId);
+		};
+	});
 
 	function loadSound() {
 		sound = new Howl({
@@ -29,7 +87,8 @@
 	}
 
 	function handleSubmit() {
-		savesHolder.newGame(selected, playerName, selected === 0 ? 'MALE' : 'FEMALE', selectedClass);
+		const spriteId = getClassSpriteId(selectedClass, gender);
+		savesHolder.newGame(spriteId, playerName, gender, selectedClass);
 	}
 
 	onMount(() => {
@@ -48,9 +107,6 @@
 		<div class="firefly"></div>
 	{/each}
 
-	<img src={sprite.full.source} alt="player" class="preview" />
-	<img src="src/assets/monsters/pokedex/050.png" alt="player" class="preview-poke" />
-
 	<form
 		onsubmit={(e) => {
 			e.preventDefault();
@@ -58,33 +114,38 @@
 		}}
 	>
 		<h1 style="margin: 0!important;">New game</h1>
-		<label for="template">Are you a</label>
-		<select id="template" bind:value={selected}>
-			{#each templates as template}
-				<option value={template}>
-					{template === 1 ? 'Boy' : 'Girl'}
-				</option>
-			{/each}
-		</select>
 
-		<label for="name">What's your name?</label>
-		<input id="name" placeholder={sprite.name} bind:value={playerName} data-testid="name-input" />
+		<div class="form-grid">
+			<label for="template" style="grid-area: lbl-sex;">Are you a</label>
+			<select id="template" style="grid-area: sex;" bind:value={selected}>
+				{#each templates as template}
+					<option value={template}>
+						{template === 1 ? 'Boy' : 'Girl'}
+					</option>
+				{/each}
+			</select>
 
-		<label for="trainer-class">Trainer Class</label>
-		<div class="class-picker">
-			<select id="trainer-class" bind:value={selectedClass}>
+			<label for="trainer-class" style="grid-area: lbl-class;">Trainer Class</label>
+			<select id="trainer-class" style="grid-area: class;" bind:value={selectedClass}>
 				{#each TRAINER_CLASSES as tc}
 					<option value={tc.id}>{tc.name}</option>
 				{/each}
 			</select>
 			{#if selectedClassData}
-				<p class="class-desc">{selectedClassData.description}</p>
+				<p class="class-desc" style="grid-area: desc;">{selectedClassData.description}</p>
 			{/if}
-		</div>
 
-		<button type="submit" disabled={playerName?.length === 0} data-testid="confirm-button"
-			>Start</button
-		>
+			<label for="name" style="grid-area: lbl-name;">What's your name?</label>
+			<input id="name" style="grid-area: name;" placeholder={selected === 1 ? 'Ethan' : 'Lyra'} bind:value={playerName} data-testid="name-input" />
+
+			<button type="submit" style="grid-area: start;" disabled={playerName?.length === 0} data-testid="confirm-button"
+				>Start</button
+			>
+
+			<div class="sprite-col">
+				<canvas bind:this={previewCanvas} class="preview-sprite"></canvas>
+			</div>
+		</div>
 	</form>
 </div>
 
@@ -102,26 +163,26 @@
 		overflow: hidden;
 
 		color: #e0e0e0;
-		background: #0f0c29; /* fallback for old browsers */
+		background: #0f0c29;
 		background: -webkit-linear-gradient(
 			to right,
 			#24243e,
 			#302b63,
 			#0f0c29
-		); /* Chrome 10-25, Safari 5.1-6 */
+		);
 		background: linear-gradient(
 			to right,
 			#24243e,
 			#302b63,
 			#0f0c29
-		); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+		);
 
 		h1 {
 			margin: 0.35em 0;
 		}
 
 		form {
-			max-width: 40%;
+			max-width: 70%;
 			margin: 0 auto;
 			display: flex;
 			flex-direction: column;
@@ -130,57 +191,56 @@
 			z-index: 2;
 		}
 
-		.class-picker {
+		.form-grid {
+			display: grid;
+			grid-template-columns: 1fr 1fr 200px;
+			grid-template-areas:
+				'lbl-sex   lbl-class sprite'
+				'sex       class     sprite'
+				'.         desc      sprite'
+				'lbl-name  .         sprite'
+				'name      start     sprite';
+			gap: 4px 24px;
+			width: 100%;
+			align-items: end;
+			font-size: 2rem;
+		}
+
+		.sprite-col {
+			grid-area: sprite;
 			display: flex;
-			flex-direction: column;
-			gap: 4px;
-
-			.class-desc {
-				margin: 0;
-				font-size: 0.85rem;
-				color: #aaa;
-				font-style: italic;
-			}
+			align-items: center;
+			justify-content: center;
+			width: 200px;
+			align-self: center;
 		}
 
-		.preview {
-			position: absolute;
-			right: -7%;
-			top: 0;
-			z-index: 0;
-			height: 100%;
+		.preview-sprite {
+			image-rendering: pixelated;
 		}
 
-		.preview-poke {
-			position: absolute;
-			left: 0;
-			bottom: 10%;
-			z-index: 0;
-			height: 60%;
-			filter: blur(1px);
+		.class-desc {
+			margin: 0;
+			font-size: 1.5rem;
+			color: #aaa;
+			font-style: italic;
 		}
 	}
 
 	@media (max-width: 968px) {
 		.create {
 			form {
-				max-width: 80%;
+				max-width: 95%;
 				gap: 10px;
+			}
+
+			.form-grid {
+				gap: 16px;
 			}
 
 			h1 {
 				margin: 0.2em 0;
 				font-size: 1.3em;
-			}
-
-			.preview {
-				height: 60%;
-				opacity: 0.3;
-			}
-
-			.preview-poke {
-				height: 40%;
-				opacity: 0.3;
 			}
 		}
 	}

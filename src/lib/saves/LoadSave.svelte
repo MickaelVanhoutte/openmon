@@ -145,7 +145,7 @@
 					role="button"
 					tabindex="0"
 				>
-					<img src={save.player.sprite.face.source} alt={save.player.name} />
+					<img src={save.player.sprite.portraitSource} alt={save.player.name} />
 					{#each save.player.monsters as mon}
 						<img src={mon.getSprite()} alt={mon.name} />
 					{/each}
