@@ -164,21 +164,22 @@ function extractFrame(sheet, x0, y0, fw, fh) {
 		if (x < fw - 1 && isBg[idx + 1]  && !normalBg[idx + 1])  { normalBg[idx + 1] = 1;  queue.push(idx + 1);  }
 	}
 
-	// Detect gap pixels: normalBg pixels with opaque on opposite sides within
-	// GAP_REACH pixels. These are narrow transparent passages through the sprite
-	// (hair strand gaps, etc.) that should be filled rather than left transparent.
-	const GAP_REACH = 3;
+	// Detect gap pixels: normalBg pixels surrounded by opaque on 3+ cardinal
+	// directions within GAP_REACH. This identifies true interior gaps (hair,
+	// eyes, etc.) while ignoring border concavities (arm-body gap) which only
+	// have opaque on 2 opposing sides.
+	const GAP_REACH = 2;
 	const isGap = new Uint8Array(fw * fh);
 	for (let i = 0; i < fw * fh; i++) {
 		if (!normalBg[i]) continue;
 		const x = i % fw, y = (i - x) / fw;
-		// Check horizontal pinch: opaque within GAP_REACH to left AND right
 		let hasL = false, hasR = false, hasU = false, hasD = false;
 		for (let d = 1; d <= GAP_REACH && x - d >= 0; d++) if (!isBg[i - d]) { hasL = true; break; }
 		for (let d = 1; d <= GAP_REACH && x + d < fw; d++) if (!isBg[i + d]) { hasR = true; break; }
 		for (let d = 1; d <= GAP_REACH && y - d >= 0; d++) if (!isBg[i - d * fw]) { hasU = true; break; }
 		for (let d = 1; d <= GAP_REACH && y + d < fh; d++) if (!isBg[i + d * fw]) { hasD = true; break; }
-		if ((hasL && hasR) || (hasU && hasD)) isGap[i] = 1;
+		const sides = (hasL ? 1 : 0) + (hasR ? 1 : 0) + (hasU ? 1 : 0) + (hasD ? 1 : 0);
+		if (sides >= 3) isGap[i] = 1;
 	}
 	// True background = normalBg minus gap pixels
 	const trueBg = new Uint8Array(fw * fh);
