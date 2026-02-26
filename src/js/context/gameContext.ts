@@ -11,40 +11,34 @@ import { PokemonBox } from '../pokemons/boxes';
 import { Position } from '../mapping/positions';
 import { MenuType, OverworldContext, SceneType } from './overworldContext';
 import { BattleContext } from './battleContext';
-import { CustomScriptable, Dialog, Message, Script } from '../scripting/scripts';
-import { OverworldItem } from '../items/overworldItem';
-import { SeededRNG } from '../dungeon/prng';
+import { Dialog, Message, Script } from '../scripting/scripts';
 import { NPC } from '../characters/npc';
 import { ItemsReferences } from '../items/items';
 import { get, writable, type Writable } from 'svelte/store';
 import { SaveContext, SavesHolder } from './savesHolder';
 import type { Jonction } from '../mapping/collisions';
-import { OverworldSpawn } from '../characters/overworld-spawn';
 import { Flags, ObjectiveState, Quest, QuestState } from '../scripting/quests';
 import { Notifications } from '../scripting/notifications';
 import { BattleType } from '../battle/battle-model';
-import { AudioManager, QuestManager, ScriptRunner, SoundManager } from './managers';
+import {
+	AudioManager,
+	QuestManager,
+	ScriptRunner,
+	SoundManager,
+	DungeonService,
+	MapService,
+	BattleService
+} from './managers';
 
 import { DungeonContext, dungeonContext } from '../dungeon/dungeon-context';
-import { generateFloor, type FloorData } from '../dungeon/floor-generator';
-import { generateRestFloor, generateBossFloor } from '../dungeon/special-floors';
-import { generateLegendaryRoom } from '../dungeon/legendary-room';
-import { getBiomeForFloor } from '../dungeon/biomes';
-import { populateFloor } from '../dungeon/trainer-factory';
-import { placeItems as placeDungeonItems } from '../dungeon/item-placer';
-import { persistDungeonState } from '../dungeon/dungeon-save';
-import {
-	registerThrelteMap,
-	clearThrelteMapCache,
-	getThrelteMap
-} from '../mapping/threlte-maps/threlte-map-registry';
-import { TileType3D } from '../mapping/threlte-maps/types';
-import { getPositionsInFront } from './helpers/movement-helpers';
 import {
 	registerPrologueMap,
 	PROLOGUE_MAP_ID,
 	PROLOGUE_WAKE_UP_POS
 } from '../mapping/prologue-map';
+import { getPositionsInFront } from './helpers/movement-helpers';
+import { delay } from '../utils/async-utils';
+
 /**
  * The current game context
  */
@@ -81,14 +75,16 @@ export class GameContext {
 	questManager: QuestManager;
 	scriptRunner: ScriptRunner;
 
+	// Extracted services
+	dungeonService: DungeonService;
+	mapService: MapService;
+	battleService: BattleService;
+
 	hasEvolutions: boolean = false;
-	spawned?: OverworldSpawn;
-	savesHolder?: SavesHolder; // set on first changeDungeonFloor call
+	spawned?: import('../characters/overworld-spawn').OverworldSpawn;
+	savesHolder?: SavesHolder;
 
-	// Guides
-	//tg: TourGuideClient;
 	viewedGuides: number[];
-
 	notifications: Notifications = new Notifications();
 
 	weather?: {
@@ -136,7 +132,12 @@ export class GameContext {
 		this.savedPlayTime = save.playTime || 0;
 		this.playTimeStart = Date.now();
 
-		// Sync quest data from manager to GameContext (for backwards compatibility)
+		// Initialize extracted services
+		this.dungeonService = new DungeonService();
+		this.mapService = new MapService();
+		this.battleService = new BattleService();
+
+		// Sync quest data from manager
 		this.questStates = this.questManager.questStates;
 		this.quests = this.questManager.quests;
 		this.currentQuest = this.questManager.currentQuest;
@@ -148,7 +149,7 @@ export class GameContext {
 
 		this.bindKeys();
 		this.checkForGameStart();
-		this.loadMap(this.map);
+		this.mapService.loadMap(this, this.map);
 		this.startWeatherLoop();
 		this.updateMenuAvailability();
 	}
@@ -160,17 +161,6 @@ export class GameContext {
 			running: true,
 			intervalId: 1
 		};
-		// if(this.weather){
-		//     if(this.weather.running){
-		//         // check date to stop it
-		//         let stop = false;
-		//         if(stop){
-		//             this.weather.running = false;
-		//         }
-		//     }
-		// }else {
-
-		// }
 	}
 
 	validateQuestObjective(questId: number, objectiveId: number) {
@@ -221,10 +211,6 @@ export class GameContext {
 		}
 	}
 
-	/**
-	 * Updates the menuAvailability$ store with current availability for all menu types.
-	 * Call this whenever quest objectives change.
-	 */
 	updateMenuAvailability(): void {
 		this.menuAvailability$.set({
 			[MenuType.MAIN]: true,
@@ -249,7 +235,6 @@ export class GameContext {
 					) || this.followerInFront();
 				let scripts = interactive?.interact(this.player.position.positionOnMap, this);
 
-				// interactive behind counters
 				if (!interactive) {
 					const interactiveBehindCounter = this.map?.elementBehindCounter(
 						this.player.position.positionOnMap,
@@ -271,19 +256,17 @@ export class GameContext {
 		this.overWorldContext.keys.up.subscribe((value) => {
 			this.handleDirectionKey(value, 'up');
 		});
-
 		this.overWorldContext.keys.down.subscribe((value) => {
 			this.handleDirectionKey(value, 'down');
 		});
-
 		this.overWorldContext.keys.left.subscribe((value) => {
 			this.handleDirectionKey(value, 'left');
 		});
-
 		this.overWorldContext.keys.right.subscribe((value) => {
 			this.handleDirectionKey(value, 'right');
 		});
 	}
+
 	followerInFront(): Interactive | undefined {
 		const elementPosition = new Position(
 			this.player.position.positionOnMap.x,
@@ -314,12 +297,10 @@ export class GameContext {
 	}
 
 	handleDirectionKey(value: boolean, direction: 'up' | 'down' | 'left' | 'right') {
-		// Allow direction changes to be queued even while moving
 		if (value && !this.overWorldContext.getPaused()) {
 			this.player.position.targetDirection = direction;
 		}
 
-		// Block movement input while still moving between tiles
 		if (
 			this.player.position.positionOnMap.x !== this.player.position.targetPosition.x ||
 			this.player.position.positionOnMap.y !== this.player.position.targetPosition.y
@@ -328,7 +309,6 @@ export class GameContext {
 		}
 
 		if (value && !this.overWorldContext.getPaused()) {
-			// Apply queued direction change
 			if (this.player.position.targetDirection !== this.player.position.direction) {
 				this.player.position.direction = this.player.position.targetDirection;
 			}
@@ -359,43 +339,16 @@ export class GameContext {
 			const futurePosition = new Position(futureX, futureY);
 			const savedPosition = { ...this.player.position.positionOnMap };
 
-			// Intercept floor doors: must be before hasBoundaryAt since WALL tiles are boundaries.
-			// Fires when player moves into a WALL tile that has STAIRS_DOWN directly south (the door tile).
-			{
-				const threlteMap = this.map ? getThrelteMap(this.map.mapId) : undefined;
-				const fx = futurePosition.x;
-				const fy = futurePosition.y;
-				if (
-					threlteMap &&
-					threlteMap.tiles[fy]?.[fx] === TileType3D.WALL &&
-					threlteMap.tiles[fy + 1]?.[fx] === TileType3D.STAIRS_DOWN
-				) {
-					const dc = get(dungeonContext);
-					if (dc?.isDungeonMode) {
-						if (dc.isFloorBoss(dc.currentFloor)) {
-							const bossId = `boss_floor_${dc.currentFloor}`;
-							if (!dc.defeatedTrainers.has(bossId)) {
-								this.playScript(
-									new Script('onStep', [
-										new Dialog([new Message('The way forward is blocked. Defeat the boss first!')])
-									])
-								);
-								return;
-							}
-						}
-						this.changeDungeonFloor(dc);
-						return;
-					}
-				}
+			// Intercept floor doors (delegated to DungeonService)
+			if (this.dungeonService.checkFloorDoor(this, futureX, futureY)) {
+				return;
 			}
 
 			if (!this.map.hasBoundaryAt(futurePosition)) {
-				// Intercept legendary portals: animate suck-in from the current tile (player never
-				// steps onto the wall tile), then trigger the map change after the animation ends.
-				// This applies both when entering (destination >= 9500) and when leaving (current map >= 9500).
+				// Intercept legendary portals
 				const futureJonction = this.map?.jonctionAt(futurePosition);
 				if (futureJonction && (futureJonction.mapIdx >= 9500 || (this.map?.mapId ?? 0) >= 9500)) {
-					this.changeMap(futureJonction);
+					this.mapService.changeMap(this, futureJonction);
 					return;
 				}
 
@@ -406,14 +359,11 @@ export class GameContext {
 				} else {
 					this.player.moving = true;
 					this.player.position.setFuturePosition(futureX, futureY, () => {
-						// on reach destination
 						this.checkForStepInScript();
-						this.checkForJunction();
+						this.mapService.checkForJunction(this);
 						this.checkForStairs();
-						this.checkForBattle();
+						this.battleService.checkForBattle(this);
 						this.checkForInSight();
-
-						// wait for the follower to end it's movement before setting next
 
 						if (this.player.follower) {
 							this.player.follower.stepCounter += 1;
@@ -452,24 +402,22 @@ export class GameContext {
 		);
 	}
 
-	checkForGameStart(): boolean {
+	async checkForGameStart(): Promise<boolean> {
 		if (this.isNewGame && !this.overWorldContext.scenes.wakeUp) {
 			const dc = get(dungeonContext);
 
 			if (dc && !dc.prologueCompleted) {
 				const prologueTemplate = this.MAPS[PROLOGUE_MAP_ID];
 				if (prologueTemplate) {
-					// Use the map's own playerInitialPosition (already in padded coords)
 					const startPos = prologueTemplate.playerInitialPosition;
 					this.map = OpenMap.fromInstance(prologueTemplate, startPos);
 					this.player.position = new CharacterPosition(startPos);
 				}
 				this.overWorldContext.startScene(SceneType.PROLOGUE);
 
-				setTimeout(() => {
-					this.overWorldContext.endScene(SceneType.PROLOGUE);
-					this.isNewGame = false;
-				}, 5000);
+				await delay(5000);
+				this.overWorldContext.endScene(SceneType.PROLOGUE);
+				this.isNewGame = false;
 
 				return true;
 			}
@@ -477,15 +425,14 @@ export class GameContext {
 			const script = this.scriptRunner.getByTrigger('onGameStart');
 			this.overWorldContext.startScene(SceneType.WAKE_UP);
 
-			setTimeout(() => {
-				this.overWorldContext.endScene(SceneType.WAKE_UP);
-				this.isNewGame = false;
-				if (script) {
-					this.playScript(script, undefined, () => {
-						this.questManager.notifyCurrentQuest();
-					});
-				}
-			}, 5000);
+			await delay(5000);
+			this.overWorldContext.endScene(SceneType.WAKE_UP);
+			this.isNewGame = false;
+			if (script) {
+				this.playScript(script, undefined, () => {
+					this.questManager.notifyCurrentQuest();
+				});
+			}
 
 			return true;
 		} else {
@@ -494,435 +441,21 @@ export class GameContext {
 		return false;
 	}
 
-	checkForJunction() {
-		if (this.map === undefined) {
-			return;
-		}
-		const jonction = this.map.jonctionAt(this.player.position.positionOnMap);
-		if (jonction !== undefined) {
-			this.changeMap(jonction);
-		}
-	}
-
-	changeMap(jonction: Jonction) {
-		// Legendary side-room portals get a suck-in animation before the transition.
-		// Applies both when entering (destination mapIdx >= 9500) and when leaving (current map mapId >= 9500).
-		const isLegendaryPortal = jonction.mapIdx >= 9500 || (this.map?.mapId ?? 0) >= 9500;
-
-		this.audioManager.fadeOutMapSound();
-		this.scriptRunner.interruptCurrent();
-		this.map?.npcs.forEach((npc) => npc.movingScript?.interrupt());
-		this.scriptRunner.clear();
-
-		const doTransition = () => {
-			const map = OpenMap.fromInstance(this.MAPS[jonction.mapIdx], new Position(0, 0));
-			this.player.position.setPosition(jonction.start || new Position(0, 0));
-			this.loadMap(map);
-		};
-
-		if (isLegendaryPortal) {
-			this.overWorldContext.setPaused(true, 'portal-animation');
-			this.overWorldContext.portalAnimating = true;
-			// At 550ms the sprite is nearly invisible — start black overlay so it's opaque before map swaps
-			setTimeout(() => {
-				this.overWorldContext.changingMap = true;
-			}, 550);
-			// At 900ms swap the map while screen is already black
-			setTimeout(() => {
-				this.overWorldContext.portalAnimating = false;
-				this.overWorldContext.setPaused(false, 'portal-animation');
-				doTransition();
-			}, 900);
-		} else {
-			doTransition();
-		}
-	}
-
-	playMapSound() {
-		this.audioManager.playMapSound(this.map?.sound);
-	}
-
-	loadMap(map: OpenMap) {
-		this.overWorldContext.changingMap = true;
-		//overworldContext.displayChangingMap = true;
-
-		let onEnterScript: Script | undefined;
-		if (map.scripts && map.scripts?.length > 0) {
-			onEnterScript = map.scripts?.find((s) => s.triggerType === 'onEnter');
-		}
-
-		const npcOnEnter = map.npcs?.filter((npc) => npc.movingScript);
-
-		this.map = map;
-		this.overWorldContext.map = map;
-
-		// Re-index scripts for the new map
-		const allScripts = this.scriptRunner.collectAllScripts(map.scripts, map.npcs);
-		this.scriptRunner.indexScripts(allScripts);
-
-		setTimeout(() => {
-			this.overWorldContext.changingMap = false;
-
-			this.playMapSound();
-
-			if (onEnterScript) {
-				this.playScript(onEnterScript);
-			}
-			if (npcOnEnter?.length > 0) {
-				this.scriptRunner.playMovements(npcOnEnter, this);
-			}
-		}, 1800);
-		setTimeout(() => {
-			//overworldContext.displayChangingMap = false;
-			//checkForGameStart();
-		}, 2000);
-	}
-
-	checkForStepInScript() {
-		let stepScript: Script | undefined;
-		if (this.map?.scripts && this.map.scripts?.length > 0 && !this.scriptRunner.isPlaying()) {
-			// TODO allow range of positions
-			stepScript = this.map.scripts.find(
-				(s) =>
-					s.triggerType === 'onStep' &&
-					s.stepPosition?.x === this.player.position.positionOnMap.x &&
-					s.stepPosition?.y === this.player.position.positionOnMap.y
-			);
-		}
-
-		if ((stepScript !== undefined && !stepScript?.played) || stepScript?.replayable) {
-			this.playScript(stepScript);
-		}
-
-		return stepScript;
-	}
-
-	/*
-    Battle start
-     */
-	checkForBattle() {
-		const dc = get(dungeonContext);
-		const encounterRate =
-			dc?.isDungeonMode && dc?.isRunActive ? getBiomeForFloor(dc.currentFloor).encounterRate : 0.07;
-
-		if (
-			this.map &&
-			this.map.hasBattleZoneAt(this.player.position.positionOnMap) &&
-			Math.random() < encounterRate
-		) {
-			const monster = this.map.randomMonster();
-
-			let level: number;
-			if (dc?.isDungeonMode && dc?.isRunActive) {
-				const variance = Math.floor(Math.random() * 3) - 1;
-				level = Math.max(1, Math.min(dc.currentFloor + 2 + variance, 100));
-			} else {
-				level =
-					Math.floor(
-						this.player.monsters.reduce((acc, pkmn) => acc + pkmn.level, 0) /
-							this.player.monsters.length
-					) - 1;
-			}
-
-			this.startBattle(
-				this.POKEDEX.findById(monster.id).result.instanciate(level),
-				BattleType.SINGLE
-			);
-		}
-	}
-
 	checkForStairs() {
-		// Floor transition is now handled by the pre-intercept in handleDirectionKey
-		// when the player walks into the door wall tile (WALL with STAIRS_DOWN to the south).
+		// Floor transition handled by DungeonService.checkFloorDoor in handleDirectionKey
 	}
 
-	private generateDungeonFloorData(dungeonCtx: DungeonContext) {
-		const floor = dungeonCtx.currentFloor;
-
-		if (dungeonCtx.isFloorRest(floor)) {
-			return generateRestFloor(floor, dungeonCtx.runSeed);
-		}
-
-		if (dungeonCtx.isFloorBoss(floor)) {
-			return generateBossFloor(floor, dungeonCtx.runSeed);
-		}
-
-		const biome = getBiomeForFloor(floor);
-		const floorData = generateFloor(dungeonCtx.runSeed, floor, biome);
-
-		if (floor === 1 && !dungeonCtx.starterPicked && !dungeonCtx.prologueCompleted) {
-			const STARTERS = [1, 4, 7];
-			const rng = new SeededRNG(dungeonCtx.runSeed + '-starter');
-			const starterId = rng.pick(STARTERS);
-			const starterBall = new OverworldItem(
-				'Pokeball',
-				true,
-				floorData.starterItemPosition,
-				'src/assets/menus/pokeball.png',
-				undefined,
-				[
-					new Script('onInteract', [
-						new Dialog([new Message('You found a starter Pokemon!', 'System')]),
-						new CustomScriptable((ctx: GameContext) => {
-							const pokemon = ctx.POKEDEX.findById(starterId).result?.instanciate(5);
-							if (pokemon) {
-								ctx.player.monsters.push(pokemon);
-								ctx.player.setFollower(pokemon);
-								ctx.POKEDEX.setCaught(starterId);
-								dungeonCtx.starterPicked = true;
-								ctx.updateMenuAvailability();
-							}
-						})
-					])
-				]
-			);
-			floorData.openMap.items.push(starterBall);
-		}
-
-		const populateRng = new SeededRNG(dungeonCtx.runSeed + '-populate-' + floor);
-		const npcs = populateFloor(floorData, floor, biome, populateRng);
-		floorData.openMap.npcs.push(...npcs);
-		const dungeonItems = placeDungeonItems(floorData.itemPositions, floor, populateRng);
-		floorData.openMap.items.push(...dungeonItems);
-
-		// Legendary side room: check if this floor has an assigned legendary
-		const legendaryId = dungeonCtx.legendaryFloors.get(floor);
-		console.log(`[Legendary] floor=${floor} legendaryId=${legendaryId}`);
-		if (legendaryId !== undefined) {
-			const alreadyEncountered = dungeonCtx.encounteredLegendaries.has(legendaryId);
-			// Find a wall-adjacent edge portal position with door variant
-			const portalResult = this.findLegendaryPortalPosition(floorData, populateRng);
-			console.log(`[Legendary] floor=${floor} portalResult=`, portalResult);
-			if (portalResult) {
-				const { pos: portalPos, wallPos } = portalResult;
-				// Jonction trigger on the wall tile itself — player walks INTO the black hole
-				// Return pos = floor tile in front of the wall (portalPos)
-				const { sideRoomFloorData, mainFloorJonction } = generateLegendaryRoom(
-					floor,
-					legendaryId,
-					floorData.openMap.mapId,
-					portalPos, // spawn back in front of the wall when leaving side room
-					wallPos,   // trigger = walking into the wall tile
-					alreadyEncountered
-				);
-				// Register side room maps
-				registerThrelteMap(sideRoomFloorData.threlteMap.mapId, sideRoomFloorData.threlteMap);
-				this.MAPS[sideRoomFloorData.openMap.mapId] = sideRoomFloorData.openMap;
-				// Add jonction to main floor openMap and make wall tile passable
-				floorData.openMap.jonctions.push(mainFloorJonction);
-				floorData.openMap.removeCollisionAt(wallPos.y * floorData.threlteMap.width + wallPos.x);
-				// Mark wall tile as a legendary portal for the visual effect
-				if (!floorData.threlteMap.legendaryPortals) floorData.threlteMap.legendaryPortals = [];
-				floorData.threlteMap.legendaryPortals.push({ x: wallPos.x, y: wallPos.y });
-			}
-		}
-
-		return floorData;
-	}
-
-	private findLegendaryPortalPosition(
-		floorData: FloorData,
-		rng: SeededRNG
-	): {
-		pos: Position;
-		wallPos: Position;
-	} | undefined {
-		const { threlteMap, playerStart, stairsPosition } = floorData;
-		const { width, height, tiles } = threlteMap;
-
-		/**
-		 * Only consider tiles with a WALL to the north (y-1).
-		 * In the isometric view the player sees the south face (+z) of walls,
-		 * so a north wall gives a door that is visible and faces the player.
-		 * Prefer tiles close to the map border (edge score ≥ 2).
-		 */
-		interface Candidate {
-			pos: Position;
-			wallPos: Position;
-			faceDir: '+z';
-			score: number;
-		}
-		const candidates: Candidate[] = [];
-
-		for (let y = 2; y < height - 1; y++) {
-			for (let x = 1; x < width - 1; x++) {
-				const tile = tiles[y][x];
-				if (tile !== TileType3D.DUNGEON_FLOOR && tile !== TileType3D.REST_FLOOR) continue;
-				const distPlayer = Math.abs(x - playerStart.x) + Math.abs(y - playerStart.y);
-				const distStairs = Math.abs(x - stairsPosition.x) + Math.abs(y - stairsPosition.y);
-				if (distPlayer < 5 || distStairs < 3) continue;
-
-				// Only accept tiles with a wall directly north
-				if (tiles[y - 1]?.[x] !== TileType3D.WALL) continue;
-
-				// Score: prefer tiles near the top of the map (small y) so the portal
-				// is always visible at the far end when the player enters from the bottom.
-				// score 3 = top quarter, score 2 = top half, score 1 = elsewhere.
-				const topQuarter = Math.floor(height / 4);
-				const topHalf    = Math.floor(height / 2);
-				const score = y <= topQuarter ? 3 : y <= topHalf ? 2 : 1;
-				candidates.push({ pos: new Position(x, y), wallPos: new Position(x, y - 1), score });
-			}
-		}
-
-		if (candidates.length === 0) return undefined;
-
-		const bestScore = Math.max(...candidates.map(c => c.score));
-		const pool = candidates.filter(c => c.score === bestScore);
-		return rng.shuffle(pool)[0];
-	}
-
+	// Delegate to services (keep API for external callers)
 	changeDungeonFloor(dungeonCtx: DungeonContext, savesHolder?: SavesHolder) {
-		if (savesHolder) this.savesHolder = savesHolder;
-		if (!dungeonCtx.prologueCompleted && this.map?.mapId === PROLOGUE_MAP_ID) {
-			dungeonCtx.advanceFloor();
-
-			const floorData = this.generateDungeonFloorData(dungeonCtx);
-
-			registerThrelteMap(floorData.threlteMap.mapId, floorData.threlteMap);
-			this.MAPS[floorData.openMap.mapId] = floorData.openMap;
-
-			dungeonContext.set(dungeonCtx);
-			if (savesHolder) {
-				persistDungeonState(dungeonCtx, savesHolder);
-			}
-			return;
-		}
-
-		this.overWorldContext.setPaused(true, 'dungeon-floor-transition');
-		this.audioManager.fadeOutMapSound();
-
-		this.scriptRunner.interruptCurrent();
-		this.map?.npcs.forEach((npc) => npc.movingScript?.interrupt());
-		this.scriptRunner.clear();
-
-		this.overWorldContext.changingMap = true;
-
-		setTimeout(() => {
-			const previousMapId = 1000 + dungeonCtx.currentFloor;
-
-			dungeonCtx.advanceFloor();
-
-			const floorData = this.generateDungeonFloorData(dungeonCtx);
-
-			clearThrelteMapCache(previousMapId);
-
-			registerThrelteMap(floorData.threlteMap.mapId, floorData.threlteMap);
-			this.MAPS[floorData.openMap.mapId] = floorData.openMap;
-
-			this.map = floorData.openMap;
-			this.overWorldContext.map = floorData.openMap;
-
-			// Restore saved player position if resuming this exact floor from a save
-			const activeSave = savesHolder?.getActiveSave?.();
-			const savedPos =
-				activeSave?.dungeonFloor === dungeonCtx.currentFloor &&
-				activeSave.dungeonPlayerX !== undefined &&
-				activeSave.dungeonPlayerY !== undefined
-					? new Position(activeSave.dungeonPlayerX, activeSave.dungeonPlayerY)
-					: null;
-			this.player.position.setPosition(savedPos ?? floorData.playerStart);
-
-			const allScripts = this.scriptRunner.collectAllScripts(
-				floorData.openMap.scripts,
-				floorData.openMap.npcs
-			);
-			this.scriptRunner.indexScripts(allScripts);
-
-			dungeonContext.set(dungeonCtx);
-
-			if (savesHolder) {
-				persistDungeonState(dungeonCtx, savesHolder);
-			}
-
-			setTimeout(() => {
-				this.overWorldContext.changingMap = false;
-				this.overWorldContext.setPaused(false, 'dungeon-floor-transition');
-				this.playMapSound();
-			}, 500);
-		}, 500);
+		return this.dungeonService.changeFloor(this, dungeonCtx, savesHolder);
 	}
 
-	/**
-	 * Debug-only: teleport directly to any floor number without walking stairs.
-	 * Sets currentFloor directly, generates the floor, and transitions the map.
-	 */
 	jumpToFloor(targetFloor: number, dungeonCtx: DungeonContext) {
-		if (!dungeonCtx.isRunActive) return;
-
-		this.overWorldContext.setPaused(true, 'dungeon-floor-transition');
-		this.audioManager.fadeOutMapSound();
-		this.scriptRunner.interruptCurrent();
-		this.map?.npcs.forEach((npc) => npc.movingScript?.interrupt());
-		this.scriptRunner.clear();
-		this.overWorldContext.changingMap = true;
-
-		setTimeout(() => {
-			const previousMapId = 1000 + dungeonCtx.currentFloor;
-
-			dungeonCtx.currentFloor = targetFloor;
-			dungeonCtx.currentBiome = getBiomeForFloor(targetFloor);
-
-			const floorData = this.generateDungeonFloorData(dungeonCtx);
-
-			clearThrelteMapCache(previousMapId);
-			registerThrelteMap(floorData.threlteMap.mapId, floorData.threlteMap);
-			this.MAPS[floorData.openMap.mapId] = floorData.openMap;
-
-			this.map = floorData.openMap;
-			this.overWorldContext.map = floorData.openMap;
-			this.player.position.setPosition(floorData.playerStart);
-
-			const allScripts = this.scriptRunner.collectAllScripts(
-				floorData.openMap.scripts,
-				floorData.openMap.npcs
-			);
-			this.scriptRunner.indexScripts(allScripts);
-
-			dungeonContext.set(dungeonCtx);
-
-			setTimeout(() => {
-				this.overWorldContext.changingMap = false;
-				this.overWorldContext.setPaused(false, 'dungeon-floor-transition');
-				this.playMapSound();
-			}, 500);
-		}, 500);
+		return this.dungeonService.jumpToFloor(this, targetFloor, dungeonCtx);
 	}
 
 	restartDungeonFloor(dungeonCtx: DungeonContext) {
-		this.overWorldContext.changingMap = true;
-
-		this.scriptRunner.interruptCurrent();
-		this.map?.npcs.forEach((npc) => npc.movingScript?.interrupt());
-		this.scriptRunner.clear();
-
-		const currentMapId = 1000 + dungeonCtx.currentFloor;
-
-		dungeonCtx.defeatedTrainers.clear();
-		dungeonCtx.pickedItems.clear();
-
-		const floorData = this.generateDungeonFloorData(dungeonCtx);
-
-		clearThrelteMapCache(currentMapId);
-
-		registerThrelteMap(floorData.threlteMap.mapId, floorData.threlteMap);
-		this.MAPS[floorData.openMap.mapId] = floorData.openMap;
-
-		this.map = floorData.openMap;
-		this.overWorldContext.map = floorData.openMap;
-		this.player.position.setPosition(floorData.playerStart);
-
-		const allScripts = this.scriptRunner.collectAllScripts(
-			floorData.openMap.scripts,
-			floorData.openMap.npcs
-		);
-		this.scriptRunner.indexScripts(allScripts);
-
-		dungeonContext.set(dungeonCtx);
-
-		setTimeout(() => {
-			this.overWorldContext.changingMap = false;
-		}, 500);
+		return this.dungeonService.restartFloor(this, dungeonCtx);
 	}
 
 	checkForInSightNpc(npcId: number): boolean {
@@ -959,18 +492,17 @@ export class GameContext {
 					};
 					this.player.position.direction = oppositeDirection[npc.direction];
 
-					setTimeout(() => {
+					delay(600).then(() => {
 						npc.alerted = false;
 						const move = npc.movingScript?.interrupt();
 						this.playScript(npc.mainScript, move);
-					}, 600);
+					});
 				}
 			});
 		}
 	}
 
 	private haveInSight(npc: NPC): boolean {
-		// player is in sight if the npc looks in his direction and is within 3 tiles
 		const positionsInFront = getPositionsInFront(npc.position.positionOnMap, npc.direction, 3);
 		const playerPos = this.player.position.positionOnMap;
 		for (const pos of positionsInFront) {
@@ -985,158 +517,25 @@ export class GameContext {
 	}
 
 	startBattle(opponent: PokemonInstance | Character, battleType: BattleType, onEnd?: () => void) {
-		this.overWorldContext.setPaused(true, 'battle-start gameContext');
+		return this.battleService.startBattle(this, opponent, battleType, onEnd);
+	}
 
-		// Detect legendary wild battle for different music
-		const isLegendaryWild =
-			opponent instanceof PokemonInstance &&
-			!!this.POKEDEX.findById(opponent.id)?.result?.isLegendary;
-
-		// Handle audio transition to battle
-		this.audioManager.startBattleTransition();
-
-		setTimeout(() => {
-			if (isLegendaryWild) {
-				this.audioManager.playLegendaryBattleMusic();
-			} else {
-				this.audioManager.playBattleMusic();
-			}
-		}, 1500);
-
-		if (battleType === BattleType.DOUBLE && this.player.monsters.length < 2) {
-			battleType = BattleType.SINGLE;
+	checkForStepInScript() {
+		let stepScript: Script | undefined;
+		if (this.map?.scripts && this.map.scripts?.length > 0 && !this.scriptRunner.isPlaying()) {
+			stepScript = this.map.scripts.find(
+				(s) =>
+					s.triggerType === 'onStep' &&
+					s.stepPosition?.x === this.player.position.positionOnMap.x &&
+					s.stepPosition?.y === this.player.position.positionOnMap.y
+			);
 		}
 
-		if (opponent instanceof NPC && opponent?.monsterIds?.length > 0) {
-			if (opponent.dungeonTeam && opponent.dungeonTeam.length > 0) {
-				opponent.monsters = opponent.dungeonTeam.map((config) => {
-					const pokemon = this.POKEDEX.findById(config.speciesId).result.instanciate(config.level);
-					if (config.heldItemId) {
-						const heldItem = this.ITEMS.getHeldItemById(config.heldItemId);
-						if (heldItem) {
-							pokemon.heldItem = heldItem;
-						}
-					}
-					return pokemon;
-				});
-			} else {
-				opponent.monsters = opponent.monsterIds.map((id) => {
-					let level = Math.floor(
-						this.player.monsters.reduce((acc, pkmn) => acc + pkmn.level, 0) /
-							this.player.monsters.length
-					);
-					// randomly add -1 to 2 levels
-					level += Math.floor(Math.random() * 4) - 1;
-					return this.POKEDEX.findById(id).result.instanciate(level);
-				});
-			}
+		if ((stepScript !== undefined && !stepScript?.played) || stepScript?.replayable) {
+			this.playScript(stepScript);
 		}
 
-		const battleContext = new BattleContext(
-			this.player,
-			opponent,
-			this.settings,
-			battleType,
-			isLegendaryWild ? 'mountains' : 'beaches'
-		);
-		const unsubscribe = battleContext.events.end.subscribe((result) => {
-			if (result) {
-				this.audioManager.fadeOutBattleMusic();
-
-				battleContext.events.ending.set(true);
-
-				if (opponent instanceof PokemonInstance) {
-					this.POKEDEX.setViewed(opponent.id);
-				} else {
-					opponent.monsters.forEach((pkmn) => this.POKEDEX.setViewed(pkmn.id));
-				}
-
-				unsubscribe();
-				try {
-					if (!result.win) {
-						const dc = get(dungeonContext);
-						if (dc?.isDungeonMode && dc?.isRunActive) {
-							this.player.monsters.forEach((pkmn) => {
-								pkmn.fullHeal();
-							});
-							dc.defeatedTrainers.clear();
-							dc.pickedItems.clear();
-							dc.currentFloor = 1;
-							dc.currentBiome = getBiomeForFloor(1);
-							dungeonContext.set(dc);
-							this.restartDungeonFloor(dc);
-						} else {
-							// tp back to the start // TODO pokecenter position
-							this.player.position.positionOnMap = this.map.playerInitialPosition;
-							this.player.monsters.forEach((pkmn) => {
-								pkmn.fullHeal();
-							});
-						}
-					} else if (result.win && opponent instanceof PokemonInstance && !result.caught) {
-						// Wild battle win (KO, not catch): grant money based on opponent level
-						const reward = Math.floor(opponent.level * 10 + 20);
-						this.player.bag.money += reward;
-					} else if (result.win && opponent instanceof NPC) {
-						// Trainer battle win in dungeon: record defeat for gate logic
-						const dc = get(dungeonContext);
-						if (dc?.isDungeonMode && dc?.isRunActive) {
-							if (dc.isFloorBoss(dc.currentFloor)) {
-								dc.defeatedTrainers.add(`boss_floor_${dc.currentFloor}`);
-							} else {
-								dc.defeatedTrainers.add(`trainer_${dc.currentFloor}_${opponent.id}`);
-							}
-							dungeonContext.set(dc);
-							if (this.savesHolder) {
-								persistDungeonState(dc, this.savesHolder);
-							}
-						}
-					}
-
-					if (result.caught) {
-						this.POKEDEX.setCaught(result.caught.id);
-						// add caught pokemon to team if space or in the box
-						if (this.player.monsters.length < 6) {
-							this.player.monsters.push(result.caught);
-						} else {
-							const availableBox = this.boxes.find((box) => !box.isFull());
-							if (availableBox) {
-								availableBox.add(result.caught);
-							}
-						}
-						if (!this.player.follower) {
-							this.player.setFollower(result.caught);
-						}
-					}
-				} catch (e) {
-					console.error('Error during battle end handling:', e);
-				} finally {
-					setTimeout(() => {
-						this.playMapSound();
-					}, 1000);
-
-					setTimeout(() => {
-						// End of battle, 2 sec later for fade out
-						this.overWorldContext.setPaused(false, 'battle-end gameContext');
-						this.battleContext.set(undefined);
-						this.audioManager.stopBattleMusic();
-						this.hasEvolutions = this.player.monsters.some(
-							(pkmn) => battleContext.leveledUpMonsterIds.has(pkmn.id) && pkmn.canEvolve()
-						);
-						if (onEnd) {
-							onEnd();
-						}
-					}, 2000);
-				}
-			}
-		});
-
-		const unsubscribe2 = setInterval(() => {
-			if (!this.player.moving) {
-				this.battleContext.set(battleContext);
-				battleContext.events.starting.set(true);
-				clearInterval(unsubscribe2);
-			}
-		}, 200);
+		return stepScript;
 	}
 
 	playScript(script?: Script, previous?: Script, onEnd?: () => void, pause: boolean = true) {
@@ -1147,7 +546,10 @@ export class GameContext {
 		this.scriptRunner.playMovements(npcs, this);
 	}
 
-	// TODO : rework following code
+	playMapSound() {
+		this.audioManager.playMapSound(this.map?.sound);
+	}
+
 	followerAt(position: Position): boolean {
 		return (
 			this.behindPlayerPosition()?.x === position.x && this.behindPlayerPosition()?.y === position.y
@@ -1203,8 +605,6 @@ export class GameContext {
 			save.dungeonLegendaryFloors = Array.from(dc.legendaryFloors.entries());
 			save.dungeonEncounteredLegendaries = Array.from(dc.encounteredLegendaries);
 
-			// Carry over transient fields managed by persistDungeonState (player pos + explored map)
-			// so that toSaveContext()-based saves (e.g. Controls auto-save) don't erase them.
 			const activeSave = this.savesHolder?.getActiveSave();
 			if (activeSave) {
 				save.dungeonPlayerX = activeSave.dungeonPlayerX;

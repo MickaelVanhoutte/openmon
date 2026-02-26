@@ -9,6 +9,7 @@ import type { OverworldContext } from '../context/overworldContext';
 import { Mastery, MasteryType, PlayerMasteries } from './mastery-model';
 import { preloadFollowerSprite } from '../preload';
 import { applyClassBonuses } from './trainer-class';
+import { waitFor, delay } from '../utils/async-utils';
 
 export class ComboJauge {
 	public value: number = 0;
@@ -146,64 +147,57 @@ export class Player implements Character {
 		return this.follower;
 	}
 
-	public followerCharge(context: OverworldContext, battle: boolean = true) {
+	public async followerCharge(context: OverworldContext, battle: boolean = true) {
+		if (!this.follower) return;
+
+		// Wait for follower to stop moving
+		await waitFor(() => !!this.follower && !this.follower.moving, 100);
+		if (!this.follower) return;
+
+		context.setPaused(true, 'followerCharge');
+		this.follower.moving = true;
+		this.follower.position.direction = this.position.direction;
+		const playerSide = this.aroundPlayer(this.playerSide());
+
+		// Move follower to the side of the player
+		await new Promise<void>((resolve) => {
+			this.follower!.position.setFuturePosition(playerSide.x, playerSide.y, resolve);
+		});
+
+		if (!this.follower) { context.setPaused(false, 'followerCharge'); return; }
+
+		// Move follower to the front of the player
+		const playerFront = this.aroundPlayer(this.position.direction);
+		this.follower.moving = true;
+		await new Promise<void>((resolve) => {
+			this.follower!.position.setFuturePosition(playerFront.x, playerFront.y, resolve);
+		});
+
+		// Wait for the charge animation
+		await delay(battle ? 2000 : 800);
+
+		if (!this.follower || this.moving) { context.setPaused(false, 'followerCharge'); return; }
+
+		// Move follower back to the side
+		this.follower.position.direction = this.followerOpositeDirection();
+		this.follower.moving = true;
+		await new Promise<void>((resolve) => {
+			this.follower!.position.setFuturePosition(playerSide.x, playerSide.y, resolve);
+		});
+
+		if (!this.follower || this.moving) { context.setPaused(false, 'followerCharge'); return; }
+
+		// Move follower back behind the player
+		const playerBack = this.behindPlayer();
+		this.follower.moving = true;
+		await new Promise<void>((resolve) => {
+			this.follower!.position.setFuturePosition(playerBack.x, playerBack.y, resolve);
+		});
+
 		if (this.follower) {
-			const unsubscribe = setInterval(() => {
-				if (this.follower && !this.follower.moving) {
-					//const savedSpeed = this.running;
-					context.setPaused(true, 'followerCharge');
-					this.follower.moving = true;
-					this.follower.position.direction = this.position.direction;
-					const playerSide = this.aroundPlayer(this.playerSide());
-					// Set the follower to the side of the player
-					this.follower.position.setFuturePosition(playerSide.x, playerSide.y, () => {
-						if (this.follower) {
-							const playerFront = this.aroundPlayer(this.position.direction);
-							//this.running = true;
-							this.follower.moving = true;
-							// Set the follower to the front of the player
-							this.follower.position.setFuturePosition(playerFront.x, playerFront.y, () => {
-								setTimeout(
-									() => {
-										if (this.follower && !this.moving) {
-											this.follower.position.direction = this.followerOpositeDirection();
-											this.follower.moving = true;
-											// Set the follower to the side of the player again
-											this.follower.position.setFuturePosition(playerSide.x, playerSide.y, () => {
-												if (this.follower && !this.moving) {
-													const playerBack = this.behindPlayer();
-													this.follower.moving = true;
-													// Set the follower to the back of the player
-													this.follower.position.setFuturePosition(
-														playerBack.x,
-														playerBack.y,
-														() => {
-															if (this.follower) {
-																this.follower.position.direction = this.followerOpositeDirection();
-																//this.running = savedSpeed;
-															}
-															context.setPaused(false, 'followerCharge');
-														}
-													);
-												} else {
-													context.setPaused(false, 'followerCharge');
-												}
-											});
-										} else {
-											context.setPaused(false, 'followerCharge');
-										}
-									},
-									battle ? 2000 : 800
-								);
-							});
-						} else {
-							context.setPaused(false, 'followerCharge');
-						}
-					});
-					clearInterval(unsubscribe);
-				}
-			}, 100);
+			this.follower.position.direction = this.followerOpositeDirection();
 		}
+		context.setPaused(false, 'followerCharge');
 	}
 
 	public followerOpositeDirection(): 'up' | 'down' | 'left' | 'right' {

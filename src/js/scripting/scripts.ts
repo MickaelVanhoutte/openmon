@@ -3,6 +3,7 @@ import { Position } from '../mapping/positions';
 import type { GameContext } from '../context/gameContext';
 import { BattleType } from '../battle/battle-model';
 import { writable, type Writable } from 'svelte/store';
+import { waitFor } from '../utils/async-utils';
 
 export abstract class Scriptable {
 	type: string = 'scriptable';
@@ -230,36 +231,28 @@ export class MoveTo extends Scriptable {
 		);
 	}
 
-	private waitMvtEnds(context: GameContext, npc: NPC, onEnd: () => void) {
-		const unsubscribe = setInterval(() => {
-			if (
-				npc &&
+	private async waitMvtEnds(context: GameContext, npc: NPC, onEnd: () => void) {
+		await waitFor(
+			() =>
 				npc.position.positionOnMap.x === npc.position.targetPosition.x &&
-				npc.position.positionOnMap.y === npc.position.targetPosition.y
-			) {
-				clearInterval(unsubscribe);
-				npc.moving = false;
-				this.finished = true;
-				onEnd();
-			} else {
-				this.waitUntilAllowed(context, npc, onEnd);
-			}
-		}, 200);
+				npc.position.positionOnMap.y === npc.position.targetPosition.y,
+			200
+		);
+		npc.moving = false;
+		this.finished = true;
+		onEnd();
 	}
 
-	private waitUntilAllowed(context: GameContext, npc: NPC, onEnd: () => void) {
-		const retry = setInterval(() => {
-			if (this.canceled) {
-				clearInterval(retry);
-				onEnd();
-			}
+	private async waitUntilAllowed(context: GameContext, npc: NPC, onEnd: () => void) {
+		await waitFor(() => this.canceled || (this.moveAllowed(context, this.position) && !!npc), 200);
 
-			if (this.moveAllowed(context, this.position) && npc) {
-				clearInterval(retry);
-				npc.position.targetPosition = this.position;
-				this.waitMvtEnds(context, npc, onEnd);
-			}
-		}, 200);
+		if (this.canceled) {
+			onEnd();
+			return;
+		}
+
+		npc.position.targetPosition = this.position;
+		this.waitMvtEnds(context, npc, onEnd);
 	}
 }
 

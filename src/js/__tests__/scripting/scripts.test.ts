@@ -339,7 +339,9 @@ describe('GiveItem', () => {
 
 		const mockContext = {
 			player: { bag: { addItems } },
-			ITEMS: { some: 'ref' }
+			ITEMS: { some: 'ref', getItem: vi.fn(() => ({ name: 'Potion' })) },
+			soundManager: { playUISFX: vi.fn() },
+			notifications: { notify: vi.fn() }
 		} as unknown as GameContext;
 
 		gi.play(mockContext, onEnd);
@@ -609,7 +611,7 @@ describe('MoveTo', () => {
 		expect(onEnd).toHaveBeenCalledOnce();
 	});
 
-	it('should use waitUntilAllowed with setInterval when move is blocked', () => {
+	it('should use waitUntilAllowed with setInterval when move is blocked', async () => {
 		const mt = new MoveTo(1, new Position(5, 3));
 		const onEnd = vi.fn();
 		const setFuturePosition = vi.fn();
@@ -651,8 +653,8 @@ describe('MoveTo', () => {
 		// Now unblock the boundary
 		hasBoundaryAt.mockReturnValue(false);
 
-		// Advance timer to trigger the interval check (200ms interval)
-		vi.advanceTimersByTime(200);
+		// Advance timer to trigger the interval check (200ms interval) and flush microtasks
+		await vi.advanceTimersByTimeAsync(200);
 
 		// Now the waitUntilAllowed retry should have found it allowed
 		// and set targetPosition, leading to waitMvtEnds
@@ -660,7 +662,7 @@ describe('MoveTo', () => {
 		expect(npc.position.targetPosition.y).toBe(3);
 	});
 
-	it('should cancel via waitUntilAllowed when canceled flag is set', () => {
+	it('should cancel via waitUntilAllowed when canceled flag is set', async () => {
 		const mt = new MoveTo(1, new Position(5, 3));
 		const onEnd = vi.fn();
 
@@ -694,7 +696,7 @@ describe('MoveTo', () => {
 		// Set canceled before interval fires
 		mt.canceled = true;
 
-		vi.advanceTimersByTime(200);
+		await vi.advanceTimersByTimeAsync(200);
 
 		expect(onEnd).toHaveBeenCalledOnce();
 	});
@@ -736,7 +738,7 @@ describe('MoveTo', () => {
 		expect(onEnd).toHaveBeenCalledOnce();
 	});
 
-	it('should call onEnd exactly once when canceled and move unblocks simultaneously', () => {
+	it('should call onEnd exactly once when canceled and move unblocks simultaneously', async () => {
 		const mt = new MoveTo(1, new Position(5, 3));
 		const onEnd = vi.fn();
 
@@ -778,9 +780,9 @@ describe('MoveTo', () => {
 		hasBoundaryAt.mockReturnValue(false);
 
 		// First tick: waitUntilAllowed sees both canceled and moveAllowed
-		vi.advanceTimersByTime(200);
+		await vi.advanceTimersByTimeAsync(200);
 		// Second tick: waitMvtEnds would fire onEnd again without guard
-		vi.advanceTimersByTime(200);
+		await vi.advanceTimersByTimeAsync(200);
 
 		expect(onEnd).toHaveBeenCalledOnce();
 	});
