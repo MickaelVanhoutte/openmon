@@ -114,25 +114,108 @@ function findGroups(counts, threshold = 3) {
 
 /**
  * Extract a single frame from the source PNG.
- * Converts blue background to transparent.
+ * Flood-fills from edges to find the outer background, then detects narrow
+ * gap pixels ("pinch points" with opaque on opposite sides within GAP_REACH)
+ * and fills them with the nearest opaque neighbor's color so hair strands,
+ * face details, etc. don't have see-through holes.
  */
 function extractFrame(sheet, x0, y0, fw, fh) {
+	// First pass: copy all pixels as-is
 	const pixels = new Uint8Array(fw * fh * 4);
 	for (let y = 0; y < fh; y++) {
 		for (let x = 0; x < fw; x++) {
 			const si = ((y0 + y) * sheet.width + (x0 + x)) * 4;
 			const di = (y * fw + x) * 4;
-			const r = sheet.data[si], g = sheet.data[si + 1], b = sheet.data[si + 2];
-			if (isBlue(r, g, b)) {
-				pixels[di] = pixels[di + 1] = pixels[di + 2] = pixels[di + 3] = 0;
-			} else {
-				pixels[di] = r;
-				pixels[di + 1] = g;
-				pixels[di + 2] = b;
-				pixels[di + 3] = sheet.data[si + 3];
-			}
+			pixels[di]     = sheet.data[si];
+			pixels[di + 1] = sheet.data[si + 1];
+			pixels[di + 2] = sheet.data[si + 2];
+			pixels[di + 3] = sheet.data[si + 3];
 		}
 	}
+
+	// Mark background-like pixels: blue chroma key or fully transparent
+	const isBg = new Uint8Array(fw * fh);
+	for (let i = 0; i < fw * fh; i++) {
+		const di = i * 4;
+		const r = pixels[di], g = pixels[di + 1], b = pixels[di + 2], a = pixels[di + 3];
+		if (isBlue(r, g, b) || a === 0) isBg[i] = 1;
+	}
+
+	// Flood-fill from edges through bg pixels to find outer background
+	const normalBg = new Uint8Array(fw * fh);
+	const queue = [];
+	for (let x = 0; x < fw; x++) {
+		if (isBg[x]) { normalBg[x] = 1; queue.push(x); }
+		const b = (fh - 1) * fw + x;
+		if (isBg[b] && !normalBg[b]) { normalBg[b] = 1; queue.push(b); }
+	}
+	for (let y = 1; y < fh - 1; y++) {
+		const l = y * fw;
+		if (isBg[l] && !normalBg[l]) { normalBg[l] = 1; queue.push(l); }
+		const r = y * fw + fw - 1;
+		if (isBg[r] && !normalBg[r]) { normalBg[r] = 1; queue.push(r); }
+	}
+	while (queue.length > 0) {
+		const idx = queue.pop();
+		const x = idx % fw, y = (idx - x) / fw;
+		if (y > 0      && isBg[idx - fw] && !normalBg[idx - fw]) { normalBg[idx - fw] = 1; queue.push(idx - fw); }
+		if (y < fh - 1 && isBg[idx + fw] && !normalBg[idx + fw]) { normalBg[idx + fw] = 1; queue.push(idx + fw); }
+		if (x > 0      && isBg[idx - 1]  && !normalBg[idx - 1])  { normalBg[idx - 1] = 1;  queue.push(idx - 1);  }
+		if (x < fw - 1 && isBg[idx + 1]  && !normalBg[idx + 1])  { normalBg[idx + 1] = 1;  queue.push(idx + 1);  }
+	}
+
+	// Detect gap pixels: normalBg pixels with opaque on opposite sides within
+	// GAP_REACH pixels. These are narrow transparent passages through the sprite
+	// (hair strand gaps, etc.) that should be filled rather than left transparent.
+	const GAP_REACH = 3;
+	const isGap = new Uint8Array(fw * fh);
+	for (let i = 0; i < fw * fh; i++) {
+		if (!normalBg[i]) continue;
+		const x = i % fw, y = (i - x) / fw;
+		// Check horizontal pinch: opaque within GAP_REACH to left AND right
+		let hasL = false, hasR = false, hasU = false, hasD = false;
+		for (let d = 1; d <= GAP_REACH && x - d >= 0; d++) if (!isBg[i - d]) { hasL = true; break; }
+		for (let d = 1; d <= GAP_REACH && x + d < fw; d++) if (!isBg[i + d]) { hasR = true; break; }
+		for (let d = 1; d <= GAP_REACH && y - d >= 0; d++) if (!isBg[i - d * fw]) { hasU = true; break; }
+		for (let d = 1; d <= GAP_REACH && y + d < fh; d++) if (!isBg[i + d * fw]) { hasD = true; break; }
+		if ((hasL && hasR) || (hasU && hasD)) isGap[i] = 1;
+	}
+	// True background = normalBg minus gap pixels
+	const trueBg = new Uint8Array(fw * fh);
+	for (let i = 0; i < fw * fh; i++) {
+		if (normalBg[i] && !isGap[i]) trueBg[i] = 1;
+	}
+
+	// Make true background transparent
+	for (let i = 0; i < fw * fh; i++) {
+		if (trueBg[i]) {
+			const di = i * 4;
+			pixels[di] = pixels[di + 1] = pixels[di + 2] = pixels[di + 3] = 0;
+		}
+	}
+
+	// Fill remaining non-background transparent pixels with nearest opaque neighbor
+	let hasInterior = false;
+	for (let i = 0; i < fw * fh; i++) {
+		if (!trueBg[i] && isBg[i]) { hasInterior = true; break; }
+	}
+	if (hasInterior) {
+		const filled = new Uint8Array(fw * fh);
+		const fillQueue = [];
+		for (let i = 0; i < fw * fh; i++) {
+			if (!isBg[i]) { filled[i] = 1; fillQueue.push(i); }
+		}
+		let head = 0;
+		while (head < fillQueue.length) {
+			const idx = fillQueue[head++];
+			const x = idx % fw, y = (idx - x) / fw;
+			if (y > 0      && !trueBg[idx-fw] && !filled[idx-fw]) { filled[idx-fw]=1; const si=idx*4,di=(idx-fw)*4; pixels[di]=pixels[si]; pixels[di+1]=pixels[si+1]; pixels[di+2]=pixels[si+2]; pixels[di+3]=255; fillQueue.push(idx-fw); }
+			if (y < fh - 1 && !trueBg[idx+fw] && !filled[idx+fw]) { filled[idx+fw]=1; const si=idx*4,di=(idx+fw)*4; pixels[di]=pixels[si]; pixels[di+1]=pixels[si+1]; pixels[di+2]=pixels[si+2]; pixels[di+3]=255; fillQueue.push(idx+fw); }
+			if (x > 0      && !trueBg[idx-1]  && !filled[idx-1])  { filled[idx-1]=1;  const si=idx*4,di=(idx-1)*4;  pixels[di]=pixels[si]; pixels[di+1]=pixels[si+1]; pixels[di+2]=pixels[si+2]; pixels[di+3]=255; fillQueue.push(idx-1);  }
+			if (x < fw - 1 && !trueBg[idx+1]  && !filled[idx+1])  { filled[idx+1]=1;  const si=idx*4,di=(idx+1)*4;  pixels[di]=pixels[si]; pixels[di+1]=pixels[si+1]; pixels[di+2]=pixels[si+2]; pixels[di+3]=255; fillQueue.push(idx+1);  }
+		}
+	}
+
 	return pixels;
 }
 
