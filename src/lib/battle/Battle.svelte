@@ -978,7 +978,6 @@ import mountainsImage from '../../assets/battle/mountains.png';
 		position: absolute;
 		display: block;
 		z-index: calc(8 + var(--offSet) * -1);
-		image-rendering: pixelated;
 		height: 50%;
 		width: auto;
 		//transform: scale(var(--scale));
@@ -987,8 +986,6 @@ import mountainsImage from '../../assets/battle/mountains.png';
 		/* offSet=1 -> bottom: 12%, left: 4% */
 		bottom: calc(2% + var(--offSet) * 5%);
 		left: calc(22% + var(--offSet) * -18%);
-		animation: impatience calc(8s + var(--offSet) * 1.5s) infinite;
-		animation-delay: calc(1.5s + var(--offSet) * 1.5s);
 	}
 
 	.wrapper :global(.ally-partner-sprite) {
@@ -1010,14 +1007,11 @@ import mountainsImage from '../../assets/battle/mountains.png';
 		z-index: calc(5 + var(--offSet));
 		height: 50%;
 		width: auto;
-		image-rendering: pixelated;
 		transform-origin: bottom right;
 		/* offSet=0 -> bottom: 17%, right: 22% */
 		/* offSet=1 -> bottom: 22%, right: 4% */
 		bottom: calc(10% + var(--offSet) * 5%);
 		right: calc(22% + var(--offSet) * -18%);
-		animation: impatience calc(8s + var(--offSet) * 1.5s) infinite;
-		animation-delay: calc(2s + var(--offSet) * 1.5s);
 	}
 
 	.wrapper :global(.ally-shadow) {

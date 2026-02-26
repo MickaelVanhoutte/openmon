@@ -205,16 +205,16 @@ describe('PokemonInstance', () => {
 			const entry = createEntry({ name: 'Bulbasaur' });
 			const inst = createInstance(50, entry);
 			const path = inst.getSprite();
-			expect(path).toContain('sprites/');
+			expect(path).toContain('showdown/ani/');
 			expect(path).toContain('bulbasaur');
-			expect(path).toContain('.png');
+			expect(path).toContain('.gif');
 		});
 
 		it('returns back sprite path', () => {
 			const entry = createEntry({ name: 'Bulbasaur' });
 			const inst = createInstance(50, entry);
 			const path = inst.getSprite(true);
-			expect(path).toContain('sprites-back/');
+			expect(path).toContain('ani-back/');
 		});
 
 		it('returns shiny sprite path', () => {
@@ -222,7 +222,7 @@ describe('PokemonInstance', () => {
 			const inst = createInstance(50, entry);
 			inst.isShiny = true;
 			const path = inst.getSprite();
-			expect(path).toContain('sprites-shiny/');
+			expect(path).toContain('ani-shiny/');
 		});
 	});
 
@@ -351,7 +351,7 @@ describe('PokedexEntry', () => {
 	describe('getSprite', () => {
 		it('returns the sprite path', () => {
 			const entry = createEntry({ name: 'Pikachu' });
-			expect(entry.getSprite()).toBe('src/assets/monsters/static/sprites/pikachu.png');
+			expect(entry.getSprite()).toBe('src/assets/monsters/showdown/ani/pikachu.gif');
 		});
 	});
 });
