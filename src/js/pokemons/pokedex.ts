@@ -202,7 +202,7 @@ export class Pokedex {
 		if (this.initialized) {
 			return;
 		}
-		const response = await fetch('./data/pokedex-animatedV3.json');
+		const response = await fetch('./data/pokedex-game.json');
 		const pokedexJson = await response.json();
 		this.importFromJson(pokedexJson, savedEntries);
 		this.initialized = true;
@@ -238,7 +238,8 @@ export class Pokedex {
 					pokemon.evolution,
 					pokemon.sprites,
 					saved?.viewed,
-					saved?.caught
+					saved?.caught,
+					pokemon.spriteName as string | undefined
 				);
 				this.entries.push(entry);
 				this.entriesById.set(entry.id, entry);
@@ -313,6 +314,7 @@ export class PokedexEntry {
 	public regionalId: number;
 	public name: string;
 	public normalizedName: string;
+	public spriteName: string;
 	public types: string[];
 	public abilities: string[];
 	public moves: Move[];
@@ -350,7 +352,8 @@ export class PokedexEntry {
 		evolution: Evolution[],
 		sprites?: Sprites,
 		viewed: boolean = false,
-		caught: boolean = false
+		caught: boolean = false,
+		spriteName?: string
 	) {
 		this.id = id;
 		this.regionalId = regionalId;
@@ -366,6 +369,7 @@ export class PokedexEntry {
 			.replaceAll('é', 'e')
 			.replace(':', '')
 			.toLowerCase();
+		this.spriteName = spriteName ?? this.normalizedName;
 		this.types = types;
 		this.abilities = abilities;
 		this.moves = moves;
@@ -444,7 +448,7 @@ export class PokedexEntry {
 	}
 
 	getSprite(): string {
-		return `src/assets/monsters/static/sprites/${this.normalizedName}.png`;
+		return `src/assets/monsters/showdown/ani/${this.spriteName}.gif`;
 	}
 }
 
@@ -748,6 +752,7 @@ export class PokemonInstance {
 	get regionalId() { return this.entry.regionalId; }
 	get name() { return this.entry.name; }
 	get normalizedName() { return this.entry.normalizedName; }
+	get spriteName() { return this.entry.spriteName; }
 	get types() { return this.entry.types; }
 	get abilities() { return this.entry.abilities; }
 	get stats() { return this.entry.stats; }
@@ -1052,10 +1057,10 @@ export class PokemonInstance {
 	}
 
 	public getSprite(back?: boolean): string {
-		if (this.isShiny) {
-			return `src/assets/monsters/static/sprites-shiny${(back ? '-back/' : '/') + this.normalizedName}.png`;
-		}
-		return `src/assets/monsters/static/sprites${(back ? '-back/' : '/') + this.normalizedName}.png`;
+		const dir = this.isShiny
+			? (back ? 'ani-back-shiny' : 'ani-shiny')
+			: (back ? 'ani-back' : 'ani');
+		return `src/assets/monsters/showdown/${dir}/${this.spriteName}.gif`;
 	}
 
 	public hasType(type: string): boolean {
