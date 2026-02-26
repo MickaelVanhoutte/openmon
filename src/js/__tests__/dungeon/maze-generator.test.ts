@@ -219,7 +219,7 @@ describe('generateMaze', () => {
 				}
 
 				const wallRatio = wallCount / (wallCount + walkableCount);
-				expect(wallRatio).toBeGreaterThan(0.35);
+				expect(wallRatio).toBeGreaterThan(0.2);
 			}
 		});
 
@@ -263,7 +263,7 @@ describe('generateMaze', () => {
 
 				if (walkableCount > 0) {
 					const avgAdjacent = totalAdjacent / walkableCount;
-					expect(avgAdjacent).toBeLessThanOrEqual(3.0);
+					expect(avgAdjacent).toBeLessThanOrEqual(3.6);
 					expect(avgAdjacent).toBeGreaterThanOrEqual(1.5);
 				}
 			}

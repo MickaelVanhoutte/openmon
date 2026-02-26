@@ -739,7 +739,32 @@ export class MoveInstance extends Move {
 	}
 }
 
-export class PokemonInstance extends PokedexEntry {
+export class PokemonInstance {
+	/** Reference to the species data. Set by constructor or rehydrate(). */
+	public entry!: PokedexEntry;
+	public id: number;
+
+	// Delegate PokedexEntry properties via getters (composition over inheritance)
+	get regionalId() { return this.entry.regionalId; }
+	get name() { return this.entry.name; }
+	get normalizedName() { return this.entry.normalizedName; }
+	get types() { return this.entry.types; }
+	get abilities() { return this.entry.abilities; }
+	get stats() { return this.entry.stats; }
+	get height() { return this.entry.height; }
+	get weight() { return this.entry.weight; }
+	get description() { return this.entry.description; }
+	get isLegendary() { return this.entry.isLegendary; }
+	get captureRate() { return this.entry.captureRate; }
+	get growthRateId() { return this.entry.growthRateId; }
+	get baseXp() { return this.entry.baseXp; }
+	get percentageMale() { return this.entry.percentageMale; }
+	get evolution() { return this.entry.evolution; }
+	get sprites() { return this.entry.sprites; }
+	get weaknesses() { return this.entry.weaknesses; }
+	get weaknessValue() { return this.entry.weaknessValue; }
+
+	// Instance-specific state
 	public currentStats: Stats = new Stats();
 	public statsChanges: Stats = new Stats();
 	public currentHp: number = 1;
@@ -752,8 +777,8 @@ export class PokemonInstance extends PokedexEntry {
 	public moves: MoveInstance[] = [];
 	public ivs: Stats = new Stats();
 	public evs: Stats = new Stats();
-	public nature: Nature;
-	public gender: 'male' | 'female' | 'unknown';
+	public nature!: Nature;
+	public gender!: 'male' | 'female' | 'unknown';
 	public heldItem: HeldItemData | undefined = undefined;
 	public choiceLockedMove: string | undefined = undefined;
 	public lastMove?: MoveInstance;
@@ -786,10 +811,6 @@ export class PokemonInstance extends PokedexEntry {
 		);
 	}
 
-	/* get availableMoves(): Move[] {
-         return POKEDEX.findById(this.id)?.result?.moves?.filter((move) => move.level <= this.level) || [];
-     }*/
-
 	get battleStats(): Stats {
 		return this.statCalc.computeBattleStats();
 	}
@@ -802,25 +823,8 @@ export class PokemonInstance extends PokedexEntry {
 		ivs?: Stats,
 		fromInstance?: PokemonInstance
 	) {
-		super(
-			pokedexEntry.id,
-			pokedexEntry.regionalId,
-			pokedexEntry.name,
-			pokedexEntry.types,
-			pokedexEntry.abilities,
-			pokedexEntry.moves,
-			pokedexEntry.stats,
-			pokedexEntry.height,
-			pokedexEntry.weight,
-			pokedexEntry.description,
-			pokedexEntry.isLegendary,
-			pokedexEntry.captureRate,
-			pokedexEntry.growthRateId,
-			pokedexEntry.baseXp,
-			pokedexEntry.percentageMale,
-			pokedexEntry.evolution,
-			pokedexEntry.sprites
-		);
+		this.entry = pokedexEntry;
+		this.id = pokedexEntry.id;
 
 		this.statCalc = new StatCalculator(this);
 		this.xpMgr = new XpManager(this);
@@ -831,7 +835,6 @@ export class PokemonInstance extends PokedexEntry {
 			this.currentAbility = pokedexEntry.abilities.includes(fromInstance.currentAbility)
 				? fromInstance.currentAbility
 				: pokedexEntry.abilities[Math.floor(Math.random() * pokedexEntry.abilities.length)];
-			// keep currentStats
 			this.evs = fromInstance.evs;
 			this.ivs = fromInstance.ivs;
 			this.nature = fromInstance.nature;
@@ -866,8 +869,7 @@ export class PokemonInstance extends PokedexEntry {
 			this.updateCurrentStats();
 			this.currentHp = this.currentStats.hp;
 			this.moves = this.selectLatestMoves(pokedexEntry);
-			// shiny chance is 1/2048
-			this.isShiny = shiny; //= Math.floor(Math.random() * 2048) === 0;
+			this.isShiny = shiny;
 
 			// random gender based on percentageMale attr (0-100)
 			this.gender = this.percentageMale
@@ -880,28 +882,13 @@ export class PokemonInstance extends PokedexEntry {
 
 	public rehydrate(pokedex?: Pokedex): void {
 		if (pokedex) {
-			const entry = pokedex.findById(this.id).result;
-			this.regionalId = entry.regionalId;
-			this.name = entry.name;
-			this.normalizedName = entry.normalizedName;
-			this.types = entry.types;
-			this.abilities = entry.abilities;
-			this.stats = entry.stats;
-			this.height = entry.height;
-			this.weight = entry.weight;
-			this.description = entry.description;
-			this.isLegendary = entry.isLegendary;
-			this.captureRate = entry.captureRate;
-			this.growthRateId = entry.growthRateId;
-			this.baseXp = entry.baseXp;
-			this.percentageMale = entry.percentageMale;
-			this.evolution = entry.evolution;
-			this.sprites = entry.sprites;
+			// Composition: just set the entry reference instead of copying every field
+			this.entry = pokedex.findById(this.id).result;
 
 			const savedMoves = this.moves as unknown as { id: number; currentPp: number }[];
 			this.moves = savedMoves
 				.map((saved) => {
-					const move = entry.moves.find((m) => m.id === saved.id);
+					const move = this.entry.moves.find((m) => m.id === saved.id);
 					if (!move) {
 						return undefined;
 					}
@@ -1039,7 +1026,6 @@ export class PokemonInstance extends PokedexEntry {
 				undefined,
 				this
 			);
-			//this.checkForNewMoves();
 		}
 		return this;
 	}

@@ -7,6 +7,7 @@ import { GameContext } from './gameContext';
 import { get, writable, type Writable } from 'svelte/store';
 import { Flags, ObjectiveState, QuestState } from '../scripting/quests';
 import { QUESTS } from '../scripting/quests';
+import { loadSaves, persistSaves } from './save-storage';
 
 /**
  * One save in storage
@@ -77,7 +78,7 @@ export class SaveContext {
 }
 
 /**
- * Handles the save storage
+ * Handles the save storage (IndexedDB primary, localStorage fallback)
  */
 export class SavesHolder {
 	POKEDEX = new Pokedex();
@@ -91,8 +92,12 @@ export class SavesHolder {
 
 	currentVersion = 1;
 
-	constructor() {
-		const savesStr = localStorage.getItem('saves');
+	/**
+	 * Loads saves from IndexedDB (falls back to localStorage) and rehydrates
+	 * pokemon data. Must be awaited before accessing saves.
+	 */
+	async init(): Promise<void> {
+		const savesStr = await loadSaves();
 		this.saves =
 			(savesStr?.length &&
 				(JSON.parse(savesStr, this.reviver) as SaveContext[]).filter(
@@ -114,13 +119,7 @@ export class SavesHolder {
 			save.flags = save?.flags ? new Flags(save?.flags?.flags) : new Flags();
 		});
 		this.saves = this.saves.sort((a, b) => b.updated - a.updated);
-	}
 
-	/**
-	 * Waits for the POKEDEX to finish loading, then rehydrates all saved pokemon
-	 * data. Must be awaited before accessing saves that contain pokemon.
-	 */
-	async init(): Promise<void> {
 		await this.POKEDEX.ensureLoaded();
 		this.saves.forEach((save) => {
 			save.player.setPrototypes(this.POKEDEX);
@@ -201,7 +200,8 @@ export class SavesHolder {
 			}
 		}
 		const encoded = JSON.stringify(this.saves, this.replacer);
-		localStorage.setItem('saves', encoded);
+		// Fire-and-forget async persist (writes to both IndexedDB + localStorage)
+		persistSaves(encoded);
 	}
 
 	private static readonly TRANSIENT_KEYS = new Set([

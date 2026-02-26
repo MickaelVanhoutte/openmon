@@ -162,7 +162,7 @@ describe('SoundManager', () => {
 			// Assert
 			expect(MockHowl).toHaveBeenCalledWith(
 				expect.objectContaining({
-					src: ['src/assets/audio/ui/menu-open.mp3']
+					src: ['src/assets/audio/ui/menu.wav']
 				})
 			);
 			const instance = MockHowl.mock.results[0].value;
