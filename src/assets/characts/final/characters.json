@@ -182,7 +182,7 @@
         "name": "Trainer 0",
         "overworld": {
             "walking": {
-                "source": "src/assets/characts/final/walking/trainer-0.png",
+                "source": "src/assets/characts/final/walking/trainer-14.png",
                 "startX": 0,
                 "startY": 0,
                 "height": 60,
@@ -196,7 +196,7 @@
         "name": "Trainer 1",
         "overworld": {
             "walking": {
-                "source": "src/assets/characts/final/walking/trainer-1.png",
+                "source": "src/assets/characts/final/walking/trainer-17.png",
                 "startX": 0,
                 "startY": 0,
                 "height": 60,
@@ -210,7 +210,7 @@
         "name": "Trainer 2",
         "overworld": {
             "walking": {
-                "source": "src/assets/characts/final/walking/trainer-2.png",
+                "source": "src/assets/characts/final/walking/trainer-28.png",
                 "startX": 0,
                 "startY": 0,
                 "height": 60,
@@ -224,7 +224,7 @@
         "name": "Trainer 3",
         "overworld": {
             "walking": {
-                "source": "src/assets/characts/final/walking/trainer-3.png",
+                "source": "src/assets/characts/final/walking/trainer-29.png",
                 "startX": 0,
                 "startY": 0,
                 "height": 60,
@@ -238,7 +238,7 @@
         "name": "Trainer 4",
         "overworld": {
             "walking": {
-                "source": "src/assets/characts/final/walking/trainer-4.png",
+                "source": "src/assets/characts/final/walking/trainer-34.png",
                 "startX": 0,
                 "startY": 0,
                 "height": 60,
@@ -252,7 +252,7 @@
         "name": "Trainer 5",
         "overworld": {
             "walking": {
-                "source": "src/assets/characts/final/walking/trainer-5.png",
+                "source": "src/assets/characts/final/walking/trainer-39.png",
                 "startX": 0,
                 "startY": 0,
                 "height": 60,
@@ -266,7 +266,7 @@
         "name": "Trainer 6",
         "overworld": {
             "walking": {
-                "source": "src/assets/characts/final/walking/trainer-6.png",
+                "source": "src/assets/characts/final/walking/trainer-36.png",
                 "startX": 0,
                 "startY": 0,
                 "height": 60,
@@ -280,7 +280,7 @@
         "name": "Trainer 7",
         "overworld": {
             "walking": {
-                "source": "src/assets/characts/final/walking/trainer-7.png",
+                "source": "src/assets/characts/final/walking/trainer-46.png",
                 "startX": 0,
                 "startY": 0,
                 "height": 60,
@@ -294,7 +294,7 @@
         "name": "Trainer 8",
         "overworld": {
             "walking": {
-                "source": "src/assets/characts/final/walking/trainer-8.png",
+                "source": "src/assets/characts/final/walking/trainer-61.png",
                 "startX": 0,
                 "startY": 0,
                 "height": 60,
@@ -308,7 +308,7 @@
         "name": "Trainer 9",
         "overworld": {
             "walking": {
-                "source": "src/assets/characts/final/walking/trainer-9.png",
+                "source": "src/assets/characts/final/walking/trainer-41.png",
                 "startX": 0,
                 "startY": 0,
                 "height": 60,
@@ -322,7 +322,7 @@
         "name": "Trainer 10",
         "overworld": {
             "walking": {
-                "source": "src/assets/characts/final/walking/trainer-10.png",
+                "source": "src/assets/characts/final/walking/trainer-32.png",
                 "startX": 0,
                 "startY": 0,
                 "height": 60,
@@ -336,7 +336,7 @@
         "name": "Trainer 11",
         "overworld": {
             "walking": {
-                "source": "src/assets/characts/final/walking/trainer-11.png",
+                "source": "src/assets/characts/final/walking/trainer-33.png",
                 "startX": 0,
                 "startY": 0,
                 "height": 60,
@@ -350,7 +350,7 @@
         "name": "Trainer 12",
         "overworld": {
             "walking": {
-                "source": "src/assets/characts/final/walking/trainer-12.png",
+                "source": "src/assets/characts/final/walking/trainer-47.png",
                 "startX": 0,
                 "startY": 0,
                 "height": 60,
@@ -364,7 +364,7 @@
         "name": "Trainer 13",
         "overworld": {
             "walking": {
-                "source": "src/assets/characts/final/walking/trainer-13.png",
+                "source": "src/assets/characts/final/walking/trainer-44.png",
                 "startX": 0,
                 "startY": 0,
                 "height": 60,
@@ -378,7 +378,7 @@
         "name": "Trainer 14",
         "overworld": {
             "walking": {
-                "source": "src/assets/characts/final/walking/trainer-14.png",
+                "source": "src/assets/characts/final/walking/trainer-8.png",
                 "startX": 0,
                 "startY": 0,
                 "height": 60,
@@ -392,7 +392,7 @@
         "name": "Trainer 15",
         "overworld": {
             "walking": {
-                "source": "src/assets/characts/final/walking/trainer-15.png",
+                "source": "src/assets/characts/final/walking/trainer-69.png",
                 "startX": 0,
                 "startY": 0,
                 "height": 60,

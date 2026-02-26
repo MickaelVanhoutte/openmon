@@ -34,6 +34,8 @@
 	let currentTexture = $state<Texture | null>(null);
 	let animFrame = $state(0);
 	let animElapsed = $state(0);
+	let frameCount = $state(4);
+	let spriteAspect = $state(1);
 
 	// Portal suck-in animation state — plain mutable, not $state, to avoid frame-rate reactivity
 	let portalAnimTime = 0;
@@ -62,21 +64,26 @@
 	$effect(() => {
 		const loader = new TextureLoader();
 
-		const walkSrc = player.sprite.overworld.walking.source;
-		const walkTex = loader.load(walkSrc);
+		const walking = player.sprite.overworld.walking;
+		const walkFrames = walking.frameNumber ?? 4;
+		frameCount = walkFrames;
+		spriteAspect = walking.width / walking.height;
+
+		const walkTex = loader.load(walking.source);
 		walkTex.magFilter = NearestFilter;
 		walkTex.minFilter = NearestFilter;
 		walkTex.colorSpace = SRGBColorSpace;
-		walkTex.repeat.set(0.25, 0.25);
+		walkTex.repeat.set(1 / walkFrames, 0.25);
 		walkingTexture = walkTex;
 
-		const runSrc = player.sprite.overworld.running?.source;
-		if (runSrc) {
-			const runTex = loader.load(runSrc);
+		const running = player.sprite.overworld.running;
+		if (running?.source) {
+			const runFrames = running.frameNumber ?? 4;
+			const runTex = loader.load(running.source);
 			runTex.magFilter = NearestFilter;
 			runTex.minFilter = NearestFilter;
 			runTex.colorSpace = SRGBColorSpace;
-			runTex.repeat.set(0.25, 0.25);
+			runTex.repeat.set(1 / runFrames, 0.25);
 			runningTexture = runTex;
 		}
 	});
@@ -175,9 +182,9 @@
 			const currentAnimFPS = player.running ? 14 : ANIM_FPS;
 			if (animElapsed >= 1 / currentAnimFPS) {
 				animElapsed = 0;
-				animFrame = (animFrame + 1) % 4;
+				animFrame = (animFrame + 1) % frameCount;
 			}
-			tex.offset.x = animFrame * 0.25;
+			tex.offset.x = animFrame * (1 / frameCount);
 		} else {
 			// Idle — show neutral frame without resetting the cycle
 			const current = gridTo3D(
@@ -209,7 +216,7 @@
 			scale={[portalScale, portalScale, portalScale]}
 			rotation.z={portalRotation}
 		>
-			<T.PlaneGeometry args={[1, 1]} />
+			<T.PlaneGeometry args={[spriteAspect, 1]} />
 			<T.MeshStandardMaterial
 				map={currentTexture}
 				transparent
@@ -221,7 +228,7 @@
 		<!-- Normal mode: Billboard keeps the sprite camera-facing -->
 		<Billboard position={[visualPosition.x, visualPosition.y, visualPosition.z]}>
 			<T.Mesh>
-				<T.PlaneGeometry args={[1, 1]} />
+				<T.PlaneGeometry args={[spriteAspect, 1]} />
 				<T.MeshStandardMaterial
 					map={currentTexture}
 					transparent

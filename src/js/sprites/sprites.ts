@@ -155,6 +155,7 @@ export class PlayerSprite {
 	public throwingImg?: HTMLImageElement;
 	public worldWalkingImg: HTMLImageElement;
 	public worldRunningImg?: HTMLImageElement;
+	public portraitSource: string = '';
 
 	public frames = { max: 4, val: 0, elapsed: 0 };
 
@@ -200,6 +201,29 @@ export class PlayerSprite {
 
 		this.worldWalkingImg = new Image();
 		this.worldWalkingImg.src = overworld.walking.source;
+
+		// Build portrait: prefer face > full > first frame of walking sheet
+		if (face) {
+			this.portraitSource = face.source;
+		} else if (full) {
+			this.portraitSource = full.source;
+		} else {
+			this.portraitSource = overworld.walking.source;
+			this.worldWalkingImg.onload = () => {
+				const canvas = document.createElement('canvas');
+				canvas.width = overworld.walking.width;
+				canvas.height = overworld.walking.height;
+				const ctx = canvas.getContext('2d');
+				if (ctx) {
+					ctx.drawImage(
+						this.worldWalkingImg,
+						0, 0, overworld.walking.width, overworld.walking.height,
+						0, 0, overworld.walking.width, overworld.walking.height
+					);
+					this.portraitSource = canvas.toDataURL();
+				}
+			};
+		}
 
 		if (overworld.running?.source) {
 			this.worldRunningImg = new Image();

@@ -1,0 +1,10 @@
+{
+    "ace-trainer": { "male": 10, "female": 11 },
+    "breeder": { "male": 12, "female": 13 },
+    "weather-master": { "male": 14, "female": 15 },
+    "strategist": { "male": 16, "female": 17 },
+    "medic": { "male": 18, "female": 19 },
+    "berserker": { "male": 20, "female": 21 },
+    "guardian": { "male": 22, "female": 23 },
+    "explorer": { "male": 24, "female": 25 }
+}
