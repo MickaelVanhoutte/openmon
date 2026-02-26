@@ -179,6 +179,8 @@ export function createPrologueMap(): { openMap: OpenMap; threlteMap: ThrelteMapD
 
 	// Place stairs at the pre-padding position (top of inner walkable area)
 	grid[PROLOGUE_CAVE_ENTRANCE_POS.y][PROLOGUE_CAVE_ENTRANCE_POS.x] = S;
+	// Place a wall tile directly north of the stairs so the door arch renders
+	grid[PROLOGUE_CAVE_ENTRANCE_POS.y - 1][PROLOGUE_CAVE_ENTRANCE_POS.x] = W;
 
 	const noteItem = createNoteItem();
 	const pokeballItem = createPokeballItem();

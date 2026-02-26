@@ -174,5 +174,53 @@
 		"description": "Increases experience gained by 50%.",
 		"power": 1.5,
 		"consumable": false
+	},
+	{
+		"id": 4023,
+		"categoryId": 40,
+		"name": "Rocky Helmet",
+		"description": "Damages attackers by 1/6 of their max HP on contact.",
+		"power": 6,
+		"consumable": false
+	},
+	{
+		"id": 4024,
+		"categoryId": 40,
+		"name": "Black Sludge",
+		"description": "Restores HP for Poison types; damages other types each turn.",
+		"power": 16,
+		"consumable": false
+	},
+	{
+		"id": 4025,
+		"categoryId": 40,
+		"name": "Weakness Policy",
+		"description": "Sharply boosts Attack and Sp. Atk when hit by a super-effective move. Single use.",
+		"power": 2,
+		"consumable": true
+	},
+	{
+		"id": 4026,
+		"categoryId": 40,
+		"name": "Flame Orb",
+		"description": "Burns the holder at the end of each turn.",
+		"power": 0,
+		"consumable": false
+	},
+	{
+		"id": 4027,
+		"categoryId": 40,
+		"name": "Toxic Orb",
+		"description": "Badly poisons the holder at the end of each turn.",
+		"power": 0,
+		"consumable": false
+	},
+	{
+		"id": 4028,
+		"categoryId": 40,
+		"name": "Heavy-Duty Boots",
+		"description": "Protects the holder from entry hazards.",
+		"power": 0,
+		"consumable": false
 	}
 ]
