@@ -51,9 +51,9 @@
 
 	function getPokemonSpritePath(id: number, isBack: boolean): string {
 		const entry = pokedex.entries.find((e) => e.id === id);
-		const name = entry?.name ?? 'pikachu';
-		const folder = isBack ? 'sprites-back' : 'sprites';
-		return `src/assets/monsters/static/${folder}/${name}.png`;
+		const name = entry?.spriteName ?? 'pikachu';
+		const folder = isBack ? 'ani-back' : 'ani';
+		return `src/assets/monsters/showdown/${folder}/${name}.gif`;
 	}
 
 	function createPosition(x: number, y: number): Position {

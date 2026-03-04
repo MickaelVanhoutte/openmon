@@ -19,3 +19,7 @@ vite.config.ts.timestamp-*
 .claude
 coverage/
 playwright-report/
+/src/assets/monsters/showdown/sheets/
+/src/assets/monsters/static/
+/src/assets/characts/tmp/
+/src/assets/data/raw/
