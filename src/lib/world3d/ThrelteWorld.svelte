@@ -29,6 +29,7 @@
 	import BattleWindStreaks3D from './BattleWindStreaks3D.svelte';
 	import LegendaryParticles3D from './LegendaryParticles3D.svelte';
 	import Decorations3D from './Decorations3D.svelte';
+	import BattleSprites3DContainer from './BattleSprites3DContainer.svelte';
 	import { getThrelteMap } from '$js/mapping/threlte-maps/threlte-map-registry';
 	import { getOrConvertMap } from '$js/mapping/threlte-maps/openmap-converter';
 	import { PROLOGUE_MAP_ID } from '$js/mapping/prologue-map';
@@ -368,6 +369,8 @@
 				{#if spawned}
 					<OverworldSpawn3D spawn={spawned} {mapData} />
 				{/if}
+			{:else}
+				<BattleSprites3DContainer {battleCtx} playerPosition={playerVisualPosition} />
 			{/if}
 		</Canvas>
 	</div>

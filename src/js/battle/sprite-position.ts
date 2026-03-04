@@ -124,8 +124,8 @@ export function getAttackPlatePositions(
 		y: spritePos.y + spritePos.height / 2
 	};
 
-	const horizontalOffset = spritePos.width * 0.7 + 80;
-	const verticalOffset = 50;
+	const horizontalOffset = spritePos.width * 0.9 + 90;
+	const verticalOffset = 70;
 
 	const leftX = spriteCenter.x - horizontalOffset;
 	const rightX = spriteCenter.x + horizontalOffset - 150;
