@@ -1,13 +1,6 @@
 <script lang="ts">
 	import { useThrelte, useTask } from '@threlte/core';
-	import {
-		EffectComposer,
-		RenderPass,
-		EffectPass,
-		TiltShiftEffect,
-		BlendFunction,
-		KernelSize
-	} from 'postprocessing';
+	import { EffectComposer, RenderPass } from 'postprocessing';
 
 	const { renderer, scene, camera, renderStage, autoRenderTask, size } = useThrelte();
 
@@ -18,24 +11,11 @@
 
 	// Create passes
 	const renderPass = new RenderPass(scene, $camera);
-	const tiltShiftEffect = new TiltShiftEffect({
-		blendFunction: BlendFunction.NORMAL,
-		offset: 0,
-		rotation: 0,
-		focusArea: 0.7,
-		feather: 0.3,
-		bias: 0.06,
-		kernelSize: KernelSize.SMALL
-	});
-	const effectPass = new EffectPass($camera, tiltShiftEffect);
-
 	composer.addPass(renderPass);
-	composer.addPass(effectPass);
 
 	// Handle camera changes
 	$effect(() => {
 		renderPass.mainCamera = $camera;
-		effectPass.mainCamera = $camera;
 	});
 
 	// Handle resize

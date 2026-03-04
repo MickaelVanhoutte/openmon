@@ -26,6 +26,10 @@ import mountainsImage from '../../assets/battle/mountains.png';
 
 	import { ComboMove, PokemonInstance } from '../../js/pokemons/pokedex';
 	import type { Move } from '../../js/pokemons/pokedex';
+	import { battleSpriteProxies, battleScreenPositions, battleSpriteVersion, type BattleScreenPositions } from '../../js/battle/animations/sprite-screen-positions';
+
+	// Feature flag: use 3D Billboard sprites instead of HTML img overlays
+	const use3DSprites = true;
 
 	interface Props {
 		context: GameContext;
@@ -65,6 +69,15 @@ import mountainsImage from '../../assets/battle/mountains.png';
 
 	let ranAway = false;
 	let entryAnimationsComplete = $state(false);
+
+	// 3D sprite screen positions for FloatingPokemonInfo (updated from store)
+	let screenPositions = $state<BattleScreenPositions>({ ally: [], opponent: [] });
+	let unsubScreenPositions: (() => void) | undefined;
+	if (use3DSprites) {
+		unsubScreenPositions = battleScreenPositions.subscribe((pos) => {
+			screenPositions = pos;
+		});
+	}
 	let resolveOpponentEntry: () => void = () => {};
 	const opponentEntryDone = new Promise<void>((resolve) => {
 		resolveOpponentEntry = resolve;
@@ -299,9 +312,12 @@ import mountainsImage from '../../assets/battle/mountains.png';
 	battleCtx.events.runnaway.subscribe((value) => {
 		if (value) {
 			ranAway = true;
-			animateRun(ally[0], 'ally', 0, gifsWrapper).then(() => {
-				animateRun(ally[1], 'ally', 1, gifsWrapper);
-			});
+			for (let i = 0; i < ally.length; i++) {
+				if (ally[i]) {
+					context.soundManager.playBattleSFX('recall');
+					animateSwitchOut(ally[i], 'ally', i, gifsWrapper);
+				}
+			}
 		}
 	});
 
@@ -640,94 +656,205 @@ import mountainsImage from '../../assets/battle/mountains.png';
 		}, 200);
 	}
 
+	// Wait for a proxy element to have valid screen dimensions (i.e., bound and synced)
+	function waitForProxyReady(el: HTMLElement, timeout = 5000): Promise<void> {
+		return new Promise((resolve) => {
+			const start = Date.now();
+			const check = () => {
+				const rect = el.getBoundingClientRect();
+				if (rect.width > 0 && rect.height > 0) {
+					resolve();
+				} else if (Date.now() - start > timeout) {
+					resolve(); // Give up waiting, proceed anyway
+				} else {
+					requestAnimationFrame(check);
+				}
+			};
+			requestAnimationFrame(check);
+		});
+	}
+
+	// 3D mode: subscribe to proxy store and drive entry animations
+	function init3DSprites(): (() => void) {
+		let oppEntryDone = false;
+		let allyEntryDone = false;
+
+		const unsub = battleSpriteProxies.subscribe((proxies) => {
+			// Always keep ally/opponent arrays up to date with latest proxy elements
+			// (needed for pokemon switches where proxies are recreated)
+			proxies.ally.forEach((el, idx) => {
+				if (el) ally[idx] = el as unknown as HTMLImageElement;
+			});
+			proxies.opponent.forEach((el, idx) => {
+				if (el) opponent[idx] = el as unknown as HTMLImageElement;
+			});
+
+			if (proxies.opponent.length > 0 && !oppEntryDone) {
+				oppEntryDone = true;
+				const entryPromises: Promise<gsap.core.Timeline>[] = [];
+
+				proxies.opponent.forEach((el, idx) => {
+					if (!el) return;
+
+					waitForProxyReady(el).then(() => {
+						const entryPromise = animateEntry(
+							el as unknown as HTMLImageElement,
+							'opponent',
+							idx,
+							false,
+							battleCtx.battleType === BattleType.DOUBLE,
+							battleCtx.isWild
+						);
+						entryPromises.push(entryPromise);
+
+						const validOpponents = proxies.opponent.filter(Boolean);
+						if (entryPromises.length === validOpponents.length) {
+							Promise.all(entryPromises).then(() => {
+								if (battleCtx.isWild) {
+									battleCtx.oppSide.forEach((pokemon) => {
+										if (pokemon) context.soundManager.playCry(pokemon.name);
+									});
+								}
+								resolveOpponentEntry();
+							});
+						}
+					});
+				});
+			}
+
+			if (proxies.ally.length > 0 && !allyEntryDone && oppEntryDone) {
+				allyEntryDone = true;
+
+				opponentEntryDone.then(() => {
+					const allyEntryPromises: Promise<gsap.core.Timeline>[] = [];
+
+					proxies.ally.forEach((el, idx) => {
+						if (!el) return;
+
+						waitForProxyReady(el).then(() => {
+							const entryPromise = animateEntry(
+								el as unknown as HTMLImageElement,
+								'ally',
+								idx,
+								false,
+								battleCtx.battleType === BattleType.DOUBLE,
+								false
+							);
+							allyEntryPromises.push(entryPromise);
+
+							const validAllies = proxies.ally.filter(Boolean);
+							if (allyEntryPromises.length === validAllies.length) {
+								Promise.all(allyEntryPromises).then(() => {
+									battleCtx.playerSide.forEach((pokemon) => {
+										if (pokemon) context.soundManager.playCry(pokemon.name);
+									});
+									entryAnimationsComplete = true;
+								});
+							}
+						});
+					});
+				});
+			}
+		});
+
+		return unsub;
+	}
+
 	onMount(() => {
 		// Initialize the new animation engine with the wrapper container (not scene which is z-index: 0)
 		initializeAnimationEngine(gifsWrapper);
 
+		let unsubProxies: (() => void) | undefined;
+
 		// set events
 		battleCtx.events.pokemonChange.subscribe(async (change) => {
 			if (change) {
-				const isFaintSwitch =
-					change.side === 'ally' ? allyFainted[change.idx] : opponentFainted[change.idx];
 				context.soundManager.playBattleSFX('recall');
 
 				if (change?.side === 'ally') {
 					const pokemon = battleCtx.playerSide[change?.idx];
 					if (pokemon && ally[change.idx]) {
-						// Switch-out animation BEFORE sprite swap
-						await animateSwitchOut(ally[change.idx], 'ally', change.idx, gifsWrapper);
-						// Set fainted to remove HP bar from DOM
-						allyFainted[change.idx] = true;
-						// Update sprite src
-						const newSrc = pokemon.getSprite(true);
-						ally[change.idx].onload = () => {
-							// Reset fainted state to show NEW HP bar
+						if (use3DSprites) {
+							// 3D mode: animate switch-out on proxy, then reset for re-entry
+							await animateSwitchOut(ally[change.idx], 'ally', change.idx, gifsWrapper);
+							allyFainted[change.idx] = true;
+							// Signal BattleSprites3DContainer to re-run reconciliation
+							battleSpriteVersion.update((v) => v + 1);
+							// Wait for the new proxy to be created and bound to a mesh
+							await new Promise((r) => setTimeout(r, 200));
+							// ally[change.idx] is now updated by the battleSpriteProxies subscription
 							allyFainted[change.idx] = false;
-							// Reset GSAP transforms from switch-out animation
-							gsap.set(ally[change.idx], {
-								x: 0,
-								y: 0,
-								filter: 'brightness(1)',
-								opacity: 1,
-								scale: 1,
-								transform: ''
-							});
-							// Animate entry after sprite loads
+							await waitForProxyReady(ally[change.idx]);
+							gsap.set(ally[change.idx], { x: 0, y: 0, filter: 'brightness(1)', opacity: 1, scale: 1, clearProps: 'transform' });
 							animateEntry(ally[change.idx], 'ally', change.idx, false, false, false).then(() => {
 								context.soundManager.playCry(pokemon.name);
 							});
-							// Update shadow position for new sprite
-							const allyFeetRatio = findFeetOffset(ally[change.idx]);
-							updateShadowPosition('ally', change.idx, allyFeetRatio);
-							// Update reactive name AFTER animation starts to trigger {#key} re-render
 							allyNames[change.idx] = pokemon.name;
-						};
-						// Force onload to fire even for cached images
-						ally[change.idx].src = '';
-						ally[change.idx].src = newSrc;
+						} else {
+							// HTML mode: swap img src
+							await animateSwitchOut(ally[change.idx], 'ally', change.idx, gifsWrapper);
+							allyFainted[change.idx] = true;
+							const newSrc = pokemon.getSprite(true);
+							ally[change.idx].onload = () => {
+								allyFainted[change.idx] = false;
+								gsap.set(ally[change.idx], {
+									x: 0, y: 0, filter: 'brightness(1)', opacity: 1, scale: 1, transform: ''
+								});
+								animateEntry(ally[change.idx], 'ally', change.idx, false, false, false).then(() => {
+									context.soundManager.playCry(pokemon.name);
+								});
+								const allyFeetRatio = findFeetOffset(ally[change.idx]);
+								updateShadowPosition('ally', change.idx, allyFeetRatio);
+								allyNames[change.idx] = pokemon.name;
+							};
+							ally[change.idx].src = '';
+							ally[change.idx].src = newSrc;
+						}
 					}
 				} else {
 					const pokemon = battleCtx.oppSide[change?.idx];
 					if (pokemon && opponent[change.idx]) {
-						// Switch-out animation BEFORE sprite swap
-						await animateSwitchOut(opponent[change.idx], 'opponent', change.idx, gifsWrapper);
-						// Set fainted to remove HP bar from DOM
-						opponentFainted[change.idx] = true;
-						// Update sprite src
-						const newSrc = pokemon.getSprite();
-						opponent[change.idx].onload = () => {
-							// Reset fainted state to show NEW HP bar
+						if (use3DSprites) {
+							await animateSwitchOut(opponent[change.idx], 'opponent', change.idx, gifsWrapper);
+							opponentFainted[change.idx] = true;
+							battleSpriteVersion.update((v) => v + 1);
+							await new Promise((r) => setTimeout(r, 200));
 							opponentFainted[change.idx] = false;
-							// Reset GSAP transforms from switch-out animation
-							gsap.set(opponent[change.idx], {
-								x: 0,
-								y: 0,
-								filter: 'brightness(1)',
-								opacity: 1,
-								scale: 1,
-								transform: ''
+							await waitForProxyReady(opponent[change.idx]);
+							gsap.set(opponent[change.idx], { x: 0, y: 0, filter: 'brightness(1)', opacity: 1, scale: 1, clearProps: 'transform' });
+							animateEntry(opponent[change.idx], 'opponent', change.idx, false, false, false).then(() => {
+								context.soundManager.playCry(pokemon.name);
 							});
-							// Animate entry after sprite loads
-							animateEntry(opponent[change.idx], 'opponent', change.idx, false, false, false).then(
-								() => {
-									context.soundManager.playCry(pokemon.name);
-								}
-							);
-							// Update shadow position for new sprite
-							const oppFeetRatio = findFeetOffset(opponent[change.idx]);
-							updateShadowPosition('opponent', change.idx, oppFeetRatio);
-							// Update reactive name AFTER animation starts to trigger {#key} re-render
 							oppNames[change.idx] = pokemon.name;
-						};
-						// Force onload to fire even for cached images
-						opponent[change.idx].src = '';
-						opponent[change.idx].src = newSrc;
+						} else {
+							await animateSwitchOut(opponent[change.idx], 'opponent', change.idx, gifsWrapper);
+							opponentFainted[change.idx] = true;
+							const newSrc = pokemon.getSprite();
+							opponent[change.idx].onload = () => {
+								opponentFainted[change.idx] = false;
+								gsap.set(opponent[change.idx], {
+									x: 0, y: 0, filter: 'brightness(1)', opacity: 1, scale: 1, transform: ''
+								});
+								animateEntry(opponent[change.idx], 'opponent', change.idx, false, false, false).then(() => {
+									context.soundManager.playCry(pokemon.name);
+								});
+								const oppFeetRatio = findFeetOffset(opponent[change.idx]);
+								updateShadowPosition('opponent', change.idx, oppFeetRatio);
+								oppNames[change.idx] = pokemon.name;
+							};
+							opponent[change.idx].src = '';
+							opponent[change.idx].src = newSrc;
+						}
 					}
 				}
 			}
 		});
 
-		draw();
+		if (use3DSprites) {
+			unsubProxies = init3DSprites();
+		} else {
+			draw();
+		}
 
 		function handleDebugKeydown(e: KeyboardEvent) {
 			if (e.key === 'x') {
@@ -741,6 +868,8 @@ import mountainsImage from '../../assets/battle/mountains.png';
 			context.soundManager.stopAll();
 			destroyAnimationEngine();
 			clearInterval(drawInterval);
+			unsubProxies?.();
+			unsubScreenPositions?.();
 			window.removeEventListener('keydown', handleDebugKeydown);
 		};
 	});
@@ -748,7 +877,9 @@ import mountainsImage from '../../assets/battle/mountains.png';
 
 <div class="battle" data-testid="battle-screen">
 	<div bind:this={gifsWrapper} class="wrapper">
-		<div class="battle-bg" style="background-image: url({battleCtx.battleBg === 'mountains' ? mountainsImage : beachesImage})"></div>
+		{#if !use3DSprites}
+			<div class="battle-bg" style="background-image: url({battleCtx.battleBg === 'mountains' ? mountainsImage : beachesImage})"></div>
+		{/if}
 
 		<WeatherOverlay
 			weather={currentWeather}
@@ -807,6 +938,7 @@ import mountainsImage from '../../assets/battle/mountains.png';
 				position={{ bottom: '66%', left: '62%' }}
 				isAlly={false}
 				spriteElement={opponent[0]}
+				screenPosition={use3DSprites ? screenPositions.opponent[0] ?? null : null}
 				entranceDelay={isInitialBattleEntrance ? uiEntranceDelays.opponentHp : 0}
 				visible={!opponentFainted[0]}
 				side="opponent"
@@ -821,6 +953,7 @@ import mountainsImage from '../../assets/battle/mountains.png';
 				position={{ bottom: '50%', left: '22%' }}
 				isAlly={true}
 				spriteElement={ally[0]}
+				screenPosition={use3DSprites ? screenPositions.ally[0] ?? null : null}
 				entranceDelay={isInitialBattleEntrance ? uiEntranceDelays.allyHp : 0}
 				visible={!allyFainted[0]}
 				side="ally"
@@ -837,6 +970,7 @@ import mountainsImage from '../../assets/battle/mountains.png';
 					position={{ bottom: '70%', left: '58%' }}
 					isAlly={false}
 					spriteElement={opponent[1]}
+					screenPosition={use3DSprites ? screenPositions.opponent[1] ?? null : null}
 					entranceDelay={isInitialBattleEntrance ? uiEntranceDelays.opponentHp : 0}
 					visible={!opponentFainted[1]}
 					side="opponent"
@@ -851,6 +985,7 @@ import mountainsImage from '../../assets/battle/mountains.png';
 					position={{ bottom: '56%', left: '8%' }}
 					isAlly={true}
 					spriteElement={ally[1]}
+					screenPosition={use3DSprites ? screenPositions.ally[1] ?? null : null}
 					entranceDelay={isInitialBattleEntrance ? uiEntranceDelays.allyHp : 0}
 					visible={!allyFainted[1]}
 					side="ally"

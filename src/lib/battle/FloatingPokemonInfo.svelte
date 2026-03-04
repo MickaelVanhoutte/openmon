@@ -16,6 +16,7 @@
 		showExpBar?: boolean;
 		expPercent?: number;
 		spriteElement?: HTMLElement | null;
+		screenPosition?: { x: number; y: number; width: number; height: number } | null;
 		visible?: boolean;
 		entranceDelay?: number;
 		side?: 'ally' | 'opponent';
@@ -29,6 +30,7 @@
 		showExpBar = false,
 		expPercent = 0,
 		spriteElement = null,
+		screenPosition = null,
 		visible = true,
 		entranceDelay = 0,
 		side = 'ally',
@@ -41,11 +43,16 @@
 		if (!containerElement) {
 			return;
 		}
+		// Reveal opacity via state variable (immune to Svelte style re-renders)
+		if (entranceDelay > 0) {
+			setTimeout(() => { panelOpacity = 1; }, entranceDelay);
+		} else {
+			panelOpacity = 1;
+		}
 		gsap.fromTo(
 			containerElement,
-			{ opacity: 0, y: -20, scale: 0.9 },
+			{ y: -20, scale: 0.9 },
 			{
-				opacity: 1,
 				y: 0,
 				scale: 1,
 				duration: 0.3,
@@ -137,6 +144,8 @@
 	let computedStyle = $state('');
 	let useComputedPosition = $state(false);
 	let spriteReady = $state(false);
+	// Track opacity via state so Svelte re-renders don't reset GSAP's value
+	let panelOpacity = $state(0);
 
 	// Check if sprite is ready for positioning (loaded, visible, animation complete, and has dimensions)
 	function isSpritePositioned(): boolean {
@@ -198,7 +207,22 @@
 	function updatePositionFromSprite() {
 		const widgetHeight = 80;
 		const widgetWidth = 180;
-		const gap = 16;
+		const gap = 48;
+
+		// 3D mode: use projected screen position directly
+		if (screenPosition && containerElement) {
+			const battleContainer = containerElement.closest('.battle') as HTMLElement | null;
+			if (!battleContainer) return;
+			const containerRect = battleContainer.getBoundingClientRect();
+
+			const top = screenPosition.y - containerRect.top - widgetHeight - gap;
+			let left = screenPosition.x - containerRect.left + screenPosition.width / 2 - widgetWidth / 2;
+			left = Math.max(20, Math.min(left, containerRect.width - widgetWidth - 20));
+
+			computedStyle = `top: ${top}px; left: ${left}px;`;
+			useComputedPosition = true;
+			return;
+		}
 
 		if (!spriteElement || !containerElement) return;
 		const battleContainer = spriteElement.closest('.battle') as HTMLElement | null;
@@ -247,7 +271,12 @@
 	}
 
 	onMount(() => {
-		if (spriteElement) {
+		if (screenPosition) {
+			// 3D mode: ready immediately, position from projected coords
+			spriteReady = true;
+			updatePositionFromSprite();
+			setTimeout(() => animateEntrance(), 50);
+		} else if (spriteElement) {
 			waitForSpritePosition();
 		}
 
@@ -261,7 +290,8 @@
 
 		function handleVisibilityChange() {
 			if (document.visibilityState === 'visible' && containerElement && spriteReady) {
-				gsap.set(containerElement, { opacity: 1, y: 0, scale: 1 });
+				panelOpacity = 1;
+				gsap.set(containerElement, { y: 0, scale: 1 });
 			}
 		}
 		document.addEventListener('visibilitychange', handleVisibilityChange);
@@ -274,7 +304,10 @@
 	});
 
 	$effect(() => {
-		if (spriteElement) {
+		if (screenPosition) {
+			// 3D mode: continuously update position from projected coords
+			if (spriteReady) updatePositionFromSprite();
+		} else if (spriteElement) {
 			spriteReady = false;
 			waitForSpritePosition();
 		}
@@ -331,14 +364,14 @@
 	}
 </script>
 
-{#if visible && (!spriteElement || spriteReady)}
+{#if visible && (screenPosition || !spriteElement || spriteReady)}
 	<div
 		bind:this={containerElement}
 		class="floating-pokemon-info spatial-panel"
 		data-testid={isAlly ? 'ally-pokemon-info' : 'opponent-pokemon-info'}
 		style="{useComputedPosition
 			? computedStyle
-			: `bottom: ${position.bottom}; left: ${position.left};`} opacity: 0;"
+			: `bottom: ${position.bottom}; left: ${position.left};`} opacity: {panelOpacity};"
 	>
 		<div class="info-header">
 			<span class="pokemon-name spatial-text"

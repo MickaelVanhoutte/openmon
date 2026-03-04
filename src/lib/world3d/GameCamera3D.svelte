@@ -148,8 +148,8 @@
 
 			if (battleActive) {
 				elapsedTime += delta;
-				swayOffset.y = Math.sin(elapsedTime * ((2 * Math.PI) / 5)) * 0.15;
-				swayOffset.x = Math.sin(elapsedTime * ((2 * Math.PI) / 8)) * 0.05;
+				swayOffset.y = Math.sin(elapsedTime * ((2 * Math.PI) / 8)) * 0.07;
+				swayOffset.x = Math.sin(elapsedTime * ((2 * Math.PI) / 12)) * 0.025;
 			} else {
 				elapsedTime = 0;
 				swayOffset.x = 0;
@@ -176,8 +176,8 @@
 			camera.position.z += (desiredZ - camera.position.z) * LERP_FACTOR;
 
 			camera.lookAt(
-				clampedX + lookAtOffset.x,
-				targetPosition.y + lookAtOffset.y,
+				clampedX + lookAtOffset.x + swayOffset.x * 0.5,
+				targetPosition.y + lookAtOffset.y + swayOffset.y * 0.5,
 				clampedZ + lookAtOffset.z
 			);
 		},

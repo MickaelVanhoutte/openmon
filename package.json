@@ -24,6 +24,7 @@
 		"generate:sprite-anchors": "node scripts/generate-sprite-anchors.mjs",
 		"extract:tiles": "node scripts/extract-tiles.mjs",
 		"copy:shiny-sprites": "node scripts/copy-shiny-sprites.mjs",
+		"build:sheets": "npx tsx scripts/convert-gifs-to-sheets.ts",
 		"graph": "npx depcruise src --include-only '^src' --no-config -T  dot | dot -T svg | npx depcruise-wrap-stream-in-html > dependency-graph.html && open dependency-graph.html"
 	},
 	"devDependencies": {
@@ -50,6 +51,7 @@
 		"image-size": "^2.0.2",
 		"jsdom": "^27.4.0",
 		"node-graphviz": "^0.1.1",
+		"omggif": "^1.0.10",
 		"pngjs": "^7.0.0",
 		"prettier": "^3.8.1",
 		"prettier-plugin-svelte": "^3.4.1",
