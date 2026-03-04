@@ -13,6 +13,8 @@
 	import Shop from '../common/Shop.svelte';
 	import MoveRelearner from '../common/MoveRelearner.svelte';
 	import { fade } from 'svelte/transition';
+	import AchievementNotification from '../common/AchievementNotification.svelte';
+	import type { AchievementUnlock } from '../../js/achievements/achievement-manager';
 
 	import InstancedTerrain from './InstancedTerrain.svelte';
 	import PlayerSprite3D from './PlayerSprite3D.svelte';
@@ -84,6 +86,7 @@
 	let wrapper: HTMLDivElement;
 	const canvasWidth: number = 1024;
 	let currentMessages: string[] = $state([]);
+	let currentAchievementUnlock: AchievementUnlock | undefined = $state(undefined);
 
 	// Dungeon minimap state - extract primitives to avoid same-reference $state reactivity issues
 	let isDungeonMode = $state(false);
@@ -259,6 +262,12 @@
 			currentMessages = value;
 		});
 
+		const unsubAchievement = context.achievementManager.unlocked$.subscribe((unlock) => {
+			if (unlock) {
+				currentAchievementUnlock = unlock;
+			}
+		});
+
 		// Poll plain class properties into reactive $state for Svelte 5 template reactivity
 		const pollInterval = setInterval(() => {
 			const newFollower = context.player.follower;
@@ -318,6 +327,7 @@
 		return () => {
 			clearInterval(pollInterval);
 			document.removeEventListener('keydown', handleChargeKeydown);
+			unsubAchievement();
 		};
 	});
 </script>
@@ -433,6 +443,16 @@
 				{/each}
 			</div>
 		{/if}
+	{/if}
+
+	{#if currentAchievementUnlock}
+		<AchievementNotification
+			unlock={currentAchievementUnlock}
+			onDismiss={() => {
+				currentAchievementUnlock = undefined;
+				context.achievementManager.dismissNotification();
+			}}
+		/>
 	{/if}
 </div>
 

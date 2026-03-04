@@ -31,6 +31,7 @@ import {
 } from './managers';
 
 import { DungeonContext, dungeonContext } from '../dungeon/dungeon-context';
+import { AchievementManager } from '../achievements/achievement-manager';
 import {
 	registerPrologueMap,
 	PROLOGUE_MAP_ID,
@@ -79,6 +80,8 @@ export class GameContext {
 	dungeonService: DungeonService;
 	mapService: MapService;
 	battleService: BattleService;
+
+	achievementManager: AchievementManager;
 
 	hasEvolutions: boolean = false;
 	spawned?: import('../characters/overworld-spawn').OverworldSpawn;
@@ -136,6 +139,12 @@ export class GameContext {
 		this.dungeonService = new DungeonService();
 		this.mapService = new MapService();
 		this.battleService = new BattleService();
+
+		// Initialize achievement system
+		this.achievementManager = new AchievementManager(
+			save.achievementStats,
+			save.achievementProgress
+		);
 
 		// Sync quest data from manager
 		this.questStates = this.questManager.questStates;
@@ -612,6 +621,10 @@ export class GameContext {
 				save.dungeonExplored = activeSave.dungeonExplored;
 			}
 		}
+
+		// Achievement system
+		save.achievementStats = { ...this.achievementManager.stats };
+		save.achievementProgress = this.achievementManager.state.exportForSave();
 
 		return save;
 	}

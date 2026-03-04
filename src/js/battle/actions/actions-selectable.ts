@@ -224,6 +224,11 @@ export class Attack implements ActionV2Interface {
 					slot.side
 				);
 
+				// Track player-side attack stats for achievements
+				if (slot.side === 'opponent') {
+					ctx.trackPlayerAttack(result);
+				}
+
 				if (this.move instanceof ComboMove) {
 					const move: ComboMove = this.move;
 
@@ -232,6 +237,9 @@ export class Attack implements ActionV2Interface {
 						(controller instanceof Player && controller?.comboJauge)
 					) {
 						controller.comboJauge.consume();
+						if (controller instanceof Player) {
+							ctx.playerCombosUsed++;
+						}
 					}
 
 					let comboDmgModifier = 0;
@@ -247,6 +255,10 @@ export class Attack implements ActionV2Interface {
 						0.5 + comboDmgModifier / 100,
 						slot.side
 					);
+
+					if (slot.side === 'opponent') {
+						ctx.trackPlayerAttack(result2);
+					}
 
 					actionsToPush.push(new PlayAnimation(this.move, tgt, this.initiator));
 

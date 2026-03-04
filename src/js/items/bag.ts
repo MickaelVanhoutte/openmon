@@ -9,6 +9,7 @@ export class Bag {
 	public revives: Record<number, number> = {};
 	public heldItems: Record<number, number> = {};
 	public money: number = 3000;
+	public itemsUsedCount: number = 0;
 
 	constructor(bag?: Bag) {
 		if (bag) {
@@ -31,6 +32,7 @@ export class Bag {
 				});
 			}
 			this.money = bag.money;
+			this.itemsUsedCount = bag.itemsUsedCount || 0;
 		}
 	}
 
@@ -79,6 +81,7 @@ export class Bag {
 	use(itemId: number, items: ItemsReferences, pokemonInstance?: PokemonInstance) {
 		const item = this.getItem(itemId, items);
 		if (item !== undefined && pokemonInstance !== undefined) {
+			this.itemsUsedCount++;
 			return item.apply(pokemonInstance);
 		}
 	}

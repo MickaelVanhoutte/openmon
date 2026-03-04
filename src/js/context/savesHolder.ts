@@ -8,6 +8,8 @@ import { get, writable, type Writable } from 'svelte/store';
 import { Flags, ObjectiveState, QuestState } from '../scripting/quests';
 import { QUESTS } from '../scripting/quests';
 import { loadSaves, persistSaves } from './save-storage';
+import type { PlayerStats } from '../achievements/player-stats';
+import type { AchievementProgress } from '../achievements/achievement-state';
 
 /**
  * One save in storage
@@ -43,6 +45,10 @@ export class SaveContext {
 	dungeonExplored?: number[]; // flat indices of visited minimap tiles on current floor
 	dungeonPlayerX?: number; // player grid X on current floor at last save
 	dungeonPlayerY?: number; // player grid Y on current floor at last save
+
+	// Achievement system (optional for backward compat with old saves)
+	achievementStats?: Partial<PlayerStats>;
+	achievementProgress?: [string, AchievementProgress][];
 
 	constructor(
 		id: number,

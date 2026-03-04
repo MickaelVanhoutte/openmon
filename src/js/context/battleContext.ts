@@ -62,6 +62,18 @@ export class BattleContext {
 	participants: Set<PokemonInstance> = new Set<PokemonInstance>();
 	leveledUpMonsterIds: Set<number> = new Set();
 
+	// Achievement tracking counters (player-side only)
+	playerCrits: number = 0;
+	playerSuperEffective: number = 0;
+	playerDamageDealt: number = 0;
+	playerCombosUsed: number = 0;
+
+	trackPlayerAttack(result: { critical?: boolean; superEffective?: boolean; damages?: number }): void {
+		if (result.critical) this.playerCrits++;
+		if (result.superEffective) this.playerSuperEffective++;
+		if (result.damages) this.playerDamageDealt += result.damages;
+	}
+
 	opponentTurnActions: ActionV2Interface[] = [];
 	playerTurnActions: ActionV2Interface[] = [];
 	actionStack: ActionStack = new ActionStack();

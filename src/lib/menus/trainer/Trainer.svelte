@@ -14,10 +14,13 @@
 	let optionsOpened = $state(false);
 	let tab = $state(0);
 
+	const TAB_COUNT = 4;
+
 	const tabs: Record<number, string> = {
 		0: 'CARD',
 		1: 'MASTERIES',
-		2: 'SETTINGS'
+		2: 'ACHIEVEMENTS',
+		3: 'SETTINGS'
 	};
 
 	function close() {
@@ -33,9 +36,9 @@
 		if (e.key === 'Escape') {
 			close();
 		} else if (e.key === 'ArrowRight') {
-			tab = (tab + 1) % 3;
+			tab = (tab + 1) % TAB_COUNT;
 		} else if (e.key === 'ArrowLeft') {
-			tab = (tab + 2) % 3;
+			tab = (tab + TAB_COUNT - 1) % TAB_COUNT;
 		}
 	};
 
@@ -56,15 +59,11 @@
 		<div class="nav-left">
 			<span class="brand">{context.player.name}</span>
 			<div class="tabs" role="tablist">
-				<button class:active={tab === 0} onclick={() => (tab = 0)} role="tab" aria-selected={tab === 0} type="button"
-					>{tabs[0]}</button
-				>
-				<button class:active={tab === 1} onclick={() => (tab = 1)} role="tab" aria-selected={tab === 1} type="button"
-					>{tabs[1]}</button
-				>
-				<button class:active={tab === 2} onclick={() => (tab = 2)} role="tab" aria-selected={tab === 2} type="button"
-					>{tabs[2]}</button
-				>
+				{#each Array(TAB_COUNT) as _, i}
+					<button class:active={tab === i} onclick={() => (tab = i)} role="tab" aria-selected={tab === i} type="button"
+						>{tabs[i]}</button
+					>
+				{/each}
 			</div>
 		</div>
 		<div class="nav-right">
@@ -86,6 +85,10 @@
 				<TrainerMastery {context} />
 			{/await}
 		{:else if tab === 2}
+			{#await import('./TrainerAchievements.svelte') then { default: TrainerAchievements }}
+				<TrainerAchievements {context} />
+			{/await}
+		{:else if tab === 3}
 			{#await import('./TrainerSettings.svelte') then { default: TrainerSettings }}
 				<TrainerSettings {context} />
 			{/await}
@@ -169,6 +172,7 @@
 				display: inline-flex;
 				color: white;
 				border: none;
+				font-size: 26px;
 
 				&.active {
 					color: #68c0c8;

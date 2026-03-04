@@ -170,6 +170,15 @@ export class DungeonService {
 
 		const previousMapId = 1000 + dungeonCtx.currentFloor;
 		dungeonCtx.advanceFloor();
+
+		// Achievement: track dungeon floor cleared & biomes visited
+		ctx.achievementManager.stats.dungeonFloorsCleared++;
+		const newBiomeIndex = Math.floor((dungeonCtx.currentFloor - 1) / 10);
+		if (newBiomeIndex + 1 > ctx.achievementManager.stats.biomesVisited) {
+			ctx.achievementManager.stats.biomesVisited = newBiomeIndex + 1;
+		}
+		ctx.achievementManager.checkAndNotify(ctx);
+
 		const floorData = this.generateFloorData(ctx, dungeonCtx);
 
 		clearThrelteMapCache(previousMapId);

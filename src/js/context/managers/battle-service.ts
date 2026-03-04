@@ -186,6 +186,61 @@ export class BattleService {
 				ctx.player.setFollower(result.caught);
 			}
 		}
+
+		// --- Achievement tracking ---
+		const am = ctx.achievementManager;
+
+		if (result.win) {
+			am.stats.battlesWon++;
+
+			if (opponent instanceof PokemonInstance && !result.caught) {
+				am.stats.wildKOs++;
+				const reward = Math.floor(opponent.level * 10 + 20);
+				am.stats.totalMoneyEarned += reward;
+			}
+
+			if (opponent instanceof NPC) {
+				am.stats.trainersBeaten++;
+			}
+		} else {
+			am.stats.battlesLost++;
+		}
+
+		if (result.caught) {
+			am.stats.totalCaught++;
+			const entry = ctx.POKEDEX.findById(result.caught.id)?.result;
+			if (entry?.isLegendary) {
+				am.stats.legendariesCaught++;
+			}
+			if (result.caught.isShiny) {
+				am.stats.shiniesCaught++;
+			}
+		}
+
+		// Track boss defeats
+		if (result.win && opponent instanceof NPC) {
+			const dc = get(dungeonContext);
+			if (dc?.isDungeonMode && dc?.isRunActive && dc.isFloorBoss(dc.currentFloor)) {
+				am.stats.bossesDefeated++;
+			}
+		}
+
+		// Track battle action stats from BattleContext counters
+		am.stats.criticalHitsLanded += battleContext.playerCrits ?? 0;
+		am.stats.superEffectiveHits += battleContext.playerSuperEffective ?? 0;
+		am.stats.totalDamageDealt += battleContext.playerDamageDealt ?? 0;
+		am.stats.combosUsed += battleContext.playerCombosUsed ?? 0;
+
+		// Track level ups from this battle
+		am.stats.totalLevelUps += battleContext.leveledUpMonsterIds.size;
+
+		// Update highest level across the party
+		const maxLvl = Math.max(...ctx.player.monsters.map((m) => m.level));
+		if (maxLvl > am.stats.highestLevel) {
+			am.stats.highestLevel = maxLvl;
+		}
+
+		am.checkAndNotify(ctx);
 	}
 
 	private async cleanupBattle(

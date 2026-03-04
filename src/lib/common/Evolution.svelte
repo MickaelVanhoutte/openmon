@@ -72,6 +72,8 @@
 					context.player.monsters[context.player.monsters.indexOf(poke)] = poke.evolve(
 						context.POKEDEX.findById(parseInt(poke?.evolution[0]?.id + '' || '0'))
 					);
+					context.achievementManager.stats.evolutionsTriggered++;
+					context.achievementManager.checkAndNotify(context);
 
 					setTimeout(() => {
 						circles.map((el) => (el.style.animation = ``));
