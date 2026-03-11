@@ -104,6 +104,12 @@ export function createTestBattleContext(options: TestContextOptions = {}): Battl
 		runAbilityEvent: vi.fn(),
 		runAbilityEventForAll: vi.fn(),
 		runItemEvent: vi.fn(),
+		runPerks: vi.fn().mockReturnValue({}),
+		trackPlayerAttack: vi.fn(),
+		playerCrits: 0,
+		playerSuperEffective: 0,
+		playerDamageDealt: 0,
+		playerCombosUsed: 0,
 		weatherVersion: {
 			update: vi.fn((cb) => cb(0))
 		},

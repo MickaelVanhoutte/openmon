@@ -48,6 +48,9 @@ function createExtendedCtx(overrides: Record<string, unknown> = {}) {
 	});
 	(ctx.player as any).monsters = [pokemon1];
 	(ctx.player as any).name = 'Player';
+	(ctx.player as any).hasPerk = vi.fn().mockReturnValue(false);
+	(ctx.player as any).getActivePerks = vi.fn().mockReturnValue([]);
+	(ctx.player as any).getMasteryBonus = vi.fn().mockReturnValue(0);
 	return ctx;
 }
 

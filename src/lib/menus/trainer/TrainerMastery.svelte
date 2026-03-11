@@ -1,9 +1,7 @@
 <script lang="ts">
-	import { Svg, SVG } from '@svgdotjs/svg.js';
-	import { gsap } from 'gsap';
-	import { defineHex, Direction, Grid, rectangle } from 'honeycomb-grid';
-	import { onMount } from 'svelte';
 	import type { GameContext } from '../../../js/context/gameContext';
+	import { getTrainerClass } from '../../../js/characters/trainer-class';
+	import { Mastery, MasteryType, MasteryGroup } from '../../../js/characters/mastery-model';
 	import Modal from '../../common/Modal.svelte';
 
 	interface Props {
@@ -11,373 +9,241 @@
 	}
 
 	const { context }: Props = $props();
-	let masteries: HTMLDivElement;
-	let expert: HTMLDivElement;
 	let showModal = $state(false);
-	let targetElement: any;
-	let currentNode: any | undefined = $state(undefined);
-	let currentTiles: any[];
-	let currentHex: any;
-	let currentGrid: Grid = $state();
+	let currentNode: Mastery | undefined = $state(undefined);
+	let animatingNodeKey: string | null = $state(null);
+	let tick = $state(0);
 
-	const pMasteries = $derived(context.player.playerMasteries);
+	const pMasteries = $derived((tick, context.player.playerMasteries));
 	const masteryPoints = $derived(pMasteries.points);
+	const classData = $derived(getTrainerClass(context.player.trainerClass));
+	const rankLabel = $derived(pMasteries.getRankLabel());
+	const expertUnlocked = $derived(pMasteries.isExpertUnlocked());
+	const capstoneUnlocked = $derived(pMasteries.isCapstoneUnlocked());
 
 	const initiateTiles = $derived(pMasteries.novice);
-	let initiateSvg: Svg;
-	let initiateGrid: Grid = $state();
 	const expertTiles = $derived(pMasteries.expert);
-	let expertSvg: Svg;
-	let expertGrid: Grid = $state();
 
-	let animating: boolean = $state(false);
+	interface MergedRow {
+		label: string;
+		colIdx: number;
+		noviceNodes: Mastery[];
+		expertNodes: Mastery[];
+	}
 
-	let count = 0;
+	function buildMergedRows(novice: Mastery[], expert: Mastery[]): MergedRow[] {
+		const rowMap = new Map<number, MergedRow>();
 
-	function renderSVG(hex: HexExpert, draw: SVG.Doc, tiles: any[], grid: Grid, expert = false) {
-		function isCurrentNeighborOfSetTile(hex: HexExpert, grid: Grid, tiles: any[]) {
-			return [
-				grid.neighborOf({ q: hex.q, r: hex.r }, Direction.NE, { allowOutside: false }),
-				grid.neighborOf({ q: hex.q, r: hex.r }, Direction.NW, { allowOutside: false }),
-				grid.neighborOf({ q: hex.q, r: hex.r }, Direction.E, { allowOutside: false }),
-				grid.neighborOf({ q: hex.q, r: hex.r }, Direction.W, { allowOutside: false }),
-				grid.neighborOf({ q: hex.q, r: hex.r }, Direction.SE, { allowOutside: false }),
-				grid.neighborOf({ q: hex.q, r: hex.r }, Direction.SW, { allowOutside: false })
-			]
-				.filter((neighbor) => !!neighbor)
-				.some((neighbor) => {
-					const neighborTile = tiles.find((t) => t.q === neighbor.q && t.r === neighbor.r);
-					if (neighborTile?.set) {
-						return true;
-					}
-				});
-		}
-
-		const tile = tiles.find((tile) => tile.q === hex.q && tile.r === hex.r);
-
-		// get highest y value
-		const highestY = Math.min(
-			hex.corners[0].y,
-			hex.corners[1].y,
-			hex.corners[2].y,
-			hex.corners[3].y,
-			hex.corners[4].y,
-			hex.corners[5].y
-		);
-		const lowestY = Math.max(
-			hex.corners[0].y,
-			hex.corners[1].y,
-			hex.corners[2].y,
-			hex.corners[3].y,
-			hex.corners[4].y,
-			hex.corners[5].y
-		);
-
-		const highestX = Math.min(
-			hex.corners[0].x,
-			hex.corners[1].x,
-			hex.corners[2].x,
-			hex.corners[3].x,
-			hex.corners[4].x,
-			hex.corners[5].x
-		);
-		const lowestX = Math.max(
-			hex.corners[0].x,
-			hex.corners[1].x,
-			hex.corners[2].x,
-			hex.corners[3].x,
-			hex.corners[4].x,
-			hex.corners[5].x
-		);
-
-		const width = Math.abs(lowestX - highestX);
-		const height = Math.abs(lowestY - highestY);
-
-		if (tile) {
-			const hasSetNeighbor = isCurrentNeighborOfSetTile(hex, grid, tiles);
-			const polygon = draw
-				// create a polygon from a hex's corner points
-				.polygon(hex.corners.map(({ x, y }) => `${x},${y}`))
-				.fill({ color: 'white', opacity: 0.8 })
-				.css('cursor', 'pointer')
-				.css('text-align', 'center')
-				.id(`hex-${hex.q}-${hex.r}`)
-				.stroke({ width: 2, color: '#04548f', opacity: 0.5 });
-
-			count += tile.cost;
-
-			if (!tile.set && !hasSetNeighbor && !tile.first) {
-				polygon.fill({ color: '#000', opacity: 0.5 });
-			} else if (!tile.set && hasSetNeighbor && !tile.first) {
-				if (expert && !initiateTiles.every((tile) => tile.set || tile.first)) {
-					polygon.fill({ color: '#000', opacity: 0.5 });
-				} else {
-					const gradient = draw
-						.gradient('linear', function (add) {
-							// add.stop({ offset: 0, color: '#000', opacity: 1 })   // -> first
-							add.stop({ offset: 0.75, color: '#000', opacity: 0.5 }); // -> second
-							add.stop({ offset: 0.75, color: '#FFF', opacity: 1 }); // -> third
-						})
-						.from(0, 0)
-						.to(1.2, 0.8);
-
-					polygon.fill(gradient);
-					//polygon.fill({color: '#000', opacity: 0.5});
-					tile.settable = true;
-				}
-			} else if (!tile.first) {
-				polygon.fill({ color: tile.color, opacity: 1 });
+		for (const tile of novice) {
+			if (tile.first) continue;
+			if (!rowMap.has(tile.q)) {
+				rowMap.set(tile.q, { label: tile.column || `Row ${tile.q}`, colIdx: tile.q, noviceNodes: [], expertNodes: [] });
 			}
+			rowMap.get(tile.q)!.noviceNodes.push(tile);
+		}
 
-			draw.group().add(polygon);
-
-			if (tile?.title) {
-				tile.title.split(' ').forEach((word, i) => {
-					draw
-						.text(word)
-						.id(`text-${hex.q}-${hex.r}-${i}`)
-						.move(hex.corners[0].x - width / 2, hex.corners[0].y - 14 + i * (height / 4))
-						.css('pointer-events', 'none')
-						.css('text-anchor', 'middle')
-						.css('transform', 'translate(100)')
-						//.css ('mix-blend-mode', 'difference')
-						.font({
-							family: 'pokemon',
-							fill: tile.set ? '#444' : tile.color,
-							size: width / 4,
-							weight: 'bold',
-							leading: 1
-						});
-				});
+		for (const tile of expert) {
+			if (tile.first) continue;
+			if (!rowMap.has(tile.q)) {
+				rowMap.set(tile.q, { label: tile.column || `Row ${tile.q}`, colIdx: tile.q, noviceNodes: [], expertNodes: [] });
 			}
+			rowMap.get(tile.q)!.expertNodes.push(tile);
 		}
-		return;
+
+		const rows = Array.from(rowMap.values()).sort((a, b) => a.colIdx - b.colIdx);
+		for (const row of rows) {
+			row.noviceNodes.sort((a, b) => a.r - b.r);
+			row.expertNodes.sort((a, b) => a.r - b.r);
+		}
+		return rows;
 	}
 
-	function openModal(tile?: any, tiles: any[], target: any, hex: any, grid: Grid): any {
-		if (tile && !tile.first && !animating) {
-			currentNode = tile;
-			currentTiles = tiles;
-			showModal = true;
-			targetElement = target;
-			currentHex = hex;
-			currentGrid = grid;
-		}
+	const mergedRows = $derived(buildMergedRows(initiateTiles, expertTiles));
+
+	function isPerkNode(tile: any): boolean {
+		return tile?.type === MasteryType.PERK;
 	}
 
-	function drawGrid(draw: Svg, grid: Grid, tiles: any[], expert: boolean = false, lastHex?: any) {
-		draw.clear();
-		grid
-			.filter((hex) => !lastHex || !(lastHex.q === hex.q && lastHex.r === hex.r))
-			.forEach((hex) => renderSVG(hex, draw, tiles, grid, expert));
-		if (lastHex) {
-			renderSVG(lastHex, draw, tiles, grid, expert);
-		}
+	function isCapstoneNode(tile: any): boolean {
+		return tile?.perkId?.endsWith('-capstone') ||
+			tile?.perkId === 'brs-unstoppable' ||
+			tile?.perkId === 'med-miracle' ||
+			tile?.perkId === 'grd-unbreakable' ||
+			tile?.perkId === 'wtm-cataclysm' ||
+			tile?.perkId === 'str-mastermind' ||
+			tile?.perkId === 'brd-masterbreeder' ||
+			tile?.perkId === 'ace-grandmaster' ||
+			tile?.perkId === 'exp-fortune' ||
+			tile?.cost === 5;
 	}
 
-	function setNode(tile: any, tiles: any[]) {
-		animating = true;
-		const svgId = initiateTiles === tiles ? 'initiate' : 'expert';
-		tiles === initiateTiles
-			? drawGrid(initiateSvg, initiateGrid, initiateTiles, false, currentHex)
-			: drawGrid(expertSvg, expertGrid, expertTiles, true, currentHex);
+	function hasSetNeighbor(node: Mastery, tiles: Mastery[]): boolean {
+		return tiles.some(t =>
+			t.q === node.q &&
+			(t.r === node.r - 1 || t.r === node.r + 1) &&
+			t.set
+		);
+	}
+
+	function isNodeSettable(node: Mastery): boolean {
+		if (node.set || node.first) return false;
+		const sameGroupTiles = node.group === MasteryGroup.NOVICE ? initiateTiles : expertTiles;
+		if (hasSetNeighbor(node, sameGroupTiles)) return true;
+		if (node.group === MasteryGroup.EXPERT && node.r === 0) {
+			const noviceInCol = initiateTiles.filter(t => t.q === node.q);
+			const lastNovice = noviceInCol[noviceInCol.length - 1];
+			if (lastNovice?.set) return true;
+		}
+		return false;
+	}
+
+	function canActivateNode(node: Mastery | undefined): boolean {
+		if (!node) return false;
+		if (node.set || node.first) return false;
+		if (!isNodeSettable(node)) return false;
+		if (masteryPoints < node.cost) return false;
+		if (node.group === MasteryGroup.EXPERT && !initiateTiles.every((tile) => tile.set || tile.first)) return false;
+		if (node.group === MasteryGroup.EXPERT && !expertUnlocked) return false;
+		if (isCapstoneNode(node) && !capstoneUnlocked) return false;
+		return true;
+	}
+
+	function handleNodeClick(node: Mastery) {
+		if (node.first) return;
+		currentNode = node;
+		showModal = true;
+	}
+
+	function setNode(tile: Mastery) {
 		showModal = false;
 		context.player.setMastery(tile);
 
-		const neighbors = [
-			currentGrid.neighborOf({ q: currentHex.q, r: currentHex.r }, Direction.NE, {
-				allowOutside: false
-			}),
-			currentGrid.neighborOf({ q: currentHex.q, r: currentHex.r }, Direction.NW, {
-				allowOutside: false
-			}),
-			currentGrid.neighborOf({ q: currentHex.q, r: currentHex.r }, Direction.E, {
-				allowOutside: false
-			}),
-			currentGrid.neighborOf({ q: currentHex.q, r: currentHex.r }, Direction.W, {
-				allowOutside: false
-			}),
-			currentGrid.neighborOf({ q: currentHex.q, r: currentHex.r }, Direction.SE, {
-				allowOutside: false
-			}),
-			currentGrid.neighborOf({ q: currentHex.q, r: currentHex.r }, Direction.SW, {
-				allowOutside: false
-			})
-		]
-			.filter((neighbor) => !!neighbor)
-			.filter((neighbor) => {
-				const neighborTile = tiles.find((t) => t.q === neighbor.q && t.r === neighbor.r);
-				return !neighborTile?.set && !neighborTile.settable;
-			})
-			.map((ng) => '#' + svgId + ' #hex-' + ng.q + '-' + ng.r);
-
-		const tl = gsap.timeline();
-
-		tl.to(
-			'#' + svgId + ' #hex-' + currentHex.q + '-' + currentHex.r,
-			{
-				scale: 1.3,
-				duration: 1,
-				repeat: 1,
-				transformOrigin: '50% 50%',
-				position: 'relative',
-				rotate: 180,
-				//fill: tile.color,
-				//fillOpacity: 1,
-				yoyo: true
-			},
-			'fx'
-		)
-			.to(
-				'#' + svgId + ' #hex-' + currentHex.q + '-' + currentHex.r,
-				{
-					//rotate: 360,
-					fill: tile.color,
-					fillOpacity: 1
-				},
-				'fx'
-			)
-			.to(
-				'#' + svgId + ' #text-' + currentHex.q + '-' + currentHex.r + '-0',
-				{
-					fill: '#444'
-				},
-				'fx'
-			)
-			.to(
-				'#' + svgId + ' #text-' + currentHex.q + '-' + currentHex.r + '-1',
-				{
-					fill: '#444'
-				},
-				'fx'
-			);
-		neighbors.forEach((ng) => {
-			tl.to(
-				ng,
-				{
-					duration: 0.5,
-					transformOrigin: '50% 50%',
-					scale: 0.85
-				},
-				'fx+1'
-			).to(
-				ng,
-				{
-					duration: 0.5,
-					transformOrigin: '50% 50%',
-					scale: 1
-				},
-				'fx+1.5'
-			);
-		});
-
-		neighbors.forEach((ng) => {});
-		tl.play().then(() => {
-			if (tile.group == 'novice') {
-				drawGrid(initiateSvg, initiateGrid, initiateTiles, false);
-				animating = false;
-
-				if (initiateTiles.every((tile) => tile.set || tile.first)) {
-					const firstExp = expertTiles.find((tile) => tile.first);
-					currentGrid = expertGrid;
-					currentHex = expertGrid.getHex({ q: firstExp?.q, r: firstExp?.r });
-					setNode(firstExp, expertTiles);
+		if (tile.group === MasteryGroup.NOVICE) {
+			const freshNovice = context.player.playerMasteries.novice;
+			if (freshNovice.every((t) => t.set || t.first)) {
+				const firstExp = context.player.playerMasteries.expert.find((t) => t.first);
+				if (firstExp && !firstExp.set) {
+					context.player.setMastery(firstExp);
 				}
-			} else {
-				drawGrid(expertSvg, expertGrid, expertTiles, true);
-				animating = false;
 			}
-		});
+		}
+
+		tick++;
+		animatingNodeKey = `${tile.q}-${tile.r}-${tile.group}`;
+		setTimeout(() => { animatingNodeKey = null; }, 600);
 	}
-
-	onMount(() => {
-		// INITIATE
-		initiateSvg = SVG().addTo(masteries).size('100%', '100%').id('initiate').css('zIndex', '-1');
-		const Hex = defineHex({
-			dimensions: masteries.getBoundingClientRect().width / 28.4,
-			origin: 'topLeft'
-		});
-		initiateGrid = new Grid(Hex, rectangle({ width: 16, height: 1 }));
-
-		drawGrid(initiateSvg, initiateGrid, initiateTiles, false);
-
-		function handleMasteriesClick({ target, offsetX, offsetY }: MouseEvent) {
-			const hex = initiateGrid.pointToHex({ x: offsetX, y: offsetY }, { allowOutside: false });
-			openModal(
-				initiateTiles.find((tile) => tile.q === hex.q && tile.r === hex.r),
-				initiateTiles,
-				target,
-				hex,
-				initiateGrid
-			);
-		}
-		function handleMasteriesTouch({ target, offsetX, offsetY }: MouseEvent) {
-			const hex = initiateGrid.pointToHex({ x: offsetX, y: offsetY }, { allowOutside: false });
-			openModal(
-				initiateTiles.find((tile) => tile.q === hex.q && tile.r === hex.r),
-				initiateTiles,
-				target,
-				hex,
-				initiateGrid
-			);
-		}
-
-		masteries.addEventListener('click', handleMasteriesClick);
-		masteries.addEventListener('touch', handleMasteriesTouch);
-
-		// EXPERT
-		expertSvg = SVG().addTo(expert).id('expert').size('100%', '100%');
-		const Hex2 = defineHex({
-			dimensions: expert.getBoundingClientRect().width / 26.5,
-			origin: 'topLeft'
-		});
-		expertGrid = new Grid(Hex2, rectangle({ width: 15, height: 4 }));
-		drawGrid(expertSvg, expertGrid, expertTiles, true);
-		function handleExpertClick({ target, offsetX, offsetY }: MouseEvent) {
-			const hex = expertGrid.pointToHex({ x: offsetX, y: offsetY }, { allowOutside: false });
-			openModal(
-				expertTiles.find((tile) => tile.q === hex.q && tile.r === hex.r),
-				expertTiles,
-				target,
-				hex,
-				expertGrid
-			);
-		}
-		function handleExpertTouch({ target, offsetX, offsetY }: MouseEvent) {
-			const hex = expertGrid.pointToHex({ x: offsetX, y: offsetY }, { allowOutside: false });
-			openModal(
-				expertTiles.find((tile) => tile.q === hex.q && tile.r === hex.r),
-				expertTiles,
-				target,
-				hex,
-				expertGrid
-			);
-		}
-
-		expert.addEventListener('click', handleExpertClick);
-		expert.addEventListener('touch', handleExpertTouch);
-
-		return () => {
-			masteries.removeEventListener('click', handleMasteriesClick);
-			masteries.removeEventListener('touch', handleMasteriesTouch);
-			expert.removeEventListener('click', handleExpertClick);
-			expert.removeEventListener('touch', handleExpertTouch);
-		};
-	});
 </script>
 
-<div class="offset"></div>
-<div class="masteries" bind:this={masteries}></div>
-<div class="expert" bind:this={expert}></div>
+<div class="header-bar">
+	<span class="class-name">{classData?.name ?? 'Trainer'}</span>
+	<span class="rank-badge">{rankLabel}</span>
+	<span class="level-info">Lv. {pMasteries.level}</span>
+	<div class="xp-bar">
+		<div class="xp-fill" style="width: {pMasteries.xpToNextLevel > 0 ? (pMasteries.exp / pMasteries.xpToNextLevel) * 100 : 0}%"></div>
+	</div>
+	<span class="points">{masteryPoints} pts</span>
+</div>
 
-<span class="points">
-	{masteryPoints} points
-</span>
+<div class="tree-grid">
+	{#each mergedRows as row (row.colIdx)}
+		<div class="tree-row">
+			<span class="row-label">{row.label}</span>
+
+			<!-- Novice nodes -->
+			<div class="row-nodes novice-side">
+				{#each row.noviceNodes as node, nodeIdx (`n-${node.q}-${node.r}`)}
+					{@const settable = isNodeSettable(node)}
+					{@const isPerk = isPerkNode(node) && !isCapstoneNode(node)}
+					{@const isCapstone = isCapstoneNode(node)}
+
+					{#if nodeIdx > 0}
+						<div class="connector-h" class:active={row.noviceNodes[nodeIdx - 1].set}></div>
+					{/if}
+
+					<button
+						class="tree-node"
+						class:active={node.set}
+						class:settable={settable}
+						class:locked={!node.set && !settable}
+						class:perk={isPerk}
+						class:capstone={isCapstone}
+						class:animating={animatingNodeKey === `${node.q}-${node.r}-${node.group}`}
+						style="--node-color: {node.color}"
+						onclick={() => handleNodeClick(node)}
+					>
+						{#if isPerk || isCapstone}
+							<span class="node-icon">{isCapstone ? '★' : '◆'}</span>
+						{/if}
+						<span class="node-title">{node.title}</span>
+					</button>
+				{/each}
+			</div>
+
+			<!-- Vertical divider -->
+			<div class="tier-divider-v"></div>
+
+			<!-- Expert nodes -->
+			<div class="row-nodes expert-side" class:locked-side={!expertUnlocked}>
+				{#each row.expertNodes as node, nodeIdx (`e-${node.q}-${node.r}`)}
+					{@const settable = isNodeSettable(node)}
+					{@const isExpertLocked = !expertUnlocked}
+					{@const isCapstoneLocked = isCapstoneNode(node) && !capstoneUnlocked}
+					{@const isLocked = isExpertLocked || isCapstoneLocked}
+					{@const isPerk = isPerkNode(node) && !isCapstoneNode(node)}
+					{@const isCapstone = isCapstoneNode(node)}
+
+					{#if nodeIdx > 0}
+						<div class="connector-h" class:active={row.expertNodes[nodeIdx - 1].set}></div>
+					{/if}
+
+					<button
+						class="tree-node"
+						class:active={node.set}
+						class:settable={settable && !isLocked}
+						class:locked={isLocked || (!node.set && !settable)}
+						class:perk={isPerk}
+						class:capstone={isCapstone}
+						class:animating={animatingNodeKey === `${node.q}-${node.r}-${node.group}`}
+						style="--node-color: {node.color}"
+						onclick={() => handleNodeClick(node)}
+					>
+						{#if isPerk || isCapstone}
+							<span class="node-icon">{isCapstone ? '★' : '◆'}</span>
+						{/if}
+						<span class="node-title">{node.title}</span>
+					</button>
+				{/each}
+			</div>
+		</div>
+	{/each}
+
+	<!-- Divider label -->
+	<div class="divider-label">
+		{#if !expertUnlocked}
+			<span class="tier-lock">Adept rank</span>
+		{/if}
+	</div>
+</div>
+
+{#if pMasteries.activePerks.length > 0}
+	<div class="active-perks">
+		{#each pMasteries.activePerks as perk}
+			<span class="perk-pip" title={perk.definition.name + ': ' + perk.definition.description}>
+				{perk.definition.name}
+			</span>
+		{/each}
+	</div>
+{/if}
 
 <Modal bind:showModal>
-	<h3 slot="header" style="margin: 2% 0">
-		{currentNode?.title}
-	</h3>
+	{#snippet header()}
+		<h3 style="margin: 2% 0">
+			{currentNode?.title}
+			{#if isPerkNode(currentNode)}
+				<span class="perk-tag">{isCapstoneNode(currentNode) ? 'CAPSTONE' : 'PERK'}</span>
+			{/if}
+		</h3>
+	{/snippet}
 
 	<p style="margin: 0">
 		cost : {currentNode?.cost}
@@ -387,55 +253,279 @@
 	<p style="margin: 0">
 		{currentNode?.description}
 	</p>
+
+	{#if isCapstoneNode(currentNode) && !capstoneUnlocked}
+		<p class="lock-msg">Requires Master rank (Lv. 40)</p>
+	{/if}
 	<hr />
 	<button
 		class="button primary"
-		disabled={!currentNode?.settable ||
-			masteryPoints < currentNode?.cost ||
-			(currentGrid === expertGrid && !initiateTiles.every((tile) => tile.set || tile.first))}
+		disabled={!canActivateNode(currentNode)}
 		onclick={() => {
-			setNode(currentNode, currentTiles);
+			if (currentNode) setNode(currentNode);
 		}}>Activate</button
 	>
 </Modal>
 
 <style lang="scss">
-	.offset {
-		//height: 2dvh;
-		width: 100%;
-	}
-	.masteries {
-		width: 100dvw;
-		height: calc(100dvw / 10);
-		//padding: 1%;
-		//margin-top: 1%;
-		margin-left: 1%;
-		overflow: visible;
+	.header-bar {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		padding: 4px 12px;
+		font-size: 16px;
+
+		.class-name {
+			font-weight: bold;
+			font-size: 20px;
+		}
+
+		.rank-badge {
+			background: #E8A87C;
+			color: #1a1a2e;
+			padding: 1px 8px;
+			border-radius: 4px;
+			font-size: 13px;
+			font-weight: bold;
+		}
+
+		.level-info {
+			font-size: 14px;
+			opacity: 0.8;
+		}
+
+		.xp-bar {
+			flex: 1;
+			height: 6px;
+			background: rgba(255, 255, 255, 0.2);
+			border-radius: 3px;
+			overflow: hidden;
+			max-width: 120px;
+
+			.xp-fill {
+				height: 100%;
+				background: #68c0c8;
+				border-radius: 3px;
+				transition: width 0.3s;
+			}
+		}
+
+		.points {
+			margin-left: auto;
+			font-size: 18px;
+			font-weight: bold;
+			color: #68c0c8;
+		}
 	}
 
-	:global(.masteries svg) {
-		overflow: visible;
-		z-index: -1;
+	.tree-grid {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		padding: 8px 12px;
+		gap: 6px;
+		position: relative;
+		overflow-x: auto;
 	}
-	.expert {
-		width: 100dvw;
-		height: calc(100dvh - 15dvh - 46px);
-		overflow: visible;
+
+	.tree-row {
+		display: flex;
+		align-items: center;
+		gap: 0;
+		min-width: fit-content;
 	}
-	:global(.expert svg) {
-		overflow: visible;
-		z-index: -1;
+
+	.row-label {
+		font-size: 11px;
+		color: #E8A87C;
+		width: 56px;
+		min-width: 56px;
+		text-align: right;
+		padding-right: 8px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		font-weight: bold;
 	}
-	.points {
+
+	.row-nodes {
+		display: flex;
+		align-items: center;
+		gap: 0;
+		flex: 1;
+		min-width: 0;
+	}
+
+	.tier-divider-v {
+		width: 2px;
+		align-self: stretch;
+		background: #E8A87C;
+		margin: 0 6px;
+		opacity: 0.6;
+	}
+
+	.divider-label {
 		position: absolute;
-		bottom: 0;
+		top: 0;
+		left: 0;
 		right: 0;
-		padding: 8px;
-		font-size: 32px;
-		color: white;
-		text-shadow: 1px 1px 1px black;
+		display: flex;
+		justify-content: center;
+		pointer-events: none;
+
+		.tier-lock {
+			font-size: 10px;
+			color: #E8A87C;
+			background: #0e2742;
+			padding: 0 6px;
+		}
 	}
+
+	.locked-side {
+		opacity: 0.45;
+	}
+
+	.tree-node {
+		min-width: 52px;
+		height: 34px;
+		flex-shrink: 0;
+		border-radius: 5px;
+		border: 2px solid #04548f;
+		background: rgba(255, 255, 255, 0.08);
+		color: #fff;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-family: inherit;
+		font-size: 9px;
+		padding: 1px 4px;
+		transition: transform 0.2s, background 0.3s, border-color 0.3s;
+		position: relative;
+		white-space: nowrap;
+
+		&.active {
+			background: var(--node-color);
+			color: #333;
+			border-color: var(--node-color);
+		}
+
+		&.settable {
+			background: linear-gradient(135deg, rgba(0,0,0,0.5) 75%, rgba(255,255,255,1) 75%);
+			cursor: pointer;
+			&:hover {
+				transform: scale(1.05);
+			}
+		}
+
+		&.locked {
+			opacity: 0.45;
+			cursor: default;
+		}
+
+		&.perk {
+			border-color: #E8A87C;
+			border-width: 2px;
+		}
+
+		&.capstone {
+			border-color: #FF6B6B;
+			border-width: 2px;
+		}
+
+		&.animating {
+			animation: node-activate 0.6s ease-out;
+		}
+	}
+
+	.connector-h {
+		width: 4px;
+		height: 2px;
+		background: #04548f;
+		opacity: 0.4;
+		flex-shrink: 0;
+
+		&.active {
+			background: #68c0c8;
+			opacity: 1;
+		}
+	}
+
+	.node-title {
+		font-weight: bold;
+		text-align: center;
+		line-height: 1.1;
+	}
+
+	.node-icon {
+		margin-right: 2px;
+		font-size: 9px;
+	}
+
+	@keyframes node-activate {
+		0% { transform: scale(1); }
+		50% { transform: scale(1.15); }
+		100% { transform: scale(1); }
+	}
+
+	.active-perks {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 3px;
+		padding: 2px 8px;
+		justify-content: flex-end;
+
+		.perk-pip {
+			background: rgba(232, 168, 124, 0.3);
+			border: 1px solid #E8A87C;
+			color: #E8A87C;
+			padding: 1px 6px;
+			border-radius: 3px;
+			font-size: 10px;
+			cursor: help;
+		}
+	}
+
+	.perk-tag {
+		font-size: 12px;
+		background: #E8A87C;
+		color: #1a1a2e;
+		padding: 1px 6px;
+		border-radius: 3px;
+		vertical-align: middle;
+		margin-left: 6px;
+	}
+
+	.lock-msg {
+		color: #FF6B6B;
+		font-size: 14px;
+		font-style: italic;
+	}
+
 	:global(.modal) {
 		min-width: 60%;
+	}
+
+	@media (max-width: 768px) {
+		.header-bar {
+			font-size: 14px;
+			gap: 6px;
+			.class-name { font-size: 16px; }
+			.rank-badge { font-size: 11px; }
+			.points { font-size: 14px; }
+		}
+
+		.row-label {
+			width: 40px;
+			min-width: 40px;
+			font-size: 8px;
+		}
+
+		.tree-node {
+			min-width: 36px;
+			height: 28px;
+			font-size: 7px;
+		}
 	}
 </style>

@@ -44,7 +44,10 @@ function createExtendedCtx(overrides: Record<string, unknown> = {}) {
 			battleEnded: false
 		},
 		player: {
-			monsters: [pokemon1]
+			monsters: [pokemon1],
+			hasPerk: vi.fn().mockReturnValue(false),
+			getActivePerks: vi.fn().mockReturnValue([]),
+			getMasteryBonus: vi.fn().mockReturnValue(0)
 		},
 		opponent: pokemon2,
 		isWild: true,
@@ -105,7 +108,7 @@ describe('Derived Actions', () => {
 
 			removeHp.execute(ctx as any);
 			expect(target.currentHp).toBe(70);
-			expect(ctx.checkFainted).toHaveBeenCalledWith(target, pokemon);
+			expect(ctx.checkFainted).toHaveBeenCalledWith(target, pokemon, 0);
 		});
 
 		it('should push Sleep(400) when HP drops to 0', () => {

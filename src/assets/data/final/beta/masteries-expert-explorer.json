@@ -1,0 +1,188 @@
+[
+    {
+        "q": 0, "r": 0, "column": "Discovery",
+        "cost": 0, "title": "", "description": "",
+        "color": "white", "set": true, "first": true, "settable": false,
+        "type": "start", "value": 0, "group": "expert"
+    },
+    {
+        "q": 0, "r": 1, "column": "Discovery",
+        "cost": 1, "title": "Catch +5%", "description": "Increase Pokeball catch rate by 5%",
+        "color": "#F7F6CF", "set": false, "first": false, "settable": false,
+        "type": "catch", "value": 5, "group": "expert"
+    },
+    {
+        "q": 0, "r": 2, "column": "Discovery",
+        "cost": 1, "title": "Acc 3%", "description": "Increase move accuracy by 3%",
+        "color": "#FDEFAB", "set": false, "first": false, "settable": false,
+        "type": "accuracy", "value": 3, "group": "expert"
+    },
+    {
+        "q": 0, "r": 3, "column": "Discovery",
+        "cost": 1, "title": "Catch +5%", "description": "Increase Pokeball catch rate by 5%",
+        "color": "#F7F6CF", "set": false, "first": false, "settable": false,
+        "type": "catch", "value": 5, "group": "expert"
+    },
+    {
+        "q": 0, "r": 4, "column": "Discovery",
+        "cost": 1, "title": "XP +5%", "description": "Increase experience gain by 5%",
+        "color": "#F7F6CF", "set": false, "first": false, "settable": false,
+        "type": "xp", "value": 5, "group": "expert"
+    },
+    {
+        "q": 0, "r": 5, "column": "Discovery",
+        "cost": 2, "title": "Catch +10%", "description": "Increase Pokeball catch rate by 10%",
+        "color": "#F7F6CF", "set": false, "first": false, "settable": false,
+        "type": "catch", "value": 10, "group": "expert"
+    },
+    {
+        "q": 0, "r": 6, "column": "Discovery",
+        "cost": 3, "title": "Scout's Eye", "description": "See wild Pokemon type indicators before battle starts.",
+        "color": "#E8A87C", "set": false, "first": false, "settable": false,
+        "type": "perk", "value": 0, "group": "expert", "perkId": "exp-scout"
+    },
+    {
+        "q": 0, "r": 7, "column": "Discovery",
+        "cost": 3, "title": "Quick Escape", "description": "You can always flee from wild battles (100% escape rate).",
+        "color": "#E8A87C", "set": false, "first": false, "settable": false,
+        "type": "perk", "value": 0, "group": "expert", "perkId": "exp-escape"
+    },
+    {
+        "q": 1, "r": 0, "column": "Fortune",
+        "cost": 1, "title": "Shiny +0.5%", "description": "Increase shiny encounter rate by 0.5%",
+        "color": "#E8D5F5", "set": false, "first": false, "settable": false,
+        "type": "shiny", "value": 0.5, "group": "expert"
+    },
+    {
+        "q": 1, "r": 1, "column": "Fortune",
+        "cost": 1, "title": "Shiny +0.5%", "description": "Increase shiny encounter rate by 0.5%",
+        "color": "#E8D5F5", "set": false, "first": false, "settable": false,
+        "type": "shiny", "value": 0.5, "group": "expert"
+    },
+    {
+        "q": 1, "r": 2, "column": "Fortune",
+        "cost": 1, "title": "Catch +5%", "description": "Increase Pokeball catch rate by 5%",
+        "color": "#F7F6CF", "set": false, "first": false, "settable": false,
+        "type": "catch", "value": 5, "group": "expert"
+    },
+    {
+        "q": 1, "r": 3, "column": "Fortune",
+        "cost": 1, "title": "Shiny +1%", "description": "Increase shiny encounter rate by 1%",
+        "color": "#E8D5F5", "set": false, "first": false, "settable": false,
+        "type": "shiny", "value": 1, "group": "expert"
+    },
+    {
+        "q": 1, "r": 4, "column": "Fortune",
+        "cost": 1, "title": "Acc 3%", "description": "Increase move accuracy by 3%",
+        "color": "#FDEFAB", "set": false, "first": false, "settable": false,
+        "type": "accuracy", "value": 3, "group": "expert"
+    },
+    {
+        "q": 1, "r": 5, "column": "Fortune",
+        "cost": 2, "title": "Shiny +1%", "description": "Increase shiny encounter rate by 1%",
+        "color": "#E8D5F5", "set": false, "first": false, "settable": false,
+        "type": "shiny", "value": 1, "group": "expert"
+    },
+    {
+        "q": 1, "r": 6, "column": "Fortune",
+        "cost": 3, "title": "Lucky Find", "description": "10% chance to find a bonus item after winning a wild battle.",
+        "color": "#E8A87C", "set": false, "first": false, "settable": false,
+        "type": "perk", "value": 0, "group": "expert", "perkId": "exp-lucky"
+    },
+    {
+        "q": 1, "r": 7, "column": "Fortune",
+        "cost": 3, "title": "Tracker", "description": "Shiny rate is doubled for Pokemon already registered in your Pokedex.",
+        "color": "#E8A87C", "set": false, "first": false, "settable": false,
+        "type": "perk", "value": 0, "group": "expert", "perkId": "exp-tracker"
+    },
+    {
+        "q": 1, "r": 8, "column": "Fortune",
+        "cost": 5, "title": "Fortune", "description": "Shiny rate tripled. Item drops guaranteed after boss fights.",
+        "color": "#FF6B6B", "set": false, "first": false, "settable": false,
+        "type": "perk", "value": 0, "group": "expert", "perkId": "exp-fortune"
+    },
+    {
+        "q": 2, "r": 0, "column": "Growth",
+        "cost": 1, "title": "XP +5%", "description": "Increase experience gain by 5%",
+        "color": "#F7F6CF", "set": false, "first": false, "settable": false,
+        "type": "xp", "value": 5, "group": "expert"
+    },
+    {
+        "q": 2, "r": 1, "column": "Growth",
+        "cost": 1, "title": "XP +5%", "description": "Increase experience gain by 5%",
+        "color": "#F7F6CF", "set": false, "first": false, "settable": false,
+        "type": "xp", "value": 5, "group": "expert"
+    },
+    {
+        "q": 2, "r": 2, "column": "Growth",
+        "cost": 1, "title": "EV +5%", "description": "Increase EV gain by 5%",
+        "color": "#F7F6CF", "set": false, "first": false, "settable": false,
+        "type": "ev", "value": 5, "group": "expert"
+    },
+    {
+        "q": 2, "r": 3, "column": "Growth",
+        "cost": 1, "title": "XP +5%", "description": "Increase experience gain by 5%",
+        "color": "#F7F6CF", "set": false, "first": false, "settable": false,
+        "type": "xp", "value": 5, "group": "expert"
+    },
+    {
+        "q": 2, "r": 4, "column": "Growth",
+        "cost": 1, "title": "EV +5%", "description": "Increase EV gain by 5%",
+        "color": "#F7F6CF", "set": false, "first": false, "settable": false,
+        "type": "ev", "value": 5, "group": "expert"
+    },
+    {
+        "q": 2, "r": 5, "column": "Growth",
+        "cost": 2, "title": "XP +10%", "description": "Increase experience gain by 10%",
+        "color": "#F7F6CF", "set": false, "first": false, "settable": false,
+        "type": "xp", "value": 10, "group": "expert"
+    },
+    {
+        "q": 2, "r": 6, "column": "Growth",
+        "cost": 3, "title": "Wanderer", "description": "+15% XP gained in unexplored dungeon floors.",
+        "color": "#E8A87C", "set": false, "first": false, "settable": false,
+        "type": "perk", "value": 0, "group": "expert", "perkId": "exp-wanderer"
+    },
+    {
+        "q": 3, "r": 0, "column": "Utility",
+        "cost": 1, "title": "Acc 3%", "description": "Increase move accuracy by 3%",
+        "color": "#FDEFAB", "set": false, "first": false, "settable": false,
+        "type": "accuracy", "value": 3, "group": "expert"
+    },
+    {
+        "q": 3, "r": 1, "column": "Utility",
+        "cost": 1, "title": "Acc 5%", "description": "Increase move accuracy by 5%",
+        "color": "#FDEFAB", "set": false, "first": false, "settable": false,
+        "type": "accuracy", "value": 5, "group": "expert"
+    },
+    {
+        "q": 3, "r": 2, "column": "Utility",
+        "cost": 1, "title": "Res 3%", "description": "Increase resistance to opponent move effects by 3%",
+        "color": "#D5E5E2", "set": false, "first": false, "settable": false,
+        "type": "resistance", "value": 3, "group": "expert"
+    },
+    {
+        "q": 3, "r": 3, "column": "Utility",
+        "cost": 1, "title": "Heal +2%", "description": "Increase healing effect by 2%",
+        "color": "#baffc9", "set": false, "first": false, "settable": false,
+        "type": "heal", "value": 2, "group": "expert"
+    },
+    {
+        "q": 3, "r": 4, "column": "Utility",
+        "cost": 1, "title": "Res 3%", "description": "Increase resistance to opponent move effects by 3%",
+        "color": "#D5E5E2", "set": false, "first": false, "settable": false,
+        "type": "resistance", "value": 3, "group": "expert"
+    },
+    {
+        "q": 3, "r": 5, "column": "Utility",
+        "cost": 2, "title": "Heal +3%", "description": "Increase healing effect by 3%",
+        "color": "#baffc9", "set": false, "first": false, "settable": false,
+        "type": "heal", "value": 3, "group": "expert"
+    },
+    {
+        "q": 3, "r": 6, "column": "Utility",
+        "cost": 1, "title": "Catch +5%", "description": "Increase Pokeball catch rate by 5%",
+        "color": "#F7F6CF", "set": false, "first": false, "settable": false,
+        "type": "catch", "value": 5, "group": "expert"
+    }
+]

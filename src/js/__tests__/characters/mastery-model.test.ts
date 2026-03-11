@@ -7,11 +7,13 @@ import {
 	Mastery
 } from '../../characters/mastery-model';
 import { EXPERIENCE_CHART } from '../../pokemons/experience';
+// Side-effect: register class trees so PlayerMasteries can load them
+import '../../characters/trainer-class';
 
 describe('MasteryType enum', () => {
-	it('should have 30 values', () => {
+	it('should have 26 values', () => {
 		const values = Object.values(MasteryType);
-		expect(values).toHaveLength(30);
+		expect(values).toHaveLength(26);
 	});
 
 	it('should contain core combat types', () => {
@@ -57,12 +59,8 @@ describe('MasteryType enum', () => {
 		expect(MasteryType.WEATHER_TURN_OPPONENT).toBe('wTurnOpp');
 	});
 
-	it('should contain HM types', () => {
-		expect(MasteryType.CUT).toBe('cut');
-		expect(MasteryType.FLY).toBe('fly');
-		expect(MasteryType.SURF).toBe('surf');
-		expect(MasteryType.STRENGTH).toBe('strength');
-		expect(MasteryType.ROCK_SMASH).toBe('rockSmash');
+	it('should contain PERK type', () => {
+		expect(MasteryType.PERK).toBe('perk');
 	});
 });
 
@@ -105,14 +103,6 @@ describe('MasteriesBonuses', () => {
 			expect(bonuses.comboJauge).toBe(0);
 			expect(bonuses.comboDamage).toBe(0);
 		});
-
-		it('should initialize HM bonuses to 0', () => {
-			expect(bonuses.cut).toBe(0);
-			expect(bonuses.fly).toBe(0);
-			expect(bonuses.surf).toBe(0);
-			expect(bonuses.strength).toBe(0);
-			expect(bonuses.rockSmash).toBe(0);
-		});
 	});
 
 	describe('enableMastery', () => {
@@ -153,15 +143,15 @@ describe('MasteriesBonuses', () => {
 	});
 
 	describe('constructor with custom values', () => {
-		it('should accept custom initial values', () => {
-			const custom = new MasteriesBonuses(5, 10, 15);
+		it('should accept custom initial values via Partial object', () => {
+			const custom = new MasteriesBonuses({ catch: 5, xp: 10, ev: 15 });
 			expect(custom.catch).toBe(5);
 			expect(custom.xp).toBe(10);
 			expect(custom.ev).toBe(15);
 		});
 
-		it('should default remaining params to 0', () => {
-			const custom = new MasteriesBonuses(1, 2);
+		it('should default remaining fields to 0', () => {
+			const custom = new MasteriesBonuses({ catch: 1, xp: 2 });
 			expect(custom.catch).toBe(1);
 			expect(custom.xp).toBe(2);
 			expect(custom.ev).toBe(0);
@@ -174,7 +164,7 @@ describe('PlayerMasteries', () => {
 	let masteries: PlayerMasteries;
 
 	beforeEach(() => {
-		masteries = new PlayerMasteries();
+		masteries = new PlayerMasteries('ace-trainer');
 	});
 
 	describe('constructor', () => {
@@ -231,6 +221,18 @@ describe('PlayerMasteries', () => {
 				expect(m.group).toBe(MasteryGroup.EXPERT);
 			});
 		});
+
+		it('should store classId', () => {
+			expect(masteries.classId).toBe('ace-trainer');
+		});
+
+		it('should start at Apprentice rank', () => {
+			expect(masteries.classRank).toBe(1);
+		});
+
+		it('should start with empty activePerks', () => {
+			expect(masteries.activePerks).toEqual([]);
+		});
 	});
 
 	describe('addExp', () => {
@@ -273,7 +275,7 @@ describe('PlayerMasteries', () => {
 			expect(masteries.level).toBe(2);
 			const xpForLevel2 = masteries.xpToNextLevel;
 
-			masteries = new PlayerMasteries();
+			masteries = new PlayerMasteries('ace-trainer');
 			masteries.addExp(xpForLevel1 + xpForLevel2);
 			expect(masteries.level).toBe(3);
 			expect(masteries.points).toBe(22);
@@ -467,6 +469,26 @@ describe('PlayerMasteries', () => {
 			expect(restored.bonuses).toBeInstanceOf(MasteriesBonuses);
 			expect(restored.novice[0]).toBeInstanceOf(Mastery);
 			expect(restored.level).toBe(masteries.level);
+		});
+
+		it('should restore classId and classRank', () => {
+			masteries.classRank = 3;
+			const restored = PlayerMasteries.fromInstance(masteries);
+			expect(restored.classId).toBe('ace-trainer');
+			expect(restored.classRank).toBe(3);
+		});
+
+		it('should restore activePerks', () => {
+			// Set a perk node if one exists in expert
+			const perkNode = masteries.expert.find((m) => m.type === MasteryType.PERK && m.perkId);
+			if (perkNode) {
+				masteries.points = 100;
+				perkNode.settable = true;
+				masteries.setMastery(perkNode);
+				expect(masteries.activePerks.length).toBeGreaterThan(0);
+				const restored = PlayerMasteries.fromInstance(masteries);
+				expect(restored.activePerks.length).toBe(masteries.activePerks.length);
+			}
 		});
 	});
 });

@@ -41,7 +41,6 @@ export default defineConfig({
 					if (id.includes('node_modules/@threlte/')) return 'threlte';
 					if (id.includes('node_modules/gsap/')) return 'gsap';
 					if (id.includes('node_modules/chart.js/') || id.includes('node_modules/chartjs')) return 'chartjs';
-					if (id.includes('node_modules/@svgdotjs/') || id.includes('node_modules/honeycomb-grid/')) return 'mastery';
 					if (
 						id.includes('node_modules/@abraham/') ||
 						id.includes('node_modules/howler/') ||

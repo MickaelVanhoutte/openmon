@@ -1,0 +1,188 @@
+[
+    {
+        "q": 0, "r": 0, "column": "Sun & Rain",
+        "cost": 0, "title": "", "description": "",
+        "color": "white", "set": true, "first": true, "settable": false,
+        "type": "start", "value": 0, "group": "expert"
+    },
+    {
+        "q": 0, "r": 1, "column": "Sun & Rain",
+        "cost": 1, "title": "Sun +1", "description": "Increase sun weather duration by 1 turn for allies",
+        "color": "#40E0D0", "set": false, "first": false, "settable": false,
+        "type": "weatherSun", "value": 1, "group": "expert"
+    },
+    {
+        "q": 0, "r": 2, "column": "Sun & Rain",
+        "cost": 1, "title": "Rain +1", "description": "Increase rain weather duration by 1 turn for allies",
+        "color": "#40E0D0", "set": false, "first": false, "settable": false,
+        "type": "weatherRain", "value": 1, "group": "expert"
+    },
+    {
+        "q": 0, "r": 3, "column": "Sun & Rain",
+        "cost": 1, "title": "Sun +1", "description": "Increase sun weather duration by 1 turn for allies",
+        "color": "#40E0D0", "set": false, "first": false, "settable": false,
+        "type": "weatherSun", "value": 1, "group": "expert"
+    },
+    {
+        "q": 0, "r": 4, "column": "Sun & Rain",
+        "cost": 1, "title": "Rain +1", "description": "Increase rain weather duration by 1 turn for allies",
+        "color": "#40E0D0", "set": false, "first": false, "settable": false,
+        "type": "weatherRain", "value": 1, "group": "expert"
+    },
+    {
+        "q": 0, "r": 5, "column": "Sun & Rain",
+        "cost": 2, "title": "Ally Weather +1", "description": "Increase ally weather duration by 1 turn",
+        "color": "#40E0D0", "set": false, "first": false, "settable": false,
+        "type": "weatherTurnAlly", "value": 1, "group": "expert"
+    },
+    {
+        "q": 0, "r": 6, "column": "Sun & Rain",
+        "cost": 3, "title": "Storm Surge", "description": "Weather matching your lead Pokemon type auto-activates for 3 turns at battle start.",
+        "color": "#E8A87C", "set": false, "first": false, "settable": false,
+        "type": "perk", "value": 0, "group": "expert", "perkId": "wtm-stormsurge"
+    },
+    {
+        "q": 0, "r": 7, "column": "Sun & Rain",
+        "cost": 3, "title": "Climate Control", "description": "Opponent cannot change weather for 2 turns after you set it.",
+        "color": "#E8A87C", "set": false, "first": false, "settable": false,
+        "type": "perk", "value": 0, "group": "expert", "perkId": "wtm-climatecontrol"
+    },
+    {
+        "q": 1, "r": 0, "column": "Sand & Hail",
+        "cost": 1, "title": "Sand +1", "description": "Increase sandstorm weather duration by 1 turn for allies",
+        "color": "#40E0D0", "set": false, "first": false, "settable": false,
+        "type": "weatherSand", "value": 1, "group": "expert"
+    },
+    {
+        "q": 1, "r": 1, "column": "Sand & Hail",
+        "cost": 1, "title": "Hail +1", "description": "Increase hail weather duration by 1 turn for allies",
+        "color": "#40E0D0", "set": false, "first": false, "settable": false,
+        "type": "weatherHail", "value": 1, "group": "expert"
+    },
+    {
+        "q": 1, "r": 2, "column": "Sand & Hail",
+        "cost": 1, "title": "Sand +1", "description": "Increase sandstorm weather duration by 1 turn for allies",
+        "color": "#40E0D0", "set": false, "first": false, "settable": false,
+        "type": "weatherSand", "value": 1, "group": "expert"
+    },
+    {
+        "q": 1, "r": 3, "column": "Sand & Hail",
+        "cost": 1, "title": "Hail +1", "description": "Increase hail weather duration by 1 turn for allies",
+        "color": "#40E0D0", "set": false, "first": false, "settable": false,
+        "type": "weatherHail", "value": 1, "group": "expert"
+    },
+    {
+        "q": 1, "r": 4, "column": "Sand & Hail",
+        "cost": 1, "title": "Opp Weather -1", "description": "Reduce opponent weather duration by 1 turn",
+        "color": "#40E0D0", "set": false, "first": false, "settable": false,
+        "type": "weatherTurnOpponent", "value": 1, "group": "expert"
+    },
+    {
+        "q": 1, "r": 5, "column": "Sand & Hail",
+        "cost": 2, "title": "Opp Weather -1", "description": "Reduce opponent weather duration by 1 turn",
+        "color": "#40E0D0", "set": false, "first": false, "settable": false,
+        "type": "weatherTurnOpponent", "value": 1, "group": "expert"
+    },
+    {
+        "q": 1, "r": 6, "column": "Sand & Hail",
+        "cost": 3, "title": "Tempest", "description": "Weather chip damage to opponents is doubled.",
+        "color": "#E8A87C", "set": false, "first": false, "settable": false,
+        "type": "perk", "value": 0, "group": "expert", "perkId": "wtm-tempest"
+    },
+    {
+        "q": 2, "r": 0, "column": "Mastery",
+        "cost": 1, "title": "Ally Weather +1", "description": "Increase ally weather duration by 1 turn",
+        "color": "#40E0D0", "set": false, "first": false, "settable": false,
+        "type": "weatherTurnAlly", "value": 1, "group": "expert"
+    },
+    {
+        "q": 2, "r": 1, "column": "Mastery",
+        "cost": 1, "title": "Sun +1", "description": "Increase sun weather duration by 1 turn for allies",
+        "color": "#40E0D0", "set": false, "first": false, "settable": false,
+        "type": "weatherSun", "value": 1, "group": "expert"
+    },
+    {
+        "q": 2, "r": 2, "column": "Mastery",
+        "cost": 1, "title": "Rain +1", "description": "Increase rain weather duration by 1 turn for allies",
+        "color": "#40E0D0", "set": false, "first": false, "settable": false,
+        "type": "weatherRain", "value": 1, "group": "expert"
+    },
+    {
+        "q": 2, "r": 3, "column": "Mastery",
+        "cost": 1, "title": "Sand +1", "description": "Increase sandstorm weather duration by 1 turn for allies",
+        "color": "#40E0D0", "set": false, "first": false, "settable": false,
+        "type": "weatherSand", "value": 1, "group": "expert"
+    },
+    {
+        "q": 2, "r": 4, "column": "Mastery",
+        "cost": 1, "title": "Hail +1", "description": "Increase hail weather duration by 1 turn for allies",
+        "color": "#40E0D0", "set": false, "first": false, "settable": false,
+        "type": "weatherHail", "value": 1, "group": "expert"
+    },
+    {
+        "q": 2, "r": 5, "column": "Mastery",
+        "cost": 2, "title": "Ally Weather +1", "description": "Increase ally weather duration by 1 turn",
+        "color": "#40E0D0", "set": false, "first": false, "settable": false,
+        "type": "weatherTurnAlly", "value": 1, "group": "expert"
+    },
+    {
+        "q": 2, "r": 6, "column": "Mastery",
+        "cost": 3, "title": "Adaptation", "description": "Your Pokemon take no weather chip damage (sandstorm/hail).",
+        "color": "#E8A87C", "set": false, "first": false, "settable": false,
+        "type": "perk", "value": 0, "group": "expert", "perkId": "wtm-adapt"
+    },
+    {
+        "q": 2, "r": 7, "column": "Mastery",
+        "cost": 3, "title": "Forecast", "description": "Weather-boosted moves get an additional +10% damage.",
+        "color": "#E8A87C", "set": false, "first": false, "settable": false,
+        "type": "perk", "value": 0, "group": "expert", "perkId": "wtm-forecast"
+    },
+    {
+        "q": 2, "r": 8, "column": "Mastery",
+        "cost": 5, "title": "Cataclysm", "description": "Weather auto-activates at battle start and lasts +3 extra turns.",
+        "color": "#FF6B6B", "set": false, "first": false, "settable": false,
+        "type": "perk", "value": 0, "group": "expert", "perkId": "wtm-cataclysm"
+    },
+    {
+        "q": 3, "r": 0, "column": "Utility",
+        "cost": 1, "title": "Acc 3%", "description": "Increase move accuracy by 3%",
+        "color": "#FDEFAB", "set": false, "first": false, "settable": false,
+        "type": "accuracy", "value": 3, "group": "expert"
+    },
+    {
+        "q": 3, "r": 1, "column": "Utility",
+        "cost": 1, "title": "Res 3%", "description": "Increase resistance to opponent move effects by 3%",
+        "color": "#D5E5E2", "set": false, "first": false, "settable": false,
+        "type": "resistance", "value": 3, "group": "expert"
+    },
+    {
+        "q": 3, "r": 2, "column": "Utility",
+        "cost": 1, "title": "XP +5%", "description": "Increase experience gain by 5%",
+        "color": "#F7F6CF", "set": false, "first": false, "settable": false,
+        "type": "xp", "value": 5, "group": "expert"
+    },
+    {
+        "q": 3, "r": 3, "column": "Utility",
+        "cost": 1, "title": "Catch +5%", "description": "Increase Pokeball catch rate by 5%",
+        "color": "#F7F6CF", "set": false, "first": false, "settable": false,
+        "type": "catch", "value": 5, "group": "expert"
+    },
+    {
+        "q": 3, "r": 4, "column": "Utility",
+        "cost": 1, "title": "Heal +2%", "description": "Increase healing effect by 2%",
+        "color": "#baffc9", "set": false, "first": false, "settable": false,
+        "type": "heal", "value": 2, "group": "expert"
+    },
+    {
+        "q": 3, "r": 5, "column": "Utility",
+        "cost": 2, "title": "Acc 5%", "description": "Increase move accuracy by 5%",
+        "color": "#FDEFAB", "set": false, "first": false, "settable": false,
+        "type": "accuracy", "value": 5, "group": "expert"
+    },
+    {
+        "q": 3, "r": 6, "column": "Utility",
+        "cost": 1, "title": "Catch +5%", "description": "Increase Pokeball catch rate by 5%",
+        "color": "#F7F6CF", "set": false, "first": false, "settable": false,
+        "type": "catch", "value": 5, "group": "expert"
+    }
+]

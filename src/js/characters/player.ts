@@ -7,6 +7,7 @@ import { type Character, CharacterPosition } from './characters-model';
 import { Follower } from './follower';
 import type { OverworldContext } from '../context/overworldContext';
 import { Mastery, MasteryType, PlayerMasteries } from './mastery-model';
+import type { ActivePerk } from './perks';
 import { preloadFollowerSprite } from '../preload';
 import { applyClassBonuses } from './trainer-class';
 import { waitFor, delay } from '../utils/async-utils';
@@ -90,7 +91,8 @@ export class Player implements Character {
 		gender: 'MALE' | 'FEMALE',
 		trainerClass: string = 'ace-trainer'
 	): Player {
-		const player = new Player(spriteId, name, gender, [], new Bag(), 1, false, new ComboJauge());
+		const masteries = new PlayerMasteries(trainerClass);
+		const player = new Player(spriteId, name, gender, [], new Bag(), 1, false, new ComboJauge(), masteries);
 		player.trainerClass = trainerClass;
 		applyClassBonuses(player.playerMasteries.bonuses, trainerClass);
 		return player;
@@ -134,7 +136,24 @@ export class Player implements Character {
 	}
 
 	getMasteryBonus(type: MasteryType): number {
-		return this.playerMasteries.bonuses.getMastery(type);
+		let bonus = this.playerMasteries.bonuses.getMastery(type);
+		// Grand Master capstone: all mastery stat bonuses +50%
+		if (bonus > 0 && this.hasPerk('ace-grandmaster')) {
+			bonus = Math.floor(bonus * 1.5);
+		}
+		return bonus;
+	}
+
+	hasPerk(perkId: string): boolean {
+		return this.playerMasteries.hasPerk(perkId);
+	}
+
+	getActivePerks(): ActivePerk[] {
+		return this.playerMasteries.activePerks;
+	}
+
+	getActivePerksForTrigger(trigger: string): ActivePerk[] {
+		return this.playerMasteries.getActivePerksForTrigger(trigger);
 	}
 
 	public setFollower(monster: PokemonInstance): Follower {

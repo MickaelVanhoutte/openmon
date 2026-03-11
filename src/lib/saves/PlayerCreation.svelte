@@ -3,6 +3,8 @@
 	import { SavesHolder } from '../../js/context/savesHolder';
 	import { CHARACTER_SPRITES } from '../../js/sprites/sprites';
 	import { TRAINER_CLASSES, getClassSpriteId } from '../../js/characters/trainer-class';
+	import { getClassPerks, type PerkDefinition } from '../../js/characters/perks';
+	import Modal from '../common/Modal.svelte';
 
 	interface Props {
 		savesHolder: SavesHolder;
@@ -22,6 +24,8 @@
 	const classSprite = $derived(CHARACTER_SPRITES.getSprite(classSpriteId));
 
 	let previewCanvas: HTMLCanvasElement;
+	let showPerkModal = $state(false);
+	let selectedPerk = $state<PerkDefinition | null>(null);
 
 	// Animated sprite preview
 	$effect(() => {
@@ -132,7 +136,20 @@
 				{/each}
 			</select>
 			{#if selectedClassData}
-				<p class="class-desc" style="grid-area: desc;">{selectedClassData.description}</p>
+				<p class="class-desc" style="grid-area: desc;">
+					{selectedClassData.description}
+				</p>
+				<div class="class-perks" style="grid-area: perks;">
+					{#each getClassPerks(selectedClass).slice(0, 3) as perk}
+						<button
+							class="perk-preview"
+							type="button"
+							onclick={() => { selectedPerk = perk; showPerkModal = true; }}
+						>
+							{perk.name}
+						</button>
+					{/each}
+				</div>
 			{/if}
 
 			<label for="name" style="grid-area: lbl-name;">What's your name?</label>
@@ -147,6 +164,18 @@
 			</div>
 		</div>
 	</form>
+
+	{#if selectedPerk}
+		<Modal bind:showModal={showPerkModal}>
+			{#snippet header()}
+				<h3 style="margin: 0">{selectedPerk.name}</h3>
+			{/snippet}
+			<p style="margin: 4px 0 8px">{selectedPerk.description}</p>
+			<div class="perk-detail-row">
+				<span class="perk-tier-badge">{selectedPerk.tier}</span>
+			</div>
+		</Modal>
+	{/if}
 </div>
 
 <style lang="scss">
@@ -198,6 +227,7 @@
 				'lbl-sex   lbl-class sprite'
 				'sex       class     sprite'
 				'.         desc      sprite'
+				'.         perks     sprite'
 				'lbl-name  .         sprite'
 				'name      start     sprite';
 			gap: 4px 24px;
@@ -225,6 +255,41 @@
 			color: #aaa;
 			font-style: italic;
 		}
+
+		.class-perks {
+			display: flex;
+			gap: 6px;
+			flex-wrap: wrap;
+
+			.perk-preview {
+				background: rgba(232, 168, 124, 0.2);
+				border: 1px solid #E8A87C;
+				color: #E8A87C;
+				padding: 2px 8px;
+				border-radius: 4px;
+				font-size: 1rem;
+				cursor: pointer;
+				font-family: inherit;
+
+				&:hover {
+					background: rgba(232, 168, 124, 0.4);
+				}
+			}
+		}
+
+		.perk-detail-row {
+			display: flex;
+			gap: 8px;
+		}
+
+		.perk-tier-badge {
+			font-size: 0.85rem;
+			padding: 2px 8px;
+			border-radius: 3px;
+			text-transform: capitalize;
+			background: #E8A87C;
+			color: #1a1a2e;
+		}
 	}
 
 	@media (max-width: 968px) {
@@ -235,7 +300,25 @@
 			}
 
 			.form-grid {
-				gap: 16px;
+				grid-template-columns: 1fr;
+				grid-template-areas:
+					'sprite'
+					'lbl-sex'
+					'sex'
+					'lbl-class'
+					'class'
+					'desc'
+					'perks'
+					'lbl-name'
+					'name'
+					'start';
+				gap: 8px;
+				font-size: 1.6rem;
+			}
+
+			.sprite-col {
+				width: auto;
+				justify-self: center;
 			}
 
 			h1 {

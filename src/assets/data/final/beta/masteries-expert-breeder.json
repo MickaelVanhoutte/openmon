@@ -1,0 +1,188 @@
+[
+    {
+        "q": 0, "r": 0, "column": "Catching",
+        "cost": 0, "title": "", "description": "",
+        "color": "white", "set": true, "first": true, "settable": false,
+        "type": "start", "value": 0, "group": "expert"
+    },
+    {
+        "q": 0, "r": 1, "column": "Catching",
+        "cost": 1, "title": "Catch +5%", "description": "Increase Pokeball catch rate by 5%",
+        "color": "#F7F6CF", "set": false, "first": false, "settable": false,
+        "type": "catch", "value": 5, "group": "expert"
+    },
+    {
+        "q": 0, "r": 2, "column": "Catching",
+        "cost": 1, "title": "Catch +5%", "description": "Increase Pokeball catch rate by 5%",
+        "color": "#F7F6CF", "set": false, "first": false, "settable": false,
+        "type": "catch", "value": 5, "group": "expert"
+    },
+    {
+        "q": 0, "r": 3, "column": "Catching",
+        "cost": 1, "title": "Shiny +0.5%", "description": "Increase shiny encounter rate by 0.5%",
+        "color": "#E8D5F5", "set": false, "first": false, "settable": false,
+        "type": "shiny", "value": 0.5, "group": "expert"
+    },
+    {
+        "q": 0, "r": 4, "column": "Catching",
+        "cost": 1, "title": "Catch +5%", "description": "Increase Pokeball catch rate by 5%",
+        "color": "#F7F6CF", "set": false, "first": false, "settable": false,
+        "type": "catch", "value": 5, "group": "expert"
+    },
+    {
+        "q": 0, "r": 5, "column": "Catching",
+        "cost": 2, "title": "Catch +10%", "description": "Increase Pokeball catch rate by 10%",
+        "color": "#F7F6CF", "set": false, "first": false, "settable": false,
+        "type": "catch", "value": 10, "group": "expert"
+    },
+    {
+        "q": 0, "r": 6, "column": "Catching",
+        "cost": 3, "title": "Affinity", "description": "Catch rate +50% for Pokemon sharing a type with your lead.",
+        "color": "#E8A87C", "set": false, "first": false, "settable": false,
+        "type": "perk", "value": 0, "group": "expert", "perkId": "brd-affinity"
+    },
+    {
+        "q": 1, "r": 0, "column": "Training",
+        "cost": 1, "title": "EV +5%", "description": "Increase EV gain by 5%",
+        "color": "#F7F6CF", "set": false, "first": false, "settable": false,
+        "type": "ev", "value": 5, "group": "expert"
+    },
+    {
+        "q": 1, "r": 1, "column": "Training",
+        "cost": 1, "title": "EV +5%", "description": "Increase EV gain by 5%",
+        "color": "#F7F6CF", "set": false, "first": false, "settable": false,
+        "type": "ev", "value": 5, "group": "expert"
+    },
+    {
+        "q": 1, "r": 2, "column": "Training",
+        "cost": 1, "title": "XP +5%", "description": "Increase experience gain by 5%",
+        "color": "#F7F6CF", "set": false, "first": false, "settable": false,
+        "type": "xp", "value": 5, "group": "expert"
+    },
+    {
+        "q": 1, "r": 3, "column": "Training",
+        "cost": 1, "title": "EV +5%", "description": "Increase EV gain by 5%",
+        "color": "#F7F6CF", "set": false, "first": false, "settable": false,
+        "type": "ev", "value": 5, "group": "expert"
+    },
+    {
+        "q": 1, "r": 4, "column": "Training",
+        "cost": 1, "title": "XP +5%", "description": "Increase experience gain by 5%",
+        "color": "#F7F6CF", "set": false, "first": false, "settable": false,
+        "type": "xp", "value": 5, "group": "expert"
+    },
+    {
+        "q": 1, "r": 5, "column": "Training",
+        "cost": 2, "title": "EV +10%", "description": "Increase EV gain by 10%",
+        "color": "#F7F6CF", "set": false, "first": false, "settable": false,
+        "type": "ev", "value": 10, "group": "expert"
+    },
+    {
+        "q": 1, "r": 6, "column": "Training",
+        "cost": 3, "title": "Prodigy", "description": "Pokemon gain 2x EVs from their first 5 battles after being caught.",
+        "color": "#E8A87C", "set": false, "first": false, "settable": false,
+        "type": "perk", "value": 0, "group": "expert", "perkId": "brd-prodigy"
+    },
+    {
+        "q": 1, "r": 7, "column": "Training",
+        "cost": 3, "title": "Bonding", "description": "Lead Pokemon always gains full XP even when swapped out mid-battle.",
+        "color": "#E8A87C", "set": false, "first": false, "settable": false,
+        "type": "perk", "value": 0, "group": "expert", "perkId": "brd-bonding"
+    },
+    {
+        "q": 1, "r": 8, "column": "Training",
+        "cost": 5, "title": "Master Breeder", "description": "All caught Pokemon start with 3 perfect IVs. EV gain tripled.",
+        "color": "#FF6B6B", "set": false, "first": false, "settable": false,
+        "type": "perk", "value": 0, "group": "expert", "perkId": "brd-masterbreeder"
+    },
+    {
+        "q": 2, "r": 0, "column": "Growth",
+        "cost": 1, "title": "XP +5%", "description": "Increase experience gain by 5%",
+        "color": "#F7F6CF", "set": false, "first": false, "settable": false,
+        "type": "xp", "value": 5, "group": "expert"
+    },
+    {
+        "q": 2, "r": 1, "column": "Growth",
+        "cost": 1, "title": "XP +5%", "description": "Increase experience gain by 5%",
+        "color": "#F7F6CF", "set": false, "first": false, "settable": false,
+        "type": "xp", "value": 5, "group": "expert"
+    },
+    {
+        "q": 2, "r": 2, "column": "Growth",
+        "cost": 1, "title": "Shiny +0.5%", "description": "Increase shiny encounter rate by 0.5%",
+        "color": "#E8D5F5", "set": false, "first": false, "settable": false,
+        "type": "shiny", "value": 0.5, "group": "expert"
+    },
+    {
+        "q": 2, "r": 3, "column": "Growth",
+        "cost": 1, "title": "XP +5%", "description": "Increase experience gain by 5%",
+        "color": "#F7F6CF", "set": false, "first": false, "settable": false,
+        "type": "xp", "value": 5, "group": "expert"
+    },
+    {
+        "q": 2, "r": 4, "column": "Growth",
+        "cost": 1, "title": "Shiny +1%", "description": "Increase shiny encounter rate by 1%",
+        "color": "#E8D5F5", "set": false, "first": false, "settable": false,
+        "type": "shiny", "value": 1, "group": "expert"
+    },
+    {
+        "q": 2, "r": 5, "column": "Growth",
+        "cost": 2, "title": "XP +10%", "description": "Increase experience gain by 10%",
+        "color": "#F7F6CF", "set": false, "first": false, "settable": false,
+        "type": "xp", "value": 10, "group": "expert"
+    },
+    {
+        "q": 2, "r": 6, "column": "Growth",
+        "cost": 3, "title": "Growth Spurt", "description": "Pokemon under level 20 gain 2x XP.",
+        "color": "#E8A87C", "set": false, "first": false, "settable": false,
+        "type": "perk", "value": 0, "group": "expert", "perkId": "brd-growth"
+    },
+    {
+        "q": 2, "r": 7, "column": "Growth",
+        "cost": 3, "title": "Nurture", "description": "After winning, benched party members gain 25% of battle XP.",
+        "color": "#E8A87C", "set": false, "first": false, "settable": false,
+        "type": "perk", "value": 0, "group": "expert", "perkId": "brd-nurture"
+    },
+    {
+        "q": 3, "r": 0, "column": "Utility",
+        "cost": 1, "title": "Acc 3%", "description": "Increase move accuracy by 3%",
+        "color": "#FDEFAB", "set": false, "first": false, "settable": false,
+        "type": "accuracy", "value": 3, "group": "expert"
+    },
+    {
+        "q": 3, "r": 1, "column": "Utility",
+        "cost": 1, "title": "Heal +2%", "description": "Increase healing effect by 2%",
+        "color": "#baffc9", "set": false, "first": false, "settable": false,
+        "type": "heal", "value": 2, "group": "expert"
+    },
+    {
+        "q": 3, "r": 2, "column": "Utility",
+        "cost": 1, "title": "Res 3%", "description": "Increase resistance to opponent move effects by 3%",
+        "color": "#D5E5E2", "set": false, "first": false, "settable": false,
+        "type": "resistance", "value": 3, "group": "expert"
+    },
+    {
+        "q": 3, "r": 3, "column": "Utility",
+        "cost": 1, "title": "Heal +3%", "description": "Increase healing effect by 3%",
+        "color": "#baffc9", "set": false, "first": false, "settable": false,
+        "type": "heal", "value": 3, "group": "expert"
+    },
+    {
+        "q": 3, "r": 4, "column": "Utility",
+        "cost": 1, "title": "Res 3%", "description": "Increase resistance to opponent move effects by 3%",
+        "color": "#D5E5E2", "set": false, "first": false, "settable": false,
+        "type": "resistance", "value": 3, "group": "expert"
+    },
+    {
+        "q": 3, "r": 5, "column": "Utility",
+        "cost": 2, "title": "Acc 5%", "description": "Increase move accuracy by 5%",
+        "color": "#FDEFAB", "set": false, "first": false, "settable": false,
+        "type": "accuracy", "value": 5, "group": "expert"
+    },
+    {
+        "q": 3, "r": 6, "column": "Utility",
+        "cost": 1, "title": "Combo +2%", "description": "Increase combo gauge gain by 2%",
+        "color": "#FF968A", "set": false, "first": false, "settable": false,
+        "type": "comboJauge", "value": 2, "group": "expert"
+    }
+]

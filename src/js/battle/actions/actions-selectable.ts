@@ -16,6 +16,7 @@ import {
 import { Pokeball, HealingItem, getCaptureRate } from '../../items/items';
 import { NPC } from '../../characters/npc';
 import { MasteryType } from '../../characters/mastery-model';
+import { PerkTrigger } from '../../characters/perks';
 import {
 	getWeatherDamageMultiplier,
 	getWeatherSpDefMultiplier,
@@ -47,18 +48,25 @@ export class RunAway implements ActionV2Interface {
 
 	execute(ctx: BattleContext): void {
 		if (ctx.isWild) {
-			// randomized based on opponent speed
-			ctx.escapeAttempts++;
-			const random = Math.random() * 255;
-			const oppSideAlive = ctx.oppSide.filter((p): p is PokemonInstance => !!p);
-			const avgPokeSpeed =
-				oppSideAlive.reduce((total, next) => total + next.battleStats.speed, 0) /
-				(oppSideAlive.length || 1);
-			const f =
-				Math.floor((avgPokeSpeed * 128) / this.initiator.battleStats.speed) +
-				30 * ctx.escapeAttempts * random;
+			// Quick Escape perk: 100% flee rate
+			const hasQuickEscape = ctx.player instanceof Player && ctx.player.hasPerk('exp-quickescape');
 
-			if (f > 255) {
+			let canEscape = hasQuickEscape;
+			if (!canEscape) {
+				// randomized based on opponent speed
+				ctx.escapeAttempts++;
+				const random = Math.random() * 255;
+				const oppSideAlive = ctx.oppSide.filter((p): p is PokemonInstance => !!p);
+				const avgPokeSpeed =
+					oppSideAlive.reduce((total, next) => total + next.battleStats.speed, 0) /
+					(oppSideAlive.length || 1);
+				const f =
+					Math.floor((avgPokeSpeed * 128) / this.initiator.battleStats.speed) +
+					30 * ctx.escapeAttempts * random;
+				canEscape = f > 255;
+			}
+
+			if (canEscape) {
 				ctx.clearStack();
 				ctx.battleResult.win = true;
 				ctx.events.runnaway.set(true);
@@ -224,9 +232,9 @@ export class Attack implements ActionV2Interface {
 					slot.side
 				);
 
-				// Track player-side attack stats for achievements
+				// Track player-side attack stats for achievements + perks
 				if (slot.side === 'opponent') {
-					ctx.trackPlayerAttack(result);
+					ctx.trackPlayerAttack(result, attacker, tgt);
 				}
 
 				if (this.move instanceof ComboMove) {
@@ -245,6 +253,10 @@ export class Attack implements ActionV2Interface {
 					let comboDmgModifier = 0;
 					if (controller instanceof Player) {
 						comboDmgModifier = controller.getMasteryBonus(MasteryType.COMBO_DAMAGE);
+						// Mastermind capstone: combo moves +25%
+						if (controller.hasPerk('str-mastermind')) {
+							comboDmgModifier += 25;
+						}
 					}
 					const result2 = this.calculateDamage(
 						attacker,
@@ -257,7 +269,7 @@ export class Attack implements ActionV2Interface {
 					);
 
 					if (slot.side === 'opponent') {
-						ctx.trackPlayerAttack(result2);
+						ctx.trackPlayerAttack(result2, attacker, tgt);
 					}
 
 					actionsToPush.push(new PlayAnimation(this.move, tgt, this.initiator));
@@ -540,6 +552,14 @@ export class Attack implements ActionV2Interface {
 				defense = Math.floor(defense * spDefMultiplier);
 			}
 
+			// Last Stand perk: below 20% HP → +50% Def/SpDef (defender-side)
+			if (defenderSide === 'player' && ctx.player instanceof Player && ctx.player.hasPerk('grd-laststand')) {
+				const hpPct = (defender.currentHp / defender.currentStats.hp) * 100;
+				if (hpPct < 20) {
+					defense = Math.floor(defense * 1.5);
+				}
+			}
+
 			if (move.category === 'physical' && attacker?.status?.abr === 'BRN') {
 				attack = Math.floor(attack * 0.5);
 			}
@@ -555,7 +575,15 @@ export class Attack implements ActionV2Interface {
 				move.name
 			);
 			const other = weatherMultiplier * screenMultiplier * terrainMultiplier;
-			const modifiers = typeEffectiveness * critical * random * stab * other;
+			// Unstoppable capstone: crits ignore resistance (NVE → neutral)
+			let finalEffectiveness = typeEffectiveness;
+			if (result.critical && typeEffectiveness < 1 && typeEffectiveness > 0 &&
+				controller instanceof Player && controller.hasPerk('brs-unstoppable')) {
+				finalEffectiveness = 1;
+				result.notVeryEffective = false;
+			}
+
+			const modifiers = finalEffectiveness * critical * random * stab * other;
 			result.damages = Math.floor(
 				((((2 * attacker.level) / 5 + 2) * movePower * attack) / defense / 50 + 2) *
 					modifiers *
@@ -602,6 +630,63 @@ export class Attack implements ActionV2Interface {
 			if (itemDefDmg !== undefined) {
 				result.damages = itemDefDmg;
 			}
+
+			// ── Perk damage modifiers (player attacking only) ──
+			if (controller instanceof Player && result.damages > 0) {
+				const perks = controller.getActivePerks();
+
+				// Reckless: +20% damage dealt
+				if (perks.some((p) => p.definition.id === 'brs-reckless')) {
+					result.damages = Math.floor(result.damages * 1.2);
+				}
+
+				// Fury: consume buff for +15% on this attack
+				const furyPerk = perks.find((p) => p.definition.id === 'brs-fury');
+				if (furyPerk?.state.furyActive) {
+					result.damages = Math.floor(result.damages * 1.15);
+					furyPerk.state.furyActive = false;
+				}
+
+				// Berserk Rage: +25% below 30% HP
+				if (perks.some((p) => p.definition.id === 'brs-berserk') && attacker) {
+					const hpPct = (attacker.currentHp / attacker.currentStats.hp) * 100;
+					if (hpPct < 30) {
+						result.damages = Math.floor(result.damages * 1.25);
+					}
+				}
+
+				// Exploit Weakness: +10% vs statused targets
+				if (perks.some((p) => p.definition.id === 'str-exploit') && defender?.status) {
+					result.damages = Math.floor(result.damages * 1.1);
+				}
+
+				// Forecast: weather-boosted moves +10%
+				if (perks.some((p) => p.definition.id === 'wtm-forecast') && weatherMultiplier > 1) {
+					result.damages = Math.floor(result.damages * 1.1);
+				}
+			}
+
+			// ── Defensive perks (player defending — any attacker) ──
+			if (defenderSide === 'player' && ctx.player instanceof Player && result.damages > 0) {
+				const defPerks = ctx.player.getActivePerks();
+
+				// Absorb Impact: SE hits deal 10% less
+				if (result.superEffective && defPerks.some((p) => p.definition.id === 'grd-absorb')) {
+					result.damages = Math.floor(result.damages * 0.9);
+				}
+
+				// Iron Wall: first hit in battle deals 30% less
+				const ironWall = defPerks.find((p) => p.definition.id === 'grd-ironwall');
+				if (ironWall && !ironWall.state.triggered) {
+					ironWall.state.triggered = true;
+					result.damages = Math.floor(result.damages * 0.7);
+				}
+
+				// Reckless downside: +10% damage taken
+				if (defPerks.some((p) => p.definition.id === 'brs-reckless')) {
+					result.damages = Math.floor(result.damages * 1.1);
+				}
+			}
 		} else {
 			result.damages = 0;
 		}
@@ -632,12 +717,19 @@ export class Attack implements ActionV2Interface {
 		let modifier = 0;
 		if (controller instanceof Player) {
 			modifier = controller.getMasteryBonus(MasteryType.CRITICAL);
+
+			// Bloodlust perk: +10% crit chance for 2 turns after KO
+			const bloodlustPerk = controller.getActivePerks().find((p) => p.definition.id === 'brs-bloodlust');
+			if (bloodlustPerk && (bloodlustPerk.state.bloodlustTurns as number) > 0) {
+				modifier += 10;
+				bloodlustPerk.state.bloodlustTurns = (bloodlustPerk.state.bloodlustTurns as number) - 1;
+			}
 		}
 
 		const isHighCrit = move.effect?.move_effect_id === 44 || move.effect?.move_effect_id === 144;
 		const critRate = isHighCrit ? 0.125 : 0.0625;
 
-		return Math.random() < critRate ? 1.5 + modifier / 100 : 1;
+		return Math.random() < critRate + modifier / 100 ? 1.5 : 1;
 	}
 
 	private calculateStab(
@@ -648,15 +740,19 @@ export class Attack implements ActionV2Interface {
 		if (attacker.types.includes(moveType)) {
 			let modifier = 0;
 			if (controller instanceof Player) {
-				// TODO handle opponents
 				modifier = controller.getMasteryBonus(MasteryType.STAB);
 			}
 			return 1.5 + modifier / 100;
 		} else {
 			let modifier = 0;
 			if (controller instanceof Player) {
-				// TODO handle opponents
 				modifier = controller.getMasteryBonus(MasteryType.NON_STAB);
+
+				// Versatile perk: non-STAB gets 50% of STAB bonus
+				if (controller.hasPerk('ace-versatile')) {
+					const stabBonus = controller.getMasteryBonus(MasteryType.STAB);
+					modifier += Math.floor(stabBonus * 0.5);
+				}
 			}
 			return 1 + modifier / 100;
 		}
@@ -690,6 +786,13 @@ export class Attack implements ActionV2Interface {
 	) {
 		if (!move.accuracy || move.accuracy === 0) {
 			return true;
+		}
+
+		// Focus perk: 80-95% accuracy becomes 100%
+		if (controller instanceof Player && controller.hasPerk('ace-focus')) {
+			if (move.accuracy >= 80 && move.accuracy <= 95) {
+				return true;
+			}
 		}
 
 		const weatherAccuracy = getWeatherAccuracyOverride(ctx.battleField, move.name, move.accuracy);
@@ -735,6 +838,11 @@ export class Attack implements ActionV2Interface {
 			// ATTRACT: boost attract infliction
 			if (effectId === 78) {
 				chance += controller.getMasteryBonus(MasteryType.ATTRACT);
+			}
+
+			// Mastermind capstone: all status effect chances doubled
+			if (controller.hasPerk('str-mastermind')) {
+				chance *= 2;
 			}
 		}
 
@@ -795,6 +903,15 @@ export class UseItem implements ActionV2Interface {
 			let catchBonus = 0;
 			if (this.owner instanceof Player) {
 				catchBonus = this.owner.getMasteryBonus(MasteryType.CATCH);
+
+				// Affinity perk: +50% catch rate for same-type as lead
+				const perkResult = ctx.runPerks(PerkTrigger.ON_CATCH_ATTEMPT, {
+					pokemon: ctx.playerSide[0] || undefined,
+					target: this.target
+				});
+				if (perkResult.catchRateBonus) {
+					catchBonus += perkResult.catchRateBonus;
+				}
 			}
 
 			const captureRate = getCaptureRate(this.target, item.power);

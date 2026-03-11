@@ -1,0 +1,188 @@
+[
+    {
+        "q": 0, "r": 0, "column": "Fortitude",
+        "cost": 0, "title": "", "description": "",
+        "color": "white", "set": true, "first": true, "settable": false,
+        "type": "start", "value": 0, "group": "expert"
+    },
+    {
+        "q": 0, "r": 1, "column": "Fortitude",
+        "cost": 1, "title": "Res 3%", "description": "Increase resistance to opponent move effects by 3%",
+        "color": "#D5E5E2", "set": false, "first": false, "settable": false,
+        "type": "resistance", "value": 3, "group": "expert"
+    },
+    {
+        "q": 0, "r": 2, "column": "Fortitude",
+        "cost": 1, "title": "Res 5%", "description": "Increase resistance to opponent move effects by 5%",
+        "color": "#D5E5E2", "set": false, "first": false, "settable": false,
+        "type": "resistance", "value": 5, "group": "expert"
+    },
+    {
+        "q": 0, "r": 3, "column": "Fortitude",
+        "cost": 1, "title": "Heal +2%", "description": "Increase healing effect by 2%",
+        "color": "#baffc9", "set": false, "first": false, "settable": false,
+        "type": "heal", "value": 2, "group": "expert"
+    },
+    {
+        "q": 0, "r": 4, "column": "Fortitude",
+        "cost": 1, "title": "Res 3%", "description": "Increase resistance to opponent move effects by 3%",
+        "color": "#D5E5E2", "set": false, "first": false, "settable": false,
+        "type": "resistance", "value": 3, "group": "expert"
+    },
+    {
+        "q": 0, "r": 5, "column": "Fortitude",
+        "cost": 2, "title": "Res 5%", "description": "Increase resistance to opponent move effects by 5%",
+        "color": "#D5E5E2", "set": false, "first": false, "settable": false,
+        "type": "resistance", "value": 5, "group": "expert"
+    },
+    {
+        "q": 0, "r": 6, "column": "Fortitude",
+        "cost": 3, "title": "Iron Wall", "description": "The first hit taken in battle deals 30% less damage.",
+        "color": "#E8A87C", "set": false, "first": false, "settable": false,
+        "type": "perk", "value": 0, "group": "expert", "perkId": "grd-ironwall"
+    },
+    {
+        "q": 0, "r": 7, "column": "Fortitude",
+        "cost": 3, "title": "Last Stand", "description": "When your Pokemon drops below 20% HP, Def and SpDef increase by 50%.",
+        "color": "#E8A87C", "set": false, "first": false, "settable": false,
+        "type": "perk", "value": 0, "group": "expert", "perkId": "grd-laststand"
+    },
+    {
+        "q": 0, "r": 8, "column": "Fortitude",
+        "cost": 5, "title": "Unbreakable", "description": "Your Pokemon cannot be one-shot from full HP (survives with 1 HP).",
+        "color": "#FF6B6B", "set": false, "first": false, "settable": false,
+        "type": "perk", "value": 0, "group": "expert", "perkId": "grd-unbreakable"
+    },
+    {
+        "q": 1, "r": 0, "column": "Recovery",
+        "cost": 1, "title": "Heal +2%", "description": "Increase healing effect by 2%",
+        "color": "#baffc9", "set": false, "first": false, "settable": false,
+        "type": "heal", "value": 2, "group": "expert"
+    },
+    {
+        "q": 1, "r": 1, "column": "Recovery",
+        "cost": 1, "title": "Heal +3%", "description": "Increase healing effect by 3%",
+        "color": "#baffc9", "set": false, "first": false, "settable": false,
+        "type": "heal", "value": 3, "group": "expert"
+    },
+    {
+        "q": 1, "r": 2, "column": "Recovery",
+        "cost": 1, "title": "Res 3%", "description": "Increase resistance to opponent move effects by 3%",
+        "color": "#D5E5E2", "set": false, "first": false, "settable": false,
+        "type": "resistance", "value": 3, "group": "expert"
+    },
+    {
+        "q": 1, "r": 3, "column": "Recovery",
+        "cost": 1, "title": "Heal +5%", "description": "Increase healing effect by 5%",
+        "color": "#baffc9", "set": false, "first": false, "settable": false,
+        "type": "heal", "value": 5, "group": "expert"
+    },
+    {
+        "q": 1, "r": 4, "column": "Recovery",
+        "cost": 1, "title": "Combo +2%", "description": "Increase combo gauge gain by 2%",
+        "color": "#FF968A", "set": false, "first": false, "settable": false,
+        "type": "comboJauge", "value": 2, "group": "expert"
+    },
+    {
+        "q": 1, "r": 5, "column": "Recovery",
+        "cost": 2, "title": "Heal +5%", "description": "Increase healing effect by 5%",
+        "color": "#baffc9", "set": false, "first": false, "settable": false,
+        "type": "heal", "value": 5, "group": "expert"
+    },
+    {
+        "q": 1, "r": 6, "column": "Recovery",
+        "cost": 3, "title": "Team Shield", "description": "Entry hazard damage is reduced by 50% when switching Pokemon.",
+        "color": "#E8A87C", "set": false, "first": false, "settable": false,
+        "type": "perk", "value": 0, "group": "expert", "perkId": "grd-teamshield"
+    },
+    {
+        "q": 1, "r": 7, "column": "Recovery",
+        "cost": 3, "title": "Absorb Impact", "description": "Super-effective hits deal 10% less damage.",
+        "color": "#E8A87C", "set": false, "first": false, "settable": false,
+        "type": "perk", "value": 0, "group": "expert", "perkId": "grd-absorb"
+    },
+    {
+        "q": 2, "r": 0, "column": "Precision",
+        "cost": 1, "title": "Acc 3%", "description": "Increase move accuracy by 3%",
+        "color": "#FDEFAB", "set": false, "first": false, "settable": false,
+        "type": "accuracy", "value": 3, "group": "expert"
+    },
+    {
+        "q": 2, "r": 1, "column": "Precision",
+        "cost": 1, "title": "Acc 3%", "description": "Increase move accuracy by 3%",
+        "color": "#FDEFAB", "set": false, "first": false, "settable": false,
+        "type": "accuracy", "value": 3, "group": "expert"
+    },
+    {
+        "q": 2, "r": 2, "column": "Precision",
+        "cost": 1, "title": "Acc 5%", "description": "Increase move accuracy by 5%",
+        "color": "#FDEFAB", "set": false, "first": false, "settable": false,
+        "type": "accuracy", "value": 5, "group": "expert"
+    },
+    {
+        "q": 2, "r": 3, "column": "Precision",
+        "cost": 1, "title": "Res 3%", "description": "Increase resistance to opponent move effects by 3%",
+        "color": "#D5E5E2", "set": false, "first": false, "settable": false,
+        "type": "resistance", "value": 3, "group": "expert"
+    },
+    {
+        "q": 2, "r": 4, "column": "Precision",
+        "cost": 1, "title": "Combo +2%", "description": "Increase combo gauge gain by 2%",
+        "color": "#FF968A", "set": false, "first": false, "settable": false,
+        "type": "comboJauge", "value": 2, "group": "expert"
+    },
+    {
+        "q": 2, "r": 5, "column": "Precision",
+        "cost": 2, "title": "Acc 5%", "description": "Increase move accuracy by 5%",
+        "color": "#FDEFAB", "set": false, "first": false, "settable": false,
+        "type": "accuracy", "value": 5, "group": "expert"
+    },
+    {
+        "q": 2, "r": 6, "column": "Precision",
+        "cost": 3, "title": "Fortify", "description": "+1 Defense stage at the start of each battle.",
+        "color": "#E8A87C", "set": false, "first": false, "settable": false,
+        "type": "perk", "value": 0, "group": "expert", "perkId": "grd-fortify"
+    },
+    {
+        "q": 3, "r": 0, "column": "Utility",
+        "cost": 1, "title": "Combo +2%", "description": "Increase combo gauge gain by 2%",
+        "color": "#FF968A", "set": false, "first": false, "settable": false,
+        "type": "comboJauge", "value": 2, "group": "expert"
+    },
+    {
+        "q": 3, "r": 1, "column": "Utility",
+        "cost": 1, "title": "Combo +5%", "description": "Increase combo gauge gain by 5%",
+        "color": "#FF968A", "set": false, "first": false, "settable": false,
+        "type": "comboJauge", "value": 5, "group": "expert"
+    },
+    {
+        "q": 3, "r": 2, "column": "Utility",
+        "cost": 1, "title": "XP +5%", "description": "Increase experience gain by 5%",
+        "color": "#F7F6CF", "set": false, "first": false, "settable": false,
+        "type": "xp", "value": 5, "group": "expert"
+    },
+    {
+        "q": 3, "r": 3, "column": "Utility",
+        "cost": 1, "title": "Catch +5%", "description": "Increase Pokeball catch rate by 5%",
+        "color": "#F7F6CF", "set": false, "first": false, "settable": false,
+        "type": "catch", "value": 5, "group": "expert"
+    },
+    {
+        "q": 3, "r": 4, "column": "Utility",
+        "cost": 1, "title": "Heal +3%", "description": "Increase healing effect by 3%",
+        "color": "#baffc9", "set": false, "first": false, "settable": false,
+        "type": "heal", "value": 3, "group": "expert"
+    },
+    {
+        "q": 3, "r": 5, "column": "Utility",
+        "cost": 2, "title": "Combo +5%", "description": "Increase combo gauge gain by 5%",
+        "color": "#FF968A", "set": false, "first": false, "settable": false,
+        "type": "comboJauge", "value": 5, "group": "expert"
+    },
+    {
+        "q": 3, "r": 6, "column": "Utility",
+        "cost": 1, "title": "Catch +5%", "description": "Increase Pokeball catch rate by 5%",
+        "color": "#F7F6CF", "set": false, "first": false, "settable": false,
+        "type": "catch", "value": 5, "group": "expert"
+    }
+]

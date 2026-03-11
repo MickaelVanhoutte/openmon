@@ -31,6 +31,9 @@ import { ItemEngine } from '../battle/items/item-engine';
 import type { ItemContext } from '../battle/items/item-engine';
 import { HeldItemTrigger } from '../items/held-items-model';
 import '../battle/items/held-items-effects'; // Side-effect: registers all item effects
+import { PerkEngine, type PerkContext as PerkCtx } from '../battle/perks/perk-engine';
+import { PerkTrigger } from '../characters/perks';
+import '../battle/perks/perk-handlers'; // Side-effect: registers all perk handlers
 import { container } from 'tsyringe';
 import { BattleAI } from '../battle/battle-ai';
 
@@ -39,6 +42,7 @@ export class BattleContext {
 	battleField: BattleField = new BattleField();
 	public abilityEngine: AbilityEngine;
 	public itemEngine: ItemEngine;
+	public perkEngine: PerkEngine;
 	hazardsVersion: Writable<number> = writable(0);
 	weatherVersion: Writable<number> = writable(0);
 
@@ -68,10 +72,25 @@ export class BattleContext {
 	playerDamageDealt: number = 0;
 	playerCombosUsed: number = 0;
 
-	trackPlayerAttack(result: { critical?: boolean; superEffective?: boolean; damages?: number }): void {
-		if (result.critical) this.playerCrits++;
+	trackPlayerAttack(result: { critical?: boolean; superEffective?: boolean; damages?: number }, attacker?: PokemonInstance, target?: PokemonInstance): void {
+		if (result.critical) {
+			this.playerCrits++;
+			// Fire ON_CRIT perks (Fury buff)
+			this.runPerks(PerkTrigger.ON_CRIT, { pokemon: attacker, target });
+		}
 		if (result.superEffective) this.playerSuperEffective++;
-		if (result.damages) this.playerDamageDealt += result.damages;
+		if (result.damages) {
+			this.playerDamageDealt += result.damages;
+			// Fire ON_DAMAGE_DEALT perks (Quick Study)
+			if (result.superEffective) {
+				this.runPerks(PerkTrigger.ON_DAMAGE_DEALT, {
+					pokemon: attacker,
+					target,
+					damage: result.damages,
+					isSuperEffective: true
+				});
+			}
+		}
 	}
 
 	opponentTurnActions: ActionV2Interface[] = [];
@@ -160,6 +179,7 @@ export class BattleContext {
 		}
 		this.abilityEngine = new AbilityEngine();
 		this.itemEngine = new ItemEngine();
+		this.perkEngine = new PerkEngine();
 		//this.playerPokemon = this.player.monsters.find(poke => !poke.fainted) || this.player.monsters[0];
 		//this.opponentPokemon = opponent instanceof PokemonInstance ? opponent : (opponent as Player).monsters.find(poke => !poke.fainted) || (opponent as Player).monsters[0];
 		let teamSize = 1;
@@ -405,6 +425,12 @@ export class BattleContext {
 			this.runAbilityEvent(AbilityTrigger.ON_SWITCH_IN, pokemon, target);
 			this.runItemEvent(HeldItemTrigger.ON_SWITCH_IN, pokemon, { opponent: target });
 		}
+
+		// Run ON_BATTLE_START perks (Fortify, Setup, Storm Surge, etc.)
+		const leadPokemon = playerActives[0];
+		if (leadPokemon) {
+			this.runPerks(PerkTrigger.ON_BATTLE_START, { pokemon: leadPokemon });
+		}
 	}
 
 	public async processInitialAbilityActions(): Promise<void> {
@@ -453,6 +479,24 @@ export class BattleContext {
 			battleCtx: this,
 			...extraCtx
 		});
+	}
+
+	/**
+	 * Run all player perks matching a given trigger.
+	 */
+	public runPerks(
+		trigger: PerkTrigger,
+		perkCtx: Partial<PerkCtx> = {}
+	) {
+		if (!(this.player instanceof Player)) return {};
+		const activePerks = this.player.getActivePerks();
+		if (activePerks.length === 0) return {};
+
+		return this.perkEngine.runPerks(trigger, activePerks, {
+			ctx: this,
+			player: this.player,
+			...perkCtx
+		} as PerkCtx);
 	}
 
 	public addToStack(action: ActionV2Interface) {
@@ -505,7 +549,7 @@ export class BattleContext {
 	}
 
 	// TODO : could be in the remove HP action
-	public checkFainted(target: PokemonInstance, initiator: PokemonInstance): ActionV2Interface[] {
+	public checkFainted(target: PokemonInstance, initiator: PokemonInstance, excessDamage: number = 0): ActionV2Interface[] {
 		const actions: ActionV2Interface[] = [];
 		if (isNaN(target.currentHp) || target.currentHp <= 0) {
 			target.currentHp = 0;
@@ -558,6 +602,14 @@ export class BattleContext {
 
 			if (this.oppSide.includes(target)) {
 				this.events.opponentPokemonFaint.set(target);
+
+				// ON_KO perks (Bloodlust, Overkill)
+				this.runPerks(PerkTrigger.ON_KO, {
+					pokemon: initiator,
+					target,
+					excessDamage
+				});
+
 				const baseXp = EXPERIENCE_CHART.howMuchIGet(
 					target,
 					this.participants.size,

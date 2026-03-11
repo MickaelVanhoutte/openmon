@@ -8,6 +8,7 @@ import { type Character } from '../../characters/characters-model';
 import { NPC } from '../../characters/npc';
 import { MOVE_EFFECT_APPLIER } from '../battle-model';
 import { MasteryType } from '../../characters/mastery-model';
+import { PerkTrigger } from '../../characters/perks';
 import { Hazard, type Side } from '../battle-field';
 import {
 	calculateStealthRockDamage,
@@ -99,6 +100,11 @@ export class ChangePokemon implements ActionV2Interface {
 		this.target.choiceLockedMove = undefined;
 		ctx.runAbilityEvent(AbilityTrigger.ON_SWITCH_IN, this.target);
 		ctx.runItemEvent(HeldItemTrigger.ON_SWITCH_IN, this.target);
+
+		// ON_SWITCH_IN perks (Adaptive: +1 speed)
+		if (this.owner instanceof Player) {
+			ctx.runPerks(PerkTrigger.ON_SWITCH_IN, { pokemon: this.target });
+		}
 	}
 
 	private applyEntryHazards(
@@ -413,17 +419,43 @@ export class RemoveHP implements ActionV2Interface {
 	}
 
 	execute(ctx: BattleContext): void {
+		const hpBefore = this.target.currentHp;
+		const wasFullHp = this.target.currentHp === this.target.currentStats.hp;
 		this.target.currentHp = Math.max(0, this.target.currentHp - this.damages);
 		if (isNaN(this.target.currentHp)) {
 			this.target.currentHp = 0;
 		}
+
+		// Survival perks (player-side only)
+		if (this.target.currentHp <= 0 && ctx.playerSide.includes(this.target) && ctx.player instanceof Player) {
+			const perks = ctx.player.getActivePerks();
+
+			// Unbreakable: can't be one-shot from full HP
+			if (wasFullHp && perks.some((p) => p.definition.id === 'grd-unbreakable')) {
+				this.target.currentHp = 1;
+				ctx.addToStack(new Message(`${this.target.name} is Unbreakable!`, this.target));
+			}
+
+			// Miracle: once per battle, survive fatal hit with 1 HP
+			if (this.target.currentHp <= 0) {
+				const miracle = perks.find((p) => p.definition.id === 'med-miracle');
+				if (miracle && !miracle.state.usedThisBattle) {
+					miracle.state.usedThisBattle = true;
+					this.target.currentHp = 1;
+					ctx.addToStack(new Message(`Miracle saves ${this.target.name}!`, this.target));
+				}
+			}
+		}
+
 		ctx.runItemEvent(HeldItemTrigger.ON_HP_CHANGED, this.target);
 
 		if (this.target.currentHp <= 0) {
 			ctx.addToStack(new Sleep(400));
 		}
 
-		const actions = ctx.checkFainted(this.target, this.initiator);
+		// Calculate excess damage for Overkill perk
+		const excessDamage = this.damages - hpBefore;
+		const actions = ctx.checkFainted(this.target, this.initiator, excessDamage > 0 ? excessDamage : 0);
 		if (actions) {
 			actions.forEach((action: ActionV2Interface) => {
 				ctx.addToStack(action);
@@ -613,6 +645,20 @@ export class EndTurnChecks implements ActionV2Interface {
 		ctx.runAbilityEvent(AbilityTrigger.ON_TURN_END, this.initiator);
 		ctx.runItemEvent(HeldItemTrigger.ON_TURN_END, this.initiator);
 
+		// Run ON_TURN_END perks for player-side Pokemon (Regen, Cleanse, Chain Reaction)
+		if (ctx.playerSide.includes(this.initiator) && !this.initiator.fainted) {
+			const perkResult = ctx.runPerks(PerkTrigger.ON_TURN_END, {
+				pokemon: this.initiator,
+				target: ctx.oppSide.find((p) => p && !p.fainted) || undefined
+			});
+			if (perkResult.healAmount && perkResult.healAmount > 0) {
+				this.initiator.heal(perkResult.healAmount);
+			}
+			if (perkResult.message) {
+				ctx.addToStack(new Message(perkResult.message, this.initiator));
+			}
+		}
+
 		let actions: ActionV2Interface[] = [];
 		const hasMagicGuard =
 			this.initiator.currentAbility?.toLowerCase().replace(/\s+/g, '-') === 'magic-guard';
@@ -760,6 +806,17 @@ export class EndBattle implements ActionV2Interface {
 					}
 				}
 			});
+		}
+
+		// Run ON_BATTLE_END perks (Lucky Find, Calculated combo save, Momentum)
+		ctx.runPerks(PerkTrigger.ON_BATTLE_END, {});
+
+		// Calculated perk: skip combo gauge reset (handled by not resetting)
+		const shouldPreserveCombo = ctx.player instanceof Player &&
+			ctx.player.hasPerk('str-calculated');
+		if (!shouldPreserveCombo && ctx.player instanceof Player) {
+			// Normal behavior: combo gauge resets between battles (currently doesn't reset,
+			// so this is only relevant if combo decay is added later)
 		}
 
 		ctx.clearStack();

@@ -1,0 +1,188 @@
+[
+    {
+        "q": 0, "r": 0, "column": "Mastery",
+        "cost": 0, "title": "", "description": "",
+        "color": "white", "set": true, "first": true, "settable": false,
+        "type": "start", "value": 0, "group": "expert"
+    },
+    {
+        "q": 0, "r": 1, "column": "Mastery",
+        "cost": 1, "title": "XP +5%", "description": "Increase experience gain by 5%",
+        "color": "#F7F6CF", "set": false, "first": false, "settable": false,
+        "type": "xp", "value": 5, "group": "expert"
+    },
+    {
+        "q": 0, "r": 2, "column": "Mastery",
+        "cost": 1, "title": "Acc 3%", "description": "Increase move accuracy by 3%",
+        "color": "#FDEFAB", "set": false, "first": false, "settable": false,
+        "type": "accuracy", "value": 3, "group": "expert"
+    },
+    {
+        "q": 0, "r": 3, "column": "Mastery",
+        "cost": 1, "title": "XP +5%", "description": "Increase experience gain by 5%",
+        "color": "#F7F6CF", "set": false, "first": false, "settable": false,
+        "type": "xp", "value": 5, "group": "expert"
+    },
+    {
+        "q": 0, "r": 4, "column": "Mastery",
+        "cost": 1, "title": "Combo +2%", "description": "Increase combo gauge gain by 2%",
+        "color": "#FF968A", "set": false, "first": false, "settable": false,
+        "type": "comboJauge", "value": 2, "group": "expert"
+    },
+    {
+        "q": 0, "r": 5, "column": "Mastery",
+        "cost": 2, "title": "XP +10%", "description": "Increase experience gain by 10%",
+        "color": "#F7F6CF", "set": false, "first": false, "settable": false,
+        "type": "xp", "value": 10, "group": "expert"
+    },
+    {
+        "q": 0, "r": 6, "column": "Mastery",
+        "cost": 3, "title": "Momentum", "description": "Each consecutive win in a dungeon gives +3% XP. Resets on loss.",
+        "color": "#E8A87C", "set": false, "first": false, "settable": false,
+        "type": "perk", "value": 0, "group": "expert", "perkId": "ace-momentum"
+    },
+    {
+        "q": 0, "r": 7, "column": "Mastery",
+        "cost": 3, "title": "Focus", "description": "Moves with 80-95% accuracy become 100% accurate.",
+        "color": "#E8A87C", "set": false, "first": false, "settable": false,
+        "type": "perk", "value": 0, "group": "expert", "perkId": "ace-focus"
+    },
+    {
+        "q": 0, "r": 8, "column": "Mastery",
+        "cost": 5, "title": "Grand Master", "description": "All mastery stat bonuses increased by 50%.",
+        "color": "#FF6B6B", "set": false, "first": false, "settable": false,
+        "type": "perk", "value": 0, "group": "expert", "perkId": "ace-grandmaster"
+    },
+    {
+        "q": 1, "r": 0, "column": "Offense",
+        "cost": 1, "title": "Stab 3%", "description": "Increase STAB damage by 3%",
+        "color": "#BBF1E4", "set": false, "first": false, "settable": false,
+        "type": "stab", "value": 3, "group": "expert"
+    },
+    {
+        "q": 1, "r": 1, "column": "Offense",
+        "cost": 1, "title": "Non-Stab 3%", "description": "Increase non-STAB damage by 3%",
+        "color": "#BADDD6", "set": false, "first": false, "settable": false,
+        "type": "nonStab", "value": 3, "group": "expert"
+    },
+    {
+        "q": 1, "r": 2, "column": "Offense",
+        "cost": 1, "title": "Stab 5%", "description": "Increase STAB damage by 5%",
+        "color": "#BBF1E4", "set": false, "first": false, "settable": false,
+        "type": "stab", "value": 5, "group": "expert"
+    },
+    {
+        "q": 1, "r": 3, "column": "Offense",
+        "cost": 1, "title": "Non-Stab 5%", "description": "Increase non-STAB damage by 5%",
+        "color": "#BADDD6", "set": false, "first": false, "settable": false,
+        "type": "nonStab", "value": 5, "group": "expert"
+    },
+    {
+        "q": 1, "r": 4, "column": "Offense",
+        "cost": 1, "title": "Eff 3%", "description": "Increase move side effect chance by 3%",
+        "color": "#FFFFBA", "set": false, "first": false, "settable": false,
+        "type": "effectiveness", "value": 3, "group": "expert"
+    },
+    {
+        "q": 1, "r": 5, "column": "Offense",
+        "cost": 2, "title": "Stab 5%", "description": "Increase STAB damage by 5%",
+        "color": "#BBF1E4", "set": false, "first": false, "settable": false,
+        "type": "stab", "value": 5, "group": "expert"
+    },
+    {
+        "q": 1, "r": 6, "column": "Offense",
+        "cost": 3, "title": "Versatile", "description": "Non-STAB moves get 50% of the STAB bonus.",
+        "color": "#E8A87C", "set": false, "first": false, "settable": false,
+        "type": "perk", "value": 0, "group": "expert", "perkId": "ace-versatile"
+    },
+    {
+        "q": 2, "r": 0, "column": "Tactics",
+        "cost": 1, "title": "Acc 3%", "description": "Increase move accuracy by 3%",
+        "color": "#FDEFAB", "set": false, "first": false, "settable": false,
+        "type": "accuracy", "value": 3, "group": "expert"
+    },
+    {
+        "q": 2, "r": 1, "column": "Tactics",
+        "cost": 1, "title": "Eff 5%", "description": "Increase move side effect chance by 5%",
+        "color": "#FFFFBA", "set": false, "first": false, "settable": false,
+        "type": "effectiveness", "value": 5, "group": "expert"
+    },
+    {
+        "q": 2, "r": 2, "column": "Tactics",
+        "cost": 1, "title": "Acc 5%", "description": "Increase move accuracy by 5%",
+        "color": "#FDEFAB", "set": false, "first": false, "settable": false,
+        "type": "accuracy", "value": 5, "group": "expert"
+    },
+    {
+        "q": 2, "r": 3, "column": "Tactics",
+        "cost": 1, "title": "Combo +5%", "description": "Increase combo gauge gain by 5%",
+        "color": "#FF968A", "set": false, "first": false, "settable": false,
+        "type": "comboJauge", "value": 5, "group": "expert"
+    },
+    {
+        "q": 2, "r": 4, "column": "Tactics",
+        "cost": 1, "title": "Eff 3%", "description": "Increase move side effect chance by 3%",
+        "color": "#FFFFBA", "set": false, "first": false, "settable": false,
+        "type": "effectiveness", "value": 3, "group": "expert"
+    },
+    {
+        "q": 2, "r": 5, "column": "Tactics",
+        "cost": 2, "title": "Acc 5%", "description": "Increase move accuracy by 5%",
+        "color": "#FDEFAB", "set": false, "first": false, "settable": false,
+        "type": "accuracy", "value": 5, "group": "expert"
+    },
+    {
+        "q": 2, "r": 6, "column": "Tactics",
+        "cost": 3, "title": "Quick Study", "description": "Super-effective attacks gain +1% permanent damage per type matchup (caps at +10%).",
+        "color": "#E8A87C", "set": false, "first": false, "settable": false,
+        "type": "perk", "value": 0, "group": "expert", "perkId": "ace-quickstudy"
+    },
+    {
+        "q": 2, "r": 7, "column": "Tactics",
+        "cost": 3, "title": "Adaptive", "description": "Pokemon switched in get +1 Speed stage.",
+        "color": "#E8A87C", "set": false, "first": false, "settable": false,
+        "type": "perk", "value": 0, "group": "expert", "perkId": "ace-adaptive"
+    },
+    {
+        "q": 3, "r": 0, "column": "Utility",
+        "cost": 1, "title": "Combo +2%", "description": "Increase combo gauge gain by 2%",
+        "color": "#FF968A", "set": false, "first": false, "settable": false,
+        "type": "comboJauge", "value": 2, "group": "expert"
+    },
+    {
+        "q": 3, "r": 1, "column": "Utility",
+        "cost": 1, "title": "Res 3%", "description": "Increase resistance to opponent move effects by 3%",
+        "color": "#D5E5E2", "set": false, "first": false, "settable": false,
+        "type": "resistance", "value": 3, "group": "expert"
+    },
+    {
+        "q": 3, "r": 2, "column": "Utility",
+        "cost": 1, "title": "Heal +2%", "description": "Increase healing effect by 2%",
+        "color": "#baffc9", "set": false, "first": false, "settable": false,
+        "type": "heal", "value": 2, "group": "expert"
+    },
+    {
+        "q": 3, "r": 3, "column": "Utility",
+        "cost": 1, "title": "Catch +5%", "description": "Increase Pokeball catch rate by 5%",
+        "color": "#F7F6CF", "set": false, "first": false, "settable": false,
+        "type": "catch", "value": 5, "group": "expert"
+    },
+    {
+        "q": 3, "r": 4, "column": "Utility",
+        "cost": 1, "title": "Res 3%", "description": "Increase resistance to opponent move effects by 3%",
+        "color": "#D5E5E2", "set": false, "first": false, "settable": false,
+        "type": "resistance", "value": 3, "group": "expert"
+    },
+    {
+        "q": 3, "r": 5, "column": "Utility",
+        "cost": 2, "title": "Heal +3%", "description": "Increase healing effect by 3%",
+        "color": "#baffc9", "set": false, "first": false, "settable": false,
+        "type": "heal", "value": 3, "group": "expert"
+    },
+    {
+        "q": 3, "r": 6, "column": "Utility",
+        "cost": 1, "title": "XP +5%", "description": "Increase experience gain by 5%",
+        "color": "#F7F6CF", "set": false, "first": false, "settable": false,
+        "type": "xp", "value": 5, "group": "expert"
+    }
+]

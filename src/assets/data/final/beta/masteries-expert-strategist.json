@@ -1,0 +1,188 @@
+[
+    {
+        "q": 0, "r": 0, "column": "Combos",
+        "cost": 0, "title": "", "description": "",
+        "color": "white", "set": true, "first": true, "settable": false,
+        "type": "start", "value": 0, "group": "expert"
+    },
+    {
+        "q": 0, "r": 1, "column": "Combos",
+        "cost": 1, "title": "Combo +2%", "description": "Increase combo gauge gain by 2%",
+        "color": "#FF968A", "set": false, "first": false, "settable": false,
+        "type": "comboJauge", "value": 2, "group": "expert"
+    },
+    {
+        "q": 0, "r": 2, "column": "Combos",
+        "cost": 1, "title": "Combo +5%", "description": "Increase combo gauge gain by 5%",
+        "color": "#FF968A", "set": false, "first": false, "settable": false,
+        "type": "comboJauge", "value": 5, "group": "expert"
+    },
+    {
+        "q": 0, "r": 3, "column": "Combos",
+        "cost": 1, "title": "Combo Dmg +3%", "description": "Increase combo move damage by 3%",
+        "color": "#FF968A", "set": false, "first": false, "settable": false,
+        "type": "comboDamage", "value": 3, "group": "expert"
+    },
+    {
+        "q": 0, "r": 4, "column": "Combos",
+        "cost": 1, "title": "Combo +2%", "description": "Increase combo gauge gain by 2%",
+        "color": "#FF968A", "set": false, "first": false, "settable": false,
+        "type": "comboJauge", "value": 2, "group": "expert"
+    },
+    {
+        "q": 0, "r": 5, "column": "Combos",
+        "cost": 2, "title": "Combo Dmg +10%", "description": "Increase combo move damage by 10%",
+        "color": "#FF968A", "set": false, "first": false, "settable": false,
+        "type": "comboDamage", "value": 10, "group": "expert"
+    },
+    {
+        "q": 0, "r": 6, "column": "Combos",
+        "cost": 3, "title": "Calculated", "description": "Combo gauge does not decay between battles.",
+        "color": "#E8A87C", "set": false, "first": false, "settable": false,
+        "type": "perk", "value": 0, "group": "expert", "perkId": "str-calculated"
+    },
+    {
+        "q": 0, "r": 7, "column": "Combos",
+        "cost": 3, "title": "Setup", "description": "Start each battle with 15 combo gauge.",
+        "color": "#E8A87C", "set": false, "first": false, "settable": false,
+        "type": "perk", "value": 0, "group": "expert", "perkId": "str-setup"
+    },
+    {
+        "q": 0, "r": 8, "column": "Combos",
+        "cost": 5, "title": "Mastermind", "description": "All status effect chances doubled. Combo moves deal +25% damage.",
+        "color": "#FF6B6B", "set": false, "first": false, "settable": false,
+        "type": "perk", "value": 0, "group": "expert", "perkId": "str-mastermind"
+    },
+    {
+        "q": 1, "r": 0, "column": "Affliction",
+        "cost": 1, "title": "DOT ch +5%", "description": "Increase burn and poison infliction chance by 5%",
+        "color": "#CBAACB", "set": false, "first": false, "settable": false,
+        "type": "dotChance", "value": 5, "group": "expert"
+    },
+    {
+        "q": 1, "r": 1, "column": "Affliction",
+        "cost": 1, "title": "DOT dmg +1%", "description": "Increase burn and poison damage by 1%",
+        "color": "#CBAACB", "set": false, "first": false, "settable": false,
+        "type": "dotDamage", "value": 1, "group": "expert"
+    },
+    {
+        "q": 1, "r": 2, "column": "Affliction",
+        "cost": 1, "title": "DOT ch +5%", "description": "Increase burn and poison infliction chance by 5%",
+        "color": "#CBAACB", "set": false, "first": false, "settable": false,
+        "type": "dotChance", "value": 5, "group": "expert"
+    },
+    {
+        "q": 1, "r": 3, "column": "Affliction",
+        "cost": 1, "title": "DOT dmg +2%", "description": "Increase burn and poison damage by 2%",
+        "color": "#CBAACB", "set": false, "first": false, "settable": false,
+        "type": "dotDamage", "value": 2, "group": "expert"
+    },
+    {
+        "q": 1, "r": 4, "column": "Affliction",
+        "cost": 1, "title": "DOT dmg +2%", "description": "Increase burn and poison damage by 2%",
+        "color": "#CBAACB", "set": false, "first": false, "settable": false,
+        "type": "dotDamage", "value": 2, "group": "expert"
+    },
+    {
+        "q": 1, "r": 5, "column": "Affliction",
+        "cost": 2, "title": "DOT ch +5%", "description": "Increase burn and poison infliction chance by 5%",
+        "color": "#CBAACB", "set": false, "first": false, "settable": false,
+        "type": "dotChance", "value": 5, "group": "expert"
+    },
+    {
+        "q": 1, "r": 6, "column": "Affliction",
+        "cost": 3, "title": "Chain Reaction", "description": "20% chance that DoT damage also lowers the target speed by 1 stage.",
+        "color": "#E8A87C", "set": false, "first": false, "settable": false,
+        "type": "perk", "value": 0, "group": "expert", "perkId": "str-chain"
+    },
+    {
+        "q": 1, "r": 7, "column": "Affliction",
+        "cost": 3, "title": "Exploit Weakness", "description": "Attacks against Pokemon with a status condition deal +10% damage.",
+        "color": "#E8A87C", "set": false, "first": false, "settable": false,
+        "type": "perk", "value": 0, "group": "expert", "perkId": "str-exploit"
+    },
+    {
+        "q": 2, "r": 0, "column": "Control",
+        "cost": 1, "title": "Confuse +5%", "description": "Increase confusion infliction chance by 5%",
+        "color": "#D9E5E3", "set": false, "first": false, "settable": false,
+        "type": "confuse", "value": 1, "group": "expert"
+    },
+    {
+        "q": 2, "r": 1, "column": "Control",
+        "cost": 1, "title": "Attract +5%", "description": "Increase attraction infliction chance by 5%",
+        "color": "#FBC2C2", "set": false, "first": false, "settable": false,
+        "type": "attract", "value": 1, "group": "expert"
+    },
+    {
+        "q": 2, "r": 2, "column": "Control",
+        "cost": 1, "title": "Eff 3%", "description": "Increase move side effect chance by 3%",
+        "color": "#FFFFBA", "set": false, "first": false, "settable": false,
+        "type": "effectiveness", "value": 3, "group": "expert"
+    },
+    {
+        "q": 2, "r": 3, "column": "Control",
+        "cost": 1, "title": "Eff 5%", "description": "Increase move side effect chance by 5%",
+        "color": "#FFFFBA", "set": false, "first": false, "settable": false,
+        "type": "effectiveness", "value": 5, "group": "expert"
+    },
+    {
+        "q": 2, "r": 4, "column": "Control",
+        "cost": 1, "title": "Confuse +5%", "description": "Increase confusion infliction chance by 5%",
+        "color": "#D9E5E3", "set": false, "first": false, "settable": false,
+        "type": "confuse", "value": 1, "group": "expert"
+    },
+    {
+        "q": 2, "r": 5, "column": "Control",
+        "cost": 2, "title": "Attract +5%", "description": "Increase attraction infliction chance by 5%",
+        "color": "#FBC2C2", "set": false, "first": false, "settable": false,
+        "type": "attract", "value": 1, "group": "expert"
+    },
+    {
+        "q": 2, "r": 6, "column": "Control",
+        "cost": 3, "title": "Mind Games", "description": "Status effects you inflict last 1 extra turn.",
+        "color": "#E8A87C", "set": false, "first": false, "settable": false,
+        "type": "perk", "value": 0, "group": "expert", "perkId": "str-mindgames"
+    },
+    {
+        "q": 3, "r": 0, "column": "Utility",
+        "cost": 1, "title": "Acc 3%", "description": "Increase move accuracy by 3%",
+        "color": "#FDEFAB", "set": false, "first": false, "settable": false,
+        "type": "accuracy", "value": 3, "group": "expert"
+    },
+    {
+        "q": 3, "r": 1, "column": "Utility",
+        "cost": 1, "title": "Eff 3%", "description": "Increase move side effect chance by 3%",
+        "color": "#FFFFBA", "set": false, "first": false, "settable": false,
+        "type": "effectiveness", "value": 3, "group": "expert"
+    },
+    {
+        "q": 3, "r": 2, "column": "Utility",
+        "cost": 1, "title": "XP +5%", "description": "Increase experience gain by 5%",
+        "color": "#F7F6CF", "set": false, "first": false, "settable": false,
+        "type": "xp", "value": 5, "group": "expert"
+    },
+    {
+        "q": 3, "r": 3, "column": "Utility",
+        "cost": 1, "title": "Catch +5%", "description": "Increase Pokeball catch rate by 5%",
+        "color": "#F7F6CF", "set": false, "first": false, "settable": false,
+        "type": "catch", "value": 5, "group": "expert"
+    },
+    {
+        "q": 3, "r": 4, "column": "Utility",
+        "cost": 1, "title": "Eff 5%", "description": "Increase move side effect chance by 5%",
+        "color": "#FFFFBA", "set": false, "first": false, "settable": false,
+        "type": "effectiveness", "value": 5, "group": "expert"
+    },
+    {
+        "q": 3, "r": 5, "column": "Utility",
+        "cost": 2, "title": "Acc 5%", "description": "Increase move accuracy by 5%",
+        "color": "#FDEFAB", "set": false, "first": false, "settable": false,
+        "type": "accuracy", "value": 5, "group": "expert"
+    },
+    {
+        "q": 3, "r": 6, "column": "Utility",
+        "cost": 1, "title": "Catch +5%", "description": "Increase Pokeball catch rate by 5%",
+        "color": "#F7F6CF", "set": false, "first": false, "settable": false,
+        "type": "catch", "value": 5, "group": "expert"
+    }
+]

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { GameContext } from '../../../js/context/gameContext';
+	import { getTrainerClass, getClassTitle } from '../../../js/characters/trainer-class';
 
 	interface Props {
 		context: GameContext;
@@ -8,12 +9,20 @@
 	const { context }: Props = $props();
 
 	const playingTime = $derived(new Date(new Date().getTime() - context.created));
+	const classData = $derived(getTrainerClass(context.player.trainerClass));
+	const masteries = $derived(context.player.playerMasteries);
+	const rankLabel = $derived(masteries.getRankLabel());
+	const classTitle = $derived(getClassTitle(context.player.trainerClass, masteries.classRank));
 </script>
 
 <div class="trainer-card">
 	<div class="row">
 		<div class="col-8">
 			<ul>
+				{#if classTitle}
+					<li class="title-line">{classTitle}</li>
+				{/if}
+				<li>{classData?.name ?? 'Trainer'} - {rankLabel}</li>
 				<li>Playing time : {playingTime.getHours()}h{playingTime.getMinutes()}</li>
 				<li>Badges : 0</li>
 				<li>Captured Pokemons : {context.POKEDEX.getCaught()?.length}</li>
@@ -68,6 +77,12 @@
 				height: 100%;
 				width: 100%;
 				gap: 2%;
+			}
+
+			.title-line {
+				color: #E8A87C;
+				font-style: italic;
+				font-size: 1.1em;
 			}
 		}
 	}
